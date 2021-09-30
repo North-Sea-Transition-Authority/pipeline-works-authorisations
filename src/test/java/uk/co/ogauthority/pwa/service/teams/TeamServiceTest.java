@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.teams.PwaGlobalTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -62,6 +63,8 @@ public class TeamServiceTest {
   private PwaOrganisationTeam organisationTeam2;
   private PortalTeamDto organisationTeamAsPortalTeamDto1;
   private PortalTeamDto organisationTeamAsPortalTeamDto2;
+  private PortalTeamDto globalTeamAsPortalTeamDto;
+  private PwaGlobalTeam globalTeam;
   private WebUserAccount someWebUserAccount = new WebUserAccount(99);
 
   @Before
@@ -73,6 +76,12 @@ public class TeamServiceTest {
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
     regulatorTeamAsPortalTeamDto = TeamTestingUtils.portalTeamDtoFrom(regulatorTeam);
+
+    globalTeam = TeamTestingUtils.getGlobalTeam();
+    globalTeamAsPortalTeamDto = TeamTestingUtils.portalTeamDtoFrom(globalTeam);
+
+    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
+        .thenReturn(List.of(globalTeamAsPortalTeamDto));
 
     when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.REGULATOR.getPortalTeamType()))
         .thenReturn(List.of(regulatorTeamAsPortalTeamDto));
@@ -119,6 +128,28 @@ public class TeamServiceTest {
   public void getRegulatorTeam_callsExpectedFactoryMethod() {
     teamService.getRegulatorTeam();
     verify(pwaTeamsDtoFactory, times(1)).createRegulatorTeam(regulatorTeamAsPortalTeamDto);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void getGlobalTeam_errorWhenMultipleTeamsFound() {
+    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
+        .thenReturn(List.of(globalTeamAsPortalTeamDto, globalTeamAsPortalTeamDto));
+
+    teamService.getGlobalTeam();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void getGlobalTeam_errorWhenZeroTeamsFound() {
+    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
+        .thenReturn(List.of());
+
+    teamService.getGlobalTeam();
+  }
+
+  @Test
+  public void getGlobalTeam_callsExpectedFactoryMethod() {
+    teamService.getGlobalTeam();
+    verify(pwaTeamsDtoFactory, times(1)).createGlobalTeam(globalTeamAsPortalTeamDto);
   }
 
   @Test

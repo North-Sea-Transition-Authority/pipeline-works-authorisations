@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.model.teams.PwaGlobalTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -220,6 +221,19 @@ public class TeamService {
     var combinedPrivSet = SetUtils.union(portalPrivSet, appPrivSet);
 
     return Set.copyOf(combinedPrivSet);
+
+  }
+
+  PwaGlobalTeam getGlobalTeam() {
+
+    var globalTeamList = portalTeamAccessor
+        .getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType());
+
+    if (globalTeamList.size() != 1) {
+      throw new RuntimeException(String.format("Expected 1 %s type team but got %s", PwaTeamType.GLOBAL.name(), globalTeamList.size()));
+    } else {
+      return pwaTeamsDtoFactory.createGlobalTeam(globalTeamList.get(0));
+    }
 
   }
 

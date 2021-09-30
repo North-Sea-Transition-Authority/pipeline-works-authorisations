@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.teams.PwaGlobalTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
@@ -45,6 +46,8 @@ public class PwaTeamsDtoFactoryTest {
   private PortalTeamDto regulatorTeamDto;
   private PortalTeamDto organisationTeamDto1;
   private PortalTeamDto organisationTeamDto2;
+  private PortalTeamDto globalTeamDto;
+
   private PortalOrganisationGroup portalOrganisationGroup1;
   private PortalOrganisationGroup portalOrganisationGroup2;
   private PwaRegulatorTeam regulatorTeam;
@@ -78,6 +81,7 @@ public class PwaTeamsDtoFactoryTest {
     regulatorTeamDto = new PortalTeamDto(10, "NAME", "DESC", PwaTeamType.REGULATOR.getPortalTeamType(), null);
     organisationTeamDto1 = new PortalTeamDto(20, "NAME1", "DESC1", PwaTeamType.ORGANISATION.getPortalTeamType(), portalOrganisationGroup1.getUrefValue());
     organisationTeamDto2 = new PortalTeamDto(30, "NAME2", "DESC2", PwaTeamType.ORGANISATION.getPortalTeamType(), portalOrganisationGroup2.getUrefValue());
+    globalTeamDto = new PortalTeamDto(40, "GL", "GL", PwaTeamType.GLOBAL.getPortalTeamType(), null);
   }
 
   private void setupOrgTeamMember() {
@@ -100,6 +104,11 @@ public class PwaTeamsDtoFactoryTest {
   @Test
   public void createPwaTeam_createsOrganisationInstanceWhenExpected() {
     assertThat(pwaTeamsDtoFactory.createPwaTeam(organisationTeamDto1)).isInstanceOf(PwaOrganisationTeam.class);
+  }
+
+  @Test
+  public void createPwaTeam_createsGlobalInstanceWhenExpected() {
+    assertThat(pwaTeamsDtoFactory.createPwaTeam(globalTeamDto)).isInstanceOf(PwaGlobalTeam.class);
   }
 
   @Test(expected = PwaTeamFactoryException.class)

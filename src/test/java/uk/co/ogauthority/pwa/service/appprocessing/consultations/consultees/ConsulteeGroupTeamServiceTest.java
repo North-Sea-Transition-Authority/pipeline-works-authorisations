@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
+import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +48,9 @@ public class ConsulteeGroupTeamServiceTest {
 
   @Mock
   private ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
+
+  @Mock
+  private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
   @Captor
   private ArgumentCaptor<ConsulteeGroupTeamMember> teamMemberArgumentCaptor;
@@ -67,7 +71,7 @@ public class ConsulteeGroupTeamServiceTest {
 
     when(groupDetailRepository.findAllByEndTimestampIsNull()).thenReturn(List.of(emtGroupDetail, oduGroupDetail));
 
-    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository, groupTeamMemberRepository);
+    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository, groupTeamMemberRepository, nonFoxTeamMemberEventPublisher);
 
     user = new WebUserAccount(1, new Person(1, "forename", "surname", null, null));
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
@@ -228,6 +232,7 @@ public class ConsulteeGroupTeamServiceTest {
     groupTeamService.removeTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
 
     verify(groupTeamMemberRepository, times(1)).delete(member);
+    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberRemovedEvent(user.getLinkedPerson());
 
   }
 
@@ -318,6 +323,8 @@ public class ConsulteeGroupTeamServiceTest {
     groupTeamService.updateUserRoles(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), form);
 
     verify(groupTeamMemberRepository, times(1)).save(teamMemberArgumentCaptor.capture());
+
+    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberAddedEvent(user.getLinkedPerson());
 
     var newMember = teamMemberArgumentCaptor.getValue();
 

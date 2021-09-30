@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.teams.PwaGlobalTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
@@ -57,6 +58,8 @@ class PwaTeamsDtoFactory {
         return createRegulatorTeam(portalTeamDto);
       case ORGANISATION:
         return createOrganisationTeam(portalTeamDto);
+      case GLOBAL:
+        return createGlobalTeam(portalTeamDto);
       default:
         throw new PwaTeamFactoryException("portalTeamType not supported by factory. Type: " + portalTeamDto.getType());
     }
@@ -73,6 +76,21 @@ class PwaTeamsDtoFactory {
         portalTeam.getName(),
         portalTeam.getDescription()
     );
+  }
+
+  /**
+   * Given a portal team, convert to a global team if possible.
+   */
+  PwaGlobalTeam createGlobalTeam(PortalTeamDto portalTeam) {
+
+    checkPortalTeamsAllOfExpectedType(Collections.singleton(portalTeam), PwaTeamType.GLOBAL);
+
+    return new PwaGlobalTeam(
+        portalTeam.getResId(),
+        portalTeam.getName(),
+        portalTeam.getDescription()
+    );
+
   }
 
   /**

@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.Pe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.workflow.PwaApplicationReferencingService;
+import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 
 @RunWith(SpringRunner.class)
@@ -99,6 +100,9 @@ public class TaskListServiceIntegrationTest {
 
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
+
+  @MockBean
+  private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;

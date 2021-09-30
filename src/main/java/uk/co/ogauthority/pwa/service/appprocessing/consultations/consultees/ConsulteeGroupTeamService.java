@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
+import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
 @Service
@@ -37,12 +38,15 @@ public class ConsulteeGroupTeamService {
 
   private final ConsulteeGroupDetailRepository groupDetailRepository;
   private final ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
+  private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
   @Autowired
   public ConsulteeGroupTeamService(ConsulteeGroupDetailRepository groupDetailRepository,
-                                   ConsulteeGroupTeamMemberRepository groupTeamMemberRepository) {
+                                   ConsulteeGroupTeamMemberRepository groupTeamMemberRepository,
+                                   NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher) {
     this.groupDetailRepository = groupDetailRepository;
     this.groupTeamMemberRepository = groupTeamMemberRepository;
+    this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
   }
 
   public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(AuthenticatedUserAccount user) {
@@ -129,6 +133,8 @@ public class ConsulteeGroupTeamService {
     var newTeamMember = new ConsulteeGroupTeamMember(consulteeGroup, person, roles);
     groupTeamMemberRepository.save(newTeamMember);
 
+    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
+
   }
 
   private void updateMemberRoles(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> newRoles) {
@@ -206,6 +212,8 @@ public class ConsulteeGroupTeamService {
     assertNoEmptyRolesAfterUpdate(member, Set.of());
 
     groupTeamMemberRepository.delete(member);
+
+    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberRemovedEvent(person);
 
   }
 

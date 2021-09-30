@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
+import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 
 /**
  * Service to administer PWA application-scoped teams (known as contacts).
@@ -36,10 +37,13 @@ import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 public class PwaContactService implements ApplicationFormSectionService {
 
   private final PwaContactRepository pwaContactRepository;
+  private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
   @Autowired
-  public PwaContactService(PwaContactRepository pwaContactRepository) {
+  public PwaContactService(PwaContactRepository pwaContactRepository,
+                           NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher) {
     this.pwaContactRepository = pwaContactRepository;
+    this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
   }
 
   public List<PwaContact> getContactsForPwaApplication(PwaApplication pwaApplication) {
@@ -56,6 +60,7 @@ public class PwaContactService implements ApplicationFormSectionService {
   private void addContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
     var contact = new PwaContact(pwaApplication, person, roles);
     pwaContactRepository.save(contact);
+    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
   }
 
   public boolean personIsContactOnApplication(PwaApplication pwaApplication, Person person) {
@@ -90,6 +95,8 @@ public class PwaContactService implements ApplicationFormSectionService {
     }
 
     pwaContactRepository.delete(contact);
+
+    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberRemovedEvent(person);
 
   }
 

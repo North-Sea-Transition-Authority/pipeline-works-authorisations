@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.model.teams.PwaGlobalTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -30,6 +31,10 @@ public class TeamTestingUtils {
 
   public static PwaOrganisationTeam getOrganisationTeam(PortalOrganisationGroup organisationGroup) {
     return new PwaOrganisationTeam(200, "ORG_TEAM_NAME", "ORG_TEAM_DESCRIPTION", organisationGroup);
+  }
+
+  public static PwaGlobalTeam getGlobalTeam() {
+    return new PwaGlobalTeam(300, "GLOBAL_TEAM_NAME", "GLOBAL_TEAM_DESCRIPTION");
   }
 
   public static PwaRole getTeamAdminRole() {
@@ -67,6 +72,16 @@ public class TeamTestingUtils {
         team.getDescription(),
         team.getType().getPortalTeamType(),
         team.getPortalOrganisationGroup().getUrefValue()
+    );
+  }
+
+  public static PortalTeamDto portalTeamDtoFrom(PwaGlobalTeam team) {
+    return new PortalTeamDto(
+        team.getId(),
+        team.getName(),
+        team.getDescription(),
+        team.getType().getPortalTeamType(),
+        null
     );
   }
 

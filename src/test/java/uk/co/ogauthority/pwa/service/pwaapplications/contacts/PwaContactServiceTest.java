@@ -34,6 +34,7 @@ import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactRepository
 import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
+import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -43,11 +44,13 @@ public class PwaContactServiceTest {
   @Mock
   private PwaContactRepository pwaContactRepository;
 
+  @Mock
+  private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
+
   @Captor
   private ArgumentCaptor<PwaContact> contactArgumentCaptor;
 
   private PwaContactService pwaContactService;
-
 
   private Person person = new Person(1, null, null, null, null);
   private WebUserAccount wua = new WebUserAccount(10, person);
@@ -59,7 +62,7 @@ public class PwaContactServiceTest {
   @Before
   public void setUp() {
 
-    pwaContactService = new PwaContactService(pwaContactRepository);
+    pwaContactService = new PwaContactService(pwaContactRepository, nonFoxTeamMemberEventPublisher);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -123,6 +126,7 @@ public class PwaContactServiceTest {
     pwaContactService.removeContact(pwaApplication, person);
 
     verify(pwaContactRepository, times(1)).delete(contact);
+    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberRemovedEvent(person);
 
   }
 
@@ -196,6 +200,8 @@ public class PwaContactServiceTest {
     pwaContactService.updateContact(pwaApplication, person, Collections.<PwaContactRole>emptySet());
 
     verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
+
+    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberAddedEvent(person);
 
     var newContact = contactArgumentCaptor.getValue();
 
