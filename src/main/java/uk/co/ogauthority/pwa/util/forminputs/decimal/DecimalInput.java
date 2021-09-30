@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.ogauthority.pwa.exception.DecimalInputException;
 
 /**
  * Represents a BigDecimal commonly used on forms and provides access to common operations that might be applied to that decimal.
@@ -11,7 +12,6 @@ import org.slf4j.LoggerFactory;
 public class DecimalInput {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DecimalInput.class);
-
 
   private String value;
 
@@ -30,7 +30,6 @@ public class DecimalInput {
     return new DecimalInput(BigDecimal.valueOf(value));
   }
 
-
   public String getValue() {
     return value;
   }
@@ -47,17 +46,23 @@ public class DecimalInput {
   public Optional<BigDecimal> asBigDecimal() {
 
     try {
-      return value != null ? Optional.of(new BigDecimal(value)) : Optional.empty();
 
-    } catch (NumberFormatException e) {
-      LOGGER.debug("Could not convert the input value to a valid number for value: " + value, e);
+      if (value != null && value.toLowerCase().contains("e")) {
+        throw new DecimalInputException(String.format("Exponents aren't allowed in DecimalInputs: [%s]", value));
+      }
+
+      return Optional.ofNullable(value)
+          .map(BigDecimal::new);
+
+    } catch (NumberFormatException | DecimalInputException e) {
+      LOGGER.debug("Could not convert the input value to a valid DecimalInput for value: " + value, e);
       return Optional.empty();
     }
+
   }
 
   public boolean hasContent() {
     return value != null;
   }
-
 
 }

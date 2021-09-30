@@ -52,9 +52,6 @@ public class DecimalInputValidatorTest {
     assertThat(fieldErrorMessages.get(VALUE).iterator().next()).contains(messageContent);
   }
 
-
-
-
   //Value required and validity tests
   @Test
   public void validate_nullValue_fieldRequired_error() {
@@ -276,5 +273,32 @@ public class DecimalInputValidatorTest {
     );
   }
 
+  @Test
+  public void validate_validBigDecimal_exponentsPrevented() {
+
+    var errorsExpectedToValuesMap = Map.of(
+        true, List.of("1.23E3", "1.23E+3", "12.3E+7", "-1.23E-12", "1234.5E-4", "0E+7", "0e+7"),
+        false, List.of("0", "0.00", "123", "-123", "12.0", "12.3", "0.00123", "-0")
+    );
+
+    errorsExpectedToValuesMap.forEach((errorsExpected, values) -> {
+
+      values.forEach(value -> {
+
+        decimalInput = new DecimalInput(value);
+
+        var fieldErrors = getValidationErrors();
+
+        if (errorsExpected) {
+          assertThat(fieldErrors).contains(entry(VALUE, Set.of(VALUE_INVALID_CODE)));
+        } else {
+          assertThat(fieldErrors).isEmpty();
+        }
+
+      });
+
+    });
+
+  }
 
 }
