@@ -14,7 +14,7 @@
             </@fdsCheckAnswers.checkAnswersRow>
 
             <@fdsCheckAnswers.checkAnswersRow keyText="Clause text" actionUrl="" screenReaderActionText="" actionText="">
-                ${sectionClauseView.text}
+                ${sectionClauseView.text!}
             </@fdsCheckAnswers.checkAnswersRow>
 
         </@fdsCheckAnswers.checkAnswers>
