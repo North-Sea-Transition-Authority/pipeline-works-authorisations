@@ -13,12 +13,14 @@ public class AuthenticatedUserToken extends AbstractAuthenticationToken {
   private final AuthenticatedUserAccount principal;
 
   public static AuthenticatedUserToken create(String sessionId, AuthenticatedUserAccount principal) {
+
     Set<GrantedAuthority> grantedAuthorities = principal.getUserPrivileges().stream()
         .map(PwaUserPrivilege::name)
         .map(SimpleGrantedAuthority::new)
         .collect(toSet());
 
     return new AuthenticatedUserToken(sessionId, principal, grantedAuthorities);
+
   }
 
   private AuthenticatedUserToken(String sessionId, AuthenticatedUserAccount principal,

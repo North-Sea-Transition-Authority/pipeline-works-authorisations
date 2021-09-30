@@ -17,9 +17,9 @@ import org.mockito.Mock;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
@@ -39,7 +39,9 @@ public class UserPrivReloadInterceptorTest {
   private AuthenticatedUserAccount user;
 
   @Mock
-  private Authentication existingAuthentication;
+  private AuthenticatedUserToken existingAuthentication;
+
+  private static final String SESSION_ID = "my-sesh";
 
   @Before
   public void setup(){
@@ -50,6 +52,7 @@ public class UserPrivReloadInterceptorTest {
 
     SecurityContextHolder.setContext(securityContext);
     when(existingAuthentication.getPrincipal()).thenReturn(user);
+    when(existingAuthentication.getSessionId()).thenReturn(SESSION_ID);
     when(securityContext.getAuthentication()).thenReturn(existingAuthentication);
 
   }
@@ -62,10 +65,13 @@ public class UserPrivReloadInterceptorTest {
 
     verify(userSessionService, times(1)).populateUserPrivileges(user);
     verify(securityContext).setAuthentication(newAuthCaptor.capture());
-    // new authentication of expected type
-    assertThat(newAuthCaptor.getValue()).isInstanceOf(PreAuthenticatedAuthenticationToken.class);
-    // Authenticated flag is True
-    assertThat(newAuthCaptor.getValue().isAuthenticated()).isTrue();
+
+    assertThat(newAuthCaptor.getValue()).satisfies(auth -> {
+      assertThat(auth).isInstanceOf(AuthenticatedUserToken.class);
+      assertThat(auth.isAuthenticated()).isTrue();
+      assertThat(((AuthenticatedUserToken) auth).getSessionId()).isEqualTo(SESSION_ID);
+    });
+
   }
 
 }

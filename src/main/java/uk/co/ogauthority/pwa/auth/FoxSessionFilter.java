@@ -19,6 +19,7 @@ import org.springframework.web.filter.GenericFilterBean;
 import org.springframework.web.util.WebUtils;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.util.SessionUtils;
 
 @Component
 public class FoxSessionFilter extends GenericFilterBean {
@@ -43,14 +44,10 @@ public class FoxSessionFilter extends GenericFilterBean {
 
   @VisibleForTesting
   void checkAuthentication(Cookie foxSessionCookie, @Nullable HttpSession httpSession) {
+
     String cookieSessionId = Optional.ofNullable(foxSessionCookie).map(Cookie::getValue).orElse("");
 
-    String cachedSessionId;
-    if (SecurityContextHolder.getContext().getAuthentication() instanceof AuthenticatedUserToken) {
-      cachedSessionId = ((AuthenticatedUserToken) SecurityContextHolder.getContext().getAuthentication()).getSessionId();
-    } else {
-      cachedSessionId = "";
-    }
+    String cachedSessionId = SessionUtils.getSessionId();
 
     // The authentication has changed and requires a refresh if there was no previously cached session, or if the
     // cookie value has changed between requests
@@ -64,22 +61,27 @@ public class FoxSessionFilter extends GenericFilterBean {
     }
 
     if (optionalUserSession.isPresent() && authenticationChanged) {
+
       AuthenticatedUserToken authenticatedUserToken = optionalUserSession
           .map(session -> AuthenticatedUserToken.create(session.getId(), session.getAuthenticatedUserAccount()))
           .get();
 
       SecurityContextHolder.getContext().setAuthentication(authenticatedUserToken);
+
       // Auth has changed. Clear out any existing session data.
       if (httpSession != null) {
         httpSession.invalidate();
       }
 
     } else if (optionalUserSession.isEmpty()) {
+
       // Session has been invalidated - clear the cached context
       SecurityContextHolder.clearContext();
+
       if (httpSession != null) {
         httpSession.invalidate();
       }
+
     }
 
   }

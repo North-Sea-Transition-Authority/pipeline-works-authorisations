@@ -5,11 +5,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.util.SessionUtils;
 
 @Component
 public class UserPrivReloadInterceptor implements HandlerInterceptor {
@@ -26,6 +27,7 @@ public class UserPrivReloadInterceptor implements HandlerInterceptor {
    */
   @Override
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
     Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
     if (existingAuth.getPrincipal() instanceof AuthenticatedUserAccount) {
@@ -33,14 +35,16 @@ public class UserPrivReloadInterceptor implements HandlerInterceptor {
       AuthenticatedUserAccount authenticatedUser = (AuthenticatedUserAccount) existingAuth.getPrincipal();
       userSessionService.populateUserPrivileges(authenticatedUser);
 
-      Authentication newAuth = new PreAuthenticatedAuthenticationToken(
-          authenticatedUser,
-          existingAuth.getCredentials(),
-          authenticatedUser.getAuthorities()
-      );
+      // use existing session id to ensure we don't make FoxSessionFilter think the auth has changed
+      String sessionId = SessionUtils.getSessionId();
+      AuthenticatedUserToken newAuth = AuthenticatedUserToken.create(sessionId, authenticatedUser);
 
       SecurityContextHolder.getContext().setAuthentication(newAuth);
+
     }
+
     return true;
+
   }
+
 }
