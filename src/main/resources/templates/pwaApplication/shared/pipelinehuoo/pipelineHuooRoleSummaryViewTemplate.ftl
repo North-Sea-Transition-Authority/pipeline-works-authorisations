@@ -4,7 +4,6 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelineHuooUrlFactory" -->
 <#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
-
 <#macro pipelineHuooRoleSummary summaryView errorKeyPrefix summaryValidationResult urlFactory>
     <#local roleSingular=summaryView.getRoleDisplayText() />
     <h2 class="govuk-heading-m">${summaryView.getRoleDisplayText()}s</h2>
@@ -28,10 +27,12 @@
           pipelineNumberList=useAllPipelinesHeader?then(["All pipelines"], summaryView.sortedUnassignedPipelineNumbers)
           organisationNameList=["No ${roleSingular?lower_case}s assigned"]
           linkText="Assign ${roleSingular?lower_case}s for these pipelines"
+          insetText="All pipelines must have at least one ${roleSingular?lower_case} assigned for the section to be complete"
           linkUrl=urlFactory.assignUnassignedPipelineOwnersUrl(summaryView.huooRole, summaryView)
           cardId=unassignedPipelineCardId
           summaryValidationResult=summaryValidationResult!
         />
+
     </#if>
 
     <!-- use All pipelines when theres on 1 group and no unassigned pipelines -->
@@ -85,22 +86,28 @@
 
 </#macro>
 
-
-<#macro pipelineRoleGroup pipelineNumberList organisationNameList linkText linkUrl summaryValidationResult headerOverrideText="" cardId="">
+<#macro pipelineRoleGroup pipelineNumberList organisationNameList linkText linkUrl summaryValidationResult headerOverrideText="" cardId="" insetText="">
 
     <#local errorMessage = validationResult.errorMessageOrEmptyString(summaryValidationResult!, cardId) />
     <@fdsCard.card cardId=cardId cardClass=errorMessage?has_content?then("fds-card--error", "")>
 
         <#local joinedPipelineNumbers=pipelineNumberList?join(", ")/>
         <#local header=headerOverrideText?has_content?then(headerOverrideText, joinedPipelineNumbers) />
+
         <@fdsCard.cardHeader cardHeadingText=header cardHeadingSize="h3" cardHeadingClass="govuk-heading-s govuk-!-padding-bottom-3" cardErrorMessage=errorMessage!""/>
+
         <ol class="govuk-list">
             <#list organisationNameList as orgName>
                 <li>${orgName}</li>
             </#list>
         </ol>
+
+        <#if insetText?has_content>
+            <@fdsInsetText.insetText insetTextClass="govuk-inset-text--yellow">${insetText}</@fdsInsetText.insetText>
+        </#if>
+
         <@fdsForm.htmlForm actionUrl=springUrl(linkUrl) >
-            <@fdsAction.button buttonText=linkText buttonClass="fds-link-button" buttonScreenReaderText=linkText + ": " + joinedPipelineNumbers />
+            <@fdsAction.button buttonText=linkText buttonClass="fds-link-button" buttonScreenReaderText=": " + joinedPipelineNumbers />
         </@fdsForm.htmlForm>
 
     </@fdsCard.card>

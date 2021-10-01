@@ -261,13 +261,13 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
       errors.rejectValue(
           sectionStartPointPath,
           FieldValidationErrorCodes.REQUIRED.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-          String.format("Enter the section %s start point", sectionIndex + 1)
+          String.format("Select the section %s start point", sectionIndex + 1)
       );
     } else if (!validIdentOptions.containsKey(pipelineSectionPointFormInput.getPickedPipelineIdentString())) {
       errors.rejectValue(
           sectionStartPointPath,
           FieldValidationErrorCodes.INVALID.errorCode(SECTION_POINT_IDENT_STRING_ATTR),
-          String.format("Enter a valid section %s start point", sectionIndex + 1)
+          String.format("Select a valid section %s start point", sectionIndex + 1)
       );
     }
 
@@ -275,7 +275,7 @@ public class DefinePipelineHuooSectionsFormValidator implements SmartValidator {
         errors,
         getSectionPointInputAttributePath(sectionIndex, SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
         FieldValidationErrorCodes.REQUIRED.errorCode(SECTION_POINT_IDENT_INCLUDED_IN_SECTION_ATTR),
-        String.format("Enter No if section %s begins at but does not include the selected point.", sectionIndex + 1)
+        String.format("Select No if section %s begins at but does not include the selected point", sectionIndex + 1)
     );
 
   }
