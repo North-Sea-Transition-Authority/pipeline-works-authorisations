@@ -61,8 +61,6 @@ public class NotifyCallbackService {
 
           notifyService.sendEmail(failedEmailProperties, ogaConsentsMailboxEmail);
 
-          throw new NotificationClientException("");
-
         } catch (NotificationClientException e) {
           LOGGER.error("Couldn't retrieve email notification from GOV.UK: ", e);
         }

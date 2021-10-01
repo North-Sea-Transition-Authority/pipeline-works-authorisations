@@ -6,8 +6,8 @@ BEGIN
 
     SELECT 1
     INTO l_res_id
-    FROM decmgr.xview_resource_types xrt
-    WHERE xrt.res_type = 'PWA_USERS';
+    FROM decmgr.resources r
+    WHERE r.res_type = 'PWA_USERS';
 
 EXCEPTION WHEN NO_DATA_FOUND THEN
 
