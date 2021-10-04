@@ -198,7 +198,7 @@
       display: none;
     }
 
-    .pwa-intro-paragraph {
+    .pwa-intro-paragraph, .pwa-intro-paragraph > * {
       text-align: justify;
       padding-top: 25px;
     }

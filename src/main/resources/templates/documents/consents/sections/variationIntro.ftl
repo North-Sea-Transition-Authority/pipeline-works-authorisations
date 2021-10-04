@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#import '../fragments/introParagraph.ftl' as documentIntroParagraph>
 
 <#-- @ftlvariable name="sectionType" type="uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection"-->
 <#-- @ftlvariable name="docView" type="uk.co.ogauthority.pwa.model.documents.view.DocumentView"-->
@@ -14,7 +15,7 @@
     <h2 class="govuk-heading-m">ALTERATIONS AFFECTING THE PIPELINES</h2>
   </div>
 
-  <p class="pwa-intro-paragraph">${introParagraph?no_esc}</p>
+  <@documentIntroParagraph.paragraph paragraphText=introParagraph/>
 
   <@pwaClauseList.list documentView=docView clauseActionsUrlProvider="" showSectionHeading=false showClauseHeadings=sectionType.clauseDisplay == "SHOW_HEADING" />
 
