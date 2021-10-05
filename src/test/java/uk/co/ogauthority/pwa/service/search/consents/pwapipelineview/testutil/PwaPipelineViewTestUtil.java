@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil;
 
+import java.time.Instant;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +66,12 @@ public class PwaPipelineViewTestUtil {
   public static PwaConsent createPwaConsent(String reference) {
     var pwaConsent = new PwaConsent();
     pwaConsent.setReference(reference);
+    return pwaConsent;
+  }
+
+  public static PwaConsent createPwaConsent(String reference, Instant createdTime) {
+    var pwaConsent = createPwaConsent(reference);
+    pwaConsent.setCreatedInstant(createdTime);
     return pwaConsent;
   }
 

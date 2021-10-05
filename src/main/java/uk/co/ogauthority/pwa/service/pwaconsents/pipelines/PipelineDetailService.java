@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -191,6 +192,17 @@ public class PipelineDetailService {
 
   public List<PipelineDetail> getLatestPipelineDetailsForIds(List<Integer> pipelineIds) {
     return pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(pipelineIds);
+  }
+
+  public List<PipelineDetail> getPipelineDetailsBeforePwaConsentCreated(PipelineId pipelineId, Instant pwaConsentCreatedTime) {
+    return pipelineDetailRepository.findAllByPipeline_IdAndPwaConsent_consentInstantIsBefore(
+        pipelineId.getPipelineIdAsInt(), pwaConsentCreatedTime);
+  }
+
+  public PipelineDetail getFirstConsentedPipelineDetail(PipelineId pipelineId) {
+    return pipelineDetailRepository.findFirstByPipeline_IdOrderByStartTimestampAsc(pipelineId.getPipelineIdAsInt())
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Could not find PipelineDetail with Pipeline ID: " + pipelineId.getPipelineIdAsInt()));
   }
 
 }

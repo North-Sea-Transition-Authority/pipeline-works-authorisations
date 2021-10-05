@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaHuooHistoryItemType.PIPELINE_DETAIL_MIGRATED_HUOO;
@@ -78,6 +79,9 @@ public class ViewablePipelineHuooVersionServiceTest {
     var pipelineDetailWithMigration2 = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
     var pipelineDetailWithMigration3 = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, YESTERDAY);
 
+    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(
+        any(), any())).thenReturn(List.of());
+
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID))
         .thenReturn(List.of(pipelineDetailWithNoMigration, pipelineDetailWithMigration2, pipelineDetailWithMigration3));
 
@@ -87,7 +91,7 @@ public class ViewablePipelineHuooVersionServiceTest {
             PipelineDetailMigrationHuooTestUtil.createMigrationHuooData(pipelineDetailWithMigration2),
             PipelineDetailMigrationHuooTestUtil.createMigrationHuooData(pipelineDetailWithMigration3)));
 
-    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
+    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
 
     assertThat(huooVersionSearchSelectorItems).containsOnlyKeys(
         PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithMigration2.getId(),
@@ -101,21 +105,15 @@ public class ViewablePipelineHuooVersionServiceTest {
     var consentCreatedTodayAfternoon = PwaConsentTestUtil.createPwaConsent(1, "5/V/21", TODAY, 2);
     var consentCreatedTodayMorning = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
 
-    when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(
-        List.of(consentCreatedTodayAfternoon, consentCreatedTodayMorning));
+    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+        .thenReturn(List.of(consentCreatedTodayAfternoon, consentCreatedTodayMorning));
 
-    var pipelineDetailCreatedYesterday = PipelineDetailTestUtil.createPipelineDetail(
-        PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY, PwaConsentTestUtil.createPwaConsent(3, "44/V/12", YESTERDAY));
-    when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(List.of(pipelineDetailCreatedYesterday));
-    when(pipelineDetailMigrationHuooDataService.getPipelineDetailMigratedHuoos(List.of(pipelineDetailCreatedYesterday))).thenReturn(
-        List.of(PipelineDetailMigrationHuooTestUtil.createMigrationHuooData(pipelineDetailCreatedYesterday)));
-
-    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
+    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
 
     assertThat(huooVersionSearchSelectorItems.keySet()).containsExactly(
         PWA_CONSENT.getItemPrefix() + consentCreatedTodayAfternoon.getId(),
-        PWA_CONSENT.getItemPrefix() + consentCreatedTodayMorning.getId(),
-        PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailCreatedYesterday.getId());
+        PWA_CONSENT.getItemPrefix() + consentCreatedTodayMorning.getId());
+
 
     var expectedOrderTagNumber = 2;
     assertThat(huooVersionSearchSelectorItems.get(PWA_CONSENT.getItemPrefix() + consentCreatedTodayAfternoon.getId()))
@@ -126,10 +124,7 @@ public class ViewablePipelineHuooVersionServiceTest {
     assertThat(huooVersionSearchSelectorItems).contains(
         entry(PWA_CONSENT.getItemPrefix() + consentCreatedTodayMorning.getId(),
         String.format("%s (%s) - %s", DateUtils.formatDate(consentCreatedTodayMorning.getConsentInstant()),
-            expectedOrderTagNumber, consentCreatedTodayMorning.getReference())),
-
-        entry(PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailCreatedYesterday.getId(),
-        DateUtils.formatDate(pipelineDetailCreatedYesterday.getStartTimestamp()))
+            expectedOrderTagNumber, consentCreatedTodayMorning.getReference()))
     );
 
   }
@@ -138,24 +133,20 @@ public class ViewablePipelineHuooVersionServiceTest {
   @Test
   public void getHuooHistorySearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestHuooSelectorItemHasLatestVersionText() {
 
-    var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY);
-    when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(
-        List.of(consentWithRef));
+    var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
+    var consentWithoutRef = PwaConsentTestUtil.createPwaConsent(1, null, TODAY, 0);
 
-    var pipelineDetailWithoutRef = PipelineDetailTestUtil.createPipelineDetail(
-        PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY, PwaConsentTestUtil.createPwaConsent(3, null, YESTERDAY));
-    when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(List.of(pipelineDetailWithoutRef));
-    when(pipelineDetailMigrationHuooDataService.getPipelineDetailMigratedHuoos(List.of(pipelineDetailWithoutRef))).thenReturn(
-        List.of(PipelineDetailMigrationHuooTestUtil.createMigrationHuooData(pipelineDetailWithoutRef)));
+    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+        .thenReturn(List.of(consentWithRef, consentWithoutRef));
 
-    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
+    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
 
     assertThat(huooVersionSearchSelectorItems).contains(
         entry(PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),
-        String.format("Latest version (%s - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), consentWithRef.getReference())),
+            String.format("Latest version (%s (%s) - %s)", DateUtils.formatDate(consentWithRef.getConsentInstant()), 2, consentWithRef.getReference())),
 
-        entry(PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + pipelineDetailWithoutRef.getId(),
-        DateUtils.formatDate(pipelineDetailWithoutRef.getStartTimestamp()))
+        entry(PWA_CONSENT.getItemPrefix() + consentWithoutRef.getId(),
+            DateUtils.formatDate(consentWithoutRef.getConsentInstant()) + " (1)")
     );
   }
 
@@ -164,8 +155,9 @@ public class ViewablePipelineHuooVersionServiceTest {
   public void getHuooHistorySearchSelectorItems_consentAndPipelineDetailBothHaveRef_consentRefDisplayedForConsentItemsOnly() {
 
     var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY);
-    when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(
-        List.of(consentWithRef));
+
+    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+        .thenReturn(List.of(consentWithRef));
 
     var pipelineDetailWithRef = PipelineDetailTestUtil.createPipelineDetail(
         PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY, PwaConsentTestUtil.createPwaConsent(3, CONSENT_REFERENCE, YESTERDAY));
@@ -173,7 +165,7 @@ public class ViewablePipelineHuooVersionServiceTest {
     when(pipelineDetailMigrationHuooDataService.getPipelineDetailMigratedHuoos(List.of(pipelineDetailWithRef))).thenReturn(
         List.of(PipelineDetailMigrationHuooTestUtil.createMigrationHuooData(pipelineDetailWithRef)));
 
-    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID.asInt());
+    var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
 
     assertThat(huooVersionSearchSelectorItems).contains(
         entry(PWA_CONSENT.getItemPrefix() + consentWithRef.getId(),

@@ -206,4 +206,16 @@ public class PipelineDetailServiceTest {
         .containsExactly((pipelineDetail));
   }
 
+  @Test
+  public void getPipelineDetailsBeforePwaConsentCreated() {
+    var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
+    var consentCreationTs = Instant.now();
+
+    when(pipelineDetailRepository.findAllByPipeline_IdAndPwaConsent_consentInstantIsBefore(pipelineDetail.getPipeline().getId(), consentCreationTs))
+        .thenReturn(List.of(pipelineDetail));
+
+    assertThat(pipelineDetailService.getPipelineDetailsBeforePwaConsentCreated(pipelineDetail.getPipeline().getPipelineId(), consentCreationTs))
+        .containsExactly(pipelineDetail);
+  }
+
 }

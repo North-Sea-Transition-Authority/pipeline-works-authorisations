@@ -62,19 +62,19 @@ public class ViewablePipelineHuooVersionService {
             .keySet());
   }
 
-  public Map<String, String> getHuooHistorySearchSelectorItems(MasterPwa masterPwa, Integer pipelineId) {
+  public Map<String, String> getHuooHistorySearchSelectorItems(MasterPwa masterPwa, PipelineId pipelineId) {
 
     var pwaHuooHistoryItemVersions = new ArrayList<PwaHuooHistoryItemVersion>();
-    pwaConsentService.getConsentsByMasterPwa(masterPwa)
+
+    pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, pipelineId)
         .stream()
         .map(PwaHuooHistoryItemVersion::fromConsent)
         .forEach(pwaHuooHistoryItemVersions::add);
 
-    getPipelineDetailsWithMigratedHuoos(new PipelineId(pipelineId))
+    getPipelineDetailsWithMigratedHuoos(pipelineId)
         .stream()
         .map(PwaHuooHistoryItemVersion::fromPipelineDetail)
         .forEach(pwaHuooHistoryItemVersions::add);
-
 
     //group all the huoo items by the day they were created (for easier order tagging of changes on the same day)
     var dateToHuooItemMap = pwaHuooHistoryItemVersions.stream()

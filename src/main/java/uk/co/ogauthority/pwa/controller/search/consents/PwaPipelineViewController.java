@@ -102,7 +102,7 @@ public class PwaPipelineViewController {
 
     var latestPipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
 
-    var modelAndView =  new ModelAndView("search/consents/pwaPipelineView/pwaPipelineView")
+    var modelAndView = new ModelAndView("search/consents/pwaPipelineView/pwaPipelineView")
         .addObject("consentSearchResultView", pwaContext.getConsentSearchResultView())
         .addObject("availableTabs", PwaPipelineViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
@@ -164,8 +164,7 @@ public class PwaPipelineViewController {
                                                         String huooVersionId,
                                                         PwaPipelineHistoryForm form) {
 
-    var versionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(
-        masterPwa, pipelineId.asInt());
+    var versionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, pipelineId);
 
     String latestHuooVersionString = versionSearchSelectorItems.entrySet()
         .stream()
@@ -177,7 +176,7 @@ public class PwaPipelineViewController {
         ? huooVersionId
         : latestHuooVersionString;
 
-    form.setHuooVersionId(huooVersionId);
+    form.setHuooVersionId(selectedHuuoVersion);
 
     var diffableHuooVersion = viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(
         masterPwa,

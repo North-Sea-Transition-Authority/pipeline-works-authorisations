@@ -2,6 +2,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -143,4 +144,32 @@ public class PwaConsent {
     this.docgenRunId = docgenRunId;
   }
 
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof PwaConsent)) {
+      return false;
+    }
+    PwaConsent that = (PwaConsent) o;
+    return id == that.id
+        && isMigratedFlag == that.isMigratedFlag
+        && Objects.equals(masterPwa, that.masterPwa)
+        && Objects.equals(sourcePwaApplication, that.sourcePwaApplication)
+        && Objects.equals(createdInstant, that.createdInstant)
+        && Objects.equals(consentInstant, that.consentInstant)
+        && consentType == that.consentType
+        && Objects.equals(variationNumber, that.variationNumber)
+        && Objects.equals(reference, that.reference)
+        && Objects.equals(docgenRunId, that.docgenRunId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, masterPwa, sourcePwaApplication, createdInstant, consentInstant, consentType,
+        variationNumber,
+        reference, isMigratedFlag, docgenRunId);
+  }
 }

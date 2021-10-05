@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pipelines;
 
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -29,5 +30,9 @@ public interface PipelineDetailRepository extends CrudRepository<PipelineDetail,
   List<PipelineDetail> findAllByPipeline_IdInAndTipFlagIsTrue(List<Integer> pipelineIds);
 
   List<PipelineDetail> findAllByPipelineInAndEndTimestampIsNull(Collection<Pipeline> pipelines);
+
+  List<PipelineDetail> findAllByPipeline_IdAndPwaConsent_consentInstantIsBefore(Integer pipelineId, Instant consentInstant);
+
+  Optional<PipelineDetail> findFirstByPipeline_IdOrderByStartTimestampAsc(Integer pipelineId);
 
 }

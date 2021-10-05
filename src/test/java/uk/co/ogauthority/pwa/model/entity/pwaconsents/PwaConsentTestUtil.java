@@ -33,6 +33,12 @@ public class PwaConsentTestUtil {
     return pwaConsent;
   }
 
+  public static PwaConsent createMigratedPwaConsent(int id, String reference, Instant consentInstant, int variantNumber) {
+    var pwaConsent = createPwaConsent(id, reference, consentInstant, variantNumber);
+    pwaConsent.setMigratedFlag(true);
+    return pwaConsent;
+  }
+
   public static PwaConsent createPwaConsentWithCompleteApplicationDetail(int id, String reference, Instant consentInstant, PwaApplicationDetail applicationDetail) {
     var pwaConsent = new PwaConsent();
     pwaConsent.setId(id);
