@@ -317,8 +317,8 @@ public class PadPipelineIdentService {
 
     identDataService.getOptionalOfIdentData(ident)
         .ifPresentOrElse(
-            (padPipelineIdentData) -> identDataService.updateIdentData(ident, dataForm),
-            () -> identDataService.addIdentData(ident, form.getDataForm()));
+            (padPipelineIdentData) -> identDataService.updateIdentData(ident, form.getDefiningStructure(), dataForm),
+            () -> identDataService.addIdentData(ident, form.getDefiningStructure(), form.getDataForm()));
   }
 
   private void setNotDefiningStructureFieldsToBlank(PipelineIdentDataForm dataForm) {

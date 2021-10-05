@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -173,8 +174,9 @@ public class PadPipelineIdentServiceTest {
     verify(padPipelineIdentRepository, times(1)).save(identCaptor.capture());
     var newIdent = identCaptor.getValue();
 
-    verify(padPipelineIdentDataService, times(1)).addIdentData(newIdent, form.getDataForm());
-    verify(padPipelineIdentDataService, never()).updateIdentData(any(), any());
+    verify(padPipelineIdentDataService, times(1)).addIdentData(
+        newIdent, form.getDefiningStructure(), form.getDataForm());
+    verify(padPipelineIdentDataService, never()).updateIdentData(any(), anyBoolean(), any());
 
     assertThat(newIdent.getPadPipeline()).isEqualTo(padPipeline);
     assertThat(newIdent.getFromLocation()).isEqualTo(form.getFromLocation());
@@ -403,8 +405,9 @@ public class PadPipelineIdentServiceTest {
 
     padPipelineIdentService.updateIdent(ident, form);
     verify(padPipelineIdentRepository, times(1)).save(ident);
-    verify(padPipelineIdentDataService, times(1)).updateIdentData(ident, form.getDataForm());
-    verify(padPipelineIdentDataService, never()).addIdentData(any(), any());
+    verify(padPipelineIdentDataService, times(1)).updateIdentData(
+        ident, form.getDefiningStructure(), form.getDataForm());
+    verify(padPipelineIdentDataService, never()).addIdentData(any(), anyBoolean(), any());
 
     assertThat(ident.getFromCoordinates()).isEqualTo(
         CoordinateUtils.coordinatePairFromForm(form.getFromCoordinateForm()));
@@ -544,8 +547,9 @@ public class PadPipelineIdentServiceTest {
     var saveCaptor = ArgumentCaptor.forClass(PadPipelineIdent.class);
     verify(padPipelineIdentRepository, times(1)).save(saveCaptor.capture());
     verify(padPipelineIdentRepository, times(1)).saveAll(List.of(ident));
-    verify(padPipelineIdentDataService, times(1)).addIdentData(saveCaptor.getValue(), form.getDataForm());
-    verify(padPipelineIdentDataService, never()).updateIdentData(any(), any());
+    verify(padPipelineIdentDataService, times(1)).addIdentData(
+        saveCaptor.getValue(), form.getDefiningStructure(), form.getDataForm());
+    verify(padPipelineIdentDataService, never()).updateIdentData(any(), anyBoolean(), any());
 
     var newIdent = saveCaptor.getValue();
 
