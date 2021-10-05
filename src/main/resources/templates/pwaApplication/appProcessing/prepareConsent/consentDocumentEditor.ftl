@@ -54,7 +54,7 @@
       <#if docView?has_content>
 
         <@fdsInsetText.insetText>
-          <p>Information pulled in from the application is shown in <span class="${automaticMailMergePreviewClasses}">blue</span>.</p>
+          <p>Information pulled in from the application is shown in <span class="${automaticMailMergePreviewClasses}">green</span>.</p>
           <p>Phrases shown in <span class="${manualMailMergePreviewClasses}">red</span> are manual edit points that must be updated before the consent can be sent for approval.</p>
         </@fdsInsetText.insetText>
 

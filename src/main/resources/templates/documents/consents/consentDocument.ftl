@@ -181,13 +181,14 @@
     }
 
     .pwa-mail-merge__preview--automatic {
-      color: #003078;
+      color: #00703c;
       font-weight: bold;
     }
 
     .pwa-mail-merge__preview--manual {
-      color: #b10e1e;
+      color: #d4351c;
       font-weight: bold;
+      text-decoration: underline;
     }
 
     .pwa-clause-section-header {

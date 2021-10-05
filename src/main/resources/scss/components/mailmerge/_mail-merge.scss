@@ -7,11 +7,14 @@
     font-weight: bold;
 
     &--automatic {
-      color: govuk-colour("dark-blue");
+      color: govuk-colour("green");
     }
 
     &--manual {
       color: govuk-colour("red");
+      font-weight: bold;
+      text-decoration: underline wavy govuk-colour("red");
+      text-decoration-skip-ink: none;
     }
 
   }
