@@ -12,6 +12,7 @@
 <#-- @ftlvariable name="automaticMailMergePreviewClasses" type="String" -->
 <#-- @ftlvariable name="manualMailMergePreviewClasses" type="String" -->
 <#-- @ftlvariable name="sosdConsultationRequestView" type="java.util.List<"uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView>" -->
+<#-- @ftlvariable name="openConsentReview" type="java.lang.Boolean" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
@@ -44,7 +45,7 @@
 
       <#else>
 
-          <@consentActions.actions userProcessingPermissions consentDocumentUrlProvider />
+          <@consentActions.actions userProcessingPermissions consentDocumentUrlProvider openConsentReview/>
 
       </#if>
 

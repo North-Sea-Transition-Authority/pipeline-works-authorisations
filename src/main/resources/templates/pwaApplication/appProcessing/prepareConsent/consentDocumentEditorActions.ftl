@@ -2,8 +2,9 @@
 
 <#-- @ftlvariable name="consentDocumentUrlProvider" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider" -->
 <#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
+<#-- @ftlvariable name="openConsentReview" type="java.lang.Boolean" -->
 
-<#macro actions userProcessingPermissions consentDocumentUrlProvider>
+<#macro actions userProcessingPermissions consentDocumentUrlProvider openConsentReview>
 
     <#assign consentReviewPermission = userProcessingPermissions?seq_contains("CONSENT_REVIEW") />
     <#assign sendForApprovalPermission = userProcessingPermissions?seq_contains("SEND_CONSENT_FOR_APPROVAL") />
@@ -17,7 +18,7 @@
                 <@fdsAction.link linkText="Return to case officer" linkUrl=springUrl(consentDocumentUrlProvider.returnToCaseOfficerUrl) linkClass="govuk-button govuk-button--blue" />
             </#if>
 
-            <#if sendForApprovalPermission>
+            <#if sendForApprovalPermission && !openConsentReview>
                 <@fdsAction.link linkText="Send for approval" linkUrl=springUrl(consentDocumentUrlProvider.sendForApprovalUrl) linkClass="govuk-button govuk-button--green" />
             </#if>
 

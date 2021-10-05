@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -127,6 +128,10 @@ public class PwaAppProcessingContext {
 
   public Integer getMasterPwaApplicationId() {
     return applicationDetail.getMasterPwaApplicationId();
+  }
+
+  public boolean hasOpenConsentReview() {
+    return applicationInvolvement.getOpenConsentReview() == OpenConsentReview.YES;
   }
 
 }

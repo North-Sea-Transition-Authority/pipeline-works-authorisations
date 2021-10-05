@@ -135,7 +135,8 @@ public class AppConsentDocController {
               .addObject("userProcessingPermissions", processingContext.getAppProcessingPermissions())
               .addObject("automaticMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.AUTOMATIC))
               .addObject("manualMailMergePreviewClasses", mailMergeService.getMailMergePreviewClasses(MailMergeFieldType.MANUAL))
-              .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
+              .addObject("sosdConsultationRequestView", sosdConsultationRequestView)
+              .addObject("openConsentReview", processingContext.hasOpenConsentReview());
 
           breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Prepare consent");
 
