@@ -3,12 +3,14 @@ package uk.co.ogauthority.pwa.service.search.consents.tabcontentviews;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
-public class PwaPipelineView {
+public class PwaPipelineView implements Comparable<PwaPipelineView> {
 
   private final Integer pipelineId;
   private final String pipelineNumber;
@@ -19,6 +21,8 @@ public class PwaPipelineView {
   private final String toLocation;
   private final CoordinatePair toCoordinates;
   private final String length;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaPipelineView.class);
 
 
   public PwaPipelineView(PipelineOverview pipelineOverview) {
@@ -41,7 +45,24 @@ public class PwaPipelineView {
     return pipelineNumber;
   }
 
-  public String getPipelineNumberOnlyFromReference() {
+  private String getPipelineNumberOnlyFromReference() {
+
+    StringBuilder pipelineNumberValue = new StringBuilder();
+    for (Character character: pipelineNumber.toCharArray()) {
+
+      if (Character.isDigit(character) || character.equals('.')) {
+        pipelineNumberValue.append(character);
+
+      } else if (pipelineNumberValue.length() > 0) {
+        break;
+      }
+    }
+
+    return pipelineNumberValue.toString();
+  }
+
+  private String getPipelineNumberWithoutPrefix() {
+
     return pipelineNumber.replace("PLU", "")
         .replace("PL", "")
         .trim();
@@ -103,5 +124,33 @@ public class PwaPipelineView {
   public int hashCode() {
     return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length);
   }
+
+  @Override
+  public int compareTo(PwaPipelineView comparingPwaPipelineView) {
+
+
+    try {
+      var pipelineNumberValue = new BigDecimal(this.getPipelineNumberOnlyFromReference());
+      var comparingPipelineNumberValue = new BigDecimal(comparingPwaPipelineView.getPipelineNumberOnlyFromReference());
+      var comparisonResult = pipelineNumberValue.compareTo(comparingPipelineNumberValue);
+
+      if (comparisonResult == 0) {
+        //the pipeline numeric values are equal, need to compare by their suffix
+        return this.getPipelineNumberWithoutPrefix().compareTo(comparingPwaPipelineView.getPipelineNumberWithoutPrefix());
+      }
+
+      return comparisonResult;
+
+    } catch (NumberFormatException e) {
+
+      LOGGER.error("Could not extract a numeric value from the pipeline numbers: {} and {}. " +
+              "Falling back to default String comparison of the pipeline number",
+          this.getPipelineNumber(), comparingPwaPipelineView.getPipelineNumber());
+
+      return this.getPipelineNumber().compareTo(comparingPwaPipelineView.getPipelineNumber());
+    }
+
+  }
+
 
 }

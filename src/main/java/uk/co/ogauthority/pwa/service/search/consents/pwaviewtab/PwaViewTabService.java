@@ -66,7 +66,7 @@ public class PwaViewTabService {
 
     return consentedPipelineOverviews
         .stream().map(PwaPipelineView::new)
-        .sorted(Comparator.comparing(PwaPipelineView::getPipelineNumberOnlyFromReference))
+        .sorted()
         .collect(Collectors.toList());
   }
 

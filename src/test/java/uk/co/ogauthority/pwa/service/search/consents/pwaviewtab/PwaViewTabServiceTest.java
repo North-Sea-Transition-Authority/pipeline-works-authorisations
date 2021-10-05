@@ -113,24 +113,6 @@ public class PwaViewTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithPLChars_charsRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID2));
-    assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("002");
-  }
-
-  @Test
-  public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithPLUChars_charsRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1));
-    assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
-  }
-
-  @Test
-  public void getTabContentModelMap_getPipelineNumberOnlyFromReference_refPrependedWithWhitespace_whitespaceRemoved() {
-    var pwaPipelineView = new PwaPipelineView(PipelineDetailTestUtil.createPipelineOverview("  001"));
-    assertThat(pwaPipelineView.getPipelineNumberOnlyFromReference()).isEqualTo("001");
-  }
-
-  @Test
   public void getTabContentModelMap_consentTab_modelMapContainsConsentHistoryViews_orderedByConsentDateLatestFirst() {
 
     var today = LocalDate.now();
