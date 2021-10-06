@@ -62,12 +62,35 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
+  public void validate_fieldRequired_blankValue_error() {
+
+    decimalInput.setValue("");
+    var fieldErrors = getValidationErrors();
+
+    assertThat(fieldErrors).containsExactly(
+        entry(VALUE, Set.of(VALUE_REQUIRED_CODE))
+    );
+  }
+
+  @Test
   public void validate_fieldRequired_invalidValue_error() {
 
     decimalInput.setValue("invalid num");
     var fieldErrors = getValidationErrors();
 
     assertThat(fieldErrors).containsExactly(
+        entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
+  public void validate_fieldRequired_validValueProvided_noError() {
+
+    decimalInput.setValue("1.1");
+    var fieldErrors = getValidationErrors();
+
+    assertThat(fieldErrors).doesNotContain(
+        entry(VALUE, Set.of(VALUE_REQUIRED_CODE)),
         entry(VALUE, Set.of(VALUE_INVALID_CODE))
     );
   }
@@ -86,6 +109,30 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_fieldOptional_noValueProvided_noError() {
 
+    var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
+
+    assertThat(fieldErrors).doesNotContain(
+        entry(VALUE, Set.of(VALUE_REQUIRED_CODE)),
+        entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
+  public void validate_fieldOptional_blankValueProvided_noError() {
+
+    decimalInput.setValue("");
+    var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
+
+    assertThat(fieldErrors).doesNotContain(
+        entry(VALUE, Set.of(VALUE_REQUIRED_CODE)),
+        entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
+  public void validate_fieldOptional_validValueProvided_noError() {
+
+    decimalInput.setValue("1.1");
     var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
 
     assertThat(fieldErrors).doesNotContain(

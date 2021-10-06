@@ -62,7 +62,7 @@ public class DecimalInput {
   }
 
   public boolean hasContent() {
-    return value != null;
+    return value != null && !value.isBlank();
   }
 
 }
