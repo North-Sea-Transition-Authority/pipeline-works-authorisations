@@ -51,4 +51,8 @@ BEGIN
     AND tip_flag = 1
     AND version_no = 1;
 
+EXCEPTION
+    -- if there is no data or too many rows then the clause must have been modified/deleted already
+    WHEN NO_DATA_FOUND THEN NULL;
+    WHEN TOO_MANY_ROWS THEN NULL;
 END;
