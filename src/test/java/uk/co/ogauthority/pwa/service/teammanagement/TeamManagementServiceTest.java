@@ -452,7 +452,7 @@ public class TeamManagementServiceTest {
     var person = PersonTestUtil.createDefaultPerson();
     var user = WebUserAccountTestUtil.createWebUserAccountMatchingPerson(1, person, WebUserAccountStatus.ACTIVE);
 
-    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+    when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(
         person.getEmailAddress(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
 
     var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId(person.getEmailAddress());
@@ -467,7 +467,7 @@ public class TeamManagementServiceTest {
     var person = PersonTestUtil.createDefaultPerson();
     var user = WebUserAccountTestUtil.createWebUserAccount(1, person, "myLoginId", WebUserAccountStatus.ACTIVE);
 
-    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(
+    when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(
         user.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
 
 
@@ -490,10 +490,10 @@ public class TeamManagementServiceTest {
 
     var user3 = WebUserAccountTestUtil.createWebUserAccount(2, person2, emailAddress, WebUserAccountStatus.ACTIVE);
 
-    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+    when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(
         emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
 
-    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(
+    when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(
         user3.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user3));
 
     teamManagementService.getPersonByEmailAddressOrLoginId(person1.getEmailAddress());
@@ -502,8 +502,8 @@ public class TeamManagementServiceTest {
   @Test
   public void getPersonByEmailAddressOrLoginId_noPersonFoundForEmail_noPersonReturned() {
 
-    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(any(), any())).thenReturn(new ArrayList<>());
-    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
+    when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(new ArrayList<>());
+    when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
 
     var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId("me@email.com");
     assertThat(personOptional).isEmpty();
@@ -518,10 +518,10 @@ public class TeamManagementServiceTest {
     var user2 = WebUserAccountTestUtil.createWebUserAccount(1, person1, "myLoginId2", WebUserAccountStatus.ACTIVE);
 
 
-    when(webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(
+    when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(
         emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
 
-    when(webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
+    when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
 
     var personOptional = teamManagementService.getPersonByEmailAddressOrLoginId(emailAddress);
     assertThat(personOptional).isPresent();
