@@ -73,7 +73,7 @@ public class ConsultationResponseValidatorTest {
   public void validate_validateFileUploads_eiaAndHabitats_agree_notEnoughDocumentsUploaded_fail() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
-    dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_DISAGREE);
+    dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
     form.setResponseDataForms(Map.of(
         ConsultationResponseOptionGroup.EIA_REGS, dataForm1,
         ConsultationResponseOptionGroup.HABITATS_REGS, dataForm2));
@@ -86,6 +86,28 @@ public class ConsultationResponseValidatorTest {
                 "uploadedFileWithDescriptionForms",
                 Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.getCode()))
         );
+  }
+
+  @Test
+  public void validate_validateFileUploads_eia_disagree_documentNotUploaded_pass() {
+
+    dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_DISAGREE);
+    form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.EIA_REGS, dataForm1));
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.EIA_REGS);
+    assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_validateFileUploads_habitats_disagree_documentNotUploaded_pass() {
+
+    dataForm1.setConsultationResponseOption(ConsultationResponseOption.HABITATS_DISAGREE);
+    form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.HABITATS_REGS, dataForm1));
+    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.HABITATS_REGS);
+    assertThat(errorsMap).isEmpty();
   }
 
 }
