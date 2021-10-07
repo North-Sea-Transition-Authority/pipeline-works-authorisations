@@ -299,14 +299,14 @@ public class TeamManagementService {
     var excludedWuaStatuses = List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW);
 
     List<WebUserAccount> webUserAccounts =
-        webUserAccountRepository.findAllByEmailAddressAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses);
+        webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses);
 
     if (webUserAccounts.size() == 1) {
       return Optional.of(webUserAccounts.get(0).getLinkedPerson());
     }
 
     webUserAccounts.addAll(
-        webUserAccountRepository.findAllByLoginIdAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses));
+        webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses));
 
     if (webUserAccounts.size() == 1) {
       return Optional.of(webUserAccounts.get(0).getLinkedPerson());
