@@ -4,6 +4,8 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.EmailProperties;
 
 public interface NotifyService {
 
+  String EMAIL_LOG_PREFIX = "PWA_EMAIL:";
+
   /**
    * Method to send an email to a single recipient.
    * @param emailProperties The properties for the mail merge fields in the email template

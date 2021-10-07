@@ -66,16 +66,15 @@ public class TestNotifyServiceImpl implements NotifyService {
               try {
                 notificationClient.sendEmail(templateId.get(), testRecipient, personalisation, reference, emailReplyToId);
               } catch (NotificationClientException e) {
-                LOGGER.error("Error occurred in NotificationClient: {}", ExceptionUtils.getStackTrace(e));
+                LOGGER.error("{} Error occurred in NotificationClient: {}", EMAIL_LOG_PREFIX, ExceptionUtils.getStackTrace(e));
               }
             } else {
-              // TODO PWA-591 metric logging for email failures
-              LOGGER.error("Email validation prevented email being sent to: {}", testRecipient);
+              LOGGER.error("{} Email validation prevented email being sent to: {}", EMAIL_LOG_PREFIX, testRecipient);
             }
           });
 
     } else {
-      LOGGER.error("Could not find template ID for template with name {}", emailProperties.getTemplateName());
+      LOGGER.error("{} Could not find template ID for template with name {}", EMAIL_LOG_PREFIX, emailProperties.getTemplateName());
     }
 
   }

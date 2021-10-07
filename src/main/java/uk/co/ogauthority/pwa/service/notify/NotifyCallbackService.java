@@ -43,8 +43,8 @@ public class NotifyCallbackService {
 
     if (failureStatuses.contains(notifyCallback.getStatus())) {
 
-      // TODO PWA-591 log metrics for callback failures
-      LOGGER.info("The Notify provider could not deliver the message to the email address {}.", notifyCallback.getTo());
+      LOGGER.info("{} The Notify provider could not deliver the message to the email address {}.",
+          NotifyService.EMAIL_LOG_PREFIX, notifyCallback.getTo());
 
       // if an email failed and the failed email wasn't going to the OGA mailbox, notify OGA
       if (!notifyCallback.getTo().equals(ogaConsentsMailboxEmail)) {
@@ -62,13 +62,12 @@ public class NotifyCallbackService {
           notifyService.sendEmail(failedEmailProperties, ogaConsentsMailboxEmail);
 
         } catch (NotificationClientException e) {
-          LOGGER.error("Couldn't retrieve email notification from GOV.UK: ", e);
+          LOGGER.error("{} Couldn't retrieve email notification from GOV.UK: ", NotifyService.EMAIL_LOG_PREFIX, e);
         }
 
       } else {
         // otherwise we failed to email the OGA mailbox
-        // TODO PWA-591 log metric
-        LOGGER.error("Email send to the OGA consents mailbox failed {}", notifyCallback);
+        LOGGER.error("{} Email send to the OGA consents mailbox failed {}", NotifyService.EMAIL_LOG_PREFIX, notifyCallback);
       }
     }
   }

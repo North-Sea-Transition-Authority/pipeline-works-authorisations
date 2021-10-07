@@ -55,15 +55,14 @@ public class ProductionNotifyServiceImpl implements NotifyService {
         if (emailValidator.isValid(toEmailAddress)) {
           notificationClient.sendEmail(templateId.get(), toEmailAddress, personalisation, reference, emailReplyToId);
         } else {
-          // TODO PWA-591 metric logging for email failures
-          LOGGER.error("Email validation prevented email being sent to: {}", toEmailAddress);
+          LOGGER.error("{} Email validation prevented email being sent to: {}", EMAIL_LOG_PREFIX, toEmailAddress);
         }
 
       } else {
-        LOGGER.error("Could not find template ID for template with name {}", emailProperties.getTemplateName());
+        LOGGER.error("{} Could not find template ID for template with name {}", EMAIL_LOG_PREFIX, emailProperties.getTemplateName());
       }
     } catch (NotificationClientException e) {
-      LOGGER.error("Error occurred in NotificationClient: {}", ExceptionUtils.getStackTrace(e));
+      LOGGER.error("{} Error occurred in NotificationClient: {}", EMAIL_LOG_PREFIX, ExceptionUtils.getStackTrace(e));
     }
 
   }

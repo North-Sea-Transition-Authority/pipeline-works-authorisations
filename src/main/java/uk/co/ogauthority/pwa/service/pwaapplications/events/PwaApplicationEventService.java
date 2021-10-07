@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
@@ -13,6 +15,9 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.events.PwaApplicationEve
 
 @Component
 public class PwaApplicationEventService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationEventService.class);
+  private static final String LOG_PREFIX = "PWA_APP_EVENT:";
 
   private final PwaApplicationEventRepository pwaApplicationEventRepository;
   private final Clock clock;
@@ -36,6 +41,9 @@ public class PwaApplicationEventService {
     failure.setMessage(ExceptionUtils.getStackTrace(consentIssueFailedEvent.getException()));
 
     pwaApplicationEventRepository.save(failure);
+
+    LOGGER.error("{} consent issue failed for application detail id [{}]", LOG_PREFIX,
+        consentIssueFailedEvent.getPwaApplicationDetail().getId());
 
   }
 
