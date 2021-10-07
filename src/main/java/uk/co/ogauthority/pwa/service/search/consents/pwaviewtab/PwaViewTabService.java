@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView;
+import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service
 public class PwaViewTabService {
@@ -66,7 +67,7 @@ public class PwaViewTabService {
 
     return consentedPipelineOverviews
         .stream().map(PwaPipelineView::new)
-        .sorted()
+        .sorted((view1, view2) -> PipelineNumberSortingUtil.compare(view1.getPipelineNumber(), view2.getPipelineNumber()))
         .collect(Collectors.toList());
   }
 

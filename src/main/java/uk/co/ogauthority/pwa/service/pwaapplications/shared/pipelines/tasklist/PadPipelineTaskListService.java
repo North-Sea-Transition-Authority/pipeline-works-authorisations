@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedS
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
+import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service
 public class PadPipelineTaskListService implements ApplicationFormSectionService {
@@ -294,7 +295,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
       var plNumbers = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
           .stream()
           .map(PipelineOverview::getPipelineNumber)
-          .sorted()
+          .sorted(PipelineNumberSortingUtil::compare)
           .collect(Collectors.joining(", "));
 
       map.put(MailMergeFieldMnem.PL_NUMBER_LIST, plNumbers);

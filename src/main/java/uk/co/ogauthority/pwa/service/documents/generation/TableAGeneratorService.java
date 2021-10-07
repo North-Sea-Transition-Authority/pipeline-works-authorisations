@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDi
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
+import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service
 public class TableAGeneratorService implements DocumentSectionGenerator {
@@ -95,9 +96,11 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
         .stream().map(entry -> {
           var drawingSummary = entry.getKey();
           var pipelineSummaries = entry.getValue();
-          var tableAViews = pipelineSummaries.stream().map(pipelineSummary ->
-              createTableAView(pipelineSummary.getPipelineHeaderView(), pipelineSummary.getIdentViews()))
-              .sorted(Comparator.comparing(tableAView -> tableAView.getHeaderRow().getPipelineNumber()))
+          var tableAViews = pipelineSummaries.stream()
+              .map(pipelineSummary ->
+                  createTableAView(pipelineSummary.getPipelineHeaderView(), pipelineSummary.getIdentViews()))
+              .sorted((view1, view2) -> PipelineNumberSortingUtil.compare(
+                  view1.getHeaderRow().getPipelineNumber(), view2.getHeaderRow().getPipelineNumber()))
               .collect(Collectors.toList());
 
           return new DrawingForTableAView(
