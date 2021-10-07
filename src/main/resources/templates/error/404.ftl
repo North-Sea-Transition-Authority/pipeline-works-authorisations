@@ -1,7 +1,7 @@
 <#include '../layout.ftl'>
 <#include 'errorComponents.ftl'>
 
-<@defaultPage htmlTitle="Page not found" pageHeading="Page not found">
+<@defaultPage htmlTitle="Page not found" pageHeading="Page not found" phaseBanner=false>
   <p class="govuk-body">
     If you typed the web address, check it is correct.
   </p>

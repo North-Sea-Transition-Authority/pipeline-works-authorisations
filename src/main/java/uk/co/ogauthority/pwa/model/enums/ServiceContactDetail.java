@@ -9,7 +9,7 @@ public enum ServiceContactDetail {
       "consents@ogauthority.co.uk",
       "",
       "https://www.ogauthority.co.uk/licensing-consents/consents/pipeline-works-authorisations/",
-      "For example, questions about filling in your application and the information you need to provide",
+      "For example, questions about filling in your application, the information you need to provide or to provide feedback on the service",
       true,
       10),
 

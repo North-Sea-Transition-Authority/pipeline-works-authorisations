@@ -1,7 +1,7 @@
 <#include './layout.ftl'>
 <#include 'error/errorComponents.ftl'>
 
-<@defaultPage htmlTitle="Sorry, there is a problem with the service" pageHeading="Sorry, there is a problem with the service">
+<@defaultPage htmlTitle="Sorry, there is a problem with the service" pageHeading="Sorry, there is a problem with the service" phaseBanner=false>
 
   <p class="govuk-body">Try again later.</p>
   <p class="govuk-body">

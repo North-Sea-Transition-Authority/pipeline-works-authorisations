@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.controller.feedback.FeedbackController;
 import uk.co.ogauthority.pwa.controller.footer.AccessibilityStatementController;
 import uk.co.ogauthority.pwa.controller.footer.ContactInformationController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -51,6 +52,10 @@ public class ControllerUtils {
       throw new AccessDeniedException("Unsupported type for variation start controller: " + pwaApplicationType);
     }
 
+  }
+
+  public static String getFeedbackUrl(Integer pwaApplicationDetailId) {
+    return ReverseRouter.route(on(FeedbackController.class).getFeedback(pwaApplicationDetailId, null, null));
   }
 
 }

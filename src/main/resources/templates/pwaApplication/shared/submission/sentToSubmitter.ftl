@@ -1,4 +1,6 @@
 <#include '../../../layout.ftl'>
+<#import '../../../feedback/serviceFeedbackLink.ftl' as serviceFeedbackLink/>
+
 
 <#-- @ftlvariable name="isFirstVersion" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="submitterPersonName" type="String" -->
@@ -21,6 +23,8 @@
   <p class="govuk-body">
     An email has been sent to ${submitterPersonName} asking them to review and submit your application.
   </p>
+
+  <@serviceFeedbackLink.feedbackLink feedbackUrl/>
 
   <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="Go back to work area" linkUrl="${springUrl(workAreaUrl)}"/>
 

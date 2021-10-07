@@ -1,4 +1,6 @@
 <#include '../../../layout.ftl'>
+<#import '../../../feedback/serviceFeedbackLink.ftl' as serviceFeedbackLink/>
+
 
 <#-- @ftlvariable name="submissionSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSubmissionSummary" -->
 
@@ -40,6 +42,8 @@
       Any new pipelines with temporary references have been assigned pipeline numbers.
     </p>
   </#if>
+
+  <@serviceFeedbackLink.feedbackLink feedbackUrl/>
 
   <@fdsAction.link linkClass="govuk-link govuk-!-font-size-19" linkText="Go back to work area" linkUrl="${springUrl(workAreaUrl)}"/>
 

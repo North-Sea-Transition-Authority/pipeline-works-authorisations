@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
@@ -62,6 +63,7 @@ public class DefaultPageControllerAdvice {
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
     model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
+    model.addAttribute("feedbackUrl", ControllerUtils.getContactInformationUrl());
   }
 
   private void addCurrentUserView(Model model) {

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSummaryFactory;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -52,7 +53,8 @@ public class SubmitConfirmationController {
     return new ModelAndView("pwaApplication/shared/submission/submitConfirmation")
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("submissionSummary", submissionSummary)
-        .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion());
+        .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion())
+        .addObject("feedbackUrl", ControllerUtils.getFeedbackUrl(applicationContext.getApplicationDetail().getId()));
 
   }
 
@@ -70,7 +72,8 @@ public class SubmitConfirmationController {
         .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("isFirstVersion", applicationContext.getApplicationDetail().isFirstVersion())
         .addObject("submitterPersonName", submitterPersonName)
-        .addObject("applicationReference", applicationContext.getPwaApplication().getAppReference());
+        .addObject("applicationReference", applicationContext.getPwaApplication().getAppReference())
+        .addObject("feedbackUrl", ControllerUtils.getFeedbackUrl(applicationContext.getApplicationDetail().getId()));
 
   }
 
