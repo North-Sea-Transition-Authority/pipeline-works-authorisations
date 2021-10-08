@@ -6,4 +6,8 @@ CREATE TABLE ${datasource.user}.service_feedback (
 , submitter_name VARCHAR2(4000) NOT NULL
 , submitter_email_address VARCHAR2(4000) NOT NULL
 , submitted_timestamp TIMESTAMP NOT NULL
-)
+
+, CONSTRAINT pad_feedback_pad_id_fk FOREIGN KEY (pwa_application_detail_id) REFERENCES ${datasource.user}.pwa_application_details (id)
+);
+
+CREATE INDEX ${datasource.user}.pad_feedback_pad_idx ON ${datasource.user}.service_feedback (pwa_application_detail_id);

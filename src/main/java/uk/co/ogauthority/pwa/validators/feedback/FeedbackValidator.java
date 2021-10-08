@@ -27,10 +27,10 @@ public class FeedbackValidator implements Validator {
     var form = (FeedbackForm) target;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "serviceRating", FieldValidationErrorCodes.REQUIRED.errorCode("serviceRating"),
-        "Enter how satisfied you were when using the service");
+        "Select how satisfied you were when using the service");
 
     ValidatorUtils.validateMaxStringLength(
-        errors, "feedback", form::getFeedback, "Reason", FeedbackService.FEEDBACK_CHARACTER_LIMIT);
+        errors, "feedback", form::getFeedback, "Feedback description", FeedbackService.FEEDBACK_CHARACTER_LIMIT);
   }
 
 }
