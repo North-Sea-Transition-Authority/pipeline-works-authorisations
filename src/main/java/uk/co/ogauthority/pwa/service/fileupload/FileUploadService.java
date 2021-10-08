@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.fileupload;
 
+import com.google.common.base.Stopwatch;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
@@ -30,6 +32,7 @@ import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.repository.files.UploadedFileRepository;
 import uk.co.ogauthority.pwa.service.images.ImageScalingService;
+import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 @Service
 public class FileUploadService {
@@ -40,16 +43,21 @@ public class FileUploadService {
   private final UploadedFileRepository uploadedFileRepository;
   private final VirusCheckService virusCheckService;
   private final ImageScalingService imageScalingService;
+  private final MetricsProvider metricsProvider;
+
+  public enum ScaleImage { YES, NO }
 
   @Autowired
   public FileUploadService(FileUploadProperties fileUploadProperties,
                            UploadedFileRepository uploaded,
                            VirusCheckService virusCheckService,
-                           ImageScalingService imageScalingService) {
+                           ImageScalingService imageScalingService,
+                           MetricsProvider metricsProvider) {
     this.fileUploadProperties = fileUploadProperties;
     this.uploadedFileRepository = uploaded;
     this.virusCheckService = virusCheckService;
     this.imageScalingService = imageScalingService;
+    this.metricsProvider = metricsProvider;
   }
 
   public UploadFileWithDescriptionForm createUploadFileWithDescriptionFormFromView(UploadedFileView uploadedFileView) {
@@ -78,15 +86,20 @@ public class FileUploadService {
    */
   @Transactional
   public FileUploadResult processUpload(MultipartFile file, WebUserAccount user) {
-    return processFileUpload(file, user, fileUploadProperties.getAllowedExtensions());
+    return processFileUpload(file, user, fileUploadProperties.getAllowedExtensions(), ScaleImage.NO);
   }
 
   @Transactional
   public FileUploadResult processImageUpload(MultipartFile file, WebUserAccount user) {
-    return processFileUpload(file, user, fileUploadProperties.getAllowedImageExtensions());
+    return processFileUpload(file, user, fileUploadProperties.getAllowedImageExtensions(), ScaleImage.YES);
   }
 
-  private FileUploadResult processFileUpload(MultipartFile file, WebUserAccount user, List<String> allowedExtensions) {
+  private FileUploadResult processFileUpload(MultipartFile file,
+                                             WebUserAccount user,
+                                             List<String> allowedExtensions,
+                                             ScaleImage scaleImage) {
+
+    var stopwatch = Stopwatch.createStarted();
 
     String fileId = generateFileId();
     String filename = sanitiseFilename(Objects.requireNonNull(file.getOriginalFilename()));
@@ -115,7 +128,7 @@ public class FileUploadService {
       UploadedFile uploadedFile = new UploadedFile(fileId, filename, blob, file.getContentType(),
           file.getSize(), Instant.now(), user.getWuaId(), user.getWuaId(), FileUploadStatus.CURRENT);
 
-      if (uploadedFile.getContentType().contains("image")) {
+      if (uploadedFile.getContentType().contains("image") && scaleImage == ScaleImage.YES) {
         var scaledImageBaos = imageScalingService.scaleImage(uploadedFile);
         Blob scaledBlob = new SerialBlob(scaledImageBaos.toByteArray());
         uploadedFile.setScaledImageData(scaledBlob);
@@ -128,8 +141,9 @@ public class FileUploadService {
 
       blob.free();
 
-      LOGGER.debug("Completed upload of file: {} with fileId: {} Uploaded by User: {}", filename, fileId,
-          user.getWuaId());
+      var timerLogMessage = String.format("File '%s' uploaded. UF_ID = %s Uploading WUA id = %s",
+          uploadedFile.getFileName(), uploadedFile.getFileId(), user.getWuaId());
+      MetricTimerUtils.recordTime(stopwatch, LOGGER, metricsProvider.getFileUploadTimer(), timerLogMessage);
 
       return FileUploadResult.generateSuccessfulFileUploadResult(uploadedFile.getFileId(), filename, file.getSize(),
           file.getContentType());

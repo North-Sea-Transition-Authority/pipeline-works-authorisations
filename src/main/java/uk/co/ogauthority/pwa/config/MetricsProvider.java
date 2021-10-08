@@ -11,6 +11,8 @@ public class MetricsProvider {
   private final Timer startAppTimer;
   private final Timer workAreaTabTimer;
   private final Timer appContextTimer;
+  private final Timer imageScalingTimer;
+  private final Timer fileUploadTimer;
 
   public MetricsProvider(MeterRegistry registry) {
     this.taskListTimer = registry.timer("pwa.taskListTimer");
@@ -19,6 +21,8 @@ public class MetricsProvider {
     this.startAppTimer = registry.timer("pwa.startAppTimer");
     this.workAreaTabTimer = registry.timer("pwa.workAreaTabTimer");
     this.appContextTimer = registry.timer("pwa.appContextTimer");
+    this.imageScalingTimer = registry.timer("pwa.imageScalingTimer");
+    this.fileUploadTimer = registry.timer("pwa.fileUploadTimer");
   }
 
   public Timer getTaskListTimer() {
@@ -44,4 +48,13 @@ public class MetricsProvider {
   public Timer getAppContextTimer() {
     return appContextTimer;
   }
+
+  public Timer getImageScalingTimer() {
+    return imageScalingTimer;
+  }
+
+  public Timer getFileUploadTimer() {
+    return fileUploadTimer;
+  }
+
 }

@@ -110,9 +110,9 @@ public class PadFileService {
 
   @Transactional
   public FileUploadResult processImageUpload(MultipartFile file,
-                                               PwaApplicationDetail pwaApplicationDetail,
-                                               ApplicationDetailFilePurpose purpose,
-                                               WebUserAccount user) {
+                                             PwaApplicationDetail pwaApplicationDetail,
+                                             ApplicationDetailFilePurpose purpose,
+                                             WebUserAccount user) {
 
     var result = fileUploadService.processImageUpload(file, user);
     savePadFileIfValid(result, pwaApplicationDetail, purpose);
