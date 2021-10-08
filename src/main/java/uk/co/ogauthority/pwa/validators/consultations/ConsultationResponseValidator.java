@@ -51,14 +51,14 @@ public class ConsultationResponseValidator implements Validator {
     requiredFileCount += filesRequiredByResponse(
         form,
         ConsultationResponseOptionGroup.EIA_REGS,
-        Set.of(ConsultationResponseOption.EIA_AGREE, ConsultationResponseOption.EIA_DISAGREE)
+        Set.of(ConsultationResponseOption.EIA_AGREE)
     );
 
     // check if Habitats reg response requires file upload
     requiredFileCount += filesRequiredByResponse(
         form,
         ConsultationResponseOptionGroup.HABITATS_REGS,
-        Set.of(ConsultationResponseOption.HABITATS_AGREE, ConsultationResponseOption.HABITATS_DISAGREE)
+        Set.of(ConsultationResponseOption.HABITATS_AGREE)
     );
 
     FileUploadUtils.validateMinFileLimit(form, errors, requiredFileCount,
@@ -68,7 +68,7 @@ public class ConsultationResponseValidator implements Validator {
     );
   }
 
-  // helper which returns 1 if option group exists on form and response is contained in provded set, else 0;
+  // helper which returns 1 if option group exists on form and response is contained in provided set, else 0;
   private int filesRequiredByResponse(ConsultationResponseForm form,
                                       ConsultationResponseOptionGroup consultationResponseOptionGroup,
                                       Set<ConsultationResponseOption> setOfResponsesRequiringFileUpload) {
