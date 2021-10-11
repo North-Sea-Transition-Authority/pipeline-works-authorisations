@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity;
 
 import java.time.Instant;
+import java.util.Optional;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,6 +18,7 @@ public class UserSession {
   private Instant loginTimestamp;
   private Instant lastAccessTimestamp;
   private Instant logoutTimestamp;
+  private Integer proxyUserWuaId;
 
   @Transient
   // Fetch manually when needed
@@ -58,6 +60,10 @@ public class UserSession {
 
   public void setLogoutTimestamp(Instant logoutTimestamp) {
     this.logoutTimestamp = logoutTimestamp;
+  }
+
+  public Optional<Integer> getProxyUserWuaId() {
+    return Optional.ofNullable(proxyUserWuaId);
   }
 
   public AuthenticatedUserAccount getAuthenticatedUserAccount() {

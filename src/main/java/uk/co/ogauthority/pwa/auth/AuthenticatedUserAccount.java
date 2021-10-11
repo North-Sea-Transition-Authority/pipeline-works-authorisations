@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.auth;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -17,8 +18,15 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
   private static final long serialVersionUID = 1;
 
   private Collection<PwaUserPrivilege> userPrivileges;
+  private final Integer proxyUserWuaId;
 
   public AuthenticatedUserAccount(WebUserAccount webUserAccount, Collection<PwaUserPrivilege> userPrivileges) {
+    this(webUserAccount, userPrivileges, null);
+  }
+
+  public AuthenticatedUserAccount(WebUserAccount webUserAccount,
+                                  Collection<PwaUserPrivilege> userPrivileges,
+                                  Integer proxyUserWuaId) {
     this.wuaId = webUserAccount.getWuaId();
     this.title = webUserAccount.getTitle();
     this.forename = webUserAccount.getForename();
@@ -28,15 +36,19 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
     this.accountStatus = webUserAccount.getAccountStatus();
     this.person = webUserAccount.getLinkedPerson();
     this.userPrivileges = userPrivileges;
+    this.proxyUserWuaId = proxyUserWuaId;
   }
 
   public Collection<PwaUserPrivilege> getUserPrivileges() {
     return userPrivileges;
   }
 
-
   public void setPrivileges(Collection<PwaUserPrivilege> userPrivileges) {
     this.userPrivileges = userPrivileges;
+  }
+
+  public Optional<Integer> getProxyUserWuaId() {
+    return Optional.ofNullable(proxyUserWuaId);
   }
 
   /**
@@ -50,13 +62,9 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
         .collect(Collectors.toList());
   }
 
-
   public boolean hasPrivilege(PwaUserPrivilege pwaUserPrivilege) {
     return userPrivileges.contains(pwaUserPrivilege);
   }
-
-
-
 
   @Override
   public String getPassword() {

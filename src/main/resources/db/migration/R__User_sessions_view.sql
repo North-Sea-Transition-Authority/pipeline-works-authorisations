@@ -8,4 +8,5 @@ SELECT
 , wus.login_date login_timestamp
 , wus.logout_date logout_timestamp
 , wus.last_access_date last_access_timestamp
+, wus.proxy_user_wua_id
 FROM securemgr.web_user_sessions wus;

@@ -47,14 +47,19 @@ public class UserSessionService {
 
   @Transactional(readOnly = true)
   public Optional<UserSession> getAndValidateSession(String sessionId, boolean loadUserAccount) {
+
     Optional<UserSession> optionalUserSession;
+
     if (loadUserAccount) {
+
       Stopwatch stopwatch = Stopwatch.createStarted();
 
       optionalUserSession = userSessionRepository.findById(sessionId);
 
       if (optionalUserSession.isPresent()) {
+
         var userSession = optionalUserSession.get();
+
         var webUserAccount = webUserAccountRepository.findById(userSession.getWuaId())
             .orElseThrow(() -> new RuntimeException(String.format("wuaId: %s linked to sessionId %s could not be found",
                 userSession.getWuaId(),
@@ -63,8 +68,10 @@ public class UserSessionService {
 
         Set<PwaUserPrivilege> privileges = teamService.getAllUserPrivilegesForPerson(webUserAccount.getLinkedPerson());
 
-        var authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, privileges);
+        var authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, privileges,
+            userSession.getProxyUserWuaId().orElse(null));
         userSession.setAuthenticatedUserAccount(authenticatedUserAccount);
+
       }
 
       LOGGER.info("Retrieved user account for session id {} in {} ms", sessionId, stopwatch.elapsed(TimeUnit.MILLISECONDS));
