@@ -68,6 +68,10 @@ public class ValidatorTestUtils {
 
 
 
+  public static String overCharLength(int maxCharLength) {
+    return StringUtils.repeat("a", maxCharLength + 1);
+  }
+
   public static String overMaxDefaultCharLength() {
     return StringUtils.repeat("a", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH + 1);
   }

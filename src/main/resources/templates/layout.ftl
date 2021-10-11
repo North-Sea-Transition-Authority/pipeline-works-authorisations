@@ -19,8 +19,8 @@ backLink=false
 backLinkUrl=""
 backLinkText="Back"
 breadcrumbs=false
-phaseBanner=false
-phaseBannerLink="#"
+phaseBanner=true
+phaseBannerLink=feedbackUrl!""
 topNavigation=false
 wrapperWidth=false
 masthead=false
@@ -39,9 +39,17 @@ errorItems=[]>
           <div
             class="govuk-phase-banner <#if wrapperWidth> govuk-width-container-wide<#else> govuk-width-container </#if>">
             <p class="govuk-phase-banner__content">
-              <strong class="govuk-tag govuk-phase-banner__content__tag ">alpha</strong>
-              <span class="govuk-phase-banner__text">This is a new service – your <a class="govuk-link"
-                                                                                     href="${phaseBannerLink}">feedback</a> will help us to improve it.</span>
+               <strong class="govuk-tag govuk-phase-banner__content__tag ">beta</strong>
+               <span class="govuk-phase-banner__text">
+                <span>This is a new service – your</span>
+                <@fdsAction.link
+                    linkText="feedback"
+                    linkUrl=springUrl(phaseBannerLink)
+                    openInNewTab=true
+                    linkClass="govuk-link govuk-link--no-visited-state"
+                />
+                <span> will help us to improve it.</span>
+               </span>
             </p>
           </div>
         </#if>
