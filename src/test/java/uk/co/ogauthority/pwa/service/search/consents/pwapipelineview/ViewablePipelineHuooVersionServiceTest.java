@@ -79,7 +79,7 @@ public class ViewablePipelineHuooVersionServiceTest {
     var pipelineDetailWithMigration2 = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
     var pipelineDetailWithMigration3 = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, YESTERDAY);
 
-    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(
+    when(pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(
         any(), any())).thenReturn(List.of());
 
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID))
@@ -105,7 +105,7 @@ public class ViewablePipelineHuooVersionServiceTest {
     var consentCreatedTodayAfternoon = PwaConsentTestUtil.createPwaConsent(1, "5/V/21", TODAY, 2);
     var consentCreatedTodayMorning = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
 
-    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+    when(pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
         .thenReturn(List.of(consentCreatedTodayAfternoon, consentCreatedTodayMorning));
 
     var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
@@ -136,7 +136,7 @@ public class ViewablePipelineHuooVersionServiceTest {
     var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
     var consentWithoutRef = PwaConsentTestUtil.createPwaConsent(1, null, TODAY, 0);
 
-    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+    when(pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
         .thenReturn(List.of(consentWithRef, consentWithoutRef));
 
     var huooVersionSearchSelectorItems = viewablePipelineHuooVersionService.getHuooHistorySearchSelectorItems(masterPwa, PIPELINE_ID);
@@ -156,7 +156,7 @@ public class ViewablePipelineHuooVersionServiceTest {
 
     var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY);
 
-    when(pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
+    when(pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID))
         .thenReturn(List.of(consentWithRef));
 
     var pipelineDetailWithRef = PipelineDetailTestUtil.createPipelineDetail(

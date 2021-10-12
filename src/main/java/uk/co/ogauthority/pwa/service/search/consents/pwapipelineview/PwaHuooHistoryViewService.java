@@ -1,10 +1,9 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 
-import static java.util.Comparator.nullsLast;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -18,6 +17,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleServi
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailMigrationHuooDataService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 public class PwaHuooHistoryViewService {
@@ -79,16 +79,19 @@ public class PwaHuooHistoryViewService {
         selectedConsent.getId(), selectedConsent.getMasterPwa().getId()));
   }
 
-
+  /**
+   * WARNING: this method ensures the same sort order as used during the migration of legacy data from the old pipelines
+   * service. This sort order can be found in the get_last_consented_consent_id function in the migration package. As HUOOs
+   * were only migrated to the latest consent (according to the migration sort order), it is important that we sort consents
+   * in the same way here. If making changes to this sort, ensure that migrated consents are always sorted as below to
+   * ensure the correct consent is the head of the migrated consents in the list.
+   */
   private void sortPwaConsentsLatestFirst(List<PwaConsent> consents) {
 
     consents.sort(Comparator.comparing(PwaConsent::getConsentInstant, Comparator.reverseOrder())
-        .thenComparing(PwaConsent::getVariationNumber, nullsLast(Comparator.reverseOrder()))
-        .thenComparing(PwaConsent::getReference, Comparator.reverseOrder())
         .thenComparing(PwaConsent::getId, Comparator.reverseOrder()));
+
   }
-
-
 
   /**
    * The purpose of this method is to identify the earliest consent based on the first pipeline detail record that exists
@@ -99,17 +102,23 @@ public class PwaHuooHistoryViewService {
    * @return A list of sorted Pwa Consents containing all those from the latest down to the first consent
    *        where the pipeline was created excluding all but the latest migrated consent.
    */
-  List<PwaConsent> getAllConsentsOnOrAfterFirstConsentOfPipeline(MasterPwa masterPwa, PipelineId pipelineId) {
+  List<PwaConsent> getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(MasterPwa masterPwa, PipelineId pipelineId) {
 
-    var allPwaConsents = pwaConsentService.getConsentsByMasterPwa(masterPwa);
-    sortPwaConsentsLatestFirst(allPwaConsents);
+    var firstDetailForPipe = pipelineDetailService.getFirstConsentedPipelineDetail(pipelineId);
+    var datePipelineStarted = DateUtils.instantToLocalDate(firstDetailForPipe.getStartTimestamp());
 
-    var pipelineDetailFirstVersion = pipelineDetailService.getFirstConsentedPipelineDetail(pipelineId);
+    // ensure we don't look at any consents from before the pipeline history starts
+    var consentsAfterPipeStart = pwaConsentService.getConsentsByMasterPwa(masterPwa)
+        .stream()
+        .filter(consent -> DateUtils.isOnOrAfter(DateUtils.instantToLocalDate(consent.getConsentInstant()), datePipelineStarted))
+        .collect(Collectors.toList());
+
+    sortPwaConsentsLatestFirst(consentsAfterPipeStart);
 
     var filteredConsents = new ArrayList<PwaConsent>();
 
     var latestMigratedConsentFound = false;
-    for (var pwaConsent : allPwaConsents) {
+    for (var pwaConsent : consentsAfterPipeStart) {
 
       if (!pwaConsent.isMigratedFlag() || !latestMigratedConsentFound) {
         filteredConsents.add(pwaConsent);
@@ -119,17 +128,11 @@ public class PwaHuooHistoryViewService {
         latestMigratedConsentFound = true;
       }
 
-      if (pwaConsent.equals(pipelineDetailFirstVersion.getPwaConsent())) {
-        return filteredConsents;
-      }
     }
 
-    throw new PwaEntityNotFoundException(String.format(
-        "The consent for pipeline id: %s was not found in any of the consents for master pwa with id: %s",
-        pipelineId.asInt(), masterPwa.getId()));
+    return filteredConsents;
+
   }
-
-
 
   public DiffedAllOrgRolePipelineGroups getOrganisationRoleSummaryForHuooMigratedData(MasterPwa masterPwa,
                                                                                       Integer selectedPipelineDetailId) {

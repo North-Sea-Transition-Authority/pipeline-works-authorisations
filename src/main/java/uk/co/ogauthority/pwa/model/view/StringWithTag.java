@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.view;
 
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 public final class StringWithTag {
 
@@ -17,7 +18,7 @@ public final class StringWithTag {
   }
 
   public StringWithTag(String value, Tag tag) {
-    this.value = value;
+    this.value = StringUtils.defaultString(value);
     this.tag = tag;
   }
 

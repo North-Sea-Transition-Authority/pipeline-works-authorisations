@@ -19,7 +19,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -124,7 +123,7 @@ public class PwaHuooHistoryViewServiceTest {
     var pipelineDetailFirstVersion = PipelineDetailTestUtil.createPipelineDetail(1, PIPELINE_ID, Instant.now(), allConsents.get(1));
     when(pipelineDetailService.getFirstConsentedPipelineDetail(PIPELINE_ID)).thenReturn(pipelineDetailFirstVersion);
 
-    var consents = pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
+    var consents = pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
 
     var expectedConsents = List.of(allConsents.get(0), allConsents.get(1));
     assertThat(consents).containsAll(expectedConsents);
@@ -144,14 +143,14 @@ public class PwaHuooHistoryViewServiceTest {
     var pipelineDetailFirstVersion = PipelineDetailTestUtil.createPipelineDetail(1, PIPELINE_ID, Instant.now(), allConsents.get(allConsents.size()-1));
     when(pipelineDetailService.getFirstConsentedPipelineDetail(PIPELINE_ID)).thenReturn(pipelineDetailFirstVersion);
 
-    var consents = pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
+    var consents = pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
 
     var expectedConsents = allConsents.stream().filter(consent -> !consent.isMigratedFlag()).collect(Collectors.toList());
     assertThat(consents).containsAll(expectedConsents);
   }
 
   @Test
-  public void getAllConsentsOnOrAfterFirstConsentOfPipeline_consentsUnOrdered_returnedConsentsAreSorted() {
+  public void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_consentsUnOrdered_returnedConsentsAreSorted_consentsAfterPipeStartReturned() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(1, "1/W/1", EARLIEST_TIME),
@@ -166,15 +165,17 @@ public class PwaHuooHistoryViewServiceTest {
     var pipelineDetailFirstVersion = PipelineDetailTestUtil.createPipelineDetail(1, PIPELINE_ID, Instant.now(), allConsents.get(0));
     when(pipelineDetailService.getFirstConsentedPipelineDetail(PIPELINE_ID)).thenReturn(pipelineDetailFirstVersion);
 
-    var consents = pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
+    var consents = pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
 
     var expectedConsentIds = consents.stream().map(PwaConsent::getId).collect(Collectors.toList());
-    assertThat(expectedConsentIds).containsExactly(
-        6, 5, 4, 3, 2, 1);
+
+    // only consents consented after the start of the pipeline are returned, 1-4 were consented before the pipeline was started
+    assertThat(expectedConsentIds).containsExactly(6, 5);
+
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getAllConsentsOnOrAfterFirstConsentOfPipeline_consentOfFirstPipelineNotFound_error() {
+  @Test
+  public void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_firstPipeDetailConsentDifferent_noError() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(1, "1/W/1", EARLIEST_TIME),
@@ -185,7 +186,13 @@ public class PwaHuooHistoryViewServiceTest {
     var pipelineDetailFirstVersion = PipelineDetailTestUtil.createPipelineDetail(1, PIPELINE_ID, Instant.now(), new PwaConsent());
     when(pipelineDetailService.getFirstConsentedPipelineDetail(PIPELINE_ID)).thenReturn(pipelineDetailFirstVersion);
 
-    pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID);
+    var expectedConsentIds = pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, PIPELINE_ID)
+        .stream()
+        .map(PwaConsent::getId)
+        .collect(Collectors.toList());
+
+    assertThat(expectedConsentIds).containsExactly(2);
+
   }
 
 

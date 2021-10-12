@@ -84,4 +84,8 @@ public class DateUtils {
     return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
   }
 
+  public static boolean isOnOrAfter(LocalDate thisDate, LocalDate thatDate) {
+    return thisDate.compareTo(thatDate) >= 0;
+  }
+
 }

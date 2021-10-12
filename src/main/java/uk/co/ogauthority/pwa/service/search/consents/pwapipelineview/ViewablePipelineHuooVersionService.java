@@ -66,7 +66,7 @@ public class ViewablePipelineHuooVersionService {
 
     var pwaHuooHistoryItemVersions = new ArrayList<PwaHuooHistoryItemVersion>();
 
-    pwaHuooHistoryViewService.getAllConsentsOnOrAfterFirstConsentOfPipeline(masterPwa, pipelineId)
+    pwaHuooHistoryViewService.getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline(masterPwa, pipelineId)
         .stream()
         .map(PwaHuooHistoryItemVersion::fromConsent)
         .forEach(pwaHuooHistoryItemVersions::add);
