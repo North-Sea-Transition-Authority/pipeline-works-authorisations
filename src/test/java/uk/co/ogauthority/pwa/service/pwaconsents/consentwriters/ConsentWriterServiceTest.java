@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -100,13 +101,30 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_allTasks_inOrder() {
+  public void updateConsentedData_allTasks_initial_inOrder_noHolderChangeEmail() {
 
     consentWriterService.updateConsentedData(detail, consent);
 
     var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
 
     inOrder.verify(initialPwaMasterDetailWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());
+
+    verifyNoInteractions(holderChangeEmailService);
+
+  }
+
+  @Test
+  public void updateConsentedData_allTasks_variation_inOrder_holderChangeEmail() {
+
+    consent.setConsentType(PwaConsentType.VARIATION);
+
+    consentWriterService.updateConsentedData(detail, consent);
+
+    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
+
     inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());

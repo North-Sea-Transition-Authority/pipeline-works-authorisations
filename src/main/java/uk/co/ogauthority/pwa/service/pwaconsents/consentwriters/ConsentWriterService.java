@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
@@ -43,10 +44,15 @@ public class ConsentWriterService {
       consentWriterDto = writer.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
     }
 
-    holderChangeEmailService.sendHolderChangeEmail(
-        pwaApplicationDetail.getPwaApplication(),
-        consentWriterDto.getConsentRolesEnded(),
-        consentWriterDto.getConsentRolesAdded());
+    // don't send holder change emails for new pwas, there was no holder to begin with
+    if (pwaConsent.getConsentType() != PwaConsentType.INITIAL_PWA) {
+
+      holderChangeEmailService.sendHolderChangeEmail(
+          pwaApplicationDetail.getPwaApplication(),
+          consentWriterDto.getConsentRolesEnded(),
+          consentWriterDto.getConsentRolesAdded());
+
+    }
 
   }
 

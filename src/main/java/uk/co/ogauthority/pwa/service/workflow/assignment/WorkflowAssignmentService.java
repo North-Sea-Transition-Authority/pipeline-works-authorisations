@@ -100,10 +100,10 @@ public class WorkflowAssignmentService {
     );
   }
 
-  @Transactional
   /**
-   * Use this method to assign a task if you want to return exceptions up the call stack if theres a problem.
+   * Use this method to assign a task if you want to return exceptions up the call stack if there's a problem.
    */
+  @Transactional
   public void assign(WorkflowSubject workflowSubject,
                      UserWorkflowTask task,
                      Person personToAssign,

@@ -154,7 +154,6 @@ public class WorkAreaService {
       Map<WorkflowType, List<Assignment>> workflowToAssignmentMap,
       WorkflowType workflowType) {
 
-    // todo ensure apps returned are still in progress, PWA-177 after ending workflows, clear assignments in the Assignment table
     return workflowToAssignmentMap
         .getOrDefault(workflowType, List.of())
         .stream()
