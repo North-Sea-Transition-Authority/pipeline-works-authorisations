@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class ProjectInformationValidator implements SmartValidator {
@@ -370,19 +371,11 @@ public class ProjectInformationValidator implements SmartValidator {
 
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)
-        && !form.getUploadedFileWithDescriptionForms().isEmpty()) {
-
+    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
+      FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "You must upload a project layout diagram");
       FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
-
-      ValidationUtils.rejectIfEmpty(
-          errors,
-          "uploadedFileWithDescriptionForms[0].uploadedFileDescription",
-          FieldValidationErrorCodes.REQUIRED.errorCode("uploadedFileWithDescriptionForms[0].uploadedFileDescription"),
-          "File must have a description"
-      );
-
     }
+
   }
 
 

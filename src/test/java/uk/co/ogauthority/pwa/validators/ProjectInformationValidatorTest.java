@@ -937,6 +937,17 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
+  public void validate_projectLayoutDiagramFileNotUploaded() {
+    var form = new ProjectInformationForm();
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
+    assertThat(errorsMap).contains(
+        entry("uploadedFileWithDescriptionForms",
+            Set.of(FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode("uploadedFileWithDescriptionForms")))
+    );
+  }
+
+  @Test
   public void validate_tooManyProjectLayoutDiagramFiles() {
     var form = new ProjectInformationForm();
     form.setUploadedFileWithDescriptionForms(List.of(
