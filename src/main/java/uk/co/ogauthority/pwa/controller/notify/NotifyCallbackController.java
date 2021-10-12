@@ -33,7 +33,8 @@ public class NotifyCallbackController {
       notifyCallbackService.handleCallback(callbackRequest);
       return ResponseEntity.ok().build();
     } else {
-      throw new NotifyCallbackAccessDeniedException("Authorization token to process NotifyCallback request cannot be verified");
+      throw new NotifyCallbackAccessDeniedException(
+          String.format("Authorization token to process NotifyCallback request cannot be verified: [%s]", bearerToken));
     }
 
   }
