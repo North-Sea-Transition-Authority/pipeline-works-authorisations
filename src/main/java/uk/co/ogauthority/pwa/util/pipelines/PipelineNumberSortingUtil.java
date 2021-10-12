@@ -44,10 +44,10 @@ public class PipelineNumberSortingUtil {
 
 
 
-  public static int compare(String firstPipelineNumber, String secondPipelineNumber) {
+  public static int compare(String pipelineNumberA, String pipelineNumberB) {
 
-    var pipelineANumberParts = getPipelineNumberNumericalParts(firstPipelineNumber);
-    var pipelineBNumberParts = getPipelineNumberNumericalParts(secondPipelineNumber);
+    var pipelineANumberParts = getPipelineNumberNumericalParts(pipelineNumberA);
+    var pipelineBNumberParts = getPipelineNumberNumericalParts(pipelineNumberB);
 
     for (var x = 0; x < pipelineANumberParts.size(); x++) {
 
@@ -66,9 +66,9 @@ public class PipelineNumberSortingUtil {
       //numerical values were not found in either pipeline number
       LOGGER.error("Could not extract a numeric value from the pipeline numbers: {} and {}. " +
               "Falling back to default String comparison of the pipeline number",
-          firstPipelineNumber, secondPipelineNumber);
+          pipelineNumberA, pipelineNumberB);
 
-      return firstPipelineNumber.compareTo(secondPipelineNumber);
+      return pipelineNumberA.compareTo(pipelineNumberB);
 
     } else if (pipelineBNumberParts.size() > pipelineANumberParts.size()) {
       //the pipeline numbers were equal so far but pipeline b still has numbers remaining, so B is larger
@@ -76,7 +76,7 @@ public class PipelineNumberSortingUtil {
 
     }  else {
       //the pipeline numeric values are completely equal, need to compare by their suffix
-      return getPipelineNumberWithoutPrefix(firstPipelineNumber).compareTo(getPipelineNumberWithoutPrefix(secondPipelineNumber));
+      return getPipelineNumberWithoutPrefix(pipelineNumberA).compareTo(getPipelineNumberWithoutPrefix(pipelineNumberB));
     }
 
 
