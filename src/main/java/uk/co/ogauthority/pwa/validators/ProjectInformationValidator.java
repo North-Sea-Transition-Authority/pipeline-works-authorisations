@@ -372,7 +372,7 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-      FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "You must upload a project layout diagram");
+      FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "Upload a project layout diagram");
       FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
     }
 
