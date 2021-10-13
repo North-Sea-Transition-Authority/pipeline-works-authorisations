@@ -24,7 +24,7 @@ import uk.gov.service.notify.NotificationClientApi;
 @RunWith(MockitoJUnitRunner.class)
 public class NotifyCallbackServiceTest {
 
-  private static final String CALLBACK_TOKEN = "test-token";
+  private static final String CALLBACK_TOKEN = "ec83c275-e593";
   private static final String BOUNCE_BACK_EMAIL_BOX = "bounceback@pwa.co.uk";
 
   @Mock
@@ -112,15 +112,24 @@ public class NotifyCallbackServiceTest {
 
   @Test
   public void isCallbackTokenMatching_unmatchingToken() {
-    String bearerToken = NotifyCallbackService.AUTHORIZATION_SCHEME + "invalid-token";
+
+    String bearerToken = constructBearerToken("invalid-token");
 
     assertThat(notifyCallbackService.isTokenValid(bearerToken)).isFalse();
+
+  }
+
+  private String constructBearerToken(String s) {
+    return NotifyCallbackService.AUTHORIZATION_SCHEME + s;
   }
 
   @Test
   public void isCallbackTokenMatching_matchingToken() {
-    String bearerToken = NotifyCallbackService.AUTHORIZATION_SCHEME + CALLBACK_TOKEN;
+
+    String bearerToken = constructBearerToken(CALLBACK_TOKEN);
 
     assertThat(notifyCallbackService.isTokenValid(bearerToken)).isTrue();
+
   }
+
 }
