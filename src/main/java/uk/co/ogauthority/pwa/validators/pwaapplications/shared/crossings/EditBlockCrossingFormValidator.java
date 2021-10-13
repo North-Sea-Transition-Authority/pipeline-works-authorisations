@@ -72,7 +72,7 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
 
       for (int i = 0; i < form.getBlockOwnersOuIdList().size(); i++) {
         if (!validOrganisationUnitIdSet.contains(form.getBlockOwnersOuIdList().get(i))) {
-          var field = "blockOwnersOuIdList[" + i + "]";
+          var field = "blockOwnersOuIdList";
           errors.rejectValue(field, field + ".invalid", "Select a valid organisation unit");
         }
       }

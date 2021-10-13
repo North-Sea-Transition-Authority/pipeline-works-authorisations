@@ -402,7 +402,7 @@ public class EditHuooValidatorTest {
     orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(ORG_UNIT_1_ID.asInt(), "org", null);
     portalOrgRole.setOrganisationUnit(orgUnit);
 
-    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(false);
+    when(organisationRoleService.organisationExistsAndActive(orgUnit.getOuId())).thenReturn(false);
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));

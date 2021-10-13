@@ -47,13 +47,12 @@ public class EditBlockCrossingFormValidatorTest {
     var orgUnitId = 1;
     form.setBlockOwnersOuIdList(List.of(orgUnitId));
 
-
     var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(orgUnitId, "org");
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(form.getBlockOwnersOuIdList())).thenReturn(List.of(orgUnit));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, pearsLicence);
     assertThat(errorsMap).doesNotContain(
-        entry("blockOwnersOuIdList[0]", Set.of("blockOwnersOuIdList[0]" + FieldValidationErrorCodes.INVALID.getCode()))
+        entry("blockOwnersOuIdList", Set.of("blockOwnersOuIdList" + FieldValidationErrorCodes.INVALID.getCode()))
     );
 
   }
@@ -74,7 +73,7 @@ public class EditBlockCrossingFormValidatorTest {
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, pearsLicence);
     assertThat(errorsMap).contains(
-        entry("blockOwnersOuIdList[0]", Set.of("blockOwnersOuIdList[0]" + FieldValidationErrorCodes.INVALID.getCode()))
+        entry("blockOwnersOuIdList", Set.of("blockOwnersOuIdList" + FieldValidationErrorCodes.INVALID.getCode()))
     );
 
   }
