@@ -73,6 +73,6 @@ public class NotifyCallbackService {
   }
 
   public boolean isTokenValid(String bearerToken) {
-    return StringUtils.stripStart(bearerToken, AUTHORIZATION_SCHEME).equals(callbackToken);
+    return StringUtils.removeStart(bearerToken, AUTHORIZATION_SCHEME).equals(callbackToken);
   }
 }
