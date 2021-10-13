@@ -33,6 +33,13 @@ public class PipelineNumberSortingUtilTest {
   }
 
   @Test
+  public void compare_comparisonIncludesDot_sameDimension_firstNumHasTensAndUnits_secondNumHasUnitsOnly() {
+    var pipelineNumber1 = "PL123.11";
+    var pipelineNumber2 = "PL123.2";
+    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
+  }
+
+  @Test
   public void compare_comparisonIncludesMultipleDots_sameDimension_firstSectionEqual_comparisonMadeAtSecondSection() {
     var pipelineNumber1 = "PL638.65.34";
     var pipelineNumber2 = "PL638.23.34";
