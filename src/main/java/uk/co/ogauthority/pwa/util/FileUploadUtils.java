@@ -51,7 +51,8 @@ public class FileUploadUtils {
 
   public static void validateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
                                    Errors errors,
-                                   List<Object> hints) {
+                                   List<Object> hints,
+                                   String limitNotReachedMessage) {
 
     boolean mandatory = hints.stream()
         .anyMatch(h -> h == MandatoryUploadValidation.class);
@@ -75,9 +76,16 @@ public class FileUploadUtils {
         });
 
     if (mandatory) {
-      validateMinFileLimit(uploadForm, errors, 1, "Upload at least one file");
+      validateMinFileLimit(uploadForm, errors, 1, limitNotReachedMessage);
     }
 
+  }
+
+  public static void validateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
+                                   Errors errors,
+                                   List<Object> hints) {
+
+    validateFiles(uploadForm, errors, hints, "Upload at least one file");
   }
 
 }
