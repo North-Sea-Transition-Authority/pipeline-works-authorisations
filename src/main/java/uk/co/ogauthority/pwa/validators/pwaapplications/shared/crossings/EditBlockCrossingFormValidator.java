@@ -66,6 +66,7 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       var validOrganisationUnitIdSet = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(
           form.getBlockOwnersOuIdList())
           .stream()
+          .filter(PortalOrganisationUnit::isActive)
           .map(PortalOrganisationUnit::getOuId)
           .collect(Collectors.toSet());
 

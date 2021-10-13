@@ -965,4 +965,9 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   }
 
+  public boolean organisationExistsAndActive(Integer ouId) {
+    var orgUnit = portalOrganisationsAccessor.getOrganisationUnitById(ouId);
+    return orgUnit.isPresent() && orgUnit.get().isActive();
+  }
+
 }
