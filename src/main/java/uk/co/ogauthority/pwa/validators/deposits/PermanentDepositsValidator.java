@@ -259,6 +259,9 @@ public class PermanentDepositsValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
         "Enter a deposit reference");
 
+    ValidatorUtils.validateMaxStringLength(errors, "depositReference", form::getDepositReference, "Deposit reference",
+        50);
+
     var depositIsNotUnique = validationHints.getExistingDepositsForApp().stream()
         .filter(deposit -> !deposit.getId().equals(form.getEntityID()))
         .anyMatch(deposit -> deposit.getReference().equalsIgnoreCase(form.getDepositReference()));
