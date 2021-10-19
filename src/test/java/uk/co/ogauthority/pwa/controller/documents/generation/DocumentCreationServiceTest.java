@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -20,6 +21,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
+import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
@@ -40,6 +44,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentCreationServiceTest {
@@ -74,6 +79,8 @@ public class DocumentCreationServiceTest {
 
   private DocumentInstance documentInstance;
   private DocumentView documentView;
+
+  private DocgenRun docgenRun;
 
   @Before
   public void setUp() {
@@ -123,13 +130,17 @@ public class DocumentCreationServiceTest {
 
   private void testAndAssertGeneration(DocGenType docGenType, boolean watermarkShown, String expectedReference) {
 
+    docgenRun = new DocgenRun(documentInstance, docGenType, DocgenRunStatus.PENDING);
+    var person = PersonTestUtil.createDefaultPerson();
+    docgenRun.setScheduledByPerson(person);
+
     var documentSectionGenerator = mock(DocumentSectionGenerator.class);
     when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
         .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
 
-    documentCreationService.createConsentDocument(documentInstance, docGenType);
+    documentCreationService.createConsentDocument(docgenRun);
 
     var docSpec = pwaApplicationDetail.getPwaApplicationType().getConsentDocumentSpec();
 
@@ -150,7 +161,8 @@ public class DocumentCreationServiceTest {
 
     assertThat(modelMapCaptor.getValue()).containsAllEntriesOf(Map.of(
         "showWatermark", watermarkShown,
-        "consentRef", expectedReference
+        "consentRef", expectedReference,
+        "issueDate", DateUtils.formatDate(LocalDate.now())
     ));
 
   }
