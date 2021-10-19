@@ -93,7 +93,7 @@ public class DocgenService {
     docgenRun.setStartedOn(Instant.now());
 
     try {
-      processAndCompleteRun(docgenRun, docgenRun.getDocGenType());
+      processAndCompleteRun(docgenRun);
     } catch (Exception e) {
       markRunFailed(docgenRun);
       throw new DocgenException("Error generating docgen run Id: " + docgenRun.getId(), e);
@@ -101,11 +101,9 @@ public class DocgenService {
 
   }
 
-  private void processAndCompleteRun(DocgenRun docgenRun,
-                                     DocGenType docGenType) {
+  private void processAndCompleteRun(DocgenRun docgenRun) {
 
-    var docBlob = documentCreationService
-        .createConsentDocument(docgenRun.getDocumentInstance(), docGenType);
+    var docBlob = documentCreationService.createConsentDocument(docgenRun);
 
     docgenRun.setGeneratedDocument(docBlob);
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);

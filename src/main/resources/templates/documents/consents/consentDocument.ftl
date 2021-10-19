@@ -1,6 +1,7 @@
 <#-- @ftlvariable name="showWatermark" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="consentRef" type="String" -->
 <#-- @ftlvariable name="sectionHtml" type="String" -->
+<#-- @ftlvariable name="issueDate" type="String" -->
 
 <html>
 <head>
@@ -19,7 +20,11 @@
         content: element(header-content);
       }
 
-      @top-left {
+      @bottom-left-corner {
+        content: element(issuer-content);
+      }
+
+      @top-center {
         content: element(watermark-ref);
       }
 
@@ -61,7 +66,13 @@
       position: running(header-content);
       padding-top: 50px;
       height: auto;
-      padding-left: 55px
+      padding-left: 50px;
+    }
+
+    .issuer-content {
+      position: running(issuer-content);
+      padding-left: 50px;
+      width: 700px;
     }
 
     .logo-image {
@@ -76,6 +87,10 @@
 
     .header-heading {
       margin-top: 5px;
+    }
+
+    .header-issue-info {
+      font-size: 14px;
     }
 
     table {
@@ -220,8 +235,14 @@
 
   </div>
 
+  <div class="issuer-content">
+    <span class="header-issue-info">
+      Authorised and Issued by the Oil and Gas Authority ${issueDate}
+    </span>
+  </div>
+
   <#if showWatermark>
-    <watermark>TEST DOCUMENT</watermark>
+    <watermark>PREVIEW DOCUMENT</watermark>
   </#if>
 
   ${sectionHtml?no_esc}

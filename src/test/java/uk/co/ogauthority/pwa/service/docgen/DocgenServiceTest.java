@@ -158,13 +158,13 @@ public class DocgenServiceTest {
 
     var blob = new SerialBlob(new byte[1]);
 
-    when(documentCreationService.createConsentDocument(docInstance, DocGenType.FULL))
+    when(documentCreationService.createConsentDocument(run))
         .thenReturn(blob);
 
     docgenService.processDocgenRun(run);
 
     verify(documentCreationService, times(1))
-        .createConsentDocument(docInstance, DocGenType.FULL);
+        .createConsentDocument(run);
 
     verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
 
@@ -183,7 +183,7 @@ public class DocgenServiceTest {
     var docInstance = new DocumentInstance();
     run.setDocumentInstance(docInstance);
 
-    when(documentCreationService.createConsentDocument(any(), any())).thenThrow(RuntimeException.class);
+    when(documentCreationService.createConsentDocument(any())).thenThrow(RuntimeException.class);
 
     boolean exceptionCaught = false;
     try {

@@ -1,12 +1,14 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
 import java.sql.Blob;
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 public class DocumentCreationService {
@@ -49,9 +52,10 @@ public class DocumentCreationService {
     this.pwaConsentService = pwaConsentService;
   }
 
-  public Blob createConsentDocument(DocumentInstance documentInstance,
-                                    DocGenType docGenType) {
+  public Blob createConsentDocument(DocgenRun docgenRun) {
 
+    var documentInstance = docgenRun.getDocumentInstance();
+    var docGenType = docgenRun.getDocGenType();
     var app = documentInstance.getPwaApplication();
 
     var latestSubmittedDetail = pwaApplicationDetailService
@@ -82,7 +86,8 @@ public class DocumentCreationService {
     Map<String, Object> docModelAndView = Map.of(
         "sectionHtml", combinedSectionHtml,
         "consentRef", consentRef,
-        "showWatermark", docGenType == DocGenType.PREVIEW
+        "showWatermark", docGenType == DocGenType.PREVIEW,
+        "issueDate", DateUtils.formatDate(LocalDate.now())
     );
 
     var docHtml = templateRenderingService.render("documents/consents/consentDocument.ftl", docModelAndView, false);
