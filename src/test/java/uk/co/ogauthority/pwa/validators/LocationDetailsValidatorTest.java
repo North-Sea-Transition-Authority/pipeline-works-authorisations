@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.validators;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
@@ -16,6 +17,7 @@ import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
+import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -536,6 +538,45 @@ public class LocationDetailsValidatorTest {
         locationDetailsValidator, form, getValidationHintsFull(Set.of(LocationDetailsQuestion.PSR_NOTIFICATION)));
     assertThat(result).contains(
         entry("psrNotificationExpectedSubmissionDate.year", Set.of("year" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_full_routeDocumentUploaded_hasDescription_valid() {
+
+    var form = new LocationDetailsForm();
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
+    assertThat(errorsMap).doesNotContain(
+        Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
+            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_full_routeDocumentUploaded_noDescription_invalid() {
+
+    var form = new LocationDetailsForm();
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm("1", null, Instant.now())));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
+    assertThat(errorsMap).contains(
+        Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
+            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_partial_routeDocumentUploaded_noDescription_valid() {
+
+    var form = new LocationDetailsForm();
+    form.setUploadedFileWithDescriptionForms(List.of(
+        new UploadFileWithDescriptionForm("1", null, Instant.now())));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsPartial(Set.of()));
+    assertThat(errorsMap).doesNotContain(
+        Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
+            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
 }

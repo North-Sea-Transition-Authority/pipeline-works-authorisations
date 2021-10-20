@@ -293,6 +293,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     PadLocationDetails locationDetails = getLocationDetailsForDraft(detail);
     var locationDetailsForm = new LocationDetailsForm();
     mapEntityToForm(locationDetails, locationDetailsForm);
+    padFileService.mapFilesToForm(locationDetailsForm, detail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
 
     var facilities = padFacilityService.getFacilities(detail);
 

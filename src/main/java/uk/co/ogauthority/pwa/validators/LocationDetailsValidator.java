@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
@@ -225,6 +226,9 @@ public class LocationDetailsValidator implements SmartValidator {
           "withinLimitsOfDeviation",
           "Confirm that the limit of deviation during construction will be ±100m");
     }
+
+
+    FileUploadUtils.validateFiles(form, errors, List.of());
   }
 
   private void validatePsrNotificationNotRequired(LocationDetailsForm form, Errors errors) {
