@@ -66,12 +66,13 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       var validOrganisationUnitIdSet = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(
           form.getBlockOwnersOuIdList())
           .stream()
+          .filter(PortalOrganisationUnit::isActive)
           .map(PortalOrganisationUnit::getOuId)
           .collect(Collectors.toSet());
 
       for (int i = 0; i < form.getBlockOwnersOuIdList().size(); i++) {
         if (!validOrganisationUnitIdSet.contains(form.getBlockOwnersOuIdList().get(i))) {
-          var field = "blockOwnersOuIdList[" + i + "]";
+          var field = "blockOwnersOuIdList";
           errors.rejectValue(field, field + ".invalid", "Select a valid organisation unit");
         }
       }
