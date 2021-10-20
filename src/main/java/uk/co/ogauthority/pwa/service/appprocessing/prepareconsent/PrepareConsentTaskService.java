@@ -54,15 +54,18 @@ public class PrepareConsentTaskService implements AppProcessingService {
     var taskStatusIsAccessible = !getTaskStatus(processingContext).shouldForceInaccessible();
 
     var appInvolvement = processingContext.getApplicationInvolvement();
+    var appStatus = processingContext.getApplicationDetail().getStatus();
 
     // locked for industry & completed apps
-    if (appInvolvement.hasOnlyIndustryInvolvement()
-        || processingContext.getApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE)) {
+    if (appInvolvement.hasOnlyIndustryInvolvement() || appStatus.equals(PwaApplicationStatus.COMPLETE)) {
       return TaskState.LOCK;
     }
 
-    // locked for consent reviewer when review is not open, unlocked when open
-    if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)) {
+    //assigned case officer should always be able to access task at case officer review stage
+    if (appInvolvement.isUserAssignedCaseOfficer() && appStatus.equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)) {
+      return TaskState.EDIT;
+      // locked for consent reviewer when review is not open, unlocked when open
+    } else if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)) {
       //TODO PWA-1243: is this correct, or is checking EDIT_CONSENT_DOCUMENT required as well when review not open?
       return appInvolvement.getOpenConsentReview() == OpenConsentReview.YES ? TaskState.EDIT : TaskState.LOCK;
       // for all other user types lock if consent review open
