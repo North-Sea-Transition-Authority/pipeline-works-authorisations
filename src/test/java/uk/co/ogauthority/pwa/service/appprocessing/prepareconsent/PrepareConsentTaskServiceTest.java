@@ -362,6 +362,67 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
+  public void taskAccessible_satisfactoryVersions_assignedCaseOfficer_noConsentReviewPermission_caseOfficerReviewStage() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
+            )),
+        Set.of());
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_satisfactoryVersions_assignedCaseOfficer_consentReviewPermission_caseOfficerReviewStage() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(PwaAppProcessingPermission.CONSENT_REVIEW),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
+            )),
+        Set.of());
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isTrue();
+
+  }
+
+  @Test
+  public void taskAccessible_satisfactoryVersions_noConsentReviewPermission_openReview() {
+
+    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    detail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(detail, null, Set.of(),
+        null,
+        ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(detail.getPwaApplication(),
+            Set.of(
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
+                ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW
+            )),
+        Set.of());
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+
+    assertThat(taskAccessible).isFalse();
+
+  }
+
+  @Test
   public void taskAccessible_SatisfactoryVersions_consentReviewPermission_openReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -382,7 +443,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_consentReviewPermission_noReview() {
+  public void taskAccessible_SatisfactoryVersions_notAssignedCaseOfficer_consentReviewPermission_noReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
