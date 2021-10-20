@@ -52,19 +52,19 @@
 
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">External diameter</dt>
-      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty externalDiameter, 'mm'/></dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=externalDiameter suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Internal diameter</dt>
-      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty internalDiameter, 'mm'/></dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=internalDiameter suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Wall thickness</dt>
-      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty wallThickness, 'mm'/></dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=wallThickness suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">MAOP</dt>
-      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty maop, 'barg'/></dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=maop suffix='barg'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Insulation / coating type</dt>
