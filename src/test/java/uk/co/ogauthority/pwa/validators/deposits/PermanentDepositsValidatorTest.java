@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -136,6 +137,22 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_reference_tooLong_invalid() {
+    var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
+    form.setDepositReference(StringUtils.repeat('d', 51));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
+  public void validate_reference_maxAllowableLength_valid() {
+    var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
+    form.setDepositReference(StringUtils.repeat('d', 50));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).doesNotContainKeys("depositReference");
   }
 
   @Test
