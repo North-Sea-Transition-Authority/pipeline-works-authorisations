@@ -13,9 +13,10 @@ SELECT
 , CASE WHEN xou.is_duplicate = 'Y' THEN 1 ELSE 0 END is_duplicate
 , CASE WHEN xou.is_duplicate = 'Y' OR xou.end_date IS NOT NULL THEN 0 ELSE 1 END is_active
 FROM decmgr.xview_organisation_units xou
--- include all org units when
--- 1. they dont appear in a REG org grp
--- 2. they only appear in an SDK org grp
+-- Include all org units once. This join ensures org units included in the following cases
+-- 1. they are in a REG org grp
+-- 2. they dont appear in a REG org grp
+-- 3. they only appear in an SDK org grp
 LEFT JOIN decmgr.current_org_grp_organisations cogo ON cogo.organ_id = xou.organ_id AND cogo.org_grp_type = 'REG';
 
 CREATE OR REPLACE VIEW ${datasource.user}.portal_organisation_groups AS
