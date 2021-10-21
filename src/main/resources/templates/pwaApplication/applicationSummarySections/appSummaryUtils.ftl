@@ -9,9 +9,9 @@
   ${value?then('Confirmed', 'Unconfirmed')}
 </#macro>
 
-<#macro showNotProvidedWhenEmpty value>
+<#macro showNotProvidedWhenEmpty value="" suffix="">
   <#if value?has_content>
-    ${value}
+    ${value} ${suffix}
   <#else>
     Not provided
   </#if>
