@@ -1531,4 +1531,23 @@ public class PadOrganisationRoleServiceTest {
     assertThat(result).isFalse();
   }
 
+  @Test
+  public void organisationExistsAndActive_orgNotFound_false() {
+    assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isFalse();
+  }
+
+  @Test
+  public void organisationExistsAndActive_orgInactive_false() {
+    var orgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
+    when(portalOrganisationsAccessor.getOrganisationUnitById(1)).thenReturn(Optional.of(orgUnit));
+    assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isFalse();
+  }
+
+  @Test
+  public void organisationExistsAndActive_orgIsActive_true() {
+    when(portalOrganisationsAccessor.getOrganisationUnitById(1)).thenReturn(Optional.of(orgUnit1));
+    assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isTrue();
+  }
+
+
 }

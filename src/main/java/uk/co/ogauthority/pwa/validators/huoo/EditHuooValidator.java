@@ -100,10 +100,11 @@ public class EditHuooValidator implements SmartValidator {
     } else if (form.getHuooType() == HuooType.PORTAL_ORG && formOrgUnitIdOpt.isPresent()) {
       var formOrgUnitId = formOrgUnitIdOpt.get();
 
-      if (!portalOrganisationsAccessor.organisationUnitExistsForId(formOrgUnitId)) {
+      if (!padOrganisationRoleService.organisationExistsAndActive(form.getOrganisationUnitId())) {
         errors.rejectValue("organisationUnitId",
             "organisationUnitId" + FieldValidationErrorCodes.INVALID.getCode(),
-            "The selected organisation is invalid");
+            "Select a valid organisation");
+
       }
 
       boolean holderSelected = SetUtils.emptyIfNull(form.getHuooRoles()).contains(HuooRole.HOLDER)

@@ -1,4 +1,5 @@
 <#include '../../../layout.ftl'>
+<#import '../../applicationSummarySections/appSummaryUtils.ftl' as summaryUtils>
 
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
@@ -15,27 +16,27 @@
   <dl class="govuk-summary-list govuk-!-margin-bottom-9">
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Ident number</dt>
-      <dd class="govuk-summary-list__value">${identView.identNumber}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty identView.identNumber/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Length</dt>
-      <dd class="govuk-summary-list__value">${identView.length}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty identView.length/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">From</dt>
-      <dd class="govuk-summary-list__value">${identView.fromLocation}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty identView.fromLocation/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">From (coordinates)</dt>
-      <dd class="govuk-summary-list__value">${from}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty from/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">To</dt>
-      <dd class="govuk-summary-list__value">${identView.toLocation}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty identView.toLocation/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">To (coordinates)</dt>
-      <dd class="govuk-summary-list__value">${to}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty to/></dd>
     </div>
 
     <#assign isSingleCore = false>
@@ -51,31 +52,31 @@
 
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">External diameter</dt>
-      <dd class="govuk-summary-list__value">${externalDiameter}&nbsp;mm</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=externalDiameter suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Internal diameter</dt>
-      <dd class="govuk-summary-list__value">${internalDiameter}&nbsp;mm</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=internalDiameter suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Wall thickness</dt>
-      <dd class="govuk-summary-list__value">${wallThickness}&nbsp;mm</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=wallThickness suffix='mm'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">MAOP</dt>
-      <dd class="govuk-summary-list__value">${maop}&nbsp;barg</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty value=maop suffix='barg'/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Insulation / coating type</dt>
-      <dd class="govuk-summary-list__value">${insulationCoatingType}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty insulationCoatingType/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Products to be conveyed</dt>
-      <dd class="govuk-summary-list__value">${productsToBeConveyed}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty productsToBeConveyed/></dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Description of component part</dt>
-      <dd class="govuk-summary-list__value">${identView.componentPartsDescription}</dd>
+      <dd class="govuk-summary-list__value"><@summaryUtils.showNotProvidedWhenEmpty identView.componentPartsDescription/></dd>
     </div>    
   </dl>
 

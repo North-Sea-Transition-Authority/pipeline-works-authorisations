@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.validators;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +45,8 @@ public class AddHuooValidatorTest {
     orgRoles = List.of();
 
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(orgRoles);
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+
     validator = new AddHuooValidator(organisationRoleService);
   }
 
@@ -94,6 +97,29 @@ public class AddHuooValidatorTest {
     assertThat(result).containsOnly(
         entry("organisationUnitId", Set.of("organisationUnitId.required")),
         entry("huooRoles", Set.of("huooRoles.required"))
+    );
+
+  }
+
+
+  @Test
+  public void validate_orgUnitIdIsInvalid_invalid() {
+
+    var form = buildForm();
+
+    var orgRole = new PadOrganisationRole();
+    var ou = PortalOrganisationTestUtils.generateOrganisationUnit(form.getOrganisationUnitId(), "org", null);
+    orgRole.setType(HuooType.PORTAL_ORG);
+    orgRole.setOrganisationUnit(ou);
+    orgRole.setRole(HuooRole.OWNER);
+
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(orgRole));
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(false);
+
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
+
+    assertThat(result).containsOnly(
+        entry("organisationUnitId", Set.of(FieldValidationErrorCodes.INVALID.errorCode("organisationUnitId")))
     );
 
   }
