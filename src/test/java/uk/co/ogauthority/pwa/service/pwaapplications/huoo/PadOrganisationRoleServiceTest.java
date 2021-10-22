@@ -1510,9 +1510,25 @@ public class PadOrganisationRoleServiceTest {
   }
 
   @Test
-  public void isComplete_invalid_invalidUsers() {
+  public void isComplete_invalid_inactiveOrgUnitHasRole() {
+
+    var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
 
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, inactivePortalOrgUnit)
+    ));
+
+    var result = padOrganisationRoleService.isComplete(detail);
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  public void isComplete_invalid_invalidUsers() {
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),

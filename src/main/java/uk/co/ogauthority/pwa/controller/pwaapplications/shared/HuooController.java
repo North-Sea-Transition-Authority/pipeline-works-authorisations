@@ -2,11 +2,11 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,16 +14,16 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -39,6 +39,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class HuooController {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(HuooController.class);
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadOrganisationRoleService padOrganisationRoleService;
@@ -88,19 +90,40 @@ public class HuooController {
   public ModelAndView postHuooSummary(@PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       @PathVariable("applicationId") Integer applicationId,
-                                      PwaApplicationContext applicationContext,
-                                      @ModelAttribute("form") SummaryForm form,
-                                      BindingResult bindingResult,
-                                      AuthenticatedUserAccount user) {
+                                      PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
-    bindingResult = padOrganisationRoleService.validate(form, bindingResult, ValidationType.FULL, detail);
-    if (bindingResult.hasErrors()) {
-      return getHuooModelAndView(detail)
-          .addObject("errorMessage", "You must have at least one holder, user, operator, and owner");
 
-    } else if (!padOrganisationRoleService.doesApplicationHaveValidUsers(detail)) {
-      return getHuooModelAndView(detail)
-          .addObject("errorMessage", "You cannot define both a treaty agreement and legal entities as users");
+    var validationResult = padOrganisationRoleService.getHuooValidationErrorResult(detail);
+
+    if (!validationResult.isValid()) {
+      var modelAndView = getHuooModelAndView(detail);
+
+      if (!validationResult.getUnassignedRoles().isEmpty()) {
+        return modelAndView.addObject("errorMessage", "You must have at least one holder, user, operator, and owner");
+      }
+
+      if (validationResult.getBreachedBusinessRules()
+          .contains(HuooSummaryValidationResult.HuooRules.CANNOT_HAVE_TREATY_AND_PORTAL_ORG_USERS)) {
+        return modelAndView.addObject("errorMessage", "You cannot define both a treaty agreement and legal entities as users");
+      }
+
+      if (!validationResult.getSortedInactiveOrganisationsWithRole().isEmpty()) {
+        var inactiveOrgCvs = String.join(", ", validationResult.getSortedInactiveOrganisationsWithRole());
+        var organisationPluralisedOrSingular = StringDisplayUtils.pluralise(
+            "organisation", validationResult.getSortedInactiveOrganisationsWithRole().size()
+        );
+
+        return modelAndView.addObject(
+            "errorMessage",
+            String.format("You must replace the following inactive HUOO %s: %s", organisationPluralisedOrSingular, inactiveOrgCvs)
+        );
+      }
+
+      // if we have reached here, we have not handled specifically an error condition. do a log and return something generic
+      LOGGER.warn("Unhandled invalid HUOO summary state found. pad_id:[{}], huooResult:[{}]", detail.getId(), validationResult);
+      return modelAndView.addObject(
+          "errorMessage",
+          "You must correct the invalid HUOO's");
     }
 
     return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());

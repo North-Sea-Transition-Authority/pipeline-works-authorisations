@@ -9,6 +9,9 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
+/**
+ * Use when validating addition or edit of a single huoo.
+ */
 public class HuooValidationView {
 
   private HuooType huooType;

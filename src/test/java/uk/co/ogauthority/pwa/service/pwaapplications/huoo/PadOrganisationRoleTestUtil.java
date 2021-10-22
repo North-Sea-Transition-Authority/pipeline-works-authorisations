@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
+import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
@@ -13,9 +14,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRo
 public class PadOrganisationRoleTestUtil {
 
   public static PadOrganisationRole createOrgRole(HuooRole role) {
+    var activePortalOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Active Org");
     var organisationRole = new PadOrganisationRole();
     organisationRole.setRole(role);
     organisationRole.setType(HuooType.PORTAL_ORG);
+    organisationRole.setOrganisationUnit(activePortalOrgUnit);
     return organisationRole;
   }
 
