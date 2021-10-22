@@ -1478,10 +1478,10 @@ public class PadOrganisationRoleServiceTest {
   public void isComplete_valid() {
 
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER)
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1)
     ));
 
     when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
@@ -1500,9 +1500,9 @@ public class PadOrganisationRoleServiceTest {
   public void isComplete_invalid_missingOwner() {
 
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR)
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1)
     ));
 
     var result = padOrganisationRoleService.isComplete(detail);
@@ -1515,9 +1515,9 @@ public class PadOrganisationRoleServiceTest {
     var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
 
     when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, inactivePortalOrgUnit)
     ));
 
@@ -1529,10 +1529,10 @@ public class PadOrganisationRoleServiceTest {
   public void isComplete_invalid_invalidUsers() {
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER)
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1)
     ));
 
     when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
