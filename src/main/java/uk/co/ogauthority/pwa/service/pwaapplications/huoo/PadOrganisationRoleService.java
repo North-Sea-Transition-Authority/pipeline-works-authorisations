@@ -598,6 +598,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   List<String> getInactiveOrganisationNamesWithRole(PwaApplicationDetail pwaApplicationDetail) {
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getType() == HuooType.PORTAL_ORG)
         .map(PadOrganisationRole::getOrganisationUnit)
         .filter(portalOrganisationUnit -> !portalOrganisationUnit.isActive())
         .map(PortalOrganisationUnit::getName)

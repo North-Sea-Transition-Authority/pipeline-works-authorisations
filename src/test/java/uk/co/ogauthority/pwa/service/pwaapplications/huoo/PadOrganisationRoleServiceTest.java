@@ -1565,5 +1565,22 @@ public class PadOrganisationRoleServiceTest {
     assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isTrue();
   }
 
+  @Test
+  public void getInactiveOrganisationNamesWithRole_when_treatyRoleExists_andInactiveOrgRoleExists(){
+
+    var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
+
+    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
+        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, inactivePortalOrgUnit),
+        PadOrganisationRoleTestUtil.createTreatyRole(HuooRole.USER, TreatyAgreement.ANY_TREATY_COUNTRY)
+    ));
+
+    var inactiveOrgNames = padOrganisationRoleService.getInactiveOrganisationNamesWithRole(detail);
+
+    assertThat(inactiveOrgNames).containsExactly(inactivePortalOrgUnit.getName());
+  }
 
 }
