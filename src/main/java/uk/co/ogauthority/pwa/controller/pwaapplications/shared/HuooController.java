@@ -22,7 +22,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResult;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooSummaryView;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooSummaryViewService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooValidationService;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -43,33 +45,34 @@ public class HuooController {
   private static final Logger LOGGER = LoggerFactory.getLogger(HuooController.class);
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PadHuooValidationService padHuooValidationService;
+  private final PadHuooSummaryViewService padHuooSummaryViewService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public HuooController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadOrganisationRoleService padOrganisationRoleService,
+      PadHuooValidationService padHuooValidationService,
+      PadHuooSummaryViewService padHuooSummaryViewService,
       PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.padOrganisationRoleService = padOrganisationRoleService;
+    this.padHuooValidationService = padHuooValidationService;
+    this.padHuooSummaryViewService = padHuooSummaryViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
   private ModelAndView getHuooModelAndView(PwaApplicationDetail pwaApplicationDetail) {
 
-    var padOrganisationRoleList = padOrganisationRoleService.getOrgRolesForDetail(pwaApplicationDetail);
+    PadHuooSummaryView padHuooSummaryView = padHuooSummaryViewService.getPadHuooSummaryView(pwaApplicationDetail);
 
     var modelAndView = new ModelAndView("pwaApplication/shared/huoo/overview")
         .addObject("addHuooUrl", ReverseRouter.route(on(AddHuooController.class)
             .renderAddHuoo(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null, null)))
-        .addObject("huooOrgs", padOrganisationRoleService
-            .getHuooOrganisationUnitRoleViews(pwaApplicationDetail, padOrganisationRoleList))
-        .addObject("treatyAgreements",
-            padOrganisationRoleService.getTreatyAgreementViews(pwaApplicationDetail, padOrganisationRoleList))
+        .addObject("huooOrgs", padHuooSummaryView.getHuooOrganisationUnitRoleViews())
+        .addObject("treatyAgreements", padHuooSummaryView.getTreatyAgreementViews())
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("showHolderGuidance", padOrganisationRoleService.canShowHolderGuidance(pwaApplicationDetail));
+        .addObject("showHolderGuidance", padHuooSummaryView.canShowHolderGuidance());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Holders, users, operators, and owners");
@@ -93,7 +96,7 @@ public class HuooController {
                                       PwaApplicationContext applicationContext) {
     var detail = applicationContext.getApplicationDetail();
 
-    var validationResult = padOrganisationRoleService.getHuooValidationErrorResult(detail);
+    var validationResult = padHuooValidationService.getHuooSummaryValidationResult(detail);
 
     if (!validationResult.isValid()) {
       var modelAndView = getHuooModelAndView(detail);

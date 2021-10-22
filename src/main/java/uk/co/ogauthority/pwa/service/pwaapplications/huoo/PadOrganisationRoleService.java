@@ -4,13 +4,11 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,10 +23,7 @@ import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.huoo.AddHuooController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
@@ -49,17 +44,10 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
-import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
@@ -67,8 +55,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelin
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.validators.huoo.HuooValidationView;
 
+/**
+ * Holds the core business logic around application based huoo operations.
+ */
 @Service
-public class PadOrganisationRoleService implements ApplicationFormSectionService {
+public class PadOrganisationRoleService {
 
   private final PadOrganisationRolesRepository padOrganisationRolesRepository;
   private final PadPipelineOrganisationRoleLinkRepository padPipelineOrganisationRoleLinkRepository;
@@ -77,9 +68,10 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   private final PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
   private final PadPipelineService padPipelineService;
   private final EntityManager entityManager;
-  private final EntityCopyingService entityCopyingService;
 
-  private final PadOptionConfirmedService padOptionConfirmedService;
+  private final PadHuooValidationService padHuooValidationService;
+  private final PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
+
   private final PwaApplicationService pwaApplicationService;
 
   @Autowired
@@ -91,8 +83,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       PadPipelineService padPipelineService,
       EntityManager entityManager,
-      EntityCopyingService entityCopyingService,
-      PadOptionConfirmedService padOptionConfirmedService,
+      PadHuooValidationService padHuooValidationService,
+      PadHuooRoleMetadataProvider padHuooRoleMetadataProvider,
       PwaApplicationService pwaApplicationService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
     this.padPipelineOrganisationRoleLinkRepository = padPipelineOrganisationRoleLinkRepository;
@@ -101,8 +93,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.padPipelineService = padPipelineService;
     this.entityManager = entityManager;
-    this.entityCopyingService = entityCopyingService;
-    this.padOptionConfirmedService = padOptionConfirmedService;
+    this.padHuooValidationService = padHuooValidationService;
+    this.padHuooRoleMetadataProvider = padHuooRoleMetadataProvider;
     this.pwaApplicationService = pwaApplicationService;
   }
 
@@ -158,7 +150,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .filter(o -> !o.getHuooType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
         .collect(toSet());
 
-
   }
 
   public Set<OrganisationRoleInstanceDto> getAssignableOrganisationRoleInstanceDtosByRole(
@@ -167,47 +158,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return getAssignableOrganisationRoleDtos(pwaApplicationDetail).stream()
         .filter(o -> huooRole.equals(o.getHuooRole()))
         .collect(Collectors.toSet());
-
-  }
-
-  public List<HuooOrganisationUnitRoleView> getHuooOrganisationUnitRoleViews(PwaApplicationDetail detail,
-                                                                             List<PadOrganisationRole> padOrganisationRoleList) {
-
-    // filter so we are only looking at portal organisation roles
-    Map<PortalOrganisationUnit, List<PadOrganisationRole>> orgRoles = padOrganisationRoleList.stream()
-        .filter(orgRole -> orgRole.getType().equals(HuooType.PORTAL_ORG))
-        .collect(Collectors.groupingBy(PadOrganisationRole::getOrganisationUnit));
-
-    // get the org units so that we can query the details for each
-    var portalOrgUnits = new ArrayList<>(orgRoles.keySet());
-
-    Map<Integer, PortalOrganisationUnitDetail> portalOrgUnitDetails = portalOrganisationsAccessor
-        .getOrganisationUnitDetails(portalOrgUnits).stream()
-        .collect(toMap(PortalOrganisationUnitDetail::getOuId, orgUnitDetail -> orgUnitDetail));
-
-    return orgRoles.keySet()
-        .stream()
-        .map(orgUnit -> {
-
-          PortalOrganisationUnitDetail orgUnitDetail = portalOrgUnitDetails.getOrDefault(
-              orgUnit.getOuId(), null);
-
-          boolean canRemoveOrg = canRemoveOrgRoleFromUnit(detail, orgUnit);
-
-          var roles = orgRoles.get(orgUnit)
-              .stream()
-              .map(PadOrganisationRole::getRole)
-              .collect(Collectors.toSet());
-
-          return new HuooOrganisationUnitRoleView(
-              orgUnitDetail,
-              roles,
-              getEditHuooUrl(detail, orgUnit),
-              canRemoveOrg ? getRemoveHuooUrl(detail, orgUnit) : null);
-
-        })
-        .sorted()
-        .collect(toList());
 
   }
 
@@ -266,35 +216,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(activeOrgPipelineRoles);
   }
 
-  private String getEditHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {
-    return ReverseRouter.route(on(AddHuooController.class)
-        .renderEditOrgHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationUnit.getOuId(), null, null, null));
-  }
-
-  private String getRemoveHuooUrl(PwaApplicationDetail detail, PortalOrganisationUnit organisationUnit) {
-    return ReverseRouter.route(on(AddHuooController.class)
-        .renderRemoveOrgHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationUnit.getOuId(), null));
-  }
-
-  private String getRemoveHuooUrl(PwaApplicationDetail detail, PadOrganisationRole organisationRole) {
-    return ReverseRouter.route(on(AddHuooController.class)
-        .renderRemoveTreatyHuoo(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
-            organisationRole.getId(), null));
-  }
-
-  public List<HuooTreatyAgreementView> getTreatyAgreementViews(PwaApplicationDetail detail,
-                                                               List<PadOrganisationRole> padOrganisationRoleList) {
-    return padOrganisationRoleList.stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getType().equals(HuooType.TREATY_AGREEMENT))
-        .map(treatyRole -> new HuooTreatyAgreementView(
-            treatyRole,
-            getRemoveHuooUrl(detail, treatyRole)))
-        .sorted(Comparator.comparing(HuooTreatyAgreementView::getRoles))
-        .collect(toList());
-  }
-
   /**
    * If the organisation being removed is a holder, return true if there is > 1 holder on the application, false otherwise.
    * If the organisation being removed isn't a holder, return true.
@@ -305,7 +226,7 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         .map(PadOrganisationRole::getRole)
         .collect(Collectors.toSet());
 
-    var countMap = getRoleCountMap(detail);
+    var countMap = padHuooRoleMetadataProvider.getRoleCountMap(detail);
 
     if (roles.contains(HuooRole.HOLDER)) {
       return countMap.get(HuooRole.HOLDER) > 1;
@@ -533,81 +454,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     return new HuooValidationView(Set.of(padOrganisationRole));
   }
 
-  /**
-   * Return a count of all organisation roles currently on the application.
-   *
-   * @param pwaApplicationDetail The application detail.
-   * @return A map with the role as key, and count as value.
-   */
-  @VisibleForTesting
-  public Map<HuooRole, Integer> getRoleCountMap(PwaApplicationDetail pwaApplicationDetail) {
-
-    var padOrganisationRoleList = getOrgRolesForDetail(pwaApplicationDetail).stream()
-        .filter(role -> !role.getType().equals(HuooType.UNASSIGNED_PIPELINE_SPLIT))
-        .collect(Collectors.toList());
-
-    EnumMap<HuooRole, Integer> map = new EnumMap<>(HuooRole.class);
-    HuooRole.stream()
-        .forEach(role -> map.put(role, 0));
-
-    padOrganisationRoleList.stream()
-        .map(PadOrganisationRole::getRole)
-        .forEach(role -> map.put(role, map.get(role) + 1));
-
-    return map;
-  }
-
-  @Override
-  public boolean isComplete(PwaApplicationDetail detail) {
-
-    var validationResult = getHuooValidationErrorResult(detail);
-    return validationResult.isValid();
-  }
-
-  /**
-   * Produce a validation result of the HUOO state of a particular application detail.
-   */
-  public HuooSummaryValidationResult getHuooValidationErrorResult(PwaApplicationDetail pwaApplicationDetail) {
-
-    var unassignedRoles = getRoleCountMap(pwaApplicationDetail).entrySet()
-        .stream()
-        .filter(entry -> entry.getValue() == 0)
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toUnmodifiableSet());
-
-    var inactiveOrgUnitNameList = getInactiveOrganisationNamesWithRole(pwaApplicationDetail);
-
-    var breachedBusinessRules = EnumSet.noneOf(HuooSummaryValidationResult.HuooRules.class);
-    if (!doesApplicationHaveValidUsers(pwaApplicationDetail)) {
-      breachedBusinessRules.add(HuooSummaryValidationResult.HuooRules.CANNOT_HAVE_TREATY_AND_PORTAL_ORG_USERS);
-    }
-
-    return new HuooSummaryValidationResult(unassignedRoles, inactiveOrgUnitNameList, breachedBusinessRules);
-
-  }
-
-  @Override
-  public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
-                                PwaApplicationDetail pwaApplicationDetail) {
-
-    throw new UnsupportedOperationException("This validate method should not be used. Use getHuooValidationErrorResult() instead.");
-
-  }
-
-  @VisibleForTesting
-  List<String> getInactiveOrganisationNamesWithRole(PwaApplicationDetail pwaApplicationDetail) {
-    return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
-        .stream()
-        .filter(padOrganisationRole -> padOrganisationRole.getType() == HuooType.PORTAL_ORG)
-        .map(PadOrganisationRole::getOrganisationUnit)
-        .filter(portalOrganisationUnit -> !portalOrganisationUnit.isActive())
-        .map(PortalOrganisationUnit::getName)
-        .distinct()
-        .sorted(Comparator.comparing(String::toLowerCase))
-        .collect(Collectors.toUnmodifiableList());
-
-  }
-
   /* Given a summary of organisation roles and associated pipelines, create application entities */
   @Transactional
   public void createApplicationOrganisationRolesFromSummary(PwaApplicationDetail pwaApplicationDetail,
@@ -726,10 +572,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
     );
   }
 
-  public boolean canShowHolderGuidance(PwaApplicationDetail pwaApplicationDetail) {
-    return pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.INITIAL);
-  }
-
   private List<PadOrganisationRole> createPadOrganisationRoleForEveryOrganisationRoleGroup(
       OrganisationRolesSummaryDto organisationRolesSummaryDto,
       PwaApplicationDetail pwaApplicationDetail) {
@@ -782,38 +624,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         o.getHuooRole()
     )));
     return newPadOrgRoleList;
-  }
-
-  @Override
-  public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-
-    var padOrgRoleCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
-        () -> padOrganisationRolesRepository.getAllByPwaApplicationDetail(fromDetail),
-         toDetail,
-        PadOrganisationRole.class
-    );
-
-    var pipelineOrgRolesCopiedEntityIds = entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
-        () -> padPipelineOrganisationRoleLinkRepository.getAllByPadOrgRole_PwaApplicationDetail(fromDetail),
-        padOrgRoleCopiedEntityIds,
-        PadPipelineOrganisationRoleLink.class
-    );
-
-  }
-
-  @Override
-  public boolean allowCopyOfSectionInformation(PwaApplicationDetail pwaApplicationDetail) {
-    // Always copy huoo information when Options
-    return PwaApplicationType.OPTIONS_VARIATION.equals(pwaApplicationDetail.getPwaApplicationType())
-        || canShowInTaskList(pwaApplicationDetail);
-  }
-
-  @Override
-  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    var validTypes = EnumSet.complementOf(EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT, PwaApplicationType.OPTIONS_VARIATION));
-
-    return validTypes.contains(pwaApplicationDetail.getPwaApplicationType())
-        || padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail);
   }
 
   @Transactional
@@ -963,21 +773,6 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
         operatorOrgRolePipelineGroups,
         ownerOrgRolePipelineGroups
     );
-  }
-
-
-  @VisibleForTesting
-  boolean doesApplicationHaveValidUsers(PwaApplicationDetail pwaApplicationDetail) {
-
-    var totalUserPortalOrgsOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        pwaApplicationDetail, HuooRole.USER, HuooType.PORTAL_ORG);
-
-    var totalUserTreatiesOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        pwaApplicationDetail, HuooRole.USER, HuooType.TREATY_AGREEMENT);
-
-    return totalUserPortalOrgsOnApp > 0 && totalUserTreatiesOnApp > 0 ? false : true;
-
-
   }
 
   public boolean organisationExistsAndActive(Integer ouId) {

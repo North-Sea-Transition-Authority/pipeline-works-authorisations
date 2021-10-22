@@ -36,7 +36,10 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResult;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResultTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooSummaryView;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooSummaryViewService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooSummaryViewTestUtil;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooValidationService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -53,7 +56,10 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private PadOrganisationRoleService padOrganisationRoleService;
+  private PadHuooValidationService padHuooValidationService;
+
+  @MockBean
+  private PadHuooSummaryViewService padHuooSummaryViewService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1),
@@ -62,6 +68,8 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   private HuooSummaryValidationResult validationResult;
+
+  private PadHuooSummaryView padHuooSummaryView;
 
   @Before
   public void setup() {
@@ -86,7 +94,10 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
         .thenReturn(pwaApplicationDetail);
 
     validationResult = HuooSummaryValidationResultTestUtil.validResult();
-    when(padOrganisationRoleService.getHuooValidationErrorResult(any())).thenReturn(validationResult);
+    when(padHuooValidationService.getHuooSummaryValidationResult(any())).thenReturn(validationResult);
+
+    padHuooSummaryView = PadHuooSummaryViewTestUtil.getEmptySummaryView();
+    when(padHuooSummaryViewService.getPadHuooSummaryView(any())).thenReturn(padHuooSummaryView);
 
   }
 
@@ -147,7 +158,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     validationResult = HuooSummaryValidationResultTestUtil.invalidResult();
-    when(padOrganisationRoleService.getHuooValidationErrorResult(any())).thenReturn(validationResult);
+    when(padHuooValidationService.getHuooSummaryValidationResult(any())).thenReturn(validationResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
         .postHuooSummary(
