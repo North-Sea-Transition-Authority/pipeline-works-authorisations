@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooTaskSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadEnvironmentalDecommissioningService;
@@ -128,7 +128,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   HUOO(
       "Holders, users, operators, and owners",
       HuooController.class,
-      PadOrganisationRoleService.class,
+      PadHuooTaskSectionService.class,
       50, 50
   ),
 

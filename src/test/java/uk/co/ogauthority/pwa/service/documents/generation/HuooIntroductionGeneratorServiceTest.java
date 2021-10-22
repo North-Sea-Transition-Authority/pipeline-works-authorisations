@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooRoleMetadataProvider;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -40,7 +40,7 @@ public class HuooIntroductionGeneratorServiceTest {
   private MailMergeService mailMergeService;
 
   @Mock
-  private PadOrganisationRoleService padOrganisationRoleService;
+  private PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
 
   private HuooIntroductionGeneratorService huooIntroductionGeneratorService;
 
@@ -53,7 +53,10 @@ public class HuooIntroductionGeneratorServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    huooIntroductionGeneratorService = new HuooIntroductionGeneratorService(documentInstanceService, mailMergeService, padOrganisationRoleService);
+    huooIntroductionGeneratorService = new HuooIntroductionGeneratorService(
+        documentInstanceService,
+        mailMergeService,
+        padHuooRoleMetadataProvider);
 
     DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.HUOO_INTRO.name(), "intro", 1, 1);
@@ -72,7 +75,7 @@ public class HuooIntroductionGeneratorServiceTest {
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.HUOO_INTRO))
         .thenReturn(docView);
 
-    when(padOrganisationRoleService.getRoleCountMap(detail)).thenReturn(Map.of(
+    when(padHuooRoleMetadataProvider.getRoleCountMap(detail)).thenReturn(Map.of(
         HuooRole.HOLDER, 1,
         HuooRole.USER, 2,
         HuooRole.OPERATOR, 1,
