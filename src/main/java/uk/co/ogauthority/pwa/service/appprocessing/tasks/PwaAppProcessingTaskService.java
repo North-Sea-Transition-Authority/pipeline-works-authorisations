@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.tasks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 
