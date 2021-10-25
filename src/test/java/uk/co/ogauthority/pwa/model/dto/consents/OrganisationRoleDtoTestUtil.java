@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
