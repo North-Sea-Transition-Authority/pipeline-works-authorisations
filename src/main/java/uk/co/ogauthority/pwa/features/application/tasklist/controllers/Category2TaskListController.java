@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.options;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,21 +14,20 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 
 @Controller
-@RequestMapping("/pwa-application/options-variation/{applicationId}/tasks")
-@PwaApplicationTypeCheck(types = {PwaApplicationType.OPTIONS_VARIATION})
+@RequestMapping("/pwa-application/cat-2/{applicationId}/tasks")
+@PwaApplicationTypeCheck(types = {PwaApplicationType.CAT_2_VARIATION})
 @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-public class OptionsVariationTaskListController {
+public class Category2TaskListController {
 
   private final TaskListService taskListService;
   private final TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   @Autowired
-  public OptionsVariationTaskListController(TaskListService taskListService,
-                                            TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
+  public Category2TaskListController(TaskListService taskListService,
+                                     TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator) {
     this.taskListService = taskListService;
     this.taskListControllerModelAndViewCreator = taskListControllerModelAndViewCreator;
   }
@@ -36,13 +35,11 @@ public class OptionsVariationTaskListController {
   @GetMapping
   public ModelAndView viewTaskList(@PathVariable("applicationId") Integer applicationId,
                                    PwaApplicationContext applicationContext) {
-
     var taskGroups = taskListService.getTaskListGroups(applicationContext.getApplicationDetail());
     return taskListControllerModelAndViewCreator.getTaskListModelAndView(
         applicationContext.getApplicationDetail(),
         taskGroups
     );
-
   }
 
 }

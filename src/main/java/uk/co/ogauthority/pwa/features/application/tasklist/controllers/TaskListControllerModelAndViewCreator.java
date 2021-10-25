@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -18,10 +18,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
+import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.DeleteApplicationController;
 
 
 /**
- * Contains code to constructr a generic TaskList ModelAndView for a given application detail and tasks.
+ * Contains code to construct a generic TaskList ModelAndView for a given application detail and tasks.
  */
 @Service
 public class TaskListControllerModelAndViewCreator {

@@ -1,6 +1,7 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.category1;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -15,7 +16,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -24,33 +25,37 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermiss
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
+import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = Category1TaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class Category1TaskListControllerTest extends TaskListControllerTest {
+@WebMvcTest(controllers = DepositConsentTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class DepositConsentTaskListControllerTest extends TaskListControllerTest {
+
+  private PwaApplicationDetail detail;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   @Before
   public void setUp() {
 
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
 
+    var taskListGroupList = List.of(
+        new TaskListGroup("group", 1, List.of(
+            new TaskListEntry("task", "/route", true, 10)))
+    );
+
+    when(taskListService.getTaskListGroups(detail)).thenReturn(taskListGroupList);
+    when(taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroupList))
+        .thenCallRealMethod();
+
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
-        .setAllowedTypes(PwaApplicationType.CAT_1_VARIATION)
+        .setAllowedTypes(PwaApplicationType.DEPOSIT_CONSENT)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
-        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE)
-        .setPreTestSetupMethod((detail) -> {
-          var taskListGroupList = List.of(
-              new TaskListGroup("group", 1, List.of(
-                  new TaskListEntry("task", "/route", true, 10)))
-          );
-
-          when(taskListService.getTaskListGroups(detail)).thenReturn(taskListGroupList);
-          when(taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroupList))
-              .thenCallRealMethod();
-        });
+        .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
   }
 
 
@@ -58,7 +63,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
   public void viewTaskList_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(Category1TaskListController.class)
+            ReverseRouter.route(on(DepositConsentTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -74,7 +79,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
   public void viewTaskList_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(Category1TaskListController.class)
+            ReverseRouter.route(on(DepositConsentTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -90,7 +95,7 @@ public class Category1TaskListControllerTest extends TaskListControllerTest {
   public void viewTaskList_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(Category1TaskListController.class)
+            ReverseRouter.route(on(DepositConsentTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
