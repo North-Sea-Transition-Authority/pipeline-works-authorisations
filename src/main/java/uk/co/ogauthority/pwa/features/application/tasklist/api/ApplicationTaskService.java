@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 /**
  * Provides all information about a specific application task which appears in the core task list.

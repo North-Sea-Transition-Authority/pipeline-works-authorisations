@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
@@ -17,8 +17,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTaskGroup;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 /**

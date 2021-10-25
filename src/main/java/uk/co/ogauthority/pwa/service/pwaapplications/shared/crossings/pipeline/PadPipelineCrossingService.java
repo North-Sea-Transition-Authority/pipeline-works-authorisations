@@ -14,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -21,12 +22,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
+import uk.co.ogauthority.pwa.model.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadPipelineCrossingRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 

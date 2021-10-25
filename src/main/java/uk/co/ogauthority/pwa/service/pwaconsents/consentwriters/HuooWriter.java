@@ -15,11 +15,11 @@ import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.Organisatio
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;

@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.service.tasklist;
 
 import org.apache.commons.lang3.NotImplementedException;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingTypesController;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
 
 /**
  * Crossing Agreement tasks do not yet fit directly into the ApplicationTaskFramework but are essentially the same.

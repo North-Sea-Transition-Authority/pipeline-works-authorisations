@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 
 /**
  * Wrapper for the application tasks contained within a task group that allows custom ordering. Required so the group

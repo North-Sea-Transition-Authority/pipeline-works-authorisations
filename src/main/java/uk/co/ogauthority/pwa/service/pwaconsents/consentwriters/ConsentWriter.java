@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import java.util.Collection;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 /**

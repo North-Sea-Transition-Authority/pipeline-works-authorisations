@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @RunWith(MockitoJUnitRunner.class)
