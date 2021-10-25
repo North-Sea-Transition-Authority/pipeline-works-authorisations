@@ -59,7 +59,8 @@ steps:
     when:
       branch:
         - master
-        - release/*
+        - release/**
+        - hotfix/**
         - publish-to-docker
       status:
         - success
