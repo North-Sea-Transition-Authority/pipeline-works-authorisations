@@ -28,16 +28,15 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResult;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.HuooSummaryValidationResultTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -62,6 +61,8 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
+  private HuooSummaryValidationResult validationResult;
+
   @Before
   public void setup() {
 
@@ -81,8 +82,11 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
-        pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId()))
+        .thenReturn(pwaApplicationDetail);
+
+    validationResult = HuooSummaryValidationResultTestUtil.validResult();
+    when(padOrganisationRoleService.getHuooValidationErrorResult(any())).thenReturn(validationResult);
 
   }
 
@@ -142,15 +146,13 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
-    ControllerTestUtils.failValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
+    validationResult = HuooSummaryValidationResultTestUtil.invalidResult();
+    when(padOrganisationRoleService.getHuooValidationErrorResult(any())).thenReturn(validationResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
         .postHuooSummary(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
-            null,
-            null,
-            null,
             null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -164,17 +166,11 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
-    ControllerTestUtils.passValidationWhenPost(padOrganisationRoleService, new SummaryForm(), ValidationType.FULL);
-
-    when(padOrganisationRoleService.doesApplicationHaveValidUsers(pwaApplicationDetail)).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(HuooController.class)
         .postHuooSummary(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
-            null,
-            null,
-            null,
             null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
