@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 

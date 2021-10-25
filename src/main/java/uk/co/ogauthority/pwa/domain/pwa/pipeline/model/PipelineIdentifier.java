@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 /* To be implemented by classes that represent some or all of a pipeline */
 public interface PipelineIdentifier {

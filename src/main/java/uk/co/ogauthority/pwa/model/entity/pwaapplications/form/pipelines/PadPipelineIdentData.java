@@ -10,8 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdent;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentData;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity

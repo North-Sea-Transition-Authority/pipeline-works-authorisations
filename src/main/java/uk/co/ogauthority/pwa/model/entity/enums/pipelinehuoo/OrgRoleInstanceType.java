@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo;
 
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierVisitor;
 
 /**
  * Defines the types of pipeline role instance that can exist. Use sparingly to avoid relying on the Tagged class antipattern.

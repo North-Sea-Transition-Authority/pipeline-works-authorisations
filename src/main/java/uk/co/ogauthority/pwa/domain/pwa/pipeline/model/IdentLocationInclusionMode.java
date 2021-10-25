@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 /*
  * Describes whether a structure at one end of a pipeline ident is included in a pipeline segment.

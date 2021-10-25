@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 

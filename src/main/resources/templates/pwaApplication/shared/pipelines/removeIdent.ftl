@@ -2,7 +2,7 @@
 <#import '../../applicationSummarySections/appSummaryUtils.ftl' as summaryUtils>
 
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="Remove ident" pageHeading="Are you sure you want to remove this ident?" breadcrumbs=true>
 

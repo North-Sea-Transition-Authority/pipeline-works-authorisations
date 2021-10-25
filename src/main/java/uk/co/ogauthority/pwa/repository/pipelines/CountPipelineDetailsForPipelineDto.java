@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pipelines;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 
 /**
  * Simply captures the total number of pipeline_detail records that exist for a pipeline.

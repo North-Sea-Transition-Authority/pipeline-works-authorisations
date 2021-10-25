@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 
 public enum PipelineHeaderConditionalQuestion {
 
