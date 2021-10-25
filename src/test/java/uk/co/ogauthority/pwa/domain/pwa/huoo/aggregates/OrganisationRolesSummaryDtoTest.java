@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.huooaggregations;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,12 +8,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrganisationRolesSummaryDtoTest {

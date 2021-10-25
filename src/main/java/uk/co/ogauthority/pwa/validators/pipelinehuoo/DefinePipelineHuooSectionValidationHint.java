@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.validators.pipelinehuoo;
 
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 /**

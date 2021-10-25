@@ -1,8 +1,11 @@
-package uk.co.ogauthority.pwa.model.entity.enums;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+/**
+ * A HuooRole is the type of association an organisation or other entity has with a PWA.
+ */
 public enum HuooRole {
 
   HOLDER(10, "Holder"),

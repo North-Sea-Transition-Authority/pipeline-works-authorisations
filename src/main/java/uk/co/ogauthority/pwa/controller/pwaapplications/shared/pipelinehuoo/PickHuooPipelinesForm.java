@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo;
 
 import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 
 public class PickHuooPipelinesForm {
 

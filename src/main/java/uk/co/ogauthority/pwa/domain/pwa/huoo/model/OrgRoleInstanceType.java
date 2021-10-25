@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierVisitor;
 

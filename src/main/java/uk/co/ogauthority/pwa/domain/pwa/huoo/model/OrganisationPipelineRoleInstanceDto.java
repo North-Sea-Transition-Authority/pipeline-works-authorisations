@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
@@ -7,9 +7,6 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMod
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 /* Data object encapsulating link between an organisation's PWA role and a pipeline.
  *  Use Cases:

@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 class PadPipelineOrganisationRoleLinkDtoRepositoryImpl implements PadPipelineOrganisationRoleLinkDtoRepository {
@@ -19,7 +19,7 @@ class PadPipelineOrganisationRoleLinkDtoRepositoryImpl implements PadPipelineOrg
   public List<OrganisationPipelineRoleInstanceDto> findOrganisationPipelineRoleDtoByPwaApplicationDetail(
       PwaApplicationDetail applicationDetail) {
     var query = entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
             "  por.organisationUnit.ouId, " +
             "  '', " + // empty migrated name as for apps only valid org unit roles exist
             "  por.agreement, " +

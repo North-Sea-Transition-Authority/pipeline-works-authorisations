@@ -5,8 +5,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class ModifyPipelineHuooJourneyData implements Serializable {
