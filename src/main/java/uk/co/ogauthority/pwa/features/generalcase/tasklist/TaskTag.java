@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.tasklist;
+package uk.co.ogauthority.pwa.features.generalcase.tasklist;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
