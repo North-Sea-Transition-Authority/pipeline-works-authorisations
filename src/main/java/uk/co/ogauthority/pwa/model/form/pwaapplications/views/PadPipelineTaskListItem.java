@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.util.Collections;
 import java.util.List;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListHeader;
 
 /**

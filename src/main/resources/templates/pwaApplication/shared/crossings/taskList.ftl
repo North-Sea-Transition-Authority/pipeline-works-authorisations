@@ -4,7 +4,7 @@
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
-<#-- @ftlvariable name="tasks" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListEntry>" -->
+<#-- @ftlvariable name="tasks" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry>" -->
 
 <@defaultPage htmlTitle="Blocks and crossing agreements" breadcrumbs=true>
 

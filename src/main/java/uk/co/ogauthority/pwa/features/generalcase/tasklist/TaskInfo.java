@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.tasklist;
+package uk.co.ogauthority.pwa.features.generalcase.tasklist;
 
 /**
  * This is a single piece of additional information about a single application task.

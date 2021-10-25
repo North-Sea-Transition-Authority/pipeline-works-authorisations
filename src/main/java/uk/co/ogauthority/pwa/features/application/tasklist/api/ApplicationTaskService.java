@@ -9,8 +9,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**

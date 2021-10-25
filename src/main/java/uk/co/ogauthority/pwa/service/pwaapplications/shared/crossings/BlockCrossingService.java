@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisati
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
@@ -28,7 +29,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCros
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.EditBlockCrossingForm;
-import uk.co.ogauthority.pwa.model.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockOwnerRepository;
 import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;

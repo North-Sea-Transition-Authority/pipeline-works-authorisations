@@ -25,12 +25,12 @@ import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
