@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -29,7 +28,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
@@ -47,7 +45,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
@@ -57,10 +54,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.huoo.HuooForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.repository.pwaapplications.huoo.PadOrganisationRolesRepository;
 import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipelineOrganisationRoleLinkRepository;
-import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
@@ -68,10 +63,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadOrganisationRoleServiceTest {
-
-  private static final EnumSet<PwaApplicationType> DEFAULT_CANNOT_SHOW_TASKS = EnumSet.of(
-      PwaApplicationType.OPTIONS_VARIATION, PwaApplicationType.DEPOSIT_CONSENT
-  );
 
   @Mock
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
@@ -92,13 +83,13 @@ public class PadOrganisationRoleServiceTest {
   private EntityManager entityManager;
 
   @Mock
-  private EntityCopyingService entityCopyingService;
-
-  @Mock
   private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
 
   @Mock
-  private PadOptionConfirmedService padOptionConfirmedService;
+  private PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
+
+  @Mock
+  private PadHuooValidationService padHuooValidationService;
 
   @Mock
   private PwaApplicationService pwaApplicationService;
@@ -107,7 +98,6 @@ public class PadOrganisationRoleServiceTest {
 
   private PwaApplicationDetail detail;
   private PadOrganisationRole padOrgUnit1UserRole, padOrgUnit2OwnerRole, padAnyTreatyCountryRole;
-  private PortalOrganisationUnitDetail org1Detail, org2Detail;
 
   private PortalOrganisationUnit orgUnit1;
   private PortalOrganisationUnit orgUnit2;
@@ -156,8 +146,8 @@ public class PadOrganisationRoleServiceTest {
         pipelineNumberAndSplitsService,
         padPipelineService,
         entityManager,
-        entityCopyingService,
-        padOptionConfirmedService,
+        padHuooValidationService,
+        padHuooRoleMetadataProvider,
         pwaApplicationService);
 
 
@@ -166,9 +156,6 @@ public class PadOrganisationRoleServiceTest {
 
     orgUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ZZZ", orgGroup1);
     orgUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(2, "AAA", orgGroup2);
-
-    org1Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(orgUnit1, "add1", "111");
-    org2Detail = PortalOrganisationTestUtils.generateOrganisationUnitDetail(orgUnit2, "add2", "222");
 
     padOrgUnit1UserRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnit1, HuooRole.USER);
     padOrgUnit2OwnerRole = PadOrganisationRole.fromOrganisationUnit(detail, orgUnit2, HuooRole.OWNER);
@@ -205,114 +192,7 @@ public class PadOrganisationRoleServiceTest {
 
   }
 
-  @Test
-  public void getHuooOrganisationUnitRoleViews() {
 
-    var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padAnyTreatyCountryRole);
-
-    padOrgUnit1UserRole.setRole(HuooRole.USER);
-    padOrgUnit2OwnerRole.setRole(HuooRole.OWNER);
-
-    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
-        org1Detail,
-        org2Detail
-    ));
-
-    var viewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, rolesList);
-
-    assertThat(viewList.size()).isEqualTo(2);
-
-    var org1View = viewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = viewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-
-    assertThat(org1View.getCompanyAddress()).isEqualTo(org1Detail.getLegalAddress());
-    assertThat(org1View.getRegisteredNumber()).isEqualTo(org1Detail.getRegisteredNumber());
-    assertThat(org1View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit1UserRole.getRole()));
-    assertThat(org1View.getRoles()).isEqualTo("User");
-
-    assertThat(org2View.getCompanyAddress()).isEqualTo(org2Detail.getLegalAddress());
-    assertThat(org2View.getRegisteredNumber()).isEqualTo(org2Detail.getRegisteredNumber());
-    assertThat(org2View.getRoleSet()).containsExactlyInAnyOrderElementsOf(Set.of(padOrgUnit2OwnerRole.getRole()));
-    assertThat(org2View.getRoles()).isEqualTo("Owner");
-
-  }
-
-  @Test
-  public void getHuooOrganisationUnitRoleViews_sorting_holderTakesPrecedence() {
-
-    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
-        org1Detail,
-        org2Detail
-    ));
-
-    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(
-        padOrgUnit1UserRole, padOrgUnit2OwnerRole));
-
-    var org1View = orgRoleViewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = orgRoleViewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-
-    int comparison = org1View.compareTo(org2View);
-
-    // org1 comes before org2 in the role list
-    // although org2 wins by alphabetical name, roles are compared first and have higher precedence
-    // org1 has Holder role, which is ranked higher
-    assertThat(comparison).isEqualTo(-1);
-
-    assertThat(orgRoleViewList.indexOf(org1View)).isZero();
-    assertThat(orgRoleViewList.indexOf(org2View)).isEqualTo(1);
-
-  }
-
-  @Test
-  public void getHuooOrganisationUnitRoleViews_sorting_orgNameBreaksTie() {
-
-    when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
-        org1Detail,
-        org2Detail
-    ));
-
-    padOrgUnit1UserRole.setRole(padOrgUnit2OwnerRole.getRole()); // equalise the roles between the two orgs
-
-    var orgRoleViewList = padOrganisationRoleService.getHuooOrganisationUnitRoleViews(detail, List.of(
-        padOrgUnit1UserRole, padOrgUnit2OwnerRole));
-
-    var org1View = orgRoleViewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit1UserRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-    var org2View = orgRoleViewList.stream().filter(
-        r -> r.getCompanyName().equals(padOrgUnit2OwnerRole.getOrganisationUnit().getName())).findFirst().orElseThrow();
-
-    int comparison = org1View.compareTo(org2View);
-
-    // org1 comes after org2 in the list
-    // as the roles are equal, company name is used, and org2:AAA beats org1:ZZZ
-    assertThat(comparison).isEqualTo(1);
-
-    assertThat(orgRoleViewList.indexOf(org2View)).isZero();
-    assertThat(orgRoleViewList.indexOf(org1View)).isEqualTo(1);
-
-  }
-
-  @Test
-  public void getTreatyAgreementViews() {
-
-    var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padAnyTreatyCountryRole);
-
-    var viewList = padOrganisationRoleService.getTreatyAgreementViews(detail, rolesList);
-
-    assertThat(viewList.size()).isEqualTo(1);
-
-    var anyCountry = viewList.stream().filter(
-        r -> r.getCountry().equals(TreatyAgreement.ANY_TREATY_COUNTRY.getCountry())).findFirst().orElseThrow();
-
-    assertThat(anyCountry.getTreatyAgreementText()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY.getAgreementText());
-    assertThat(anyCountry.getRoles()).isEqualTo(padAnyTreatyCountryRole.getRole().getDisplayText());
-    assertThat(anyCountry.getRoles()).isEqualTo("User");
-
-  }
 
   @Test
   public void canRemoveOrganisationRole_multipleHolders() {
@@ -330,6 +210,9 @@ public class PadOrganisationRoleServiceTest {
 
   @Test
   public void canRemoveOrganisationRole_singleHolder() {
+
+    var roleCountMap = Map.of(HuooRole.HOLDER, 1);
+    when(padHuooRoleMetadataProvider.getRoleCountMap(detail)).thenReturn(roleCountMap);
 
     padOrgUnit1UserRole.setRole(HuooRole.HOLDER);
     padOrgUnit2OwnerRole.setRole(HuooRole.OWNER);
@@ -712,32 +595,6 @@ public class PadOrganisationRoleServiceTest {
   public void getOrgRolesForDetail() {
     padOrganisationRoleService.getOrgRolesForDetail(detail);
     verify(padOrganisationRolesRepository, times(1)).getAllByPwaApplicationDetail(detail);
-  }
-
-  @Test
-  public void getRoleCountMap_noUnassignedRolesPresent() {
-
-    var unassignedUserRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER);
-    unassignedUserRole.setType(HuooType.UNASSIGNED_PIPELINE_SPLIT);
-
-    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER),
-        unassignedUserRole,
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR)
-    ));
-
-    var result = padOrganisationRoleService.getRoleCountMap(detail);
-    assertThat(result).containsExactlyInAnyOrderEntriesOf(
-        Map.ofEntries(
-            entry(HuooRole.HOLDER, 1),
-            entry(HuooRole.USER, 2),
-            entry(HuooRole.OPERATOR, 3),
-            entry(HuooRole.OWNER, 0)
-        ));
   }
 
   @Test
@@ -1170,87 +1027,7 @@ public class PadOrganisationRoleServiceTest {
     verify(padPipelineOrganisationRoleLinkRepository, times(1)).deleteAll(List.of(roleLink));
   }
 
-  @Test
-  public void canShowHolderGuidance_appTypes() {
-    EnumSet.allOf(PwaApplicationType.class).forEach(pwaApplicationType -> {
-      detail.getPwaApplication().setApplicationType(pwaApplicationType);
-      boolean result = padOrganisationRoleService.canShowHolderGuidance(detail);
-      switch (pwaApplicationType) {
-        case INITIAL:
-          assertThat(result).isTrue();
-          break;
-        default:
-          assertThat(result).isFalse();
-      }
-    });
-  }
 
-  @Test
-  public void canShowInTaskList_allowed() {
-
-    var detail = new PwaApplicationDetail();
-    var app = new PwaApplication();
-    detail.setPwaApplication(app);
-
-    PwaApplicationType.stream()
-        .filter(pwaApplicationType -> !DEFAULT_CANNOT_SHOW_TASKS.contains(pwaApplicationType))
-        .forEach(applicationType -> {
-
-          app.setApplicationType(applicationType);
-
-          assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isTrue();
-
-        });
-
-  }
-
-  @Test
-  public void canShowInTaskList_notAllowed() {
-
-    var detail = new PwaApplicationDetail();
-    var app = new PwaApplication();
-    app.setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
-    detail.setPwaApplication(app);
-
-    PwaApplicationType.stream()
-        .filter(pwaApplicationType -> DEFAULT_CANNOT_SHOW_TASKS.contains(pwaApplicationType))
-        .forEach(applicationType -> {
-
-          app.setApplicationType(applicationType);
-
-          assertThat(padOrganisationRoleService.canShowInTaskList(detail)).isFalse();
-
-        });
-
-  }
-
-  @Test
-  public void allowCopyOfSectionInformation_whenOptionsApp(){
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
-
-    assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isTrue();
-  }
-
-  @Test
-  public void allowCopyOfSectionInformation_whenDepositApp(){
-
-    var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
-
-    assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isFalse();
-  }
-
-  @Test
-  public void allowCopyOfSectionInformation_whenAppTypeNotHidden(){
-
-    EnumSet.complementOf(DEFAULT_CANNOT_SHOW_TASKS).forEach(
-        pwaApplicationType -> {
-          var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(pwaApplicationType);
-          assertThat(padOrganisationRoleService.allowCopyOfSectionInformation(detail)).isTrue();
-
-
-        }
-    );
-  }
 
   @Test
   public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
@@ -1356,51 +1133,6 @@ public class PadOrganisationRoleServiceTest {
 
   }
 
-  @Test
-  public void doesApplicationHaveValidUsers_invalid() {
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.PORTAL_ORG))
-        .thenReturn(1L);
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .thenReturn(1L);
-
-    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  public void doesApplicationHaveValidUsers_valid_treatyAndNoOrg() {
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.PORTAL_ORG))
-        .thenReturn(0L);
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .thenReturn(1L);
-
-    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  public void doesApplicationHaveValidUsers_valid_orgAndNoTreaty() {
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.PORTAL_ORG))
-        .thenReturn(1L);
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .thenReturn(0L);
-
-    var result = padOrganisationRoleService.doesApplicationHaveValidUsers(detail);
-    assertThat(result).isTrue();
-  }
-
 
   @Test
   public void getOrCreateUnassignedPipelineSplitRole_whenNoUnassignedSplitRoleTypeFound() {
@@ -1474,78 +1206,6 @@ public class PadOrganisationRoleServiceTest {
     )).containsExactly(org1HolderRole, org2HolderRole, unassignableRole);
   }
 
-  @Test
-  public void isComplete_valid() {
-
-    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1)
-    ));
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.PORTAL_ORG))
-        .thenReturn(0L);
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .thenReturn(1L);
-
-    var result = padOrganisationRoleService.isComplete(detail);
-    assertThat(result).isTrue();
-  }
-
-  @Test
-  public void isComplete_invalid_missingOwner() {
-
-    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1)
-    ));
-
-    var result = padOrganisationRoleService.isComplete(detail);
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  public void isComplete_invalid_inactiveOrgUnitHasRole() {
-
-    var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
-
-    when(padOrganisationRoleService.getOrgRolesForDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, inactivePortalOrgUnit)
-    ));
-
-    var result = padOrganisationRoleService.isComplete(detail);
-    assertThat(result).isFalse();
-  }
-
-  @Test
-  public void isComplete_invalid_invalidUsers() {
-
-    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, orgUnit1)
-    ));
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.PORTAL_ORG))
-        .thenReturn(1L);
-
-    when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
-        detail, HuooRole.USER, HuooType.TREATY_AGREEMENT))
-        .thenReturn(1L);
-
-    var result = padOrganisationRoleService.isComplete(detail);
-    assertThat(result).isFalse();
-  }
 
   @Test
   public void organisationExistsAndActive_orgNotFound_false() {
@@ -1565,22 +1225,5 @@ public class PadOrganisationRoleServiceTest {
     assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isTrue();
   }
 
-  @Test
-  public void getInactiveOrganisationNamesWithRole_when_treatyRoleExists_andInactiveOrgRoleExists(){
-
-    var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
-
-    when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OPERATOR, orgUnit1),
-        PadOrganisationRoleTestUtil.createOrgRole(HuooRole.OWNER, inactivePortalOrgUnit),
-        PadOrganisationRoleTestUtil.createTreatyRole(HuooRole.USER, TreatyAgreement.ANY_TREATY_COUNTRY)
-    ));
-
-    var inactiveOrgNames = padOrganisationRoleService.getInactiveOrganisationNamesWithRole(detail);
-
-    assertThat(inactiveOrgNames).containsExactly(inactivePortalOrgUnit.getName());
-  }
 
 }

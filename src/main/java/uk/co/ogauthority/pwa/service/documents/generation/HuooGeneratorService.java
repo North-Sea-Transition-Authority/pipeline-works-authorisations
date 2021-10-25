@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooRoleMetadataProvider;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
@@ -18,13 +19,16 @@ public class HuooGeneratorService implements DocumentSectionGenerator {
 
 
   private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
   private final DiffableOrgRolePipelineGroupCreator diffableOrgRolePipelineGroupCreator;
 
   @Autowired
   public HuooGeneratorService(
       PadOrganisationRoleService padOrganisationRoleService,
+      PadHuooRoleMetadataProvider padHuooRoleMetadataProvider,
       DiffableOrgRolePipelineGroupCreator diffableOrgRolePipelineGroupCreator) {
     this.padOrganisationRoleService = padOrganisationRoleService;
+    this.padHuooRoleMetadataProvider = padHuooRoleMetadataProvider;
     this.diffableOrgRolePipelineGroupCreator = diffableOrgRolePipelineGroupCreator;
   }
 
@@ -38,7 +42,7 @@ public class HuooGeneratorService implements DocumentSectionGenerator {
     var allRolePipelineGroupView = diffableOrgRolePipelineGroupCreator
         .getDiffableViewForAllOrgRolePipelineGroupView(huooRolePipelineGroupsPadView);
 
-    var orgRoleNameToTextMap = padOrganisationRoleService.getRoleCountMap(pwaApplicationDetail)
+    var orgRoleNameToTextMap = padHuooRoleMetadataProvider.getRoleCountMap(pwaApplicationDetail)
         .entrySet()
         .stream()
         .collect(Collectors.toMap(
