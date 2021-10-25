@@ -12,10 +12,10 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.Crossin
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 
 @Service
 public class CrossingAgreementsTaskListService {

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

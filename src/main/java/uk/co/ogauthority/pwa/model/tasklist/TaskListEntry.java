@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.model.tasklist;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo;
 
 /**
  * A single task within a task list.

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -14,6 +14,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
@@ -118,7 +119,7 @@ public class TaskListEntryFactoryTest {
   /**
    * class for use in tests only which implements the generic interface required by class under test
    */
-  private class TestGeneralPurposeApplicationTask implements GeneralPurposeApplicationTask{
+  private class TestGeneralPurposeApplicationTask implements GeneralPurposeApplicationTask {
     @Override
     public Class<? extends ApplicationFormSectionService> getServiceClass() {
       return ApplicationFormSectionService.class;
