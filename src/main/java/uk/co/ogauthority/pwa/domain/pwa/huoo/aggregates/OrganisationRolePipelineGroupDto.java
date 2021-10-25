@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.huooaggregations;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -6,13 +6,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 /**
- * Data object containing all the pipeline links for a given organisation with a role on a PWA.
+ * Data object containing all the pipeline links for a given organisation with a role.
  */
 public class OrganisationRolePipelineGroupDto {
 

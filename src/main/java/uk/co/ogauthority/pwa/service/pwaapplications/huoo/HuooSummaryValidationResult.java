@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 
 /**
  * Use when validating application's HUOO's as a whole.

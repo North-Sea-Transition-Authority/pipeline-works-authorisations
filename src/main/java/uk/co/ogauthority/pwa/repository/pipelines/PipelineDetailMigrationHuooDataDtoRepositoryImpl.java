@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.repository.pipelines;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 
 public class PipelineDetailMigrationHuooDataDtoRepositoryImpl implements PipelineDetailMigrationHuooDataDtoRepository {
@@ -19,7 +19,7 @@ public class PipelineDetailMigrationHuooDataDtoRepositoryImpl implements Pipelin
   public List<OrganisationPipelineRoleInstanceDto> findHuooMigrationDataByPipelineDetail(PipelineDetail pipelineDetail) {
 
     var query = entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
             "  pdmhd.organisationUnitId, " +
             "  pdmhd.manualOrganisationName, " +
             "  pdmhd.huooRole, " +

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 
 public class HuooSummaryValidationResultTest {
 
