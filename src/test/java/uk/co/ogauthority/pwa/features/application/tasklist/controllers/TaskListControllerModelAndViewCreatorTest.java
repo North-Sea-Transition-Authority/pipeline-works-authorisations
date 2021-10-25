@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

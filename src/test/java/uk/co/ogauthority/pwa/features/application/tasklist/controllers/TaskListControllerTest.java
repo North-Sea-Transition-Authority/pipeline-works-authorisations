@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
+import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -27,7 +28,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSect
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.TaskListControllerModelAndViewCreator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
