@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import java.util.Arrays;
 import java.util.List;
@@ -6,10 +6,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.OrderedTaskGroupTask;
 
 /**
- * defines groups of applications tasks for the task list page.
+ * Defines groups of applications tasks for the task list page.
  */
 public enum ApplicationTaskGroup {
   APPLICATION_USERS(

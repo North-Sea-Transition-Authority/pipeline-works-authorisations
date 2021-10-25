@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -18,7 +19,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentPipelineOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriter;

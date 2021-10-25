@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -33,8 +33,6 @@ import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooTaskSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;

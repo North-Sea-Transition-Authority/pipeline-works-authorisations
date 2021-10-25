@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -17,7 +18,6 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.DeleteApplicationController;
 
 

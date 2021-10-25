@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.generic;
+package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 

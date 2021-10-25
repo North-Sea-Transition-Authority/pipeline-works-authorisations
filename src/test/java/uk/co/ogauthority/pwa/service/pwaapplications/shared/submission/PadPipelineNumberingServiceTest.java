@@ -15,12 +15,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.repository.submission.PadPipelineSubmissionRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationTaskService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
