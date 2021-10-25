@@ -11,8 +11,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 

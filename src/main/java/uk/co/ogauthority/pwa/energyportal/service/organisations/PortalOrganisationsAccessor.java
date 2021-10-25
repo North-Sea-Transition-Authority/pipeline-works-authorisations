@@ -12,14 +12,14 @@ import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationGroupRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitDetailRepository;
 import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 
 /**
  * API to interact with Portal Organisations. This service should not be polluted with business logic, and

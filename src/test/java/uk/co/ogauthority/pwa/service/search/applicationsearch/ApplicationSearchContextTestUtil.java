@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public final class ApplicationSearchContextTestUtil {

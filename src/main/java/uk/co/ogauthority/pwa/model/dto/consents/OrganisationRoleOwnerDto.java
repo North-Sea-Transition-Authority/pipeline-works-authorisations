@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.dto.consents;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 

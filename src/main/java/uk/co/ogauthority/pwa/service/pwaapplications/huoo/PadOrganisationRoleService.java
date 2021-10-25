@@ -23,6 +23,8 @@ import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -30,8 +32,6 @@ import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstance
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolePipelineGroupDto;
 import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;

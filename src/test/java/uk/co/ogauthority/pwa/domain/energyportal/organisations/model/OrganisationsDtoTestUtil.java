@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.organisations;
+package uk.co.ogauthority.pwa.domain.energyportal.organisations.model;
 
 public class OrganisationsDtoTestUtil {
 

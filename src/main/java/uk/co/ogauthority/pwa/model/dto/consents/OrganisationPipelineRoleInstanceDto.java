@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.dto.consents;
 
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;

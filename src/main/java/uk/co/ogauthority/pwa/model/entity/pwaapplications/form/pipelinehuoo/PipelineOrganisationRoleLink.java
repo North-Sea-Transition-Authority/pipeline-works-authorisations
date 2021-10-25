@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo;
 
 import java.util.Optional;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.pwaconsents;
 
 import java.time.Instant;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
