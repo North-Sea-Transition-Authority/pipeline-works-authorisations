@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
 

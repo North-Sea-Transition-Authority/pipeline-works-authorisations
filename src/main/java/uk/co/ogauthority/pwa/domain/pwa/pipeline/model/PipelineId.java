@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;

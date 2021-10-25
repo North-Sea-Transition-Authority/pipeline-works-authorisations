@@ -1,12 +1,7 @@
-package uk.co.ogauthority.pwa.model.entity.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for common pipeline data */

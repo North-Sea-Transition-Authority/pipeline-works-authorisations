@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
 import java.util.Objects;
 import java.util.Optional;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 /**
  * Represents a pickable pipeline for the pipeline huoo screen in a stringified form.

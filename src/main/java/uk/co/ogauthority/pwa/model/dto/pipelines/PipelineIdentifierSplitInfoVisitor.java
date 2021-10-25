@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 import org.apache.commons.lang3.StringUtils;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierVisitor;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
 public class PipelineIdentifierSplitInfoVisitor implements PipelineIdentifierVisitor {
 

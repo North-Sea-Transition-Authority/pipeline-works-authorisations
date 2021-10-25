@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 /**
  * Captures relationship between pickablePipelineId and valid pipeline identifiers.

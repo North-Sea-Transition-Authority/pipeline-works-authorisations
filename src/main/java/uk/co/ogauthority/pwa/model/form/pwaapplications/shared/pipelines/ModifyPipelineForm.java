@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 
 public class ModifyPipelineForm {
 

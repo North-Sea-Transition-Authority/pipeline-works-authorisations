@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.huoo;
 
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
