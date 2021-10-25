@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 /**
  * Separate from the pipelines business status, where does it exist in the real world.

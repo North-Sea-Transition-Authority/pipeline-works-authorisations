@@ -1,10 +1,17 @@
-package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
+/**
+ * <p>Describes the highest level category of pipelines supported by the application.</p>
+ *
+ * <p><b>If this list changes you MUST update the following the database API view: api_vw_pwa_pipeline_details.</b></p>
+ *
+ */
 public enum PipelineType implements DiffableAsString {
 
+  // We need this type to support pipelines migrated from the legacy system where we cannot know the type.
   UNKNOWN("Unknown pipeline type", -1, PipelineCoreType.SINGLE_CORE),
 
   PRODUCTION_FLOWLINE("Production Flowline", 1, PipelineCoreType.SINGLE_CORE),

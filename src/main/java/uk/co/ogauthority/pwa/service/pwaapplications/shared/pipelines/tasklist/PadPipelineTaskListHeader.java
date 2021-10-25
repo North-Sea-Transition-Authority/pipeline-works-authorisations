@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 /**

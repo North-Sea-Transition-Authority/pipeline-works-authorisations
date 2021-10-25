@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 
 import java.util.List;
 import java.util.Set;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
 
 public class PipelinesAndOrgRoleGroupViewTestUtil {
 

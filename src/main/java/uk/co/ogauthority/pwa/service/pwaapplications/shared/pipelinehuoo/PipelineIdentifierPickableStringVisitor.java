@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo;
 
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierVisitor;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
 /**
 * Create the appropriate pickable string for pipelineIdentifiers base don what is being identified
