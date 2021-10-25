@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import java.util.Arrays;
 import java.util.Set;

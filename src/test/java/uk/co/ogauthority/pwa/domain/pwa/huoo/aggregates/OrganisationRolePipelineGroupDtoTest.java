@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.huooaggregations;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,12 +7,12 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class OrganisationRolePipelineGroupDtoTest {
 

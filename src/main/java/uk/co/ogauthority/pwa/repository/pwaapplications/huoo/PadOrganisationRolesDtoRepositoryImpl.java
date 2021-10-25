@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.huoo;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleInstanceDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRolesDtoRepository {
@@ -22,7 +22,7 @@ public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRol
       PwaApplicationDetail pwaApplicationDetail) {
 
     var query = entityManager.createQuery("SELECT " +
-            "new uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto( " +
+            "new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleInstanceDto( " +
             "  por.organisationUnit.ouId " +
             ", '' " + // migration name will never be available on app roles
             ", por.agreement " +
@@ -40,7 +40,7 @@ public class PadOrganisationRolesDtoRepositoryImpl implements PadOrganisationRol
   public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaApplicationDetail(
       PwaApplicationDetail pwaApplicationDetail) {
     var query = entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
             "  por.organisationUnit.ouId, " +
             "  por.agreement, " +
             "  por.role, " +

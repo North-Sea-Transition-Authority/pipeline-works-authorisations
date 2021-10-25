@@ -1,12 +1,9 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Objects;
 import java.util.Optional;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
 
 /**

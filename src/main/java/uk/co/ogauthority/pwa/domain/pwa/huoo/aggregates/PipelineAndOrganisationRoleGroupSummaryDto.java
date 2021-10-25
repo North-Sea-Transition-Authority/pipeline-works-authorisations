@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.huooaggregations;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -9,11 +9,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
 
 /**
  * Summarises all the organisation roles for a pwa groups pipelines are organisations where the role relationships are the same

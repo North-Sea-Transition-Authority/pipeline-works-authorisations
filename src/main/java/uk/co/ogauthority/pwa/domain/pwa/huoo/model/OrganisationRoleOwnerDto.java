@@ -1,10 +1,8 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 /**
  * <p>Class which captures an "organisation" role owner. This is the organisation or treaty which owns a particular role instance for a PWA.

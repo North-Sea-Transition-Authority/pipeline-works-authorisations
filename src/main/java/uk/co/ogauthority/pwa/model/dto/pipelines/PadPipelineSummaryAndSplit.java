@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class PadPipelineSummaryAndSplit {
 

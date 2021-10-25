@@ -15,12 +15,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrgRoleInstanceType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelinehuoo.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PipelineOrganisationRoleLink;
 

@@ -1,11 +1,8 @@
-package uk.co.ogauthority.pwa.model.dto.consents;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
 
 public class OrganisationRoleDtoTestUtil {
 

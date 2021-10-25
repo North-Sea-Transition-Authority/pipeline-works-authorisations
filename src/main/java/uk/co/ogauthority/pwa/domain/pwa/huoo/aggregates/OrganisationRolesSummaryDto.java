@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.huooaggregations;
+package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
@@ -12,12 +12,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
 
 /**
- *  Summarises all the organisation roles for a pwa and gives access by huoo type or organisation unit.
+ *  Summarises all organisation roles and pipeline associations and provides easy access to grouped role instances
+ *  by huoo type or organisation unit.
  *  "For each HUOO role, group pipelines by the linked organisations with that role."
  **/
 public class OrganisationRolesSummaryDto {
