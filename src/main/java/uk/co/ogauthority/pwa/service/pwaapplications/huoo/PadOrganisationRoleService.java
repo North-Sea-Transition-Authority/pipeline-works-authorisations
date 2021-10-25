@@ -57,7 +57,6 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.pipelinehuoo.PadPipeline
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
@@ -560,37 +559,53 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var roleCountMap = getRoleCountMap(detail);
-    return roleCountMap.get(HuooRole.HOLDER) > 0
-        && roleCountMap.get(HuooRole.USER) > 0
-        && roleCountMap.get(HuooRole.OPERATOR) > 0
-        && roleCountMap.get(HuooRole.OWNER) > 0
-        && doesApplicationHaveValidUsers(detail);
+
+    var validationResult = getHuooValidationErrorResult(detail);
+    return validationResult.isValid();
+  }
+
+  /**
+   * Produce a validation result of the HUOO state of a particular application detail.
+   */
+  public HuooSummaryValidationResult getHuooValidationErrorResult(PwaApplicationDetail pwaApplicationDetail) {
+
+    var unassignedRoles = getRoleCountMap(pwaApplicationDetail).entrySet()
+        .stream()
+        .filter(entry -> entry.getValue() == 0)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toUnmodifiableSet());
+
+    var inactiveOrgUnitNameList = getInactiveOrganisationNamesWithRole(pwaApplicationDetail);
+
+    var breachedBusinessRules = EnumSet.noneOf(HuooSummaryValidationResult.HuooRules.class);
+    if (!doesApplicationHaveValidUsers(pwaApplicationDetail)) {
+      breachedBusinessRules.add(HuooSummaryValidationResult.HuooRules.CANNOT_HAVE_TREATY_AND_PORTAL_ORG_USERS);
+    }
+
+    return new HuooSummaryValidationResult(unassignedRoles, inactiveOrgUnitNameList, breachedBusinessRules);
+
   }
 
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType == ValidationType.FULL) {
-      var roleCountMap = getRoleCountMap(pwaApplicationDetail);
-      if (roleCountMap.get(HuooRole.HOLDER) == 0) {
-        bindingResult.reject("holders" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "At least one holder is required");
-      }
-      if (roleCountMap.get(HuooRole.USER) == 0) {
-        bindingResult.reject("users" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "At least one user is required");
-      }
-      if (roleCountMap.get(HuooRole.OPERATOR) == 0) {
-        bindingResult.reject("operators" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "At least one operator is required");
-      }
-      if (roleCountMap.get(HuooRole.OWNER) == 0) {
-        bindingResult.reject("owners" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "At least one owner is required");
-      }
-    }
-    return bindingResult;
+
+    throw new UnsupportedOperationException("This validate method should not be used. Use getHuooValidationErrorResult() instead.");
+
+  }
+
+  @VisibleForTesting
+  List<String> getInactiveOrganisationNamesWithRole(PwaApplicationDetail pwaApplicationDetail) {
+    return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
+        .stream()
+        .filter(padOrganisationRole -> padOrganisationRole.getType() == HuooType.PORTAL_ORG)
+        .map(PadOrganisationRole::getOrganisationUnit)
+        .filter(portalOrganisationUnit -> !portalOrganisationUnit.isActive())
+        .map(PortalOrganisationUnit::getName)
+        .distinct()
+        .sorted(Comparator.comparing(String::toLowerCase))
+        .collect(Collectors.toUnmodifiableList());
+
   }
 
   /* Given a summary of organisation roles and associated pipelines, create application entities */
@@ -951,8 +966,8 @@ public class PadOrganisationRoleService implements ApplicationFormSectionService
   }
 
 
-
-  public boolean doesApplicationHaveValidUsers(PwaApplicationDetail pwaApplicationDetail) {
+  @VisibleForTesting
+  boolean doesApplicationHaveValidUsers(PwaApplicationDetail pwaApplicationDetail) {
 
     var totalUserPortalOrgsOnApp = padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
         pwaApplicationDetail, HuooRole.USER, HuooType.PORTAL_ORG);
