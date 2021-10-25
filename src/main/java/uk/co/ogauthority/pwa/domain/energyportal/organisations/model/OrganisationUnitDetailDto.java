@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.organisations;
+package uk.co.ogauthority.pwa.domain.energyportal.organisations.model;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
