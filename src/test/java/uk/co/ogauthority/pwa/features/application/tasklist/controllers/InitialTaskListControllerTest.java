@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.huoo;
+package uk.co.ogauthority.pwa.features.application.tasklist.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -16,7 +16,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.controller.TaskListControllerTest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.tasklist.TaskListGroup;
@@ -29,8 +28,9 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = HuooVariationTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class HuooVariationTaskListControllerTest extends TaskListControllerTest {
+@WebMvcTest(controllers = InitialTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class InitialTaskListControllerTest extends TaskListControllerTest {
+
 
   private PwaApplicationDetail detail;
 
@@ -39,7 +39,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
   @Before
   public void setUp() {
 
-    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
+    detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var taskListGroupList = List.of(
         new TaskListGroup("group", 1, List.of(
@@ -54,7 +54,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
-        .setAllowedTypes(PwaApplicationType.HUOO_VARIATION)
+        .setAllowedTypes(PwaApplicationType.INITIAL)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
   }
@@ -64,7 +64,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
   public void viewTaskList_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(HuooVariationTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -80,7 +80,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
   public void viewTaskList_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(HuooVariationTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -96,7 +96,7 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
   public void viewTaskList_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(HuooVariationTaskListController.class)
+            ReverseRouter.route(on(InitialTaskListController.class)
                 .viewTaskList(
                     applicationDetail.getMasterPwaApplicationId(),
                     null
@@ -107,4 +107,6 @@ public class HuooVariationTaskListControllerTest extends TaskListControllerTest 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
   }
+
+
 }
