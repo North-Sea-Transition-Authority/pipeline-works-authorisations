@@ -1,10 +1,8 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 import java.util.Optional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
 
 
 @Service

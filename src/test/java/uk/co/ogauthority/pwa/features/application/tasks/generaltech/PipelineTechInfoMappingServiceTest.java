@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,13 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoMappingService;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadPipelineTechInfoMappingServiceTest {
+public class PipelineTechInfoMappingServiceTest {
 
   private PipelineTechInfoMappingService pipelineTechInfoMappingService;
 
