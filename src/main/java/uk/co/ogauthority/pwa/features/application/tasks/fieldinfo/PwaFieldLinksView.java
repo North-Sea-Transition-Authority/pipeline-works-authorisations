@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.view.fieldinformation;
+package uk.co.ogauthority.pwa.features.application.tasks.fieldinfo;
 
 import java.util.Comparator;
 import java.util.List;

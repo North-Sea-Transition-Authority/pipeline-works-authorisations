@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.fields;
+package uk.co.ogauthority.pwa.features.application.tasks.fieldinfo;
 
 import java.util.List;
 
