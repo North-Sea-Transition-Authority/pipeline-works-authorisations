@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.techinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,16 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PadDesignOpConditionsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DesignOpConditionsValidatorTest {
+public class PadDesignOpConditionsValidatorTest {
 
   private MinMaxInputValidator minMaxInputValidator;
   private PadDesignOpConditionsValidator validator;
@@ -55,6 +53,7 @@ public class DesignOpConditionsValidatorTest {
         entry("uvalueDesign", Set.of("uvalueDesign.required"))
     );
   }
+
 
   @Test
   public void validate_form_valid() {

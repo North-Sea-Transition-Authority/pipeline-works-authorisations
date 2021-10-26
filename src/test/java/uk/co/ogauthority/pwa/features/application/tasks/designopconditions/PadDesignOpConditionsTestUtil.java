@@ -1,13 +1,10 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions_;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
