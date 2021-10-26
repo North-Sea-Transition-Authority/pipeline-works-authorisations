@@ -2,10 +2,10 @@
 <#include 'appSummaryUtils.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="environmentalDecommView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView" -->
-<#-- @ftlvariable name="environmentalConditions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition>" -->
-<#-- @ftlvariable name="decommissioningConditions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition>" -->
-<#-- @ftlvariable name="availableQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion>" -->
+<#-- @ftlvariable name="environmentalDecommView" type="uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvironmentalDecommissioningView" -->
+<#-- @ftlvariable name="environmentalConditions" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvironmentalCondition>" -->
+<#-- @ftlvariable name="decommissioningConditions" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.DecommissioningCondition>" -->
+<#-- @ftlvariable name="availableQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvDecomQuestion>" -->
 
 <div class="pwa-application-summary-section">
 

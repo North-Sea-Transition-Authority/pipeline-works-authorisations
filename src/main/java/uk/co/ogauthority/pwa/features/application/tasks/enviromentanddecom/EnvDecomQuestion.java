@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.enums.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 public enum EnvDecomQuestion {
 
