@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.Cam
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.PipelinesHuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
@@ -38,6 +37,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.controller.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller.PipelinesHuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -50,7 +51,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;

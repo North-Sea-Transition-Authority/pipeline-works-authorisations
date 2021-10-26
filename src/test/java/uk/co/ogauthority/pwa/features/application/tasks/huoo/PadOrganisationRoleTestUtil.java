@@ -6,8 +6,8 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinehuoo.PadPipelineOrganisationRoleLink;
 
 public class PadOrganisationRoleTestUtil {
 
