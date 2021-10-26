@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOptionController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
@@ -31,6 +30,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackSe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.controller.FastTrackController;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.controller.PadPwaFieldsController;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooTaskSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.controller.HuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
@@ -38,7 +39,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.P
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadHuooTaskSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
