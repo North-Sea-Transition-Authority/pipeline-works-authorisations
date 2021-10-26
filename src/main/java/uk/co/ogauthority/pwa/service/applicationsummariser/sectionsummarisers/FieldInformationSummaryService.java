@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
@@ -16,7 +17,6 @@ import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSum
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 
 /**
  * Construct summary of field links for a given application and associated PWA.

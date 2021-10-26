@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -24,10 +26,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSec
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
-import uk.co.ogauthority.pwa.model.view.fieldinformation.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)

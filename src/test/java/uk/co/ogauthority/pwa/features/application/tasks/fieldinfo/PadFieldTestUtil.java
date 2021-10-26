@@ -1,8 +1,7 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.features.application.tasks.fieldinfo;
 
 import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class PadFieldTestUtil {

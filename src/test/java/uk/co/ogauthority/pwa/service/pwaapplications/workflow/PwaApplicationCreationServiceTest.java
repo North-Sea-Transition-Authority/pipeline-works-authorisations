@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.Organisatio
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
@@ -38,7 +39,6 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.fieldinformation.PadFieldService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
