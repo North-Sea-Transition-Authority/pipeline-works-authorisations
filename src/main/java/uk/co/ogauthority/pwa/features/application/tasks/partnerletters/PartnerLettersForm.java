@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters;
+package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 
 
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
