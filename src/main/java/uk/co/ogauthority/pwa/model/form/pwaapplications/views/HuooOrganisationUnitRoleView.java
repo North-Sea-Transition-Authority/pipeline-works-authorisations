@@ -4,8 +4,8 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 
 public class HuooOrganisationUnitRoleView implements Comparable<HuooOrganisationUnitRoleView> {
 

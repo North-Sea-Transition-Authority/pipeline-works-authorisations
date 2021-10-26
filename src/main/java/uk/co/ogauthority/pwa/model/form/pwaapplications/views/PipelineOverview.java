@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 

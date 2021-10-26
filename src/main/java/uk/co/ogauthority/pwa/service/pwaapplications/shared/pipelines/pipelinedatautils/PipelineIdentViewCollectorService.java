@@ -9,9 +9,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdent;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentData;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 
 /**

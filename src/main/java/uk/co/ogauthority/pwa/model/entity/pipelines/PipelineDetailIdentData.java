@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdent;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentData;
 
 @Entity
 @Table(name = "pipeline_detail_ident_data")

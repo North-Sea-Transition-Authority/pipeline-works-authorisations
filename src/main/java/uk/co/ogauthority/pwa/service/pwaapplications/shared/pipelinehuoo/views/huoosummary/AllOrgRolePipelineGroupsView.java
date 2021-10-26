@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 
 public class AllOrgRolePipelineGroupsView {
 

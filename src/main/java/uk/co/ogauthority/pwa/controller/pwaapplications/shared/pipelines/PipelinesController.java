@@ -16,11 +16,11 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.rest.PipelineRestControl
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;

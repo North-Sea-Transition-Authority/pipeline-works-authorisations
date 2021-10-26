@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableIdentLocationOption;
 

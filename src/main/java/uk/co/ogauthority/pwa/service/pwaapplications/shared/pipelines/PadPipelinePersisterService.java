@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelines.PadPipelineIdentDataRepository;

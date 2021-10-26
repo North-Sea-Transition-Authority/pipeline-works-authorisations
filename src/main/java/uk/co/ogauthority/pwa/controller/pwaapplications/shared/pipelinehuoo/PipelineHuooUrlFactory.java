@@ -5,9 +5,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Base64;
 import java.util.Collections;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineType;

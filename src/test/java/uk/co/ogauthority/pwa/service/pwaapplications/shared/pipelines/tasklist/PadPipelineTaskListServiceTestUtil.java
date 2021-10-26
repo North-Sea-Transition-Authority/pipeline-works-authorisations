@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;

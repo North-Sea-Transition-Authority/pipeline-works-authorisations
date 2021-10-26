@@ -7,9 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PickableHuooPipelineTypeTest {

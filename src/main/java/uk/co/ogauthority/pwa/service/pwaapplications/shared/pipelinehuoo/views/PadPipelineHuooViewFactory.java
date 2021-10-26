@@ -12,25 +12,25 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.PipelineAndOrganisationRoleGroupDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.PipelineAndOrganisationRoleGroupSummaryDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupDto;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.PipelineAndOrganisationRoleGroupSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
-@Service
 /**
- * Service which constructs view objects over application pipeline huoo data designed to be consumed in Templates
+ * Service which constructs view objects over application pipeline huoo data designed to be consumed in Templates.
  */
+@Service
 public class PadPipelineHuooViewFactory {
 
   private static final String DEFAULT_SPLIT_PIPELINE_DISPLAY_TEXT = "Unassigned";

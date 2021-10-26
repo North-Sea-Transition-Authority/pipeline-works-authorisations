@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailMigrationHuooData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailMigrationHuooDataRepository;

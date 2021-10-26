@@ -3,11 +3,11 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifierVisitor;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierVisitor;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableIdentLocationOption;
 
 /**

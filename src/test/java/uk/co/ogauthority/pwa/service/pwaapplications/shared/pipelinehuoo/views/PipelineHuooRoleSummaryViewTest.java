@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleDtoTestUtil;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineHuooRoleSummaryViewTest {

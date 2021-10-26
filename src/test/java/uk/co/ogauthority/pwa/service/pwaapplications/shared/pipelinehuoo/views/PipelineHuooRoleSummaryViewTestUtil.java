@@ -4,9 +4,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 public class PipelineHuooRoleSummaryViewTestUtil {
   private PipelineHuooRoleSummaryViewTestUtil() {

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffableOrgRolePipelineGroup;
 
 // mirrors AllOrgRolePipelineGroupsView but has done post processing of group views for template consumption

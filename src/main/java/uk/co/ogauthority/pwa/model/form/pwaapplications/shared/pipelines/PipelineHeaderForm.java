@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 
 public class PipelineHeaderForm {

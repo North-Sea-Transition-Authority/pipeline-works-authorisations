@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdentData;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentData;
 
 @Service
 public class PipelineIdentDataMappingService {

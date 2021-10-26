@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 
 @Converter
 public class OrganisationUnitIdConverter implements AttributeConverter<OrganisationUnitId, Integer> {

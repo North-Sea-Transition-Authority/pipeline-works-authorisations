@@ -4,11 +4,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.model.dto.pipelines.IdentLocationInclusionMode;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentPoint;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSection;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
 /**
  * <p>Represents the types of pipeline that can be picked when assigning HUOO roles.</p>

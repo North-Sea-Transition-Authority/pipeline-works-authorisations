@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PhysicalPipelineState;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -25,7 +25,7 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
     var importableHuooPipelineStatus = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
 
     var query = entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
             "  cor.organisationUnitId, " +
             "  cor.migratedOrganisationName, " +
             "  cor.agreement, " +
@@ -59,7 +59,7 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
       List<PwaConsent> pwaConsents, Pipeline pipeline) {
 
     var query = entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.dto.consents.OrganisationPipelineRoleInstanceDto( " +
+            "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
             "  cor.organisationUnitId, " +
             "  cor.migratedOrganisationName, " +
             "  cor.agreement, " +

@@ -4,11 +4,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.dto.consents.OrganisationRoleOwnerDto;
-import uk.co.ogauthority.pwa.model.dto.organisations.OrganisationUnitDetailDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
-import uk.co.ogauthority.pwa.model.entity.enums.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 public class OrganisationRolePipelineGroupView {
 

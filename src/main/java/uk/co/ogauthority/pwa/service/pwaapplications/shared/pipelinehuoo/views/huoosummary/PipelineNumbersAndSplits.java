@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
 
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
 
 
