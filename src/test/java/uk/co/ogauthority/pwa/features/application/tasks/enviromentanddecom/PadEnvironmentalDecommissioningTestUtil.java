@@ -1,13 +1,9 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
-import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public class PadEnvironmentalDecommissioningTestUtil {

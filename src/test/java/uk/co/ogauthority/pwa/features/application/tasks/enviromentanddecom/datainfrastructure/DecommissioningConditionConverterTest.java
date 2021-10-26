@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.datainfrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
+import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.DecommissioningCondition;
 
 public class DecommissioningConditionConverterTest {
 

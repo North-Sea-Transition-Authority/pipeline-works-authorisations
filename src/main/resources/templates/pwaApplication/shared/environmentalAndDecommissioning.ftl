@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="hseSafetyZones" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="environmentalConditions" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="decommissioningConditions" type="java.util.Map<String, String>" -->
-<#-- @ftlvariable name="availableQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion>" -->
+<#-- @ftlvariable name="availableQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvDecomQuestion>" -->
 
 <@defaultPage htmlTitle="Environmental and decommissioning" pageHeading="Environmental and decommissioning" breadcrumbs=true errorItems=errorList>
 

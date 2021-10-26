@@ -1,8 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.DecommissioningCondition;
-import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
 
 public class EnvironmentalDecommissioningForm {
 

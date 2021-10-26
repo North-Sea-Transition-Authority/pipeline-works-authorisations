@@ -6,7 +6,7 @@
  *
  * <p>Functionality that exists to support a single screen or single use case does not belong here.</p>
  *
- * <p>Nothing include this package should refer to anything outside (in an upper level).
+ * <p>Nothing included in this package should refer to anything outside (in an upper level).
  * That means no(or very very limited) Spring framework code, Hibernate specific code, or simply application use case specific code.</p>
  *
  * <p>This package exists to support a "vertical slice" architecture (with the goal to move to a "package by component"
