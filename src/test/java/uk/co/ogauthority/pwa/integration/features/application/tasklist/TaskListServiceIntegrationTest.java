@@ -33,12 +33,12 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskGr
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;

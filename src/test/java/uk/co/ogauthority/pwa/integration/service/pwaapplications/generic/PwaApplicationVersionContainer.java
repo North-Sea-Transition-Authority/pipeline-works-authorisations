@@ -9,6 +9,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
@@ -16,7 +17,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPip
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;

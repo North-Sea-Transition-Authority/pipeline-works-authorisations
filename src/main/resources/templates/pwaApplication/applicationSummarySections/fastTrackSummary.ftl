@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="fastTrackView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.FastTrackView" -->
+<#-- @ftlvariable name="fastTrackView" type="uk.co.ogauthority.pwa.features.application.tasks.fasttrack.FastTrackView" -->
 
 
 <div class="pwa-application-summary-section">

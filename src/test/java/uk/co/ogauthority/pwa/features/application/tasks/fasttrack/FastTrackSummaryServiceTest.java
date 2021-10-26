@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers;
+package uk.co.ogauthority.pwa.features.application.tasks.fasttrack;
 
 
 import static java.util.Map.entry;
@@ -15,10 +15,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FastTrackView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
+import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.FastTrackSummaryService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
