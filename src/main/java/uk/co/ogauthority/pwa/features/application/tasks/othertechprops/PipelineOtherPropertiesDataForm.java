@@ -1,8 +1,7 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 
 public class PipelineOtherPropertiesDataForm {

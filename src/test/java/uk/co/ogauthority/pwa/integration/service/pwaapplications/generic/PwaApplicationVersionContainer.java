@@ -16,9 +16,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemica
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;

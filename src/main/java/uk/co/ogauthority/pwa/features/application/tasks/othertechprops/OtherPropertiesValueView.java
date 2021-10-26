@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
 
 public class OtherPropertiesValueView {
 

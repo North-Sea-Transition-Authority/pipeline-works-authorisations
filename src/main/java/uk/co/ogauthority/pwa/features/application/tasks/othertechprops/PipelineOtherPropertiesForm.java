@@ -1,11 +1,9 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 
 public class PipelineOtherPropertiesForm {
 
