@@ -30,12 +30,13 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEn
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
@@ -76,7 +77,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;
-import uk.co.ogauthority.pwa.service.devuk.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
