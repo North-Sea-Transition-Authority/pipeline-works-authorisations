@@ -8,12 +8,12 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCr
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingDocumentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters.PartnerLettersController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
 
 /**
  * Enumeration of the different areas of a PWA application detail that can have file links.
