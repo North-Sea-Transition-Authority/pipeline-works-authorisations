@@ -32,6 +32,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
@@ -76,7 +78,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -92,7 +93,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.P
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadDesignOpConditionsTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineOtherPropertiesTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;

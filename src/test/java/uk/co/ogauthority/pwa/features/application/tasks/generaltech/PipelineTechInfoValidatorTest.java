@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.techinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,10 +9,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineTechInfoValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineTechInfoValidatorTest {
