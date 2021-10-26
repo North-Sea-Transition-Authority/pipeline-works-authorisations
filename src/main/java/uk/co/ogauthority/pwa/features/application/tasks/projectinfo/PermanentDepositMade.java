@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.projectinformation;
+package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static java.util.stream.Collectors.toList;
 import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.CAT_1_VARIATION;
@@ -11,7 +11,6 @@ import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplication
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public enum PermanentDepositMade {

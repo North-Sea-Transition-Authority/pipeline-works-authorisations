@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
@@ -92,7 +93,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.Pa
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineTechInfoTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;

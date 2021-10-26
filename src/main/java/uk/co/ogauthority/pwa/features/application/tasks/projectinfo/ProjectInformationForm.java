@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {

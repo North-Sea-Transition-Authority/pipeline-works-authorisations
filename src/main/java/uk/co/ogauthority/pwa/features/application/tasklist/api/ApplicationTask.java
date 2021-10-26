@@ -11,7 +11,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOp
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.HuooController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.campaignworks.CampaignWorksController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
@@ -34,6 +33,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldServic
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.controller.PadPwaFieldsController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
@@ -51,7 +52,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.Pad
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 

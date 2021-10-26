@@ -1,8 +1,8 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="projectInfoView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.ProjectInformationView" -->
-<#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion>" -->
+<#-- @ftlvariable name="projectInfoView" type="uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationView" -->
+<#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion>" -->
 
 <div class="pwa-application-summary-section">
   <h2 class="govuk-heading-l" id="projectInformation">${sectionDisplayText}</h2>
