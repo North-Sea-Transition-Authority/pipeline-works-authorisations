@@ -2,7 +2,7 @@
 <#-- @ftlvariable name="currentProcessingTab" type="uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab" -->
 <#-- @ftlvariable name="availableTabs" type="java.util.List<uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab>" -->
 <#-- @ftlvariable name="tabUrlFactory" type="uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTabUrlFactory" -->
-<#-- @ftlvariable name="taskListGroups" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListGroup>" -->
+<#-- @ftlvariable name="taskListGroups" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup>" -->
 <#-- @ftlvariable name="caseHistoryItems" type="java.util.List<uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView>" -->
 <#-- @ftlvariable name="industryFlag" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->

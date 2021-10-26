@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCr
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingTypesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;

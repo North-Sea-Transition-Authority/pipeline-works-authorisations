@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="task" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
+<#-- @ftlvariable name="task" type="uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry" -->
 <#-- @ftlvariable name="taskGroupNameWarningMessageMap" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 <#macro tab taskListGroups industryFlag=false taskGroupNameWarningMessageMap=[]>
