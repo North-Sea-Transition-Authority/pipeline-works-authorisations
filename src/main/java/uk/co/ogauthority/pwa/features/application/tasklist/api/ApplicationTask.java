@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.Pipe
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelines.PipelinesTaskListController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
@@ -29,6 +28,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackSe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.controller.FastTrackController;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.controller.PadPwaFieldsController;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.controller.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.controller.PipelineTechInfoController;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooTaskSectionService;
@@ -50,7 +51,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.Pe
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;

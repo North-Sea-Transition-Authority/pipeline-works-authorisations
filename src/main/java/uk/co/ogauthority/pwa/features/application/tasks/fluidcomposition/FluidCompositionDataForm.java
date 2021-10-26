@@ -1,9 +1,8 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 
 import java.math.BigDecimal;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 
 public class FluidCompositionDataForm {
 

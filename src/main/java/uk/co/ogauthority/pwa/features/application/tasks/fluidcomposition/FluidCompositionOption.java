@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.util.Arrays;
 import java.util.List;
