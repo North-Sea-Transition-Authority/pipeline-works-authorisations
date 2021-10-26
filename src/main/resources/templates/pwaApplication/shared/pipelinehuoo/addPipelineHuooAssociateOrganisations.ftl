@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="pageHeading" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
-<#-- @ftlvariable name="pickableHuooPipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption>" -->
+<#-- @ftlvariable name="pickableHuooPipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineOption>" -->
 <#-- @ftlvariable name="availableTreatyOptions" type="java.util.List<java.lang.String>" -->
 <#-- @ftlvariable name="pickableOrgDetails" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PickableOrganisationUnitDetail>" -->
 
