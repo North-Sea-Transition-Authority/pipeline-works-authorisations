@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
