@@ -1,10 +1,7 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation;
+package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.ProjectInformationForm;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 

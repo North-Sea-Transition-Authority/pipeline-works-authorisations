@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form;
+package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.time.Instant;
 import javax.persistence.Entity;
@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 
 @Entity(name = "pad_project_information")
 public class PadProjectInformation implements ChildEntity<Integer, PwaApplicationDetail> {
