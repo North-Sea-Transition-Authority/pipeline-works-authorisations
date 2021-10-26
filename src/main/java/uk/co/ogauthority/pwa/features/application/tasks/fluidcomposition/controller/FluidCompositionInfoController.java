@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,10 +12,11 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionForm;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionOption;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -24,7 +25,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 

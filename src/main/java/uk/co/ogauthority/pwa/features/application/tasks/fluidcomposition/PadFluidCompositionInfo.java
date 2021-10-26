@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -11,8 +11,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 

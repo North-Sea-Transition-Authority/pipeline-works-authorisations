@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service

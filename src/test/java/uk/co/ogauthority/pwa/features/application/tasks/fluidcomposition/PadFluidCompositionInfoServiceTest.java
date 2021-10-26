@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
@@ -18,21 +18,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionDataValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionFormValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionValidator;
 
 
 @RunWith(MockitoJUnitRunner.class)

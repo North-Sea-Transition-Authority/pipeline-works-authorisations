@@ -32,6 +32,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleTestUtil;
@@ -43,7 +46,6 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
@@ -76,7 +78,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;
@@ -91,7 +92,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianL
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadDesignOpConditionsTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;

@@ -1,13 +1,10 @@
-package uk.co.ogauthority.pwa.validators.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 
