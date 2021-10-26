@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 
 import java.math.BigDecimal;
 import java.util.Objects;

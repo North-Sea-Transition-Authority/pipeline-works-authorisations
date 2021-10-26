@@ -1,8 +1,8 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadDesignOpConditions;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MinMaxView;
 
 public class DesignOpConditionsView {
 

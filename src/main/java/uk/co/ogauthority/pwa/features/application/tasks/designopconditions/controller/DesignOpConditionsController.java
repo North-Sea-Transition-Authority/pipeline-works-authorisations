@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.designopconditions.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,9 +12,10 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.DesignOpConditionsForm;
+import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditionsService;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.DesignOpConditionsForm;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadDesignOpConditionsService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 
