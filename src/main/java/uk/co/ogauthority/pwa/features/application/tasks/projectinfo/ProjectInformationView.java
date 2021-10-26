@@ -1,8 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.service.enums.projectinformation.PermanentDepositMade;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ProjectInformationView {
