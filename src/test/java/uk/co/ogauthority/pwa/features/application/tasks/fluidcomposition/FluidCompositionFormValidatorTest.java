@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.techinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,13 +10,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.FluidCompositionOption;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionDataForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.FluidCompositionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.FluidCompositionFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FluidCompositionFormValidatorTest {

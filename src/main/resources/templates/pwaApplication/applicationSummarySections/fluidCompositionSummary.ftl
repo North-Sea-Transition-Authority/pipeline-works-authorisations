@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="fluidCompositionView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.FluidCompositionView" -->
+<#-- @ftlvariable name="fluidCompositionView" type="uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionView" -->
 
 
 <div class="pwa-application-summary-section">

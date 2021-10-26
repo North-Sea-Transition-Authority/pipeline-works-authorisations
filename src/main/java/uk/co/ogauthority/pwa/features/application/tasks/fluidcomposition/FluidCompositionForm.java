@@ -1,10 +1,9 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.fluidcomposition.Chemical;
 
 public class FluidCompositionForm {
 
