@@ -396,7 +396,7 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
   /**
    * Pipeline link data copied as part of HUOO data copy.
-   * See {@link PadOrganisationRoleService#copySectionInformation}
+   * See {@link uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooTaskSectionService#copySectionInformation}
    */
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
