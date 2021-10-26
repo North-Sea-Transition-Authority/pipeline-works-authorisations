@@ -1,11 +1,11 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.datainfrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.EnvironmentalCondition;
+import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvironmentalCondition;
 
 public class EnvironmentalConditionConverterTest {
 

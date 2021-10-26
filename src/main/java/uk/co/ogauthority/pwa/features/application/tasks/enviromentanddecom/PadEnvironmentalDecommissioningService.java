@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,16 +15,10 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
-import uk.co.ogauthority.pwa.model.enums.pwaapplications.shared.EnvDecomQuestion;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.EnvironmentalDecommissioningForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.EnvironmentalDecommissioningView;
-import uk.co.ogauthority.pwa.repository.pwaapplications.initial.PadEnvironmentalDecommissioningRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.DateUtils;
-import uk.co.ogauthority.pwa.validators.EnvironmentalDecommissioningValidator;
 
 @Service
 public class PadEnvironmentalDecommissioningService implements ApplicationFormSectionService {
