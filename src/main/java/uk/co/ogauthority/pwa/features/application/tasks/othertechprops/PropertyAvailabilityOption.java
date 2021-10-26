@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 import java.util.Arrays;
 import java.util.List;

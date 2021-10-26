@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.pipelineotherproperties;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -10,12 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.OtherPropertiesFormBuilder;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherPropertiesDataValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherPropertiesValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineOtherPropertiesValidatorTest {
