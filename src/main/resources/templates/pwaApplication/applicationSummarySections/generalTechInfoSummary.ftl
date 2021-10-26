@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="generalTechInfoView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.GeneralTechInfoView" -->
+<#-- @ftlvariable name="generalTechInfoView" type="uk.co.ogauthority.pwa.features.application.tasks.generaltech.GeneralTechInfoView" -->
 
 
 <div class="pwa-application-summary-section">

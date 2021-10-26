@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 public class GeneralTechInfoView {
 
