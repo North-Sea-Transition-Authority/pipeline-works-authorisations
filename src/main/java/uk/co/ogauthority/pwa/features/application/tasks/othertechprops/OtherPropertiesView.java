@@ -1,9 +1,7 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views.otherproperties;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 import java.util.Map;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 
 public class OtherPropertiesView {
 

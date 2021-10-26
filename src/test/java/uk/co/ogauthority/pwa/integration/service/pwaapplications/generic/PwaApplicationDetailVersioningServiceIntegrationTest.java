@@ -41,6 +41,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineT
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
@@ -48,8 +51,6 @@ import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
@@ -92,7 +93,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCr
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipielinetechinfo.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops.datainfrastructure;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 import org.apache.commons.lang3.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
 @Converter

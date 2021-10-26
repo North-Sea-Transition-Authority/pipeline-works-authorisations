@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.pipelineotherproperties;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -9,14 +9,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.OtherPipelineProperty;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyAvailabilityOption;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineOtherPropertiesDataForm;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
-import uk.co.ogauthority.pwa.validators.pipelinetechinfo.PipelineOtherPropertiesDataValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineOtherPropertiesDataValidatorTest {
