@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerApprovalLettersUrlFactory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters.PadPartnerLettersService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters.PartnerApprovalLettersUrlFactory;
 
 /**
  * Construct summary of Partner Approval Letters for a given application.
