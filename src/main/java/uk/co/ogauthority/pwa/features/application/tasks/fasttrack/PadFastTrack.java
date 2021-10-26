@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form;
+package uk.co.ogauthority.pwa.features.application.tasks.fasttrack;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

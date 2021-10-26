@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.fasttrack;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -13,15 +13,10 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.FastTrackForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.FastTrackView;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadFastTrackRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.validators.FastTrackValidator;
 
 @Service
 public class PadFastTrackService implements ApplicationFormSectionService {
