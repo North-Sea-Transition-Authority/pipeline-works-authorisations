@@ -2,7 +2,7 @@
 <#import 'pipelineOverview.ftl' as pipelineOverviewMacro>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
-<#-- @ftlvariable name="pipelineOverview" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview" -->
+<#-- @ftlvariable name="pipelineOverview" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview" -->
 <#-- @ftlvariable name="addIdentUrl" type="String" -->
 <#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentSummaryView" -->
 <#-- @ftlvariable name="lastConnectedPipelineIdentView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentsView" -->

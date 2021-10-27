@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
+package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,7 +9,12 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineNumbersAndSplits;
 
+/**
+ * Represents a single organisation role owner and all the pipelines or pipeline sections they are associated within
+ * the context of a specific huooRole.
+ */
 public class OrganisationRolePipelineGroupView {
 
   private final HuooType huooType;

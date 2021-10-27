@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMod
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
@@ -51,7 +52,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.Pi
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelinesAndOrgRoleGroupViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;

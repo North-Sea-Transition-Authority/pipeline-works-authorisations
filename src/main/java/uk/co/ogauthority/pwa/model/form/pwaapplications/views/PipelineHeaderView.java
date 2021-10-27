@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;

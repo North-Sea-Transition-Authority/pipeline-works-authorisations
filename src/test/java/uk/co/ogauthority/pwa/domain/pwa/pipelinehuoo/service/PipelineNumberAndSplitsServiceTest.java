@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.features.application.tasks.huoo;
+package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -10,10 +10,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineNumberAndSplitsServiceTest {
