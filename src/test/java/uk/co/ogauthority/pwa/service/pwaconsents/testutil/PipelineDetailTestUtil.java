@@ -8,15 +8,15 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 
 public class PipelineDetailTestUtil {

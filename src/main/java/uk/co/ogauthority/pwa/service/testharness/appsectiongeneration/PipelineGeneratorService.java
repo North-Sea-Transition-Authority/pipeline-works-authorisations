@@ -10,13 +10,13 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentDataService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineIdentService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service

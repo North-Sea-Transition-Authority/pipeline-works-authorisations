@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentDiffableView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -19,9 +22,6 @@ import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableARowView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableAView;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentDiffableView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 

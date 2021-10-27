@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
@@ -42,7 +43,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;

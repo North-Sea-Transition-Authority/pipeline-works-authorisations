@@ -25,6 +25,12 @@ import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole_;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink_;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline_;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData_;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation_;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.PwaApplicationVersionContainer;
@@ -60,12 +66,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;

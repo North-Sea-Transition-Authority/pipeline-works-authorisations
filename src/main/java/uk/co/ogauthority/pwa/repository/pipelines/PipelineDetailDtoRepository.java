@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.pipelines;
 
 import java.util.List;
 import java.util.Set;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;

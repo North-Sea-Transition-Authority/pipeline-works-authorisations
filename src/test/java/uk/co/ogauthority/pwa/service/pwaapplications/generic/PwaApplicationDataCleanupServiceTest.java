@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineT
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
@@ -37,7 +38,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAg
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 @RunWith(SpringRunner.class)

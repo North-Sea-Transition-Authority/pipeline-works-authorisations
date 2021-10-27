@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
@@ -24,7 +25,6 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationSubmission;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.view.asbuilt.AsBuiltNotificationGroupSummaryView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupPipelineRepository;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupStatusHistoryRepository;
