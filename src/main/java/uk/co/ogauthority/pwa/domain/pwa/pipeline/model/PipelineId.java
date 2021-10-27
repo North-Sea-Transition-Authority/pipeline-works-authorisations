@@ -5,8 +5,6 @@ import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.NamedPipeline;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.

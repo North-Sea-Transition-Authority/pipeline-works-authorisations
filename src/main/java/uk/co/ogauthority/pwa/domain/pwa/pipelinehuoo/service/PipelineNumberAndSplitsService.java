@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.features.application.tasks.huoo;
+package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.service;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 
 /**
  * Contains the logical template for comparing whole pipelines and HUOO pipeline links to determine split pipelines.
