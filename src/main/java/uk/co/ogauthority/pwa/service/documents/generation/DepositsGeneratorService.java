@@ -11,6 +11,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits
 import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service

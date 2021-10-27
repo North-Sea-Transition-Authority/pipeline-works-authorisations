@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSe
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -28,7 +29,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerSer
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationPermissionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 

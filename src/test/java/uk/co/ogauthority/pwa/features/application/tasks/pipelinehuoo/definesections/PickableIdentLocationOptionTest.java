@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PickableIdentLocationOptionTest {

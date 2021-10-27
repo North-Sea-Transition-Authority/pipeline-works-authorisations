@@ -14,13 +14,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 
 @RunWith(MockitoJUnitRunner.class)

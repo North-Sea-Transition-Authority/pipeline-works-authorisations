@@ -1,11 +1,10 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model;
 
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineSummaryAndSplit;
 
 /**
  * <p>A single pipeline or pipeline section including all information needed to compute a displayable reference.</p>
- * <p>this class fits under the pipeline hupop domain as pipeline sections(splits) only exist within the context of a huoo role.</p>
+ * <p>Pipeline sections(splits) only exist within the context of a huoo role.</p>
  */
 public class PipelineNumbersAndSplits {
 
