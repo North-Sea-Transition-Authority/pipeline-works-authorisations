@@ -13,8 +13,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelinesAndOrgRoleGroupView;
 
 public class PipelineHuooUrlFactory {
 
