@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 /**
  * Summarised view of Pipeline due to be worked on in scheduled campaign of work.

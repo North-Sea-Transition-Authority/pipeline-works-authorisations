@@ -5,8 +5,8 @@
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="backLinkText" type="java.lang.String" -->
 <#-- @ftlvariable name="submitButtonText" type="java.lang.String" -->
-<#-- @ftlvariable name="pickableIdentOptions" type="java.util.Map<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableIdentLocationOption>" -->
-<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.controller.pwaapplications.shared.pipelinehuoo.form.DefinePipelineHuooSectionsForm" -->
+<#-- @ftlvariable name="pickableIdentOptions" type="java.util.Map<uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.definesections.PickableIdentLocationOption>" -->
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.definesections.DefinePipelineHuooSectionsForm" -->
 <#-- @ftlvariable name="firstSectionStartDescription" type="java.lang.String" -->
 <#-- @ftlvariable name="lastSectionEndDescription" type="java.lang.String" -->
 

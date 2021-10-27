@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import '/spring.ftl' as spring>
 
-<#-- @ftlvariable name="pickableHuooPipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.PickableHuooPipelineOption>" -->
+<#-- @ftlvariable name="pickableHuooPipelineOptions" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineOption>" -->
 
 
 <!-- Macro based on the components/widgets/pipelineTableSelection.ftl template but customised for Pipeline huoo purposes -->

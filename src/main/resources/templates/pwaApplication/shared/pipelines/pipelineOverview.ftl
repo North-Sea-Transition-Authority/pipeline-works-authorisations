@@ -2,7 +2,7 @@
 
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="pipeline" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview" -->
+<#-- @ftlvariable name="pipeline" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview" -->
 
 <#macro header pipeline>
 
