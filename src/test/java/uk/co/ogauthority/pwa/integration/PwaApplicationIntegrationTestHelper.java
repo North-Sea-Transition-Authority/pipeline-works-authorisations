@@ -9,25 +9,27 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning;
+import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning_;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation_;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.PwaApplicationVersionContainer;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimplePadPipelineContainer;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadField;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadField_;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadEnvironmentalDecommissioning_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadFastTrack_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadProjectInformation_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
@@ -70,8 +72,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadT
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.huoo.PadOrganisationRole_;
 
 /**
  * Helper class containing methods to access form data for pwa application details common across integration tests.

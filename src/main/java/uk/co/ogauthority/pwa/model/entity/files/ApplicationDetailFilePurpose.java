@@ -3,17 +3,17 @@ package uk.co.ogauthority.pwa.model.entity.files;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.ProjectInformationController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingDocumentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.partnerletters.PartnerLettersController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 
 /**
  * Enumeration of the different areas of a PWA application detail that can have file links.

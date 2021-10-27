@@ -2,8 +2,8 @@
 <#include 'appSummaryUtils.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="partnerLettersView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PartnerLettersView" -->
-<#-- @ftlvariable name="partnerLettersUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.partnerletters.PartnerApprovalLettersUrlFactory" -->
+<#-- @ftlvariable name="partnerLettersView" type="uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersView" -->
+<#-- @ftlvariable name="partnerLettersUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerApprovalLettersUrlFactory" -->
 
 
 <div class="pwa-application-summary-section">

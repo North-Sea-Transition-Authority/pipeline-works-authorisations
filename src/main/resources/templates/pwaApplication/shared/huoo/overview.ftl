@@ -1,7 +1,7 @@
 <#-- @ftlvariable name="addHuooUrl" type="String" -->
 <#-- @ftlvariable name="backUrl" type="String" -->
-<#-- @ftlvariable name="huooOrgs" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooOrganisationUnitRoleView>" -->
-<#-- @ftlvariable name="treatyAgreements" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.HuooTreatyAgreementView>" -->
+<#-- @ftlvariable name="huooOrgs" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.huoo.HuooOrganisationUnitRoleView>" -->
+<#-- @ftlvariable name="treatyAgreements" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.huoo.HuooTreatyAgreementView>" -->
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="showHolderGuidance" type="Boolean" -->
 

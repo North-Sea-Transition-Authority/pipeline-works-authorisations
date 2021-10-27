@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="isPermDepQuestionRequired" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="isAnyDepQuestionRequired" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.model.entity.enums.ProjectInformationQuestion>" -->
+<#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion>" -->
 
 
 <@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true errorItems=errorList>
