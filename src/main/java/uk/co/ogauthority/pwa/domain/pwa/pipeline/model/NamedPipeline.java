@@ -1,9 +1,7 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 
 /**
  * <p>

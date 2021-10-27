@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary;
+package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;

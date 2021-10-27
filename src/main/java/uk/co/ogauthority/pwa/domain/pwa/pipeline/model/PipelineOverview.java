@@ -1,14 +1,12 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 /* Regardless of application or consented status, provide consistent interface for basic summarised pipeline data */
+// TODO - This is doing way too much as it contains the application pipeline id and an "as built" reference which is a
+//  seperate application area. Prefer "NamedPipeline" in most cases as it has a reduced scope.
 public interface PipelineOverview extends NamedPipeline {
 
   Integer getPadPipelineId();
