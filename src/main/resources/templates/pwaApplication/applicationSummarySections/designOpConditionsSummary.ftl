@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="designOpConditionsView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.DesignOpConditionsView" -->
+<#-- @ftlvariable name="designOpConditionsView" type="uk.co.ogauthority.pwa.features.application.tasks.designopconditions.DesignOpConditionsView" -->
 <#-- @ftlvariable name="unitMeasurements" type="uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement" -->
 
 

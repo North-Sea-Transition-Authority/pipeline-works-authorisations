@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelinetechinfo.PipelineTechInfoForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinetechinfo.PadPipelineTechInfoService;
+import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoService;
+import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PipelineTechInfoForm;
 
 @Service
 @Profile("test-harness")
