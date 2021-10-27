@@ -1,8 +1,8 @@
 <#include '../../../layout.ftl'>
 <#import 'pipelineOverview.ftl' as pipelineOverview>
 
-<#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineTaskListItem>" -->
-<#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineUrlFactory" -->
+<#-- @ftlvariable name="pipelineTaskListItems" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.PadPipelineTaskListItem>" -->
+<#-- @ftlvariable name="pipelineUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.PipelineUrlFactory" -->
 <#-- @ftlvariable name="pipelineSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 <#-- @ftlvariable name="canImportConsentedPipeline" type="Boolean" -->

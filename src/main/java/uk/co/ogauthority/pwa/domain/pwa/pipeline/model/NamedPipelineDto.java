@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.math.BigDecimal;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 public class NamedPipelineDto implements NamedPipeline {
 

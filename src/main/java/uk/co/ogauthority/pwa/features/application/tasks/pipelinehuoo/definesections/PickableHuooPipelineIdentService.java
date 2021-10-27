@@ -10,8 +10,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMod
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 
 /**
  * Facilitates the definition of sections along a pipeline and interpretation of user input into pipeline sections.

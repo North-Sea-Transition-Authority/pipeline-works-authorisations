@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
 
 /**
  *  Wraps the data level unique identifier for a pipeline to prevent mistakes where primitive data type ids are passed around.
