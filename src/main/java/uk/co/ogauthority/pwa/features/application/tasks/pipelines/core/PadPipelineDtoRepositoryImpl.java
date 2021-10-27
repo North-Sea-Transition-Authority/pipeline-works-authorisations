@@ -24,7 +24,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   private List<PadPipelineSummaryDto> getPipelineSummaryDtosByAppDetailAndOptionalPadPipeline(
       PwaApplicationDetail detail, PadPipeline padPipeline) {
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.features.application.tasks.pipelines.core(" +
+            "SELECT new uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineSummaryDto(" +
             "  pp.id " +
             ", p.id " +
             ", pp.pipelineType " +
