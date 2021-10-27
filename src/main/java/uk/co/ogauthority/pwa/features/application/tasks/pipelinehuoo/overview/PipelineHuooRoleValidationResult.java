@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.definesections.PickableIdentLocationOption;
 import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView;
 
 /**
  * Works out and then materialises all possible errors messages a pipeline and org role group can have.

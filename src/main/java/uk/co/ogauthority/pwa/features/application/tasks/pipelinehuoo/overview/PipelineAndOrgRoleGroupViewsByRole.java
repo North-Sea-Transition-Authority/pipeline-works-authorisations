@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview;
 
 import java.util.List;
 

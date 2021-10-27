@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationSta
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooScreenValidationResultFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooValidationResult;
@@ -22,7 +23,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller

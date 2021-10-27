@@ -41,14 +41,14 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineOption;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.ReconciledHuooPickablePipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PadPipelineHuooViewFactory;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooValidationResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PadPipelineHuooViewFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineAndOrgRoleGroupViewsByRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 
 // TODO - Needs some splitting up between services that support specific screens and a service that provides a pipeline huoo api.

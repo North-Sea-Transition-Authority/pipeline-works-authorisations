@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.PipelineHuooRoleSummaryView" -->
+<#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooRoleSummaryView" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooUrlFactory" -->
 <#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
