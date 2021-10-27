@@ -12,7 +12,7 @@
     <thead>
       <tr>
         <th rowSpan="2"> Pipeline number </th>
-        <th rowSpan="2"> Proposed date </th>
+        <th rowSpan="2"> Proposed date and reference </th>
         <th rowSpan="2"> Type & size of materials </th>
         <th rowSpan="2"> Quantity </th>
         <th colspan="2"> Location of deposit </th>
