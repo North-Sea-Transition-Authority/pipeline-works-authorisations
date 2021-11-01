@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.HashMap;
 import java.util.List;
@@ -7,13 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
-import uk.co.ogauthority.pwa.repository.devuk.PadFacilityRepository;
+import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 

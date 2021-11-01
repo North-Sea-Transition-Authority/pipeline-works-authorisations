@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.ArrayList;
 import java.util.List;

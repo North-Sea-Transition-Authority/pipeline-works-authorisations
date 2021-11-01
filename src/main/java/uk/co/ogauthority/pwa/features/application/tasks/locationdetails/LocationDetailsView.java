@@ -1,8 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class LocationDetailsView {

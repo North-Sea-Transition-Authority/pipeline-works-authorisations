@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.Decom
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvironmentalCondition;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvironmentalDecommissioningForm;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioningService;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.HseSafetyZone;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;

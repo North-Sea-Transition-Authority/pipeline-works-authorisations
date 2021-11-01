@@ -1,11 +1,9 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 

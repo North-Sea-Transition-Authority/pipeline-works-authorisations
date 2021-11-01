@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.devuk;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 

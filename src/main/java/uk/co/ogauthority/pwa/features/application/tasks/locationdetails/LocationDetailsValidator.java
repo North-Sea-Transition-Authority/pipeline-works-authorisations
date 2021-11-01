@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,9 +11,6 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;

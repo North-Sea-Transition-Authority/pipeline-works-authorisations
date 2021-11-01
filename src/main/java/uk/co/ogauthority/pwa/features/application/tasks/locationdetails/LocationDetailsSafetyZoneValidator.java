@@ -1,10 +1,9 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsSafetyZoneForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 

@@ -3,9 +3,9 @@
 
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="locationDetailsView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsView" -->
-<#-- @ftlvariable name="locationDetailsUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.location.LocationDetailsUrlFactory" -->
-<#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion>" -->
+<#-- @ftlvariable name="locationDetailsView" type="uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsView" -->
+<#-- @ftlvariable name="locationDetailsUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsUrlFactory" -->
+<#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsQuestion>" -->
 
 
 <div class="pwa-application-summary-section">

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 
 import java.util.Arrays;

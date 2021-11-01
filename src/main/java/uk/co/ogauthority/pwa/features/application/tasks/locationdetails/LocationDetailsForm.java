@@ -1,8 +1,6 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
