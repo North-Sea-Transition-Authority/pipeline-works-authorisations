@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings;
 
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 
 public class PadTechnicalDrawingValidationHints {
 

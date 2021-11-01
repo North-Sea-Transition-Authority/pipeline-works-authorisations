@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentDiffableView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
@@ -26,7 +27,6 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory;
 
 /**
  * Construct summary of pipelines for a given application.

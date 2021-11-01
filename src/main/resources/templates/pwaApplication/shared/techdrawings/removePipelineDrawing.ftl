@@ -2,8 +2,8 @@
 <#import 'drawingSummary.ftl' as drawingSummary>
 
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
-<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
+<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingUrlFactory" -->
 
 <@defaultPage htmlTitle="Remove pipeline schematic" pageHeading="Are you sure you want to remove this pipeline schematic?" breadcrumbs=true>
 

@@ -27,14 +27,14 @@ import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipe
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 
 /**
  * Test code only container designed to holder references to each entity linked to a single version of an application.
