@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="workSchedule" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView" -->
+<#-- @ftlvariable name="workSchedule" type="uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView" -->
 
 <#macro pipelineList workSchedule tableIdx="" >
     <#if workSchedule.getSchedulePipelines()?hasContent>
