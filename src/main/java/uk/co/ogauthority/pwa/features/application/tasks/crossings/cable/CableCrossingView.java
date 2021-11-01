@@ -1,6 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
-
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 public class CableCrossingView {
 

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
