@@ -2,7 +2,7 @@
 <#include 'appSummaryUtils.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="crossingTypesView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.CrossingTypesView" -->
+<#-- @ftlvariable name="crossingTypesView" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesView" -->
 
 
 <div class="pwa-application-summary-section">

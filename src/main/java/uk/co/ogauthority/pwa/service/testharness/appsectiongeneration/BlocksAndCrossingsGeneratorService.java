@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @Service

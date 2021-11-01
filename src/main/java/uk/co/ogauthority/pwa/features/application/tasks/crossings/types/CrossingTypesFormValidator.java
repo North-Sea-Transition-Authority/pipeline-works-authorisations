@@ -1,10 +1,9 @@
-package uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.types;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service

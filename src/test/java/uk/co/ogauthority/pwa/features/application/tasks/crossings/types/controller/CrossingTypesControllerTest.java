@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.types.controller;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -14,6 +14,8 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesFormValidator;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
@@ -21,9 +23,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
-import uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings.CrossingTypesFormValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CrossingTypesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))

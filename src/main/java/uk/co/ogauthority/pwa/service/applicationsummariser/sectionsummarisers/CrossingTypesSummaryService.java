@@ -9,12 +9,12 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
 import uk.co.ogauthority.pwa.service.tasklist.CrossingTaskGeneralPurposeTaskAdapter;
 
 /**
