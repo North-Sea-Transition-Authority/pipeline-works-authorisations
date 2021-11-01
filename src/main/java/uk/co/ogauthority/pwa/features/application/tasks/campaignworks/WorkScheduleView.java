@@ -1,11 +1,10 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
+package uk.co.ogauthority.pwa.features.application.tasks.campaignworks;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
 
 public class WorkScheduleView {
   private static DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");

@@ -1,13 +1,9 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks;
+package uk.co.ogauthority.pwa.features.application.tasks.campaignworks;
 
 import java.time.LocalDate;
 import java.util.Set;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorkSchedule_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks.PadCampaignWorksPipeline_;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public class PadCampaignWorksScheduleTestUtil {

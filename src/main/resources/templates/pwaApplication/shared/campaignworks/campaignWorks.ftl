@@ -4,8 +4,8 @@
 <#-- @ftlvariable name="dependencySectionName" type="java.lang.String" -->
 <#-- @ftlvariable name="dependencySectionUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksUrlFactory" -->
-<#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksUrlFactory" -->
+<#-- @ftlvariable name="workScheduleViewList" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView>" -->
 <#-- @ftlvariable name="summaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 
