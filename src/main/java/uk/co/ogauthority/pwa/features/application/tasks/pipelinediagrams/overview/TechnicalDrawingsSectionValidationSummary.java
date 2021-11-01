@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview;
 
 public class TechnicalDrawingsSectionValidationSummary {
 

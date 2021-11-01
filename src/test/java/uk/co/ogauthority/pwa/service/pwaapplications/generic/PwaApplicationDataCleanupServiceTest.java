@@ -33,12 +33,12 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocat
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.TechnicalDrawingSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
