@@ -17,8 +17,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.pipelinetechinfo.PadPipelineOtherPropertiesRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
