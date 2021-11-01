@@ -3,14 +3,14 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingTypesController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingController;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
 

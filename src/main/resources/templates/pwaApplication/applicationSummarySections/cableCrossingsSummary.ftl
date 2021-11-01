@@ -1,9 +1,9 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="cableCrossingViews" type="java.util.List<uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing.CableCrossingView>" -->
+<#-- @ftlvariable name="cableCrossingViews" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing.CableCrossingView>" -->
 <#-- @ftlvariable name="cableCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory" -->
+<#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory" -->
 
 
 <div class="pwa-application-summary-section">

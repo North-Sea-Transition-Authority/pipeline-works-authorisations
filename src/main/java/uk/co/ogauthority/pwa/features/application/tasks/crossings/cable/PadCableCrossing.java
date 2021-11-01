@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;

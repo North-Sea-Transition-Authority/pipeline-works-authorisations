@@ -11,8 +11,8 @@
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="isDocumentsRequired" type="java.lang.boolean" -->
 
-<#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView>" -->
-<#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingUrlFactory" -->
+<#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView>" -->
+<#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory" -->
 <#-- @ftlvariable name="cableCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 
 <#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PipelineCrossingView>" -->
