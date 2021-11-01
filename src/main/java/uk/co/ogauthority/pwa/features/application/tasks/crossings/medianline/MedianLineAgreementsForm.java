@@ -1,6 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared;
-
-import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline;
 
 public class MedianLineAgreementsForm {
 
