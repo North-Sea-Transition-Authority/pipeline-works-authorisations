@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.controller.CampaignWorksController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
@@ -17,6 +16,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.contr
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.controller.HuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.controller.LocationDetailsController;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller.PipelinesHuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.controller.PipelineIdentsController;

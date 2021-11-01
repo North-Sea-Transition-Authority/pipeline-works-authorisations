@@ -1,9 +1,9 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.controller.UmbilicalCrossSectionDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

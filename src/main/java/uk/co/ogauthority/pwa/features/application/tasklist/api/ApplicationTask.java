@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOptionController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.controller.CampaignWorksController;
@@ -40,6 +39,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawi
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositController;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositDrawingsController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.TechnicalDrawingSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller.PipelinesHuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelinesController;
@@ -53,7 +54,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
