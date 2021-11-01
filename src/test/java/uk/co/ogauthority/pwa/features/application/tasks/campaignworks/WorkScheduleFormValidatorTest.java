@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks;
+package uk.co.ogauthority.pwa.features.application.tasks.campaignworks;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;

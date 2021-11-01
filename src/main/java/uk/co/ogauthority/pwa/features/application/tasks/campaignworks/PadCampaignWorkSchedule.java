@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.campaignworks;
+package uk.co.ogauthority.pwa.features.application.tasks.campaignworks;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
