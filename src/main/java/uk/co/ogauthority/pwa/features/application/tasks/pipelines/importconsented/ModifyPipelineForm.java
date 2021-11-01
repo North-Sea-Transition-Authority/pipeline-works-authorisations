@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented;
 
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 

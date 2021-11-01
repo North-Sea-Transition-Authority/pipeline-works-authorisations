@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents;
 
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
