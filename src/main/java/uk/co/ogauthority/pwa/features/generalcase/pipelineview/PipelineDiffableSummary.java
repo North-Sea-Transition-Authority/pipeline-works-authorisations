@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 
 /**
  * Designed to be consumed by the pipeline summary service and associated templates.

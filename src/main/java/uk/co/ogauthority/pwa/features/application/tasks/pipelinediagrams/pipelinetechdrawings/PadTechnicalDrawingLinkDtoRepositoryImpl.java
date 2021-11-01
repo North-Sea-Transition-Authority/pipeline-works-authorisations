@@ -1,10 +1,9 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings;
 
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadPipelineKeyDto;
 
 public class PadTechnicalDrawingLinkDtoRepositoryImpl implements PadTechnicalDrawingLinkDtoRepository {
 
@@ -18,7 +17,7 @@ public class PadTechnicalDrawingLinkDtoRepositoryImpl implements PadTechnicalDra
   @Override
   public List<PadPipelineKeyDto> getLinkedPipelineIdsByDetail(PwaApplicationDetail detail) {
     return entityManager.createQuery(
-        "SELECT new uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadPipelineKeyDto( " +
+        "SELECT new uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadPipelineKeyDto( " +
             "  ptdl.pipeline.pipeline.id " +
             ", ptdl.pipeline.id " +
             ") " +
