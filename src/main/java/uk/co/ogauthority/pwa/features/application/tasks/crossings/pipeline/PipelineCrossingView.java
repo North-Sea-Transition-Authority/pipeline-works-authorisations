@@ -1,9 +1,7 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 
 public class PipelineCrossingView {
 
