@@ -4,7 +4,7 @@
 <#import 'umbilicalCrossSectionDiagramManagement.ftl' as umbilicalCrossSectionDiagramManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
-<#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.AdmiraltyChartUrlFactory" -->
+<#-- @ftlvariable name="admiraltyChartUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartUrlFactory" -->
 <#-- @ftlvariable name="admiraltyChartFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
 <#-- @ftlvariable name="admiraltyOptional" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->

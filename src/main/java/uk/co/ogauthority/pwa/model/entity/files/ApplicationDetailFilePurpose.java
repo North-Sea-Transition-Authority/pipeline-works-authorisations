@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.model.entity.files;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.PipelineDrawingController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.UmbilicalCrossSectionDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingDocumentsController;
@@ -13,6 +12,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.contr
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.controller.LocationDetailsController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositDrawingsController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.controller.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 
 /**
