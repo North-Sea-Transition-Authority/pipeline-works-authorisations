@@ -1,9 +1,8 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import java.util.Collections;
 import java.util.List;
 import javax.validation.constraints.NotNull;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.CrossedBlockOwner;
 
 public class EditBlockCrossingForm {
 

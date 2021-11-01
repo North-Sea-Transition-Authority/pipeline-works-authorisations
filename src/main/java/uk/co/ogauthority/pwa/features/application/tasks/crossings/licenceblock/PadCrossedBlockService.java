@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import java.time.Instant;
 import java.util.List;
@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
-import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 
 @Service
 public class PadCrossedBlockService {
