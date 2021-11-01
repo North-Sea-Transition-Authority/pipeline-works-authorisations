@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing_;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public class PadCableCrossingTestUtil {
