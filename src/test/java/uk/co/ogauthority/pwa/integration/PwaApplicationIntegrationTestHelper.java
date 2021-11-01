@@ -27,6 +27,10 @@ import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineT
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole_;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility_;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails_;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositPipeline;
@@ -45,13 +49,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation_;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.PwaApplicationVersionContainer;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimplePadPipelineContainer;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility_;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;

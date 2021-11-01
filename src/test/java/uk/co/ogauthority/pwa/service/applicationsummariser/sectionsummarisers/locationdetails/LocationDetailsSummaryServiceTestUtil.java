@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.locationdetails;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.LocationDetailsView;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsView;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PsrNotification;
 
 public class LocationDetailsSummaryServiceTestUtil {
 

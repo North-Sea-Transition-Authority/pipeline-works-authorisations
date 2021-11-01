@@ -4,12 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.HseSafetyZone;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsForm;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsQuestion;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 
 @Service
 @Profile("test-harness")
