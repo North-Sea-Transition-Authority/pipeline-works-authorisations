@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="depositDrawingViews" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView" -->
+<#-- @ftlvariable name="depositDrawingViews" type="uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingView" -->
 
 
 <div class="pwa-application-summary-section">

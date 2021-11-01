@@ -18,6 +18,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFlui
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
@@ -30,8 +32,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCabl
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossingOwner;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadDepositPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;

@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="deposits" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm>" -->
+<#-- @ftlvariable name="deposits" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositsForm>" -->
 <#-- @ftlvariable name="depositSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 

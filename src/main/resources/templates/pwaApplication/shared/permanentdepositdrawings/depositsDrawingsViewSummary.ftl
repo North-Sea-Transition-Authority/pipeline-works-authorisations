@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
-<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView" --> 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
+<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingView" -->
 
 
 <#macro depositDrawingViewSummary depositDrawingView urlFactory>

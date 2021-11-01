@@ -15,15 +15,15 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.MaterialType;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositOverview;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
