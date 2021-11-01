@@ -15,7 +15,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
