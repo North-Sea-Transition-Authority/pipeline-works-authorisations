@@ -1,8 +1,7 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings;
 
 import java.util.List;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class PipelineDrawingSummaryView {

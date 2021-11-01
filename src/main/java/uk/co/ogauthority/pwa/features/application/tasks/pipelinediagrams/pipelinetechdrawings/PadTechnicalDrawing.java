@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
