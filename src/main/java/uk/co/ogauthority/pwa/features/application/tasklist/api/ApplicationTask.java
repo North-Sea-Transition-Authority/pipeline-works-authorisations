@@ -11,8 +11,6 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOp
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.LocationDetailsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingAgreementsController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.permanentdeposits.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.techdrawings.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
@@ -36,6 +34,10 @@ import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.controller.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controller.PartnerLettersController;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositController;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelinesHuooService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller.PipelinesHuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelinesController;
@@ -50,8 +52,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateServ
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.TechnicalDrawingSectionService;
 
