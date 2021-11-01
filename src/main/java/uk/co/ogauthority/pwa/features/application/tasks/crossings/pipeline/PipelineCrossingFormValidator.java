@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.PipelineCrossingForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service

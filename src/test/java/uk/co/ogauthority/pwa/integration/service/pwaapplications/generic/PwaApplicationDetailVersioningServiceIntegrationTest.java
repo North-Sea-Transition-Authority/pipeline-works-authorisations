@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaig
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditionsTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditions_;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioningTestUtil;
@@ -92,7 +93,6 @@ import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementTestUtil;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingTestUtil;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;

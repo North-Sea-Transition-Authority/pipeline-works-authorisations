@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import java.util.List;
 
