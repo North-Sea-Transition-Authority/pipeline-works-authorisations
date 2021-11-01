@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.MedianLineStatus;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class MedianLineAgreementView {

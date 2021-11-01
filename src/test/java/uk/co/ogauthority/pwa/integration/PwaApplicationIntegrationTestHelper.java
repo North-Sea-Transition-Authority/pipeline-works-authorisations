@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaig
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockOwner;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditions_;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning;
@@ -55,7 +56,6 @@ import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimpleP
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner_;

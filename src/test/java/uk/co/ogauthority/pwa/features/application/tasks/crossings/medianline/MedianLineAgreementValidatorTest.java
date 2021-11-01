@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -6,8 +6,6 @@ import static org.assertj.core.api.Assertions.entry;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.MedianLineStatus;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.MedianLineAgreementsForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
