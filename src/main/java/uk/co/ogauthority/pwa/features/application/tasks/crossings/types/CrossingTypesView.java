@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.types;
 
 public class CrossingTypesView {
 
