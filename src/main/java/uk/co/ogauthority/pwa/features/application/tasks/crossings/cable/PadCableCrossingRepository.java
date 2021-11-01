@@ -1,11 +1,10 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
 
 @Repository
 public interface PadCableCrossingRepository extends CrudRepository<PadCableCrossing, Integer> {
