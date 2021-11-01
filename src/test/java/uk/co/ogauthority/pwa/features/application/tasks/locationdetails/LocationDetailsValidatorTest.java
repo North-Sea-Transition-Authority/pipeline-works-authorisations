@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -14,11 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;

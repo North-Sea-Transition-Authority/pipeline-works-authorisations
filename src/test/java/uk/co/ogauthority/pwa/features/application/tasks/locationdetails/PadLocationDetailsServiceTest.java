@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -23,29 +23,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.model.entity.devuk.PadFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.HseSafetyZone;
-import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.locationdetails.PsrNotification;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadLocationDetails;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.location.LocationDetailsForm;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.PadLocationDetailsRepository;
 import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
-import uk.co.ogauthority.pwa.service.devuk.PadFacilityService;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.location.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
-import uk.co.ogauthority.pwa.validators.LocationDetailsValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadLocationDetailsServiceTest {

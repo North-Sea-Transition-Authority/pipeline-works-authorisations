@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.validators;
+package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 public class LocationDetailsFormValidationHints {
