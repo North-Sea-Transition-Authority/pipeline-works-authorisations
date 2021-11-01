@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 
 /**
  * Defines points that can be selected as start of end points of a HUOO pipeline section.

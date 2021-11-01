@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
-import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentView;
 
 /**
  * Store all validation failure reasons about the pipeline huoo section.

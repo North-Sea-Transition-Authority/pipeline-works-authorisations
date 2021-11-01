@@ -50,13 +50,13 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.Pa
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineAndOrgRoleGroupViewsByRoleTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelineHuooRoleSummaryViewTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.PipelinesAndOrgRoleGroupViewTestUtil;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.view.PipelineAndIdentView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.viewfactories.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

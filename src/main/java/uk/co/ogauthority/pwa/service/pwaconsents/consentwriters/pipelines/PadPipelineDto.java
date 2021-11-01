@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipeline;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdent;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 
 public class PadPipelineDto {
 
