@@ -43,6 +43,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacil
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility_;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails_;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink_;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositPipeline;
@@ -66,8 +68,6 @@ import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawingLink_;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo;
+package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
 
 import java.math.BigDecimal;
@@ -12,8 +12,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
-import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyAvailabilityOption;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
