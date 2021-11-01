@@ -4,8 +4,8 @@ import java.util.Set;
 import org.apache.commons.lang3.RandomStringUtils;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.MedianLineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreement;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.PadMedianLineAgreement_;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public class PadMedianLineAgreementTestUtil {
