@@ -1,9 +1,9 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;

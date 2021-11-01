@@ -20,11 +20,11 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.AddCable
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.CrossingOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;

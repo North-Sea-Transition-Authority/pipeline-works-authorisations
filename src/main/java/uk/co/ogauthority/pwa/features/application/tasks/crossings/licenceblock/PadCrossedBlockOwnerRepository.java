@@ -1,12 +1,10 @@
-package uk.co.ogauthority.pwa.repository.licence;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlockOwner;
 
 @Repository
 public interface PadCrossedBlockOwnerRepository extends CrudRepository<PadCrossedBlockOwner, Integer> {

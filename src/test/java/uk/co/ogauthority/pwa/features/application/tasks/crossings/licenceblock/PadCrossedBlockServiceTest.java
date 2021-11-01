@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -15,8 +15,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCrossedBlock;
-import uk.co.ogauthority.pwa.repository.licence.PadCrossedBlockRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadCrossedBlockServiceTest {
