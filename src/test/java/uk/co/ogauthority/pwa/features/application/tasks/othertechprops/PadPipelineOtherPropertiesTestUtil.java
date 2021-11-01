@@ -8,8 +8,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.RandomUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 /*
