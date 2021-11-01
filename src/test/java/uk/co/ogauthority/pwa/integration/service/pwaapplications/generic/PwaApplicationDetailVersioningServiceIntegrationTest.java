@@ -46,6 +46,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing_;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDepositTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDeposit_;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink_;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
@@ -78,9 +81,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelin
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines.PadPipelineCrossing_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOptionTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawing_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDepositTestUtil;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelinetechinfo.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.techdrawings.PadTechnicalDrawing_;
 import uk.co.ogauthority.pwa.service.devuk.PadFacilityTestUtil;

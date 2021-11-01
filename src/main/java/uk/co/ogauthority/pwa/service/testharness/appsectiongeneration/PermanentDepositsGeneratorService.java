@@ -5,9 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.PermanentDepositsForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.MaterialType;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositsForm;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
