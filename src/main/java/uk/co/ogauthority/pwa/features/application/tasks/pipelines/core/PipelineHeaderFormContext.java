@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.enums.pipelines;
+package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 
 public enum PipelineHeaderFormContext {
 

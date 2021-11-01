@@ -3,12 +3,12 @@
 
 <#-- @ftlvariable name="pipelineTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="longDirections" type="java.util.Map<java.lang.String,java.lang.String>" -->
-<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm" -->
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
-<#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion>" -->
+<#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderConditionalQuestion>" -->
 <#-- @ftlvariable name="canShowAlreadyExistsOnSeabedQuestions" type="java.lang.Boolean" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true errorItems=errorList>
