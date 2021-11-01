@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.pipelines;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
