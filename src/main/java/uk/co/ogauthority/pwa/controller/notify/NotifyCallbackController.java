@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.ogauthority.pwa.exception.NotifyCallbackAccessDeniedException;
-import uk.co.ogauthority.pwa.model.notify.NotifyCallback;
-import uk.co.ogauthority.pwa.service.notify.NotifyCallbackService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallback;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallbackService;
 
 /**
  * Rest controller to handle GOV.UK Notify callback requests. A callback message is formatted in JSON.
