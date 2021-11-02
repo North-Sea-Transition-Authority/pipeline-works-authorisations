@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.service;
+package uk.co.ogauthority.pwa.features.webapp;
 
 import java.util.EnumSet;
 import java.util.Set;
