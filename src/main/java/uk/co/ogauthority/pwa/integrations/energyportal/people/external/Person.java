@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity;
+package uk.co.ogauthority.pwa.integrations.energyportal.people.external;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Serializable;

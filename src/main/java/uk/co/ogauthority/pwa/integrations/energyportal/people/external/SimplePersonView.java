@@ -1,6 +1,4 @@
-package uk.co.ogauthority.pwa.service.person;
-
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+package uk.co.ogauthority.pwa.integrations.energyportal.people.external;
 
 /**
  * Basic view of a person useful for View objects.

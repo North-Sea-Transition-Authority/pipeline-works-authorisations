@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity;
+package uk.co.ogauthority.pwa.integrations.energyportal.people.external;
 
 import java.util.Objects;
 

@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 
 import java.util.EnumSet;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 public final class PwaContactTestUtil {
 

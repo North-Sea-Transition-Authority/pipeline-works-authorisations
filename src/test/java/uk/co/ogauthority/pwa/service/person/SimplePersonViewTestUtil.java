@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.person;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.SimplePersonView;
 
 public final class SimplePersonViewTestUtil {
 

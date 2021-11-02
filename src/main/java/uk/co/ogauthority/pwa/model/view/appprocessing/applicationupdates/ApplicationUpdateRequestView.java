@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates;
 
 import java.time.Instant;
 import org.springframework.beans.factory.annotation.Value;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
