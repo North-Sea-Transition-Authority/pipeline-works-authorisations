@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;

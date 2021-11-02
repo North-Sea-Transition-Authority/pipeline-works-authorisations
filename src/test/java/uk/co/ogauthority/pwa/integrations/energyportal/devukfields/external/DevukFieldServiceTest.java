@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
@@ -13,9 +13,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
-import uk.co.ogauthority.pwa.repository.devuk.DevukFieldRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DevukFieldServiceTest {

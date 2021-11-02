@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external;
 
 import java.util.Collection;
 import java.util.List;
@@ -6,12 +6,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
-import uk.co.ogauthority.pwa.repository.devuk.DevukFieldRepository;
 
 @Service
 public class DevukFieldService {

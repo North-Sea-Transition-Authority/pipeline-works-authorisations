@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external;
 
 import java.util.Objects;
 
