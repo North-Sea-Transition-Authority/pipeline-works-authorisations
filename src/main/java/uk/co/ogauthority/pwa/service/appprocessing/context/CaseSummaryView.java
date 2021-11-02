@@ -5,7 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.controller.appsummary.ApplicationSummaryController;
+import uk.co.ogauthority.pwa.features.application.summary.controller.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
