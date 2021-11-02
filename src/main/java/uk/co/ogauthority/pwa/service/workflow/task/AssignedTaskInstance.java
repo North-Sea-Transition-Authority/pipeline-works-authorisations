@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.workflow.task;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 
 /**

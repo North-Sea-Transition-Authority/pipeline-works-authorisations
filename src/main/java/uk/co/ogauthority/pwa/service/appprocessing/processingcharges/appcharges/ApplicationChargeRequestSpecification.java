@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 

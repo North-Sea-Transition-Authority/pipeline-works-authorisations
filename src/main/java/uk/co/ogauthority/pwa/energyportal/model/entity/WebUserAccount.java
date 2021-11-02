@@ -12,6 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 /**
  * A portal WebUserAccount from securemgr.

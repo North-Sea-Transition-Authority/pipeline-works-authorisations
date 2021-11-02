@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.teams;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 public class PwaTeamMember {
 

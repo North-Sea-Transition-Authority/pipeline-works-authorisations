@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges;
 import java.time.Instant;
 import java.util.UUID;
 import org.apache.commons.lang3.RandomStringUtils;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus;
 import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequestTestUtil;
 

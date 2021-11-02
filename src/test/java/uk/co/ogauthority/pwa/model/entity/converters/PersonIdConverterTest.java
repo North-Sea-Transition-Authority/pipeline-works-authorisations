@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PersonIdConverterTest {

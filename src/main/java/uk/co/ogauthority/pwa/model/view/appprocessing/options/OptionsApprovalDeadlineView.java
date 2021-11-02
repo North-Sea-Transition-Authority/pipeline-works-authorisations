@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.view.appprocessing.options;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class OptionsApprovalDeadlineView {

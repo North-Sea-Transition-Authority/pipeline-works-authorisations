@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.converters;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 @Converter
 public class PersonIdConverter implements AttributeConverter<PersonId, Integer> {
