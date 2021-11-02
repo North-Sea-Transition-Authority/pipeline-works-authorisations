@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
@@ -37,7 +38,6 @@ import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.service.generic.GenericBreadcrumbService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DocumentTemplateController.class)

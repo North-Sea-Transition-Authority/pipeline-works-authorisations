@@ -19,9 +19,10 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationPermissionCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
@@ -36,7 +37,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.features.application.authorisation.context;
 
 import java.util.Set;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
