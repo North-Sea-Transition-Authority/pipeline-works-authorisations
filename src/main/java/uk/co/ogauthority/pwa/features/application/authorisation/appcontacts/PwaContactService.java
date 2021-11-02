@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -11,27 +11,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactDto;
-import uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactRepository;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 
 /**
- * Service to administer PWA application-scoped teams (known as contacts).
+ * <p>Service to administer PWA application-scoped teams (known as contacts).</p>
+ *
+ * <p>TODO split this service into the core app contact service and the service code which supports the task list entry and form.</p>
  */
 @Service
 public class PwaContactService implements ApplicationFormSectionService {
@@ -227,3 +226,4 @@ public class PwaContactService implements ApplicationFormSectionService {
     // Do nothing. Contacts linked per application, not per detail.
   }
 }
+

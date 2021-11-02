@@ -1,7 +1,6 @@
-package uk.co.ogauthority.pwa.repository.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 /**
  * Basic details of a PWA contact intended to avoid loading the whole object graph associated with the actual entity.

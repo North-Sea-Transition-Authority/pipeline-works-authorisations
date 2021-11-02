@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.repository.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -18,12 +18,12 @@ public class PwaContactDtoRepositoryImpl implements PwaContactDtoRepository {
   @Override
   public List<PwaContactDto> findAllAsDtoByPerson(Person person) {
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.repository.masterpwas.contacts.PwaContactDto(" +
+            "SELECT new uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactDto(" +
             "  pc.pwaApplication.id" +
             ", pc.person.id" +
             ", pc.roles " +
             ") " +
-            "FROM uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact pc " +
+            "FROM uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact pc " +
             "WHERE pc.person = :person ",
         PwaContactDto.class
     )

@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.context;
 
 import java.util.Objects;
 import java.util.Set;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 /**
  * Essentially a cut down ApplicationInvolvement that simply deals with team membership on an application.

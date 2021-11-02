@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.repository.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.List;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;

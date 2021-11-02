@@ -6,10 +6,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.SetUtils;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.context.UserRolesForApplicationDto;
 
 /**
