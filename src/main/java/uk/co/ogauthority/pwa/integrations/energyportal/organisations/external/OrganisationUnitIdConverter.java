@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.external;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
