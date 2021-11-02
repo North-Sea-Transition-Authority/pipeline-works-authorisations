@@ -21,8 +21,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact_;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
@@ -189,7 +189,7 @@ class ApplicationWorkAreaPageService {
                 workAreaContext,
                 workAreaTabCategory
             )
-      );
+        );
     var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
 
     // 2. Create results query using predicate

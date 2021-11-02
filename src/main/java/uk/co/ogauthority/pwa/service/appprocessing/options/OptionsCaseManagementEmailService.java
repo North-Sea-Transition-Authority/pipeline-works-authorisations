@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
@@ -20,10 +22,8 @@ import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.Op
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 

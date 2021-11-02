@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.stream.Stream;
 

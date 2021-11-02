@@ -8,11 +8,10 @@ import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolveme
 
 import java.util.EnumSet;
 import java.util.Set;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
 public final class ApplicationInvolvementDtoTestUtil {
 

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
