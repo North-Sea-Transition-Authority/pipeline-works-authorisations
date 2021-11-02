@@ -9,8 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.options.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
