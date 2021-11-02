@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service;
+package uk.co.ogauthority.pwa.features.webapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,8 +10,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
-import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 
 @RunWith(MockitoJUnitRunner.class)

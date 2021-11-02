@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.service;
+package uk.co.ogauthority.pwa.features.webapp;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
