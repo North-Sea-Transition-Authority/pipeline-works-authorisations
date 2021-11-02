@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.shared.supplementarydocs;
+package uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs;
 
 import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
