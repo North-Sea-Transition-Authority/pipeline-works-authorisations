@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PipelineOtherPropertiesForm;
@@ -20,7 +21,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyA
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;

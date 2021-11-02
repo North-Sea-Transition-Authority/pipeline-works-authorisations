@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineControllerRouteUtils;
@@ -31,7 +32,6 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;

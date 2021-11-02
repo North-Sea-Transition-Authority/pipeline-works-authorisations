@@ -19,13 +19,13 @@ import uk.co.ogauthority.pwa.controller.pwaapplications.rest.FieldRestController
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;

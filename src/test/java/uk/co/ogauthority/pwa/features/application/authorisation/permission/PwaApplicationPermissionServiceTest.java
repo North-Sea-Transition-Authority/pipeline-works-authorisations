@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.context;
+package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -22,8 +23,6 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
-import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;

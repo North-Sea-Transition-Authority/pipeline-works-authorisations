@@ -16,13 +16,13 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.HuooSummaryValidationResult;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooSummaryView;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooSummaryViewService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooValidationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;

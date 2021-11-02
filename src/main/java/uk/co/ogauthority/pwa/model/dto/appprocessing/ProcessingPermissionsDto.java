@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.dto.appprocessing;
 
 import java.util.Set;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 
 public class ProcessingPermissionsDto {

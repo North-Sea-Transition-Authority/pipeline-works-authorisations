@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;

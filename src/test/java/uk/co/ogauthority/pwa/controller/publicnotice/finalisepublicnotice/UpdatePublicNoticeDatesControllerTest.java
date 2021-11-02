@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.controller.publicnotice.FinalisePublicNoticeControl
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;

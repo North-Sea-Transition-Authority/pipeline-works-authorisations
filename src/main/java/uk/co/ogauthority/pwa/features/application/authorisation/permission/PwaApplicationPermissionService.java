@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.context;
+package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 
 import java.util.Collections;
 import java.util.Set;
@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.appprocessing.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
