@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Entity;
