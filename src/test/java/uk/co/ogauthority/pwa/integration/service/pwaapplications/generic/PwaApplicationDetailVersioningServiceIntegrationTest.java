@@ -57,6 +57,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacil
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility_;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails_;
+import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOption_;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties_;
@@ -87,8 +89,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOptionTestUtil;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestContainer;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;

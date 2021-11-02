@@ -43,6 +43,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacil
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility_;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetails_;
+import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOption;
+import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOption_;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherProperties_;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
@@ -70,8 +72,6 @@ import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimpleP
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption_;
 
 /**
  * Helper class containing methods to access form data for pwa application details common across integration tests.

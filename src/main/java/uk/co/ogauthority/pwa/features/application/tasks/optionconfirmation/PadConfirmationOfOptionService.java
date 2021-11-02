@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +11,9 @@ import uk.co.ogauthority.pwa.exception.EntityCopyingException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options.PadConfirmationOfOption;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.options.ConfirmOptionForm;
-import uk.co.ogauthority.pwa.repository.pwaapplications.options.PadConfirmationOfOptionRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.validators.options.ConfirmOptionFormValidator;
 
 @Service
 public class PadConfirmationOfOptionService implements ApplicationFormSectionService {
