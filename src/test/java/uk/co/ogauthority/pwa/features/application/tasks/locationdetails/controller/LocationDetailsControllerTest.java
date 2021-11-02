@@ -42,9 +42,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.Location
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacilityService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;

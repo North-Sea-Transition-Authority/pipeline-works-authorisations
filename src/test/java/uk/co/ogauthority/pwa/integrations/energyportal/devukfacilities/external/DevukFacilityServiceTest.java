@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,8 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.repository.devuk.DevukFacilityRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.internal.DevukFacilityRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DevukFacilityServiceTest {
