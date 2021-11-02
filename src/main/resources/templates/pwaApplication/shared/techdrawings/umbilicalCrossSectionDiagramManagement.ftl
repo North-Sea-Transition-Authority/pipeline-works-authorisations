@@ -1,6 +1,6 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="fileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="fileViews" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionUrlFactory" -->
 
 <#macro umbilicalCrossSectionDiagramManagement urlFactory optionalSection=false fileViews=[]>

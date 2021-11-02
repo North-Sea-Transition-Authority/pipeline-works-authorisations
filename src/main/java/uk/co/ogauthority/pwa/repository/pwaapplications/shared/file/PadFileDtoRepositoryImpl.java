@@ -3,12 +3,12 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
 
@@ -25,7 +25,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
                                                                                         ApplicationFileLinkStatus linkStatus) {
 
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
+            "SELECT new uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView(" +
             "  uf.fileId" +
             ", uf.fileName" +
             ", uf.fileSize" +
@@ -54,7 +54,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
                                                                                         ApplicationDetailFilePurpose purpose,
                                                                                         ApplicationFileLinkStatus linkStatus) {
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.model.form.files.UploadedFileView(" +
+            "SELECT new uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView(" +
             "  uf.fileId" +
             ", uf.fileName" +
             ", uf.fileSize" +

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.files;
+package uk.co.ogauthority.pwa.features.mvcforms.fileupload;
 
 import java.util.ArrayList;
 import java.util.List;

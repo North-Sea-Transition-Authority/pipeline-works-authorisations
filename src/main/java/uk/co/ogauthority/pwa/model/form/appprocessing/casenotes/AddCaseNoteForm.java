@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.appprocessing.casenotes;
 
 import javax.validation.constraints.NotNull;
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 
 public class AddCaseNoteForm extends UploadMultipleFilesWithDescriptionForm {
 

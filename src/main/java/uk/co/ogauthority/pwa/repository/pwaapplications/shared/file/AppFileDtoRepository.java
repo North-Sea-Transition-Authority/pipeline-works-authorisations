@@ -2,11 +2,11 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
 
 import java.util.List;
 import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 
 @Repository
 public interface AppFileDtoRepository {
