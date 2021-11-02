@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model;
+package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
 public enum WebUserAccountStatus {
   ACTIVE,

@@ -14,7 +14,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -22,6 +21,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.Por
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamTypeRole;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamUsagePurpose;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 

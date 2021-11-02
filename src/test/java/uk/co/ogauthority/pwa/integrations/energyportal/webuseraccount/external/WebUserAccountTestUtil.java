@@ -1,6 +1,5 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity;
+package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
-import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 public final class WebUserAccountTestUtil {
