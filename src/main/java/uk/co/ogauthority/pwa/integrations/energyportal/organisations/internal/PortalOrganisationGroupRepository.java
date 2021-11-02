@@ -1,8 +1,8 @@
-package uk.co.ogauthority.pwa.energyportal.repository.organisations;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal;
 
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 
 
 public interface PortalOrganisationGroupRepository extends CrudRepository<PortalOrganisationGroup, Integer> {

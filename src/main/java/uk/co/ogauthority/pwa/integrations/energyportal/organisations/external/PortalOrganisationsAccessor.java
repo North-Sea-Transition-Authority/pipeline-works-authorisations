@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.service.organisations;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.external;
 
 
 import static java.util.stream.Collectors.toList;
@@ -14,12 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
-import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationGroupRepository;
-import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitDetailRepository;
-import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationGroupRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitDetailRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitRepository;
 
 /**
  * API to interact with Portal Organisations. This service should not be polluted with business logic, and

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
