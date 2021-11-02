@@ -11,8 +11,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentIssueException;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
 /**
  * Handles any job executions registered against this bean.

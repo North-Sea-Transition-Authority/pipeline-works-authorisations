@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity;
+package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.io.Serializable;
@@ -11,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 /**
