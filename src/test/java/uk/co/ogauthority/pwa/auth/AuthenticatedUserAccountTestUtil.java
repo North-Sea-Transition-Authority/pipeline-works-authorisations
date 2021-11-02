@@ -2,9 +2,9 @@ package uk.co.ogauthority.pwa.auth;
 
 import java.util.EnumSet;
 import java.util.Set;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public final class AuthenticatedUserAccountTestUtil {
   private static final int WUA_ID = 1;

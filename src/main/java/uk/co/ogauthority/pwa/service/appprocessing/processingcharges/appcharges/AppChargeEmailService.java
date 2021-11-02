@@ -4,9 +4,9 @@ import static java.util.stream.Collectors.toList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationpayments.ApplicationPaymentRequestCancelledEmailProps;
 import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationpayments.ApplicationPaymentRequestIssuedEmailProps;

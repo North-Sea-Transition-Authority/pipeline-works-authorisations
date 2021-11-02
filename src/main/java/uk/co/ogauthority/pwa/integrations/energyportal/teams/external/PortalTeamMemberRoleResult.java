@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 /**
  * Package private class only to be used to process raw Portal Teams data into into API DTOs.
