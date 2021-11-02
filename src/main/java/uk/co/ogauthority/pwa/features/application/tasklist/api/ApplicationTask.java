@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.options.ConfirmationOfOptionController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.options.OptionsTemplateController;
 import uk.co.ogauthority.pwa.controller.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;
@@ -31,6 +30,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooTaskSectionS
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.controller.HuooController;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.controller.LocationDetailsController;
+import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateService;
+import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.controller.OptionsTemplateController;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.controller.PipelineOtherPropertiesController;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
@@ -51,7 +52,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.P
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.pwaapplications.options.OptionsTemplateService;
 import uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.supplementarydocs.SupplementaryDocumentsService;
 
