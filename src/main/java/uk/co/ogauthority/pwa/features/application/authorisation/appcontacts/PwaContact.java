@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.Set;
 import javax.persistence.Column;
@@ -13,9 +13,8 @@ import javax.persistence.Table;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.converters.PwaContactRoleConverter;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.datainfrastructure.PwaContactRoleConverter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 @Entity
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED) // dont want to add audit table associated with parent entities

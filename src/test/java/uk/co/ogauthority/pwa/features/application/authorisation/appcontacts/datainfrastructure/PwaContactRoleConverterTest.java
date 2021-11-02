@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.datainfrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -6,8 +6,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.model.entity.converters.PwaContactRoleConverter;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 
 @RunWith(SpringRunner.class)
 public class PwaContactRoleConverterTest {

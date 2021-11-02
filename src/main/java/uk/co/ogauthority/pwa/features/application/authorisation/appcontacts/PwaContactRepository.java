@@ -1,10 +1,9 @@
-package uk.co.ogauthority.pwa.repository.masterpwas.contacts;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.contacts.PwaContact;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 

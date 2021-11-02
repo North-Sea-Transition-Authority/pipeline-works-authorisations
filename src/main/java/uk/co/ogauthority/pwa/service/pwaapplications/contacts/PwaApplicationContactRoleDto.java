@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.contacts;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 
 /* Represents the link between a person and a single role they hold within the application contact team. */
 public class PwaApplicationContactRoleDto {

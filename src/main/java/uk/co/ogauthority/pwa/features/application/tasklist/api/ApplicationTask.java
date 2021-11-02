@@ -6,8 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.controller.masterpwas.contacts.PwaContactController;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.controller.CampaignWorksController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsService;
@@ -53,7 +54,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.Supple
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
