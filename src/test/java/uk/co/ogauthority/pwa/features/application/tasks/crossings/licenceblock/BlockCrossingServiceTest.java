@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrgan
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
@@ -32,7 +33,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

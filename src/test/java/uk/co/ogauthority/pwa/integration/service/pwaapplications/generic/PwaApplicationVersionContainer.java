@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorksPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockOwner;
@@ -32,8 +34,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.PadPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 /**
