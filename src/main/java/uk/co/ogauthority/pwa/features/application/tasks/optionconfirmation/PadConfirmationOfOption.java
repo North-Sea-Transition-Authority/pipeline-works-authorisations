@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

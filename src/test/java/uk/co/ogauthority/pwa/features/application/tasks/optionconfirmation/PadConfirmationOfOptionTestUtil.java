@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.pwaapplications.form.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;

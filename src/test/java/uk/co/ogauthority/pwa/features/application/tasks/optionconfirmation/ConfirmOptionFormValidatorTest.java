@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 
 import static java.util.Map.entry;
@@ -13,7 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.options.ConfirmOptionForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
