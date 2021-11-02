@@ -20,9 +20,9 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentResultTestUtil;
-import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyStateTestUtil;
-import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentResultTestUtil;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyStateTestUtil;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaPaymentRequestPersisterTest {

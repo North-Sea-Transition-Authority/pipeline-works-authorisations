@@ -29,13 +29,13 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentRequest;
-import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentResultTestUtil;
-import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyDataTestUtil;
-import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyStateTestUtil;
-import uk.co.ogauthority.pwa.govukpay.GovUkPayCardPaymentClient;
-import uk.co.ogauthority.pwa.govukpay.GovUkPayRequestFailure;
-import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentRequest;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentResultTestUtil;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyDataTestUtil;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyStateTestUtil;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPayCardPaymentClient;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPayRequestFailure;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaPaymentServiceTest {

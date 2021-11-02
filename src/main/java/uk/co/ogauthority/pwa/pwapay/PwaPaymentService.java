@@ -14,10 +14,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentRequest;
-import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyState;
-import uk.co.ogauthority.pwa.govukpay.GovUkPayCardPaymentClient;
-import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentRequest;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyState;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPayCardPaymentClient;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
 @Service
 public class PwaPaymentService {
