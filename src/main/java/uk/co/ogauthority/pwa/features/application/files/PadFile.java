@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.files;
+package uk.co.ogauthority.pwa.features.application.files;
 
 import java.util.Objects;
 import javax.persistence.Entity;

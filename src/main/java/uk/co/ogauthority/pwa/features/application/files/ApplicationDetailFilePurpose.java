@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.files;
+package uk.co.ogauthority.pwa.features.application.files;
 
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingDocumentsController;
