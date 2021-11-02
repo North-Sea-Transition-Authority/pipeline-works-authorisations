@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.validators.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
@@ -8,7 +8,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.options.ConfirmOptionForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 

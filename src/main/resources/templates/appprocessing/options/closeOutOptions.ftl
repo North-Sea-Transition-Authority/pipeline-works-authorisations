@@ -1,6 +1,6 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
-<#-- @ftlvariable name="padConfirmationOfOptionView" type="uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionView" -->
+<#-- @ftlvariable name="padConfirmationOfOptionView" type="uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionView" -->
 
 
 <#include '../../layout.ftl'>

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 public class PadConfirmationOfOptionView {
 

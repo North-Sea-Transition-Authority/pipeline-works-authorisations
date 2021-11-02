@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.form.pwaapplications.options;
+package uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation;
 
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 
