@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.annotations.Type;
 import org.hibernate.envers.Audited;
-import uk.co.ogauthority.pwa.govukpay.GovUkPaymentStatus;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
 
 @Entity
