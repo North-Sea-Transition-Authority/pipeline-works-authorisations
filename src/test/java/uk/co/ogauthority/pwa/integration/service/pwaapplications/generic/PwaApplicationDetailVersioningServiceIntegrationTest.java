@@ -22,8 +22,6 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationTestUtils;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFile_;
@@ -80,6 +78,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import uk.co.ogauthority.pwa.energyportal.repository.organisations.PortalOrganisationUnitRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitRepository;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 
 @Service

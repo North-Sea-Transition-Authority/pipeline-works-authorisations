@@ -1,11 +1,11 @@
-package uk.co.ogauthority.pwa.energyportal.repository.organisations;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal;
 
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 
 public interface PortalOrganisationUnitRepository extends CrudRepository<PortalOrganisationUnit, Integer> {
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.rest.OrganisationGroupRestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller.OrganisationGroupRestController;
 import uk.co.ogauthority.pwa.model.enums.teams.ManageTeamType;
 import uk.co.ogauthority.pwa.model.form.teammanagement.AddOrganisationTeamForm;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;

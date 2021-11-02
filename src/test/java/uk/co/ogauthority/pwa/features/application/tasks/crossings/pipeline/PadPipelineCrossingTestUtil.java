@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 

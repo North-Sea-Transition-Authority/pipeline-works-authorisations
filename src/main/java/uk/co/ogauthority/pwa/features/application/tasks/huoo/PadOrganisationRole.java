@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;

@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeam;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamTypeRole;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamUsagePurpose;

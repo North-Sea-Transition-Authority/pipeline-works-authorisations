@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity.organisations;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.external;
 
 import java.util.Objects;
 import javax.persistence.Entity;
