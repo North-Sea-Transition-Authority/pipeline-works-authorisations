@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {

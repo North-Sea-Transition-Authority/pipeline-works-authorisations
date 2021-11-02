@@ -1,7 +1,7 @@
 <#include '../../../../layout.ftl'>
 
 <#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingView>" -->
-<#-- @ftlvariable name="pipelineCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="pipelineCrossingFileViews" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingUrlFactory" -->
 
 <#macro pipelineCrossingManagement urlFactory pipelineCrossings=[] pipelineCrossingFileViews=[]>
