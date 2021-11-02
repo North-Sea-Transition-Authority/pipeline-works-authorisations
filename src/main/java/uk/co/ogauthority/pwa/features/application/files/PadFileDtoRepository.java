@@ -1,11 +1,9 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
+package uk.co.ogauthority.pwa.features.application.files;
 
 import java.util.List;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Repository

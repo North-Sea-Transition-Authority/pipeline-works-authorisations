@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.platform.commons.util.StringUtils;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;

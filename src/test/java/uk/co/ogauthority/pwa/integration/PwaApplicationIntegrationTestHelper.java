@@ -9,6 +9,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Root;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
+import uk.co.ogauthority.pwa.features.application.files.PadFile_;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorksPipeline;
@@ -69,8 +71,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation_;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.PwaApplicationVersionContainer;
 import uk.co.ogauthority.pwa.integration.service.pwaapplications.generic.SimplePadPipelineContainer;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 /**

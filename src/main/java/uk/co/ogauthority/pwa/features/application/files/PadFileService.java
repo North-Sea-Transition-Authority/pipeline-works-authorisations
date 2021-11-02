@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.fileupload;
+package uk.co.ogauthority.pwa.features.application.files;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -20,14 +20,13 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescript
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.PadFileRepository;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
+import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.util.FileServiceUtils;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
