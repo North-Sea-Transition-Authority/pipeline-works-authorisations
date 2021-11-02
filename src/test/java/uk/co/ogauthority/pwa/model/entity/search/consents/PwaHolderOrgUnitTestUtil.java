@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.search.consents;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 
 public final class PwaHolderOrgUnitTestUtil {
 

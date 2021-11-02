@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.domain.energyportal.organisations.model;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 
 /* Wraps the data level unique identifier for an organisation unit to prevent mistakes where primitive data type ids are passed around.*/
 public class OrganisationUnitId {

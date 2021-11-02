@@ -9,11 +9,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.HuooForm;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.testharness.TestHarnessOrganisationUnitService;
 

@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
