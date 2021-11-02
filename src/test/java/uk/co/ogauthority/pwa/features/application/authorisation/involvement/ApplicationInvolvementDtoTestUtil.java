@@ -1,14 +1,15 @@
-package uk.co.ogauthority.pwa.model.dto.appprocessing;
+package uk.co.ogauthority.pwa.features.application.authorisation.involvement;
 
-import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION;
-import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED;
-import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY;
-import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW;
-import static uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE;
+import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION;
+import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED;
+import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY;
+import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.OPEN_CONSENT_REVIEW;
+import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE;
 
 import java.util.EnumSet;
 import java.util.Set;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;

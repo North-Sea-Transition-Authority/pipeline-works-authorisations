@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.dto.appprocessing;
+package uk.co.ogauthority.pwa.features.application.authorisation.involvement;
 
 
 import static org.assertj.core.api.Assertions.assertThat;

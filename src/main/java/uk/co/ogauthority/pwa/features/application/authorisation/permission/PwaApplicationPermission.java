@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications;
+package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -10,7 +10,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.pwaapplications.context.UserRolesForApplicationDto;
 
 /**
  * Used to map permissions for a specific operation on a PWA application to the various roles in different teams

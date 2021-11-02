@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.context;
+package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 
 import java.util.Objects;
 import java.util.Set;
