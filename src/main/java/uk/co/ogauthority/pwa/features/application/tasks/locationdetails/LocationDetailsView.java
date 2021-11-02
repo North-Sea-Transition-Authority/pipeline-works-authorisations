@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 
 public class LocationDetailsView {
 

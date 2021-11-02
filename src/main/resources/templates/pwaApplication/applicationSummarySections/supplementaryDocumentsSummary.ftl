@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="docFileViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="docFileViews" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="suppDocFileDownloadUrl" type="java.lang.String" -->
 
 <div class="pwa-application-summary-section">

@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class CaseHistoryItemView {

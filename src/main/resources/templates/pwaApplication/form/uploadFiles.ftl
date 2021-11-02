@@ -10,7 +10,7 @@
 <#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
 <#-- @ftlvariable name="restrictToImageFileTypes" type="Boolean" -->
 <#-- @ftlvariable name="singleFileUpload" type="Boolean" -->
-<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 
 
 <@defaultPage htmlTitle=pageTitle pageHeading=pageTitle breadcrumbs=true>

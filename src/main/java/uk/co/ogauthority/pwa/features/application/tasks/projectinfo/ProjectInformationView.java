@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ProjectInformationView {

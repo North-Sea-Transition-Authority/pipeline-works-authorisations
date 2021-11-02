@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.TempFileException;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 

@@ -8,20 +8,20 @@
 
 <#-- @ftlvariable name="blockCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingView>" -->
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingUrlFactory" -->
-<#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="isDocumentsRequired" type="java.lang.boolean" -->
 
 <#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView>" -->
 <#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory" -->
-<#-- @ftlvariable name="cableCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="cableCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 
 <#-- @ftlvariable name="pipelineCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingView>" -->
 <#-- @ftlvariable name="pipelineCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingUrlFactory" -->
-<#-- @ftlvariable name="pipelineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="pipelineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 
 <#-- @ftlvariable name="medianLineCrossings" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingView>" -->
 <#-- @ftlvariable name="medianLineCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.MedianLineCrossingUrlFactory" -->
-<#-- @ftlvariable name="medianLineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="medianLineCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview" -->

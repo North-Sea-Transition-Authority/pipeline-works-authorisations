@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 
 
 public class PermanentDepositDrawingView {

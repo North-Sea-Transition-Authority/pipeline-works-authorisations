@@ -29,12 +29,12 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 import uk.co.ogauthority.pwa.service.documents.generation.ConsentDocumentImageService;
 import uk.co.ogauthority.pwa.service.documents.generation.TableAGeneratorService;
