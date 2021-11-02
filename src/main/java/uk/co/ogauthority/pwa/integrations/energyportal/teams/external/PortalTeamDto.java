@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.dto.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
 public class PortalTeamDto {
   private final int resId;

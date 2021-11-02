@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.energyportal.model.entity.organisations;
 
 import java.time.LocalDate;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 public class PortalOrganisationTestUtils {

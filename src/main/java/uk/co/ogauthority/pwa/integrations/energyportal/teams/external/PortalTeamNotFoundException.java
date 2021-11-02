@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.exceptions.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

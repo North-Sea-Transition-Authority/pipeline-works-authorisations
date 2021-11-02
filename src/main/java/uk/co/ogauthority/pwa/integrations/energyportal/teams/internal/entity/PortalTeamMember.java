@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
