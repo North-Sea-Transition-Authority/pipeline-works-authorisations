@@ -9,8 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
-import uk.co.ogauthority.pwa.model.entity.converters.DevukFieldIdConverter;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldIdConverter;
 
 
 @Entity

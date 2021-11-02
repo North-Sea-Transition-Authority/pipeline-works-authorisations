@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.controller;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
-import uk.co.ogauthority.pwa.service.devuk.DevukFieldService;
 import uk.co.ogauthority.pwa.service.searchselector.ManualEntryAttribute;
 import uk.co.ogauthority.pwa.service.searchselector.SearchIdValueSelection;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;

@@ -1,8 +1,8 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
-import uk.co.ogauthority.pwa.energyportal.model.entity.devuk.DevukFieldId;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
 
 @Converter
 public class DevukFieldIdConverter implements AttributeConverter<DevukFieldId, Integer> {
