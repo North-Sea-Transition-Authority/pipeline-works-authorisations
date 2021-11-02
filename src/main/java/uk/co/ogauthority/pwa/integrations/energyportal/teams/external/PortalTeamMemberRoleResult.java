@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.service.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 

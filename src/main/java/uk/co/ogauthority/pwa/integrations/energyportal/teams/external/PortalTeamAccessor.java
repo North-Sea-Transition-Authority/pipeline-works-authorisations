@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.energyportal.service.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,19 +14,14 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.exceptions.teams.PortalTeamNotFoundException;
-import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalRoleDto;
-import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalSystemPrivilegeDto;
-import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto;
-import uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeam;
-import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeamTypeRole;
-import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeamUsagePurpose;
-import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeam;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamTypeRole;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamUsagePurpose;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 
@@ -46,7 +41,7 @@ public class PortalTeamAccessor {
   public Optional<PortalTeamDto> findPortalTeamById(int resId) {
     try {
       return Optional.of(entityManager.createQuery("" +
-              "SELECT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto(" +
+              "SELECT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto(" +
               "  pt.resId, pt.name, pt.description, ptt.type, ptu.uref " +
               ") " +
               "FROM PortalTeam pt " +
@@ -135,7 +130,7 @@ public class PortalTeamAccessor {
   public Optional<PortalTeamDto> findPortalTeamByOrganisationGroup(PortalOrganisationGroup portalOrganisationGroup) {
     try {
       return Optional.of(entityManager.createQuery("" +
-              "SELECT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto(" +
+              "SELECT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto(" +
               "  pt.resId, pt.name, pt.description, ptt.type, ptu.uref " +
               ") " +
               "FROM PortalTeam pt " +
@@ -158,7 +153,7 @@ public class PortalTeamAccessor {
    */
   private List<PortalTeamMemberRoleResult> getTeamMemberRoleResultsForTeam(PortalTeam team) {
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamMemberRoleResult(" +
+            "SELECT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamMemberRoleResult(" +
             "  pt.resId, " + // team
             "  ptm.personId, " + // person
             "  pttr.name, pttr.title, pttr.description, pttr.displaySeq " + // role details
@@ -176,7 +171,7 @@ public class PortalTeamAccessor {
   public List<PortalTeamDto> getPortalTeamsByPortalTeamType(String portalTeamType) {
 
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto(" +
+            "SELECT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto(" +
             "  pt.resId, pt.name, pt.description, pt.portalTeamType.type, ptu.uref " +
             ") " +
             "FROM PortalTeam pt " +
@@ -208,7 +203,7 @@ public class PortalTeamAccessor {
 
     return entityManager.createQuery("" +
             // Distinct required to remove duplicates caused by using the PortalTeamTypeRole entity as root
-            "SELECT DISTINCT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto( " +
+            "SELECT DISTINCT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto( " +
             "  pt.resId, pt.name, pt.description, pt.portalTeamType.type, ptu.uref " +
             ") " +
             "FROM PortalTeamTypeRole pttr " +
@@ -246,7 +241,7 @@ public class PortalTeamAccessor {
 
     return entityManager.createQuery("" +
             // Distinct required to remove duplicates caused by using the PortalTeamTypeRole entity as root
-            "SELECT DISTINCT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalTeamDto( " +
+            "SELECT DISTINCT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto( " +
             "  pt.resId, pt.name, pt.description, pt.portalTeamType.type, ptu.uref " +
             ") " +
             "FROM PortalTeamTypeRole pttr " +
@@ -336,7 +331,7 @@ public class PortalTeamAccessor {
   public List<PortalRoleDto> getAllPortalRolesForTeam(int resId) {
 
     return entityManager.createQuery("" +
-            "SELECT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalRoleDto(" +
+            "SELECT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalRoleDto(" +
             "  pt.resId, pttr.name, pttr.title,  pttr.description, pttr.displaySeq " +
             ") " +
             "FROM PortalTeam pt " +
@@ -352,7 +347,7 @@ public class PortalTeamAccessor {
   public List<PortalSystemPrivilegeDto> getAllPortalSystemPrivilegesForPerson(Person person) {
     return entityManager.createQuery("" +
             // Distinct required to remove duplicates caused by using the PortalTeamTypeRole entity as root
-            "SELECT DISTINCT new uk.co.ogauthority.pwa.energyportal.model.dto.teams.PortalSystemPrivilegeDto( " +
+            "SELECT DISTINCT new uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalSystemPrivilegeDto( " +
             "  pt.portalTeamType.type, pttr.name, pttrp.privilege" +
             ") " +
             "FROM PortalTeamMember ptm " +

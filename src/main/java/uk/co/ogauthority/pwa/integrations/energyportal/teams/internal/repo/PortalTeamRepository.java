@@ -1,9 +1,9 @@
-package uk.co.ogauthority.pwa.energyportal.repository.teams;
+package uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo;
 
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
-import uk.co.ogauthority.pwa.energyportal.model.entity.teams.PortalTeam;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeam;
 
 public interface PortalTeamRepository extends CrudRepository<PortalTeam, Integer> {
 
