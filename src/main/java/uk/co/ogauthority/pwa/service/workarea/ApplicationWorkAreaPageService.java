@@ -189,7 +189,7 @@ class ApplicationWorkAreaPageService {
                 workAreaContext,
                 workAreaTabCategory
             )
-        );
+      );
     var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
 
     // 2. Create results query using predicate
