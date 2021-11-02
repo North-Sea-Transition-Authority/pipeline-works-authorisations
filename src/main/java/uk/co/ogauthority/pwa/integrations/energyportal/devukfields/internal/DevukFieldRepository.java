@@ -1,9 +1,9 @@
-package uk.co.ogauthority.pwa.repository.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal;
 
 import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukField;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 
 @Repository
 public interface DevukFieldRepository extends CrudRepository<DevukField, Integer> {
