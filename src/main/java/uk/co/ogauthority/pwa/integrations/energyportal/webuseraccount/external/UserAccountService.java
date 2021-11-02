@@ -1,11 +1,10 @@
-package uk.co.ogauthority.pwa.service.users;
+package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.repository.WebUserAccountRepository;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
 
 @Service
 public class UserAccountService {

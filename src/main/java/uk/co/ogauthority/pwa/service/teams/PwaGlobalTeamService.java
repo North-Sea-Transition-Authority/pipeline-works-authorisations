@@ -8,10 +8,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.model.teams.PwaGlobalRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberModificationEvent;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
 @Service
 public class PwaGlobalTeamService {

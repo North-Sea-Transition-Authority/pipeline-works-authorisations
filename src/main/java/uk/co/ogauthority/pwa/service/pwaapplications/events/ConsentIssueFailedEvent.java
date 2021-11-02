@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.events;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class ConsentIssueFailedEvent {
