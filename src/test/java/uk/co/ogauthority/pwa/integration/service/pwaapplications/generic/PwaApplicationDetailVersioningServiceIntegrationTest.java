@@ -78,11 +78,11 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent_;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
 import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;

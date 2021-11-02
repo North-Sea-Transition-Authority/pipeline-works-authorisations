@@ -6,11 +6,11 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
-import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 

@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 

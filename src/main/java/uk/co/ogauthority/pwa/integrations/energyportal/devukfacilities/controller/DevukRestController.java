@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.controller;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
-import uk.co.ogauthority.pwa.service.devuk.DevukFacilityService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @RestController

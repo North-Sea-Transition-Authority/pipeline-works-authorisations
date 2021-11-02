@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.devuk;
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -6,8 +6,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
-import uk.co.ogauthority.pwa.repository.devuk.DevukFacilityRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.internal.DevukFacilityRepository;
 
 @Service
 public class DevukFacilityService {
