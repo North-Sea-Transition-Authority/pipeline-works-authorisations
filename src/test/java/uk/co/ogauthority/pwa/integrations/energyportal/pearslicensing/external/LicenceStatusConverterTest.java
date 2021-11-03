@@ -1,10 +1,10 @@
-package uk.co.ogauthority.pwa.model.entity.converters;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.LicenceStatusConverter;
 
 public class LicenceStatusConverterTest {
 

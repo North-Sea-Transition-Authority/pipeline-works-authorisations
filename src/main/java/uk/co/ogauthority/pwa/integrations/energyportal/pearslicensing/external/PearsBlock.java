@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.entity.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import com.google.common.annotations.VisibleForTesting;
 import javax.persistence.Column;
@@ -10,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
 
 @Entity
 @Table(name = "ped_blocks")

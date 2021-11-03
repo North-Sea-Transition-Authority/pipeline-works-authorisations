@@ -1,10 +1,10 @@
-package uk.co.ogauthority.pwa.repository.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal;
 
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 
 @Repository
 public interface PearsLicenceRepository extends CrudRepository<PearsLicence, Integer> {
