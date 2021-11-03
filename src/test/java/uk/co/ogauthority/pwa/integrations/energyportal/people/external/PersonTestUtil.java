@@ -1,8 +1,5 @@
-package uk.co.ogauthority.pwa.energyportal.model.entity;
+package uk.co.ogauthority.pwa.integrations.energyportal.people.external;
 
-
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public class PersonTestUtil {
 
