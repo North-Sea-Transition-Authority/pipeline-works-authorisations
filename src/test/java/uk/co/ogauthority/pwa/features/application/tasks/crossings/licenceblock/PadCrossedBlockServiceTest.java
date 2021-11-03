@@ -11,9 +11,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlock;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @RunWith(MockitoJUnitRunner.class)

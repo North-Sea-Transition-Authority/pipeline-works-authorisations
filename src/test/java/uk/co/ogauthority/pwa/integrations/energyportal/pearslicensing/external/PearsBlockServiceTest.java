@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -18,11 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.PageRequest;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
-import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
-import uk.co.ogauthority.pwa.repository.licence.PearsBlockRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.PearsBlockRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PearsBlockServiceTest {

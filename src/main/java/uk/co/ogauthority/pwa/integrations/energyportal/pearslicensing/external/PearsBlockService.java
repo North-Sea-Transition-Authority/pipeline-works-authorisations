@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import java.util.Comparator;
 import java.util.List;
@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
-import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.repository.licence.PearsBlockRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.PearsBlockRepository;
 
 @Service
 public class PearsBlockService {

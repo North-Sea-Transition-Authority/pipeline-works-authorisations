@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -12,9 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
-import uk.co.ogauthority.pwa.repository.licence.PearsLicenceRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.PearsLicenceRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PearsLicenceServiceTest {

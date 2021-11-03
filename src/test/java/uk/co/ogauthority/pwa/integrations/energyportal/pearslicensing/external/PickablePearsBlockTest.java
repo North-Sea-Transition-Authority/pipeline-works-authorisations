@@ -1,14 +1,9 @@
-package uk.co.ogauthority.pwa.service.licence;
-
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import uk.co.ogauthority.pwa.model.entity.enums.BlockLocation;
-import uk.co.ogauthority.pwa.model.entity.enums.LicenceStatus;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
 
 public class PickablePearsBlockTest {
 
