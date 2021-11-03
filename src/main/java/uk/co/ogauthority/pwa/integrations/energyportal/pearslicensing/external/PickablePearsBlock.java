@@ -1,6 +1,5 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 
 public class PickablePearsBlock implements SearchSelectable {

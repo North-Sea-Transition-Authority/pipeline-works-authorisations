@@ -1,12 +1,11 @@
-package uk.co.ogauthority.pwa.service.licence;
+package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import java.util.List;
 import javax.persistence.EntityNotFoundException;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
-import uk.co.ogauthority.pwa.repository.licence.PearsLicenceRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.PearsLicenceRepository;
 
 @Service
 public class PearsLicenceService {

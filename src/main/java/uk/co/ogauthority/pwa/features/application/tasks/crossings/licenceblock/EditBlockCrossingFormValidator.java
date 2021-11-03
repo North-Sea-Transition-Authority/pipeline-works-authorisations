@@ -8,7 +8,7 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Component

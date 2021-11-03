@@ -22,14 +22,14 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSe
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlock;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlockService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PickablePearsBlock;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
-import uk.co.ogauthority.pwa.service.licence.PickablePearsBlock;
 
 @Service
 public class BlockCrossingService implements ApplicationFormSectionService {
