@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
