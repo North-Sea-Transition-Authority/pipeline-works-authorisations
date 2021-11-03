@@ -4,6 +4,7 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -496,6 +497,34 @@ public class ApplicationUpdateRequestServiceTest {
     assertThat(taskListEntry.getTaskState()).isEqualTo(TaskState.LOCK);
     assertThat(taskListEntry.getTaskInfoList()).isEmpty();
 
+  }
+
+  @Test
+  public void endUpdateRequestIfExists_openUpdateRequestExists_requestStatusUpdated() {
+
+    var openUpdateRequest = new ApplicationUpdateRequest();
+    openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
+
+    when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN)).thenReturn(Optional.of(openUpdateRequest));
+
+    applicationUpdateRequestService.endUpdateRequestIfExists(pwaApplicationDetail);
+
+    verify(applicationUpdateRequestRepository, times(1)).save(appUpdateArgCapture.capture());
+
+    var updateRequest = appUpdateArgCapture.getValue();
+    assertThat(updateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.ENDED);
+  }
+
+  @Test
+  public void endUpdateRequestIfExists_openUpdateRequestDoesNotExists_noUpdateRequestProcessingDone() {
+
+    var openUpdateRequest = new ApplicationUpdateRequest();
+    openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
+
+    applicationUpdateRequestService.endUpdateRequestIfExists(pwaApplicationDetail);
+
+    verify(applicationUpdateRequestRepository, never()).save(any());
   }
 
 }

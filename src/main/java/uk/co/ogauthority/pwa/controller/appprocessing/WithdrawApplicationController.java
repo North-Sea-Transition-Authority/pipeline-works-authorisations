@@ -85,7 +85,7 @@ public class WithdrawApplicationController {
     bindingResult = withdrawApplicationService.validate(form, bindingResult, processingContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getWithdrawApplicationModelAndView(processingContext), () -> {
-      withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
+      withdrawApplicationService.withdrawApplication(form, processingContext.getPwaApplication(), authenticatedUserAccount);
 
       FlashUtils.info(redirectAttributes, processingContext.getApplicationDetail().getPwaApplicationRef() + " withdrawn");
       return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
