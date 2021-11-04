@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.pwapay;
+package uk.co.ogauthority.pwa.features.pwapay;
 
 
 import static java.util.stream.Collectors.toSet;

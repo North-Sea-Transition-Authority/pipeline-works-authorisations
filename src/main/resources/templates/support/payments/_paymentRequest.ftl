@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="paymentRequest" type="uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest" -->
+<#-- @ftlvariable name="paymentRequest" type="uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest" -->
 <#macro _pwaRequestData paymentRequest>
   <ul class="govuk-list">
     <li>PaymentUUID: ${paymentRequest.uuid}</li>

@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest;
+import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentService;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest;
-import uk.co.ogauthority.pwa.pwapay.PwaPaymentService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 
 @Controller

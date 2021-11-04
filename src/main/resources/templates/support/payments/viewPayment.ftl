@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 <#import '_paymentRequest.ftl' as paymentRequest>
 
-<#-- @ftlvariable name="pwaPaymentRequest" type="uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest" -->
+<#-- @ftlvariable name="pwaPaymentRequest" type="uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest" -->
 <#-- @ftlvariable name="paymentsDashboardUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="paymentActionUrl" type="java.lang.String" -->
 
