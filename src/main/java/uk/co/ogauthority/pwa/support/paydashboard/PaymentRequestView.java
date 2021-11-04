@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.support.paydashboard;
 
-import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest;
+import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest;
 
 public class PaymentRequestView {
 
