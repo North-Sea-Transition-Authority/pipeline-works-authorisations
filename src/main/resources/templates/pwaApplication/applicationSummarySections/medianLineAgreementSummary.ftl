@@ -2,8 +2,8 @@
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="medianLineAgreementView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.MedianLineAgreementView" -->
-<#-- @ftlvariable name="medianLineFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="medianLineUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.MedianLineCrossingUrlFactory" -->
+<#-- @ftlvariable name="medianLineFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
+<#-- @ftlvariable name="medianLineUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.MedianLineCrossingUrlFactory" -->
 
 
 <div class="pwa-application-summary-section">

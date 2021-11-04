@@ -16,7 +16,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;

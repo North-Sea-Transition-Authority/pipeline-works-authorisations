@@ -11,19 +11,19 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.MaterialType;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDeposit;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
-import uk.co.ogauthority.pwa.model.entity.enums.permanentdeposits.MaterialType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdepositdrawings.PadDepositDrawingLink;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.permanentdeposits.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service

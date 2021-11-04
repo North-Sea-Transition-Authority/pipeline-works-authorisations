@@ -17,17 +17,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.crossings.PadCableCrossing;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CableCrossingView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

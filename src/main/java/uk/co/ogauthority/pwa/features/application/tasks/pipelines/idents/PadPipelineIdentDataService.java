@@ -11,7 +11,6 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 

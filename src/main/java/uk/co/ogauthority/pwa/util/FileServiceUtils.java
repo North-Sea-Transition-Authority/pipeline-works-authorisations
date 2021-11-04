@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.util;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 
 public class FileServiceUtils {
 

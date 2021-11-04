@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.util.validation;
 import java.math.BigDecimal;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;

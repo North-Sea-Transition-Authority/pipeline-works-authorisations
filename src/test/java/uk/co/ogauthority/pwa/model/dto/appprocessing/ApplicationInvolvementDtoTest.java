@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 
 public class ApplicationInvolvementDtoTest {
 

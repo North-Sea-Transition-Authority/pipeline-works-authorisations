@@ -9,7 +9,6 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;

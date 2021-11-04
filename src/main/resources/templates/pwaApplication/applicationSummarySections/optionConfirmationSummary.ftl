@@ -2,7 +2,7 @@
 <#import '../shared/options/optionConfirmationSummary.ftl' as optionsConfirmationSummary>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionView" -->
+<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionView" -->
 
 
 <div class="pwa-application-summary-section">

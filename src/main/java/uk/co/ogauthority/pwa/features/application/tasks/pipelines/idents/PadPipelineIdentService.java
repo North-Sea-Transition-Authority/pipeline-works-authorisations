@@ -26,8 +26,6 @@ import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.files;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 
 public class UploadedFileViewTestUtil {
 

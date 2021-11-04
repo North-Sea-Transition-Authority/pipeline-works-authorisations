@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 

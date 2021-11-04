@@ -8,12 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingUrlFactory;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingUrlFactory;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingsService;
 
 /**
  * Construct summary of permanent deposit drawings for a given application.

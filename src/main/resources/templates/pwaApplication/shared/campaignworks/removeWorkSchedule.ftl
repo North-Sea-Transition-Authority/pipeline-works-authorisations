@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 <#import 'workScheduleView.ftl' as workScheduleView>
 
-<#-- @ftlvariable name="workSchedule" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView" -->
+<#-- @ftlvariable name="workSchedule" type="uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView" -->
 <#-- @ftlvariable name="overviewUrl" type="java.lang.String" -->
 
 

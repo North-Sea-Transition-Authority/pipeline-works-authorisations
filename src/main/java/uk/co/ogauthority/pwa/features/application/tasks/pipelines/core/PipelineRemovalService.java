@@ -5,12 +5,12 @@ import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.campaignworks.CampaignWorksService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.PermanentDepositService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingLinkService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 
 @Service
 public class PipelineRemovalService {

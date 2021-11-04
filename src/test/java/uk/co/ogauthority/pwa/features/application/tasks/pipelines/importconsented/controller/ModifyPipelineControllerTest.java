@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineValidator;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -28,7 +29,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.validators.pwaapplications.shared.pipelines.ModifyPipelineValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ModifyPipelineController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))

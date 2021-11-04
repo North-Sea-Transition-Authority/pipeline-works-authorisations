@@ -29,6 +29,8 @@ import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.applicationupdates.ApplicationUpdateRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -44,7 +46,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowMessageEvent;
@@ -53,7 +54,6 @@ import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWo
 import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;

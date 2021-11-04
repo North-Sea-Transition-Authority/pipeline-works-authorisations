@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="fileuploadMaxUploadSize" type="String" -->
 <#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
-<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="uploadUrl" type="String" -->
 <#-- @ftlvariable name="deleteUrl" type="String" -->
 <#-- @ftlvariable name="downloadUrl" type="String" -->

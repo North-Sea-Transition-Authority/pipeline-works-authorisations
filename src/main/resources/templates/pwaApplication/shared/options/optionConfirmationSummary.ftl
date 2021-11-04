@@ -1,6 +1,6 @@
 <#include '../../../pwaLayoutImports.ftl'>
 
-<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.service.pwaapplications.options.PadConfirmationOfOptionView" -->
+<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionView" -->
 
 <#macro summary view >
   <@fdsCheckAnswers.checkAnswers>

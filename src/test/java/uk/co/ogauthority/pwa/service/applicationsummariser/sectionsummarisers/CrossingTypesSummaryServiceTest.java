@@ -20,13 +20,13 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingTaskGeneralPurposeTaskAdapter;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.CrossingTypesView;
-import uk.co.ogauthority.pwa.service.tasklist.CrossingTaskGeneralPurposeTaskAdapter;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

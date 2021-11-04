@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="preselectedFacilitiesIfPartially" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="safetyZoneOptions" type="java.util.Map<java.lang.String, java.lang.String>" -->
 <#-- @ftlvariable name="facilityRestUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.LocationDetailsQuestion>" -->
+<#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsQuestion>" -->
 
 <@defaultPage htmlTitle="Location details" pageHeading="Location details" breadcrumbs=true errorItems=errorList>
 

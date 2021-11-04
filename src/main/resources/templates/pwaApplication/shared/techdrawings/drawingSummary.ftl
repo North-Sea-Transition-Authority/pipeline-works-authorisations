@@ -1,8 +1,8 @@
 <#include '../../../layout.ftl'>
 
-<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView" -->
-<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingUrlFactory" -->
-<#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PipelineDrawingValidationFactory" -->
+<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingUrlFactory" -->
+<#-- @ftlvariable name="validatorFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingValidationFactory" -->
 
 <#macro drawingSummary summary urlFactory validatorFactory showReferenceAsKey=false showActions=false>
     <#if !showReferenceAsKey>

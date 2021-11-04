@@ -42,8 +42,6 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentDataForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;

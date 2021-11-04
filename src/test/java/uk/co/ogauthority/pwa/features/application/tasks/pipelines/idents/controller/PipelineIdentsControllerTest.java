@@ -47,11 +47,11 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm;
 import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
 import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
