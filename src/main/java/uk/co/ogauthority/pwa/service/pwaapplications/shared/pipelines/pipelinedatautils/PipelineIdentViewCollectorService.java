@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineIdent;
@@ -20,16 +22,22 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 @Service
 public class PipelineIdentViewCollectorService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PipelineIdentViewCollectorService.class);
 
   public <T extends PipelineIdent, U extends PipelineIdentData> Map<PipelineId, List<IdentView>> getPipelineIdToIdentVewsMap(
       Class<T> pipelineIdentClass,
       Class<U> pipelineIdentDataClass,
       Supplier<List<T>> identListSupplier,
       Function<List<T>, List<U>> supplyIdentDataForIdents) {
+
     var idents = identListSupplier.get();
+
+    LOGGER.debug("Found {} idents", idents.size());
 
     var identDataMap = supplyIdentDataForIdents.apply(idents).stream()
         .collect(Collectors.toMap(PipelineIdentData::getPipelineIdent, Function.identity()));
+
+    LOGGER.debug("Found ident data for {} idents", identDataMap.size());
 
     return identDataMap.entrySet()
         .stream()

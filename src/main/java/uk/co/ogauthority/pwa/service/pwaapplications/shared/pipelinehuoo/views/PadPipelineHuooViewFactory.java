@@ -27,10 +27,10 @@ import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleSer
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PadPipelineService;
 
-@Service
 /**
- * Service which constructs view objects over application pipeline huoo data designed to be consumed in Templates
+ * Service which constructs view objects over application pipeline huoo data designed to be consumed in Templates.
  */
+@Service
 public class PadPipelineHuooViewFactory {
 
   private static final String DEFAULT_SPLIT_PIPELINE_DISPLAY_TEXT = "Unassigned";

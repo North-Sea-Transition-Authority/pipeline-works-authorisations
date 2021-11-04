@@ -90,8 +90,11 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
 
   public PipelineAndOrgRoleGroupViewsByRole getPadPipelinesHuooSummaryView(PwaApplicationDetail pwaApplicationDetail) {
+
     var pipelineAndOrgGroupAppSummary = createPipelineAndOrganisationRoleGroupSummary(pwaApplicationDetail);
+
     return padPipelineHuooViewFactory.createPipelineAndOrgGroupViewsByRole(pwaApplicationDetail, pipelineAndOrgGroupAppSummary);
+
   }
 
   public PipelineHuooValidationResult generatePipelineHuooValidationResult(
@@ -336,6 +339,9 @@ public class PadPipelinesHuooService implements ApplicationFormSectionService {
 
     var allPipelineRolesForApp = padPipelineOrganisationRoleLinkRepository.findOrganisationPipelineRoleDtoByPwaApplicationDetail(
         pwaApplicationDetail);
+
+    LOGGER.debug("Found {} org pipeline roles for detail", allPipelineRolesForApp.size());
+
     return PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(allPipelineRolesForApp);
   }
 

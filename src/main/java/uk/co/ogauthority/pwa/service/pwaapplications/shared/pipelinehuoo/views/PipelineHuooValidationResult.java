@@ -70,4 +70,13 @@ public class PipelineHuooValidationResult {
   public boolean isValid() {
     return isValid;
   }
+
+  @Override
+  public String toString() {
+    return "PipelineHuooValidationResult{" +
+        "validationResults=" + validationResults +
+        ", isValid=" + isValid +
+        '}';
+  }
+
 }

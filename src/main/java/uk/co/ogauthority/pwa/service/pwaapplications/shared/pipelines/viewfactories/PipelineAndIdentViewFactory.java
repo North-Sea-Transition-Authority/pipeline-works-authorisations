@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
@@ -31,6 +33,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
  */
 @Service
 public class PipelineAndIdentViewFactory {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PipelineAndIdentViewFactory.class);
 
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
@@ -67,11 +71,22 @@ public class PipelineAndIdentViewFactory {
 
     var allAppAndMasterPwaPipelineOverviewLookup = getAllPipelineOverviewsFromAppAndMasterPwa(
         pwaApplicationDetail, consentedPipelineFilter);
+
+    LOGGER.debug("Found {} pipeline overviews for app and master pwa", allAppAndMasterPwaPipelineOverviewLookup.size());
+
     var allAppAndMasterPwaPipelineIds = allAppAndMasterPwaPipelineOverviewLookup.keySet();
 
     var applicationPipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
+
+    var totalAppIdentViewCount = applicationPipelineIdToIdentViewListMap.values().stream()
+        .mapToLong(List::size)
+        .sum();
+
+    LOGGER.debug("Found {} ident views on application for {} pipelines",
+        totalAppIdentViewCount, applicationPipelineIdToIdentViewListMap.size());
+
     var modifiableAppPipelineIdToIdentViewListMap = new HashMap<>(applicationPipelineIdToIdentViewListMap);
     // if pipeline added but no idents defined, add in empty entry to app pipelines ident lookup
     allAppAndMasterPwaPipelineOverviewLookup.forEach((pipelineId, pipelineOverview) -> {
@@ -83,6 +98,13 @@ public class PipelineAndIdentViewFactory {
     var allConsentedPipelineIdtoIdentViewListMap = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelines(
         allAppAndMasterPwaPipelineIds
     );
+
+    var totalConsentedIdentViewCount = allConsentedPipelineIdtoIdentViewListMap.values().stream()
+        .mapToLong(List::size)
+        .sum();
+
+    LOGGER.debug("Found {} ident views in consented model for {} pipelines",
+        totalConsentedIdentViewCount, allConsentedPipelineIdtoIdentViewListMap.size());
 
     var pipelineAndIdentViewListMap = new HashMap<PipelineId, List<IdentView>>();
     pipelineAndIdentViewListMap.putAll(modifiableAppPipelineIdToIdentViewListMap);

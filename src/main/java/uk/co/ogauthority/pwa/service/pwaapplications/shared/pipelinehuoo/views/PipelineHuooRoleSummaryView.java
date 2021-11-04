@@ -128,4 +128,17 @@ public class PipelineHuooRoleSummaryView {
   public List<String> getSortedUnassignedPipelineNumbers() {
     return sortedUnassignedPipelineNumbers;
   }
+
+  @Override
+  public String toString() {
+    return "PipelineHuooRoleSummaryView{" +
+        "huooRole=" + huooRole +
+        ", pipelinesAndOrgRoleGroupViews=" + pipelinesAndOrgRoleGroupViews +
+        ", unassignedPipelineNumberMapForRole=" + unassignedPipelineNumberMapForRole +
+        ", unassignedOrganisationRoleOwnerNameMapForRole=" + unassignedOrganisationRoleOwnerNameMapForRole +
+        ", totalOrganisationRoleOwners=" + totalOrganisationRoleOwners +
+        ", sortedUnassignedOrganisationNames=" + sortedUnassignedOrganisationNames +
+        ", sortedUnassignedPipelineNumbers=" + sortedUnassignedPipelineNumbers +
+        '}';
+  }
 }
