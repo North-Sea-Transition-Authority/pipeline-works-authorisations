@@ -5,6 +5,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -157,10 +158,13 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   }
 
-  private ApplicationUpdateRequest getOpenUpdateRequestOrThrow(PwaApplicationDetail pwaApplicationDetail) {
+  private Optional<ApplicationUpdateRequest> getOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {
     return applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
-        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN)
-        .orElseThrow(() -> new PwaEntityNotFoundException(
+        pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN);
+  }
+
+  private ApplicationUpdateRequest getOpenUpdateRequestOrThrow(PwaApplicationDetail pwaApplicationDetail) {
+    return getOpenUpdateRequest(pwaApplicationDetail).orElseThrow(() -> new PwaEntityNotFoundException(
             "Expected to find open update request for pad_id:" + pwaApplicationDetail.getId()));
   }
 
@@ -257,5 +261,14 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         taskState,
         task.getDisplayOrder());
 
+  }
+
+  @Transactional
+  public void endUpdateRequestIfExists(PwaApplicationDetail pwaApplicationDetail) {
+
+    getOpenUpdateRequest(pwaApplicationDetail).ifPresent((openUpdateRequest) -> {
+      openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.ENDED);
+      applicationUpdateRequestRepository.save(openUpdateRequest);
+    });
   }
 }
