@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.support.paydashboard;
+package uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 

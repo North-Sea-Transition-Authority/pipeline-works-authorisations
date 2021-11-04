@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.support.paydashboard;
+package uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -21,6 +21,9 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest;
 import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentService;
+import uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.PaymentRequestView;
+import uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.PwaPaymentSupportAction;
+import uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.TestPaymentForm;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
