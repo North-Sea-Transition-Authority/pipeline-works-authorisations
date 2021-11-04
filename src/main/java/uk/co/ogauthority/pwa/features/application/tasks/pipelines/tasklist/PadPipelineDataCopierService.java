@@ -7,6 +7,9 @@ import java.util.function.Supplier;
 import javax.persistence.EntityManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
+import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
@@ -17,12 +20,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 @Service
 public class PadPipelineDataCopierService {

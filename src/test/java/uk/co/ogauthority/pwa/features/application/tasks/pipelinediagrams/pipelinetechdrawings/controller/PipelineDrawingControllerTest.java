@@ -33,6 +33,8 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
@@ -41,8 +43,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingValidator;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;

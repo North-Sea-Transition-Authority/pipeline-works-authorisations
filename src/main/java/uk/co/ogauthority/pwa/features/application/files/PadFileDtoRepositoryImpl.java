@@ -1,13 +1,11 @@
-package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
+package uk.co.ogauthority.pwa.features.application.files;
 
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
-import uk.co.ogauthority.pwa.model.entity.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {

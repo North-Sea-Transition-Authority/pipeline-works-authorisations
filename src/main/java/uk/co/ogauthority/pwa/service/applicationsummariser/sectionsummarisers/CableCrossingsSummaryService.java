@@ -8,19 +8,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.service.applicationsummariser.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 
 /**
  * Construct summary of Cable Crossings for a given application.
