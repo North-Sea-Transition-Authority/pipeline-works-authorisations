@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.support.paydashboard;
+package uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard;
 
 import javax.validation.constraints.NotNull;
 

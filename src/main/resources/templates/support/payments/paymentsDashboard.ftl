@@ -2,7 +2,7 @@
 <#import '_paymentRequest.ftl' as paymentRequest>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="payments" type="uk.co.ogauthority.pwa.mvc.PageView<uk.co.ogauthority.pwa.support.paydashboard.PaymentRequestView>" -->
+<#-- @ftlvariable name="payments" type="uk.co.ogauthority.pwa.mvc.PageView<uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.PaymentRequestView>" -->
 <#-- @ftlvariable name="startTestPaymentUrl" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Pwa Payments dashboard" pageHeading="Pwa Payments dashboard" fullWidthColumn=true wrapperWidth=true errorItems=errorList>
