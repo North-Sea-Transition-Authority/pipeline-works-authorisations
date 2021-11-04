@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDtoTestUtil;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;

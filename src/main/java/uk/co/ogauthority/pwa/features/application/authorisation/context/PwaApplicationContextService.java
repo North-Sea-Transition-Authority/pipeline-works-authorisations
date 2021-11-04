@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications.context;
+package uk.co.ogauthority.pwa.features.application.authorisation.context;
 
 import com.google.common.base.Stopwatch;
 import java.util.Objects;
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.fileupload.PadFileService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.util.ApplicationContextUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 @Service

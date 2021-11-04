@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
 import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.dto.appprocessing.ApplicationInvolvementDto;
+import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;

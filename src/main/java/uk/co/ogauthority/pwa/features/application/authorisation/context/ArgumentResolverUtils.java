@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.features.application.authorisation.context;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -11,13 +11,14 @@ import org.springframework.core.MethodParameter;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationNoChecks;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 /**
- * Utility class to provide common functions to argument resolvers.
+ * <p>Utility class to provide common functions to argument resolvers.</p>
+ *
+ * <p>TODO split into app context arg resolver util and general case arg resolver util.</p>
  */
 public class ArgumentResolverUtils {
 
