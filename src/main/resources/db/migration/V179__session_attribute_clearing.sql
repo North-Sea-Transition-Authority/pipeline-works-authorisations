@@ -1,0 +1,1 @@
+DELETE FROM ${datasource.user}.spring_session_attributes;
