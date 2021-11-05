@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 
 

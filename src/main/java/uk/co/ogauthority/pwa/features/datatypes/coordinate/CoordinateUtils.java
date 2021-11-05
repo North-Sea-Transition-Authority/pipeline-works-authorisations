@@ -1,14 +1,10 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.Optional;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
 
 /**
  * Utility class for common interactions with coordinates and associated objects.
