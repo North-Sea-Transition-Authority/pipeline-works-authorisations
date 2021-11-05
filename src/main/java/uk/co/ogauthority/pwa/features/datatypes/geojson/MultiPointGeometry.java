@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util.geojson;
+package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;

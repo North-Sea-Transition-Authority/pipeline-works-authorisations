@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util.geojson;
+package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util.geojson;
+package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 /**
  * <p>A Geometry object represents points, curves, and surfaces in coordinate space. Every Geometry object is a GeoJSON

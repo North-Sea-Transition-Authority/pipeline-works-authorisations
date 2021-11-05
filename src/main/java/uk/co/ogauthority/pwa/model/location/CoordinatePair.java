@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.model.location;
 
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import uk.co.ogauthority.pwa.features.datatypes.geojson.DecimalDegreesPoint;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.geojson.DecimalDegreesPoint;
 
 /**
  * Data class to store a pair of lat/long coordinates.
