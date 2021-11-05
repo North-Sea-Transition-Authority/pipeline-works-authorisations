@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 
 /**
  * Provides accessors to common pipelineIdent attributes across application and consented models.

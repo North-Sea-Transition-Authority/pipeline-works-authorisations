@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.location;
+package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
