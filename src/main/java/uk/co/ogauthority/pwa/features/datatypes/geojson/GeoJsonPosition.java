@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.util.geojson;
+package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 /**
  * <p>A position is an array of numbers.  There MUST be two or more elements.
