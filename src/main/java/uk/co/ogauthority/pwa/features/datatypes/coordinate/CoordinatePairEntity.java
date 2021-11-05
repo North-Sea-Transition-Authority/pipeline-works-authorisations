@@ -1,8 +1,6 @@
-package uk.co.ogauthority.pwa.model.location;
+package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 
 import java.math.BigDecimal;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
 
 public interface CoordinatePairEntity {
 

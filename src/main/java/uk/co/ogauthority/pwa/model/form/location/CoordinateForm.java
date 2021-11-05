@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.model.form.location;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 
 /**
  * Form class to capture lat/long coordinates.

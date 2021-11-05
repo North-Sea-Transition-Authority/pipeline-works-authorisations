@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.location;
+package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 
 public enum LatitudeDirection {
 

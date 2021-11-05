@@ -1,10 +1,8 @@
-package uk.co.ogauthority.pwa.model.location;
+package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 public class LatitudeCoordinate extends Coordinate {
