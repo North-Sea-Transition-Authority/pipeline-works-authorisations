@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.pwaapplications.rest;
+package uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller;
 
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -19,7 +19,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller.OrganisationGroupRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
