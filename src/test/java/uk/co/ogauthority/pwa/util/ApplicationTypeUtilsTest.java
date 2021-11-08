@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.MedianLineImplication;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationTypeUtilsTest {
 

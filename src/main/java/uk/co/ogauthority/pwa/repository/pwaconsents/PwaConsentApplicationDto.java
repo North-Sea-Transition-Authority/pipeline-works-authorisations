@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.repository.pwaconsents;
 
 import java.time.Instant;
 import java.util.Optional;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class PwaConsentApplicationDto {

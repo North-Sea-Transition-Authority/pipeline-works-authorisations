@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.features.application.tasks.campaignworks;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import org.springframework.lang.Nullable;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 

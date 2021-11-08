@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 public class ProjectInformationFormValidationHints {

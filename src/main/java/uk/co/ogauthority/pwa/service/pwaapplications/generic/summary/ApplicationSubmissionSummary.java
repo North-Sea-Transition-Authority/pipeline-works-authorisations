@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic.summary;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 
 public class ApplicationSubmissionSummary {
 

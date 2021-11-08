@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.util;
 
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.MedianLineImplication;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class ApplicationTypeUtils {
 

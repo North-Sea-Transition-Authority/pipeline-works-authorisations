@@ -8,12 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.controller.feedback.FeedbackController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.webapp.footer.controller.AccessibilityStatementController;
 import uk.co.ogauthority.pwa.features.webapp.footer.controller.ContactInformationController;
 import uk.co.ogauthority.pwa.model.Checkable;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
  * Utility class to provide useful methods for controllers.

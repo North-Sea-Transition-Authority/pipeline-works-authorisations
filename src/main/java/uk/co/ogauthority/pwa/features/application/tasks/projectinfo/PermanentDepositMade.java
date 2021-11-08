@@ -1,17 +1,17 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static java.util.stream.Collectors.toList;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.CAT_1_VARIATION;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.CAT_2_VARIATION;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.DECOMMISSIONING;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.DEPOSIT_CONSENT;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.HUOO_VARIATION;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.INITIAL;
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType.OPTIONS_VARIATION;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.CAT_1_VARIATION;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.CAT_2_VARIATION;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.DECOMMISSIONING;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.DEPOSIT_CONSENT;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.HUOO_VARIATION;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.INITIAL;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType.OPTIONS_VARIATION;
 
 import java.util.Arrays;
 import java.util.List;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public enum PermanentDepositMade {
 

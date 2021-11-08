@@ -1,15 +1,15 @@
-package uk.co.ogauthority.pwa.service.pwaapplications;
+package uk.co.ogauthority.pwa.domain.pwa.application.service;
 
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
 
 /**
  * Service to retrieve and manage top level PwaApplication data.
@@ -29,7 +29,7 @@ public class PwaApplicationService {
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find application with id " + applicationId));
   }
 
-  List<PwaApplication> getAllApplicationsForMasterPwa(MasterPwa masterPwa) {
+  public List<PwaApplication> getAllApplicationsForMasterPwa(MasterPwa masterPwa) {
     return pwaApplicationRepository.findAllByMasterPwa(masterPwa);
   }
 

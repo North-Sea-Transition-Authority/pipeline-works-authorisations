@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
+import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 
 /** Only deals with generating references for applications. */
 @Service

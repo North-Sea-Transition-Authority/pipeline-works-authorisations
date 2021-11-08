@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.enums.pwaapplications;
+package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
 import java.time.Period;
 import java.util.Optional;
@@ -8,10 +8,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.model.enums.consents.ConsentIssueEmail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.MedianLineImplication;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsWarning;
 
 /**
  * Enumerates all types of application that can be submitted under the PWA process.
  */
+// TODO: extract most of these enum fields from the domain and into the specific feature where they apply.
 public enum PwaApplicationType {
 
   INITIAL(

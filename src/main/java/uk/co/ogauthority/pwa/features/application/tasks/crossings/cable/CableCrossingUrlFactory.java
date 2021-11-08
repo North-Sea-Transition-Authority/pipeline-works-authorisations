@@ -2,11 +2,11 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class CableCrossingUrlFactory {
 

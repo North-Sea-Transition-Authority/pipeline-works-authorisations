@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ApplicationSubmissionException;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 /**
  * Service to perform all submission business logic for pwa applications.
