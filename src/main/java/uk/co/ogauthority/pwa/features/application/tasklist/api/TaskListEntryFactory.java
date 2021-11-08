@@ -4,8 +4,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.submission.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.application.submission.controller.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
