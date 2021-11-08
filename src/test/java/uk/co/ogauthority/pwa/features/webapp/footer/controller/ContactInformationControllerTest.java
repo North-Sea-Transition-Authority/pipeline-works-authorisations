@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.footer;
+package uk.co.ogauthority.pwa.features.webapp.footer.controller;
 
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(AccessibilityStatementController.class)
-public class AccessibilityStatementControllerTest extends AbstractControllerTest {
+@WebMvcTest(ContactInformationController.class)
+public class ContactInformationControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaApplicationContextService pwaApplicationContextService;
@@ -43,15 +43,15 @@ public class AccessibilityStatementControllerTest extends AbstractControllerTest
 
 
   @Test
-  public void getAccessibilityStatement_whenAuthenticated_thenAccess() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
+  public void getContactInformation_whenAuthenticated_thenAccess() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
         .with(authenticatedUserAndSession(authenticatedUserAccount)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void getAccessibilityStatement_whenUnauthenticated_thenAccess() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
+  public void getContactInformation_whenUnauthenticated_thenAccess() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
         .with(authenticatedUserAndSession(unAuthenticatedUser)))
         .andExpect(status().isOk());
   }
