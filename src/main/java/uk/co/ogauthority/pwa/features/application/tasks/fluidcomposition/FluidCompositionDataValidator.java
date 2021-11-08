@@ -1,15 +1,25 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.math.BigDecimal;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 
 @Service
 public class FluidCompositionDataValidator implements SmartValidator {
+
+  private final DecimalInputValidator decimalInputValidator;
+
+  @Autowired
+  public FluidCompositionDataValidator(
+      DecimalInputValidator decimalInputValidator) {
+    this.decimalInputValidator = decimalInputValidator;
+  }
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -35,16 +45,11 @@ public class FluidCompositionDataValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "moleValue", "moleValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a mole percentage for " + chemical.getDisplayText());
 
-      if (form.getMoleValue() != null && form.getMoleValue().remainder(BigDecimal.ONE).precision() > 2) {
-        errors.rejectValue("moleValue", "moleValue" + FieldValidationErrorCodes.INVALID.getCode(),
-            "Mole percentage should not have more than 2dp for " + chemical.getDisplayText());
-
-      } else if (form.getMoleValue() != null
-          && (form.getMoleValue().compareTo(BigDecimal.valueOf(0.01)) < 0
-          || form.getMoleValue().compareTo(BigDecimal.valueOf(100)) > 0)) {
-        errors.rejectValue("moleValue", "moleValue" + FieldValidationErrorCodes.INVALID.getCode(),
-            "Enter a mole percentage between 0.01 and 100 for " + chemical.getDisplayText());
-      }
+      decimalInputValidator.invocationBuilder()
+          .mustBeGreaterThanZero()
+          .mustBeLessThanOrEqualTo(new BigDecimal(100))
+          .mustHaveNoMoreThanDecimalPlaces(2)
+          .invokeNestedValidator(errors, "moleValue", form.getMoleValue(), chemical.getDisplayText() + " mole percentage");
 
     }
   }

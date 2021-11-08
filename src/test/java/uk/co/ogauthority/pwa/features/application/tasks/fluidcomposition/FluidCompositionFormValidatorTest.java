@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FluidCompositionFormValidatorTest {
@@ -39,10 +40,10 @@ public class FluidCompositionFormValidatorTest {
   public void validateForm_invalid_outOfRange() {
     var compositionDataForm1 = new FluidCompositionDataForm();
     compositionDataForm1.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    compositionDataForm1.setMoleValue(BigDecimal.valueOf(11.1));
+    compositionDataForm1.setMoleValue(new DecimalInput(BigDecimal.valueOf(11.1)));
     var compositionDataForm2 = new FluidCompositionDataForm();
     compositionDataForm2.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    compositionDataForm2.setMoleValue(BigDecimal.valueOf(90.0));
+    compositionDataForm2.setMoleValue(new DecimalInput(BigDecimal.valueOf(90.0)));
     var chemicalDataFormMap = Map.of(
         Chemical.H2O, compositionDataForm1,
         Chemical.C2, compositionDataForm2
@@ -58,7 +59,7 @@ public class FluidCompositionFormValidatorTest {
   public void validateForm_valid() {
     var compositionDataForm1 = new FluidCompositionDataForm();
     compositionDataForm1.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    compositionDataForm1.setMoleValue(BigDecimal.valueOf(101));
+    compositionDataForm1.setMoleValue(new DecimalInput(BigDecimal.valueOf(101)));
     var chemicalDataFormMap = Map.of(
         Chemical.H2O, compositionDataForm1
     );

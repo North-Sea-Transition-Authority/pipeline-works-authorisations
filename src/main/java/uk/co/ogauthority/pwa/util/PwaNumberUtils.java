@@ -8,18 +8,23 @@ public class PwaNumberUtils {
     throw new AssertionError();
   }
 
-  public static int getNumberOfDp(BigDecimal value) {
+  public static int getNumberOfDpIncludingTrailingZeros(BigDecimal value) {
     return value.scale();
+  }
+
+  public static int getNumberOfDp(BigDecimal value) {
+    //Discussion: https://stackoverflow.com/a/30471139
+    return Math.max(0, value.stripTrailingZeros().scale());
   }
 
   public static boolean numberOfDecimalPlacesLessThanOrEqual(BigDecimal value,
                                                              int maxDecimalPlaces,
                                                              boolean outputWhenNull) {
-    if (value != null) {
-      return value.scale() <= maxDecimalPlaces;
+    if (value == null) {
+      return outputWhenNull;
     }
 
-    return outputWhenNull;
+    return getNumberOfDp(value) <= maxDecimalPlaces;
 
   }
 

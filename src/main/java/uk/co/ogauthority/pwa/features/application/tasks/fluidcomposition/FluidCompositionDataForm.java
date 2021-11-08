@@ -1,13 +1,13 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 
-import java.math.BigDecimal;
 import java.util.Objects;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 public class FluidCompositionDataForm {
 
   private FluidCompositionOption fluidCompositionOption;
-  private BigDecimal moleValue;
+  private DecimalInput moleValue;
 
 
   public FluidCompositionOption getFluidCompositionOption() {
@@ -19,11 +19,11 @@ public class FluidCompositionDataForm {
     this.fluidCompositionOption = fluidCompositionOption;
   }
 
-  public BigDecimal getMoleValue() {
+  public DecimalInput getMoleValue() {
     return moleValue;
   }
 
-  public void setMoleValue(BigDecimal moleValue) {
+  public void setMoleValue(DecimalInput moleValue) {
     this.moleValue = moleValue;
   }
 

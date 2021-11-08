@@ -23,6 +23,8 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,7 +44,7 @@ public class PadFluidCompositionInfoServiceTest {
 
   @Before
   public void setUp() {
-    validator = new FluidCompositionValidator(new FluidCompositionDataValidator(), new FluidCompositionFormValidator());
+    validator = new FluidCompositionValidator(new FluidCompositionDataValidator(new DecimalInputValidator()), new FluidCompositionFormValidator());
     padFluidCompositionInfoService = new PadFluidCompositionInfoService(
         padFluidCompositionInfoRepository,
         validator,
@@ -58,7 +60,7 @@ public class PadFluidCompositionInfoServiceTest {
     n2Form.setFluidCompositionOption(FluidCompositionOption.TRACE);
     var c1Form = new FluidCompositionDataForm();
     c1Form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    c1Form.setMoleValue(BigDecimal.valueOf(100));
+    c1Form.setMoleValue(new DecimalInput(BigDecimal.valueOf(100)));
 
     var form = new FluidCompositionForm();
     Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new HashMap<>();
@@ -139,7 +141,7 @@ public class PadFluidCompositionInfoServiceTest {
 
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getFluidCompositionOption())
         .isEqualTo(FluidCompositionOption.HIGHER_AMOUNT);
-    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getMoleValue())
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getMoleValue().createBigDecimalOrNull())
         .isEqualTo(BigDecimal.valueOf(0.1));
 
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.N2)).isNull();

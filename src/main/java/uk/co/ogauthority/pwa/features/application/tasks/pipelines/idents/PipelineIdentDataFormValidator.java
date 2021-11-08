@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.NonNegativeNumberHint;
-import uk.co.ogauthority.pwa.util.forminputs.decimal.SmallerThanNumberHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.SmallerThanFieldHint;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
 @Service
@@ -125,7 +125,7 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
         var internalDiameterHints = new ArrayList<>();
         if (form.getExternalDiameter().asBigDecimal().isPresent()) {
-          internalDiameterHints.add(new SmallerThanNumberHint(form.getExternalDiameter().createBigDecimalOrNull(), "external diameter"));
+          internalDiameterHints.add(new SmallerThanFieldHint(form.getExternalDiameter().createBigDecimalOrNull(), "external diameter"));
         }
         validateDecimal(form.getInternalDiameter(), errors, fieldPrefix + "internalDiameter", "internal diameter", internalDiameterHints);
 
