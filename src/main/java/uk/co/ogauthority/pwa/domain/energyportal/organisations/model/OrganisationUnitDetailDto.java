@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.domain.energyportal.organisations.model;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnitDetail;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnitDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PickableOrganisationUnitDetail;
 
 /* Representing the core details of a current organisation unit */

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.consultation;
 
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public class AssignCaseOfficerForm {
 

@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges
 
 import java.time.Instant;
 import java.util.List;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 
 public class ApplicationChargeRequestReportTestUtil {

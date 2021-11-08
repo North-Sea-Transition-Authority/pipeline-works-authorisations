@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.documents;
 
 import java.time.Instant;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
 public interface SectionClauseVersionDto {

@@ -9,8 +9,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.ogauthority.pwa.govukpay.GovPayNewCardPaymentResult;
-import uk.co.ogauthority.pwa.govukpay.GovPayPaymentJourneyState;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentResult;
+import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyState;
 
 /**
  * Has to be separate class from PWAPaymentService to allow fine grained transaction control.

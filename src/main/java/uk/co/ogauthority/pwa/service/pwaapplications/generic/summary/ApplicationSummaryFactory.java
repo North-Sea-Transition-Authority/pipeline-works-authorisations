@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic.summary;
 import java.time.ZoneId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.person.PersonService;
 
 /**
  * Construct summary data objects for pwa applications.

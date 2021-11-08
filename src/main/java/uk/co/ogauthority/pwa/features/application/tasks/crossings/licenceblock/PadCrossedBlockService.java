@@ -5,7 +5,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlock;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service

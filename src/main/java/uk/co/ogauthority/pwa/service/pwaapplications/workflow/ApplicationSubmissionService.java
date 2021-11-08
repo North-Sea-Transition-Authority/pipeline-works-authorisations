@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
 import java.util.Optional;
 import org.springframework.lang.Nullable;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationSubmitResult;

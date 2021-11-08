@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casehistory.CaseHistoryItem;
 import uk.co.ogauthority.pwa.model.entity.enums.appprocessing.casehistory.CaseHistoryItemType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;

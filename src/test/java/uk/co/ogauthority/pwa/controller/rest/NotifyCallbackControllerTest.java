@@ -21,9 +21,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.notify.NotifyCallbackController;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.model.notify.NotifyCallback;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallback;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallbackService;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.notify.NotifyCallbackService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = NotifyCallbackController.class)

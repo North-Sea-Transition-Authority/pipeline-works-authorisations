@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.controller.MarkdownController;
-import uk.co.ogauthority.pwa.energyportal.service.TopMenuService;
+import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.footer.FooterService;

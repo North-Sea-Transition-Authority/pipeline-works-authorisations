@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
-import uk.co.ogauthority.pwa.controller.pwaapplications.rest.DevukRestController;
-import uk.co.ogauthority.pwa.model.entity.devuk.DevukFacility;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.controller.DevukRestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.model.form.fds.RestSearchItem;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 

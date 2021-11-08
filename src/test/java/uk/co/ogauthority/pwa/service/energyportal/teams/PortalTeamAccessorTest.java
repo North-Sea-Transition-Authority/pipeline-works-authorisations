@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.energyportal.repository.teams.PortalTeamRepository;
-import uk.co.ogauthority.pwa.energyportal.service.teams.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
 /**
  * Majority of service tests should be in the integration test {@link uk.co.ogauthority.pwa.integration.energyportal.teams.PortalTeamAccessorIntegrationTest}

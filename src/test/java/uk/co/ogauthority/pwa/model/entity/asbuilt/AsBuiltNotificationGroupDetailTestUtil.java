@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.asbuilt;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 public class AsBuiltNotificationGroupDetailTestUtil {
 

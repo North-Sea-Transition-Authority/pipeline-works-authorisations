@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsBlock;
-import uk.co.ogauthority.pwa.model.entity.licence.PearsLicence;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlock;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlockService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.licence.PearsBlockService;
 
 @Component
 public class AddBlockCrossingFormValidator implements SmartValidator {
