@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.footer;
+package uk.co.ogauthority.pwa.features.webapp.footer.controller;
 
 import java.util.Arrays;
 import java.util.Comparator;
