@@ -2,7 +2,7 @@
 <#import '../../../feedback/serviceFeedbackLink.ftl' as serviceFeedbackLink/>
 
 
-<#-- @ftlvariable name="submissionSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.generic.summary.ApplicationSubmissionSummary" -->
+<#-- @ftlvariable name="submissionSummary" type="uk.co.ogauthority.pwa.features.application.submission.ApplicationSubmissionSummary" -->
 
 <@defaultPage htmlTitle="Application submitted">
   <div class="govuk-panel govuk-panel--confirmation">
