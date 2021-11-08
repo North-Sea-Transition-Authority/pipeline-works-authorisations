@@ -4,10 +4,10 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 public interface ConsultationResponseFileLinkRepository extends CrudRepository<ConsultationResponseFileLink, Integer> {
 

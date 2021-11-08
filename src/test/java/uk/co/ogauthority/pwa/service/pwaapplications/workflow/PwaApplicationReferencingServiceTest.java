@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
+import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationReferencingServiceTest {

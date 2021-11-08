@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.entity.enums.mailmerge;
 
 import java.util.EnumSet;
 import java.util.Set;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public enum MailMergeFieldMnem {
 

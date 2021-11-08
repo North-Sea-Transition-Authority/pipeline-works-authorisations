@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.webapp.devtools.testharness;
 
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class GenerateApplicationForm {
 

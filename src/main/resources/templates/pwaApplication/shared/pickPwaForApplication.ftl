@@ -2,7 +2,7 @@
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="ogList" type="java.util.List<String>" -->
-<#-- @ftlvariable name="pwaApplicationType" type="uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType" -->
+<#-- @ftlvariable name="pwaApplicationType" type="uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType" -->
 <#-- @ftlvariable name="nonConsentedPwaMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="consentedPwaMap" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="showNonConsentedOptions" type="java.lang.Boolean" -->

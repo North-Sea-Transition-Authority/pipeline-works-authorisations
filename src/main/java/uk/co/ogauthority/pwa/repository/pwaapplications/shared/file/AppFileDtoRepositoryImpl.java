@@ -3,12 +3,12 @@ package uk.co.ogauthority.pwa.repository.pwaapplications.shared.file;
 import java.util.List;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 public class AppFileDtoRepositoryImpl implements AppFileDtoRepository {
 
