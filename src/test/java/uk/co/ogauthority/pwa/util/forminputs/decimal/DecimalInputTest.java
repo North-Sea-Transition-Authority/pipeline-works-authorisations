@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import nl.jqno.equalsverifier.EqualsVerifier;
+import nl.jqno.equalsverifier.Warning;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +44,12 @@ public class DecimalInputTest {
     assertThat(decimalInput.asBigDecimal()).isEmpty();
   }
 
+  @Test
+  public void testEquals(){
 
+    EqualsVerifier.forClass(DecimalInput.class)
+      .suppress(Warning.NONFINAL_FIELDS)
+      .verify();
+  }
 
 }

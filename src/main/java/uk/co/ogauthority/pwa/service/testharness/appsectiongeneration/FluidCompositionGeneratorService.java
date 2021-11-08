@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCo
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionForm;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service
 @Profile("test-harness")
@@ -57,7 +58,7 @@ class FluidCompositionGeneratorService implements TestHarnessAppFormService {
     var firstFluidComposition = chemicalDataFormMap.values().stream().findFirst()
         .orElseThrow(() -> new ValueNotFoundException("No FluidCompositionDataForm found"));
     firstFluidComposition.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    firstFluidComposition.setMoleValue(BigDecimal.valueOf(99));
+    firstFluidComposition.setMoleValue(new DecimalInput(BigDecimal.valueOf(99)));
 
     var form = new FluidCompositionForm();
     form.setChemicalDataFormMap(chemicalDataFormMap);

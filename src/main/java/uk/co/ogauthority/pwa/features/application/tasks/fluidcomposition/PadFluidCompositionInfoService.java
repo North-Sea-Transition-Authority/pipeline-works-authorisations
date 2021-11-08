@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSe
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 /* Service providing simplified API for Technical Information Fluid Composition app form */
 @Service
@@ -53,7 +54,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
       fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
       if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
           FluidCompositionOption.HIGHER_AMOUNT)) {
-        fluidCompositionDataForm.setMoleValue(entity.getMoleValue());
+        fluidCompositionDataForm.setMoleValue(new DecimalInput(entity.getMoleValue()));
       }
       form.addChemicalData(entity.getChemicalName(), fluidCompositionDataForm);
     }
@@ -65,7 +66,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
       entity.setFluidCompositionOption(fluidCompositionDataForm.getFluidCompositionOption());
       if (fluidCompositionDataForm.getFluidCompositionOption() != null
           && fluidCompositionDataForm.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
-        entity.setMoleValue(fluidCompositionDataForm.getMoleValue());
+        entity.setMoleValue(fluidCompositionDataForm.getMoleValue().createBigDecimalOrNull());
       }
     }
     padFluidCompositionInfoRepository.saveAll(entities);
@@ -81,7 +82,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
       fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
       if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
           FluidCompositionOption.HIGHER_AMOUNT)) {
-        fluidCompositionDataForm.setMoleValue(entity.getMoleValue());
+        fluidCompositionDataForm.setMoleValue(new DecimalInput(entity.getMoleValue()));
       }
       chemicalDataMap.put(entity.getChemicalName(), fluidCompositionDataForm);
     }
