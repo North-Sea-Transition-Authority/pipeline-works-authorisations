@@ -4,11 +4,11 @@ import java.time.Period;
 import java.util.Optional;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.features.application.creation.MedianLineImplication;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.model.enums.consents.ConsentIssueEmail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.MedianLineImplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsWarning;
 
 /**
