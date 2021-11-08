@@ -4,11 +4,18 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data class for handling co-ordinate data.
  */
 public abstract class Coordinate {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(Coordinate.class);
+
+  private static final int CALCULATION_SCALE = 10; // maximise precision in calculations
+  private static final int OUTPUT_SCALE = 4; // we only collect 2 dp on "seconds", use sensible scale to avoid overly precise output.
 
   private Integer degrees;
 
@@ -53,7 +60,26 @@ public abstract class Coordinate {
   }
 
   public double convertToDecimalDegrees() {
-    return (double) degrees + ((double) minutes / 60) + seconds.divide(BigDecimal.valueOf(3600), RoundingMode.HALF_UP).doubleValue();
+    //  Decimal Degrees = degrees + (minutes/60) + (seconds/3600)
+    // need to convert to deg/min/dec values to BigDecimal and set scale to be large enough
+    // so that division operation produces accurate result after division without truncating the value to the original scale.
+    LOGGER.debug("convertToDecimalDegrees() {}", this);
+
+    var deg = BigDecimal.valueOf(this.degrees).setScale(CALCULATION_SCALE, RoundingMode.HALF_UP);
+
+    var min = BigDecimal.valueOf(this.minutes).setScale(CALCULATION_SCALE, RoundingMode.HALF_UP);
+    var minDiv = min.divide(BigDecimal.valueOf(60), RoundingMode.HALF_UP);
+
+    var sec =  seconds.setScale(CALCULATION_SCALE, RoundingMode.HALF_UP);
+    var secDiv =  sec.divide(BigDecimal.valueOf(3600), RoundingMode.HALF_UP);
+
+    var fullScaleDecimalDegrees =  deg.add(minDiv).add(secDiv);
+    LOGGER.debug("fullScaleDecimalDegrees {}", fullScaleDecimalDegrees);
+
+    var outputDecimalDegrees = fullScaleDecimalDegrees.setScale(OUTPUT_SCALE, RoundingMode.HALF_UP);
+    LOGGER.debug("outputDecimalDegrees {}", outputDecimalDegrees);
+
+    return outputDecimalDegrees.doubleValue();
   }
 
   @Override
@@ -73,5 +99,14 @@ public abstract class Coordinate {
   @Override
   public int hashCode() {
     return Objects.hash(degrees, minutes, seconds);
+  }
+
+  @Override
+  public String toString() {
+    return "Coordinate{" +
+        "degrees=" + degrees +
+        ", minutes=" + minutes +
+        ", seconds=" + seconds +
+        '}';
   }
 }
