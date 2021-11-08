@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.util.forminputs.decimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,16 +13,20 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DecimalInputValidatorTest {
 
+  @Spy
   private DecimalInputValidator validator;
   private DecimalInput decimalInput;
 
@@ -29,7 +36,6 @@ public class DecimalInputValidatorTest {
 
   @Before
   public void setup() {
-    validator = new DecimalInputValidator();
     decimalInput = new DecimalInput();
   }
 
@@ -276,11 +282,11 @@ public class DecimalInputValidatorTest {
   }
 
 
-  //Smaller Than Number Hint Hint tests
+  //Smaller Than Field Hint tests
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLargerThanMaxAllowed_error() {
+  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueLargerThanMaxAllowed_error() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("6");
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");
@@ -295,9 +301,9 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueEqualsMaxAllowed_error() {
+  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueEqualsMaxAllowed_error() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("5");
 
     var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
@@ -308,15 +314,72 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLessThanMaxAllowed_noError() {
+  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueLessThanMaxAllowed_noError() {
 
-    var smallerThanNumberHint = new SmallerThanNumberHint(new BigDecimal("5"), "My label");
+    var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("4");
 
     var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
 
     assertThat(fieldErrors).doesNotContain(
         entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  //Smaller Than Number Hint Hint tests
+  @Test
+  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLargerThanMaxAllowed_error() {
+
+    var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
+    decimalInput.setValue("6");
+
+    var errors = new BeanPropertyBindingResult(decimalInput, "form");
+    var fieldErrors = getValidationErrors(errors, List.of(smallerThanNumberHint));
+    var fieldErrorMessages = ValidatorTestUtils.extractErrorMessages(errors);
+
+    assertThat(fieldErrors).contains(
+      entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+
+    assertSingleErrorMessageContains(fieldErrorMessages, "5 or less");
+  }
+
+  @Test
+  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueEqualsMaxAllowed_error() {
+
+    var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
+    decimalInput.setValue("6");
+
+    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
+
+    assertThat(fieldErrors).contains(
+      entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLessThanMaxAllowed_noError() {
+
+    var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
+    decimalInput.setValue("4");
+
+    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
+
+    assertThat(fieldErrors).doesNotContain(
+      entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_validBigDecimal_equalToNumberHintProvided_valueLessThanMaxAllowed_noError() {
+
+    var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
+    decimalInput.setValue("5");
+
+    var fieldErrors = getValidationErrors(List.of(smallerThanNumberHint));
+
+    assertThat(fieldErrors).doesNotContain(
+      entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
     );
   }
 
@@ -346,6 +409,104 @@ public class DecimalInputValidatorTest {
 
     });
 
+  }
+
+  @Test
+  public void testBuilder_allFunctions() {
+
+    var errors = new BeanPropertyBindingResult(decimalInput, "form");
+
+    var LABEL = "testLabel";
+
+    validator.invocationBuilder()
+      .canBeOptional()
+      .mustHaveNoMoreThanDecimalPlaces(2)
+      .mustBeLessThanOrEqualTo(BigDecimal.TEN)
+      .mustBeGreaterThanZero()
+      .mustBeZeroOrGreater()
+      .invokeValidator(errors, decimalInput, LABEL);
+
+    var labelArgCaptor = ArgumentCaptor.forClass(FormInputLabel.class);
+
+    verify(validator).validate(eq(decimalInput), eq(errors),
+      any(FieldIsOptionalHint.class),
+      eq(new DecimalPlaceHint(2)),
+      eq(new LessThanEqualToHint(BigDecimal.TEN)),
+      any(PositiveNumberHint.class),
+      any(NonNegativeNumberHint.class),
+      labelArgCaptor.capture());
+
+    assertThat(labelArgCaptor.getValue())
+      .extracting(FormInputLabel::getLabel)
+      .isEqualTo(LABEL);
+  }
+
+  @Test
+  public void testBuilder_oneFunction() {
+
+    var errors = new BeanPropertyBindingResult(decimalInput, "form");
+
+    var LABEL = "testLabel";
+
+    validator.invocationBuilder()
+      .mustBeLessThanOrEqualTo(BigDecimal.TEN)
+      .invokeValidator(errors, decimalInput, LABEL);
+
+    var labelArgCaptor = ArgumentCaptor.forClass(FormInputLabel.class);
+
+    verify(validator).validate(eq(decimalInput), eq(errors),
+      eq(new LessThanEqualToHint(BigDecimal.TEN)),
+      labelArgCaptor.capture());
+
+    assertThat(labelArgCaptor.getValue())
+      .extracting(FormInputLabel::getLabel)
+      .isEqualTo(LABEL);
+  }
+
+  @Test
+  public void nullDecimalInput_optionalField() {
+
+    DecimalInputForm decimalInputForm = new DecimalInputForm();
+    var errors = new BeanPropertyBindingResult(decimalInputForm, "form");
+
+    validator.invocationBuilder()
+      .canBeOptional()
+      .invokeNestedValidator(errors, "decimalInput", decimalInputForm.decimalInput, "nullLabel");
+
+    var errorMap = ValidatorTestUtils.extractErrors(errors);
+    assertThat(errorMap).isEmpty();
+
+  }
+
+  @Test
+  public void nullDecimalInput_notOptional() {
+
+    DecimalInputForm decimalInputForm = new DecimalInputForm();
+    var errors = new BeanPropertyBindingResult(decimalInputForm, "form");
+
+    validator.invocationBuilder()
+      .invokeNestedValidator(errors, "decimalInput", decimalInputForm.decimalInput, "nullLabel");
+
+    var errorMap = ValidatorTestUtils.extractErrors(errors);
+    assertThat(errorMap).containsEntry("decimalInput.value", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("value")));
+
+  }
+
+  /**
+   * To properly test the null vlaues in the form, we need to wrap the DecimalInput in a form.
+   * This class is a mock form containing a decimal input for this purpose
+   */
+  private static class DecimalInputForm {
+
+    DecimalInput decimalInput;
+
+    public DecimalInput getDecimalInput() {
+      return decimalInput;
+    }
+
+    public void setDecimalInput(DecimalInput decimalInput) {
+      this.decimalInput = decimalInput;
+    }
   }
 
 }

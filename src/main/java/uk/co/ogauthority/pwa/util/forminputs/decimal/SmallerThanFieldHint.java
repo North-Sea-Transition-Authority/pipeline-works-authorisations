@@ -3,12 +3,12 @@ package uk.co.ogauthority.pwa.util.forminputs.decimal;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public final class SmallerThanNumberHint {
+public final class SmallerThanFieldHint {
 
   private final BigDecimal largerNumber;
   private final String formInputLabel;
 
-  public SmallerThanNumberHint(BigDecimal largerNumber, String formInputLabel) {
+  public SmallerThanFieldHint(BigDecimal largerNumber, String formInputLabel) {
     this.largerNumber = largerNumber;
     this.formInputLabel = formInputLabel;
   }
@@ -31,7 +31,7 @@ public final class SmallerThanNumberHint {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    SmallerThanNumberHint that = (SmallerThanNumberHint) o;
+    SmallerThanFieldHint that = (SmallerThanFieldHint) o;
     return Objects.equals(largerNumber, that.largerNumber)
         && Objects.equals(formInputLabel, that.formInputLabel);
   }

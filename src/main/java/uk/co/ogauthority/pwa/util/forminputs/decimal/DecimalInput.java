@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.util.forminputs.decimal;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +10,7 @@ import uk.co.ogauthority.pwa.exception.DecimalInputException;
 /**
  * Represents a BigDecimal commonly used on forms and provides access to common operations that might be applied to that decimal.
  */
-public class DecimalInput {
+public final class DecimalInput {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DecimalInput.class);
 
@@ -65,4 +66,27 @@ public class DecimalInput {
     return value != null && !value.isBlank();
   }
 
+  public static DecimalInput createEmptyIfNull(DecimalInput decimalInput) {
+    if (decimalInput == null) {
+      return new DecimalInput();
+    }
+    return decimalInput;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    DecimalInput that = (DecimalInput) o;
+    return Objects.equals(getValue(), that.getValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getValue());
+  }
 }

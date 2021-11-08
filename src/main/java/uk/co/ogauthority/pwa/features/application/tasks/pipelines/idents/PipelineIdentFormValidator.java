@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
-import uk.co.ogauthority.pwa.util.forminputs.decimal.FieldIsOptionalHint;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.PositiveNumberHint;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
@@ -65,19 +64,15 @@ public class PipelineIdentFormValidator implements SmartValidator {
 
     if (BooleanUtils.isTrue(form.getDefiningStructure())) {
 
-      ValidatorUtils.invokeNestedValidator(
-          errors,
-          decimalInputValidator,
-          "lengthOptional",
-          form.getLengthOptional(),
-          List.of(new FormInputLabel("ident length"),
-              new DecimalPlaceHint(PipelineValidationUtils.getMaxIdentLengthDp()),
-              new PositiveNumberHint(),
-              new FieldIsOptionalHint()).toArray());
+      decimalInputValidator.invocationBuilder()
+          .mustHaveNoMoreThanDecimalPlaces(PipelineValidationUtils.getMaxIdentLengthDp())
+          .mustBeGreaterThanZero()
+          .canBeOptional()
+          .invokeNestedValidator(errors, "lengthOptional", form.getLengthOptional(), "ident length");
+
 
       if (form.getFromCoordinateForm() != null && form.getFromCoordinateForm().areAllFieldsNotNull()
           && form.getToCoordinateForm() != null && form.getToCoordinateForm().areAllFieldsNotNull()) {
-
         if (!form.getFromCoordinateForm().compareFormLatitude(form.getToCoordinateForm())) {
           errors.rejectValue("fromCoordinateForm.latitudeDegrees",
               "fromCoordinateForm.latitudeDegrees" + FieldValidationErrorCodes.INVALID.getCode(),

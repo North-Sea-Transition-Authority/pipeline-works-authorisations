@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FluidCompositionDataValidatorTest {
@@ -19,7 +21,7 @@ public class FluidCompositionDataValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new FluidCompositionDataValidator();
+    validator = new FluidCompositionDataValidator(new DecimalInputValidator());
   }
 
 
@@ -46,7 +48,7 @@ public class FluidCompositionDataValidatorTest {
   public void validateForm_molePercentageRequired_valid() {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    form.setMoleValue(BigDecimal.valueOf(0.2));
+    form.setMoleValue(new DecimalInput(BigDecimal.valueOf(0.2)));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
     assertThat(errorsMap).isEmpty();
   }
@@ -65,10 +67,10 @@ public class FluidCompositionDataValidatorTest {
   public void validateForm_molePercentageValue_tooSmall() {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    form.setMoleValue(BigDecimal.ZERO);
+    form.setMoleValue(new DecimalInput(BigDecimal.ZERO));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
     assertThat(errorsMap).contains(
-        entry("moleValue", Set.of("moleValue.invalid"))
+      entry("moleValue.value", Set.of("value.invalid"))
     );
   }
 
@@ -76,15 +78,23 @@ public class FluidCompositionDataValidatorTest {
   public void validateForm_molePercentageValue_tooLarge() {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    form.setMoleValue(BigDecimal.valueOf(101));
+    form.setMoleValue(new DecimalInput(BigDecimal.valueOf(101)));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
     assertThat(errorsMap).contains(
-        entry("moleValue", Set.of("moleValue.invalid"))
+        entry("moleValue.value", Set.of("value.invalid"))
     );
   }
 
-
-
+  @Test
+  public void validateForm_molePercentageValue_tooManyDp() {
+    var form = new FluidCompositionDataForm();
+    form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
+    form.setMoleValue(new DecimalInput(new BigDecimal("99.011")));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    assertThat(errorsMap).contains(
+      entry("moleValue.value", Set.of("value.maxDpExceeded"))
+    );
+  }
 
 
 }

@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -24,7 +23,7 @@ public class FluidCompositionFormValidator implements Validator {
     BigDecimal totalComposition = chemicalDataFormMap.values().stream()
         .filter(fluidCompositionDataForm -> fluidCompositionDataForm.getFluidCompositionOption() == FluidCompositionOption.HIGHER_AMOUNT)
         .map(FluidCompositionDataForm::getMoleValue)
-        .filter(Objects::nonNull)
+        .flatMap(moleValue -> moleValue.asBigDecimal().stream())
         .reduce(BigDecimal.ZERO, BigDecimal::add);
 
     if (totalComposition.doubleValue() == 0) {
