@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.notify;
+package uk.co.ogauthority.pwa.integrations.govuknotify.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
