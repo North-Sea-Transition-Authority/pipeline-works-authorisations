@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.controller.rest;
+package uk.co.ogauthority.pwa.integrations.govuknotify.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -19,7 +19,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.notify.NotifyCallbackController;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallback;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallbackService;
