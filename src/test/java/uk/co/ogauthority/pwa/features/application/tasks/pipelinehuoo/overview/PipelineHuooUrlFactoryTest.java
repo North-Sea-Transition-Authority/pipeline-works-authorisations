@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
@@ -19,7 +20,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.PickableHuooPipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineHuooUrlFactoryTest {

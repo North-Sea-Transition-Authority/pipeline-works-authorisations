@@ -13,12 +13,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 

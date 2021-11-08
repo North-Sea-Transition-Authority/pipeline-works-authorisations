@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
@@ -15,7 +16,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;

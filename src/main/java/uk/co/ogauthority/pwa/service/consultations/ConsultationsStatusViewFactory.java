@@ -5,8 +5,8 @@ import static java.util.stream.Collectors.groupingBy;
 
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 
 /**

@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.pwaapplications;
+package uk.co.ogauthority.pwa.domain.pwa.application.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,11 +17,11 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
-import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationRepository;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

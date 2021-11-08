@@ -4,9 +4,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositDrawingsController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class DepositDrawingUrlFactory {
 

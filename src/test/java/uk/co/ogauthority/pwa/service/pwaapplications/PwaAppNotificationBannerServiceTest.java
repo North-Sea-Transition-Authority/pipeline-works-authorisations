@@ -11,14 +11,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.DefaultNotificationBannerType;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsWarning;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)

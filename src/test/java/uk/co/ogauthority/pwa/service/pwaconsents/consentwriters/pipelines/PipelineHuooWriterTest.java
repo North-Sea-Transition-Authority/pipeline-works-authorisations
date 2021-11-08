@@ -19,6 +19,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
@@ -39,7 +40,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentPipelineOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

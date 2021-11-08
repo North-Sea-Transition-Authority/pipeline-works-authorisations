@@ -27,6 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadConfirmationOfOptionView;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -42,7 +43,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService
 import uk.co.ogauthority.pwa.service.appprocessing.options.CloseOutOptionsTaskService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

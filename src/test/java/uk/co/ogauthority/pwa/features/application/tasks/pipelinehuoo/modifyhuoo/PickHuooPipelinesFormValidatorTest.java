@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -24,7 +25,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;

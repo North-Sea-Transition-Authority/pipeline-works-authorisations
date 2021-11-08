@@ -27,6 +27,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -46,7 +47,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionSer
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 public class PwaApplicationEndpointTestBuilder {

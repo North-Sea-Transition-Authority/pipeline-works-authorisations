@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
@@ -52,7 +53,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 /**

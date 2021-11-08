@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 
 @Service

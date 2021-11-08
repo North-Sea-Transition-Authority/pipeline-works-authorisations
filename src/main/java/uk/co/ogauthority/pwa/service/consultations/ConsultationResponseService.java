@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
@@ -30,7 +31,6 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;

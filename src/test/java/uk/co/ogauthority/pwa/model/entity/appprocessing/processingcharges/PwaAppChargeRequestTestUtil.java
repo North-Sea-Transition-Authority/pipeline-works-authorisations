@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges;
 
 import java.time.Instant;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 public final class PwaAppChargeRequestTestUtil {
 

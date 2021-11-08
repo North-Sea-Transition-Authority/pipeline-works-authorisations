@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.model.entity.asbuilt;
 
 import java.time.Instant;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public final class AsBuiltNotificationGroupTestUtil {
 

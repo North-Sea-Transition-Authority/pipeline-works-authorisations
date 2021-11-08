@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public class ApplicationSearchParametersBuilder {
   private String appReference;

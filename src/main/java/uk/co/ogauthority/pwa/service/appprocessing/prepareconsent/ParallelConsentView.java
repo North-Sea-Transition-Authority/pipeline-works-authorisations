@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.time.Instant;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 /**
  * Stores information about a consent that has been consented in the time period between the

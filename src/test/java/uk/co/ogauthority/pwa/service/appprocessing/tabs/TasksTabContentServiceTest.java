@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.Industry
 import uk.co.ogauthority.pwa.controller.asbuilt.ReopenAsBuiltNotificationGroupController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
@@ -46,7 +47,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.PwaAppProcessingTaskLis
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;

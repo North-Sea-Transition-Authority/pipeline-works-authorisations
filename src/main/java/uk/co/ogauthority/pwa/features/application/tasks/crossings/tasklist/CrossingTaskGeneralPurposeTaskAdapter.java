@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist;
 
 import org.apache.commons.lang3.NotImplementedException;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.GeneralPurposeApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.controller.CrossingTypesController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 
 /**

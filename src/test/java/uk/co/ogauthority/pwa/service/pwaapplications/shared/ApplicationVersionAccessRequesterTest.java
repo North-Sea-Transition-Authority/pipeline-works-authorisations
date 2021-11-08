@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -17,13 +16,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.PadVersionLookup;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PadVersionLookupRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 

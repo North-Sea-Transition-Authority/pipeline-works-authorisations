@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.service.documents.instances;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import uk.co.ogauthority.pwa.controller.documents.DocumentInstanceController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.documents.ClauseActionsUrlProvider;
 

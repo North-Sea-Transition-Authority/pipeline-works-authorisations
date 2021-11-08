@@ -17,8 +17,8 @@ import javax.persistence.NamedEntityGraph;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 
 @Entity
 @Table(name = "pwa_consents")
