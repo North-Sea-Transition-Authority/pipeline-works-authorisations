@@ -46,8 +46,19 @@ public class PortalOrganisationsAccessor {
    * @param ouId search org unit id
    * @return portal organisation unit wrapped in optional
    */
+  @Deprecated
   public Optional<PortalOrganisationUnit> getOrganisationUnitById(Integer ouId) {
     return organisationUnitRepository.findById(ouId);
+  }
+
+  /**
+   * Find an organisation unit with matching ouId.
+   *
+   * @param ouId search org unit id
+   * @return portal organisation unit wrapped in optional
+   */
+  public Optional<PortalOrganisationUnit> getOrganisationUnitById(OrganisationUnitId ouId) {
+    return organisationUnitRepository.findById(ouId.asInt());
   }
 
   /**

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.pwapay;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -51,6 +52,7 @@ public class PwaPaymentService {
   public CreateCardPaymentResult createCardPayment(Integer pennyAmount,
                                                    String reference,
                                                    String description,
+                                                   Map<String, String> metadataMap,
                                                    Function<UUID, String> returnUrlSupplier) {
 
     // new transaction launched here so we can save the request attempt even if later code fails.
@@ -65,17 +67,20 @@ public class PwaPaymentService {
     var returnUrl = pwaUrlBase + contextPath + returnUrlSupplier.apply(newPwaPaymentRequestUuid);
 
     try {
+
       var paymentRequest = new GovPayNewCardPaymentRequest(
           pennyAmount,
           reference,
           description,
-          returnUrl
+          returnUrl,
+          metadataMap
       );
 
       var result = govUkPayCardPaymentClient.createCardPaymentJourney(paymentRequest);
       pwaPaymentRequestPersister.setPaymentRequestInProgress(newPwaPaymentRequestUuid, result);
       var inProgressPaymentRequest = getGovUkPaymentRequestByUuidOrError(newPwaPaymentRequestUuid);
       return new CreateCardPaymentResult(inProgressPaymentRequest, result.getStartExternalPaymentJourneyUrl());
+
     } catch (Exception e) {
 
       pwaPaymentRequestPersister.setPaymentRequestStatusInNewTransaction(
@@ -88,7 +93,9 @@ public class PwaPaymentService {
           "Failed to create gov uk card payment for uuid:" + newPwaPaymentRequestUuid,
           e
       );
+
     }
+
   }
 
   @Transactional(readOnly = true)

@@ -50,7 +50,7 @@ import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
  * Creates and reports on charges demanded for applications.
- * Whats the difference between charges and fees? "They have been charged the application fee" e.g
+ * What's the difference between charges and fees? "They have been charged the application fee" e.g
  * -> Fee is what an item will cost
  * -> charge is when that fee has been actually demanded from a person/org.
  */
@@ -71,6 +71,7 @@ public class ApplicationChargeRequestService {
   private final PersonService personService;
   private final Clock clock;
   private final PadInitialReviewService padInitialReviewService;
+  private final ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService;
 
   @Autowired
   public ApplicationChargeRequestService(AppChargeEmailService appChargeEmailService,
@@ -84,7 +85,8 @@ public class ApplicationChargeRequestService {
                                          CamundaWorkflowService camundaWorkflowService,
                                          PersonService personService,
                                          @Qualifier("utcClock") Clock clock,
-                                         PadInitialReviewService padInitialReviewService) {
+                                         PadInitialReviewService padInitialReviewService,
+                                         ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService) {
     this.appChargeEmailService = appChargeEmailService;
     this.pwaAppChargeRequestRepository = pwaAppChargeRequestRepository;
     this.pwaAppChargeRequestDetailRepository = pwaAppChargeRequestDetailRepository;
@@ -97,6 +99,7 @@ public class ApplicationChargeRequestService {
     this.personService = personService;
     this.clock = clock;
     this.padInitialReviewService = padInitialReviewService;
+    this.applicationChargeRequestMetadataService = applicationChargeRequestMetadataService;
   }
 
   @Transactional
@@ -243,7 +246,7 @@ public class ApplicationChargeRequestService {
     var allPaidAttempts =  pwaAppChargePaymentAttemptRepository
         .findAllByPwaAppChargeRequestAndPwaPaymentRequest_RequestStatus(pwaAppChargeRequest, PAYMENT_COMPLETE);
 
-    // if in the unlikely event there is some bug which means their are multiple complete payment requests,
+    // if in the unlikely event there is some bug which means there are multiple complete payment requests,
     // log, then return the attempt which was paid first
     if (allPaidAttempts.size() > 1) {
       LOGGER.error("Detected multiple paid payment attempts for payment request! requestId:{}", pwaAppChargeRequest.getId());
@@ -322,13 +325,20 @@ public class ApplicationChargeRequestService {
   private CreatePaymentAttemptResult createCardPaymentOrError(PwaApplication pwaApplication,
                                                               PwaAppChargeRequestDetail pwaAppChargeRequestDetail,
                                                               Person paymentPerson) {
+
+    var latestSubmittedDetail = pwaApplicationDetailService.getLatestSubmittedDetail(pwaApplication)
+        .orElseThrow(() -> new ApplicationChargeException(
+            String.format("Expected app with id [%s] to have at least 1 submitted detail record", pwaApplication.getId())));
+
     var createCardPaymentResult = pwaPaymentService.createCardPayment(
         pwaAppChargeRequestDetail.getTotalPennies(),
         pwaApplication.getAppReference(),
         pwaAppChargeRequestDetail.getChargeSummary(),
+        applicationChargeRequestMetadataService.getMetadataMapForDetail(latestSubmittedDetail),
         uuid -> ReverseRouter.route(
             on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null))
     );
+
     var startExternalJourneyUrl = createCardPaymentResult.getStartExternalJourneyUrl()
         .orElseThrow(() -> new ApplicationChargeException(
             "Could not find expected external URL. payment request uuid:" + createCardPaymentResult.getPwaPaymentRequest().getUuid())
@@ -344,6 +354,7 @@ public class ApplicationChargeRequestService {
         startExternalJourneyUrl,
         CreatePaymentAttemptResult.AttemptOutcome.PAYMENT_CREATED
     );
+
   }
 
   @Transactional

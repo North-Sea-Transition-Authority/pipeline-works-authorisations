@@ -15,6 +15,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.Before;
@@ -98,6 +99,9 @@ public class ApplicationChargeRequestServiceTest {
   @Mock
   private PadInitialReviewService padInitialReviewService;
 
+  @Mock
+  private ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService;
+
   @Captor
   private ArgumentCaptor<PwaAppChargeRequestDetail> requestDetailArgumentCaptor;
 
@@ -128,6 +132,11 @@ public class ApplicationChargeRequestServiceTest {
   private PwaAppChargeRequestDetail chargeRequestDetail;
   private PwaAppChargeRequest chargeRequest;
 
+  private final Map<String, String> metadataMap = Map.of(
+      "APPLICANT_ORGANISATION", "SHELL U.K. LIMITED",
+      "PROJECT_NAME", "New field development"
+  );
+
   @Before
   public void setUp() throws Exception {
 
@@ -141,6 +150,7 @@ public class ApplicationChargeRequestServiceTest {
     pwaApplication = pwaApplicationDetail.getPwaApplication();
 
     when(pwaApplicationDetailService.getTipDetail(pwaApplication)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getLatestSubmittedDetail(pwaApplication)).thenReturn(Optional.of(pwaApplicationDetail));
 
     chargeRequestDetail = PwaAppChargeRequestTestUtil.createDefaultChargeRequest(
         pwaApplication, pwaManagerPerson, PwaAppChargeRequestStatus.OPEN);
@@ -164,10 +174,13 @@ public class ApplicationChargeRequestServiceTest {
         camundaWorkflowService,
         personService,
         clock,
-        padInitialReviewService);
+        padInitialReviewService,
+        applicationChargeRequestMetadataService);
 
     when(pwaAppChargeRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(pwaAppChargeRequestDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    when(applicationChargeRequestMetadataService.getMetadataMapForDetail(any())).thenReturn(metadataMap);
 
   }
 
@@ -418,7 +431,7 @@ public class ApplicationChargeRequestServiceTest {
         "someId");
     var createCardPaymentResult = CreateCardPaymentResultTestUtil.createWithUrl(newPaymentRequest);
 
-    when(pwaPaymentService.createCardPayment(any(), any(), any(), any()))
+    when(pwaPaymentService.createCardPayment(any(), any(), any(), any(), any()))
         .thenReturn(createCardPaymentResult);
 
     var createPaymentAttemptResult = applicationChargeRequestService.startChargeRequestPaymentAttempt(
@@ -429,8 +442,11 @@ public class ApplicationChargeRequestServiceTest {
     verify(pwaAppChargePaymentAttemptRepository, times(0)).saveAll(any());
 
     verify(pwaPaymentService, times(1)).createCardPayment(
-        eq(chargeRequestDetail.getTotalPennies()), eq(pwaApplication.getAppReference()),
-        eq(chargeRequestDetail.getChargeSummary()), any()
+        eq(chargeRequestDetail.getTotalPennies()),
+        eq(pwaApplication.getAppReference()),
+        eq(chargeRequestDetail.getChargeSummary()),
+        eq(metadataMap),
+        any()
     );
 
     verify(pwaAppChargePaymentAttemptRepository, times(1)).save(paymentAttemptArgumentCaptor.capture());
@@ -455,7 +471,7 @@ public class ApplicationChargeRequestServiceTest {
         .createFrom(UUID.randomUUID(), PaymentRequestStatus.FAILED_TO_CREATE, null);
     var createCardPaymentResult = CreateCardPaymentResultTestUtil.createWithoutUrl(paymentRequest);
 
-    when(pwaPaymentService.createCardPayment(any(), any(), any(), any()))
+    when(pwaPaymentService.createCardPayment(any(), any(), any(), any(), any()))
         .thenReturn(createCardPaymentResult);
 
     applicationChargeRequestService.startChargeRequestPaymentAttempt(
@@ -472,7 +488,7 @@ public class ApplicationChargeRequestServiceTest {
     var newAttemptPaymentRequest = PwaPaymentRequestTestUtil
         .createFrom(UUID.randomUUID(), PaymentRequestStatus.IN_PROGRESS, "someId");
     var createCardPaymentResult = CreateCardPaymentResultTestUtil.createWithUrl(newAttemptPaymentRequest);
-    when(pwaPaymentService.createCardPayment(any(), any(), any(), any()))
+    when(pwaPaymentService.createCardPayment(any(), any(), any(), any(), any()))
         .thenReturn(createCardPaymentResult);
 
     var activeAttempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(

@@ -86,7 +86,7 @@ public class ProjectInformationTestUtils {
     entity.setCommercialAgreementTimestamp(instant.plus(COMMERCIAL_AGREEMENT_DAY_MODIFIER, ChronoUnit.DAYS));
 
     entity.setPermanentDepositsMade(PermanentDepositMade.LATER_APP);
-    entity.setFutureAppSubmissionMonth(07);
+    entity.setFutureAppSubmissionMonth(7);
     entity.setFutureAppSubmissionYear(2020);
     entity.setTemporaryDepositsMade(true);
     entity.setTemporaryDepDescription("some description..");

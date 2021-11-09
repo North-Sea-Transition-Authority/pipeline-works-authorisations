@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.pwapay;
 
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.Before;
@@ -41,6 +43,9 @@ public class PwaPaymentServiceTest {
   private static final int PENNY_AMOUNT = 150;
   private static final String PAYMENT_REFERENCE = "PAYMENT_REFERENCE";
   private static final String PAYMENT_DESCRIPTION = "PAYMENT_DESCRIPTION";
+
+  private static final String METADATA_KEY = "TEST_METADATA";
+  private static final String METADATA_VALUE = "test-value";
 
   private static final String FAKE_RETURN_URL = "/fake/return/url/";
 
@@ -117,6 +122,7 @@ public class PwaPaymentServiceTest {
         PENNY_AMOUNT,
         PAYMENT_REFERENCE,
         PAYMENT_DESCRIPTION,
+        Map.of(METADATA_KEY, METADATA_VALUE),
         PwaPaymentServiceTest::fakeReturnUrlProducer
     );
 
@@ -134,7 +140,7 @@ public class PwaPaymentServiceTest {
     assertThat(newPaymentRequestCaptor.getValue().getAmount()).isEqualTo(PENNY_AMOUNT);
     assertThat(newPaymentRequestCaptor.getValue().getReference()).isEqualTo(PAYMENT_REFERENCE);
     assertThat(newPaymentRequestCaptor.getValue().getDescription()).isEqualTo(PAYMENT_DESCRIPTION);
-    assertThat(newPaymentRequestCaptor.getValue().getMetadata()).isEmpty();
+    assertThat(newPaymentRequestCaptor.getValue().getMetadata()).containsExactly(entry(METADATA_KEY, METADATA_VALUE));
     assertThat(newPaymentRequestCaptor.getValue().getReturnUrl()).isEqualTo(journeyReturnUrl);
     // no point testing this precisely, its going to be whatever we fake it to be while setting up the test.
     assertThat(createCardPaymentResult.getStartExternalJourneyUrl()).isNotEmpty();
@@ -151,6 +157,7 @@ public class PwaPaymentServiceTest {
           invalidPennyAmount,
           PAYMENT_REFERENCE,
           PAYMENT_DESCRIPTION,
+          Map.of(),
           PwaPaymentServiceTest::fakeReturnUrlProducer
       );
     } catch (PwaPaymentsException e) {
@@ -186,6 +193,7 @@ public class PwaPaymentServiceTest {
           PENNY_AMOUNT,
           PAYMENT_REFERENCE,
           PAYMENT_DESCRIPTION,
+          Map.of(),
           PwaPaymentServiceTest::fakeReturnUrlProducer
       );
     } catch (PwaPaymentsException e) {

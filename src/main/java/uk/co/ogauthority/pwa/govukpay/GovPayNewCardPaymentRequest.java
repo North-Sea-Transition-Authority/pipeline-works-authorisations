@@ -12,6 +12,7 @@ public final class GovPayNewCardPaymentRequest {
 
   private static final int MINIMUM_AMOUNT = 0;
   private static final int MAXIMUM_AMOUNT = 10000000;
+  private static final int METADATA_VALUE_MAX_LENGTH = 100;
 
   private final Integer amount;
 
@@ -112,7 +113,7 @@ public final class GovPayNewCardPaymentRequest {
 
   /**
    * Additional metadata - up to 10 name/value pairs - on the payment.
-   * Each key must be between 1 and 30 characters long. The value, if a string, must be no greater than 50 characters long.
+   * Each key must be between 1 and 30 characters long.
    *
    * @return metadata
    **/
@@ -121,17 +122,16 @@ public final class GovPayNewCardPaymentRequest {
   }
 
   private void validateMetadataMap(Map<String, String> metadata) {
+
     if (!metadata.keySet().stream().allMatch(s -> s.length() > 0 && s.length() <= 30)) {
       throw new IllegalArgumentException("Metadata map must only contain keys 1 to 30 chars.");
     }
 
-    if (!metadata.values().stream().allMatch(s -> s.length() > 0 && s.length() <= 50)) {
-      throw new IllegalArgumentException("Metadata map must only contain values between 1 to 50 chars.");
+    if (!metadata.values().stream().allMatch(s -> s.length() > 0 && s.length() <= METADATA_VALUE_MAX_LENGTH)) {
+      throw new IllegalArgumentException("Metadata map must only contain values between 1 to 100 chars.");
     }
 
-
   }
-
 
 }
 
