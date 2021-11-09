@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasklist.api;
 
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 
 /**
  * Provides an interface understood by the {@see TaskListEntryFactory} for implementations of tasks within a task list.

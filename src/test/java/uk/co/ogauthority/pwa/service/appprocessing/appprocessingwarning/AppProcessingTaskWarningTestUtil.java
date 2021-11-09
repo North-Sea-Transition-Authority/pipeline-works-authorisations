@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning;
 
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 public class AppProcessingTaskWarningTestUtil {

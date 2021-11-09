@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.prepareconsent;
 
 import java.time.Instant;
 import java.util.List;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.AppProcessingTaskWarningTestUtil;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 public class PreSendForApprovalChecksViewTestUtil {
 

@@ -1,15 +1,14 @@
 package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 public class PwaAppProcessingContextTest {

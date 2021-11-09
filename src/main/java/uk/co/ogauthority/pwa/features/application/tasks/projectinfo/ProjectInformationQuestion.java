@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.util.Set;
 import java.util.function.Function;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public enum ProjectInformationQuestion {
 

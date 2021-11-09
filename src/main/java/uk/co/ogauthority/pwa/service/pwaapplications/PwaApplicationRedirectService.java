@@ -5,9 +5,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartInitialPwaController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartPwaApplicationController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.start.StartVariationController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.creation.controller.StartInitialPwaController;
+import uk.co.ogauthority.pwa.features.application.creation.controller.StartPwaApplicationController;
+import uk.co.ogauthority.pwa.features.application.creation.controller.StartVariationController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.Category1TaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.Category2TaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.DecommissioningTaskListController;
@@ -15,9 +17,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.controllers.DepositCo
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.HuooVariationTaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.InitialTaskListController;
 import uk.co.ogauthority.pwa.features.application.tasklist.controllers.OptionsVariationTaskListController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class PwaApplicationRedirectService {

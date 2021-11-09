@@ -4,7 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.ConsentReviewController;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class ConsentDocumentUrlProvider {
