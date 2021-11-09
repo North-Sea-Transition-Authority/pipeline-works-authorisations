@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.documents.views;
 
 import java.util.List;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 
 public class DepositTableRowView {
 

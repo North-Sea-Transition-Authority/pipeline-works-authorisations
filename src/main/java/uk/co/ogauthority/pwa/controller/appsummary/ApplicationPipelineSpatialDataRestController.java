@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.geojsonview.ApplicationPipelineGeoJsonViewFactory;
+import uk.co.ogauthority.pwa.features.datatypes.geojson.GeoJsonFeatureCollection;
 import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
@@ -21,7 +22,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.ApplicationVersionAc
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.ApplicationVersionRequestType;
 import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
-import uk.co.ogauthority.pwa.util.geojson.GeoJsonFeatureCollection;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/pipelines-geojson")

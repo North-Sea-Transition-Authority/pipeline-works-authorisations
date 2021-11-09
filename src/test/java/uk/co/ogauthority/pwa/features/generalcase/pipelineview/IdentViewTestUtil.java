@@ -4,8 +4,8 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 
 public class IdentViewTestUtil {
   public static final String POINT_1 = "POINT1";

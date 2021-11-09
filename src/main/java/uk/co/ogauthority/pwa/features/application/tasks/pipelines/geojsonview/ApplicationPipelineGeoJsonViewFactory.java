@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.datatypes.geojson.GeoJsonFeature;
+import uk.co.ogauthority.pwa.features.datatypes.geojson.GeoJsonFeatureCollection;
+import uk.co.ogauthority.pwa.features.datatypes.geojson.GeoJsonFeatureFactory;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.util.geojson.GeoJsonFeature;
-import uk.co.ogauthority.pwa.util.geojson.GeoJsonFeatureCollection;
-import uk.co.ogauthority.pwa.util.geojson.GeoJsonFeatureFactory;
 
 @Service
 public class ApplicationPipelineGeoJsonViewFactory {

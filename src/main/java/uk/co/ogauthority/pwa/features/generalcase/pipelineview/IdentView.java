@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.generalcase.pipelineview;
 import java.math.BigDecimal;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentData;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 
 /**
  * A view that combines both PadPipelineIdent and PadPipelineIdentData information.

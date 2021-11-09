@@ -10,9 +10,9 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent_;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
 public class PadPipelineTestUtil {

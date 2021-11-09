@@ -17,13 +17,13 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairEntity;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Entity
 @Table(name = "pad_pipeline_idents")

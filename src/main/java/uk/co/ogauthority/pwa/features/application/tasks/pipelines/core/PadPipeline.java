@@ -22,15 +22,15 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairEntity;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 
 @Entity
 @Table(name = "pad_pipelines")

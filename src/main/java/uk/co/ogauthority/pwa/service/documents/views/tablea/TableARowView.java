@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.documents.views.tablea;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentDiffableView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 public class TableARowView {
 

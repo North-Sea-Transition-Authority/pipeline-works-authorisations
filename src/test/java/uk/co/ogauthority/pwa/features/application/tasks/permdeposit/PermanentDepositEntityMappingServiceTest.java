@@ -7,13 +7,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @RunWith(MockitoJUnitRunner.class)

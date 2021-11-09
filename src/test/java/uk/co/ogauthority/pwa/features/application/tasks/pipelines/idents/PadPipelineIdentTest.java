@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import org.junit.Test;
 import org.springframework.security.util.FieldUtils;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.LatitudeCoordinate;
-import uk.co.ogauthority.pwa.model.location.LongitudeCoordinate;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeCoordinate;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 
 public class PadPipelineIdentTest {
 

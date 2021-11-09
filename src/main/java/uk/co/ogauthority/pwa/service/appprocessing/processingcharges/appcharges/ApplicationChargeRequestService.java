@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges
 
 import static java.util.stream.Collectors.toList;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.features.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.WAIVED;
-import static uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus.PAYMENT_COMPLETE;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.controller.appprocessing.processingcharges.IndustryPaymentCallbackController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.pwapay.PaymentRequestStatus;
+import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentRequest;
+import uk.co.ogauthority.pwa.features.pwapay.PwaPaymentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -32,9 +35,6 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaApp
 import uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.pwapay.PaymentRequestStatus;
-import uk.co.ogauthority.pwa.pwapay.PwaPaymentRequest;
-import uk.co.ogauthority.pwa.pwapay.PwaPaymentService;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargePaymentAttemptRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.processingcharges.PwaAppChargeRequestItemRepository;
