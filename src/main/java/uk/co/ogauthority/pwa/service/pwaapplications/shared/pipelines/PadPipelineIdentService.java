@@ -63,14 +63,16 @@ public class PadPipelineIdentService {
                 pipeline.getId())));
   }
 
-  public Map<PipelineId, List<IdentView>> getApplicationIdentViewsForPipelines(Collection<PipelineId> pipelineIds) {
+  public Map<PipelineId, List<IdentView>> getApplicationIdentViewsForPipelines(PwaApplicationDetail pwaApplicationDetail,
+                                                                               Collection<PipelineId> pipelineIds) {
     return pipelineIdentViewCollectorService.getPipelineIdToIdentVewsMap(
         PadPipelineIdent.class,
         PadPipelineIdentData.class,
-        () -> padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(
+        () -> padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdInAndPadPipeline_PwaApplicationDetail(
             pipelineIds.stream()
                 .map(PipelineId::asInt)
-            .collect(Collectors.toSet())
+            .collect(Collectors.toSet()),
+            pwaApplicationDetail
         ),
         identDataService::getAllPadPipelineIdentDataForIdents
     );

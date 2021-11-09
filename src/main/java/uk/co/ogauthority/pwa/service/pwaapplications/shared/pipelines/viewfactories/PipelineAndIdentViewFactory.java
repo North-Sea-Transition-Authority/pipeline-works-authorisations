@@ -77,7 +77,7 @@ public class PipelineAndIdentViewFactory {
     var allAppAndMasterPwaPipelineIds = allAppAndMasterPwaPipelineOverviewLookup.keySet();
 
     var applicationPipelineIdToIdentViewListMap = padPipelineIdentService.getApplicationIdentViewsForPipelines(
-        allAppAndMasterPwaPipelineIds
+        pwaApplicationDetail, allAppAndMasterPwaPipelineIds
     );
 
     var totalAppIdentViewCount = applicationPipelineIdToIdentViewListMap.values().stream()
