@@ -21,7 +21,7 @@
 
         <#if fluidCompositionDataForm.fluidCompositionOption?has_content>        
           <#if fluidCompositionDataForm.fluidCompositionOption == "HIGHER_AMOUNT">
-            ${fluidCompositionDataForm.moleValue}%
+            ${fluidCompositionDataForm.moleValue.value}%
           <#else>
             ${fluidCompositionDataForm.fluidCompositionOption.getDisplayTextSimple()}
           </#if>
