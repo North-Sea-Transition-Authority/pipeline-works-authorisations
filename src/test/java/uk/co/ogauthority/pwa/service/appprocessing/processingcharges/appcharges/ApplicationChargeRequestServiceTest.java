@@ -133,8 +133,8 @@ public class ApplicationChargeRequestServiceTest {
   private PwaAppChargeRequest chargeRequest;
 
   private final Map<String, String> metadataMap = Map.of(
-      "APPLICANT_ORGANISATION", "SHELL U.K. LIMITED",
-      "PROJECT_NAME", "New field development"
+      "Applicant organisation", "SHELL U.K. LIMITED",
+      "Project name", "New field development"
   );
 
   @Before

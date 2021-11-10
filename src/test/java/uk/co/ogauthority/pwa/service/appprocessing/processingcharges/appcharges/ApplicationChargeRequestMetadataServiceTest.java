@@ -61,8 +61,8 @@ public class ApplicationChargeRequestMetadataServiceTest {
     var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
 
     var expectedMap = Map.of(
-        "APPLICANT_ORGANISATION", organisationUnit.getName(),
-        "PROJECT_NAME", projectInfo.getProjectName()
+        "Applicant organisation", organisationUnit.getName(),
+        "Project name", projectInfo.getProjectName()
     );
 
     assertThat(resultMap).isEqualTo(expectedMap);
@@ -88,8 +88,8 @@ public class ApplicationChargeRequestMetadataServiceTest {
     var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
 
     var expectedMap = Map.of(
-        "APPLICANT_ORGANISATION", getTruncatedValue("name"),
-        "PROJECT_NAME", getTruncatedValue("test")
+        "Applicant organisation", getTruncatedValue("name"),
+        "Project name", getTruncatedValue("test")
     );
 
     assertThat(resultMap).isEqualTo(expectedMap);

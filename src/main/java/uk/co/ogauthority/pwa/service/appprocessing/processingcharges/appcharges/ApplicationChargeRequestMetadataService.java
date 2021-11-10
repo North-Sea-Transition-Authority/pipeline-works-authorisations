@@ -32,8 +32,8 @@ public class ApplicationChargeRequestMetadataService {
     var projectInfo = padProjectInformationService.getPadProjectInformationData(detail);
 
     var metadataMap = new java.util.HashMap<>(Map.of(
-        "APPLICANT_ORGANISATION", applicantOrgName,
-        "PROJECT_NAME", projectInfo.getProjectName()
+        "Applicant organisation", applicantOrgName,
+        "Project name", projectInfo.getProjectName()
     ));
 
     metadataMap.forEach((key, value) -> {
