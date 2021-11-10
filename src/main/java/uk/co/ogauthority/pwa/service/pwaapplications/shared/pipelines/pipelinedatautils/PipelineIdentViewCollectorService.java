@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelined
 
 import static java.util.stream.Collectors.toList;
 
+import com.google.common.collect.Lists;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,6 +25,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
 public class PipelineIdentViewCollectorService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PipelineIdentViewCollectorService.class);
+  private static final int IDENT_BATCH_SIZE = 1000;
 
   public <T extends PipelineIdent, U extends PipelineIdentData> Map<PipelineId, List<IdentView>> getPipelineIdToIdentVewsMap(
       Class<T> pipelineIdentClass,
@@ -31,14 +34,34 @@ public class PipelineIdentViewCollectorService {
       Function<List<T>, List<U>> supplyIdentDataForIdents) {
 
     var idents = identListSupplier.get();
-
     LOGGER.debug("Found {} idents", idents.size());
 
-    var identDataMap = supplyIdentDataForIdents.apply(idents).stream()
-        .collect(Collectors.toMap(PipelineIdentData::getPipelineIdent, Function.identity()));
+    // we need to use batches here for the edge case where more than 1000 idents are supplied. This would cause a non-batched
+    // method to blow out the oracle IN clause 1000 item limit.
+    List<List<T>> identBatchList = Lists.partition(idents, IDENT_BATCH_SIZE);
+    LOGGER.debug("Split idents into {} batches", identBatchList.size());
 
-    LOGGER.debug("Found ident data for {} idents", identDataMap.size());
+    var identDataMap = new HashMap<PipelineIdent, U>();
+    var batchCounter = 1;
+    for (List<T> batchIdentList: identBatchList) {
+      Map<PipelineIdent, U> batchIdentDataMap = supplyIdentDataForIdents.apply(batchIdentList).stream()
+          .collect(
+              Collectors.toMap(
+                  PipelineIdentData::getPipelineIdent,
+                  Function.identity()
+              )
+          );
+      identDataMap.putAll(batchIdentDataMap);
 
+      LOGGER.debug("Ident batch {} processed with size {}", batchCounter, batchIdentList.size());
+      batchCounter += 1;
+    }
+
+    LOGGER.debug("Found total ident data for {} idents", identDataMap.size());
+
+    // First, group idents by  pipeline ID.
+    // Second, map each pipeline ident to an IdentView
+    // Finally, Sort the grouped idents by ident number
     return identDataMap.entrySet()
         .stream()
         .collect(
