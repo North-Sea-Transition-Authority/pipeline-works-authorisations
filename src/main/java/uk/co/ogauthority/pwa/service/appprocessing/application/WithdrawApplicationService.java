@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.exception.WithdrawApplicationException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.validators.WithdrawApplicationValidator;
 public class WithdrawApplicationService implements AppProcessingService {
 
   private final WithdrawApplicationValidator withdrawApplicationValidator;
+  private final PwaApplicationService pwaApplicationService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final WithdrawConsultationService withdrawConsultationService;
@@ -40,6 +42,7 @@ public class WithdrawApplicationService implements AppProcessingService {
   @Autowired
   public WithdrawApplicationService(
       WithdrawApplicationValidator withdrawApplicationValidator,
+      PwaApplicationService pwaApplicationService,
       PwaApplicationDetailService pwaApplicationDetailService,
       CamundaWorkflowService camundaWorkflowService,
       WithdrawConsultationService withdrawConsultationService,
@@ -48,6 +51,7 @@ public class WithdrawApplicationService implements AppProcessingService {
       PwaContactService pwaContactService,
       EmailCaseLinkService emailCaseLinkService) {
     this.withdrawApplicationValidator = withdrawApplicationValidator;
+    this.pwaApplicationService = pwaApplicationService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.withdrawConsultationService = withdrawConsultationService;

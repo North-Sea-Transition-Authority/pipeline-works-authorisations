@@ -89,6 +89,7 @@ public class WithdrawApplicationServiceTest {
   public void setUp() {
     withdrawApplicationService = new WithdrawApplicationService(
         withdrawApplicationValidator,
+        pwaApplicationService,
         pwaApplicationDetailService,
         camundaWorkflowService,
         withdrawConsultationService,
