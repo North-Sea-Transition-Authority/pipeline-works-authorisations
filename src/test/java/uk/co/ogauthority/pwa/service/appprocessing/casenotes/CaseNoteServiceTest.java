@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermiss
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CaseNoteServiceTest {
@@ -58,6 +59,9 @@ public class CaseNoteServiceTest {
   @Mock
   private CaseNoteDocumentLinkRepository documentLinkRepository;
 
+  @Mock
+  private CaseNoteFormValidator validator;
+
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   @Captor
@@ -68,7 +72,7 @@ public class CaseNoteServiceTest {
 
   @Before
   public void setUp() {
-    caseNoteService = new CaseNoteService(caseNoteRepository, appFileService, clock, documentLinkRepository);
+    caseNoteService = new CaseNoteService(caseNoteRepository, appFileService, clock, documentLinkRepository, validator);
   }
 
   @Test

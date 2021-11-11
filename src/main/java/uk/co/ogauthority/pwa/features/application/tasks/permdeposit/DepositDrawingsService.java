@@ -29,7 +29,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
@@ -279,7 +278,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail);
-    groupValidator.validate(form, bindingResult, FullValidation.class, MandatoryUploadValidation.class);
+    groupValidator.validate(form, bindingResult, FullValidation.class);
     return bindingResult;
   }
 

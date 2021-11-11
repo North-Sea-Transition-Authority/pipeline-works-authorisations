@@ -142,6 +142,10 @@ public class ProjectInformationValidator implements SmartValidator {
           "Description for not having an FDP");
     }
 
+    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)
+        && validationType.equals(ValidationType.PARTIAL)) {
+      FileUploadUtils.validateFilesDescriptionLength(form, errors);
+    }
   }
 
   private void validateFull(ProjectInformationForm form,  Errors errors,

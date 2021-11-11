@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescript
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublicNoticeDocumentUpdateValidatorTest {
@@ -26,9 +27,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
   @Before
   public void setUp() {
     validator = new PublicNoticeDocumentUpdateValidator();
-    uploadedFileForm = new UploadFileWithDescriptionForm();
-    uploadedFileForm.setUploadedFileId("file id 1");
-    uploadedFileForm.setUploadedFileDescription("description");
+    uploadedFileForm = FileUploadTestUtil.createDefaultUploadFileForm();
   }
 
 
@@ -71,6 +70,28 @@ public class PublicNoticeDocumentUpdateValidatorTest {
     assertThat(errorsMap).contains(
         entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
             Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_form_fileDescriptionNull_invalid() {
+    var form = new UpdatePublicNoticeDocumentForm();
+    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_fileDescriptionOverMaxCharLength_invalid() {
+    var form = new UpdatePublicNoticeDocumentForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
   }
 
 

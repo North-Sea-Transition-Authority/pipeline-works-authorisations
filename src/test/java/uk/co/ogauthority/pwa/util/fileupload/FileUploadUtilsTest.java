@@ -1,17 +1,20 @@
-package uk.co.ogauthority.pwa.util;
+package uk.co.ogauthority.pwa.util.fileupload;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import org.junit.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 public class FileUploadUtilsTest {
@@ -208,6 +211,27 @@ public class FileUploadUtilsTest {
   }
 
   @Test
+  public void validateFiles_fileDescriptionOverMaxCharLength_error() {
+
+    var form = new OptionsTemplateForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    FileUploadUtils.validateFiles(form, bindingResult, List.of());
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        Map.entry(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(0),
+            Set.of(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(0) + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        Map.entry(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(1),
+            Set.of(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(1) + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+
+  }
+
+  @Test
   public void validateFiles_mandatory_filesWithoutDescription_andDeletedFiles_error() {
 
     var form = new OptionsTemplateForm();
@@ -224,6 +248,29 @@ public class FileUploadUtilsTest {
 
     String errorCode = Objects.requireNonNull(bindingResult.getFieldError("uploadedFileWithDescriptionForms[1].uploadedFileDescription")).getCode();
     assertThat(errorCode).isEqualTo("uploadedFileWithDescriptionForms[1].uploadedFileDescription.required");
+
+  }
+
+
+
+  @Test
+  public void validateFilesDescriptionLength_fileDescriptionOverMaxCharLength_error() {
+
+    var form = new OptionsTemplateForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    FileUploadUtils.validateFilesDescriptionLength(form, bindingResult);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        Map.entry(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(0),
+            Set.of(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(0) + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        Map.entry(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(1),
+            Set.of(FileUploadTestUtil.getUploadedFileDescriptionFieldPath(1) + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
 
   }
 
