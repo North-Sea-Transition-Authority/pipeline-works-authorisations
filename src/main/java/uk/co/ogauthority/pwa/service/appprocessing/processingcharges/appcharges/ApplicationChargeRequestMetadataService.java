@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.energyportal.service.organisations.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 
 @Service
 public class ApplicationChargeRequestMetadataService {
