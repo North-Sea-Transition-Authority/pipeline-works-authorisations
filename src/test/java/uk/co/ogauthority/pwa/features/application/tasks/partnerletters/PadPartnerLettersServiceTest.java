@@ -20,7 +20,6 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -28,6 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,9 +58,7 @@ public class PadPartnerLettersServiceTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    var uploadedFile = new UploadFileWithDescriptionForm();
-    uploadedFile.setUploadedFileDescription("description");
-    form.setUploadedFileWithDescriptionForms(List.of(uploadedFile));
+    FileUploadTestUtil.addDefaultUploadFileToForm(form);
     return form;
   }
 

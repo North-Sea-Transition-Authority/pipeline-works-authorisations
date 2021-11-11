@@ -49,6 +49,34 @@ public class FileUploadUtils {
 
   }
 
+
+  private static String getFileFormPathByIndex(int uploadedFileFormIndex) {
+    return "uploadedFileWithDescriptionForms[" + uploadedFileFormIndex + "]";
+  }
+
+  private static void validateFileDescriptionLength(String fileFormPath,
+                                                    String description,
+                                                    Errors errors) {
+    ValidatorUtils.validateDefaultStringLength(
+        errors,
+        String.format("%s.uploadedFileDescription", fileFormPath),
+        () -> description,
+        "File description");
+  }
+
+  public static void validateFilesDescriptionLength(UploadMultipleFilesWithDescriptionForm uploadForm,
+                                                    Errors errors) {
+
+    var fileFormsToValidate = uploadForm.getFileFormsForValidation();
+    IntStream.range(0, uploadForm.getUploadedFileWithDescriptionForms().size())
+        .filter(i -> fileFormsToValidate.contains(uploadForm.getUploadedFileWithDescriptionForms().get(i)))
+        .forEach(i -> {
+          validateFileDescriptionLength(
+              getFileFormPathByIndex(i), uploadForm.getUploadedFileWithDescriptionForms().get(i).getUploadedFileDescription(), errors);
+        });
+
+  }
+
   public static void validateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
                                    Errors errors,
                                    List<Object> hints,
@@ -64,7 +92,7 @@ public class FileUploadUtils {
         .filter(i -> fileFormsToValidate.contains(uploadForm.getUploadedFileWithDescriptionForms().get(i)))
         .forEach(i -> {
 
-          String form = "uploadedFileWithDescriptionForms[" + i + "]";
+          String form = getFileFormPathByIndex(i);
 
           ValidationUtils.rejectIfEmpty(
               errors,
@@ -73,6 +101,8 @@ public class FileUploadUtils {
               "File must have a description"
           );
 
+          validateFileDescriptionLength(
+              form, uploadForm.getUploadedFileWithDescriptionForms().get(i).getUploadedFileDescription(), errors);
         });
 
     if (mandatory) {

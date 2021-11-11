@@ -8,7 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
@@ -39,11 +39,10 @@ public class UmbilicalCrossSectionService {
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
 
-    if (((UmbilicalCrossSectionForm) form).getUploadedFileWithDescriptionForms().size() > 1) {
-      bindingResult.rejectValue("uploadedFileWithDescriptionForms",
-          "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode(),
-          "You may only upload a single umbilical cross-section diagram");
-    }
+    var umbilicalCrossSectionForm = (UmbilicalCrossSectionForm) form;
+    FileUploadUtils.validateFiles(umbilicalCrossSectionForm, bindingResult, List.of());
+    FileUploadUtils.validateMaxFileLimit(
+        umbilicalCrossSectionForm, bindingResult, 1, "You may only upload a single umbilical cross-section diagram");
 
     return bindingResult;
   }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +24,10 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.Cr
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineCrossingFileServiceTest {
@@ -113,6 +118,32 @@ public class PipelineCrossingFileServiceTest {
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
+  }
+
+  @Test
+  public void validate_partial_whenDocumentDescriptionOverMaxCharLength() {
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_full_whenDocumentDescriptionOverMaxCharLength() {
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    pipelineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
   }
 
   @Test

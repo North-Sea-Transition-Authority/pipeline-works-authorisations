@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescript
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -339,6 +340,7 @@ public class LocationDetailsValidatorTest {
     form.setPipelineAshoreLocation(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.overMaxDefaultCharLength());
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
 
     var errors = new BeanPropertyBindingResult(form, "form");
     locationDetailsValidator.validate(form, errors,
@@ -356,7 +358,9 @@ public class LocationDetailsValidatorTest {
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("pipelineAshoreLocation", Set.of("pipelineAshoreLocation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 
@@ -573,6 +577,19 @@ public class LocationDetailsValidatorTest {
     assertThat(errorsMap).doesNotContain(
         Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
             Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_full_routeDocumentUploaded_descriptionOverMaxLength_invalid() {
+
+    var form = new LocationDetailsForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
   }
 
 }

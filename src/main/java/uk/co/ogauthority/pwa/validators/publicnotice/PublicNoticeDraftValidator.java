@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators.publicnotice;
 
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -9,6 +10,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
+import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class PublicNoticeDraftValidator implements SmartValidator {
@@ -37,7 +39,7 @@ public class PublicNoticeDraftValidator implements SmartValidator {
     ValidatorUtils.validateDefaultStringLength(
         errors, "coverLetterText", form::getCoverLetterText, "Cover letter");
 
-    FileUploadUtils.validateMinFileLimit(form, errors, 1, "Upload a public notice document");
+    FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "Upload a public notice document");
     FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reason", "reason" + FieldValidationErrorCodes.REQUIRED.getCode(),
