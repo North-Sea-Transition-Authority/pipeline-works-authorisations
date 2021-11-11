@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDrawingValidatorTest {
@@ -207,4 +208,18 @@ public class PipelineDrawingValidatorTest {
     assertThat(result).extractingFromEntries(Map.Entry::getValue)
         .contains(Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode()));
   }
+
+  @Test
+  public void validate_uploadedDrawingFileDescriptionOverMaxCharLength() {
+    form.setPadPipelineIds(List.of(1));
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getEditDrawingValidationHints(drawing));
+    assertThat(result).contains(
+        Map.entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
 }

@@ -59,11 +59,13 @@ public class AdmiraltyChartFileService {
     }
     groupValidator.validate(form, bindingResult, hints.toArray());
 
+    var uploadFilesForm = (UploadMultipleFilesWithDescriptionForm) form;
     FileUploadUtils.validateMaxFileLimit(
-        (UploadMultipleFilesWithDescriptionForm) form,
+        uploadFilesForm,
         bindingResult,
         1,
         "Provide a single admiralty chart");
+    FileUploadUtils.validateFilesDescriptionLength(uploadFilesForm, bindingResult);
 
     return bindingResult;
   }

@@ -103,6 +103,7 @@ public class CaseNoteController extends PwaApplicationDataFileUploadAndDownloadC
                                       AuthenticatedUserAccount authenticatedUserAccount,
                                       RedirectAttributes redirectAttributes) {
 
+    bindingResult = caseNoteService.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddCaseNoteModelAndView(processingContext, form), () -> {
 
       caseNoteService.createCaseNote(processingContext.getPwaApplication(), form, authenticatedUserAccount);

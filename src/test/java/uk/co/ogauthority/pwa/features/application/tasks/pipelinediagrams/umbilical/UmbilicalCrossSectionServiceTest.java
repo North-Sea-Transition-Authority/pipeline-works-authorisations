@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
@@ -21,6 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UmbilicalCrossSectionServiceTest {
@@ -64,6 +67,30 @@ public class UmbilicalCrossSectionServiceTest {
     assertThat(result.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
         .containsExactly(
             "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode());
+  }
+
+  @Test
+  public void validate_fileDescriptionOverMaxCharLength_invalid() {
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_emptyFileDescription_invalid() {
+    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
+
+    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
+    assertThat(fieldErrors).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
   }
 
   @Test

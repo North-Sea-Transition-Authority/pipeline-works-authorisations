@@ -101,9 +101,7 @@ public class PadPartnerLettersService implements ApplicationFormSectionService {
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.FULL)) {
-      partnerLettersValidator.validate(form, bindingResult);
-    }
+    partnerLettersValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 

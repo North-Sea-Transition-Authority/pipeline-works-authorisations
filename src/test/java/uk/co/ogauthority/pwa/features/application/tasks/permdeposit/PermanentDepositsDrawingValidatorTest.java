@@ -15,9 +15,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositsDrawingValidatorTest {
@@ -50,7 +50,7 @@ public class PermanentDepositsDrawingValidatorTest {
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(
         entry("reference", Set.of("reference.required")),
-        entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.getCode())),
         entry("selectedDeposits", Set.of("selectedDeposits.required"))
     );
   }
@@ -94,11 +94,27 @@ public class PermanentDepositsDrawingValidatorTest {
   @Test
   public void validate_files_moreThanOneUploaded() {
     var form = new PermanentDepositDrawingForm();
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm(), new UploadFileWithDescriptionForm()));
+    form.setUploadedFileWithDescriptionForms(
+        List.of(FileUploadTestUtil.createDefaultUploadFileForm(), FileUploadTestUtil.createDefaultUploadFileForm()));
+
     Map<String, Set<String>> errorsMap = getErrorMap(form);
-    assertThat(errorsMap).contains(entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    assertThat(errorsMap).contains(entry(
+        "uploadedFileWithDescriptionForms",
+        Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode())));
+  }
+
+  @Test
+  public void validate_uploadedDrawingDescriptionOverMaxCharLength_invalid() {
+    var form = new PermanentDepositDrawingForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var errorsMap = getErrorMap(form);
+
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
+
 
   @Test
   public void validate_depositSelectionEmpty() {

@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
@@ -35,6 +36,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
+import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
 @Service
 public class CaseNoteService implements AppProcessingService, CaseHistoryItemService {
@@ -43,6 +45,7 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   private final AppFileService appFileService;
   private final Clock clock;
   private final CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository;
+  private final CaseNoteFormValidator validator;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CASE_NOTES;
 
@@ -50,11 +53,13 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   public CaseNoteService(CaseNoteRepository caseNoteRepository,
                          AppFileService appFileService,
                          @Qualifier("utcClock") Clock clock,
-                         CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository) {
+                         CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository,
+                         CaseNoteFormValidator validator) {
     this.caseNoteRepository = caseNoteRepository;
     this.appFileService = appFileService;
     this.clock = clock;
     this.caseNoteDocumentLinkRepository = caseNoteDocumentLinkRepository;
+    this.validator = validator;
   }
 
   @Override
@@ -141,6 +146,11 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   @Transactional
   public void deleteFileLink(CaseNoteDocumentLink link) {
     caseNoteDocumentLinkRepository.delete(link);
+  }
+
+  public BindingResult validate(AddCaseNoteForm form, BindingResult bindingResult) {
+    validator.validate(form, bindingResult);
+    return bindingResult;
   }
 
 }

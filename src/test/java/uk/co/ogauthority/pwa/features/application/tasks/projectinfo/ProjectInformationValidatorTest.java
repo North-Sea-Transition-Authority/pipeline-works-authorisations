@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescript
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -970,6 +972,20 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
+  public void validate_projectLayoutDiagramFile_descriptionOverMaxCharLength() {
+    var form = new ProjectInformationForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
+
+    assertThat(errorsMap).contains(
+        Assertions.entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
   public void validate_partialValidation_noFullValidationErrorsPresent() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
@@ -982,12 +998,16 @@ public class ProjectInformationValidatorTest {
     var form = new ProjectInformationForm();
     form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setProjectOverview(ValidatorTestUtils.overMaxDefaultCharLength());
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
 
     assertThat(errorsMap).contains(
         entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
 

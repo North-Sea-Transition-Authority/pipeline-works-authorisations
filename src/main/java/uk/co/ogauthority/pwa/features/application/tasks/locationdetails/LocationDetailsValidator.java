@@ -51,14 +51,16 @@ public class LocationDetailsValidator implements SmartValidator {
     var locationDetailsValidationHints = (LocationDetailsFormValidationHints) validationHints[0];
     var requiredQuestions = locationDetailsValidationHints.getRequiredQuestions();
 
-    validatePartial(form, errors, requiredQuestions);
+    validatePartial(form, errors, requiredQuestions, locationDetailsValidationHints.getValidationType());
     if (locationDetailsValidationHints.getValidationType().equals(ValidationType.FULL)) {
       validateFull(form, errors, requiredQuestions);
     }
 
   }
 
-  private void validatePartial(LocationDetailsForm form, Errors errors, Set<LocationDetailsQuestion> requiredQuestions) {
+  private void validatePartial(LocationDetailsForm form,
+                               Errors errors, Set<LocationDetailsQuestion> requiredQuestions,
+                               ValidationType validationType) {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
@@ -126,6 +128,9 @@ public class LocationDetailsValidator implements SmartValidator {
       }
     }
 
+    if (validationType.equals(ValidationType.PARTIAL)) {
+      FileUploadUtils.validateFilesDescriptionLength(form, errors);
+    }
   }
 
 

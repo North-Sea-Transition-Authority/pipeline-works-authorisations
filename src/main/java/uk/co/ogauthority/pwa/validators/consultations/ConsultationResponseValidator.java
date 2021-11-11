@@ -66,6 +66,7 @@ public class ConsultationResponseValidator implements Validator {
             "You must upload at least %s file(s) in order to support your decision",
             requiredFileCount)
     );
+    FileUploadUtils.validateFilesDescriptionLength(form, errors);
   }
 
   // helper which returns 1 if option group exists on form and response is contained in provided set, else 0;
