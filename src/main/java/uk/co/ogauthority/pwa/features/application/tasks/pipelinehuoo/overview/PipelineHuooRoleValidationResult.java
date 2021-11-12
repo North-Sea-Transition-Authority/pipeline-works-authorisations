@@ -126,4 +126,14 @@ public class PipelineHuooRoleValidationResult {
     return hasErrors;
   }
 
+  @Override
+  public String toString() {
+    return "PipelineHuooRoleValidationResult{" +
+        "unassignedPipelineErrorMessage='" + unassignedPipelineErrorMessage + '\'' +
+        ", unassignedRoleOwnerErrorMessage='" + unassignedRoleOwnerErrorMessage + '\'' +
+        ", invalidSplitsErrorMessage='" + invalidSplitsErrorMessage + '\'' +
+        ", hasErrors=" + hasErrors +
+        '}';
+  }
+
 }

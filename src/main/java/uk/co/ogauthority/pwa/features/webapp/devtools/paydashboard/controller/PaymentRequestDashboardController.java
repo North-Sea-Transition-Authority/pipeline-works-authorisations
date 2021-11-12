@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.Valid;
 import org.slf4j.Logger;
@@ -128,6 +129,7 @@ public class PaymentRequestDashboardController {
                 testPaymentForm.getAmount(),
                 testPaymentForm.getReference(),
                 "Support Test Payment",
+                Map.of(),
                 uuid -> ReverseRouter.route(on(TestPaymentCallbackController.class).handleReturnUrl(uuid, null))
             )
         )

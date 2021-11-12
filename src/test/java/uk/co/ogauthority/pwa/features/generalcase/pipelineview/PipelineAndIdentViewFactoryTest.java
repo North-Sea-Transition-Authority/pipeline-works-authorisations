@@ -117,7 +117,7 @@ public class PipelineAndIdentViewFactoryTest {
         Map.entry(APPLICATION_NEW_PIPELINE_ID, applicationNewPipelineIdentViews)
     );
 
-    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(detail, allAppAndMasterPwaPipelineIds))
         .thenReturn(appPipelineIdentMap);
 
     var consentedPipelineIdentMap = Map.ofEntries(
@@ -162,7 +162,7 @@ public class PipelineAndIdentViewFactoryTest {
         Map.entry(APPLICATION_NEW_PIPELINE_ID, applicationNewPipelineIdentViews)
     );
 
-    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(detail, allAppAndMasterPwaPipelineIds))
         .thenReturn(appPipelineIdentMap);
 
     var consentedPipelineIdentMap = Map.ofEntries(
@@ -205,7 +205,7 @@ public class PipelineAndIdentViewFactoryTest {
         Map.entry(APPLICATION_NEW_PIPELINE_ID, applicationNewPipelineIdentViews)
     );
 
-    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(allAppAndMasterPwaPipelineIds))
+    when(padPipelineIdentService.getApplicationIdentViewsForPipelines(detail, allAppAndMasterPwaPipelineIds))
         .thenReturn(appPipelineIdentMap);
 
     var consentedPipelineIdentViews = List.of(ident1View, ident2View, ident3View);

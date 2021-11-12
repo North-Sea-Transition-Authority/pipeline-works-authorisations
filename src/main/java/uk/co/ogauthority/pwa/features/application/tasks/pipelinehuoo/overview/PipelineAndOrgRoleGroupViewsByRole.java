@@ -54,4 +54,15 @@ public class PipelineAndOrgRoleGroupViewsByRole {
   public PipelineHuooRoleSummaryView getOwnerRoleSummaryView() {
     return ownerRoleSummaryView;
   }
+
+  @Override
+  public String toString() {
+    return "PipelineAndOrgRoleGroupViewsByRole{" +
+        "holderRoleSummaryView=" + holderRoleSummaryView +
+        ", userRoleSumaryView=" + userRoleSumaryView +
+        ", operatorRoleSummaryView=" + operatorRoleSummaryView +
+        ", ownerRoleSummaryView=" + ownerRoleSummaryView +
+        '}';
+  }
+
 }

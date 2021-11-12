@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.MedianLineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreementService;
@@ -163,11 +162,15 @@ public class PadFastTrackService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    entityCopyingService.duplicateEntityAndSetParent(
-        () -> padFastTrackRepository.findByPwaApplicationDetail(fromDetail)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Expected to find fast track but didnt. pad_id:" + fromDetail.getId())),
-        toDetail,
-        PadFastTrack.class
+
+    padFastTrackRepository.findByPwaApplicationDetail(fromDetail).ifPresent(fastTrackData ->
+        entityCopyingService.duplicateEntityAndSetParent(
+            () -> fastTrackData,
+            toDetail,
+            PadFastTrack.class
+        )
     );
+
   }
+
 }

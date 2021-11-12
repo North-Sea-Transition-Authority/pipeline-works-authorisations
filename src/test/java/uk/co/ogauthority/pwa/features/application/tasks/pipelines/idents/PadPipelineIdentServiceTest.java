@@ -943,13 +943,19 @@ public class PadPipelineIdentServiceTest {
 
   @Test
   public void getApplicationIdentViewsForPipelines_whenOnePipelineIdProvided_andIdentFound() {
-    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(Set.of(PIPELINE_ID.asInt())))
+    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdInAndPadPipeline_PwaApplicationDetail(
+        Set.of(PIPELINE_ID.asInt()),
+        detail)
+    )
         .thenReturn(List.of(ident));
 
     when(padPipelineIdentDataService.getAllPadPipelineIdentDataForIdents(List.of(ident)))
         .thenReturn(List.of(identData));
 
-    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(Set.of(PIPELINE_ID));
+    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(
+        detail,
+        Set.of(PIPELINE_ID)
+    );
 
     assertThat(result).containsOnlyKeys(PIPELINE_ID);
     assertThat(result.get(PIPELINE_ID)).hasSize(1);
@@ -974,14 +980,19 @@ public class PadPipelineIdentServiceTest {
 
 
     var foundIdentList = List.of(ident, pipeline2Ident1, pipeline2Ident2);
-    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdIn(
-        Set.of(PIPELINE_ID.asInt(), pipelineId2.asInt())))
+    when(padPipelineIdentRepository.getAllByPadPipeline_Pipeline_IdInAndPadPipeline_PwaApplicationDetail(
+        Set.of(PIPELINE_ID.asInt(), pipelineId2.asInt()),
+        detail
+    ))
         .thenReturn(foundIdentList);
 
     when(padPipelineIdentDataService.getAllPadPipelineIdentDataForIdents(foundIdentList))
         .thenReturn(List.of(identData, pipeline2Ident1Data, pipeline2Ident2Data));
 
-    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(Set.of(PIPELINE_ID, pipelineId2));
+    var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(
+        detail,
+        Set.of(PIPELINE_ID, pipelineId2)
+    );
 
     assertThat(result).containsOnlyKeys(PIPELINE_ID, pipelineId2);
     assertThat(result.get(PIPELINE_ID)).hasSize(1);
@@ -997,6 +1008,7 @@ public class PadPipelineIdentServiceTest {
   public void getApplicationIdentViewsForPipelines_whenMutliplePipelineIdsProvided_andNoIdentsFound() {
 
     var result = padPipelineIdentService.getApplicationIdentViewsForPipelines(
+        detail,
         Set.of(new PipelineId(99), new PipelineId(100)));
 
     assertThat(result).isEmpty();

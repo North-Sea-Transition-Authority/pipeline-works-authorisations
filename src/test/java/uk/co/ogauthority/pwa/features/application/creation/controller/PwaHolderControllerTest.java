@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.creation.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -214,7 +215,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
-    when(portalOrganisationsAccessor.getOrganisationUnitById(any())).thenReturn(Optional.of(orgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(orgUnit));
 
     var controller = new PwaHolderController(teamService, pwaApplicationCreationService, pwaApplicationDetailService,
         portalOrganisationsAccessor, pwaApplicationRedirectService, pwaHolderFormValidator, padOrganisationRoleService,

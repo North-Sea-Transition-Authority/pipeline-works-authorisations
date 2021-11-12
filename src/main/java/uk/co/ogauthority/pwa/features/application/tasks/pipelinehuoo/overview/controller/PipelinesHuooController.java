@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.controller;
 
 import javax.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +40,8 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 public class PipelinesHuooController {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PipelinesHuooController.class);
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -98,11 +102,19 @@ public class PipelinesHuooController {
                                   @PathVariable("applicationId") int applicationId,
                                   PwaApplicationContext applicationContext) {
 
+    LOGGER.debug("Starting POST");
+
     var pipelineHuooSummaryView = padPipelinesHuooService.getPadPipelinesHuooSummaryView(
         applicationContext.getApplicationDetail());
+
+    LOGGER.debug("Retrieved pipeline huoo summary view: {}", pipelineHuooSummaryView.toString());
+
     var validationResult = padPipelinesHuooService.generatePipelineHuooValidationResult(
         applicationContext.getApplicationDetail(), pipelineHuooSummaryView
     );
+
+    LOGGER.debug("Retrieved validation result: {}", validationResult.toString());
+
     if (validationResult.isValid()) {
       return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
     } else {

@@ -85,4 +85,14 @@ public final class OrganisationRoleOwnerDto implements DiffableAsString {
         '}';
   }
 
+  @Override
+  public String toString() {
+    return "OrganisationRoleOwnerDto{" +
+        "huooType=" + huooType +
+        ", organisationUnitId=" + organisationUnitId +
+        ", manualOrganisationName='" + manualOrganisationName + '\'' +
+        ", treatyAgreement=" + treatyAgreement +
+        '}';
+  }
+
 }

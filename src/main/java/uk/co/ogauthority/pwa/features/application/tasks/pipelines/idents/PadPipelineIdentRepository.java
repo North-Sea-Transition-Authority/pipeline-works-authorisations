@@ -29,6 +29,7 @@ public interface PadPipelineIdentRepository extends CrudRepository<PadPipelineId
   List<PadPipelineIdent> getAllByPadPipeline_PwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
   @EntityGraph(attributePaths = "padPipeline")
-  List<PadPipelineIdent> getAllByPadPipeline_Pipeline_IdIn(Collection<Integer> pipelineIds);
+  List<PadPipelineIdent> getAllByPadPipeline_Pipeline_IdInAndPadPipeline_PwaApplicationDetail(Collection<Integer> pipelineIds,
+                                                                                              PwaApplicationDetail pwaApplicationDetail);
 
 }

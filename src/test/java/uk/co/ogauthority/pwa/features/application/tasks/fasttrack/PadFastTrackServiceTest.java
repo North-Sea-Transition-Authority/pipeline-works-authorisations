@@ -1,8 +1,11 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fasttrack;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
@@ -331,6 +334,31 @@ public class PadFastTrackServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padFastTrackService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     verify(validator, times(1)).validate(form, bindingResult, ValidationType.FULL);
+  }
+
+  @Test
+  public void copySectionInformation_dataPresent_dataCopied() {
+
+    var newDetail = new PwaApplicationDetail();
+    var fastTrackData = new PadFastTrack();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrackData));
+
+    padFastTrackService.copySectionInformation(pwaApplicationDetail, newDetail);
+
+    verify(entityCopyingService, times(1)).duplicateEntityAndSetParent(any(), eq(newDetail), eq(PadFastTrack.class));
+
+  }
+
+  @Test
+  public void copySectionInformation_dataNotPresent_noError() {
+
+    var newDetail = new PwaApplicationDetail();
+    when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());
+
+    padFastTrackService.copySectionInformation(pwaApplicationDetail, newDetail);
+
+    verifyNoInteractions(entityCopyingService);
+
   }
 
   private PadFastTrack buildEntity() {
