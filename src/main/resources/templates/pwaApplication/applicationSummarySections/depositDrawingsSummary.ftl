@@ -30,7 +30,7 @@
                 </@fdsCheckAnswers.checkAnswersRow>
 
                 <@fdsCheckAnswers.checkAnswersRow keyText="File description" actionUrl="" screenReaderActionText="" actionText="">                
-                    ${depositDrawingView.documentDescription}
+                    ${depositDrawingView.documentDescription!}
                 </@fdsCheckAnswers.checkAnswersRow>
 
                 <@fdsCheckAnswers.checkAnswersRow keyText="Deposits on drawing" actionUrl="" screenReaderActionText="" actionText="">                
