@@ -4,15 +4,15 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowMessageEvents;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.GenericMessageEvent;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
 import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowMessageEvents;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 /**
  * Handle all of the workflow marshalling required when doing options variation case processing.

@@ -1,21 +1,21 @@
 package uk.co.ogauthority.pwa.service.appprocessing.options;
 
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.CLOSE_OUT_OPTIONS;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
+import static uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission.CLOSE_OUT_OPTIONS;
+import static uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
 
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 @Service

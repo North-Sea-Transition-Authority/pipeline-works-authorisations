@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskSe
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;

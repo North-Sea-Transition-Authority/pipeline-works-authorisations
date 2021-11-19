@@ -18,12 +18,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSummaryViewService;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
 import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOptionsForUser;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
 @RunWith(SpringRunner.class)

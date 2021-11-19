@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskRequirement;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.TaskRequirement;
 
 /**
  *  Service to generate data for all app processing tasks required.

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
@@ -19,7 +20,6 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFile
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.util.RouteUtils;

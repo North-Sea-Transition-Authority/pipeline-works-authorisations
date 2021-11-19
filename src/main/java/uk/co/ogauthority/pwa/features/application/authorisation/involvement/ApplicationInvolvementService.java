@@ -11,6 +11,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.confirmsatisfactory.ConfirmSatisfactoryApplicationService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -21,22 +28,15 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.application.ConfirmSatisfactoryApplicationService;
-import uk.co.ogauthority.pwa.service.appprocessing.consentreview.ConsentReviewService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
  * A service to find out how a user is related to an application, e.g. are they part of the contacts team, a consultee,

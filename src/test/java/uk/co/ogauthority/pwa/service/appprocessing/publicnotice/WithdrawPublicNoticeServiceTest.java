@@ -24,6 +24,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeWithdrawnEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -35,8 +37,6 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.WithdrawPublicNoticeValidator;
 

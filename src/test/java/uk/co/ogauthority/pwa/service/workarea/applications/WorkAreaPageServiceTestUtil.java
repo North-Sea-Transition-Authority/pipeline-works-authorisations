@@ -6,12 +6,12 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import uk.co.ogauthority.pwa.integrations.camunda.external.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.integrations.camunda.external.UserWorkflowTask;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 public class WorkAreaPageServiceTestUtil {
 

@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.appprocessing.casehistory;
 
-import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.CANCELLED;
-import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.PAID;
-import static uk.co.ogauthority.pwa.model.entity.appprocessing.processingcharges.PwaAppChargeRequestStatus.WAIVED;
+import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.PwaAppChargeRequestStatus.CANCELLED;
+import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.PwaAppChargeRequestStatus.PAID;
+import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.PwaAppChargeRequestStatus.WAIVED;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReport;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
-import uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service

@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.ApplicationSummarisationException;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateSummaryView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestViewService;
 
 /**
  * Construct summary of application contacts for a given application.

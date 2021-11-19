@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
+<#-- @ftlvariable name="summary" type="uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 
 <#macro applicationPaymentDisplaySummary summary>
     <table class="govuk-table">

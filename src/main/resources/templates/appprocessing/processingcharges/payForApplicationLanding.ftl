@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="financeRoleName" type="java.lang.String" -->
 <#-- @ftlvariable name="paymentLandingPageUrl" type="java.lang.String" -->
-<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
+<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 <#-- @ftlvariable name="pwaHolderOrgNames" type="java.util.List<java.lang.String>" -->
 
 <#include '../../layout.ftl'>

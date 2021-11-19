@@ -10,7 +10,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationWithdrawnEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -20,9 +23,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 /**
  * A service to withdraw consultation requests from application.

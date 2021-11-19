@@ -19,6 +19,15 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.GenericMessageEvent;
+import uk.co.ogauthority.pwa.integrations.camunda.external.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.integrations.camunda.external.UserWorkflowTask;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -26,18 +35,11 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.workflow.GenericMessageEvent;
-import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)

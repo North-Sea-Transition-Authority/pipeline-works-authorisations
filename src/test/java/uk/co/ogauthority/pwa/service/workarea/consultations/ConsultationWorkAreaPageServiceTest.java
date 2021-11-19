@@ -21,21 +21,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.integrations.camunda.external.AssignedTaskInstance;
+import uk.co.ogauthority.pwa.integrations.camunda.external.GenericWorkflowSubject;
+import uk.co.ogauthority.pwa.integrations.camunda.external.UserWorkflowTask;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
-import uk.co.ogauthority.pwa.model.workflow.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearcher;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
-import uk.co.ogauthority.pwa.service.workflow.task.AssignedTaskInstance;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @RunWith(MockitoJUnitRunner.class)

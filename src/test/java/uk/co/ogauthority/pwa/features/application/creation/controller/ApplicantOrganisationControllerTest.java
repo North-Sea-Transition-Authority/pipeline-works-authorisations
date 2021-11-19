@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -43,7 +44,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;

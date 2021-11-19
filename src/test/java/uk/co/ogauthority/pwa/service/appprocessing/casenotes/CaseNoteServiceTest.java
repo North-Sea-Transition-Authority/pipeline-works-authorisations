@@ -22,6 +22,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -38,8 +40,6 @@ import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryIte
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.DataItemRow;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.util.DateUtils;

@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -44,7 +45,6 @@ import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUt
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationDetailSearchService;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContextTestUtil;

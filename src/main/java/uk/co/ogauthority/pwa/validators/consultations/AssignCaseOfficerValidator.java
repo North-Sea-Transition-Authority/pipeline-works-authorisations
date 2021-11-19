@@ -7,10 +7,10 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 
 @Service
 public class AssignCaseOfficerValidator implements SmartValidator {

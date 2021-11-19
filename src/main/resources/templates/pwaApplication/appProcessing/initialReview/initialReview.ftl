@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
+<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 
 <@defaultPage htmlTitle="${appRef} Accept application" breadcrumbs=true fullWidthColumn=true>
 

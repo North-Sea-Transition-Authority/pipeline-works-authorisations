@@ -1,6 +1,6 @@
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
+<#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
 
 <#macro banner view canUpdate=false taskListUrl="">

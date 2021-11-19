@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -40,7 +41,6 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PwaApplicationCreationServiceTest {

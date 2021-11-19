@@ -4,10 +4,10 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.ApplicationDeletionException;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
 
 /**
  * Service to delete pwa applications.

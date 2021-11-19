@@ -2,13 +2,13 @@ package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
-import uk.co.ogauthority.pwa.controller.search.consents.ConsentFileController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaPipelineViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.AppProcessingTab;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.controller.CaseManagementController;
+import uk.co.ogauthority.pwa.features.consents.viewconsent.controller.ConsentFileController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 

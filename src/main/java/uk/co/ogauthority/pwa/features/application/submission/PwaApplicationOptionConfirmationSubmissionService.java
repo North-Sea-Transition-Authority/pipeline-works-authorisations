@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.workflow.application.PwaApplicationWorkflowTask;
 
 /**
  * Service to to customise submission behaviour when an update request is responded to.

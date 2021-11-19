@@ -4,7 +4,7 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="nonBlockingTasksWarning" type=" uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning>" -->
+<#-- @ftlvariable name="nonBlockingTasksWarning" type="uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.NonBlockingTasksWarning" -->
 <#-- @ftlvariable name="sosdConsultationRequestView" type="java.util.List<"uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView>" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Issue consent" />

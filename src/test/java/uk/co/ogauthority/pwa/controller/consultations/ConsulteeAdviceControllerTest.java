@@ -16,12 +16,12 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeAdviceView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.PwaAppProcessingPermissionService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 

@@ -6,13 +6,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.controller.appprocessing.CaseManagementController;
-import uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.AppConsentDocController;
 import uk.co.ogauthority.pwa.controller.consultations.ConsultationController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.AppProcessingTab;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.controller.CaseManagementController;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.controller.AppConsentDocController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 
 @Service
 public class AppProcessingBreadcrumbService {

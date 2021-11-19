@@ -20,16 +20,16 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.FileLinkNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationNoChecks;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 

@@ -11,6 +11,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
@@ -27,8 +29,6 @@ import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationP
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 
 @Service
 public class PublicNoticeDraftService {

@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.enums.workflow.publicnotice;
 
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowProperty;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowProperty;
 
 /**
  * Defines workflow property values associated with a public notice in case officer review stage.

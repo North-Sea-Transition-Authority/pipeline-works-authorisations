@@ -4,10 +4,10 @@
 
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="parallelConsentViews" type="java.util.List<uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ParallelConsentView>" -->
-<#-- @ftlvariable name="nonBlockingTasksWarning" type=" uk.co.ogauthority.pwa.service.appprocessing.appprocessingwarning.NonBlockingTasksWarning>" -->
+<#-- @ftlvariable name="parallelConsentViews" type="java.util.List<uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.ParallelConsentView>" -->
+<#-- @ftlvariable name="nonBlockingTasksWarning" type="uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.NonBlockingTasksWarning" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.controller.appprocessing.prepareconsent.SendForApprovalUrlFactory" -->
+<#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.SendForApprovalUrlFactory" -->
 <#-- @ftlvariable name="markdownPreviewHtml" type="String" -->
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Send consent for approval" />

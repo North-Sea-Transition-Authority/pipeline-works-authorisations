@@ -7,7 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 
 
 @Entity
