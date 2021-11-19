@@ -20,7 +20,7 @@
         <#if depositDrawingView.fileId??>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">File description</dt>
-                <dd class="govuk-summary-list__value"> ${depositDrawingView.documentDescription}</dd>                 
+                <dd class="govuk-summary-list__value"> ${depositDrawingView.documentDescription!}</dd>
             </div>
         </#if>
         <div class="govuk-summary-list__row">
