@@ -23,16 +23,17 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.Crossing
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackService;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
+// TODO - this is very obviously doing too much processing for too many different features. Splitting up will not be trivial.
 @Service
 public class PwaApplicationDetailService {
 

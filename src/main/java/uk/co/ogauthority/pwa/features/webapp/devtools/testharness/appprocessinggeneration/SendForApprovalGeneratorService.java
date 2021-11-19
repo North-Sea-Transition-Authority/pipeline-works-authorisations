@@ -4,10 +4,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.form.appprocessing.prepareconsent.SendConsentForApprovalForm;
-import uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.ConsentDocumentService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
 
 @Service
 @Profile("test-harness")

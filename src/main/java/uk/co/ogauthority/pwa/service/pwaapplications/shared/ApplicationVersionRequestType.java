@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.shared;
 
 import java.util.EnumSet;
 import java.util.Set;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 
 public enum ApplicationVersionRequestType {
   CURRENT_DRAFT(

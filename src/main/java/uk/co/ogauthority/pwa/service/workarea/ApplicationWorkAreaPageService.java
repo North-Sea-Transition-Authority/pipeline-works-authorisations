@@ -25,12 +25,12 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication_;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact_;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment_;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem_;
-import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
-import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment_;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
 

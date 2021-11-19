@@ -1,7 +1,7 @@
 <#include '../../../layoutPane.ftl'>
 
-<#-- @ftlvariable name="consentDocumentUrlProvider" type="uk.co.ogauthority.pwa.service.appprocessing.prepareconsent.ConsentDocumentUrlProvider" -->
-<#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission>" -->
+<#-- @ftlvariable name="consentDocumentUrlProvider" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentDocumentUrlProvider" -->
+<#-- @ftlvariable name="userProcessingPermissions" type="java.util.Set<uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission>" -->
 <#-- @ftlvariable name="openConsentReview" type="java.lang.Boolean" -->
 
 <#macro actions userProcessingPermissions consentDocumentUrlProvider openConsentReview>

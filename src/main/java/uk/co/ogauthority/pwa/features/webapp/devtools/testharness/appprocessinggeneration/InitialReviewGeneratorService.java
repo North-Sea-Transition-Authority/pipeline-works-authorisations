@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appprocessing
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
-import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewService;
 
 @Service
 @Profile("test-harness")

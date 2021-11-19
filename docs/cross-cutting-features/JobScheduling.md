@@ -14,7 +14,7 @@ To schedule a new type of job implement the following:
 ### Add a `QuartzJobBean` implementation
 Create a new class which extends `QuartzJobBean`. Implement the `executeInternal` method and run whatever logic you need to do when the job is triggered.
 
-See `uk.co.ogauthority.pwa.service.appprocessing.processingcharges.jobs.PaymentAttemptCleanupBean` for an example.
+See `uk.co.ogauthority.pwa.features.appprocessing.processingcharges.jobs.PaymentAttemptCleanupBean` for an example.
 
 ### Schedule a new job run
 Create a new `JobKey` (which must be unique across all jobs). This is usually composed of an ID and an identifier.

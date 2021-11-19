@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates;
 
 
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView;
+
 public class ApplicationUpdateSummaryView {
 
 
