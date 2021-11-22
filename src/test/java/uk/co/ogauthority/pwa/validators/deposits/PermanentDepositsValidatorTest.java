@@ -38,14 +38,12 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValid
 @RunWith(MockitoJUnitRunner.class)
 public class PermanentDepositsValidatorTest {
 
-
   private final String CONCRETE_MATTRESS_LENGTH_ATTR = "concreteMattressLength";
   private final String CONCRETE_MATTRESS_WIDTH_ATTR = "concreteMattressWidth";
   private final String CONCRETE_MATTRESS_DEPTH_ATTR = "concreteMattressDepth";
 
   private final static Instant TODAY_TS = Instant.now();
   private final static LocalDate TODAY = DateUtils.instantToLocalDate(TODAY_TS);
-
 
   private PermanentDepositsValidator validator;
 
@@ -463,6 +461,14 @@ public class PermanentDepositsValidatorTest {
     assertThat(errorsMap).contains(entry("quantityConcrete", Set.of("quantityConcrete.invalid")));
   }
 
+  @Test
+  public void validate_concrete_contingencyTooBig() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setContingencyConcreteAmount(StringUtils.repeat('a', 151));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("contingencyConcreteAmount", Set.of("contingencyConcreteAmount.maxLengthExceeded")));
+  }
 
   @Test
   public void validate_rocks_noSizeData() {
@@ -481,6 +487,15 @@ public class PermanentDepositsValidatorTest {
     assertThat(errorsMap).contains(entry("quantityRocks", Set.of("quantityRocks.invalid")));
   }
 
+  @Test
+  public void validate_rocks_contingencyTooBig() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.ROCK);
+    form.setQuantityRocks("qq");
+    form.setContingencyRocksAmount(StringUtils.repeat('a', 151));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("contingencyRocksAmount", Set.of("contingencyRocksAmount.maxLengthExceeded")));
+  }
 
   @Test
   public void validate_groutBags_noSizeData() {
@@ -516,6 +531,24 @@ public class PermanentDepositsValidatorTest {
     assertThat(errorsMap).contains(entry("bioGroutBagsNotUsedDescription", Set.of("bioGroutBagsNotUsedDescription.blank")));
   }
 
+  @Test
+  public void validate_groutBags_bioDegradableNotUsedDescription_tooBig() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsBioDegradable(false);
+    form.setBioGroutBagsNotUsedDescription(StringUtils.repeat('a', 5000));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("bioGroutBagsNotUsedDescription", Set.of("bioGroutBagsNotUsedDescription.maxLengthExceeded")));
+  }
+
+  @Test
+  public void validate_groutBags_contingencyTooBig() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setContingencyGroutBagsAmount(StringUtils.repeat('a', 151));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("contingencyGroutBagsAmount", Set.of("contingencyGroutBagsAmount.maxLengthExceeded")));
+  }
 
   @Test
   public void validate_otherMaterial_noSizeData() {
@@ -535,7 +568,7 @@ public class PermanentDepositsValidatorTest {
   }
 
   @Test
-  public void validate_contingencyOtherAmount_maxCharLengthExceeded() {
+  public void validate_contingencyOtherAmount_tooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
     form.setQuantityRocks("no num");
