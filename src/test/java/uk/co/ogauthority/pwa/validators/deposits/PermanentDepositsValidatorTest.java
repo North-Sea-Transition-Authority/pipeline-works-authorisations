@@ -211,7 +211,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_startDate_beforeStartOfWorksDate_invalid() {
 
     var startDate = TODAY.minusMonths(1L);
-    var form = PadPermanentDepositTestUtil.createFormWithStartDate(startDate.getMonthValue(), TODAY.getYear());
+    var form = PadPermanentDepositTestUtil.createFormWithStartDate(startDate.getMonthValue(), startDate.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, form, PadPermanentDepositTestUtil.createValidationHintsWithTimestamp(pwaApplicationDetail, TODAY_TS));
     assertThat(errorsMap).contains(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
