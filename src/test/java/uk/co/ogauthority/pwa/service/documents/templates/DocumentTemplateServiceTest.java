@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionDtoRepository;
@@ -78,7 +79,7 @@ public class DocumentTemplateServiceTest {
 
   private DocumentTemplateService documentTemplateService;
 
-  private Person person = PersonTestUtil.createDefaultPerson();
+  private final Person person = PersonTestUtil.createDefaultPerson();
 
   @Before
   public void setUp() {
@@ -116,7 +117,8 @@ public class DocumentTemplateServiceTest {
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
 
-    when(templateSectionClauseVersionRepository.getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrue(sections))
+    when(templateSectionClauseVersionRepository
+        .getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrueAndStatusIs(sections, SectionClauseVersionStatus.ACTIVE))
         .thenReturn(clauseVersions);
 
     documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
