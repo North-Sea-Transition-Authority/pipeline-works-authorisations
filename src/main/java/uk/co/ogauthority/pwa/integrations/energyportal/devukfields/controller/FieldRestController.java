@@ -29,7 +29,6 @@ public class FieldRestController {
   private final DevukFieldService devukFieldService;
   private final SearchSelectorService searchSelectorService;
 
-
   @Autowired
   public FieldRestController(DevukFieldService devukFieldService,
                              SearchSelectorService searchSelectorService) {
@@ -37,20 +36,16 @@ public class FieldRestController {
     this.searchSelectorService = searchSelectorService;
   }
 
-
-
-
   @GetMapping("/{applicationId}/fields/search")
   @ResponseBody
   public RestSearchResult searchFields(@PathVariable("applicationId") Integer applicationId,
                                        PwaApplicationContext applicationContext,
                                        @RequestParam("term") String searchTerm) {
 
-    Set<SearchIdValueSelection> selectionSet = devukFieldService.getByStatusCodes(List.of(500, 600, 700))
+    Set<SearchIdValueSelection> selectionSet = devukFieldService.getAllFields()
         .stream()
         .map(devukField -> new SearchIdValueSelection(devukField.getFieldId().toString(), devukField.getFieldName()))
         .collect(Collectors.toSet());
-
 
     // Search and filter out unmatched names
     List<RestSearchItem> results = searchSelectorService.search(searchTerm, selectionSet)
@@ -61,6 +56,7 @@ public class FieldRestController {
     // Add manual entry if no match
     searchSelectorService.addManualEntry(searchTerm, results, ManualEntryAttribute.WITH_FREE_TEXT_PREFIX);
     return new RestSearchResult(results);
+
   }
 
 }

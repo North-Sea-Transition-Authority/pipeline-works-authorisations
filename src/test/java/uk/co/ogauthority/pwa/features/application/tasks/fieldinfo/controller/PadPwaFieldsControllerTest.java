@@ -89,7 +89,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
     when(padFieldService.getActiveFieldsForApplicationDetail(any())).thenReturn(List.of(padField));
 
-    when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of(devukField));
+    when(devukFieldService.getAllFields()).thenReturn(List.of(devukField));
 
     doCallRealMethod().when(applicationBreadcrumbService).fromTaskList(any(), any(), any());
     // set default checks for entire controller

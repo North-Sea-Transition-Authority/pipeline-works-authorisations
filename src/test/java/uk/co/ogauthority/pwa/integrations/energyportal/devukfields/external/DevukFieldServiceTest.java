@@ -14,7 +14,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldRepository;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DevukFieldServiceTest {
@@ -30,24 +29,12 @@ public class DevukFieldServiceTest {
   }
 
   @Test
-  public void getByOrganisationUnitAndStatusRange() {
-    var orgUnit = new PortalOrganisationUnit();
-    var field = new DevukField();
-    var statusCodes = List.of(100, 200, 300);
-    when(devukFieldRepository.findAllByOperatorOuIdAndStatusIn(orgUnit.getOuId(), statusCodes)).thenReturn(
-        List.of(field));
-    assertThat(devukFieldService.getByOrganisationUnitWithStatusCodes(orgUnit, statusCodes)).containsExactly(field);
-    verify(devukFieldRepository, times(1)).findAllByOperatorOuIdAndStatusIn(orgUnit.getOuId(), statusCodes);
-  }
-
-  @Test
   public void getByStatusRange() {
     var field = new DevukField();
-    var statusCodes = List.of(100, 200, 300);
-    when(devukFieldRepository.findAllByStatusIn(statusCodes)).thenReturn(
-            List.of(field));
-    assertThat(devukFieldService.getByStatusCodes(statusCodes)).containsExactly(field);
-    verify(devukFieldRepository, times(1)).findAllByStatusIn(statusCodes);
+    var statusCodes = List.of(9999);
+    when(devukFieldRepository.findAllByStatusNotIn(statusCodes)).thenReturn(List.of(field));
+    assertThat(devukFieldService.getAllFields()).containsExactly(field);
+    verify(devukFieldRepository, times(1)).findAllByStatusNotIn(statusCodes);
   }
 
   @Test
@@ -62,4 +49,5 @@ public class DevukFieldServiceTest {
     when(devukFieldRepository.findById(2)).thenReturn(Optional.empty());
     devukFieldService.findById(2);
   }
+
 }

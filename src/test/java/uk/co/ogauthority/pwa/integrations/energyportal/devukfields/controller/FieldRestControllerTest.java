@@ -63,7 +63,7 @@ public class FieldRestControllerTest extends PwaApplicationContextAbstractContro
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-    when(devukFieldService.getByStatusCodes(List.of(500, 600, 700))).thenReturn(List.of());
+    when(devukFieldService.getAllFields()).thenReturn(List.of());
 
     var context = new PwaApplicationContext(pwaApplicationDetail, user, Set.of());
     when(pwaApplicationContextService.validateAndCreate(any())).thenReturn(context);
