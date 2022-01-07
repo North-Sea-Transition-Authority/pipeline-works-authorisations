@@ -8,8 +8,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 @Repository
 public interface DevukFieldRepository extends CrudRepository<DevukField, Integer> {
 
-  List<DevukField> findAllByOperatorOuIdAndStatusIn(Integer operatorOuId, List<Integer> statusCodes);
-
-  List<DevukField> findAllByStatusIn(List<Integer> statusCodes);
+  List<DevukField> findAllByStatusNotIn(List<Integer> statusCodes);
 
 }

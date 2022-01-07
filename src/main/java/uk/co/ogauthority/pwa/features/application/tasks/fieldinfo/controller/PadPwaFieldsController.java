@@ -116,11 +116,12 @@ public class PadPwaFieldsController {
   }
 
   private Map<String, String> getDevukFieldMap() {
-    return devukFieldService.getByStatusCodes(List.of(500, 600, 700))
+    return devukFieldService.getAllFields()
             .stream()
             .sorted(Comparator.comparing(DevukField::getFieldName))
-            .collect(
-                    StreamUtils.toLinkedHashMap(devukField -> devukField.getFieldId().toString(), DevukField::getFieldName));
+            .collect(StreamUtils.toLinkedHashMap(
+                devukField -> devukField.getFieldId().toString(),
+                DevukField::getFieldName));
   }
 
 }
