@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentDocumentEmailService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -36,7 +36,7 @@ public class ConsentDocumentEmailServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaTeamService pwaTeamService;
@@ -58,10 +58,10 @@ public class ConsentDocumentEmailServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    when(emailCaseLinkService.generateCaseManagementLink(any())).thenReturn("my case link");
+    when(caseLinkService.generateCaseManagementLink(any())).thenReturn("my case link");
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
 
-    consentDocumentEmailService = new ConsentDocumentEmailService(notifyService, emailCaseLinkService, pwaTeamService);
+    consentDocumentEmailService = new ConsentDocumentEmailService(notifyService, caseLinkService, pwaTeamService);
 
   }
 

@@ -16,7 +16,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -53,7 +53,7 @@ public class ConsultationRequestService {
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   private static final Set<ConsultationRequestStatus> ENDED_STATUSES =
       Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN);
@@ -68,7 +68,7 @@ public class ConsultationRequestService {
       ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
       NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService) {
+      CaseLinkService caseLinkService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
     this.consultationRequestValidator = consultationRequestValidator;
@@ -77,7 +77,7 @@ public class ConsultationRequestService {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationsStatusViewFactory = consultationsStatusViewFactory;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroups() {
@@ -95,7 +95,7 @@ public class ConsultationRequestService {
         consultationRequest.getConsulteeGroup()).getName();
 
     emailRecipients.forEach(recipient -> {
-      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
+      var caseManagementLink = caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
       var emailProps = buildRequestReceivedEmailProps(recipient, consultationRequest, consulteeGroupName, caseManagementLink);
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });

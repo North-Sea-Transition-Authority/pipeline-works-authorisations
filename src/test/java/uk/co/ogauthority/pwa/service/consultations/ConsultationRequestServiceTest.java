@@ -24,7 +24,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -75,7 +75,7 @@ public class ConsultationRequestServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private ConsultationsStatusViewFactory consultationsStatusViewFactory;
@@ -108,7 +108,7 @@ public class ConsultationRequestServiceTest {
         consulteeGroupTeamService,
         consultationsStatusViewFactory,
         notifyService,
-        emailCaseLinkService);
+        caseLinkService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
 
@@ -155,7 +155,7 @@ public class ConsultationRequestServiceTest {
     ArgumentCaptor<String> expectedToEmailAddress = ArgumentCaptor.forClass(String.class);
     verify(notifyService, times(2)).sendEmail(expectedEmailProps.capture(), expectedToEmailAddress.capture());
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
     List<ConsultationRequestReceivedEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
         teamMember1.getPerson().getFullName(),

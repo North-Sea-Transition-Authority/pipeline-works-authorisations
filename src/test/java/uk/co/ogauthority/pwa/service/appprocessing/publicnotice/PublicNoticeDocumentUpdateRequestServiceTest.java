@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -53,7 +53,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -77,7 +77,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   public void setUp() {
 
     publicNoticeDocumentUpdateRequestService = new PublicNoticeDocumentUpdateRequestService(publicNoticeService, validator,
-        publicNoticeDocumentRepository, camundaWorkflowService, emailCaseLinkService, pwaContactService, notifyService);
+        publicNoticeDocumentRepository, camundaWorkflowService, caseLinkService, pwaContactService, notifyService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -158,7 +158,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
     when(publicNoticeService.savePublicNotice(newPublicNotice)).thenReturn(newPublicNotice);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);

@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
@@ -53,7 +53,7 @@ public class AssignCaseOfficerServiceTest {
   @Mock
   private PersonService personService;
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
   @Mock
   private AssignCaseOfficerValidator assignCaseOfficerValidator;
 
@@ -73,7 +73,7 @@ public class AssignCaseOfficerServiceTest {
         notifyService,
         personService,
         assignCaseOfficerValidator,
-        emailCaseLinkService);
+        caseLinkService);
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
   }
 
@@ -95,7 +95,7 @@ public class AssignCaseOfficerServiceTest {
     when(personService.getPersonById(appDetail.getSubmittedByPersonId())).thenReturn(assigningPerson);
 
     var caseLink = "case link";
-    when(emailCaseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn(caseLink);
+    when(caseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn(caseLink);
 
     assignCaseOfficerService.assignCaseOfficer(form.getCaseOfficerPerson(), appDetail, assigningUser);
 

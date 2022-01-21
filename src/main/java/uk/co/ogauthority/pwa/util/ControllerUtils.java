@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.controller.feedback.FeedbackController;
@@ -55,7 +56,11 @@ public class ControllerUtils {
   }
 
   public static String getFeedbackUrl(Integer pwaApplicationDetailId) {
-    return ReverseRouter.route(on(FeedbackController.class).getFeedback(pwaApplicationDetailId, null, null));
+    return ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(pwaApplicationDetailId), null, null));
+  }
+
+  public static String getFeedbackUrl() {
+    return ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null));
   }
 
 }

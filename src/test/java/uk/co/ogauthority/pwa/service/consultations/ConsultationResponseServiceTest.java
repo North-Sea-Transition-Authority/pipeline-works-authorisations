@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
@@ -91,7 +91,7 @@ public class ConsultationResponseServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;
@@ -135,7 +135,7 @@ public class ConsultationResponseServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     application = detail.getPwaApplication();
 
-    when(emailCaseLinkService.generateCaseManagementLink(application)).thenReturn("http://case-link");
+    when(caseLinkService.generateCaseManagementLink(application)).thenReturn("http://case-link");
 
     consultationResponseService = new ConsultationResponseService(
         consultationRequestService,
@@ -145,7 +145,7 @@ public class ConsultationResponseServiceTest {
         notifyService,
         consulteeGroupDetailService,
         workflowAssignmentService,
-        emailCaseLinkService,
+        caseLinkService,
         consultationResponseDataService,
         consultationResponseFileLinkRepository,
         appFileService);

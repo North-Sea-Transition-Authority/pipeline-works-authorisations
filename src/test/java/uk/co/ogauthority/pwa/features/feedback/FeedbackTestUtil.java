@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.service.feedback;
+package uk.co.ogauthority.pwa.features.feedback;
 
 import uk.co.ogauthority.pwa.model.enums.feedback.ServiceFeedbackRating;
 import uk.co.ogauthority.pwa.model.form.feedback.FeedbackForm;

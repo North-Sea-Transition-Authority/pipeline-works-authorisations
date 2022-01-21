@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.CaseOfficerConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
@@ -44,7 +44,7 @@ public class ConsentEmailServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PersonService personService;
@@ -75,9 +75,9 @@ public class ConsentEmailServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    consentEmailService = new ConsentEmailService(notifyService, emailCaseLinkService, personService, assignmentService);
+    consentEmailService = new ConsentEmailService(notifyService, caseLinkService, personService, assignmentService);
 
-    when(emailCaseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
+    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
 
   }
 
@@ -93,7 +93,7 @@ public class ConsentEmailServiceTest {
         "RETURNING_PERSON_NAME", returningUser.getLinkedPerson().getFullName(),
         "APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef(),
         "RETURN_REASON", "return reason",
-        "CASE_MANAGEMENT_LINK", emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
+        "CASE_MANAGEMENT_LINK", caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())
     ));
   }
 
@@ -135,7 +135,7 @@ public class ConsentEmailServiceTest {
         verify(notifyService, atLeastOnce()).sendEmail(consentIssuedEmailPropsCaptor.capture(),
             eq(recipientPerson.getEmailAddress()));
 
-        var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+        var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
         assertThat(consentIssuedEmailPropsCaptor.getValue().getTemplate()).isEqualTo(pwaApplicationType.getConsentIssueEmail().getHolderEmailTemplate());
 
@@ -172,7 +172,7 @@ public class ConsentEmailServiceTest {
           emailRecipientPersons
       );
 
-      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+      var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
       emailRecipientPersons.forEach(recipientPerson -> {
 

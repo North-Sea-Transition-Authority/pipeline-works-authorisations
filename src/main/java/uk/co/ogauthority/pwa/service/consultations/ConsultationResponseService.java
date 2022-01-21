@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingServic
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
@@ -63,7 +63,7 @@ public class ConsultationResponseService implements AppProcessingService {
   private final NotifyService notifyService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
   private final AppFileService appFileService;
@@ -78,7 +78,7 @@ public class ConsultationResponseService implements AppProcessingService {
                                      NotifyService notifyService,
                                      ConsulteeGroupDetailService consulteeGroupDetailService,
                                      WorkflowAssignmentService workflowAssignmentService,
-                                     EmailCaseLinkService emailCaseLinkService,
+                                     CaseLinkService caseLinkService,
                                      ConsultationResponseDataService consultationResponseDataService,
                                      ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
                                      AppFileService appFileService) {
@@ -89,7 +89,7 @@ public class ConsultationResponseService implements AppProcessingService {
     this.notifyService = notifyService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.consultationResponseDataService = consultationResponseDataService;
     this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
     this.appFileService = appFileService;
@@ -205,7 +205,7 @@ public class ConsultationResponseService implements AppProcessingService {
           application.getAppReference(),
           consulteeGroupName,
           responses,
-          emailCaseLinkService.generateCaseManagementLink(application)
+          caseLinkService.generateCaseManagementLink(application)
       );
 
     } else {
@@ -215,7 +215,7 @@ public class ConsultationResponseService implements AppProcessingService {
           application.getAppReference(),
           consulteeGroupName,
           getConsultationResponseEmailText(responseDataList.get(0), responseDataList.get(0).getResponseType().getLabelText()),
-          emailCaseLinkService.generateCaseManagementLink(application)
+          caseLinkService.generateCaseManagementLink(application)
       );
 
     }

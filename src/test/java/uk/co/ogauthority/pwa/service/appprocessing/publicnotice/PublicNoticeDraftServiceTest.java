@@ -22,7 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
@@ -66,7 +66,7 @@ public class PublicNoticeDraftServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaTeamService pwaTeamService;
@@ -102,7 +102,7 @@ public class PublicNoticeDraftServiceTest {
         appFileService,
         publicNoticeService,
         camundaWorkflowService,
-        clock, notifyService, emailCaseLinkService, pwaTeamService);
+        clock, notifyService, caseLinkService, pwaTeamService);
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -172,7 +172,7 @@ public class PublicNoticeDraftServiceTest {
     when(publicNoticeService.savePublicNoticeDocument(expectedPublicNoticeDocument)).thenReturn(expectedPublicNoticeDocument);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
 
     var pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(1));
     var pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(2));
