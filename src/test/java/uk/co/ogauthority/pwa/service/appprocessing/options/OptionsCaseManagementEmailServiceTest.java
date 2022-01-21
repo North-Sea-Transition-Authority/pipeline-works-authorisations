@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.OptionsVariationClosedWithoutConsentEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
@@ -58,7 +58,7 @@ public class OptionsCaseManagementEmailServiceTest {
   private static final PersonId CASE_OFFICER_PERSON_ID = new PersonId(2);
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private NotifyService notifyService;
@@ -114,7 +114,7 @@ public class OptionsCaseManagementEmailServiceTest {
     when(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa))
         .thenReturn(Set.of(masterPwaHolderDto));
 
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()))
+    when(caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(CASE_LINK);
 
     when(pwaContactService.getPeopleInRoleForPwaApplication(
@@ -123,7 +123,7 @@ public class OptionsCaseManagementEmailServiceTest {
         .thenReturn(List.of(preparerContactPerson));
 
     optionsCaseManagementEmailService = new OptionsCaseManagementEmailService(
-        emailCaseLinkService,
+        caseLinkService,
         notifyService,
         pwaContactService,
         pwaConsentOrganisationRoleService,

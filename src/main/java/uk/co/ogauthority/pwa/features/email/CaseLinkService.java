@@ -14,7 +14,7 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
 @Service
-public class EmailCaseLinkService {
+public class CaseLinkService {
 
   @Value("${pwa.url.base}")
   private String pwaUrlBase;

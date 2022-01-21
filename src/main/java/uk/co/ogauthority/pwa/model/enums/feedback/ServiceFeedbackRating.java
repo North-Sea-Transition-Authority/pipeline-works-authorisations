@@ -8,7 +8,7 @@ public enum ServiceFeedbackRating {
 
   VERY_SATISFIED("Very satisfied"),
   SATISFIED("Satisfied"),
-  NEUTRAL("Neither satisfied or dissatisfied"),
+  NEITHER("Neither satisfied or dissatisfied"),
   DISSATISFIED("Dissatisfied"),
   VERY_DISSATISFIED("Very dissatisfied");
 

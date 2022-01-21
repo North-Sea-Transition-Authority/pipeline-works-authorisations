@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ApplicationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -35,7 +35,7 @@ public class WithdrawApplicationService implements AppProcessingService {
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
   private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   @Autowired
   public WithdrawApplicationService(
@@ -46,7 +46,7 @@ public class WithdrawApplicationService implements AppProcessingService {
       ApplicationUpdateRequestService applicationUpdateRequestService,
       NotifyService notifyService,
       PwaContactService pwaContactService,
-      EmailCaseLinkService emailCaseLinkService) {
+      CaseLinkService caseLinkService) {
     this.withdrawApplicationValidator = withdrawApplicationValidator;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -54,7 +54,7 @@ public class WithdrawApplicationService implements AppProcessingService {
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
 
@@ -100,7 +100,7 @@ public class WithdrawApplicationService implements AppProcessingService {
           recipient.getFullName(),
           pwaApplication.getAppReference(),
           withdrawingUser.getFullName(),
-          emailCaseLinkService.generateCaseManagementLink(pwaApplication)
+          caseLinkService.generateCaseManagementLink(pwaApplication)
       );
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -38,7 +38,7 @@ public class PublicNoticeDraftService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final PwaTeamService pwaTeamService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
@@ -49,14 +49,14 @@ public class PublicNoticeDraftService {
       PublicNoticeService publicNoticeService,
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock, NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService,
+      CaseLinkService caseLinkService,
       PwaTeamService pwaTeamService) {
     this.appFileService = appFileService;
     this.publicNoticeService = publicNoticeService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.pwaTeamService = pwaTeamService;
   }
 
@@ -141,7 +141,7 @@ public class PublicNoticeDraftService {
 
   private void sendPublicNoticeApprovalEmails(PwaApplication pwaApplication, String publicNoticeReason) {
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
 

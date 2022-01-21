@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactTestUtil;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.ApplicationPaymentRequestCancelledEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.ApplicationPaymentRequestIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignmentFailEmailProps;
@@ -43,7 +43,7 @@ public class AppChargeEmailServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -83,10 +83,10 @@ public class AppChargeEmailServiceTest {
         .thenReturn(List.of(contact1, contact2));
 
     appChargeEmailService = new AppChargeEmailService(
-        pwaTeamService, pwaContactService, notifyService, emailCaseLinkService
+        pwaTeamService, pwaContactService, notifyService, caseLinkService
     );
 
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(CASE_LINK);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(CASE_LINK);
 
   }
 

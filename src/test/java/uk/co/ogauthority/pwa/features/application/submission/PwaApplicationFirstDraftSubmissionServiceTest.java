@@ -20,7 +20,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
@@ -47,7 +47,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   private PadPipelineNumberingService padPipelineNumberingService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropsCaptor;
@@ -67,7 +67,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
         notifyService,
         pwaTeamService,
         padPipelineNumberingService,
-        emailCaseLinkService);
+        caseLinkService);
 
     person = new Person(PERSON_ID.asInt(), "first", "second", "email", "tel");
   }
@@ -100,7 +100,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager1, pwaManager2));
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
 
     pwaApplicationFirstDraftSubmissionService.doAfterSubmit(pwaApplicationDetail);
 

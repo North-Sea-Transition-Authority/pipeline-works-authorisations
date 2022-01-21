@@ -16,7 +16,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ReviewAndSubmitApplicationEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -32,7 +32,7 @@ public class SendAppToSubmitterServiceTest {
   private NotifyService notifyService;
 
   @Spy
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -47,7 +47,7 @@ public class SendAppToSubmitterServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    sendAppToSubmitterService = new SendAppToSubmitterService(notifyService, emailCaseLinkService, applicationUpdateRequestService);
+    sendAppToSubmitterService = new SendAppToSubmitterService(notifyService, caseLinkService, applicationUpdateRequestService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -89,7 +89,7 @@ public class SendAppToSubmitterServiceTest {
     assertThat(emailPropsCaptor.getValue()).satisfies(props -> {
       assertThat(props.getApplicationReference()).isEqualTo(detail.getPwaApplicationRef());
       assertThat(props.getRequesterFullName()).isEqualTo(sendingPerson.getFullName());
-      assertThat(props.getReviewAndSubmitPageUrl()).isEqualTo(emailCaseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication()));
+      assertThat(props.getReviewAndSubmitPageUrl()).isEqualTo(caseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication()));
       assertThat(props.getRecipientFullName()).isEqualTo(recipientPerson.getFullName());
     });
   }

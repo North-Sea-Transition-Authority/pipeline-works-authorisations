@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.OptionsVariationClosedWithoutConsentEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.ApplicationOptionsApprovalDeadlineChangedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
@@ -34,7 +34,7 @@ class OptionsCaseManagementEmailService {
 
   private static final DateTimeFormatter DEADLINE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMMM-yyyy");
 
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   private final NotifyService notifyService;
 
@@ -46,13 +46,13 @@ class OptionsCaseManagementEmailService {
 
   private final PadOptionConfirmedService padOptionConfirmedService;
 
-  public OptionsCaseManagementEmailService(EmailCaseLinkService emailCaseLinkService,
+  public OptionsCaseManagementEmailService(CaseLinkService caseLinkService,
                                            NotifyService notifyService,
                                            PwaContactService pwaContactService,
                                            PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                            ApplicationInvolvementService applicationInvolvementService,
                                            PadOptionConfirmedService padOptionConfirmedService) {
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
@@ -72,7 +72,7 @@ class OptionsCaseManagementEmailService {
     var holderNames = getPwaApplicationConsentedHolderNames(pwaApplication);
     var formattedDeadlineDate = deadlineDateAsString(deadlineDate);
     var holderCsv = String.join(", ", holderNames);
-    var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     if (!recipients.isEmpty()) {
       recipients.forEach(person ->
@@ -105,7 +105,7 @@ class OptionsCaseManagementEmailService {
 
     var caseOfficerPersonOpt = applicationInvolvementService.getCaseOfficerPerson(pwaApplication);
 
-    var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
     var formattedDeadlineDate = deadlineDateAsString(deadlineDate);
 
     var pwaContactRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
@@ -172,7 +172,7 @@ class OptionsCaseManagementEmailService {
           pwaApplication.getAppReference(),
           confirmedOptionType,
           closingPerson.getFullName(),
-          emailCaseLinkService.generateCaseManagementLink(pwaApplication)
+          caseLinkService.generateCaseManagementLink(pwaApplication)
       );
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });

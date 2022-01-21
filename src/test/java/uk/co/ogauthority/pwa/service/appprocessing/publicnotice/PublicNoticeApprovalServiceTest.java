@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
@@ -64,7 +64,7 @@ public class PublicNoticeApprovalServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -92,7 +92,7 @@ public class PublicNoticeApprovalServiceTest {
   public void setUp() {
 
     publicNoticeApprovalService = new PublicNoticeApprovalService(publicNoticeService, validator,
-        camundaWorkflowService, clock, notifyService, emailCaseLinkService, pwaContactService,
+        camundaWorkflowService, clock, notifyService, caseLinkService, pwaContactService,
         personService, assignmentService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -135,7 +135,7 @@ public class PublicNoticeApprovalServiceTest {
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice)).thenReturn(publicNoticeRequest);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);
@@ -179,7 +179,7 @@ public class PublicNoticeApprovalServiceTest {
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice)).thenReturn(publicNoticeRequest);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
 
     var caseOfficerPerson = PersonTestUtil.createDefaultPerson();
     var caseOfficerAssignment = new Assignment

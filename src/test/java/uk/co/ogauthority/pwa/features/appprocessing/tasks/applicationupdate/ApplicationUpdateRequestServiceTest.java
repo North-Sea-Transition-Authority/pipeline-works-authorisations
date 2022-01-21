@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTas
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
@@ -100,7 +100,7 @@ public class ApplicationUpdateRequestServiceTest {
   private ApproveOptionsService approveOptionsService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -148,14 +148,14 @@ public class ApplicationUpdateRequestServiceTest {
         workflowAssignmentService,
         personService,
         approveOptionsService,
-        emailCaseLinkService);
+        caseLinkService);
 
     defaultUpdateRequest = new ApplicationUpdateRequest();
     defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
     defaultUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
 
     when(personService.getPersonById(REQUESTER_PERSON_ID)).thenReturn(requesterPerson);
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(CASE_MANAGEMENT_LINK);
+    when(caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(CASE_MANAGEMENT_LINK);
   }
 
   @Test

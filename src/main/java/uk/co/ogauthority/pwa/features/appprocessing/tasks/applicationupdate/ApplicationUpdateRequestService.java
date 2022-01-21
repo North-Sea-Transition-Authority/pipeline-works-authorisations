@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTas
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowMessageEvents;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateResponseEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
@@ -54,7 +54,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final PersonService personService;
   private final ApproveOptionsService approveOptionsService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
@@ -65,7 +65,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
                                          WorkflowAssignmentService workflowAssignmentService,
                                          PersonService personService,
                                          ApproveOptionsService approveOptionsService,
-                                         EmailCaseLinkService emailCaseLinkService) {
+                                         CaseLinkService caseLinkService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
     this.notifyService = notifyService;
@@ -74,7 +74,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
     this.workflowAssignmentService = workflowAssignmentService;
     this.personService = personService;
     this.approveOptionsService = approveOptionsService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
 
@@ -199,7 +199,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
                   person.getFullName(),
                   pwaApplicationDetail.getPwaApplicationRef(),
                   requestingPerson.getFullName(),
-                  emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
+                  caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
               person.getEmailAddress()
           )
       );
@@ -217,7 +217,7 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
         new ApplicationUpdateResponseEmailProps(
             requestedByperson.getFullName(),
             pwaApplicationDetail.getPwaApplicationRef(),
-            emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
+            caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
         requestedByperson.getEmailAddress()
     );
 

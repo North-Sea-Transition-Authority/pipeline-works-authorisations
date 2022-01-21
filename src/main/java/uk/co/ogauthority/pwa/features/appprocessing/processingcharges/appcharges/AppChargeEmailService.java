@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.ApplicationPaymentRequestCancelledEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.ApplicationPaymentRequestIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignmentFailEmailProps;
@@ -22,24 +22,24 @@ class AppChargeEmailService {
   private final PwaTeamService pwaTeamService;
   private final PwaContactService pwaContactService;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   @Autowired
   AppChargeEmailService(PwaTeamService pwaTeamService,
                         PwaContactService pwaContactService,
                         NotifyService notifyService,
-                        EmailCaseLinkService emailCaseLinkService) {
+                        CaseLinkService caseLinkService) {
     this.pwaTeamService = pwaTeamService;
     this.pwaContactService = pwaContactService;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
 
   public void sendFailedToAssignCaseOfficerEmail(PwaApplication pwaApplication) {
 
     var pwaManagerPeople = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
-    var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     for (Person pwaManager : pwaManagerPeople) {
       var emailProps = new CaseOfficerAssignmentFailEmailProps(
@@ -58,7 +58,7 @@ class AppChargeEmailService {
         .stream()
         .map(PwaContact::getPerson)
         .collect(toList());
-    var caseLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     for (Person appContactPerson : appContactPeople) {
       var emailProps = new ApplicationPaymentRequestIssuedEmailProps(

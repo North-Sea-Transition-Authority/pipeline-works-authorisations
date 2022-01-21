@@ -22,16 +22,16 @@ import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class EmailCaseLinkServiceTest {
+public class CaseLinkServiceTest {
 
   @Autowired
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Test
   public void generateCaseManagementLink_application() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    String caseManagementLink = emailCaseLinkService.generateCaseManagementLink(detail.getPwaApplication());
+    String caseManagementLink = caseLinkService.generateCaseManagementLink(detail.getPwaApplication());
 
     assertThat(caseManagementLink).isEqualTo("http://test/test" + CaseManagementUtils.routeCaseManagement(detail.getPwaApplication()));
 
@@ -41,7 +41,7 @@ public class EmailCaseLinkServiceTest {
   public void generateReviewAndSubmitLink_application() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    String caseManagementLink = emailCaseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication());
+    String caseManagementLink = caseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication());
 
     assertThat(caseManagementLink).isEqualTo("http://test/test" + ReverseRouter.route(on(ReviewAndSubmitController.class)
         .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));

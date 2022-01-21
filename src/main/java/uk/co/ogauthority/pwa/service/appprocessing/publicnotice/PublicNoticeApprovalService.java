@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
@@ -38,7 +38,7 @@ public class PublicNoticeApprovalService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final PwaContactService pwaContactService;
   private final PersonService personService;
   private final AssignmentService assignmentService;
@@ -50,7 +50,7 @@ public class PublicNoticeApprovalService {
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock,
       NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService,
+      CaseLinkService caseLinkService,
       PwaContactService pwaContactService,
       PersonService personService, AssignmentService assignmentService) {
     this.publicNoticeService = publicNoticeService;
@@ -58,7 +58,7 @@ public class PublicNoticeApprovalService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.pwaContactService = pwaContactService;
     this.personService = personService;
     this.assignmentService = assignmentService;
@@ -128,7 +128,7 @@ public class PublicNoticeApprovalService {
   private EmailProperties buildApprovalEmailProps(PwaApplication pwaApplication, boolean requestApproved,
                                                   String recipientName, String rejectionReason) {
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     if (requestApproved) {
       return new PublicNoticeApprovedEmailProps(

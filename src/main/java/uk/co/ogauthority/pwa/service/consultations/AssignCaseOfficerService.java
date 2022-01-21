@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingServic
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.ApplicationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
@@ -34,7 +34,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
   private final NotifyService notifyService;
   private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   @Autowired
   public AssignCaseOfficerService(
@@ -43,13 +43,13 @@ public class AssignCaseOfficerService implements AppProcessingService {
       NotifyService notifyService,
       PersonService personService,
       AssignCaseOfficerValidator assignCaseOfficerValidator,
-      EmailCaseLinkService emailCaseLinkService) {
+      CaseLinkService caseLinkService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
     this.notifyService = notifyService;
     this.personService = personService;
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
   public void assignCaseOfficer(PersonId caseOfficerPersonId,
@@ -73,7 +73,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
 
     var props = new CaseOfficerAssignedEmailProps(
         submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName(),
-        emailCaseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
+        caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
     notifyService.sendEmail(props, submitterPerson.getEmailAddress());
   }
 
@@ -82,7 +82,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
                                                     String assigningUserFullName) {
     var props = new ApplicationAssignedToYouEmailProps(caseOfficer.getFullName(), applicationDetail.getPwaApplicationRef(),
         assigningUserFullName,
-        emailCaseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
+        caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
     notifyService.sendEmail(props, caseOfficer.getEmailAddress());
   }
 

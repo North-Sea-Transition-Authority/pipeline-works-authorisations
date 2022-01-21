@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
@@ -28,17 +28,17 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ConsultationRequestService consultationRequestService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final NotifyService notifyService;
 
   @Autowired
   public ConfirmSatisfactoryApplicationService(PwaApplicationDetailService pwaApplicationDetailService,
                                                ConsultationRequestService consultationRequestService,
-                                               EmailCaseLinkService emailCaseLinkService,
+                                               CaseLinkService caseLinkService,
                                                NotifyService notifyService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.consultationRequestService = consultationRequestService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.notifyService = notifyService;
   }
 
@@ -119,7 +119,7 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
       recipients.forEach(recipient -> sendEmail(recipient,
           consultationRequest,
           consulteeGroupAndDetailMap.get(consultationRequest.getConsulteeGroup()).getName(),
-          emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())));
+          caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())));
     });
 
 

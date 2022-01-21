@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDocumentUpdateC
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -48,7 +48,7 @@ public class PublicNoticeDocumentUpdateService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PersonService personService;
   private final AssignmentService assignmentService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final NotifyService notifyService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
@@ -63,7 +63,7 @@ public class PublicNoticeDocumentUpdateService {
       CamundaWorkflowService camundaWorkflowService,
       PersonService personService,
       AssignmentService assignmentService,
-      EmailCaseLinkService emailCaseLinkService,
+      CaseLinkService caseLinkService,
       NotifyService notifyService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDocumentUpdateValidator = publicNoticeDocumentUpdateValidator;
@@ -73,7 +73,7 @@ public class PublicNoticeDocumentUpdateService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.personService = personService;
     this.assignmentService = assignmentService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.notifyService = notifyService;
   }
 
@@ -134,7 +134,7 @@ public class PublicNoticeDocumentUpdateService {
     var caseOfficerAssignment = assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER);
     var caseOfficerPerson = personService.getPersonById(caseOfficerAssignment.getAssigneePersonId());
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
     var emailProps = new PublicNoticeDocumentReviewRequestEmailProps(
         caseOfficerPerson.getFullName(),
         pwaApplication.getAppReference(),

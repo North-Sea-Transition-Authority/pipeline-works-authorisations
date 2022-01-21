@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlinePassedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlineUpcomingEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationNotPerConsentEmailProps;
@@ -20,15 +20,15 @@ class AsBuiltNotificationEmailService {
   private static final Logger LOGGER = LoggerFactory.getLogger(AsBuiltNotificationEmailService.class);
 
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final String ogaConsentsMailboxEmail;
 
   @Autowired
   public AsBuiltNotificationEmailService(NotifyService notifyService,
-                                         EmailCaseLinkService emailCaseLinkService,
+                                         CaseLinkService caseLinkService,
                                          @Value("${oga.consents.email}") String ogaConsentsMailboxEmail) {
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.ogaConsentsMailboxEmail = ogaConsentsMailboxEmail;
   }
 
@@ -42,7 +42,7 @@ class AsBuiltNotificationEmailService {
         asBuiltNotificationGroup.getReference(),
         pipelineDetail.getPipelineNumber(),
         asBuiltNotificationStatus,
-        emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
+        caseLinkService.generateAsBuiltNotificationSummaryLink(
             asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(),
             pipelineDetail.getPipelineId().asInt())
         );
@@ -57,7 +57,7 @@ class AsBuiltNotificationEmailService {
     var emailProps = new AsBuiltNotificationDeadlineUpcomingEmailProps(
         recipientName,
         asBuiltNotificationGroupReferences,
-        emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        caseLinkService.generateAsBuiltNotificationWorkareaLink()
     );
 
     LOGGER.debug("Sending upcoming as-built deadline notification email to {}", recipientEmail);
@@ -71,7 +71,7 @@ class AsBuiltNotificationEmailService {
         recipientName,
         asBuiltNotificationGroupReferences,
         ogaConsentsMailboxEmail,
-        emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        caseLinkService.generateAsBuiltNotificationWorkareaLink()
     );
 
     LOGGER.debug("Sending past as-built deadline notification email to {}", recipientEmail);

@@ -63,7 +63,7 @@ public class DefaultPageControllerAdvice {
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
     model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
-    model.addAttribute("feedbackUrl", ControllerUtils.getContactInformationUrl());
+    model.addAttribute("feedbackUrl", ControllerUtils.getFeedbackUrl());
   }
 
   private void addCurrentUserView(Model model) {

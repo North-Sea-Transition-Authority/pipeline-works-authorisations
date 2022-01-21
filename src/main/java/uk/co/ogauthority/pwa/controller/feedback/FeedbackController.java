@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.feedback;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -14,11 +15,11 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.features.feedback.FeedbackService;
 import uk.co.ogauthority.pwa.model.enums.feedback.ServiceFeedbackRating;
 import uk.co.ogauthority.pwa.model.form.feedback.FeedbackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.feedback.FeedbackService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
@@ -28,8 +29,6 @@ public class FeedbackController {
   private final FeedbackService feedbackService;
   private final ControllerHelperService controllerHelperService;
 
-
-
   @Autowired
   public FeedbackController(FeedbackService feedbackService,
                             ControllerHelperService controllerHelperService) {
@@ -38,11 +37,11 @@ public class FeedbackController {
   }
 
   @GetMapping
-  public ModelAndView getFeedback(@RequestParam(required = false) Integer pwaApplicationDetailId,
+  public ModelAndView getFeedback(@RequestParam(required = false) Optional<Integer> pwaApplicationDetailId,
                                   AuthenticatedUserAccount user,
                                   @ModelAttribute("form") FeedbackForm form) {
 
-    return getFeedbackModelAndView();
+    return getFeedbackModelAndView(form);
   }
 
   @PostMapping
@@ -55,9 +54,13 @@ public class FeedbackController {
     bindingResult = feedbackService.validateFeedbackForm(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getFeedbackModelAndView(),
+        getFeedbackModelAndView(form),
         () -> {
-          feedbackService.saveFeedback(pwaApplicationDetailId, form, user.getLinkedPerson());
+          if (pwaApplicationDetailId != null) {
+            feedbackService.saveFeedback(pwaApplicationDetailId, form, user.getLinkedPerson());
+          } else {
+            feedbackService.saveFeedback(form, user.getLinkedPerson());
+          }
           FlashUtils.success(redirectAttributes, "Your feedback has been submitted");
           return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));
         }
@@ -65,11 +68,13 @@ public class FeedbackController {
   }
 
 
-  private ModelAndView getFeedbackModelAndView() {
+  private ModelAndView getFeedbackModelAndView(FeedbackForm feedbackForm) {
     return new ModelAndView("/feedback/feedback")
+        .addObject("form", feedbackForm)
         .addObject("cancelUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("serviceRatings", ServiceFeedbackRating.getAllAsMap())
-        .addObject("feedbackCharacterLimit", String.valueOf(FeedbackService.FEEDBACK_CHARACTER_LIMIT));
+        .addObject("feedbackCharacterLimit", String.valueOf(FeedbackService.FEEDBACK_CHARACTER_LIMIT))
+        .addObject("showBackLink",feedbackForm.getPwaApplicationDetailId() == null);
   }
 
 

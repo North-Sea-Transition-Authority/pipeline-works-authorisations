@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
@@ -86,7 +86,7 @@ public class AssignResponderServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Captor
   private ArgumentCaptor<ConsultationAssignedToYouEmailProps> emailPropsCaptor;
@@ -101,7 +101,7 @@ public class AssignResponderServiceTest {
         camundaWorkflowService,
         consultationRequestService,
         notifyService,
-        emailCaseLinkService);
+        caseLinkService);
   }
 
   @Test
@@ -141,7 +141,7 @@ public class AssignResponderServiceTest {
         .thenReturn(Set.of(task));
 
     var caseManagementLink = "case link";
-    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
 
     assignResponderService.assignResponder(form, consultationRequest, assigningUser);
 

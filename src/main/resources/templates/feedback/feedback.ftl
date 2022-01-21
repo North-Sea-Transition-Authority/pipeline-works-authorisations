@@ -12,7 +12,7 @@
   htmlTitle=pageTitle
   pageHeading=pageTitle
   topNavigation=false
-  backLink=false
+  backLink=showBackLink
   errorItems=errorList
   phaseBanner=false
 >

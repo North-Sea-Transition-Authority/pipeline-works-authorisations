@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ApplicationWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -66,7 +66,7 @@ public class WithdrawApplicationServiceTest {
   @Mock
   private PwaContactService pwaContactService;
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> appDetailDeleteCaptor;
@@ -95,7 +95,7 @@ public class WithdrawApplicationServiceTest {
         applicationUpdateRequestService,
         notifyService,
         pwaContactService,
-        emailCaseLinkService);
+        caseLinkService);
 
     pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
@@ -117,7 +117,7 @@ public class WithdrawApplicationServiceTest {
     )).thenReturn(List.of(withdrawingPerson, appPerson));
 
     var caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())).thenReturn(caseManagementLink);
 
     var emailProps = new ApplicationWithdrawnEmailProps(
         appPerson.getFullName(), pwaApplicationDetail.getPwaApplicationRef(), withdrawingUser.getFullName(),

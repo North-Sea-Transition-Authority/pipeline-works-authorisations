@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticePublicationEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticePublicationUpdateEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
@@ -42,7 +42,7 @@ public class FinalisePublicNoticeService {
   private final String serviceName;
   private final PwaContactService pwaContactService;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final Clock clock;
 
 
@@ -54,7 +54,7 @@ public class FinalisePublicNoticeService {
       PublicNoticeDatesRepository publicNoticeDatesRepository,
       @Value("${service.name}") String serviceName,
       PwaContactService pwaContactService, NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService,
+      CaseLinkService caseLinkService,
       @Qualifier("utcClock") Clock clock) {
     this.publicNoticeService = publicNoticeService;
     this.finalisePublicNoticeValidator = finalisePublicNoticeValidator;
@@ -63,7 +63,7 @@ public class FinalisePublicNoticeService {
     this.serviceName = serviceName;
     this.pwaContactService = pwaContactService;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.clock = clock;
   }
 
@@ -94,7 +94,7 @@ public class FinalisePublicNoticeService {
     var emailRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
         pwaApplication,
         PwaContactRole.PREPARER);
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     emailRecipients.forEach(recipient -> {
       var emailProps = new PublicNoticePublicationEmailProps(
@@ -168,7 +168,7 @@ public class FinalisePublicNoticeService {
     var emailRecipients = pwaContactService.getPeopleInRoleForPwaApplication(
         pwaApplication,
         PwaContactRole.PREPARER);
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplication);
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     emailRecipients.forEach(recipient -> {
       var emailProps = new PublicNoticePublicationUpdateEmailProps(

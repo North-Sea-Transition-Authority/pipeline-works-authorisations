@@ -16,7 +16,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlinePassedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlineUpcomingEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationNotPerConsentEmailProps;
@@ -38,7 +38,7 @@ public class AsBuiltNotificationEmailServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Captor
   private ArgumentCaptor<AsBuiltNotificationNotPerConsentEmailProps> asBuiltNotificationNotPerConsentEmailPropsArgumentCaptor;
@@ -63,10 +63,10 @@ public class AsBuiltNotificationEmailServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, emailCaseLinkService, OGA_CONSENTS_EMAIL);
+    asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, caseLinkService, OGA_CONSENTS_EMAIL);
 
-    when(emailCaseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
-    when(emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
+    when(caseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
+    when(caseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
 
   }
 
@@ -81,7 +81,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "AS_BUILT_GROUP_REF", asBuiltNotificationGroup.getReference(),
         "PIPELINE_NUMBER", pipelineDetail.getPipelineNumber(),
         "AS_BUILT_NOTIFICATION_STATUS", AS_BUILT_NOTIFICATION_STATUS.getDisplayName(),
-        "AS_BUILT_DASHBOARD_LINK", emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
+        "AS_BUILT_DASHBOARD_LINK", caseLinkService.generateAsBuiltNotificationSummaryLink(
             asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(), pipelineDetail.getPipelineId().asInt())
     ));
   }
@@ -95,7 +95,7 @@ public class AsBuiltNotificationEmailServiceTest {
     assertThat(asBuiltNotificationDeadlineUpcomingEmailPropsArgumentCaptor.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
         "RECIPIENT_FULL_NAME", person.getFullName(),
         "AS_BUILT_GROUP_REFERENCES", asBuiltNotificationGroup.getReference(),
-        "AS_BUILT_WORKAREA_LINK", emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        "AS_BUILT_WORKAREA_LINK", caseLinkService.generateAsBuiltNotificationWorkareaLink()
     ));
   }
 
@@ -109,7 +109,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "RECIPIENT_FULL_NAME", person.getFullName(),
         "AS_BUILT_GROUP_REFERENCES", asBuiltNotificationGroup.getReference(),
         "OGA_CONSENTS_EMAIL", OGA_CONSENTS_EMAIL,
-        "AS_BUILT_WORKAREA_LINK", emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        "AS_BUILT_WORKAREA_LINK", caseLinkService.generateAsBuiltNotificationWorkareaLink()
     ));
   }
 

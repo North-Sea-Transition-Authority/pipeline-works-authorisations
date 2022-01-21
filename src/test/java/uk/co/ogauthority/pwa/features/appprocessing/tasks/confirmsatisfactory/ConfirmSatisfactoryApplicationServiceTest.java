@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.features.email.EmailCaseLinkService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
@@ -50,14 +50,14 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Mock
   private ConsultationRequestService consultationRequestService;
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
   @Mock
   private NotifyService notifyService;
 
   @Before
   public void setUp() {
     confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
-        consultationRequestService,  emailCaseLinkService, notifyService);
+        consultationRequestService, caseLinkService, notifyService);
   }
 
   @Test
@@ -319,7 +319,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
         .thenReturn(assignedResponder);
 
     var caseManagementLink = "link";
-    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
 
     var emailProps = new ApplicationUpdateAcceptedEmailProps(
         assignedResponder.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
@@ -359,7 +359,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
         .thenReturn(List.of(consultationRecipient1, consultationRecipient2));
 
     var caseManagementLink = "link";
-    when(emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
 
     var emailPropsRecipient1 = new ApplicationUpdateAcceptedEmailProps(
         consultationRecipient1.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
