@@ -165,7 +165,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     var pwaApplicationDetail = PwaApplicationTestUtil
         .createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION, APPLICATION_ID, APPLICATION_DETAIL_ID);
 
-    when(pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(APPLICATION_DETAIL_ID))
+    when(pwaApplicationDetailRepository.findByIdAndTipFlagIsTrue(APPLICATION_DETAIL_ID))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     mockWebServer.enqueue(responseWhenAuthorized);

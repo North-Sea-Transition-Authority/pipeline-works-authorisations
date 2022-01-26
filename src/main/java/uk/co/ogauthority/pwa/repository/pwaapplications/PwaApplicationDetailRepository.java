@@ -23,6 +23,8 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
 
   Optional<PwaApplicationDetail> findByPwaApplicationIdAndVersionNo(Integer pwaApplicationId, Integer versionNo);
 
+  Optional<PwaApplicationDetail> findByIdAndTipFlagIsTrue(Integer pwaApplicationId);
+
   List<PwaApplicationDetail> findByPwaApplicationAndSubmittedTimestampIsNotNull(PwaApplication pwaApplication);
 
   List<PwaApplicationDetail> findByPwaApplicationAndStatus(PwaApplication pwaApplication, PwaApplicationStatus status);
