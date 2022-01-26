@@ -152,7 +152,7 @@ public class InitialReviewServiceTest {
     verify(applicationChargeRequestService, times(1)).createPwaAppChargeRequest(eq(pwaManagerPerson),chargeRequestSpecCaptor.capture() );
 
     verify(assignCaseOfficerService, times(1))
-        .assignCaseOfficer(caseOfficerPerson.getId(), detail, pwaManagerUser);
+        .assignCaseOfficer(detail, caseOfficerPerson.getId(), pwaManagerUser);
 
     assertThat(chargeRequestSpecCaptor.getValue()).satisfies(requestSpecification -> {
 

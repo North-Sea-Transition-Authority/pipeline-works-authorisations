@@ -55,6 +55,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonSer
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -86,9 +87,6 @@ public class ApplicationChargeRequestServiceTest {
   private PwaApplicationDetailService pwaApplicationDetailService;
 
   @Mock
-  private WorkflowAssignmentService workflowAssignmentService;
-
-  @Mock
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
@@ -100,6 +98,9 @@ public class ApplicationChargeRequestServiceTest {
   @Mock
   private ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService;
 
+  @Mock
+  private AssignCaseOfficerService assignCaseOfficerService;
+
   @Captor
   private ArgumentCaptor<PwaAppChargeRequestDetail> requestDetailArgumentCaptor;
 
@@ -108,9 +109,6 @@ public class ApplicationChargeRequestServiceTest {
 
   @Captor
   private ArgumentCaptor<List<PwaAppChargePaymentAttempt>> activePaymentAttemptArgumentCaptor;
-
-  @Captor
-  private ArgumentCaptor<PwaApplicationDetail> applicationDetailArgumentCaptor;
 
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -157,7 +155,7 @@ public class ApplicationChargeRequestServiceTest {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(pwaApplication, PwaAppChargeRequestStatus.OPEN))
         .thenReturn(Optional.of(chargeRequestDetail));
 
-    when(workflowAssignmentService.assignTaskNoException(any(), any(),any(), any()))
+    when(assignCaseOfficerService.autoAssignCaseOfficer(any(),any(), any()))
         .thenReturn(WorkflowAssignmentService.AssignTaskResult.SUCCESS);
 
     applicationChargeRequestService = new ApplicationChargeRequestService(
@@ -168,12 +166,12 @@ public class ApplicationChargeRequestServiceTest {
         pwaAppChargePaymentAttemptRepository,
         pwaPaymentService,
         pwaApplicationDetailService,
-        workflowAssignmentService,
         camundaWorkflowService,
         personService,
         clock,
         padInitialReviewService,
-        applicationChargeRequestMetadataService);
+        applicationChargeRequestMetadataService,
+        assignCaseOfficerService);
 
     when(pwaAppChargeRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(pwaAppChargeRequestDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -588,7 +586,7 @@ public class ApplicationChargeRequestServiceTest {
 
     assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
     verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
-    verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
+    verifyNoInteractions(assignCaseOfficerService);
 
   }
 
@@ -609,7 +607,7 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
 
     verify(pwaAppChargeRequestDetailRepository, times(0)).save(any());
-    verifyNoInteractions(camundaWorkflowService, workflowAssignmentService);
+    verifyNoInteractions(assignCaseOfficerService);
 
   }
 
@@ -619,7 +617,7 @@ public class ApplicationChargeRequestServiceTest {
     chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
 
     when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
-    when(personService.getPersonById(pwaManagerPerson.getId())).thenReturn(pwaManagerPerson);
+    when(padInitialReviewService.getLatestInitialReviewer(pwaApplicationDetail)).thenReturn(Optional.of(pwaManagerPerson));
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
 
@@ -634,7 +632,7 @@ public class ApplicationChargeRequestServiceTest {
     assertThat(processPaymentAttemptResult).isEqualTo(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID);
 
     var verifyOrder = Mockito.inOrder(
-        pwaApplicationDetailService, camundaWorkflowService, workflowAssignmentService, pwaAppChargeRequestDetailRepository
+        pwaApplicationDetailService, camundaWorkflowService, assignCaseOfficerService, pwaAppChargeRequestDetailRepository
     );
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).getTipDetail(pwaApplication);
@@ -647,8 +645,8 @@ public class ApplicationChargeRequestServiceTest {
         pwaApplication,
         PwaApplicationWorkflowTask.AWAIT_APPLICATION_PAYMENT
     ));
-    verifyOrder.verify(workflowAssignmentService, times(1))
-        .assignTaskNoException(pwaApplication, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, pwaManagerPerson);
+    verifyOrder.verify(assignCaseOfficerService, times(1))
+        .autoAssignCaseOfficer(pwaApplicationDetail, caseOfficerPerson, pwaManagerPerson);
 
     verifyOrder.verify(pwaApplicationDetailService, times(1)).updateStatus(pwaApplicationDetail, PwaApplicationStatus.CASE_OFFICER_REVIEW, paymentAttemptWua);
     verifyOrder.verifyNoMoreInteractions();
@@ -667,9 +665,9 @@ public class ApplicationChargeRequestServiceTest {
     chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
 
     when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
-    when(personService.getPersonById(pwaManagerPerson.getId())).thenReturn(pwaManagerPerson);
+    when(padInitialReviewService.getLatestInitialReviewer(pwaApplicationDetail)).thenReturn(Optional.of(pwaManagerPerson));
 
-    when(workflowAssignmentService.assignTaskNoException(any(),any(),any(),any()))
+    when(assignCaseOfficerService.autoAssignCaseOfficer(any(),any(),any()))
         .thenReturn(WorkflowAssignmentService.AssignTaskResult.ASSIGNMENT_CANDIDATE_INVALID);
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
@@ -685,7 +683,6 @@ public class ApplicationChargeRequestServiceTest {
     verify(appChargeEmailService, times(1)).sendFailedToAssignCaseOfficerEmail(pwaApplication);
 
   }
-
 
   @Test
   public void applicationHasOpenChargeRequest_whenNoOpenRequest() {

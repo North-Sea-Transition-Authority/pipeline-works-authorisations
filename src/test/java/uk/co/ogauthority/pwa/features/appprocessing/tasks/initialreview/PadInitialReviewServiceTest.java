@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -32,6 +33,9 @@ public class PadInitialReviewServiceTest {
   @Mock
   private PadInitialReviewRepository padInitialReviewRepository;
 
+  @Mock
+  private UserAccountService userAccountService;
+
   @Captor
   private ArgumentCaptor<PadInitialReview> padInitialReviewArgumentCaptor;
 
@@ -39,14 +43,13 @@ public class PadInitialReviewServiceTest {
 
   private static final int WUA_ID_1 = 1;
   private static final PersonId WUA_1_PERSON_ID = new PersonId(10);
-  private static final Instant YESTERDAY = Instant.now();
 
   private Clock clock;
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaApplication pwaApplication;
-  private AuthenticatedUserAccount user;
-  private Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
-
+  private AuthenticatedUserAccount authenticatedUser;
+  private WebUserAccount webUserAccount;
+  private final Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
 
   @Before
   public void setUp() {
@@ -54,32 +57,36 @@ public class PadInitialReviewServiceTest {
     clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
-    user = new AuthenticatedUserAccount(new WebUserAccount(WUA_ID_1, wua1Person), List.of());
+    webUserAccount = new WebUserAccount(WUA_ID_1, wua1Person);
+    authenticatedUser = new AuthenticatedUserAccount(webUserAccount, List.of());
 
-    padInitialReviewService = new PadInitialReviewService(padInitialReviewRepository, clock);
+    padInitialReviewService = new PadInitialReviewService(padInitialReviewRepository, clock, userAccountService);
+
+    when(userAccountService.getWebUserAccount(authenticatedUser.getWuaId())).thenReturn(authenticatedUser);
+
   }
 
   @Test
   public void addApprovedInitialReview_verifyRepoInteraction() {
 
-    padInitialReviewService.addApprovedInitialReview(pwaApplicationDetail, user);
+    padInitialReviewService.addApprovedInitialReview(pwaApplicationDetail, authenticatedUser);
     verify(padInitialReviewRepository).save(
-        new PadInitialReview(pwaApplicationDetail, user.getWuaId(), clock.instant()));
+        new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant()));
   }
 
   @Test
   public void revokeLatestInitialReview_latestReviewSetAsRevoked() {
 
-    var initialReview = new PadInitialReview(pwaApplicationDetail, user.getWuaId(), clock.instant());
+    var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
 
     when(padInitialReviewRepository.findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(
         pwaApplicationDetail)).thenReturn(Optional.of(initialReview));
 
-    padInitialReviewService.revokeLatestInitialReview(pwaApplicationDetail, user);
+    padInitialReviewService.revokeLatestInitialReview(pwaApplicationDetail, authenticatedUser);
 
-    var revokedInitialReview = new PadInitialReview(pwaApplicationDetail, user.getWuaId(), clock.instant());
+    var revokedInitialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
     revokedInitialReview.setApprovalRevokedTimestamp(clock.instant());
-    revokedInitialReview.setApprovalRevokedByWuaId(user.getWuaId());
+    revokedInitialReview.setApprovalRevokedByWuaId(authenticatedUser.getWuaId());
 
     verify(padInitialReviewRepository).save(padInitialReviewArgumentCaptor.capture());
     var actualPadInitialReview = padInitialReviewArgumentCaptor.getValue();
@@ -101,5 +108,26 @@ public class PadInitialReviewServiceTest {
     assertThat(padInitialReviewService.isInitialReviewComplete(pwaApplication)).isTrue();
   }
 
+  @Test
+  public void getLatestInitialReviewer_present() {
+
+    var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
+
+    when(padInitialReviewRepository.findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(
+        pwaApplicationDetail)).thenReturn(Optional.of(initialReview));
+
+    assertThat(padInitialReviewService.getLatestInitialReviewer(pwaApplicationDetail)).contains(webUserAccount.getLinkedPerson());
+
+  }
+
+  @Test
+  public void getLatestInitialReviewer_empty() {
+
+    when(padInitialReviewRepository.findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(
+        pwaApplicationDetail)).thenReturn(Optional.empty());
+
+    assertThat(padInitialReviewService.getLatestInitialReviewer(pwaApplicationDetail)).isEmpty();
+
+  }
 
 }
