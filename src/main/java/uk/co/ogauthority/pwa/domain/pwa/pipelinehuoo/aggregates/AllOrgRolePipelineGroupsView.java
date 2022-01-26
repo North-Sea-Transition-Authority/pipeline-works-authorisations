@@ -1,16 +1,15 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates;
 
 import java.util.List;
+import java.util.Objects;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 
 public class AllOrgRolePipelineGroupsView {
-
 
   private final List<OrganisationRolePipelineGroupView>  holderOrgRolePipelineGroups;
   private final List<OrganisationRolePipelineGroupView>  userOrgRolePipelineGroups;
   private final List<OrganisationRolePipelineGroupView>  operatorOrgRolePipelineGroups;
   private final List<OrganisationRolePipelineGroupView>  ownerOrgRolePipelineGroups;
-
 
   public AllOrgRolePipelineGroupsView(
       List<OrganisationRolePipelineGroupView> holderOrgRolePipelineGroups,
@@ -53,10 +52,7 @@ public class AllOrgRolePipelineGroupsView {
       default:
         throw new RuntimeException("Invalid huoo role provided.");
     }
-
   }
-
-
 
   /**
    * This method checks that if for a given role, all the OrgRolePipelineGroups have the same set of PipelineIdentifiers..
@@ -78,6 +74,27 @@ public class AllOrgRolePipelineGroupsView {
 
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    AllOrgRolePipelineGroupsView that = (AllOrgRolePipelineGroupsView) o;
+    return Objects.equals(holderOrgRolePipelineGroups,
+        that.holderOrgRolePipelineGroups) && Objects.equals(userOrgRolePipelineGroups,
+        that.userOrgRolePipelineGroups) && Objects.equals(operatorOrgRolePipelineGroups,
+        that.operatorOrgRolePipelineGroups) && Objects.equals(ownerOrgRolePipelineGroups,
+        that.ownerOrgRolePipelineGroups);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(holderOrgRolePipelineGroups, userOrgRolePipelineGroups, operatorOrgRolePipelineGroups,
+        ownerOrgRolePipelineGroups);
+  }
 
 }
 
