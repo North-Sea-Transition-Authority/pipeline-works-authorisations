@@ -36,10 +36,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.W
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorUserRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
@@ -435,14 +435,14 @@ public class TeamManagementServiceTest {
     public void getUserRolesForPwaTeam_regulatorTeamType() {
       var pwaTeam = new PwaRegulatorTeam(1, null, null);
       var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
-      assertThat(userRoles).containsAll(PwaRegulatorUserRole.stream().collect(Collectors.toList()));
+      assertThat(userRoles).containsAll(PwaRegulatorRole.stream().collect(Collectors.toList()));
   }
 
   @Test
     public void getUserRolesForPwaTeam_organisationTeamType() {
       var pwaTeam = new PwaOrganisationTeam(1, null, null, null);
       var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
-      assertThat(userRoles).containsAll(PwaOrganisationUserRole.stream().collect(Collectors.toList()));
+      assertThat(userRoles).containsAll(PwaOrganisationRole.stream().collect(Collectors.toList()));
   }
 
 

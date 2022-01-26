@@ -48,7 +48,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationUserRole;
+import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
@@ -172,7 +172,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         // the test does not use the url form of th app type so a mismatch in actual -> expected urls.
         .andExpect(model().attributeExists("cancelUrl"))
         .andExpect(model().attributeExists("paymentLandingPageUrl"))
-        .andExpect(model().attribute("financeRoleName",PwaOrganisationUserRole.FINANCE_ADMIN.getRoleName()))
+        .andExpect(model().attribute("financeRoleName", PwaOrganisationRole.FINANCE_ADMIN.getDisplayName()))
         .andExpect(model().attribute("appPaymentDisplaySummary",applicationPaymentDisplaySummary))
         .andExpect(model().attribute("pwaHolderOrgNames", List.of(orgGroup1.getName(), orgGroup2.getName())));
 

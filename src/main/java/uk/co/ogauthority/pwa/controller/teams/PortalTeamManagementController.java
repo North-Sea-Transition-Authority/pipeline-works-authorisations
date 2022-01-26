@@ -61,7 +61,7 @@ public class PortalTeamManagementController {
 
     return teamManagementService.getUserRolesForPwaTeam(pwaTeam).stream()
         .sorted(Comparator.comparing(PwaUserRole::getDisplayOrder))
-        .collect(StreamUtils.toLinkedHashMap(PwaUserRole::getRoleName, PwaUserRole::getRoleDescription));
+        .collect(StreamUtils.toLinkedHashMap(PwaUserRole::getDisplayName, PwaUserRole::getDescription));
   }
 
 

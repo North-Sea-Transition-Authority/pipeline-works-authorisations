@@ -29,8 +29,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationUserRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorUserRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
@@ -348,9 +347,9 @@ public class TeamManagementService {
 
   public List<PwaUserRole> getUserRolesForPwaTeam(PwaTeam pwaTeam) {
     if (pwaTeam.getType().equals(PwaTeamType.REGULATOR)) {
-      return PwaRegulatorUserRole.stream().collect(Collectors.toList());
+      return PwaRegulatorRole.stream().collect(Collectors.toList());
     } else {
-      return PwaOrganisationUserRole.stream().collect(Collectors.toList());
+      return PwaOrganisationRole.stream().collect(Collectors.toList());
     }
   }
 
