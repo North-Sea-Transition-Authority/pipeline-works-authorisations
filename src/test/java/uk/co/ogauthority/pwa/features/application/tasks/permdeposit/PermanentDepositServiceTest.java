@@ -42,6 +42,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -210,14 +211,15 @@ public class PermanentDepositServiceTest {
 
   @Test
   public void isPermanentDepositMade_depositMadeTrue() {
-    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+    when(padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).thenReturn(Optional.of(
+        PermanentDepositMade.THIS_APP));
 
     assertThat(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(true);
   }
 
   @Test
   public void isPermanentDepositMade_depositMadeFalse() {
-    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(false);
+    when(padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).thenReturn(Optional.of(PermanentDepositMade.LATER_APP));
 
     assertThat(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).isEqualTo(false);
   }
@@ -543,7 +545,7 @@ public class PermanentDepositServiceTest {
     var notOptions = EnumSet.allOf(PwaApplicationType.class);
     notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
 
-    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+    when(padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).thenReturn(Optional.of(PermanentDepositMade.THIS_APP));
 
     for (PwaApplicationType type : notOptions) {
       pwaApplicationDetail.getPwaApplication().setApplicationType(type);
@@ -565,7 +567,7 @@ public class PermanentDepositServiceTest {
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsTrue() {
     when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
-    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(true);
+    when(padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).thenReturn(Optional.of(PermanentDepositMade.YES));
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -576,7 +578,7 @@ public class PermanentDepositServiceTest {
   @Test
   public void canShowInTaskList_OptionsVariation_optionsComplete_andPermDepositsQuestionIsFalse() {
     when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
-    when(padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail)).thenReturn(false);
+    when(padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).thenReturn(Optional.of(PermanentDepositMade.NONE));
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
 

@@ -76,6 +76,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline_;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData_;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent_;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationTestUtils;
 import uk.co.ogauthority.pwa.integration.PwaApplicationIntegrationTestHelper;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
@@ -454,6 +455,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         forceFastTrackStartDate ? LocalDate.now() : LocalDate.now().plusMonths(12L)
     );
     projectInfo.setPwaApplicationDetail(pwaApplicationDetail);
+    projectInfo.setPermanentDepositsMade(PermanentDepositMade.THIS_APP); // set to this app to justify having deposits
     entityManager.persist(projectInfo);
     createAndPersistPadFileWithRandomFileId(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
   }

@@ -361,33 +361,27 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getPermanentDepositsOnApplication_depositMadeNull() {
+  public void getPermanentDepositsMadeAnswer_depositMadeNull() {
+
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(null);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
-    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
+    assertThat(service.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).isEmpty();
+
   }
 
   @Test
-  public void getPermanentDepositsOnApplication_depositMadeFalse() {
+  public void getPermanentDepositsMadeAnswer_depositMadeFalse() {
+
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(PermanentDepositMade.NONE);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
 
-    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(false);
-  }
+    assertThat(service.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).contains(projectInformation.getPermanentDepositsMade());
 
-  @Test
-  public void getPermanentDepositsOnApplication_depositMadeTrue() {
-    PadProjectInformation projectInformation = new PadProjectInformation();
-    projectInformation.setPermanentDepositsMade(PermanentDepositMade.THIS_APP);
-
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
-
-    assertThat(service.getPermanentDepositsOnApplication(pwaApplicationDetail)).isEqualTo(true);
   }
 
   @Test
