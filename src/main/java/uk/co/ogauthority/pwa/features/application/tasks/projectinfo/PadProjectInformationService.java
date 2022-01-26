@@ -8,7 +8,6 @@ import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.transaction.Transactional;
@@ -226,9 +225,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       projectInformation.setTemporaryDepDescription(null);
     }
 
+    // null out permanent deposit month and year if not "part of later application"
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
-        && !projectInformation.getPermanentDepositsMade().isPermanentDepositMade()) {
-      // null out permanent deposit month and year if not "part of later application"
+        && projectInformation.getPermanentDepositsMade() != PermanentDepositMade.LATER_APP) {
       projectInformation.setFutureAppSubmissionMonth(null);
       projectInformation.setFutureAppSubmissionYear(null);
     }
@@ -264,11 +263,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   }
 
-  public boolean getPermanentDepositsOnApplication(PwaApplicationDetail pwaApplicationDetail) {
+  public Optional<PermanentDepositMade> getPermanentDepositsMadeAnswer(PwaApplicationDetail pwaApplicationDetail) {
     return padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .map(padProjectInformation -> Objects.nonNull(padProjectInformation.getPermanentDepositsMade())
-            && padProjectInformation.getPermanentDepositsMade().isPermanentDepositMade())
-        .orElse(false);
+        .map(PadProjectInformation::getPermanentDepositsMade);
   }
 
   @Override

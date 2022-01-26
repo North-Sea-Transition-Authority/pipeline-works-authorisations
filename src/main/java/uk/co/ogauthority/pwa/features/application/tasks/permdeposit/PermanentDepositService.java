@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOp
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -317,11 +318,14 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   }
 
   public boolean permanentDepositsAreToBeMadeOnApp(PwaApplicationDetail pwaApplicationDetail) {
+
     if (pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)) {
       return true;
     }
 
-    return padProjectInformationService.getPermanentDepositsOnApplication(pwaApplicationDetail);
+    return padProjectInformationService.getPermanentDepositsMadeAnswer(pwaApplicationDetail)
+        .map(PermanentDepositMade::arePermanentDepositsRequiredOnApp)
+        .orElse(false);
 
   }
 

@@ -18,7 +18,6 @@ public class ProjectInformationEntityMappingServiceTest {
 
   private LocalDate baseDate;
 
-
   private ProjectInformationEntityMappingService projectInformationEntityMappingService;
 
   private ProjectInformationForm form;

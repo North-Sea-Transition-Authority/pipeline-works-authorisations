@@ -17,7 +17,7 @@ public enum PermanentDepositMade {
 
   THIS_APP("Yes, as part of this application", true,
       List.of(INITIAL, CAT_1_VARIATION, CAT_2_VARIATION, HUOO_VARIATION, DEPOSIT_CONSENT, DECOMMISSIONING)),
-  LATER_APP("Yes, as part of a later application", true,
+  LATER_APP("Yes, as part of a later application", false,
       List.of(INITIAL, CAT_1_VARIATION, CAT_2_VARIATION, HUOO_VARIATION, DEPOSIT_CONSENT, DECOMMISSIONING)),
   YES("Yes", true,
       List.of(OPTIONS_VARIATION)),
@@ -26,14 +26,15 @@ public enum PermanentDepositMade {
 
   private final String displayText;
 
-  private final boolean permanentDepositMade;
+  private final boolean permanentDepositsRequiredOnApp;
 
   private final List<PwaApplicationType> supportedApplicationTypes;
 
-  PermanentDepositMade(String displayText, boolean permanentDepositMade,
-                              List<PwaApplicationType> supportedApplicationTypes) {
+  PermanentDepositMade(String displayText,
+                       boolean permanentDepositsRequiredOnApp,
+                       List<PwaApplicationType> supportedApplicationTypes) {
     this.displayText = displayText;
-    this.permanentDepositMade = permanentDepositMade;
+    this.permanentDepositsRequiredOnApp = permanentDepositsRequiredOnApp;
     this.supportedApplicationTypes = supportedApplicationTypes;
   }
 
@@ -41,8 +42,8 @@ public enum PermanentDepositMade {
     return displayText;
   }
 
-  public boolean isPermanentDepositMade() {
-    return permanentDepositMade;
+  public boolean arePermanentDepositsRequiredOnApp() {
+    return permanentDepositsRequiredOnApp;
   }
 
   public List<PwaApplicationType> getSupportedApplicationTypes() {
