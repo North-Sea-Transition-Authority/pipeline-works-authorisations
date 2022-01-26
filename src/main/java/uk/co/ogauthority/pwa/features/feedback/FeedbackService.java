@@ -66,7 +66,7 @@ public class FeedbackService {
     setCommonFeedbackAttributes(feedback, feedbackForm, submittingPerson);
 
     var applicationDetail = pwaApplicationDetailRepository
-        .findByPwaApplicationIdAndTipFlagIsTrue(pwaApplicationDetailId)
+        .findByIdAndTipFlagIsTrue(pwaApplicationDetailId)
         .orElseThrow(() -> new EntityNotFoundException(
             String.format("Unable to find application detail with id: %s", pwaApplicationDetailId))
         );

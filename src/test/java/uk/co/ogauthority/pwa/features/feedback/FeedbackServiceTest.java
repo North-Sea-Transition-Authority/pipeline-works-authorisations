@@ -92,7 +92,7 @@ public class FeedbackServiceTest {
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.OPTIONS_VARIATION, 10, 20);
 
-    when(pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(appDetailId))
+    when(pwaApplicationDetailRepository.findByIdAndTipFlagIsTrue(appDetailId))
         .thenReturn(Optional.of(pwaApplicationDetail));
 
     var form = FeedbackTestUtil.getValidFeedbackForm();
