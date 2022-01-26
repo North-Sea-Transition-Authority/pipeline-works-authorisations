@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="diffedHuooSummary" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups" -->
 <#-- @ftlvariable name="consentVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
-
+<#-- @ftlvariable name="viewPwaPipelineUrl" type="String" -->
 
 <#macro tab diffedHuooSummary>
 
@@ -12,6 +12,7 @@
         <@fdsAction.button buttonText="Show version" buttonScreenReaderText="Show HUOO information for the selected consent version"/>
     </@fdsForm.htmlForm>
 
+    <@diffChanges.toggler/>
     
     <#if diffedHuooSummary?has_content>
         <#assign pipelinesDataRowKey = "Pipeline sections"/>

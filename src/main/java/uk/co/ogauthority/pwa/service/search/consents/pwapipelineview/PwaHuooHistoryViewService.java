@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.search.consents.pwapipelineview;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,16 @@ public class PwaHuooHistoryViewService {
   private final PipelineService pipelineService;
   private final PipelineDetailService pipelineDetailService;
 
+  /**
+   * WARNING: this ensures the same sort order as used during the migration of legacy data from the old pipelines
+   * service. This sort order can be found in the get_last_consented_consent_id function in the migration package. As HUOOs
+   * were only migrated to the latest consent (according to the migration sort order), it is important that we sort consents
+   * in the same way here. If making changes to this sort, ensure that migrated consents are always sorted as below to
+   * ensure the correct consent is the head of the migrated consents in the list.
+   */
+  private static final Comparator<PwaConsent> CONSENTS_DESC = Comparator
+      .comparing(PwaConsent::getConsentInstant, Comparator.reverseOrder())
+      .thenComparing(PwaConsent::getId, Comparator.reverseOrder());
 
   @Autowired
   public PwaHuooHistoryViewService(HuooSummaryService huooSummaryService,
@@ -54,19 +65,41 @@ public class PwaHuooHistoryViewService {
     var selectedAndPreviousConsents = getSelectedAndHistoricalConsents(selectedConsent);
 
     var pipeline = pipelineService.getPipelineFromId(pipelineId);
-    var orgRoleSummaryDto = pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
-        selectedAndPreviousConsents, pipeline);
-    var huooRolePipelineGroupsView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
-        masterPwa, orgRoleSummaryDto);
 
-    return huooSummaryService.getDiffedViewUsingSummaryViews(huooRolePipelineGroupsView, huooRolePipelineGroupsView,
+    var selectedOrgRoleSummaryDto = pwaConsentOrganisationRoleService
+        .getOrganisationRoleSummaryForConsentsAndPipeline(selectedAndPreviousConsents, pipeline);
+
+    var selectedConsentHuooRolePipelineGroupsView = pwaConsentOrganisationRoleService
+        .getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummaryDto);
+
+    // if we have another version to compare to, get a summary for all the previous consents
+    // that we can diff the selected one against
+    var previousConsents = selectedAndPreviousConsents.stream()
+        .filter(c -> !Objects.equals(c, selectedConsent))
+        .sorted(CONSENTS_DESC)
+        .collect(Collectors.toList());
+
+    var consentsToDiff = previousConsents.isEmpty() ? selectedAndPreviousConsents : previousConsents;
+
+    var previousOrgRoleSummaryDto = pwaConsentOrganisationRoleService
+        .getOrganisationRoleSummaryForConsentsAndPipeline(consentsToDiff, pipeline);
+
+    var previousConsentsHuooRolePipelineGroupsView = pwaConsentOrganisationRoleService
+        .getAllOrganisationRolePipelineGroupView(masterPwa, previousOrgRoleSummaryDto);
+
+    return huooSummaryService.getDiffedViewUsingSummaryViews(
+        selectedConsentHuooRolePipelineGroupsView,
+        previousConsentsHuooRolePipelineGroupsView,
         HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
+
   }
 
   private List<PwaConsent> getSelectedAndHistoricalConsents(PwaConsent selectedConsent) {
 
-    var allPwaConsents = pwaConsentService.getConsentsByMasterPwa(selectedConsent.getMasterPwa());
-    sortPwaConsentsLatestFirst(allPwaConsents);
+    var allPwaConsents = pwaConsentService.getConsentsByMasterPwa(selectedConsent.getMasterPwa())
+        .stream()
+        .sorted(CONSENTS_DESC)
+        .collect(Collectors.toList());
 
     for (var x = 0; x < allPwaConsents.size(); x++) {
       if (allPwaConsents.get(x).equals(selectedConsent)) {
@@ -77,20 +110,6 @@ public class PwaHuooHistoryViewService {
     throw new PwaEntityNotFoundException(String.format(
         "The selected consent with id: %s was not found in any of the consents for master pwa with id: %s",
         selectedConsent.getId(), selectedConsent.getMasterPwa().getId()));
-  }
-
-  /**
-   * WARNING: this method ensures the same sort order as used during the migration of legacy data from the old pipelines
-   * service. This sort order can be found in the get_last_consented_consent_id function in the migration package. As HUOOs
-   * were only migrated to the latest consent (according to the migration sort order), it is important that we sort consents
-   * in the same way here. If making changes to this sort, ensure that migrated consents are always sorted as below to
-   * ensure the correct consent is the head of the migrated consents in the list.
-   */
-  private void sortPwaConsentsLatestFirst(List<PwaConsent> consents) {
-
-    consents.sort(Comparator.comparing(PwaConsent::getConsentInstant, Comparator.reverseOrder())
-        .thenComparing(PwaConsent::getId, Comparator.reverseOrder()));
-
   }
 
   /**
@@ -111,9 +130,8 @@ public class PwaHuooHistoryViewService {
     var consentsAfterPipeStart = pwaConsentService.getConsentsByMasterPwa(masterPwa)
         .stream()
         .filter(consent -> DateUtils.isOnOrAfter(DateUtils.instantToLocalDate(consent.getConsentInstant()), datePipelineStarted))
+        .sorted(CONSENTS_DESC)
         .collect(Collectors.toList());
-
-    sortPwaConsentsLatestFirst(consentsAfterPipeStart);
 
     var filteredConsents = new ArrayList<PwaConsent>();
 
@@ -134,6 +152,15 @@ public class PwaHuooHistoryViewService {
 
   }
 
+  /**
+   * Get a summary of the migrated HUOO data for a master PWA. This will always be diffed against itself, as
+   * the migrated HUOO data was stored against a single consent during the migration process, so there is
+   * nothing to diff against. It was not possible to identify which consent each piece of HUOO data was
+   * associated with due to the nature of the legacy system data model.
+   * @param masterPwa we are getting migrated HUOO data for
+   * @param selectedPipelineDetailId the version record for the pipeline we are looking up the data for
+   * @return an object containing lists of HUOO data in a format that can be processed by the diff changes macro
+   */
   public DiffedAllOrgRolePipelineGroups getOrganisationRoleSummaryForHuooMigratedData(MasterPwa masterPwa,
                                                                                       Integer selectedPipelineDetailId) {
 
