@@ -2,9 +2,9 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
 public interface PwaUserRole {
 
-  String getRoleName();
+  String getDisplayName();
 
-  String getRoleDescription();
+  String getDescription();
 
   int getDisplayOrder();
 
