@@ -52,8 +52,14 @@ public class AssignCaseOfficerService implements AppProcessingService {
     this.caseLinkService = caseLinkService;
   }
 
-  public void assignCaseOfficer(PersonId caseOfficerPersonId,
-                                PwaApplicationDetail pwaApplicationDetail,
+  /**
+   * Used when a user wants to set a specific user as the case officer for an application.
+   * @param pwaApplicationDetail being affected
+   * @param caseOfficerPersonId person id of the new case officer
+   * @param assigningUser user doing the assignment
+   */
+  public void assignCaseOfficer(PwaApplicationDetail pwaApplicationDetail,
+                                PersonId caseOfficerPersonId,
                                 AuthenticatedUserAccount assigningUser) {
 
     var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId.asInt());
@@ -64,26 +70,70 @@ public class AssignCaseOfficerService implements AppProcessingService {
         caseOfficer,
         assigningUser.getLinkedPerson());
 
-    sendCaseOfficerAssignedEmail(pwaApplicationDetail, caseOfficer);
-    sendCaseOfficerAssignedPersonalEmail(pwaApplicationDetail, caseOfficer, assigningUser.getLinkedPerson().getFullName());
+    sendCaseOfficerAssignmentEmails(pwaApplicationDetail, caseOfficer, assigningUser.getLinkedPerson());
+
   }
 
-  private void sendCaseOfficerAssignedEmail(PwaApplicationDetail applicationDetail, Person caseOfficer) {
+  /**
+   * Used to assign a case officer ignoring any exception that might occur as a result. Only to be used for system
+   * assignments, not for those directly triggered by a user.
+   * @param pwaApplicationDetail being affected
+   * @param caseOfficerPerson person to assign as case officer
+   * @param assigningPerson person doing the assigning (someone must have chosen, the system does not choose)
+   * @return the resulting status of the assignment
+   */
+  public WorkflowAssignmentService.AssignTaskResult autoAssignCaseOfficer(PwaApplicationDetail pwaApplicationDetail,
+                                                                          Person caseOfficerPerson,
+                                                                          Person assigningPerson) {
+
+    var assignmentResult = workflowAssignmentService.assignTaskNoException(
+        pwaApplicationDetail.getPwaApplication(),
+        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
+        caseOfficerPerson,
+        assigningPerson
+    );
+
+    if (assignmentResult.equals(WorkflowAssignmentService.AssignTaskResult.SUCCESS)) {
+      sendCaseOfficerAssignmentEmails(pwaApplicationDetail, caseOfficerPerson, assigningPerson);
+    }
+
+    return assignmentResult;
+
+  }
+
+  private void sendCaseOfficerAssignmentEmails(PwaApplicationDetail pwaApplicationDetail,
+                                               Person caseOfficer,
+                                               Person assigningPerson) {
+
+    sendCaseOfficerAssignedEmailToApplicant(pwaApplicationDetail, caseOfficer);
+    sendCaseOfficerAssignedEmailToImplicatedCo(pwaApplicationDetail, caseOfficer, assigningPerson);
+
+  }
+
+  private void sendCaseOfficerAssignedEmailToApplicant(PwaApplicationDetail applicationDetail, Person caseOfficer) {
+
     var submitterPerson = personService.getPersonById(applicationDetail.getSubmittedByPersonId());
 
     var props = new CaseOfficerAssignedEmailProps(
-        submitterPerson.getFullName(), applicationDetail.getPwaApplicationRef(), caseOfficer.getFullName(),
+        submitterPerson.getFullName(),
+        applicationDetail.getPwaApplicationRef(),
+        caseOfficer.getFullName(),
         caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
     notifyService.sendEmail(props, submitterPerson.getEmailAddress());
+
   }
 
-  private void sendCaseOfficerAssignedPersonalEmail(PwaApplicationDetail applicationDetail,
-                                                    Person caseOfficer,
-                                                    String assigningUserFullName) {
-    var props = new ApplicationAssignedToYouEmailProps(caseOfficer.getFullName(), applicationDetail.getPwaApplicationRef(),
-        assigningUserFullName,
+  private void sendCaseOfficerAssignedEmailToImplicatedCo(PwaApplicationDetail applicationDetail,
+                                                          Person caseOfficer,
+                                                          Person assigningPerson) {
+
+    var props = new ApplicationAssignedToYouEmailProps(
+        caseOfficer.getFullName(),
+        applicationDetail.getPwaApplicationRef(),
+        assigningPerson.getFullName(),
         caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
     notifyService.sendEmail(props, caseOfficer.getEmailAddress());
+
   }
 
   public BindingResult validate(AssignCaseOfficerForm form, BindingResult bindingResult,
@@ -109,6 +159,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
         null,
         canShowInTaskList(processingContext) ? TaskState.EDIT : TaskState.LOCK,
         task.getDisplayOrder());
+
   }
 
 }

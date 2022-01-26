@@ -100,7 +100,7 @@ public class InitialReviewService implements AppProcessingService {
 
     // If payment waived, assume workflow has migrated to the correct state and try to assign immediately.
     if (initialReviewPaymentDecision.equals(PAYMENT_WAIVED)) {
-      assignCaseOfficerService.assignCaseOfficer(caseOfficerPersonId, detail, acceptingUser);
+      assignCaseOfficerService.assignCaseOfficer(detail, caseOfficerPersonId, acceptingUser);
     }
 
   }

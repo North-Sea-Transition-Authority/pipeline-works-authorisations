@@ -80,7 +80,7 @@ public class AssignCaseOfficerController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAssignCaseOfficerModelAndView(processingContext), () -> {
           assignCaseOfficerService.assignCaseOfficer(
-              form.getCaseOfficerPerson(),  processingContext.getApplicationDetail(), authenticatedUserAccount);
+              processingContext.getApplicationDetail(), form.getCaseOfficerPerson(), authenticatedUserAccount);
           return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
               applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));
         });

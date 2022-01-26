@@ -143,7 +143,7 @@ public class AssignCaseOfficerControllerTest extends PwaAppProcessingContextAbst
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(assignCaseOfficerService, times(1)).assignCaseOfficer(any(), eq(pwaApplicationDetail), eq(user));
+    verify(assignCaseOfficerService, times(1)).assignCaseOfficer(eq(pwaApplicationDetail), any(), eq(user));
 
   }
 

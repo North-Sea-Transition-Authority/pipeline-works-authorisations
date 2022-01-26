@@ -44,6 +44,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
@@ -65,12 +66,12 @@ public class ApplicationChargeRequestService {
   private final PwaAppChargePaymentAttemptRepository pwaAppChargePaymentAttemptRepository;
   private final PwaPaymentService pwaPaymentService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
-  private final WorkflowAssignmentService workflowAssignmentService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final PersonService personService;
   private final Clock clock;
   private final PadInitialReviewService padInitialReviewService;
   private final ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService;
+  private final AssignCaseOfficerService assignCaseOfficerService;
 
   @Autowired
   public ApplicationChargeRequestService(AppChargeEmailService appChargeEmailService,
@@ -80,12 +81,12 @@ public class ApplicationChargeRequestService {
                                          PwaAppChargePaymentAttemptRepository pwaAppChargePaymentAttemptRepository,
                                          PwaPaymentService pwaPaymentService,
                                          PwaApplicationDetailService pwaApplicationDetailService,
-                                         WorkflowAssignmentService workflowAssignmentService,
                                          CamundaWorkflowService camundaWorkflowService,
                                          PersonService personService,
                                          @Qualifier("utcClock") Clock clock,
                                          PadInitialReviewService padInitialReviewService,
-                                         ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService) {
+                                         ApplicationChargeRequestMetadataService applicationChargeRequestMetadataService,
+                                         AssignCaseOfficerService assignCaseOfficerService) {
     this.appChargeEmailService = appChargeEmailService;
     this.pwaAppChargeRequestRepository = pwaAppChargeRequestRepository;
     this.pwaAppChargeRequestDetailRepository = pwaAppChargeRequestDetailRepository;
@@ -93,12 +94,12 @@ public class ApplicationChargeRequestService {
     this.pwaAppChargePaymentAttemptRepository = pwaAppChargePaymentAttemptRepository;
     this.pwaPaymentService = pwaPaymentService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.workflowAssignmentService = workflowAssignmentService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.personService = personService;
     this.clock = clock;
     this.padInitialReviewService = padInitialReviewService;
     this.applicationChargeRequestMetadataService = applicationChargeRequestMetadataService;
+    this.assignCaseOfficerService = assignCaseOfficerService;
   }
 
   @Transactional
@@ -475,20 +476,27 @@ public class ApplicationChargeRequestService {
         PwaAwaitPaymentResult.PAID
     );
 
-    var assignmentResult = workflowAssignmentService.assignTaskNoException(
-        pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication(),
-        PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW,
-        personService.getPersonById(tipChargeRequestDetail.getAutoCaseOfficerPersonId()),
-        personService.getPersonById(tipChargeRequestDetail.getStartedByPersonId())
+    var caseOfficerPerson = personService.getPersonById(tipChargeRequestDetail.getAutoCaseOfficerPersonId());
+
+    var initialReviewerPerson = padInitialReviewService.getLatestInitialReviewer(tipAppDetail)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Expected to find an initial reviewer for app detail with id [%s]", tipAppDetail.getId())));
+
+    var assignmentResult = assignCaseOfficerService.autoAssignCaseOfficer(
+        tipAppDetail,
+        caseOfficerPerson,
+        initialReviewerPerson
     );
 
     if (!assignmentResult.equals(WorkflowAssignmentService.AssignTaskResult.SUCCESS)) {
+
       LOGGER.info("Error on auto case officer assign. Failed  on personId:{} as case officer for appId:{}",
           tipChargeRequestDetail.getAutoCaseOfficerPersonId(),
           pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication().getId()
       );
 
       appChargeEmailService.sendFailedToAssignCaseOfficerEmail(pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
+
     }
 
     pwaApplicationDetailService.updateStatus(
@@ -498,13 +506,13 @@ public class ApplicationChargeRequestService {
     );
 
     return ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID;
+
   }
 
   private void completeAwaitingPaymentTaskWithResult(PwaApplication pwaApplication,
                                                      PwaAwaitPaymentResult pwaAwaitPaymentResult) {
-    camundaWorkflowService.setWorkflowProperty(pwaApplication,
-        pwaAwaitPaymentResult
-    );
+
+    camundaWorkflowService.setWorkflowProperty(pwaApplication, pwaAwaitPaymentResult);
 
     camundaWorkflowService.completeTask(
         new WorkflowTaskInstance(

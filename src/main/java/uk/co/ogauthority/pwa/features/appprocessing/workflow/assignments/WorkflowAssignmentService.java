@@ -84,10 +84,10 @@ public class WorkflowAssignmentService {
 
   }
 
-  @Transactional
   /**
-   * Use this method to assign a task without throwing an exception if theres a problem.
+   * Use this method to assign a task without throwing an exception if there's a problem.
    */
+  @Transactional
   public AssignTaskResult assignTaskNoException(WorkflowSubject workflowSubject,
                                                 UserWorkflowTask task,
                                                 Person personToAssign,
@@ -173,9 +173,9 @@ public class WorkflowAssignmentService {
     assignmentService.clearAssignments(workflowSubject);
   }
 
-
   public enum AssignTaskResult {
     SUCCESS,
     ASSIGNMENT_CANDIDATE_INVALID
   }
+
 }
