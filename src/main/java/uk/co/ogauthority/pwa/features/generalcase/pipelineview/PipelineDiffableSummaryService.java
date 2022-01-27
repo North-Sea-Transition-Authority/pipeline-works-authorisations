@@ -42,9 +42,12 @@ public class PipelineDiffableSummaryService {
   }
 
   public List<PipelineDiffableSummary> getApplicationDetailPipelines(PwaApplicationDetail pwaApplicationDetail) {
+
     // Nested loop with a database hits, prime candidate for performance tuning effort.
     var pipelineOverviews = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail);
+
     var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);
+
     return pipelineOverviews.stream()
         .map(pipelineOverview -> PipelineDiffableSummary.from(
                 new PipelineHeaderView(pipelineOverview),
@@ -64,9 +67,13 @@ public class PipelineDiffableSummaryService {
 
     return consentedPipelineDetails.stream()
         .map(pipelineDetail ->  {
+
           var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
+
           PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+
           return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
+
         })
         .collect(Collectors.toList());
   }
@@ -74,10 +81,14 @@ public class PipelineDiffableSummaryService {
   public PipelineDiffableSummary getConsentedPipeline(Integer pipelineDetailId) {
 
     var pipelineDetail = pipelineDetailService.getByPipelineDetailId(pipelineDetailId);
+
     var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(
         pipelineDetail.getPipelineId(), pipelineDetailId);
+
     PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+
     return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
+
   }
 
 }

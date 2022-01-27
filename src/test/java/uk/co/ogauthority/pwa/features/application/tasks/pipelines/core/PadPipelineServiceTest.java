@@ -104,7 +104,8 @@ public class PadPipelineServiceTest {
   @Mock
   private DecimalInputValidator decimalInputValidator;
 
-  private PadPipelineService mockValidatorPadPipelineService;
+  @Mock
+  private PipelineHeaderService pipelineHeaderService;
 
   private PadPipeline padPipe1;
   private Pipeline pipe1;
@@ -128,17 +129,14 @@ public class PadPipelineServiceTest {
     pipelineIdentFormValidator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(decimalInputValidator),
         new CoordinateFormValidator(), decimalInputValidator);
 
-    padPipelineService = new PadPipelineService(padPipelineRepository,
+    padPipelineService = new PadPipelineService(
+        padPipelineRepository,
         pipelineService,
         pipelineDetailService,
         padPipelinePersisterService,
-        pipelineHeaderFormValidator, pipelineMappingService);
-
-    mockValidatorPadPipelineService = new PadPipelineService(padPipelineRepository,
-        pipelineService,
-        pipelineDetailService,
-        padPipelinePersisterService,
-        pipelineHeaderFormValidator, pipelineMappingService);
+        pipelineHeaderFormValidator,
+        pipelineMappingService,
+        pipelineHeaderService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -159,7 +157,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void addPipeline() throws IllegalAccessException {
+  public void addPipeline_alreadyExists_inUse() throws IllegalAccessException {
     var form = new PipelineHeaderForm();
 
     form.setFromLocation("from");
@@ -189,9 +187,11 @@ public class PadPipelineServiceTest {
     form.setTrenchedBuriedBackfilled(true);
     form.setTrenchingMethods("trench methods");
     form.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+    form.setAlreadyExistsOnSeabed(true);
+    form.setPipelineInUse(true);
     form.setFootnote("footnote information");
 
-    padPipelineService.addPipeline(detail, form);
+    padPipelineService.addPipeline(detail, form, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
 
     verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(
         padPipelineArgumentCaptor.capture());
@@ -274,7 +274,7 @@ public class PadPipelineServiceTest {
     form.setToCoordinateForm(toCoordinateForm);
     form.setTrenchedBuriedBackfilled(false);
 
-    padPipelineService.addPipeline(detail, form);
+    padPipelineService.addPipeline(detail, form, Set.of());
     verify(padPipelinePersisterService, times(1)).savePadPipelineAndMaterialiseIdentData(
         padPipelineArgumentCaptor.capture());
     var newPipeline = padPipelineArgumentCaptor.getValue();
@@ -283,20 +283,37 @@ public class PadPipelineServiceTest {
 
   @Test
   public void addPipeline_pipelineReference_isSequential() {
+    PipelineHeaderForm form = createBaseHeaderForm();
+
+    when(padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(detail)).thenReturn(2);
+
+    var padPipeline = padPipelineService.addPipeline(detail, form, Set.of());
+    assertThat(padPipeline.getTemporaryNumber()).isEqualTo(3);
+    assertThat(padPipeline.getPipelineRef()).isEqualTo("TEMPORARY 3");
+  }
+
+  private PipelineHeaderForm createBaseHeaderForm() {
     var form = new PipelineHeaderForm();
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
     form.setTrenchedBuriedBackfilled(false);
     form.setPipelineMaterial(PipelineMaterial.DUPLEX);
     form.setPipelineInBundle(false);
-
-    when(padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(detail)).thenReturn(2);
-
-    var padPipeline = padPipelineService.addPipeline(detail, form);
-    assertThat(padPipeline.getTemporaryNumber()).isEqualTo(3);
-    assertThat(padPipeline.getPipelineRef()).isEqualTo("TEMPORARY 3");
+    return form;
   }
 
+  @Test
+  public void addPipeline_alreadyExists_notInUse() {
+
+    var form = createBaseHeaderForm();
+    form.setAlreadyExistsOnSeabed(true);
+    form.setPipelineInUse(false);
+
+    var pipe = padPipelineService.addPipeline(detail, form, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
+
+    assertThat(pipe.getPipelineStatus()).isEqualTo(PipelineStatus.OUT_OF_USE_ON_SEABED);
+
+  }
 
   @Test
   public void updatePipeline_whenStatusIsOutOfUse() {
@@ -311,13 +328,12 @@ public class PadPipelineServiceTest {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
 
-    padPipelineService.updatePipeline(padPipeline, form);
+    padPipelineService.updatePipeline(padPipeline, form, Set.of(PipelineHeaderQuestion.OUT_OF_USE_ON_SEABED_REASON));
     assertThat(padPipeline.getPipelineStatusReason()).isEqualTo("reason");
   }
 
-
   @Test
-  public void updatePipeline_whenPipelineAlreadyExistsOnSeabedQuestionRequired() {
+  public void updatePipeline_nonConsented_whenPipelineAlreadyExistsOnSeabedQuestionRequired() {
     var form = new PipelineHeaderForm();
     form.setAlreadyExistsOnSeabed(true);
     form.setPipelineInUse(true);
@@ -329,79 +345,44 @@ public class PadPipelineServiceTest {
 
     var padPipeline = new PadPipeline();
 
-    padPipelineService.updatePipeline(padPipeline, form);
+    padPipelineService.updatePipeline(padPipeline, form, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
     assertThat(padPipeline.getAlreadyExistsOnSeabed()).isEqualTo(form.getAlreadyExistsOnSeabed());
     assertThat(padPipeline.getPipelineInUse()).isEqualTo(form.getPipelineInUse());
   }
 
   @Test
-  public void canShowAlreadyExistsOnSeabedQuestions_cat2AppType_applicationPipeline() {
-    var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(false);
+  public void updatePipeline_nonConsented_pipelineChangedFromInUseToNotInUse() {
+    var form = createBaseHeaderForm();
+    form.setAlreadyExistsOnSeabed(true);
+    form.setPipelineInUse(false);
 
-    var canShow = padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, PwaApplicationType.CAT_2_VARIATION);
-    assertThat(canShow).isTrue();
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    padPipeline.setAlreadyExistsOnSeabed(true);
+    padPipeline.setPipelineInUse(true);
+
+    padPipelineService.updatePipeline(padPipeline, form, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
+    assertThat(padPipeline.getPipelineStatus()).isEqualTo(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    assertThat(padPipeline.getPipelineInUse()).isFalse();
+
   }
 
   @Test
-  public void canShowAlreadyExistsOnSeabedQuestions_decomAppType_applicationPipeline() {
-    var pipeline = new Pipeline();
+  public void updatePipeline_nonConsented_pipelineChangedFromNotInUseToInUse() {
+    var form = createBaseHeaderForm();
+    form.setAlreadyExistsOnSeabed(true);
+    form.setPipelineInUse(true);
+
     var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(false);
+    padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    padPipeline.setAlreadyExistsOnSeabed(true);
+    padPipeline.setPipelineInUse(false);
 
-    var canShow = padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, PwaApplicationType.DECOMMISSIONING);
-    assertThat(canShow).isTrue();
+    padPipelineService.updatePipeline(padPipeline, form, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
+    assertThat(padPipeline.getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
+    assertThat(padPipeline.getPipelineInUse()).isTrue();
+
   }
-
-  @Test
-  public void canShowAlreadyExistsOnSeabedQuestions_validAppType_consentedPipeline() {
-    var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(true);
-
-    var canShow = padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, PwaApplicationType.CAT_2_VARIATION);
-    assertThat(canShow).isFalse();
-  }
-
-  @Test
-  public void canShowAlreadyExistsOnSeabedQuestions_invalidAppType_applicationPipeline() {
-    var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    var canShow = padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, PwaApplicationType.INITIAL);
-    assertThat(canShow).isFalse();
-  }
-
-  @Test
-  public void getPipelineHeaderFormContext_pipelineNull() {
-    var headerFormContext = padPipelineService.getPipelineHeaderFormContext(null);
-    assertThat(headerFormContext).isEqualTo(PipelineHeaderFormContext.NON_CONSENTED_PIPELINE);
-  }
-
-  @Test
-  public void getPipelineHeaderFormContext_nonConsentedPipeline() {
-    var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(false);
-    var headerFormContext = padPipelineService.getPipelineHeaderFormContext(padPipeline);
-    assertThat(headerFormContext).isEqualTo(PipelineHeaderFormContext.NON_CONSENTED_PIPELINE);
-  }
-
-  @Test
-  public void getPipelineHeaderFormContext_consentedPipeline() {
-    var pipeline = new Pipeline();
-    var padPipeline = new PadPipeline();
-    padPipeline.setPipeline(pipeline);
-    when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(true);
-    var headerFormContext = padPipelineService.getPipelineHeaderFormContext(padPipeline);
-    assertThat(headerFormContext).isEqualTo(PipelineHeaderFormContext.CONSENTED_PIPELINE);
-  }
-
 
   @Test
   public void getPipelines() {
@@ -629,39 +610,6 @@ public class PadPipelineServiceTest {
           assertThat(result).isTrue();
       }
     });
-  }
-
-  private PadPipelineSummaryDto createPadPipelineSummaryDto(PadPipeline padPipeline) {
-    return new PadPipelineSummaryDto(
-        padPipeline.getId(),
-        padPipeline.getPipeline().getId(),
-        padPipeline.getPipelineType(),
-        padPipeline.getPipelineRef(),
-        padPipeline.getTemporaryRef(),
-        padPipeline.getLength(),
-        padPipeline.getComponentPartsDescription(),
-        padPipeline.getProductsToBeConveyed(),
-        1L,
-        padPipeline.getFromLocation(),
-        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
-        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
-        padPipeline.getToLocation(),
-        1, 1, BigDecimal.ZERO, LatitudeDirection.NORTH,
-        1, 1, BigDecimal.ZERO, LongitudeDirection.EAST,
-        padPipeline.getMaxExternalDiameter(),
-        padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName(),
-        padPipeline.getPipelineFlexibility(),
-        padPipeline.getPipelineMaterial(),
-        padPipeline.getOtherPipelineMaterialUsed(),
-        padPipeline.getTrenchedBuriedBackfilled(),
-        padPipeline.getTrenchingMethodsDescription(),
-        padPipeline.getPipelineStatus(),
-        padPipeline.getPipelineStatusReason(),
-        padPipeline.getAlreadyExistsOnSeabed(),
-        padPipeline.getPipelineInUse(),
-        padPipeline.getFootnote()
-    );
   }
 
 }

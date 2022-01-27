@@ -43,8 +43,9 @@ public class PadPipelineService {
   private final PadPipelinePersisterService padPipelinePersisterService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final PipelineMappingService pipelineMappingService;
+  private final PipelineHeaderService pipelineHeaderService;
 
-  private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = Set.of(PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
+  private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
   private static final Set<PipelineStatus> INACTIVE_STATUSES = EnumSet.complementOf(EnumSet.copyOf(
       PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED)));
 
@@ -54,13 +55,15 @@ public class PadPipelineService {
                             PipelineDetailService pipelineDetailService,
                             PadPipelinePersisterService padPipelinePersisterService,
                             PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                            PipelineMappingService pipelineMappingService) {
+                            PipelineMappingService pipelineMappingService,
+                            PipelineHeaderService pipelineHeaderService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
     this.padPipelinePersisterService = padPipelinePersisterService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.pipelineMappingService = pipelineMappingService;
+    this.pipelineHeaderService = pipelineHeaderService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -102,31 +105,15 @@ public class PadPipelineService {
     return DATA_REQUIRED_STATUSES.contains(pipelineStatus);
   }
 
-  public boolean canShowAlreadyExistsOnSeabedQuestions(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
-    return (PwaApplicationType.CAT_2_VARIATION.equals(pwaApplicationType)
-        || PwaApplicationType.DECOMMISSIONING.equals(pwaApplicationType))
-        && PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline));
-  }
-
-  public boolean canShowAlreadyExistsOnSeabedQuestions(PwaApplicationType pwaApplicationType) {
-    return canShowAlreadyExistsOnSeabedQuestions(null, pwaApplicationType);
-  }
-
-  public PipelineHeaderFormContext getPipelineHeaderFormContext(PadPipeline padPipeline) {
-    if (padPipeline == null || !pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())) {
-      return PipelineHeaderFormContext.NON_CONSENTED_PIPELINE;
-    }
-    return PipelineHeaderFormContext.CONSENTED_PIPELINE;
-  }
-
   @Transactional
-  public PadPipeline addPipeline(PwaApplicationDetail pwaApplicationDetail, PipelineHeaderForm form) {
+  public PadPipeline addPipeline(PwaApplicationDetail pwaApplicationDetail,
+                                 PipelineHeaderForm form,
+                                 Set<PipelineHeaderQuestion> requiredQuestions) {
 
     var newPipeline = pipelineService.createApplicationPipeline(pwaApplicationDetail.getPwaApplication());
 
     var newPadPipeline = new PadPipeline(pwaApplicationDetail);
     newPadPipeline.setPipeline(newPipeline);
-    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
     // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
@@ -135,13 +122,17 @@ public class PadPipelineService {
 
     newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
     newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
+    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
-    saveEntityUsingForm(newPadPipeline, form);
+    saveEntityUsingForm(newPadPipeline, form, requiredQuestions);
 
     return newPadPipeline;
+
   }
 
-  public void saveEntityUsingForm(PadPipeline padPipeline, PipelineHeaderForm form) {
+  public void saveEntityUsingForm(PadPipeline padPipeline,
+                                  PipelineHeaderForm form,
+                                  Set<PipelineHeaderQuestion> requiredQuestions) {
 
     padPipeline.setPipelineType(form.getPipelineType());
 
@@ -174,18 +165,32 @@ public class PadPipelineService {
 
     padPipeline.setPipelineStatusReason(form.getWhyNotReturnedToShore());
 
-    if (PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline))) {
+    if (requiredQuestions.contains(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED)) {
+
       padPipeline.setAlreadyExistsOnSeabed(form.getAlreadyExistsOnSeabed());
-      if (BooleanUtils.isTrue(form.getAlreadyExistsOnSeabed())) {
+
+      boolean alreadyExists = BooleanUtils.isTrue(padPipeline.getAlreadyExistsOnSeabed());
+
+      if (alreadyExists) {
         padPipeline.setPipelineInUse(form.getPipelineInUse());
       } else {
         padPipeline.setPipelineInUse(null);
       }
+
+      boolean inUse = BooleanUtils.isTrue(padPipeline.getPipelineInUse());
+
+      if (alreadyExists && !inUse) {
+        padPipeline.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+      } else {
+        padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+      }
+
     }
 
     padPipeline.setFootnote(form.getFootnote());
 
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);
+
   }
 
   public void mapEntityToForm(PipelineHeaderForm form, PadPipeline padPipeline) {
@@ -217,21 +222,22 @@ public class PadPipelineService {
 
     form.setPipelineInBundle(padPipeline.getPipelineInBundle());
     form.setBundleName(padPipeline.getBundleName());
+
     if (padPipeline.getPipelineStatus().equals(PipelineStatus.OUT_OF_USE_ON_SEABED)) {
       form.setWhyNotReturnedToShore(padPipeline.getPipelineStatusReason());
     }
 
-    if (PipelineHeaderFormContext.NON_CONSENTED_PIPELINE.equals(getPipelineHeaderFormContext(padPipeline))) {
-      form.setAlreadyExistsOnSeabed(padPipeline.getAlreadyExistsOnSeabed());
-      form.setPipelineInUse(padPipeline.getPipelineInUse());
-    }
+    form.setAlreadyExistsOnSeabed(padPipeline.getAlreadyExistsOnSeabed());
+    form.setPipelineInUse(padPipeline.getPipelineInUse());
 
     form.setFootnote(padPipeline.getFootnote());
   }
 
   @Transactional
-  public void updatePipeline(PadPipeline pipeline, PipelineHeaderForm form) {
-    saveEntityUsingForm(pipeline, form);
+  public void updatePipeline(PadPipeline pipeline,
+                             PipelineHeaderForm form,
+                             Set<PipelineHeaderQuestion> requiredQuestions) {
+    saveEntityUsingForm(pipeline, form, requiredQuestions);
   }
 
   public PadPipeline getById(Integer padPipelineId) {
@@ -315,16 +321,27 @@ public class PadPipelineService {
   }
 
   public boolean isPadPipelineValid(PadPipeline padPipeline, PwaApplicationType pwaApplicationType) {
+
     if (isValidationRequiredByStatus(padPipeline.getPipelineStatus())) {
+
       var form = new PipelineHeaderForm();
+
       mapEntityToForm(form, padPipeline);
+
       var bindingResult = new BeanPropertyBindingResult(form, "form");
+
       var validationHints = new PipelineHeaderValidationHints(
-          padPipeline.getPipelineStatus(), canShowAlreadyExistsOnSeabedQuestions(padPipeline, pwaApplicationType));
+          pipelineHeaderService.getRequiredQuestions(padPipeline, pwaApplicationType)
+      );
+
       pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
+
       return !bindingResult.hasErrors();
+
     }
+
     return true;
+
   }
 
   public Map<PadPipelineId, PadPipeline> getPadPipelineMapForOverviews(PwaApplicationDetail detail,
@@ -341,9 +358,8 @@ public class PadPipelineService {
         ));
   }
 
-  public Set getPadPipelineInactiveStatuses() {
+  public Set<PipelineStatus> getPadPipelineInactiveStatuses() {
     return INACTIVE_STATUSES;
   }
-
 
 }

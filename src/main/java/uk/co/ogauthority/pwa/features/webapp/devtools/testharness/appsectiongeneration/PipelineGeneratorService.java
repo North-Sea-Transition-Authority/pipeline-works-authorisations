@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderForm;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentDataForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentForm;
@@ -25,7 +25,7 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
 
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
-  private final PadPipelineIdentDataService padPipelineIdentDataService;
+  private final PipelineHeaderService pipelineHeaderService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.PIPELINES;
 
@@ -34,10 +34,10 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
   public PipelineGeneratorService(
       PadPipelineService padPipelineService,
       PadPipelineIdentService padPipelineIdentService,
-      PadPipelineIdentDataService padPipelineIdentDataService) {
+      PipelineHeaderService pipelineHeaderService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
-    this.padPipelineIdentDataService = padPipelineIdentDataService;
+    this.pipelineHeaderService = pipelineHeaderService;
   }
 
 
@@ -52,7 +52,10 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
     for (var x = 0; x < appFormServiceParams.getPipelineQuantity(); x++) {
 
       var pipelineHeaderForm = createPadPipelineForm();
-      var padPipeline = padPipelineService.addPipeline(appFormServiceParams.getApplicationDetail(), pipelineHeaderForm);
+      var padPipeline = padPipelineService.addPipeline(
+          appFormServiceParams.getApplicationDetail(),
+          pipelineHeaderForm,
+          pipelineHeaderService.getRequiredQuestions(null, appFormServiceParams.getApplicationDetail().getPwaApplicationType()));
 
       generateIdents(padPipeline);
     }

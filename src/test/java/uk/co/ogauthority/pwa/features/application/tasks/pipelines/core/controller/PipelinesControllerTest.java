@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderFormValidator;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderQuestion;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderValidationHints;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineRemovalService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -62,7 +66,6 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
       PipelineStatus.RETURNED_TO_SHORE, PipelineStatus.NEVER_LAID
   );
 
-
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
@@ -72,10 +75,15 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   @MockBean
   private PipelineRemovalService pipelineRemovalService;
 
+  @MockBean
+  private PipelineHeaderService pipelineHeaderService;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
   private PadPipeline padPipeline;
+
+  private static final Set<PipelineHeaderQuestion> REQUIRED_QUESTIONS = PipelineHeaderQuestion.stream().collect(Collectors.toSet());
 
   @Before
   public void setUp() {
@@ -118,6 +126,13 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     var overview = new PadPipelineOverview(padPipeline, 0L);
     when(padPipelineService.getPipelineOverview(padPipeline))
         .thenReturn(overview);
+
+    when(pipelineHeaderService.getRequiredQuestions(any(), any()))
+        .thenReturn(REQUIRED_QUESTIONS);
+
+    when(pipelineHeaderService.getValidationHints(any(), any()))
+        .thenReturn(new PipelineHeaderValidationHints(REQUIRED_QUESTIONS));
+
   }
 
   @Test
@@ -206,7 +221,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
         .andExpect(model().attributeHasErrors("form"));
 
-    verify(padPipelineService, times(0)).addPipeline(eq(pwaApplicationDetail), any());
+    verify(padPipelineService, times(0)).addPipeline(eq(pwaApplicationDetail), any(), any());
 
   }
 
@@ -220,7 +235,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(padPipelineService, times(1)).addPipeline(eq(pwaApplicationDetail), any());
+    verify(padPipelineService, times(1)).addPipeline(eq(pwaApplicationDetail), any(), eq(REQUIRED_QUESTIONS));
 
   }
 
@@ -398,7 +413,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
-    verify(padPipelineService, times(endpointTester.getAllowedAppPermissions().size())).updatePipeline(eq(padPipeline), any());
+    verify(padPipelineService, times(endpointTester.getAllowedAppPermissions().size())).updatePipeline(eq(padPipeline), any(), eq(REQUIRED_QUESTIONS));
 
   }
 
@@ -414,7 +429,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
-    verify(padPipelineService, times(endpointTester.getAllowedTypes().size())).updatePipeline(eq(padPipeline), any());
+    verify(padPipelineService, times(endpointTester.getAllowedTypes().size())).updatePipeline(eq(padPipeline), any(), eq(REQUIRED_QUESTIONS));
 
   }
 
@@ -430,7 +445,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
-    verify(padPipelineService, times(endpointTester.getAllowedStatuses().size())).updatePipeline(eq(padPipeline), any());
+    verify(padPipelineService, times(endpointTester.getAllowedStatuses().size())).updatePipeline(eq(padPipeline), any(), eq(REQUIRED_QUESTIONS));
 
   }
 

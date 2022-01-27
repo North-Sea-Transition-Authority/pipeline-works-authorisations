@@ -50,8 +50,6 @@ public class PadPipelineOverview implements PipelineOverview {
   private Boolean pipelineInUse;
   private String footnote;
 
-
-
   private PadPipelineOverview(Integer padPipelineId,
                               Integer pipelineId,
                               String fromLocation,

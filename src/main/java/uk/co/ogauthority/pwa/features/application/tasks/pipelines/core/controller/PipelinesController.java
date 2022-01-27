@@ -15,7 +15,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
@@ -25,10 +24,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineControllerRouteUtils;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderConditionalQuestion;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderFormValidator;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderValidationHints;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineRemovalService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.controller.PipelinesTaskListController;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
@@ -61,18 +59,21 @@ public class PipelinesController {
   private final ApplicationBreadcrumbService breadcrumbService;
   private final PipelineHeaderFormValidator pipelineHeaderFormValidator;
   private final ControllerHelperService controllerHelperService;
+  private final PipelineHeaderService pipelineHeaderService;
 
   @Autowired
   public PipelinesController(PadPipelineService padPipelineService,
                              PipelineRemovalService pipelineRemovalService,
                              ApplicationBreadcrumbService breadcrumbService,
                              PipelineHeaderFormValidator pipelineHeaderFormValidator,
-                             ControllerHelperService controllerHelperService) {
+                             ControllerHelperService controllerHelperService,
+                             PipelineHeaderService pipelineHeaderService) {
     this.padPipelineService = padPipelineService;
     this.pipelineRemovalService = pipelineRemovalService;
     this.breadcrumbService = breadcrumbService;
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.controllerHelperService = controllerHelperService;
+    this.pipelineHeaderService = pipelineHeaderService;
   }
 
   private ModelAndView getRemovePipelineModelAndView(PwaApplicationDetail detail, PadPipeline padPipeline) {
@@ -99,16 +100,14 @@ public class PipelinesController {
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
             .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)))
-        .addObject("canShowAlreadyExistsOnSeabedQuestions",
-            padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, detail.getPwaApplicationType()));
+        .addObject("requiredQuestions",
+            pipelineHeaderService.getRequiredQuestions(padPipeline, detail.getPwaApplicationType()));
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");
 
     if (padPipeline != null) {
       modelAndView.addObject("pipelineNumber", padPipeline.getPipelineRef());
-      modelAndView.addObject("questionsForPipelineStatus", PipelineHeaderConditionalQuestion.getQuestionsForStatus(
-          padPipeline.getPipelineStatus()));
     }
 
     return modelAndView;
@@ -131,15 +130,13 @@ public class PipelinesController {
                                       @ModelAttribute("form") PipelineHeaderForm form,
                                       BindingResult bindingResult) {
 
-    var validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.IN_SERVICE, padPipelineService.canShowAlreadyExistsOnSeabedQuestions(pwaApplicationType));
-
+    var validationHints = pipelineHeaderService.getValidationHints(null, pwaApplicationType);
     pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.ADD, null), () -> {
 
-          padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form);
+          padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form, validationHints.getRequiredQuestions());
 
           return ReverseRouter.redirect(
               on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
@@ -180,18 +177,20 @@ public class PipelinesController {
 
       var padPipeline = applicationContext.getPadPipeline();
 
-      var validationHints = new PipelineHeaderValidationHints(PipelineStatus.IN_SERVICE,
-          padPipelineService.canShowAlreadyExistsOnSeabedQuestions(padPipeline, pwaApplicationType));
-
+      var validationHints = pipelineHeaderService.getValidationHints(padPipeline, pwaApplicationType);
       pipelineHeaderFormValidator.validate(form, bindingResult, validationHints);
 
       return controllerHelperService.checkErrorsAndRedirect(bindingResult,
           getAddEditPipelineModelAndView(applicationContext.getApplicationDetail(), ScreenActionType.EDIT, padPipeline),
           () -> {
-            padPipelineService.updatePipeline(padPipeline, form);
-            return ReverseRouter.redirect(
-                on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+
+            padPipelineService.updatePipeline(padPipeline, form, validationHints.getRequiredQuestions());
+
+            return ReverseRouter.redirect(on(PipelinesTaskListController.class)
+                .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+
           });
+
     });
 
   }
