@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderConditionalQuestion;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderQuestion;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 
 /**
@@ -58,9 +58,7 @@ public final class PipelineDiffableSummary {
 
   public static PipelineDiffableSummary empty() {
     return new PipelineDiffableSummary(null, new PipelineHeaderView(), List.of(), null);
-
   }
-
 
   public PipelineId getPipelineId() {
     return pipelineId;
@@ -78,11 +76,9 @@ public final class PipelineDiffableSummary {
     return drawingSummaryView;
   }
 
-  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
-    return pipelineHeaderView.getQuestionsForPipelineStatus();
+  public Set<PipelineHeaderQuestion> getHeaderQuestions() {
+    return pipelineHeaderView.getHeaderQuestions();
   }
-
-
 
   @Override
   public boolean equals(Object o) {

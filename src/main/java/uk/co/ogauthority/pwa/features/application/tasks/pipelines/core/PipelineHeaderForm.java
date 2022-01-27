@@ -45,8 +45,6 @@ public class PipelineHeaderForm {
 
   private String footnote;
 
-
-
   public String getFromLocation() {
     return fromLocation;
   }

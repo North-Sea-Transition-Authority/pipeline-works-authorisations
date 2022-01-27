@@ -101,11 +101,9 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
     var previousPipelineHeaderView = previousSummaryView.getPipelineHeaderView();
     Map<String, Object> pipelineHeaderMap = new HashMap<>(diffService.diff(
         currentPipelineHeaderView, previousPipelineHeaderView,
-        Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus")));
-    pipelineHeaderMap.put("questionsForPipelineStatus", currentSummaryView.getQuestionsForPipelineStatus());
+        Set.of("identViews", "pipelineStatus", "headerQuestions")));
+    pipelineHeaderMap.put("headerQuestions", currentSummaryView.getHeaderQuestions());
     pipelineHeaderMap.put("hasTemporaryPipelineNumber", StringUtils.isNotEmpty(currentPipelineHeaderView.getTemporaryPipelineNumber()));
-    pipelineHeaderMap.put("canShowAlreadyExistsOnSeabed", currentPipelineHeaderView.getAlreadyExistsOnSeabed() != null);
-    pipelineHeaderMap.put("canShowPipelineInUse", currentPipelineHeaderView.getPipelineInUse() != null);
     pipelineHeaderMap.put("canShowFootnote",
         currentPipelineHeaderView.getFootnote() != null || previousPipelineHeaderView.getFootnote() != null);
 
@@ -114,7 +112,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
         diffService.diffComplexLists(
             currentSummaryView.getIdentViews(),
             previousSummaryView.getIdentViews(),
-            // Simple mapping of idents. If the ident is in the same position, its considered to be the same ident.
+            // Simple mapping of idents. If the ident is in the same position, it's considered to be the same ident.
             IdentDiffableView::getIdentNumber,
             IdentDiffableView::getIdentNumber
         )

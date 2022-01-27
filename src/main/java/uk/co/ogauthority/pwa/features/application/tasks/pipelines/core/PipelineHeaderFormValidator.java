@@ -128,21 +128,19 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     }
 
     var pipelineHeaderValidationHints = (PipelineHeaderValidationHints) validationHints[0];
-    var pipelineStatus = pipelineHeaderValidationHints.getPipelineStatus();
-    var questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(pipelineStatus);
-    for (var question: questionsForPipelineStatus) {
-      if (PipelineHeaderConditionalQuestion.OUT_OF_USE_ON_SEABED_REASON.equals(question)) {
-        ValidationUtils.rejectIfEmpty(errors, "whyNotReturnedToShore",
-            "whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Provide a reason for why the pipeline is not being returned to shore");
+    var requiredQuestions = pipelineHeaderValidationHints.getRequiredQuestions();
 
-        ValidatorUtils.validateDefaultStringLength(
-            errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
-            "The pipeline not being returned to shore reason");
-      }
+    if (requiredQuestions.contains(PipelineHeaderQuestion.OUT_OF_USE_ON_SEABED_REASON)) {
+      ValidationUtils.rejectIfEmpty(errors, "whyNotReturnedToShore",
+          "whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Provide a reason for why the pipeline is not being returned to shore");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "whyNotReturnedToShore", form::getWhyNotReturnedToShore,
+          "The pipeline not being returned to shore reason");
     }
 
-    if (pipelineHeaderValidationHints.getValidateAlreadyExistsOnSeabedQuestion()) {
+    if (requiredQuestions.contains(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED)) {
       ValidationUtils.rejectIfEmpty(errors, "alreadyExistsOnSeabed", "alreadyExistsOnSeabed" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select 'Yes' if this pipeline already exists on the seabed");
 
@@ -155,7 +153,6 @@ public class PipelineHeaderFormValidator implements SmartValidator {
     if (form.getFootnote() != null) {
       ValidatorUtils.validateDefaultStringLength(errors, "footnote", form::getFootnote, "Special features information");
     }
-
 
   }
 

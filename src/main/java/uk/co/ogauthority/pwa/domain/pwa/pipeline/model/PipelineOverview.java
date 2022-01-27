@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderQuestion;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 
@@ -59,6 +62,26 @@ public interface PipelineOverview extends NamedPipeline {
 
   default AsBuiltNotificationStatus getAsBuiltNotificationStatus() {
     return null;
+  }
+
+  default Set<PipelineHeaderQuestion> getRelevantQuestions() {
+
+    return PipelineHeaderQuestion.stream()
+        .filter(question -> {
+
+          if (question == PipelineHeaderQuestion.OUT_OF_USE_ON_SEABED_REASON) {
+            return getPipelineStatusReason() != null;
+          }
+
+          if (question == PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED) {
+            return getAlreadyExistsOnSeabed() != null;
+          }
+
+          return false;
+
+        })
+        .collect(Collectors.toSet());
+
   }
 
 }

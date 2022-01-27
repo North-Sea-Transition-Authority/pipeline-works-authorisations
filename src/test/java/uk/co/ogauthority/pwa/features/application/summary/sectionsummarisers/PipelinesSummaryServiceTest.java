@@ -73,7 +73,6 @@ public class PipelinesSummaryServiceTest {
   @Mock
   private IdentView identEnd;
 
-
   private PipelinesSummaryService pipelinesSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -146,7 +145,7 @@ public class PipelinesSummaryServiceTest {
     verify(diffService, times(1)).diff(
         appPipelineSummary.getPipelineHeaderView(),
         new PipelineHeaderView(),
-        Set.of("identViews", "pipelineStatus", "questionsForPipelineStatus"));
+        Set.of("identViews", "pipelineStatus", "headerQuestions"));
 
     verify(diffService, times(1)).diffComplexLists(
         eq(appPipelineSummary.getIdentViews()),
@@ -171,6 +170,5 @@ public class PipelinesSummaryServiceTest {
     var actualCanShowFootnote = (boolean) pipelineHeaderMap.get("canShowFootnote");
     assertThat(actualCanShowFootnote).isTrue();
   }
-
 
 }

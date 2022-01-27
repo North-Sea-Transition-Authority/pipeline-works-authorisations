@@ -246,7 +246,48 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesOutOfUseOrReturnedToShow_singleDetailExists() {
+  public void write_consentWriterHasMappedPipelineDetails_pipelineReturnedToShore_singleDetailExists_outOfUse() {
+
+    pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    when(pipelineDetailService.countPipelineDetailsPerPipeline(
+        Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
+        .thenReturn(Map.of(
+            PIPELINE_ID_1, 2L,
+            PIPELINE_ID_2, 1L
+        ));
+
+    consentWriterDto = asBuiltWriterService.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
+
+    verify(asBuiltInteractorService).createAsBuiltNotification(
+        eq(pwaConsent),
+        eq(pwaApplicationDetail.getPwaApplicationRef()),
+        any(), // test deadline date separately
+        eq(systemPerson),
+        asBuiltPipelineNotificationListCaptor.capture()
+    );
+    verifyNoMoreInteractions(asBuiltInteractorService);
+
+    assertThat(asBuiltPipelineNotificationListCaptor.getValue())
+        .hasSize(2)
+        .anySatisfy(asBuiltPipelineNotificationSpec -> {
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
+              pipeline1Detail.getPipelineDetailId());
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
+              PipelineChangeCategory.OUT_OF_USE);
+        })
+        .anySatisfy(asBuiltPipelineNotificationSpec -> {
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
+              pipeline2Detail.getPipelineDetailId());
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
+              PipelineChangeCategory.OUT_OF_USE);
+        });
+
+  }
+
+  @Test
+  public void write_consentWriterHasMappedPipelineDetails_pipelineOutOfUse_singleDetailExists_newPipeline() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -270,12 +311,13 @@ public class ConsentAsBuiltWriterServiceTest {
     );
     verifyNoMoreInteractions(asBuiltInteractorService);
 
-    assertThat(asBuiltPipelineNotificationListCaptor.getValue()).hasSize(2)
+    assertThat(asBuiltPipelineNotificationListCaptor.getValue())
+        .hasSize(2)
         .anySatisfy(asBuiltPipelineNotificationSpec -> {
           assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
               pipeline1Detail.getPipelineDetailId());
           assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
-              PipelineChangeCategory.OUT_OF_USE);
+              PipelineChangeCategory.NEW_PIPELINE);
         })
         .anySatisfy(asBuiltPipelineNotificationSpec -> {
           assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
@@ -285,7 +327,6 @@ public class ConsentAsBuiltWriterServiceTest {
         });
 
   }
-
 
   // Want to confirm hour of day consented has no impact on deadline date for options consents.
   @Test

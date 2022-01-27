@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
@@ -29,16 +28,18 @@ public class PipelineHeaderFormValidatorTest {
 
   private PipelineHeaderValidationHints validationHints;
 
-  private static Boolean DO_NOT_VALIDATE_SEABED_QUESTION = false;
-  private static Boolean VALIDATE_SEABED_QUESTION = true;
+  private static final PipelineHeaderValidationHints VALIDATE_OUT_OF_USE_REASON = new PipelineHeaderValidationHints(
+      Set.of(PipelineHeaderQuestion.OUT_OF_USE_ON_SEABED_REASON));
+
+  private static final PipelineHeaderValidationHints VALIDATE_ALREADY_EXISTS = new PipelineHeaderValidationHints(
+      Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
+
+  private static final PipelineHeaderValidationHints NO_VALIDATE_CONDITIONAL_QUESTIONS = new PipelineHeaderValidationHints(Set.of());
 
   @Before
   public void setUp() {
     validator = new PipelineHeaderFormValidator(new CoordinateFormValidator());
-    validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.IN_SERVICE,
-        DO_NOT_VALIDATE_SEABED_QUESTION
-    );
+    validationHints = NO_VALIDATE_CONDITIONAL_QUESTIONS;
   }
 
   @Test
@@ -289,42 +290,34 @@ public class PipelineHeaderFormValidatorTest {
 
   @Test
   public void failed_whyNotReturnedToShoreRequired() {
-    validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.OUT_OF_USE_ON_SEABED, DO_NOT_VALIDATE_SEABED_QUESTION);
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_OUT_OF_USE_REASON);
     assertThat(result).contains(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void invalid_whyNotReturnedToShore_tooLong() {
-    validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.OUT_OF_USE_ON_SEABED, DO_NOT_VALIDATE_SEABED_QUESTION);
     var form = buildForm();
     form.setWhyNotReturnedToShore(ValidatorTestUtils.overMaxDefaultCharLength());
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_OUT_OF_USE_REASON);
     assertThat(result).containsOnly(
         entry("whyNotReturnedToShore", Set.of("whyNotReturnedToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
   @Test
   public void seabedQuestionRequired_null() {
-    validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.IN_SERVICE, VALIDATE_SEABED_QUESTION);
     var form = buildForm();
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_ALREADY_EXISTS);
     assertThat(result).contains(
         entry("alreadyExistsOnSeabed", Set.of("alreadyExistsOnSeabed" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void pipelineInUseQuestionRequired_null() {
-    validationHints = new PipelineHeaderValidationHints(
-        PipelineStatus.IN_SERVICE, VALIDATE_SEABED_QUESTION);
     var form = buildForm();
     form.setAlreadyExistsOnSeabed(true);
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_ALREADY_EXISTS);
     assertThat(result).contains(
         entry("pipelineInUse", Set.of("pipelineInUse" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }

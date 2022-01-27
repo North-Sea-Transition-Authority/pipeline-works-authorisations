@@ -1,24 +1,17 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import java.util.Set;
 
 public class PipelineHeaderValidationHints {
 
-  private final PipelineStatus pipelineStatus;
-  private final Boolean validateAlreadyExistsOnSeabedQuestion;
+  private final Set<PipelineHeaderQuestion> requiredQuestions;
 
-  public PipelineHeaderValidationHints(PipelineStatus pipelineStatus,
-                                       Boolean validateAlreadyExistsOnSeabedQuestion) {
-    this.pipelineStatus = pipelineStatus;
-    this.validateAlreadyExistsOnSeabedQuestion = validateAlreadyExistsOnSeabedQuestion;
+  public PipelineHeaderValidationHints(Set<PipelineHeaderQuestion> requiredQuestions) {
+    this.requiredQuestions = requiredQuestions;
   }
 
-
-  public PipelineStatus getPipelineStatus() {
-    return pipelineStatus;
+  public Set<PipelineHeaderQuestion> getRequiredQuestions() {
+    return requiredQuestions;
   }
 
-  public Boolean getValidateAlreadyExistsOnSeabedQuestion() {
-    return validateAlreadyExistsOnSeabedQuestion;
-  }
 }
