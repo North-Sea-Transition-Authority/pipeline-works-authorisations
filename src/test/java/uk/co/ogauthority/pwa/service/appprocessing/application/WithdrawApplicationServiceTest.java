@@ -23,7 +23,6 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.exception.WithdrawApplicationException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -51,8 +50,7 @@ public class WithdrawApplicationServiceTest {
 
   @Mock
   private WithdrawApplicationValidator withdrawApplicationValidator;
-  @Mock
-  private PwaApplicationService pwaApplicationService;
+
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
   @Mock
