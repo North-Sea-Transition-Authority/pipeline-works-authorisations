@@ -33,6 +33,9 @@ SELECT
   xou.organ_id ou_id
 , xou.organ_id org_unit_id
 , oad.legal_address
-, oad.registered_number
+, CASE WHEN oad.role_name = 'BRANCH_ADDRESS'
+    THEN oad.branch_number
+    ELSE oad.registered_number
+  END registered_number
 FROM decmgr.xview_organisation_units xou
 LEFT JOIN decmgr.organisation_address_details oad ON oad.organ_id = xou.organ_id;

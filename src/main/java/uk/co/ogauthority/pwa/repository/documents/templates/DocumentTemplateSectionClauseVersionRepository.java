@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSection;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClauseVersion;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 
 @Repository
 public interface DocumentTemplateSectionClauseVersionRepository extends CrudRepository<DocumentTemplateSectionClauseVersion, Integer> {
@@ -17,8 +18,9 @@ public interface DocumentTemplateSectionClauseVersionRepository extends CrudRepo
       "documentTemplateSectionClause.documentTemplateSection.documentTemplate",
       "parentDocumentTemplateSectionClause.documentTemplateSection.documentTemplate",
   })
-  List<DocumentTemplateSectionClauseVersion> getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrue(
-      Collection<DocumentTemplateSection> section);
+  List<DocumentTemplateSectionClauseVersion> getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrueAndStatusIs(
+      Collection<DocumentTemplateSection> section,
+      SectionClauseVersionStatus status);
 
   @EntityGraph(attributePaths = {
       "documentTemplateSectionClause.documentTemplateSection.documentTemplate",

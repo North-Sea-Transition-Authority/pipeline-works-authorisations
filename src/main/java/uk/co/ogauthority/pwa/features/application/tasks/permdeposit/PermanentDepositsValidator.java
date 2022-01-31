@@ -166,43 +166,61 @@ public class PermanentDepositsValidator implements SmartValidator {
             "Enter a valid quantity for the material type");
       }
 
+      ValidatorUtils.validateMaxStringLength(errors, "contingencyConcreteAmount", form::getContingencyConcreteAmount,
+          "Concrete mattresses contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
+
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "rocksSize", "rocksSize.invalid", "Enter a valid size for the material type");
+
       if (!NumberUtils.isCreatable(form.getQuantityRocks())) {
         errors.rejectValue("quantityRocks", "quantityRocks.invalid",
             "Enter a valid quantity for the material type");
       }
 
+      ValidatorUtils.validateMaxStringLength(errors, "contingencyRocksAmount", form::getContingencyRocksAmount,
+          "Rock contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsSize", "groutBagsSize.invalid",
           "Enter a valid size for the material type");
+
       if (!NumberUtils.isCreatable(form.getQuantityGroutBags())) {
         errors.rejectValue("quantityGroutBags", "quantityGroutBags.invalid",
             "Enter a valid quantity for the material type");
       }
+
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsBioDegradable", "groutBagsBioDegradable.required",
           "Select yes if the grout bags are bio degradable");
+
       if (BooleanUtils.isFalse(form.getGroutBagsBioDegradable()) && StringUtils.isBlank(form.getBioGroutBagsNotUsedDescription())) {
         errors.rejectValue("bioGroutBagsNotUsedDescription", "bioGroutBagsNotUsedDescription.blank",
             "Explain why bio-degradable grout bags aren’t being used");
       }
 
+      ValidatorUtils.validateDefaultStringLength(errors, "bioGroutBagsNotUsedDescription",
+          form::getBioGroutBagsNotUsedDescription, "Explanation for not using bio-degradable grout bags");
+
+      ValidatorUtils.validateMaxStringLength(errors, "contingencyGroutBagsAmount", form::getContingencyGroutBagsAmount,
+          "Grout bags contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
+
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialSize", "otherMaterialSize.invalid",
           "Enter a valid size for the material type");
+
       if (!NumberUtils.isCreatable(form.getQuantityOther())) {
         errors.rejectValue("quantityOther", "quantityOther.invalid",
             "Enter a valid quantity for the material type");
       }
-      ValidatorUtils.validateMaxStringLength(errors, "contingencyOtherAmount", form::getContingencyOtherAmount, "Contingency amount",
-          150);
+
+      ValidatorUtils.validateMaxStringLength(errors, "contingencyOtherAmount", form::getContingencyOtherAmount,
+          "Other contingency amount", 150);
+
     }
+
   }
-
-
 
   private void validateStartDate(Errors errors, PermanentDepositsValidationHints validationHints,
                                  TwoFieldDateInput depositStartDateInput) {

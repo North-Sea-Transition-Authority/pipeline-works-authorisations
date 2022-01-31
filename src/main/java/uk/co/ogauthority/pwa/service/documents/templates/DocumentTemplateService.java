@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.enums.documents.DocumentTemplateSectionStatus;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseRepository;
 import uk.co.ogauthority.pwa.repository.documents.templates.DocumentTemplateSectionClauseVersionDtoRepository;
@@ -83,7 +84,8 @@ public class DocumentTemplateService {
     }
 
     Map<DocumentTemplateSection, List<DocumentTemplateSectionClauseVersion>> sectionToCurrentClauseVersionMap = clauseVersionRepository
-        .getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrue(sections)
+        .getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrueAndStatusIs(
+            sections, SectionClauseVersionStatus.ACTIVE)
         .stream()
         .collect(Collectors.groupingBy(version -> version.getClause().getDocumentTemplateSection()));
 
