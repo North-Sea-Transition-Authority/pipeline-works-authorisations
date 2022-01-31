@@ -2,7 +2,7 @@ UPDATE ${datasource.user}.pad_pipelines pp
 SET
   pp.already_exists_on_seabed = 1
 , pp.pipeline_in_use = 1
-WHERE pp.id = (
+WHERE pp.id IN (
   SELECT pp.id
   FROM ${datasource.user}.pwa_applications pa
   JOIN ${datasource.user}.pwa_application_details pad ON pad.pwa_application_id = pa.id AND pad.tip_flag = 1
