@@ -135,4 +135,28 @@ public class PipelineTechInfoValidatorTest {
 
   }
 
+  @Test
+  public void validate_estimatedFieldLife_negativeNumber_invalid() {
+    var form = getFullForm();
+    form.setEstimatedFieldLife(-1);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+
+    assertThat(errorsMap).containsOnly(
+        entry("estimatedFieldLife", Set.of("estimatedFieldLife.valueOutOfRange"))
+    );
+  }
+
+  @Test
+  public void validate_estimatedFieldLife_zero_invalid() {
+    var form = getFullForm();
+    form.setEstimatedFieldLife(0);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+
+    assertThat(errorsMap).containsOnly(
+        entry("estimatedFieldLife", Set.of("estimatedFieldLife.valueOutOfRange"))
+    );
+  }
+
 }
