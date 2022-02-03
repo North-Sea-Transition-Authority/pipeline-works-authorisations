@@ -1,5 +1,6 @@
 <#include '../../pwaLayoutImports.ftl'>
 <#import '../../diffedViews/diffedPipelineViews.ftl' as diffedPipelineViews>
+<#import '../../helpers/diffHelper.ftl' as diffHelper>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 <#-- @ftlvariable name="unitMeasurements" type="java.util.Map<java.lang.String, uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement>" -->
@@ -10,7 +11,7 @@
 
     <#list pipelines as diffablePipeline>
         <h3 class="govuk-heading-m"><@diffChanges.renderDiff diffablePipeline.pipelineHeader.PipelineHeaderView_pipelineName /></h3>
-        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffablePipeline.pipelineHeader pipelineIdentsSize=diffablePipeline.pipelineIdents?size!0 drawingSummaryView=(diffablePipeline.drawingSummaryView)! urlFactory=pipelineDrawingUrlFactory/>
+        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffablePipeline.pipelineHeader pipelineIdentsSize=(diffHelper.getDiffUnmatchedFieldCount(diffablePipeline.pipelineIdents!"", "IdentDiffableView_identNumber", "DELETED")) drawingSummaryView=(diffablePipeline.drawingSummaryView)! urlFactory=pipelineDrawingUrlFactory/>
         <#if diffablePipeline.pipelineIdents?has_content>
             <@fdsTimeline.timeline>
                 <@fdsTimeline.timelineSection sectionHeading="">
