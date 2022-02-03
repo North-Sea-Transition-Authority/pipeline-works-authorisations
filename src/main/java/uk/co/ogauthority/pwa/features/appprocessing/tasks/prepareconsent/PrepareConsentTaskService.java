@@ -56,13 +56,18 @@ public class PrepareConsentTaskService implements AppProcessingService {
     var appInvolvement = processingContext.getApplicationInvolvement();
     var appStatus = processingContext.getApplicationDetail().getStatus();
 
+    boolean atLeastOneSatisfactoryVersion = processingContext.getApplicationInvolvement().hasAtLeastOneSatisfactoryVersion();
+
     // locked for industry & completed apps
     if (appInvolvement.hasOnlyIndustryInvolvement() || appStatus.equals(PwaApplicationStatus.COMPLETE)) {
       return TaskState.LOCK;
     }
 
-    //assigned case officer should always be able to access task at case officer review stage
-    if (appInvolvement.isUserAssignedCaseOfficer() && appStatus.equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)) {
+    /* assigned case officer only has access  to task at case officer review stage if there is at least one
+    satisfactory version of the application*/
+    if (appInvolvement.isUserAssignedCaseOfficer()
+        && appStatus.equals(PwaApplicationStatus.CASE_OFFICER_REVIEW)
+        && atLeastOneSatisfactoryVersion) {
       return TaskState.EDIT;
       // locked for consent reviewer when review is not open, unlocked when open
     } else if (processingContext.hasProcessingPermission(PwaAppProcessingPermission.CONSENT_REVIEW)) {
