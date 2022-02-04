@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-  id 'org.springframework.boot' version '2.5.4'
+  id 'org.springframework.boot' version '2.6.3'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
@@ -70,14 +70,14 @@ dependencies {
 
   // Required by Hibernate Envers
   // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
-  implementation 'org.hibernate:hibernate-envers:5.4.27.Final'
+  implementation 'org.hibernate:hibernate-envers:5.6.5.Final'
 
   // automatically generates jpa meta-model for type safe criteria builder queries
   annotationProcessor("javax.xml.bind:jaxb-api")
   annotationProcessor("org.hibernate:hibernate-jpamodelgen")
 
-  implementation 'com.google.guava:guava:30.1.1-jre'
-  implementation 'org.apache.commons:commons-lang3:3.9'
+  implementation 'com.google.guava:guava:31.0.1-jre'
+  implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'org.apache.commons:commons-collections4:4.4'
   implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
 
@@ -89,7 +89,7 @@ dependencies {
   implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.4'
 
   // https://mvnrepository.com/artifact/org.jsoup/jsoup
-  implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
+  implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.3'
 
   // https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib
   implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
