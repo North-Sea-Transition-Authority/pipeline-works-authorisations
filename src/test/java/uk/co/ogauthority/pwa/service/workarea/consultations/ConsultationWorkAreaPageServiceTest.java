@@ -81,10 +81,10 @@ public class ConsultationWorkAreaPageServiceTest {
     verify(consulteeGroupTeamService, times(1)).getTeamMemberByPerson(user.getLinkedPerson());
 
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        ConsultationRequestStatus.ALLOCATION,
-        null,
-        Set.of()
+        eq(getDefaultWorkAreaViewPageable(REQUESTED_PAGE)),
+        eq(ConsultationRequestStatus.ALLOCATION),
+        eq(null),
+        eq(Set.of())
     );
 
   }
@@ -106,10 +106,10 @@ public class ConsultationWorkAreaPageServiceTest {
     var workAreaPage = consultationWorkAreaPageService.getPageView(user, Set.of(), REQUESTED_PAGE);
 
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        ConsultationRequestStatus.ALLOCATION,
-        groupDetail.getConsulteeGroupId(),
-        Set.of()
+        eq(getDefaultWorkAreaViewPageable(REQUESTED_PAGE)),
+        eq(ConsultationRequestStatus.ALLOCATION),
+        eq(groupDetail.getConsulteeGroupId()),
+        eq(Set.of())
     );
 
   }
@@ -126,10 +126,10 @@ public class ConsultationWorkAreaPageServiceTest {
     var workAreaPage = consultationWorkAreaPageService.getPageView(user, Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey()), REQUESTED_PAGE);
 
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        ConsultationRequestStatus.ALLOCATION,
-        null,
-        Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
+        eq(getDefaultWorkAreaViewPageable(REQUESTED_PAGE)),
+        eq(ConsultationRequestStatus.ALLOCATION),
+        eq(null),
+        eq(Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey()))
     );
 
   }
@@ -151,10 +151,10 @@ public class ConsultationWorkAreaPageServiceTest {
     var workAreaPage = consultationWorkAreaPageService.getPageView(user, Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey()), REQUESTED_PAGE);
 
     verify(consultationRequestSearcher, times(1)).searchByStatusForGroupIdsOrConsultationRequestIds(
-        getDefaultWorkAreaViewPageable(REQUESTED_PAGE),
-        ConsultationRequestStatus.ALLOCATION,
-        groupDetail.getConsulteeGroupId(),
-        Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey())
+        eq(getDefaultWorkAreaViewPageable(REQUESTED_PAGE)),
+        eq(ConsultationRequestStatus.ALLOCATION),
+        eq(groupDetail.getConsulteeGroupId()),
+        eq(Set.of(assignedTask.getBusinessKey(), assignedTask2.getBusinessKey()))
     );
 
   }
