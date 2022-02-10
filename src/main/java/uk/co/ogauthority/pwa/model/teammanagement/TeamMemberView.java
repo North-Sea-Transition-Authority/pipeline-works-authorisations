@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.model.teammanagement;
 
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
 /**
  * View of single team member for team management screen.

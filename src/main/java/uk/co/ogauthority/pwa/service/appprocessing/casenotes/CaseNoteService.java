@@ -14,27 +14,29 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNote;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNoteDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.form.files.UploadedFileView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryItemService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
+import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
 @Service
 public class CaseNoteService implements AppProcessingService, CaseHistoryItemService {
@@ -43,6 +45,7 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   private final AppFileService appFileService;
   private final Clock clock;
   private final CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository;
+  private final CaseNoteFormValidator validator;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CASE_NOTES;
 
@@ -50,11 +53,13 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   public CaseNoteService(CaseNoteRepository caseNoteRepository,
                          AppFileService appFileService,
                          @Qualifier("utcClock") Clock clock,
-                         CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository) {
+                         CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository,
+                         CaseNoteFormValidator validator) {
     this.caseNoteRepository = caseNoteRepository;
     this.appFileService = appFileService;
     this.clock = clock;
     this.caseNoteDocumentLinkRepository = caseNoteDocumentLinkRepository;
+    this.validator = validator;
   }
 
   @Override
@@ -141,6 +146,11 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   @Transactional
   public void deleteFileLink(CaseNoteDocumentLink link) {
     caseNoteDocumentLinkRepository.delete(link);
+  }
+
+  public BindingResult validate(AddCaseNoteForm form, BindingResult bindingResult) {
+    validator.validate(form, bindingResult);
+    return bindingResult;
   }
 
 }

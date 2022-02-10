@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 
 public enum AsBuiltNotificationStatus {
   MIGRATION("Migrated", List.of(), StatusCategory.INACTIVE),

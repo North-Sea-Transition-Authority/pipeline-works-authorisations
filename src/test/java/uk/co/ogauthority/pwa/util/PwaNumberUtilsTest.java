@@ -46,4 +46,78 @@ public class PwaNumberUtilsTest {
     assertThat(expectTrue).isTrue();
 
   }
+
+  @Test
+  public void numberOfDecimalPlacesLessThanOrEqual_valid() {
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0"), 0, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0"), 1, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.0"), 0, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.0"), 1, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.1"), 1, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.1"), 2, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1"), 0, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1"), 1, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.0"), 0, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.0"), 1, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.1"), 1, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.10"), 1, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.1"), 2, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.10"), 2, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.11"), 2, true)).isTrue();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.1"), 1, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.10"), 1, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.1"), 2, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.10"), 2, true)).isTrue();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.11"), 2, true)).isTrue();
+  }
+
+  @Test
+  public void numberOfDecimalPlacesLessThanOrEqual_invalid() {
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.1"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.10"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.11"), 1, true)).isFalse();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.1"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.10"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("1.11"), 1, true)).isFalse();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.1"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.10"), 0, true)).isFalse();
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("10.11"), 1, true)).isFalse();
+
+    assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("99.011"), 2, true)).isFalse();
+  }
+
+  @Test
+  public void getNumberOfDpIncludingTrailingZeros() {
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.1"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.11"))).isEqualTo(2);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.0"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.00"))).isEqualTo(2);
+
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("1.1"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("1.11"))).isEqualTo(2);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("1.0"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("1.00"))).isEqualTo(2);
+  }
+
+  @Test
+  public void getNumberOfDp() {
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.1"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.11"))).isEqualTo(2);
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.0"))).isZero();
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.00"))).isZero();
+
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("1.1"))).isEqualTo(1);
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("1.11"))).isEqualTo(2);
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("1.0"))).isZero();
+    assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("1.00"))).isZero();
+  }
 }

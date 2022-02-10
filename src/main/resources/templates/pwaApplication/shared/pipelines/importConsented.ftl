@@ -2,11 +2,11 @@
 <#import '../../../components/coordinates/coordinateInput.ftl' as coordinateInput/>
 
 <#-- @ftlvariable name="longDirections" type="java.util.Map<java.lang.String,java.lang.String>" -->
-<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineIdentForm" -->
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType" -->
 
 <@defaultPage htmlTitle="Modify consented pipeline" pageHeading="Modify consented pipeline" breadcrumbs=true errorItems=errorList>
 

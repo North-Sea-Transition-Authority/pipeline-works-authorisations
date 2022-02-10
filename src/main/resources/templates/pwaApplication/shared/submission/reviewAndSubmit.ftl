@@ -7,9 +7,9 @@
 <#-- @ftlvariable name="submitUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="applicationReference" type="java.lang.String" -->
 <#-- @ftlvariable name="openUpdateRequest" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
+<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="submitterCandidates" type="java.util.Map<java.lang.Integer, java.lang.String>" -->
-<#-- @ftlvariable name="userPermissions" type="java.util.Set<uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationPermission>" -->
+<#-- @ftlvariable name="userPermissions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission>" -->
 <#-- @ftlvariable name="mappingGuidanceUrl" type="java.lang.String" -->
 
 <#assign pageHeading="Check your answers before submitting your application ${applicationReference}"/>

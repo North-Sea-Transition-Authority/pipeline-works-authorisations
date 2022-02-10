@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.enums.workflow.consultation;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
-import uk.co.ogauthority.pwa.service.enums.workflow.UserWorkflowTask;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
+import uk.co.ogauthority.pwa.integrations.camunda.external.UserWorkflowTask;
 
 public enum PwaApplicationConsultationWorkflowTask implements UserWorkflowTask {
 

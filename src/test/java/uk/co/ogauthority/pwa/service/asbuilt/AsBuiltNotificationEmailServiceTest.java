@@ -15,18 +15,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlinePassedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlineUpcomingEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationNotPerConsentEmailProps;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.asbuilt.AsBuiltNotificationDeadlinePassedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.asbuilt.AsBuiltNotificationDeadlineUpcomingEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.asbuilt.AsBuiltNotificationNotPerConsentEmailProps;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,7 +38,7 @@ public class AsBuiltNotificationEmailServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Captor
   private ArgumentCaptor<AsBuiltNotificationNotPerConsentEmailProps> asBuiltNotificationNotPerConsentEmailPropsArgumentCaptor;
@@ -63,10 +63,10 @@ public class AsBuiltNotificationEmailServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, emailCaseLinkService, OGA_CONSENTS_EMAIL);
+    asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, caseLinkService, OGA_CONSENTS_EMAIL);
 
-    when(emailCaseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
-    when(emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
+    when(caseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
+    when(caseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
 
   }
 
@@ -81,7 +81,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "AS_BUILT_GROUP_REF", asBuiltNotificationGroup.getReference(),
         "PIPELINE_NUMBER", pipelineDetail.getPipelineNumber(),
         "AS_BUILT_NOTIFICATION_STATUS", AS_BUILT_NOTIFICATION_STATUS.getDisplayName(),
-        "AS_BUILT_DASHBOARD_LINK", emailCaseLinkService.generateAsBuiltNotificationSummaryLink(
+        "AS_BUILT_DASHBOARD_LINK", caseLinkService.generateAsBuiltNotificationSummaryLink(
             asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(), pipelineDetail.getPipelineId().asInt())
     ));
   }
@@ -95,7 +95,7 @@ public class AsBuiltNotificationEmailServiceTest {
     assertThat(asBuiltNotificationDeadlineUpcomingEmailPropsArgumentCaptor.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
         "RECIPIENT_FULL_NAME", person.getFullName(),
         "AS_BUILT_GROUP_REFERENCES", asBuiltNotificationGroup.getReference(),
-        "AS_BUILT_WORKAREA_LINK", emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        "AS_BUILT_WORKAREA_LINK", caseLinkService.generateAsBuiltNotificationWorkareaLink()
     ));
   }
 
@@ -109,7 +109,7 @@ public class AsBuiltNotificationEmailServiceTest {
         "RECIPIENT_FULL_NAME", person.getFullName(),
         "AS_BUILT_GROUP_REFERENCES", asBuiltNotificationGroup.getReference(),
         "OGA_CONSENTS_EMAIL", OGA_CONSENTS_EMAIL,
-        "AS_BUILT_WORKAREA_LINK", emailCaseLinkService.generateAsBuiltNotificationWorkareaLink()
+        "AS_BUILT_WORKAREA_LINK", caseLinkService.generateAsBuiltNotificationWorkareaLink()
     ));
   }
 

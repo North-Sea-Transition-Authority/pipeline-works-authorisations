@@ -95,10 +95,16 @@ dependencies {
   compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.15.2'
   compile group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.15.2'
 
+  implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
+
   testCompile 'com.h2database:h2:1.4.197'
   testCompile 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
-  testImplementation 'org.springframework.security:spring-security-test'
+  testImplementation(
+      'org.springframework.boot:spring-boot-starter-test',
+      'org.springframework.security:spring-security-test',
+      'com.squareup.okhttp3:mockwebserver:4.9.1',
+      'com.squareup.okhttp3:okhttp:4.9.1' // Required otherwise MockWebServer gives ClassNotFoundException
+  )
 }
 
 checkstyle {

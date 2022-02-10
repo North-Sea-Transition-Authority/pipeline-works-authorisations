@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="fluidCompositionView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.FluidCompositionView" -->
+<#-- @ftlvariable name="fluidCompositionView" type="uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionView" -->
 
 
 <div class="pwa-application-summary-section">
@@ -21,7 +21,7 @@
 
         <#if fluidCompositionDataForm.fluidCompositionOption?has_content>        
           <#if fluidCompositionDataForm.fluidCompositionOption == "HIGHER_AMOUNT">
-            ${fluidCompositionDataForm.moleValue}%
+            ${fluidCompositionDataForm.moleValue.value}%
           <#else>
             ${fluidCompositionDataForm.fluidCompositionOption.getDisplayTextSimple()}
           </#if>

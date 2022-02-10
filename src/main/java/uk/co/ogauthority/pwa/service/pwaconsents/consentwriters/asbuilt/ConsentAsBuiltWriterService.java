@@ -11,20 +11,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltInteractorService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationSpec;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ApplicationTask;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriter;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 
 /**
  * Do the logic to determine if an As-built notification is required, and which pipelines should be contained within it after a
@@ -38,6 +38,12 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
   private final PadProjectInformationService padProjectInformationService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final UserAccountService userAccountService;
+
+  private static final Set<PipelineStatus> OUT_OF_USE_OR_RTS_STATUSES = Set.of(
+      PipelineStatus.OUT_OF_USE_ON_SEABED, PipelineStatus.RETURNED_TO_SHORE);
+
+  private static final Set<PipelineStatus> NEW_PIPELINE_STATUSES = Set.of(
+      PipelineStatus.IN_SERVICE, PipelineStatus.OUT_OF_USE_ON_SEABED);
 
   @Autowired
   public ConsentAsBuiltWriterService(PipelineDetailService pipelineDetailService,
@@ -112,23 +118,24 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
         // never laid & transferred pipelines do not require as-built notifications
         .filter(pd -> !Set.of(PipelineStatus.NEVER_LAID, PipelineStatus.TRANSFERRED).contains(pd.getValue().getPipelineStatus()))
         .map(entry -> {
+
           var pipelineId = entry.getKey();
           var pipelineDetail = entry.getValue();
 
-          var outOfUseOrReturnedToShorePipelineStatuses = Set.of(
-              PipelineStatus.OUT_OF_USE_ON_SEABED, PipelineStatus.RETURNED_TO_SHORE
-          );
-
           // Default to standard consent update leaving the pipeline on the seabed.
           var changeCategory = PipelineChangeCategory.CONSENT_UPDATE;
-          if (outOfUseOrReturnedToShorePipelineStatuses.contains(pipelineDetail.getPipelineStatus())) {
-            changeCategory = PipelineChangeCategory.OUT_OF_USE;
-            // If no other case hit and the pipeline has only a single pipeline detail, then the pipeline must be newly consented.
-          } else if (pipelineIdToCountOfPipelineDetailMap.get(pipelineId) == 1L) {
+
+          boolean isNewPipeline = pipelineIdToCountOfPipelineDetailMap.get(pipelineId) == 1L;
+
+          if (isNewPipeline && NEW_PIPELINE_STATUSES.contains(pipelineDetail.getPipelineStatus())) {
             changeCategory = PipelineChangeCategory.NEW_PIPELINE;
+          } else if (OUT_OF_USE_OR_RTS_STATUSES.contains(pipelineDetail.getPipelineStatus())) {
+            // if it's a pre-existing pipeline that is now out of use or has been removed, set category appropriately
+            changeCategory = PipelineChangeCategory.OUT_OF_USE;
           }
 
           return new AsBuiltPipelineNotificationSpec(pipelineDetail.getPipelineDetailId(), changeCategory);
+
         })
         .collect(Collectors.toList());
   }

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 
 public final class ApplicationSearchParameters {
 

@@ -21,26 +21,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticePublicationEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticePublicationUpdateEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticePublicationEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticePublicationUpdateEmailProps;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticeCaseOfficerReviewResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.FinalisePublicNoticeValidator;
@@ -69,7 +69,7 @@ public class FinalisePublicNoticeServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private Clock clock;
@@ -93,7 +93,8 @@ public class FinalisePublicNoticeServiceTest {
   public void setUp() {
 
     finalisePublicNoticeService = new FinalisePublicNoticeService(publicNoticeService, validator,
-        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService, emailCaseLinkService, clock);
+        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService,
+        caseLinkService, clock);
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -234,7 +235,7 @@ public class FinalisePublicNoticeServiceTest {
         .thenReturn(publicNotice);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);
@@ -340,7 +341,7 @@ public class FinalisePublicNoticeServiceTest {
         .thenReturn(Optional.of(publicNoticeDate));
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);

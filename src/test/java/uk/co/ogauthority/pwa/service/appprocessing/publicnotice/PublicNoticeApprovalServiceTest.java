@@ -16,30 +16,30 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.entity.workflow.assignment.Assignment;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeApprovedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeRejectedEmailProps;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.enums.workflow.WorkflowType;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeApprovalValidator;
 
@@ -64,7 +64,7 @@ public class PublicNoticeApprovalServiceTest {
   private NotifyService notifyService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -92,7 +92,7 @@ public class PublicNoticeApprovalServiceTest {
   public void setUp() {
 
     publicNoticeApprovalService = new PublicNoticeApprovalService(publicNoticeService, validator,
-        camundaWorkflowService, clock, notifyService, emailCaseLinkService, pwaContactService,
+        camundaWorkflowService, clock, notifyService, caseLinkService, pwaContactService,
         personService, assignmentService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -135,7 +135,7 @@ public class PublicNoticeApprovalServiceTest {
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice)).thenReturn(publicNoticeRequest);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);
@@ -179,7 +179,7 @@ public class PublicNoticeApprovalServiceTest {
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice)).thenReturn(publicNoticeRequest);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
 
     var caseOfficerPerson = PersonTestUtil.createDefaultPerson();
     var caseOfficerAssignment = new Assignment

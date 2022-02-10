@@ -1,6 +1,6 @@
 <#-- Viewing coordinates -->
 
-<#-- @ftlvariable name="coordinatePair" type="uk.co.ogauthority.pwa.model.location.CoordinatePair" -->
+<#-- @ftlvariable name="coordinatePair" type="uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair" -->
 
 <#macro display coordinatePair>
 

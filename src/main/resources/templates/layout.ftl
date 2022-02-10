@@ -20,7 +20,7 @@ backLinkUrl=""
 backLinkText="Back"
 breadcrumbs=false
 phaseBanner=true
-phaseBannerLink=feedbackUrl!""
+phaseBannerLink=feedbackUrl
 topNavigation=false
 wrapperWidth=false
 masthead=false
@@ -45,7 +45,7 @@ errorItems=[]>
                 <@fdsAction.link
                     linkText="feedback"
                     linkUrl=springUrl(phaseBannerLink)
-                    openInNewTab=true
+                    openInNewTab=false
                     linkClass="govuk-link govuk-link--no-visited-state"
                 />
                 <span> will help us to improve it.</span>
@@ -146,6 +146,7 @@ errorItems=[]>
       <@fdsFooter.footerMeta footerMetaHiddenHeading="Support links">
         <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=springUrl(accessibilityStatementUrl)/>
         <@fdsFooter.footerMetaLink linkText="Contact" linkUrl=springUrl(contactInformationUrl)/>
+        <@fdsFooter.footerMetaLink linkText="Feedback" linkUrl=springUrl(feedbackUrl)/>
       </@fdsFooter.footerMeta>
     </#local>
     <@fdsFooter.footer wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>

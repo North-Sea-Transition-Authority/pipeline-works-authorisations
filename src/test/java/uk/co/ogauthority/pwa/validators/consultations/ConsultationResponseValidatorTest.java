@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.validators.consultations;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.when;
@@ -12,13 +13,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConsultationResponseValidatorTest {
@@ -108,6 +110,23 @@ public class ConsultationResponseValidatorTest {
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.HABITATS_REGS);
     assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_fileDescriptionOverMaxCharLength_fail() {
+
+    dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
+    dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
+    form.setResponseDataForms(Map.of(
+        ConsultationResponseOptionGroup.EIA_REGS, dataForm1,
+        ConsultationResponseOptionGroup.HABITATS_REGS, dataForm2));
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.EIA_REGS);
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
   }
 
 }

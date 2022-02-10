@@ -6,30 +6,34 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesForm;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackService;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.crossings.CrossingTypesForm;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
+// TODO - this is very obviously doing too much processing for too many different features. Splitting up will not be trivial.
 @Service
 public class PwaApplicationDetailService {
 
@@ -37,6 +41,8 @@ public class PwaApplicationDetailService {
   private final Clock clock;
   private final PadFastTrackService padFastTrackService;
   private final UserTypeService userTypeService;
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationDetailService.class);
 
   @Autowired
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
@@ -351,6 +357,44 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findById(appDetailId).orElseThrow(() ->
         new PwaEntityNotFoundException(String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
     );
+  }
+
+  @Transactional
+  public void transferTipFlag(PwaApplicationDetail currentTipDetail, PwaApplicationDetail otherDetail) {
+    currentTipDetail.setTipFlag(false);
+    otherDetail.setTipFlag(true);
+    pwaApplicationDetailRepository.saveAll(List.of(currentTipDetail, otherDetail));
+  }
+
+
+  public void doWithLastSubmittedDetailIfExists(PwaApplication pwaApplication,
+                                                Consumer<PwaApplicationDetail> doWithLastSubmittedFunction) {
+    var lastSubmittedDetailOpt = getLatestSubmittedDetail(pwaApplication);
+    if (lastSubmittedDetailOpt.isPresent()) {
+      var lastSubmittedDetail = lastSubmittedDetailOpt.get();
+      LOGGER.debug("last submitted app detail found with id {} and version {}",
+          lastSubmittedDetail.getId(), lastSubmittedDetail.getVersionNo());
+      doWithLastSubmittedFunction.accept(lastSubmittedDetail);
+    }
+  }
+
+  public void doWithCurrentUpdateRequestedDetailIfExists(PwaApplication pwaApplication,
+                                                         Consumer<PwaApplicationDetail> endUpdateRequestDetail) {
+    var updateRequestDetailOpt = getCurrentTipUpdateRequest(pwaApplication);
+    if (updateRequestDetailOpt.isPresent()) {
+      var updateRequestDetail = updateRequestDetailOpt.get();
+      LOGGER.debug("app detail with update request found with id {} and version {}",
+          updateRequestDetail.getId(), updateRequestDetail.getVersionNo());
+      endUpdateRequestDetail.accept(updateRequestDetail);
+    }
+  }
+
+  private Optional<PwaApplicationDetail> getCurrentTipUpdateRequest(PwaApplication pwaApplication) {
+    var tipDetail = getTipDetail(pwaApplication);
+    if (tipDetail.getStatus().equals(PwaApplicationStatus.UPDATE_REQUESTED)) {
+      return Optional.of(tipDetail);
+    }
+    return Optional.empty();
   }
 
 

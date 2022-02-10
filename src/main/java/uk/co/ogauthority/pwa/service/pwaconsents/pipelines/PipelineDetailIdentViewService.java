@@ -8,13 +8,13 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.pipelinedatautils.PipelineIdentViewCollectorService;
 
 /**
  * Construct ident views based on the consented pipelines dataset.

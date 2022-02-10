@@ -1,0 +1,175 @@
+package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.controller;
+
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
+import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
+import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionForm;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
+import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
+import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+
+@Controller
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/technical-drawings/umbilical-cross-section")
+@PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
+@PwaApplicationTypeCheck(types = {
+    PwaApplicationType.INITIAL,
+    PwaApplicationType.CAT_1_VARIATION
+})
+public class UmbilicalCrossSectionDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+
+  private final UmbilicalCrossSectionService umbilicalCrossSectionService;
+  private final ApplicationBreadcrumbService applicationBreadcrumbService;
+  private final ControllerHelperService controllerHelperService;
+
+  @Autowired
+  public UmbilicalCrossSectionDocumentsController(
+      ApplicationBreadcrumbService applicationBreadcrumbService,
+      PadFileService padFileService,
+      UmbilicalCrossSectionService umbilicalCrossSectionService,
+      ControllerHelperService controllerHelperService) {
+    super(padFileService);
+    this.applicationBreadcrumbService = applicationBreadcrumbService;
+    this.umbilicalCrossSectionService = umbilicalCrossSectionService;
+    this.controllerHelperService = controllerHelperService;
+  }
+
+  private ModelAndView createFileUploadModelAndView(PwaApplicationDetail pwaApplicationDetail,
+                                                    UmbilicalCrossSectionForm form) {
+    var modelAndView = createModelAndView(
+        "pwaApplication/form/uploadFiles",
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
+            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
+            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
+            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
+        // only load fully linked (saved) files
+        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION)
+    );
+
+    modelAndView.addObject("pageTitle", "Umbilical cross-section diagram")
+        .addObject("backButtonText", "Back to technical drawings")
+        .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
+            .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
+        .addObject("singleFileUpload", true)
+        .addObject("restrictToImageFileTypes", true);
+    applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
+        "Umbilical cross-section diagram");
+    return modelAndView;
+  }
+
+  @GetMapping
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
+  public ModelAndView renderAddDocuments(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") UmbilicalCrossSectionForm form,
+      PwaApplicationContext applicationContext) {
+
+    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(),
+        ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION);
+    return createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
+  }
+
+  @PostMapping
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
+  public ModelAndView postAddDocuments(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") UmbilicalCrossSectionForm form,
+      BindingResult bindingResult,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    umbilicalCrossSectionService.validate(
+        form,
+        bindingResult,
+        ValidationType.FULL,
+        applicationContext.getApplicationDetail()
+    );
+    var modelAndView = createFileUploadModelAndView(applicationContext.getApplicationDetail(), form);
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
+
+      padFileService.updateFiles(form, detail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
+          FileUpdateMode.DELETE_UNLINKED_FILES, applicationContext.getUser());
+
+      return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
+          .renderOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
+    });
+  }
+
+  @GetMapping("/files/download/{fileId}")
+  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
+  @ResponseBody
+  public ResponseEntity<Resource> handleDownload(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("fileId") String fileId,
+      PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, fileId);
+    return serveFile(file);
+  }
+
+  @PostMapping("/files/upload")
+  @ResponseBody
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
+  public FileUploadResult handleUpload(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @RequestParam("file") MultipartFile file,
+      PwaApplicationContext applicationContext) {
+
+    // not creating full link until Save is clicked.
+    return padFileService.processImageUpload(file, applicationContext.getApplicationDetail(),
+        ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION, applicationContext.getUser());
+  }
+
+  @PostMapping("/files/delete/{fileId}")
+  @ResponseBody
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
+  public FileDeleteResult handleDelete(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @PathVariable("fileId") String fileId,
+      PwaApplicationContext applicationContext) {
+    var detail = applicationContext.getApplicationDetail();
+    var file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, fileId);
+    return padFileService.processFileDeletion(file, applicationContext.getUser());
+  }
+}

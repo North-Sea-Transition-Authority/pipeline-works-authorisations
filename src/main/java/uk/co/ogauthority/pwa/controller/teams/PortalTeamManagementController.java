@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.form.teammanagement.AddUserToTeamForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
@@ -61,7 +61,7 @@ public class PortalTeamManagementController {
 
     return teamManagementService.getUserRolesForPwaTeam(pwaTeam).stream()
         .sorted(Comparator.comparing(PwaUserRole::getDisplayOrder))
-        .collect(StreamUtils.toLinkedHashMap(PwaUserRole::getRoleName, PwaUserRole::getRoleDescription));
+        .collect(StreamUtils.toLinkedHashMap(PwaUserRole::getDisplayName, PwaUserRole::getDescription));
   }
 
 

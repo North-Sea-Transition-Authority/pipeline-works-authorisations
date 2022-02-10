@@ -3,8 +3,8 @@ package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
-import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineEntity;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineEntity;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 
 @Service
 public class PipelineMappingService {

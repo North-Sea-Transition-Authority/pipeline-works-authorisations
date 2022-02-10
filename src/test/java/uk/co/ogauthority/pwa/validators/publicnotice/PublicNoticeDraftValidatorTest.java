@@ -10,11 +10,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
-import uk.co.ogauthority.pwa.model.form.files.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
+import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PublicNoticeDraftValidatorTest {
@@ -26,8 +27,7 @@ public class PublicNoticeDraftValidatorTest {
   @Before
   public void setUp() {
     validator = new PublicNoticeDraftValidator();
-    uploadedFileForm = new UploadFileWithDescriptionForm();
-    uploadedFileForm.setUploadedFileId("file id 1");
+    uploadedFileForm = FileUploadTestUtil.createDefaultUploadFileForm();
   }
 
 
@@ -60,6 +60,28 @@ public class PublicNoticeDraftValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_fileDescriptionNull_invalid() {
+    var form = new PublicNoticeDraftForm();
+    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.REQUIRED.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_form_fileDescriptionOverMaxCharLength_invalid() {
+    var form = new PublicNoticeDraftForm();
+    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    assertThat(errorsMap).contains(
+        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
+            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 

@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 
-<#-- @ftlvariable name="existingFiles" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
-<#-- @ftlvariable name="file" type="uk.co.ogauthority.pwa.model.form.files.UploadedFileView" -->
+<#-- @ftlvariable name="existingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
+<#-- @ftlvariable name="file" type="uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView" -->
 
 <#macro uploadedFileList downloadUrl existingFiles=[] blockClass="file-description">
  <#if existingFiles?has_content>

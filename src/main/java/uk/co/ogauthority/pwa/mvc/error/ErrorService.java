@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
+import uk.co.ogauthority.pwa.util.ControllerUtils;
 
 @Service
 public class ErrorService {
@@ -39,6 +40,7 @@ public class ErrorService {
       addErrorReference(modelAndView, throwable);
     }
     addTechnicalSupportContactDetails(modelAndView);
+    modelAndView.addObject("feedbackUrl", ControllerUtils.getFeedbackUrl());
     return modelAndView;
   }
 

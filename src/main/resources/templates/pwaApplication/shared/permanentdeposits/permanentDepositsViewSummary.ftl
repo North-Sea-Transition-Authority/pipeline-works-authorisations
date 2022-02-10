@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositOverview" -->
+<#-- @ftlvariable name="deposit" type="uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositOverview" -->
 
 
 <#macro depositViewSummary deposit>

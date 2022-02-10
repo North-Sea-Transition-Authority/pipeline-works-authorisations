@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="taskName" type="java.lang.String" -->
 <#-- @ftlvariable name="route" type="java.lang.String" -->
 <#-- @ftlvariable name="isCompleted" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="taskInfoList" type="java.util.List<uk.co.ogauthority.pwa.service.pwaapplications.generic.TaskInfo>" -->
+<#-- @ftlvariable name="taskInfoList" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo>" -->
 
 <#macro taskInfoItem taskName taskInfoList route isCompleted linkScreenReaderText="">
 

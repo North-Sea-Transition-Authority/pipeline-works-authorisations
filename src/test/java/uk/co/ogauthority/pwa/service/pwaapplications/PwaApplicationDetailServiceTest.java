@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Field;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.Before;
@@ -33,22 +35,22 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelineotherproperties.PropertyPhase;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackService;
+import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
+import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.initialreview.InitialReviewPaymentDecision;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.PadFastTrackService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -73,8 +75,15 @@ public class PwaApplicationDetailServiceTest {
   @Mock
   private UserTypeService userTypeService;
 
+  @Mock
+  private Consumer<PwaApplicationDetail> detailHandlerFunction;
+
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> detailCaptor;
+
+  @Captor
+  private ArgumentCaptor<List<PwaApplicationDetail>> detailsCaptor;
+
 
   private PwaApplicationDetailService pwaApplicationDetailService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -701,6 +710,76 @@ public class PwaApplicationDetailServiceTest {
         .isEqualTo(List.of(pwaApplicationDetail));
 
     verify(applicationDetailRepository).findByPwaApplicationIsInAndTipFlagIsTrue(List.of(pwaApplicationDetail.getPwaApplication()));
+  }
+
+  @Test
+  public void transferTipFlag_existingTipDetailIsNoLongerTip_otherTipDetailIsNowTip() {
+
+    var currentTipDetail = new PwaApplicationDetail();
+    currentTipDetail.setTipFlag(true);
+    var otherDetail = new PwaApplicationDetail();
+    otherDetail.setTipFlag(false);
+
+    pwaApplicationDetailService.transferTipFlag(currentTipDetail, otherDetail);
+
+    verify(applicationDetailRepository, times(1)).saveAll(detailsCaptor.capture());
+
+    var details = detailsCaptor.getValue();
+    assertThat(details).hasSize(2);
+
+    assertThat(details.get(0).isTipFlag()).isFalse();
+    assertThat(details.get(1).isTipFlag()).isTrue();
+  }
+
+  @Test
+  public void doWithLastSubmittedDetailIfExists_lastSubmittedDetailExists_verifyDetailHandlingFunctionCalled() {
+
+    var pwaApplication = new PwaApplication();
+    var lastSubmittedDetail = new PwaApplicationDetail();
+    when(applicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication)).thenReturn(List.of(lastSubmittedDetail));
+
+    pwaApplicationDetailService.doWithLastSubmittedDetailIfExists(pwaApplication, detailHandlerFunction);
+
+    verify(detailHandlerFunction).accept(lastSubmittedDetail);
+  }
+
+  @Test
+  public void doWithLastSubmittedDetailIfExists_firstDraft_lastSubmittedDetailDoesNotExists_noDetailProcessingDone() {
+
+    var pwaApplication = new PwaApplication();
+    pwaApplicationDetailService.doWithLastSubmittedDetailIfExists(pwaApplication, detailHandlerFunction);
+    verifyNoInteractions(detailHandlerFunction);
+  }
+
+  @Test
+  public void doWithCurrentUpdateRequestedDetailIfExists_tipDetailHasUpdateRequest_verifyDetailHandlingFunctionCalled() {
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var tipDetail = new PwaApplicationDetail();
+    tipDetail.setStatus(PwaApplicationStatus.UPDATE_REQUESTED);
+    when(applicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(pwaApplication.getId()))
+        .thenReturn(Optional.of(tipDetail));
+
+    pwaApplicationDetailService.doWithCurrentUpdateRequestedDetailIfExists(pwaApplication, detailHandlerFunction);
+
+    verify(detailHandlerFunction).accept(tipDetail);
+  }
+
+
+  @Test
+  public void doWithCurrentUpdateRequestedDetailIfExists_tipDetailDoesNotHaveUpdateRequest_noDetailProcessingDone() {
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setId(1);
+    var tipDetail = new PwaApplicationDetail();
+    tipDetail.setStatus(PwaApplicationStatus.DRAFT);
+    when(applicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(pwaApplication.getId()))
+        .thenReturn(Optional.of(tipDetail));
+
+    pwaApplicationDetailService.doWithCurrentUpdateRequestedDetailIfExists(pwaApplication, detailHandlerFunction);
+
+    verifyNoInteractions(detailHandlerFunction);
   }
 
 }

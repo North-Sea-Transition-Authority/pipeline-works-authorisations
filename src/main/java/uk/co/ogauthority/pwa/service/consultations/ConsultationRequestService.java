@@ -14,27 +14,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
@@ -53,7 +53,7 @@ public class ConsultationRequestService {
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   private static final Set<ConsultationRequestStatus> ENDED_STATUSES =
       Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN);
@@ -68,7 +68,7 @@ public class ConsultationRequestService {
       ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
       NotifyService notifyService,
-      EmailCaseLinkService emailCaseLinkService) {
+      CaseLinkService caseLinkService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
     this.consultationRequestValidator = consultationRequestValidator;
@@ -77,7 +77,7 @@ public class ConsultationRequestService {
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationsStatusViewFactory = consultationsStatusViewFactory;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroups() {
@@ -95,7 +95,7 @@ public class ConsultationRequestService {
         consultationRequest.getConsulteeGroup()).getName();
 
     emailRecipients.forEach(recipient -> {
-      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
+      var caseManagementLink = caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
       var emailProps = buildRequestReceivedEmailProps(recipient, consultationRequest, consulteeGroupName, caseManagementLink);
       notifyService.sendEmail(emailProps, recipient.getEmailAddress());
     });

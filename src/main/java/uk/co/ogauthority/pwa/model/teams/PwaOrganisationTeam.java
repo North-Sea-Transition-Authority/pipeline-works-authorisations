@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.teams;
 
-import uk.co.ogauthority.pwa.energyportal.model.entity.organisations.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 
 /**
  * A PwaTeam scoped to a PortalOrganisationGroup.

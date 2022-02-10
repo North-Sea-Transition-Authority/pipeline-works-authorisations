@@ -15,9 +15,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.form.pipelines.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
 

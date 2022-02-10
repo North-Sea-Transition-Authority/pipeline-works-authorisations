@@ -1,11 +1,11 @@
 <#include '../../../layout.ftl'>
 <#include '../../../components/banner/notificationBanner.ftl'>
 
-<#-- @ftlvariable name="applicationTaskGroups" type="java.util.List<uk.co.ogauthority.pwa.model.tasklist.TaskListGroup>" -->
-<#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.model.tasklist.TaskListEntry" -->
+<#-- @ftlvariable name="applicationTaskGroups" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup>" -->
+<#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry" -->
 <#-- @ftlvariable name="applicationType" type="java.lang.String" -->
 <#-- @ftlvariable name="masterPwaReference" type="java.lang.String" -->
-<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.ApplicationUpdateRequestView" -->
+<#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="canShowDeleteAppButton" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="deleteAppUrl" type="java.lang.String" -->

@@ -1,7 +1,7 @@
 <#include '../../layout.ftl'>
 <#import '/spring.ftl' as spring>
 
-<#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
+<#-- @ftlvariable name="pipelineOverviews" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview>" -->
 
 <#macro pipelineTableSelection path pipelineOverviews>
     <@spring.bind path/>

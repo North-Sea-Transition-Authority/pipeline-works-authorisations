@@ -11,17 +11,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooRole;
-import uk.co.ogauthority.pwa.model.entity.enums.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates.AllOrgRolePipelineGroupsView;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates.OrganisationRolePipelineGroupView;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooRoleMetadataProvider;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooGeneratorService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffableOrgRolePipelineGroup;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.OrganisationRolePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.AllRoleDiffablePipelineGroupView;
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -33,21 +34,29 @@ public class HuooGeneratorServiceTest {
   private PadOrganisationRoleService padOrganisationRoleService;
 
   @Mock
+  private PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
+
+  @Mock
   private DiffableOrgRolePipelineGroupCreator diffableOrgRolePipelineGroupCreator;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   private HuooGeneratorService huooGeneratorService;
 
-
   @Before
   public void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL, 1, 1);
-    huooGeneratorService = new HuooGeneratorService(padOrganisationRoleService, diffableOrgRolePipelineGroupCreator);
+        PwaApplicationType.INITIAL, 1, 1
+    );
 
-    when(padOrganisationRoleService.getRoleCountMap(pwaApplicationDetail)).thenReturn(Map.of(
+    huooGeneratorService = new HuooGeneratorService(
+        padOrganisationRoleService,
+        padHuooRoleMetadataProvider,
+        diffableOrgRolePipelineGroupCreator
+    );
+
+    when(padHuooRoleMetadataProvider.getRoleCountMap(pwaApplicationDetail)).thenReturn(Map.of(
         HuooRole.HOLDER, 1,
         HuooRole.USER, 2,
         HuooRole.OPERATOR, 1,

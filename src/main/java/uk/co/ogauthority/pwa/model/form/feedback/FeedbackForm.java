@@ -9,6 +9,7 @@ public class FeedbackForm {
 
   private String feedback;
 
+  private Integer pwaApplicationDetailId;
 
   public FeedbackForm() {}
 
@@ -27,6 +28,14 @@ public class FeedbackForm {
 
   public void setFeedback(String feedback) {
     this.feedback = feedback;
+  }
+
+  public Integer getPwaApplicationDetailId() {
+    return pwaApplicationDetailId;
+  }
+
+  public void setPwaApplicationDetailId(Integer pwaApplicationDetailId) {
+    this.pwaApplicationDetailId = pwaApplicationDetailId;
   }
 
   @Override

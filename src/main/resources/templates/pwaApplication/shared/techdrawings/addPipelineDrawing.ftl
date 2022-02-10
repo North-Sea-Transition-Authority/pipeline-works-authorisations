@@ -4,12 +4,12 @@
 <#-- @ftlvariable name="backUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="fileuploadMaxUploadSize" type="String" -->
 <#-- @ftlvariable name="fileuploadAllowedExtensions" type="java.util.List<String>" -->
-<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.model.form.files.UploadedFileView>" -->
+<#-- @ftlvariable name="uploadedFileViewList" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="uploadUrl" type="String" -->
 <#-- @ftlvariable name="deleteUrl" type="String" -->
 <#-- @ftlvariable name="downloadUrl" type="String" -->
 <#-- @ftlvariable name="actionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
-<#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
+<#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview>" -->
 
 <@defaultPage htmlTitle="${actionType.actionText} a pipeline schematic" pageHeading="${actionType.actionText} a pipeline schematic" breadcrumbs=true fullWidthColumn=true errorItems=errorList>
 

@@ -21,7 +21,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.context.ApplicationContext;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
@@ -38,7 +39,6 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationServic
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;

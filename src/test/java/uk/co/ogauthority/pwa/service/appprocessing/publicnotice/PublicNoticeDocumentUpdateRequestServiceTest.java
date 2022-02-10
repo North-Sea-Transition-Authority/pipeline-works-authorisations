@@ -14,24 +14,24 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeUpdateRequestEmailProps;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDocumentUpdateRequestForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.publicnotices.PublicNoticeUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
-import uk.co.ogauthority.pwa.service.enums.masterpwas.contacts.PwaContactRole;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticeCaseOfficerReviewResult;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaContactService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.task.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDocumentUpdateRequestValidator;
 
@@ -53,7 +53,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private EmailCaseLinkService emailCaseLinkService;
+  private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -77,7 +77,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   public void setUp() {
 
     publicNoticeDocumentUpdateRequestService = new PublicNoticeDocumentUpdateRequestService(publicNoticeService, validator,
-        publicNoticeDocumentRepository, camundaWorkflowService, emailCaseLinkService, pwaContactService, notifyService);
+        publicNoticeDocumentRepository, camundaWorkflowService, caseLinkService, pwaContactService, notifyService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -158,7 +158,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
     when(publicNoticeService.savePublicNotice(newPublicNotice)).thenReturn(newPublicNotice);
 
     String caseManagementLink = "case management link url";
-    when(emailCaseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
+    when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(caseManagementLink);
     var emailRecipients = List.of(PersonTestUtil.createDefaultPerson());
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication, PwaContactRole.PREPARER))
         .thenReturn(emailRecipients);

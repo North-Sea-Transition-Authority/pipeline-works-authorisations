@@ -27,25 +27,25 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.PersonTestUtil;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltInteractorService;
 import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltPipelineNotificationSpec;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
-import uk.co.ogauthority.pwa.service.users.UserAccountService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -246,7 +246,48 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesOutOfUseOrReturnedToShow_singleDetailExists() {
+  public void write_consentWriterHasMappedPipelineDetails_pipelineReturnedToShore_singleDetailExists_outOfUse() {
+
+    pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
+    pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+
+    when(pipelineDetailService.countPipelineDetailsPerPipeline(
+        Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
+        .thenReturn(Map.of(
+            PIPELINE_ID_1, 2L,
+            PIPELINE_ID_2, 1L
+        ));
+
+    consentWriterDto = asBuiltWriterService.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
+
+    verify(asBuiltInteractorService).createAsBuiltNotification(
+        eq(pwaConsent),
+        eq(pwaApplicationDetail.getPwaApplicationRef()),
+        any(), // test deadline date separately
+        eq(systemPerson),
+        asBuiltPipelineNotificationListCaptor.capture()
+    );
+    verifyNoMoreInteractions(asBuiltInteractorService);
+
+    assertThat(asBuiltPipelineNotificationListCaptor.getValue())
+        .hasSize(2)
+        .anySatisfy(asBuiltPipelineNotificationSpec -> {
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
+              pipeline1Detail.getPipelineDetailId());
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
+              PipelineChangeCategory.OUT_OF_USE);
+        })
+        .anySatisfy(asBuiltPipelineNotificationSpec -> {
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
+              pipeline2Detail.getPipelineDetailId());
+          assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
+              PipelineChangeCategory.OUT_OF_USE);
+        });
+
+  }
+
+  @Test
+  public void write_consentWriterHasMappedPipelineDetails_pipelineOutOfUse_singleDetailExists_newPipeline() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -270,12 +311,13 @@ public class ConsentAsBuiltWriterServiceTest {
     );
     verifyNoMoreInteractions(asBuiltInteractorService);
 
-    assertThat(asBuiltPipelineNotificationListCaptor.getValue()).hasSize(2)
+    assertThat(asBuiltPipelineNotificationListCaptor.getValue())
+        .hasSize(2)
         .anySatisfy(asBuiltPipelineNotificationSpec -> {
           assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
               pipeline1Detail.getPipelineDetailId());
           assertThat(asBuiltPipelineNotificationSpec.getPipelineChangeCategory()).isEqualTo(
-              PipelineChangeCategory.OUT_OF_USE);
+              PipelineChangeCategory.NEW_PIPELINE);
         })
         .anySatisfy(asBuiltPipelineNotificationSpec -> {
           assertThat(asBuiltPipelineNotificationSpec.getPipelineDetailId()).isEqualTo(
@@ -285,7 +327,6 @@ public class ConsentAsBuiltWriterServiceTest {
         });
 
   }
-
 
   // Want to confirm hour of day consented has no impact on deadline date for options consents.
   @Test

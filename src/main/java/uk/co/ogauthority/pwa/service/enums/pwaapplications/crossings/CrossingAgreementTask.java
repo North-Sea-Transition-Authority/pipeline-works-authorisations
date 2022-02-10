@@ -2,17 +2,17 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.BlockCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CableCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.CrossingTypesController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.MedianLineCrossingController;
-import uk.co.ogauthority.pwa.controller.pwaapplications.shared.crossings.PipelineCrossingController;
-import uk.co.ogauthority.pwa.service.pwaapplications.generic.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.BlockCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.CrossingTypesService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadCableCrossingService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.PadMedianLineAgreementService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreementService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.controller.CrossingTypesController;
 
 public enum CrossingAgreementTask {
 

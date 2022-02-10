@@ -15,18 +15,19 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
-import uk.co.ogauthority.pwa.controller.appprocessing.shared.PwaAppProcessingPermissionCheck;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.AppProcessingTab;
+import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.controller.CaseManagementController;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.application.WithdrawApplicationService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.WithdrawPublicNoticeService;
-import uk.co.ogauthority.pwa.service.appprocessing.tabs.AppProcessingTab;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -85,7 +86,7 @@ public class WithdrawApplicationController {
     bindingResult = withdrawApplicationService.validate(form, bindingResult, processingContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getWithdrawApplicationModelAndView(processingContext), () -> {
-      withdrawApplicationService.withdrawApplication(form, processingContext.getApplicationDetail(), authenticatedUserAccount);
+      withdrawApplicationService.withdrawApplication(form, processingContext.getPwaApplication(), authenticatedUserAccount);
 
       FlashUtils.info(redirectAttributes, processingContext.getApplicationDetail().getPwaApplicationRef() + " withdrawn");
       return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkArea(null, null, null));

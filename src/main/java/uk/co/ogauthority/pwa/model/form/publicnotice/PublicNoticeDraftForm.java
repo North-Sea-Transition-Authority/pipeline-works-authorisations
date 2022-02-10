@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.publicnotice;
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
-import uk.co.ogauthority.pwa.model.form.files.UploadMultipleFilesWithDescriptionForm;
 
 public class PublicNoticeDraftForm extends UploadMultipleFilesWithDescriptionForm {
 

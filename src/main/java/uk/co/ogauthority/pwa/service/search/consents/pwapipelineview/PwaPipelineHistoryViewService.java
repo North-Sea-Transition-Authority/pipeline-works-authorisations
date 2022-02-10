@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.PipelinesSummaryService;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.PipelinesSummaryService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 

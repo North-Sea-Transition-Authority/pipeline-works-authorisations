@@ -9,7 +9,7 @@
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
             ${pipeline.pipelineStatus.displayText}
         </@fdsCheckAnswers.checkAnswersRow>
-        <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED">
+        <#if pipeline.pipelineStatus == "OUT_OF_USE_ON_SEABED" && pipeline.pipelineStatusReason?has_content>
             <@fdsCheckAnswers.checkAnswersRow keyText="Reason for leaving on seabed" actionUrl="" screenReaderActionText="" actionText="">
                 ${pipeline.pipelineStatusReason}
             </@fdsCheckAnswers.checkAnswersRow>

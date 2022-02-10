@@ -3,13 +3,12 @@
 
 <#-- @ftlvariable name="pipelineTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="longDirections" type="java.util.Map<java.lang.String,java.lang.String>" -->
-<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.model.form.pwaapplications.shared.pipelines.PipelineHeaderForm" -->
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderForm" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineNumber" type="String" -->
-<#-- @ftlvariable name="questionsForPipelineStatus" type="java.util.Set<uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion>" -->
-<#-- @ftlvariable name="canShowAlreadyExistsOnSeabedQuestions" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="requiredQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderQuestion>" -->
 
 <@defaultPage htmlTitle="${screenActionType.actionText} ${pipelineNumber!} pipeline" pageHeading="${screenActionType.actionText} ${pipelineNumber!} pipeline" breadcrumbs=true errorItems=errorList>
 
@@ -109,15 +108,11 @@
 
         </@fdsFieldset.fieldset>
 
-        <#if questionsForPipelineStatus?has_content>
-            <#list questionsForPipelineStatus as question>
-                <#if question == "OUT_OF_USE_ON_SEABED_REASON">
-                    <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText=question.getDisplayText() characterCount=true maxCharacterLength=maxCharacterLength?c/>
-                </#if>
-            </#list>
+        <#if requiredQuestions?seq_contains("OUT_OF_USE_ON_SEABED_REASON")>
+            <@fdsTextarea.textarea path="form.whyNotReturnedToShore" labelText="Why is the pipeline not being returned to shore?" characterCount=true maxCharacterLength=maxCharacterLength?c/>
         </#if>
 
-        <#if canShowAlreadyExistsOnSeabedQuestions>
+        <#if requiredQuestions?seq_contains("ALREADY_EXISTS_ON_SEABED")>
             <@fdsRadio.radioGroup path="form.alreadyExistsOnSeabed" labelText="Does this pipeline already exist on the seabed?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.alreadyExistsOnSeabed">
                     <@fdsRadio.radioGroup path="form.pipelineInUse" labelText="Is the pipeline in use?">

@@ -1,14 +1,19 @@
 package uk.co.ogauthority.pwa.util.forminputs.decimal;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
+import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
+import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
 @Component
@@ -63,14 +68,18 @@ public class DecimalInputValidator implements SmartValidator {
         .map(hint -> ((NonNegativeNumberHint) hint))
         .findFirst();
 
-    Optional<SmallerThanNumberHint> smallerThanNumberHint = Arrays.stream(objects)
-        .filter(hint -> hint.getClass().equals(SmallerThanNumberHint.class))
-        .map(hint -> ((SmallerThanNumberHint) hint))
+    Optional<SmallerThanFieldHint> lessThanFieldHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(SmallerThanFieldHint.class))
+        .map(hint -> ((SmallerThanFieldHint) hint))
+        .findFirst();
+
+    Optional<LessThanEqualToHint> lessThanEqualToHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(LessThanEqualToHint.class))
+        .map(hint -> ((LessThanEqualToHint) hint))
         .findFirst();
 
     //field is null and required
     if (decimalOptional.isEmpty() && !decimalInput.hasContent() && fieldIsMandatory) {
-
       errors.rejectValue(
           VALUE,
           VALUE_REQUIRED_CODE,
@@ -90,7 +99,8 @@ public class DecimalInputValidator implements SmartValidator {
       decimalPlaceHint.ifPresent(hint -> validateDecimalPlaces(errors, decimalInput, inputLabel, hint));
       positiveNumberHint.ifPresent(hint -> validateAsPositiveNumber(errors, decimalInput, inputLabel));
       nonNegativeNumberHint.ifPresent(hint -> validateNonNegative(errors, decimalInput, inputLabel));
-      smallerThanNumberHint.ifPresent(hint -> validateSmallerThan(errors, decimalInput, inputLabel, hint));
+      lessThanFieldHint.ifPresent(hint -> validateLessThanField(errors, decimalInput, inputLabel, hint));
+      lessThanEqualToHint.ifPresent(hint -> validateLessThanEqualToNumber(errors, decimalInput, inputLabel, hint));
     }
 
   }
@@ -101,7 +111,7 @@ public class DecimalInputValidator implements SmartValidator {
                                      FormInputLabel inputLabel,
                                      DecimalPlaceHint decimalPlaceHint) {
 
-    if (decimalInput.createBigDecimalOrNull().stripTrailingZeros().scale() > decimalPlaceHint.getMaxDp()) {
+    if (PwaNumberUtils.getNumberOfDp(decimalInput.createBigDecimalOrNull()) > decimalPlaceHint.getMaxDp()) {
       var placePluralised = StringDisplayUtils.pluralise("place", decimalPlaceHint.getMaxDp());
       errors.rejectValue(VALUE, FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(VALUE),
           String.format("%s cannot have more than %s decimal %s",
@@ -126,7 +136,7 @@ public class DecimalInputValidator implements SmartValidator {
   }
 
 
-  private void validateSmallerThan(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel, SmallerThanNumberHint hint) {
+  private void validateLessThanField(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel, SmallerThanFieldHint hint) {
 
     if (decimalInput.createBigDecimalOrNull().compareTo(hint.getLargerNumber()) > -1) {
       errors.rejectValue(VALUE,
@@ -137,5 +147,84 @@ public class DecimalInputValidator implements SmartValidator {
   }
 
 
+  private void validateLessThanEqualToNumber(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel,
+                                             LessThanEqualToHint hint) {
+    var value = decimalInput.createBigDecimalOrNull();
+    if (value != null && hint.getLargerNumber().compareTo(value) < 0) {
+      errors.rejectValue(VALUE,
+          FieldValidationErrorCodes.INVALID.errorCode(VALUE),
+          String.format("The %s must have a value of %s or less", inputLabel.getLabel(), hint.getLargerNumber().toPlainString()));
+    }
+
+  }
+
+  public DecimalInputValidatorInvocationBuilder invocationBuilder() {
+    return new DecimalInputValidatorInvocationBuilder(this);
+  }
+
+  public static class DecimalInputValidatorInvocationBuilder {
+
+    private final List<Object> hints = new ArrayList<>();
+
+    private final DecimalInputValidator validator;
+
+    private DecimalInputValidatorInvocationBuilder(DecimalInputValidator validator) {
+      this.validator = validator;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustHaveNoMoreThanDecimalPlaces(int maxDp) {
+      this.hints.add(new DecimalPlaceHint(maxDp));
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustBeZeroOrGreater() {
+      this.hints.add(new NonNegativeNumberHint());
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustBeGreaterThanZero() {
+      this.hints.add(new PositiveNumberHint());
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder canBeOptional() {
+      this.hints.add(new FieldIsOptionalHint());
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustBeLessThanOrEqualTo(BigDecimal smallerThan) {
+      this.hints.add(new LessThanEqualToHint(smallerThan));
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustBeLessThanField(BigDecimal smallerThan, String label) {
+      this.hints.add(new SmallerThanFieldHint(smallerThan, label));
+      return this;
+    }
+
+    public void invokeNestedValidator(Errors errors, String targetPath, DecimalInput value, String label) {
+      hints.add(new FormInputLabel(label));
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          validator,
+          targetPath,
+          //Spring will bind an empty form field as null, but that doesn't play nicely with the validator
+          DecimalInput.createEmptyIfNull(value),
+          hints.toArray()
+      );
+    }
+
+    public void invokeValidator(Errors errors, DecimalInput value, String label) {
+      hints.add(new FormInputLabel(label));
+      ValidationUtils.invokeValidator(
+          validator,
+          //Spring will bind an empty form field as null, but that doesn't play nicely with the validator
+          DecimalInput.createEmptyIfNull(value),
+          errors,
+          hints.toArray()
+      );
+    }
+
+  }
 
 }

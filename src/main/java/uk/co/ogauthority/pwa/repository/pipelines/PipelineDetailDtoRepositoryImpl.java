@@ -6,13 +6,14 @@ import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PadPipelineOverview;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview;
 
 @Repository
 public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoRepository {
@@ -30,7 +31,7 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
     var statusFilter = PipelineStatus.currentStatusSet();
 
     return entityManager.createQuery("" +
-        "SELECT new uk.co.ogauthority.pwa.repository.pipelines.PipelineBundlePairDto(" +
+        "SELECT new uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto(" +
         "pd.pipeline.id, " +
         "pd.bundleName " +
         ") " +

@@ -2,12 +2,12 @@
 <#import 'pipelineOverview.ftl' as pipelineOverviewMacro>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
-<#-- @ftlvariable name="pipelineOverview" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview" -->
+<#-- @ftlvariable name="pipelineOverview" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview" -->
 <#-- @ftlvariable name="addIdentUrl" type="String" -->
-<#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentSummaryView" -->
-<#-- @ftlvariable name="lastConnectedPipelineIdentView" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.ConnectedPipelineIdentsView" -->
-<#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentUrlFactory" -->
-<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType" -->
+<#-- @ftlvariable name="summaryView" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.ConnectedPipelineIdentSummaryView" -->
+<#-- @ftlvariable name="lastConnectedPipelineIdentView" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.ConnectedPipelineIdentsView" -->
+<#-- @ftlvariable name="identUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.IdentUrlFactory" -->
+<#-- @ftlvariable name="coreType" type="uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType" -->
 <#-- @ftlvariable name="identSummaryValidationResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 

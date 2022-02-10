@@ -14,13 +14,14 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PostLoad;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineCoreType;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
-import uk.co.ogauthority.pwa.model.location.CoordinatePairEntity;
-import uk.co.ogauthority.pwa.service.enums.location.LatitudeDirection;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
-import uk.co.ogauthority.pwa.util.CoordinateUtils;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdent;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairEntity;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 
 @Entity
 @Table(name = "pipeline_detail_idents")

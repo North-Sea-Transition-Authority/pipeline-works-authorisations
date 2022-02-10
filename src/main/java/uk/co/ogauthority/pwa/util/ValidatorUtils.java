@@ -19,7 +19,8 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import uk.co.ogauthority.pwa.service.enums.location.LongitudeDirection;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 public class ValidatorUtils {
@@ -513,7 +514,7 @@ public class ValidatorUtils {
           String.format("%s seconds should be between 0 and 59.99", messagePrefix));
     }
 
-    if (PwaNumberUtils.getNumberOfDp(seconds.getValue()) != CoordinateUtils.DECIMAL_SECONDS_DP) {
+    if (PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(seconds.getValue()) != CoordinateUtils.DECIMAL_SECONDS_DP) {
       errors.rejectValue(seconds.getKey(), seconds.getKey() + INVALID.getCode(),
           String.format("%s seconds should have exactly %sdp", messagePrefix, CoordinateUtils.DECIMAL_SECONDS_DP));
     }

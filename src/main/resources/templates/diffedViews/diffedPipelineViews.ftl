@@ -1,7 +1,5 @@
 <#include '../pwaLayoutImports.ftl'>
 
-
-
 <#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[]>
 
     <@fdsCheckAnswers.checkAnswers>
@@ -21,13 +19,11 @@
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <#list pipelineHeader.questionsForPipelineStatus as question>
-            <#if question == "OUT_OF_USE_ON_SEABED_REASON">
-                <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
-                    <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
-                </@fdsCheckAnswers.checkAnswersRow>
-            </#if>
-        </#list>
+        <#if pipelineHeader.headerQuestions?seq_contains("OUT_OF_USE_ON_SEABED_REASON")>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="Number of idents" actionUrl="" screenReaderActionText="" actionText="">
              ${pipelineIdentsSize}
@@ -85,16 +81,15 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
-        <#if pipelineHeader.canShowAlreadyExistsOnSeabed>
+        <#if pipelineHeader.headerQuestions?seq_contains("ALREADY_EXISTS_ON_SEABED")>
+
             <@fdsCheckAnswers.checkAnswersRow keyText="Does the pipeline already exist on the seabed?" actionUrl="" screenReaderActionText="" actionText="">
                 <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_alreadyExistsOnSeabed />
             </@fdsCheckAnswers.checkAnswersRow>
-            
-            <#if pipelineHeader.canShowPipelineInUse>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Is the pipeline in use?" actionUrl="" screenReaderActionText="" actionText="">
-                    <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineInUse />
-                </@fdsCheckAnswers.checkAnswersRow>
-            </#if>
+
+            <@fdsCheckAnswers.checkAnswersRow keyText="Is the pipeline in use?" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineInUse />
+            </@fdsCheckAnswers.checkAnswersRow>
 
         </#if>
 

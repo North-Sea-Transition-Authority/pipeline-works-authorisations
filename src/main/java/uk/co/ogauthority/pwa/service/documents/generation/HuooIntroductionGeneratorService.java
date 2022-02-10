@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooRoleMetadataProvider;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -11,7 +12,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSec
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
-import uk.co.ogauthority.pwa.service.pwaapplications.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 
 @Service
@@ -19,17 +19,17 @@ public class HuooIntroductionGeneratorService implements DocumentSectionGenerato
 
   private final DocumentInstanceService documentInstanceService;
   private final MailMergeService mailMergeService;
-  private final PadOrganisationRoleService padOrganisationRoleService;
+  private final PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
 
   private static final DocumentSection SECTION = DocumentSection.HUOO_INTRO;
 
   @Autowired
   public HuooIntroductionGeneratorService(DocumentInstanceService documentInstanceService,
                                           MailMergeService mailMergeService,
-                                          PadOrganisationRoleService padOrganisationRoleService) {
+                                          PadHuooRoleMetadataProvider padHuooRoleMetadataProvider) {
     this.documentInstanceService = documentInstanceService;
     this.mailMergeService = mailMergeService;
-    this.padOrganisationRoleService = padOrganisationRoleService;
+    this.padHuooRoleMetadataProvider = padHuooRoleMetadataProvider;
   }
 
   @Override
@@ -44,7 +44,7 @@ public class HuooIntroductionGeneratorService implements DocumentSectionGenerato
     String introParagraph = docView.getSections().get(0).getClauses().get(0).getText();
     docView.getSections().get(0).getClauses().remove(0);
 
-    var orgRoleNameToTextMap = padOrganisationRoleService.getRoleCountMap(pwaApplicationDetail)
+    var orgRoleNameToTextMap = padHuooRoleMetadataProvider.getRoleCountMap(pwaApplicationDetail)
         .entrySet()
         .stream()
         .collect(Collectors.toMap(

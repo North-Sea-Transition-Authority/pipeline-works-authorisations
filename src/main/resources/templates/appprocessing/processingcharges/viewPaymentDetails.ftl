@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="caseManagementUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="pageRef" type="java.lang.String" -->
-<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.service.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
+<#-- @ftlvariable name="appPaymentDisplaySummary" type="uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentDisplaySummary" -->
 <#-- @ftlvariable name="paidByName" type="java.lang.String" -->
 <#-- @ftlvariable name="paidByEmail" type="java.lang.String" -->
 <#-- @ftlvariable name="paidInstant" type="java.lang.String" -->

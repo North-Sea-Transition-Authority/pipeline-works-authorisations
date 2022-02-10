@@ -2,8 +2,8 @@
 <#include 'depositsDrawingsViewSummary.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="depositDrawingView" type="uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView" -->
-<#-- @ftlvariable name="depositDrawingUrlFactory" type="uk.co.ogauthority.pwa.service.pwaapplications.shared.permanentdeposits.DepositDrawingUrlFactory" -->
+<#-- @ftlvariable name="depositDrawingView" type="uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingView" -->
+<#-- @ftlvariable name="depositDrawingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingUrlFactory" -->
 
 
 <@defaultPage htmlTitle="Remove permanent deposit drawing" pageHeading=("Are you sure you want to remove permanent deposit drawing " + depositDrawingView.reference + "?") breadcrumbs=true errorItems=errorList>

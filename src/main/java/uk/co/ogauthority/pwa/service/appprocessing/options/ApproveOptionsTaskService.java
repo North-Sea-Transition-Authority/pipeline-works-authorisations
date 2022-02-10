@@ -1,24 +1,24 @@
 package uk.co.ogauthority.pwa.service.appprocessing.options;
 
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW;
-import static uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
+import static uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission.APPROVE_OPTIONS;
+import static uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW;
+import static uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.enums.tasklist.TaskState;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.repository.appprocessing.options.OptionsApplicationApprovalRepository;
-import uk.co.ogauthority.pwa.service.appprocessing.applicationupdate.ApplicationUpdateRequestService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Service
 public class ApproveOptionsTaskService implements AppProcessingService {

@@ -12,9 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
-import uk.co.ogauthority.pwa.energyportal.service.SystemAreaAccessService;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
-import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationType;
 
 @Configuration
 @EnableWebSecurity

@@ -7,28 +7,28 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
+import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
+import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.consultations.ConsultationAssignedToYouEmailProps;
-import uk.co.ogauthority.pwa.model.tasklist.TaskListEntry;
-import uk.co.ogauthority.pwa.model.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.appprocessing.context.PwaAppProcessingContext;
-import uk.co.ogauthority.pwa.service.appprocessing.tasks.AppProcessingService;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.service.enums.appprocessing.TaskStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
 import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
-import uk.co.ogauthority.pwa.service.workflow.CamundaWorkflowService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
@@ -43,7 +43,7 @@ public class AssignResponderService implements AppProcessingService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
 
   @Autowired
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
@@ -53,7 +53,7 @@ public class AssignResponderService implements AppProcessingService {
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
                                 NotifyService notifyService,
-                                EmailCaseLinkService emailCaseLinkService) {
+                                CaseLinkService caseLinkService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
@@ -61,7 +61,7 @@ public class AssignResponderService implements AppProcessingService {
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
   }
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
@@ -102,7 +102,7 @@ public class AssignResponderService implements AppProcessingService {
 
     // if user didn't assign to themselves, email the assigned responder
     if (!Objects.equals(responderPerson, assigningPerson)) {
-      var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
+      var caseManagementLink = caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
       var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson, caseManagementLink);
       notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
 

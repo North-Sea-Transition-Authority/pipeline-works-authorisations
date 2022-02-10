@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
-<#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineOverview>" -->
+<#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview>" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
 
 <@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true fullWidthColumn=true errorItems=errorList>

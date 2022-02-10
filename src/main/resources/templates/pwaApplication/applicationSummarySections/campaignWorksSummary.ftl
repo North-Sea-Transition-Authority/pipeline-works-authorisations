@@ -1,7 +1,7 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="workScheduleViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.shared.campaignworks.WorkScheduleView>" -->
+<#-- @ftlvariable name="workScheduleViews" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView>" -->
 
 
 <div class="pwa-application-summary-section">

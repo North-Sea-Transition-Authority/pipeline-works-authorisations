@@ -19,14 +19,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.model.dto.huooaggregations.OrganisationRolesSummaryDto;
-import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.OrganisationRolesSummaryDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates.AllOrgRolePipelineGroupsView;
+import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
-import uk.co.ogauthority.pwa.service.applicationsummariser.sectionsummarisers.HuooSummaryService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
@@ -79,9 +79,8 @@ public class PwaHuooHistoryViewServiceTest {
     EARLIEST_TIME = today.minusDays(10).atZone(ZoneId.systemDefault()).toInstant();
   }
 
-
   @Test
-  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_verifyServiceInteractions() {
+  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_previousConsentsPresent_verifyServiceInteractions() {
 
     var pipelineId = new PipelineId(1);
     var pipeline = new Pipeline();
@@ -90,6 +89,7 @@ public class PwaHuooHistoryViewServiceTest {
         PwaConsentTestUtil.createPwaConsent(3, "19/W/06", LATEST_TIME, 2),
         PwaConsentTestUtil.createPwaConsent(2, "19/W/05", EARLIER_TIME, 1),
         PwaConsentTestUtil.createPwaConsent(1, "19/W/04", EARLIEST_TIME, 0)));
+
     when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(allConsents);
 
     var selectedConsent = allConsents.get(1);
@@ -97,18 +97,71 @@ public class PwaHuooHistoryViewServiceTest {
     when(pwaConsentService.getConsentById(selectedConsent.getId())).thenReturn(selectedConsent);
 
     when(pipelineService.getPipelineFromId(pipelineId)).thenReturn(pipeline);
-    var orgRoleSummary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(Set.of());
-    when(pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
-        List.of(selectedConsent, allConsents.get(2)), pipeline))
-        .thenReturn(orgRoleSummary);
 
-    var allOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(
-        List.of(), List.of(), List.of(), List.of());
-    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, orgRoleSummary)).thenReturn(allOrgRolePipelineGroupsView);
+    var selectedAndPreviousConsentsList = List.of(selectedConsent, allConsents.get(2));
+    var previousConsentsList = List.of(allConsents.get(2));
+
+    var selectedOrgRoleSummary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(Set.of());
+    when(pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
+        selectedAndPreviousConsentsList, pipeline))
+        .thenReturn(selectedOrgRoleSummary);
+
+    var previousOrgRoleSummary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(Set.of());
+    when(pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
+        previousConsentsList, pipeline))
+        .thenReturn(previousOrgRoleSummary);
+
+    var selectedOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
+
+    var previousOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, previousOrgRoleSummary)).thenReturn(previousOrgRolePipelineGroupsView);
 
     pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(selectedConsent.getId(), masterPwa, pipelineId);
+
     verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(
-        allOrgRolePipelineGroupsView, allOrgRolePipelineGroupsView, HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
+        selectedOrgRolePipelineGroupsView,
+        previousOrgRolePipelineGroupsView,
+        HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
+
+  }
+
+  @Test
+  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_noPreviousConsents_noDiff_verifyServiceInteractions() {
+
+    var pipelineId = new PipelineId(1);
+    var pipeline = new Pipeline();
+
+    var allConsents = new ArrayList<>(Arrays.asList(
+        PwaConsentTestUtil.createPwaConsent(3, "19/W/06", LATEST_TIME, 2),
+        PwaConsentTestUtil.createPwaConsent(2, "19/W/05", EARLIER_TIME, 1),
+        PwaConsentTestUtil.createPwaConsent(1, "19/W/04", EARLIEST_TIME, 0)));
+
+    when(pwaConsentService.getConsentsByMasterPwa(masterPwa)).thenReturn(allConsents);
+
+    var selectedConsent = allConsents.get(2);
+    selectedConsent.setMasterPwa(masterPwa);
+    when(pwaConsentService.getConsentById(selectedConsent.getId())).thenReturn(selectedConsent);
+
+    when(pipelineService.getPipelineFromId(pipelineId)).thenReturn(pipeline);
+
+    var selectedAndPreviousConsentsList = List.of(selectedConsent);
+
+    var selectedOrgRoleSummary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(Set.of());
+    when(pwaConsentOrganisationRoleService.getOrganisationRoleSummaryForConsentsAndPipeline(
+        selectedAndPreviousConsentsList, pipeline))
+        .thenReturn(selectedOrgRoleSummary);
+
+    var selectedOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
+
+    pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(selectedConsent.getId(), masterPwa, pipelineId);
+
+    verify(huooSummaryService, times(1)).getDiffedViewUsingSummaryViews(
+        selectedOrgRolePipelineGroupsView,
+        selectedOrgRolePipelineGroupsView,
+        HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
+
   }
 
   @Test

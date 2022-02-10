@@ -1,0 +1,44 @@
+package uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.internal.DevukFacilityRepository;
+
+@RunWith(MockitoJUnitRunner.class)
+public class DevukFacilityServiceTest {
+
+  @Mock
+  private DevukFacilityRepository devukFacilityRepository;
+
+  private DevukFacilityService devukFacilityService;
+
+  @Before
+  public void setUp() {
+    devukFacilityService = new DevukFacilityService(devukFacilityRepository);
+  }
+
+  @Test
+  public void getFacilities_serviceInteraction() {
+    var facility = new DevukFacility();
+    when(devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(any(), any())).thenReturn(List.of(facility));
+    var result = devukFacilityService.getFacilities("");
+    assertThat(result).containsExactly(facility);
+  }
+
+  @Test
+  public void getFacilitiesInIds_ensureOnlyIntegersPassed() {
+    List<String> idList = List.of("1", "two", "3");
+    devukFacilityService.getFacilitiesInIds(idList);
+    verify(devukFacilityRepository, times(1)).findAllByIdIn(List.of(1, 3));
+  }
+}

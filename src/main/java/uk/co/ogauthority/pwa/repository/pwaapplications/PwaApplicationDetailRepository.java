@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -22,6 +22,8 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
   Optional<PwaApplicationDetail> findByPwaApplicationIdAndTipFlagIsTrue(Integer pwaApplicationId);
 
   Optional<PwaApplicationDetail> findByPwaApplicationIdAndVersionNo(Integer pwaApplicationId, Integer versionNo);
+
+  Optional<PwaApplicationDetail> findByIdAndTipFlagIsTrue(Integer pwaApplicationId);
 
   List<PwaApplicationDetail> findByPwaApplicationAndSubmittedTimestampIsNotNull(PwaApplication pwaApplication);
 

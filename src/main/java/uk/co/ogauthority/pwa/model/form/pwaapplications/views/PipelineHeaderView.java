@@ -3,16 +3,16 @@ package uk.co.ogauthority.pwa.model.form.pwaapplications.views;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineFlexibility;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineHeaderConditionalQuestion;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineMaterial;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.pipelines.PipelineType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PipelineHeaderQuestion;
+import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.location.CoordinatePair;
 
 public class PipelineHeaderView implements PipelineOverview {
-
 
   private final Integer padPipelineId;
 
@@ -40,11 +40,10 @@ public class PipelineHeaderView implements PipelineOverview {
   private final PipelineStatus pipelineStatus;
   private final String pipelineStatusDisplayStr;
   private final String pipelineStatusReason;
-  private final Set<PipelineHeaderConditionalQuestion> questionsForPipelineStatus;
   private final Boolean alreadyExistsOnSeabed;
   private final Boolean pipelineInUse;
   private final String footnote;
-
+  private final Set<PipelineHeaderQuestion> headerQuestions;
 
   public PipelineHeaderView() {
     this.padPipelineId = null;
@@ -72,10 +71,10 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineStatus = null;
     this.pipelineStatusDisplayStr = null;
     this.pipelineStatusReason = null;
-    this.questionsForPipelineStatus = null;
     this.alreadyExistsOnSeabed = null;
     this.pipelineInUse = null;
     this.footnote = null;
+    this.headerQuestions = Set.of();
   }
 
   public PipelineHeaderView(PipelineOverview pipelineOverview) {
@@ -105,11 +104,10 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineStatus = pipelineOverview.getPipelineStatus();
     this.pipelineStatusDisplayStr = pipelineOverview.getPipelineStatus().getDisplayText();
     this.pipelineStatusReason = pipelineOverview.getPipelineStatusReason();
-    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
-        pipelineOverview.getPipelineStatus());
     this.alreadyExistsOnSeabed = pipelineOverview.getAlreadyExistsOnSeabed();
     this.pipelineInUse = pipelineOverview.getPipelineInUse();
     this.footnote = pipelineOverview.getFootnote();
+    this.headerQuestions = getRelevantQuestions();
   }
 
   public PipelineHeaderView(PipelineDetail pipelineDetail) {
@@ -139,13 +137,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.otherPipelineMaterialUsed = null;
     this.trenchedBuriedBackfilled = null;
     this.trenchingMethodsDescription = null;
-    this.questionsForPipelineStatus = PipelineHeaderConditionalQuestion.getQuestionsForStatus(
-        pipelineDetail.getPipelineStatus());
     this.alreadyExistsOnSeabed = null;
     this.pipelineInUse = null;
     this.footnote = pipelineDetail.getFootnote();
+    this.headerQuestions = getRelevantQuestions();
   }
-
 
   @Override
   public Integer getPadPipelineId() {
@@ -286,8 +282,8 @@ public class PipelineHeaderView implements PipelineOverview {
     return footnote;
   }
 
-  public Set<PipelineHeaderConditionalQuestion> getQuestionsForPipelineStatus() {
-    return questionsForPipelineStatus;
+  public Set<PipelineHeaderQuestion> getHeaderQuestions() {
+    return headerQuestions;
   }
 
   @Override
@@ -324,7 +320,6 @@ public class PipelineHeaderView implements PipelineOverview {
         && pipelineStatus == that.pipelineStatus
         && Objects.equals(pipelineStatusDisplayStr, that.pipelineStatusDisplayStr)
         && Objects.equals(pipelineStatusReason, that.pipelineStatusReason)
-        && Objects.equals(questionsForPipelineStatus, that.questionsForPipelineStatus)
         && Objects.equals(alreadyExistsOnSeabed, that.alreadyExistsOnSeabed)
         && Objects.equals(pipelineInUse, that.pipelineInUse)
         && Objects.equals(footnote, that.footnote);
@@ -337,6 +332,6 @@ public class PipelineHeaderView implements PipelineOverview {
         pipelineNumber, temporaryPipelineNumber, pipelineType, componentParts, length, productsToBeConveyed,
         numberOfIdents, maxExternalDiameter, pipelineInBundle, bundleName, pipelineFlexibility, pipelineMaterial,
         otherPipelineMaterialUsed, trenchedBuriedBackfilled, trenchingMethodsDescription, pipelineStatus,
-        pipelineStatusDisplayStr, pipelineStatusReason, questionsForPipelineStatus, alreadyExistsOnSeabed, pipelineInUse, footnote);
+        pipelineStatusDisplayStr, pipelineStatusReason, alreadyExistsOnSeabed, pipelineInUse, footnote);
   }
 }

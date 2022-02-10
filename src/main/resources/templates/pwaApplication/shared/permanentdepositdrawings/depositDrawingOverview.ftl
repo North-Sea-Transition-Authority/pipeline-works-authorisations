@@ -1,7 +1,7 @@
 <#include '../../../layout.ftl'>
 <#include 'depositsDrawingsViewSummary.ftl'>
 
-<#-- @ftlvariable name="depositDrawingSummaryViews" type="java.util.List<uk.co.ogauthority.pwa.model.form.pwaapplications.views.PermanentDepositDrawingView>" -->
+<#-- @ftlvariable name="depositDrawingSummaryViews" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingView>" -->
 <#-- @ftlvariable name="depositDrawingSummaryResult" type="uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult" -->
 
 

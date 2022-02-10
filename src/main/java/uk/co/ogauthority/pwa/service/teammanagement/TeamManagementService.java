@@ -18,19 +18,18 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
-import uk.co.ogauthority.pwa.energyportal.model.WebUserAccountStatus;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
-import uk.co.ogauthority.pwa.energyportal.model.entity.WebUserAccount;
-import uk.co.ogauthority.pwa.energyportal.repository.PersonRepository;
-import uk.co.ogauthority.pwa.energyportal.repository.WebUserAccountRepository;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.internal.PersonRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationUserRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorUserRole;
+import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
@@ -348,9 +347,9 @@ public class TeamManagementService {
 
   public List<PwaUserRole> getUserRolesForPwaTeam(PwaTeam pwaTeam) {
     if (pwaTeam.getType().equals(PwaTeamType.REGULATOR)) {
-      return PwaRegulatorUserRole.stream().collect(Collectors.toList());
+      return PwaRegulatorRole.stream().collect(Collectors.toList());
     } else {
-      return PwaOrganisationUserRole.stream().collect(Collectors.toList());
+      return PwaOrganisationRole.stream().collect(Collectors.toList());
     }
   }
 

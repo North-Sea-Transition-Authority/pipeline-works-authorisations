@@ -7,22 +7,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentDiffableView;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
+import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.views.techdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableARowView;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.TableAView;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.IdentDiffableView;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummary;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineDiffableSummaryService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.projectinformation.PadProjectInformationService;
-import uk.co.ogauthority.pwa.service.pwaapplications.shared.techdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service

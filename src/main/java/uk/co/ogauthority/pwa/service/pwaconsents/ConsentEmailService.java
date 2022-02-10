@@ -4,32 +4,32 @@ import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.energyportal.model.entity.Person;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
+import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
+import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.CaseOfficerConsentIssuedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.CaseOfficerConsentIssuedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
-import uk.co.ogauthority.pwa.model.notify.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
-import uk.co.ogauthority.pwa.service.enums.workflow.assignment.WorkflowAssignment;
-import uk.co.ogauthority.pwa.service.notify.EmailCaseLinkService;
-import uk.co.ogauthority.pwa.service.notify.NotifyService;
-import uk.co.ogauthority.pwa.service.person.PersonService;
-import uk.co.ogauthority.pwa.service.workflow.assignment.AssignmentService;
 
 @Service
 public class ConsentEmailService {
 
   private final NotifyService notifyService;
-  private final EmailCaseLinkService emailCaseLinkService;
+  private final CaseLinkService caseLinkService;
   private final PersonService personService;
   private final AssignmentService assignmentService;
 
   @Autowired
   public ConsentEmailService(NotifyService notifyService,
-                             EmailCaseLinkService emailCaseLinkService,
+                             CaseLinkService caseLinkService,
                              PersonService personService,
                              AssignmentService assignmentService) {
     this.notifyService = notifyService;
-    this.emailCaseLinkService = emailCaseLinkService;
+    this.caseLinkService = caseLinkService;
     this.personService = personService;
     this.assignmentService = assignmentService;
   }
@@ -44,7 +44,7 @@ public class ConsentEmailService {
         pwaApplicationDetail.getPwaApplicationRef(),
         returningPersonName,
         returnReason,
-        emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
+        caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
 
     notifyService.sendEmail(emailProps, recipientEmail);
 
@@ -69,7 +69,7 @@ public class ConsentEmailService {
                                                        String caseOfficerEmail,
                                                        Collection<Person> emailRecipientPersons) {
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
     emailRecipientPersons.forEach(emailRecipientPerson -> {
 
@@ -95,7 +95,7 @@ public class ConsentEmailService {
                                               String caseOfficerEmail,
                                               List<Person> emailRecipientPersons) {
 
-    var caseManagementLink = emailCaseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
     emailRecipientPersons.forEach(emailRecipientPerson -> {
 
