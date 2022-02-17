@@ -151,10 +151,14 @@ public class PadPipelineService {
     }
 
     padPipeline.setPipelineFlexibility(form.getPipelineFlexibility());
+
     padPipeline.setPipelineMaterial(form.getPipelineMaterial());
     if (form.getPipelineMaterial().equals(PipelineMaterial.OTHER)) {
       padPipeline.setOtherPipelineMaterialUsed(form.getOtherPipelineMaterialUsed());
+    } else {
+      padPipeline.setOtherPipelineMaterialUsed(null);
     }
+
     padPipeline.setPipelineDesignLife(form.getPipelineDesignLife());
     padPipeline.setPipelineInBundle(form.getPipelineInBundle());
     if (BooleanUtils.isTrue(form.getPipelineInBundle())) {
