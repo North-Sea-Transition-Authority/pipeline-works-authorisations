@@ -12,7 +12,7 @@
 <#assign pageHeading="Pay for application" />
 <#assign pageHeadingWithAppRef="${appRef} ${pageHeading}" />
 
-<#assign sharePaymentUrlMailTo>mailto:?subject=Pay OGA for PWA application ${appRef}&body=Please use this link to pay the Oil and Gas Authority for our PWA application: ${paymentLandingPageUrl}</#assign>
+<#assign sharePaymentUrlMailTo>mailto:?subject=Pay NSTA for PWA application ${appRef}&body=Please use this link to pay the North Sea Transition Authority for our PWA application: ${paymentLandingPageUrl}</#assign>
 <#assign linkclass="govuk-link govuk-link--no-visited-state"/>
 <@defaultPage htmlTitle="${pageHeadingWithAppRef}" topNavigation=true breadcrumbs=true fullWidthColumn=true>
     <@fdsError.errorSummary errorItems=errorList />

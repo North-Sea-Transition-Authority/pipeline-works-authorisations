@@ -12,10 +12,10 @@ errorCheck=false
 noIndex=false
 backToTopLink=true>
 
-    <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
+    <@genericLayout htmlTitle=htmlTitle htmlAppTitle="NSTA Pipelines" errorCheck=errorCheck noIndex=noIndex>
       <div class="fds-pane fds-pane--enabled" id="top">
           <#--Header goes below me-->
-          <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
+          <@pipelinesHeader.header logoText="NSTA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
 
           <#--Phase banner goes below me-->
           <#if phaseBanner>

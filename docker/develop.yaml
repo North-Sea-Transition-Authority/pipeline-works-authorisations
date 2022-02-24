@@ -50,8 +50,8 @@ services:
       PWA_DB_URL: "edu-dev-db5.decc.local:1521:edudev1"
       PWA_DB_SCHEMA: "PWA"
       PWA_DB_PASS: "dev1"
-      PWA_FOX_LOGIN_URL: "http://edu-app3.decc.local/engedudev1/fox/oga/OGA_LOGIN/login?REFERRED_BY=PWA"
-      PWA_FOX_LOGOUT_URL: "http://edu-app3.decc.local/engedudev1/fox/oga/OGA_LOGIN/logout"
+      PWA_FOX_LOGIN_URL: "http://edu-app3.decc.local/engedudev1/fox/nsta/NSTA_LOGIN/login?REFERRED_BY=PWA"
+      PWA_FOX_LOGOUT_URL: "http://edu-app3.decc.local/engedudev1/fox/nsta/NSTA_LOGIN/logout"
       PWA_ENABLE_STATSD: "false"
       PWA_CLAMAV_HOST: "clamav"
       PWA_CLAMAV_PORT: 3310

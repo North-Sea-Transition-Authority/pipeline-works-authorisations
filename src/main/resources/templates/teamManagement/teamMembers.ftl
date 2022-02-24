@@ -24,7 +24,7 @@
           </#assign>
           <@fdsInsetText.insetText>
               <p>Every user in ${groups} has access to view this application. Depending on their role in the organisation they can update the application users listed below, submit the application and will receive notification of consent.</p>
-              <p>The users listed below will have access to this application while it is being prepared or processed by the OGA. They will see this application in their work area. The roles a user has determines the actions they can carry out on this application.</p>
+              <p>The users listed below will have access to this application while it is being prepared or processed by the NSTA. They will see this application in their work area. The roles a user has determines the actions they can carry out on this application.</p>
           </@fdsInsetText.insetText>
 
         <#else>

@@ -43,7 +43,7 @@
                 Review Annexes A-D of the attached public notice. Sections that you must update are
                 enclosed in square brackets and shown in red text. 
                 If any parties not shown within the table in Annex D are served a notice, their details, including email addresses, 
-                should be supplied to OGA by updating Annex D.
+                should be supplied to NSTA by updating Annex D.
               </p>
 
               <p class="govuk-body"> 

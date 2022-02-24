@@ -23,7 +23,7 @@
               
               <#elseif option == "TRANSFERRED">
                 <@fdsCheckbox.checkboxGroup path="form.transferAgreed" nestingPath="form.pipelineStatus">
-                    <@fdsCheckbox.checkboxItem path="form.transferAgreed" labelText="The OGA consents and authorisations manager has agreed that this pipeline can be transferred to another PWA" />
+                    <@fdsCheckbox.checkboxItem path="form.transferAgreed" labelText="The NSTA consents and authorisations manager has agreed that this pipeline can be transferred to another PWA" />
                 </@fdsCheckbox.checkboxGroup>
               </#if>
 
