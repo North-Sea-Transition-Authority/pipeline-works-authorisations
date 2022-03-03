@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
@@ -55,6 +56,37 @@ public class ProjectInformationValidatorTest {
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_NAME), false));
     assertThat(errorsMap).contains(
         entry("projectName", Set.of("projectName" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_projectName_tooBig() {
+    var form = new ProjectInformationForm();
+    form.setProjectName(StringUtils.repeat("a", 151));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+        validator,
+        form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROJECT_NAME), false)
+    );
+
+    assertThat(errorsMap).contains(
+        entry("projectName", Set.of("projectName" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+  }
+
+  @Test
+  public void validate_projectName_rightSize() {
+    var form = new ProjectInformationForm();
+    form.setProjectName(StringUtils.repeat("a", 150));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+        validator,
+        form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROJECT_NAME), false)
+    );
+
+    assertThat(errorsMap).isEmpty();
   }
 
   @Test
