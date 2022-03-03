@@ -173,6 +173,9 @@ public class PermanentDepositsValidator implements SmartValidator {
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "rocksSize", "rocksSize.invalid", "Enter a valid size for the material type");
 
+      ValidatorUtils.validateMaxStringLength(errors, "rocksSize", form::getRocksSize,
+          "Rock size", 20);
+
       if (!NumberUtils.isCreatable(form.getQuantityRocks())) {
         errors.rejectValue("quantityRocks", "quantityRocks.invalid",
             "Enter a valid quantity for the material type");
@@ -209,6 +212,9 @@ public class PermanentDepositsValidator implements SmartValidator {
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialSize", "otherMaterialSize.invalid",
           "Enter a valid size for the material type");
+
+      ValidatorUtils.validateMaxStringLength(errors, "otherMaterialSize", form::getOtherMaterialSize,
+          "Other material size", 20);
 
       if (!NumberUtils.isCreatable(form.getQuantityOther())) {
         errors.rejectValue("quantityOther", "quantityOther.invalid",
