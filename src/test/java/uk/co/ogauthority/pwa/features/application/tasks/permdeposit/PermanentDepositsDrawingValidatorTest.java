@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,6 +114,21 @@ public class PermanentDepositsDrawingValidatorTest {
         entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
             Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
+  }
+
+  @Test
+  public void validate_drawingReferenceSurpassMaxLimit_invalid() {
+    var form = new PermanentDepositDrawingForm();
+    form.setReference(StringUtils.repeat("b", 151));
+    when(service.isDrawingReferenceUnique(
+        form.getReference(), 1, pwaApplicationDetail)).thenReturn(true);
+
+    var errors = new BeanPropertyBindingResult(form, "form");
+    validator.validate(form, errors, service, pwaApplicationDetail, 1);
+    Map<String, Set<String>> errorsMap =  errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
+
+    assertThat(errorsMap).contains(entry("reference", Set.of("reference.maxLengthExceeded")));
   }
 
 
