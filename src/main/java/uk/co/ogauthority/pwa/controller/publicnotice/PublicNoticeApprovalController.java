@@ -121,6 +121,7 @@ public class PublicNoticeApprovalController  {
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("coverLetter", publicNoticeRequest.getCoverLetterText())
         .addObject("requestReason", publicNoticeRequest.getReason().getReasonText())
+        .addObject("requestDescription", publicNoticeRequest.getReasonDescription())
         .addObject("approvalResultOptions", PwaApplicationPublicNoticeApprovalResult.asList())
         .addObject("cancelUrl", publicNoticeOverviewUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView());

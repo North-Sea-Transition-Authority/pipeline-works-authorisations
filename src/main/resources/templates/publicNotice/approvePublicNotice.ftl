@@ -25,10 +25,13 @@
         </@grid.gridRow>
 
         <h3 class="govuk-heading-m"> Public notice request reason </h3>
-        <@multiLineText.multiLineText blockClass="public-notice__text">
-            <p class="govuk-body"> ${requestReason} </p>
-        </@multiLineText.multiLineText>
-    
+        <p class="govuk-body">${requestReason}</p>
+
+        <#if requestDescription?has_content>
+            <@multiLineText.multiLineText blockClass="public-notice__text">
+                <p class="govuk-body"> ${requestDescription} </p>
+            </@multiLineText.multiLineText>
+        </#if>
     
         <@fdsRadio.radioGroup path="form.requestApproved" labelText="Respond to the public notice approval request" hiddenContent=true>
             <#assign firstItem=true/>
