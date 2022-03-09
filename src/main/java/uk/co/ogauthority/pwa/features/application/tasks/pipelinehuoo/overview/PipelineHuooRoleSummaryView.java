@@ -66,20 +66,16 @@ public class PipelineHuooRoleSummaryView {
   }
 
   public Set<PipelineIdentifier> getAllPipelineIdentifiers() {
-    var pipelines = new HashSet<PipelineIdentifier>();
-    pipelines.addAll(this.getUnassignedPipelineIds());
 
-    this.pipelinesAndOrgRoleGroupViews.stream()
+    var pipelineIdentifiers = new HashSet<>(this.getUnassignedPipelineIds());
+
+    var assignedPipelineIdentifiers = this.pipelinesAndOrgRoleGroupViews.stream()
         .flatMap(o -> o.getPipelineIdentifierSet().stream())
         .collect(Collectors.toSet());
 
-    pipelines.addAll(
-        this.pipelinesAndOrgRoleGroupViews.stream()
-            .flatMap(o -> o.getPipelineIdentifierSet().stream())
-            .collect(Collectors.toSet())
-    );
+    pipelineIdentifiers.addAll(assignedPipelineIdentifiers);
 
-    return pipelines;
+    return pipelineIdentifiers;
 
   }
 

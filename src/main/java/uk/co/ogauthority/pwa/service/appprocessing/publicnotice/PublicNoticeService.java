@@ -274,8 +274,12 @@ public class PublicNoticeService implements AppProcessingService {
         form.setReasonDescription(publicNoticeRequest.getReasonDescription());
       }
 
-      var appFileView = getPublicNoticeDocumentFileViewForPublicNotice(draftPublicNoticeOpt.get(), pwaApplication);
-      appFileService.mapFileToForm(form, appFileView);
+      try {
+        var appFileView = getPublicNoticeDocumentFileViewForPublicNotice(draftPublicNoticeOpt.get(), pwaApplication);
+        appFileService.mapFileToForm(form, appFileView);
+      } catch (EntityLatestVersionNotFoundException e) {
+        // do nothing here if there is no doc associated with the PN
+      }
     }
 
     form.setCoverLetterText(coverLetterText);

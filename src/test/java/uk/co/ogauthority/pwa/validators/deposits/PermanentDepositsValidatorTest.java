@@ -481,6 +481,15 @@ public class PermanentDepositsValidatorTest {
   }
 
   @Test
+  public void validate_rocksSize_lengthExceeded() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.ROCK);
+    form.setRocksSize(ValidatorTestUtils.overCharLength(20));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("rocksSize", Set.of("rocksSize.maxLengthExceeded")));
+  }
+
+  @Test
   public void validate_rocks_invalidQuantity() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
@@ -559,6 +568,16 @@ public class PermanentDepositsValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("otherMaterialSize", Set.of("otherMaterialSize.invalid")));
   }
+
+  @Test
+  public void validate_otherSize_lengthExceeded() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.OTHER);
+    form.setOtherMaterialSize(ValidatorTestUtils.overCharLength(20));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("otherMaterialSize", Set.of("otherMaterialSize.maxLengthExceeded")));
+  }
+
 
   @Test
   public void validate_otherMaterial_invalidQuantity() {

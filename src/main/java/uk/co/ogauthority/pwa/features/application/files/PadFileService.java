@@ -12,6 +12,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.ogauthority.pwa.config.fileupload.DeleteOutcomeType;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -187,9 +188,11 @@ public class PadFileService {
                                           WebUserAccount user) {
 
     filesToBeRemoved.forEach(fileToRemove -> {
-      var result = fileUploadService.deleteUploadedFile(fileToRemove.getFileId(), user);
-      if (!result.isValid()) {
-        throw new RuntimeException("Could not delete uploaded file with Id:" + fileToRemove.getFileId());
+      if (fileToRemove.getPwaApplicationDetail().getVersionNo() == 1) {
+        var result = fileUploadService.deleteUploadedFile(fileToRemove.getFileId(), user);
+        if (!result.isValid()) {
+          throw new RuntimeException("Could not delete uploaded file with Id:" + fileToRemove.getFileId());
+        }
       }
     });
 
@@ -276,7 +279,12 @@ public class PadFileService {
   public FileDeleteResult processFileDeletionWithPreDeleteAction(PadFile padFile,
                                                                  WebUserAccount user,
                                                                  Consumer<PadFile> actionBeforeDelete) {
-    var result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
+    FileDeleteResult result;
+    if (padFile.getPwaApplicationDetail().getVersionNo() == 1) {
+      result = fileUploadService.deleteUploadedFile(padFile.getFileId(), user);
+    } else {
+      result = new FileDeleteResult(padFile.getFileId(), DeleteOutcomeType.NOT_FIRST_VERSION);
+    }
 
     if (result.isValid()) {
       actionBeforeDelete.accept(padFile);

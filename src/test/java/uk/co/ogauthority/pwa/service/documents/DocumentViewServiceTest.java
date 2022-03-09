@@ -171,9 +171,13 @@ public class DocumentViewServiceTest {
 
     //assert that from the second section onwards there are no appRef links as this should be only in the first section
     for (var x = 1; x < docView.getSections().size(); x++) {
+
       var section = docView.getSections().get(x);
-      assertThat(section.getSidebarSectionLinks()).allSatisfy(link ->
-          assertThat(link.getDisplayText()).isNotEqualTo(docSource.getAppReference()));
+
+      assertThat(section.getSidebarSectionLinks())
+          .isNotEmpty()
+          .allSatisfy(link -> assertThat(link.getDisplayText()).isNotEqualTo(docSource.getAppReference()));
+
     }
   }
 

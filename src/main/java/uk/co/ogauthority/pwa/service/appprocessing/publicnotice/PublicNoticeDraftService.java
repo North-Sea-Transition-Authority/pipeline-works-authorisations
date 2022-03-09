@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
@@ -98,11 +99,17 @@ public class PublicNoticeDraftService {
       publicNoticeRequest = createPublicNoticeRequestFromForm(
           form, publicNotice, latestPublicNoticeRequest.getVersion() + 1, userAccount.getLinkedPerson());
 
-      var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
-      latestPublicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
-      publicNoticeService.savePublicNoticeDocument(latestPublicNoticeDocument);
-      publicNoticeDocument = new PublicNoticeDocument(
-          publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+      // if there is a previous document associated with the PN, archive it and create a new one
+      try {
+        var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
+        latestPublicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
+        publicNoticeService.savePublicNoticeDocument(latestPublicNoticeDocument);
+        publicNoticeDocument = new PublicNoticeDocument(
+            publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+      } catch (EntityLatestVersionNotFoundException e) {
+        // if no previous document, just create a new one
+        publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+      }
 
     } else {
 
@@ -112,12 +119,12 @@ public class PublicNoticeDraftService {
       publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
     }
 
-
     publicNoticeService.savePublicNotice(publicNotice);
     publicNoticeService.savePublicNoticeRequest(publicNoticeRequest);
 
     appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, userAccount);
     publicNoticeDocument = publicNoticeService.savePublicNoticeDocument(publicNoticeDocument);
+
     try {
       var publicNoticeDocumentLink = publicNoticeService.createPublicNoticeDocumentLinkFromForm(
           pwaApplication, form.getUploadedFileWithDescriptionForms().get(0), publicNoticeDocument);
@@ -134,10 +141,10 @@ public class PublicNoticeDraftService {
     } else {
       camundaWorkflowService.startWorkflow(publicNotice);
     }
+
     sendPublicNoticeApprovalEmails(pwaApplication, form.getReason().getReasonText());
 
   }
-
 
   private void sendPublicNoticeApprovalEmails(PwaApplication pwaApplication, String publicNoticeReason) {
 

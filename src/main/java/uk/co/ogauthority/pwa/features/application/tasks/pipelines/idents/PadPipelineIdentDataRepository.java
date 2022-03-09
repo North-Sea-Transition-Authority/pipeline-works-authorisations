@@ -11,13 +11,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public interface PadPipelineIdentDataRepository extends CrudRepository<PadPipelineIdentData, Integer> {
 
-  @EntityGraph(attributePaths = { "padPipelineIdent" })
+  @EntityGraph(attributePaths = { "padPipelineIdent.padPipeline.pipeline" })
   List<PadPipelineIdentData> getAllByPadPipelineIdentIn(List<PadPipelineIdent> idents);
 
-  @EntityGraph(attributePaths = { "padPipelineIdent" })
+  @EntityGraph(attributePaths = { "padPipelineIdent.padPipeline.pipeline" })
   Optional<PadPipelineIdentData> getByPadPipelineIdent(PadPipelineIdent ident);
 
-  @EntityGraph(attributePaths = { "padPipelineIdent" })
+  @EntityGraph(attributePaths = { "padPipelineIdent.padPipeline.pipeline" })
   List<PadPipelineIdentData> getAllByPadPipelineIdent_PadPipeline(PadPipeline padPipeline);
 
   @Query("" +

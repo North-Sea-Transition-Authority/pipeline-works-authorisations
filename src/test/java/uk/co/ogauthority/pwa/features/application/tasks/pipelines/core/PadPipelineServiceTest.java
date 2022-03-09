@@ -612,4 +612,18 @@ public class PadPipelineServiceTest {
     });
   }
 
+  @Test
+  public void updatePipeline_setPipelineMaterial_assertOtherMaterialDescriptionCleared() {
+    padPipe1.setPipelineMaterial(PipelineMaterial.OTHER);
+    padPipe1.setOtherPipelineMaterialUsed("concrete");
+    var pipelineHeaderForm = createBaseHeaderForm();
+    pipelineHeaderForm.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+
+    padPipelineService.updatePipeline(padPipe1, pipelineHeaderForm, Set.of(PipelineHeaderQuestion.ALREADY_EXISTS_ON_SEABED));
+
+    ArgumentCaptor<PadPipeline> argumentCaptor = ArgumentCaptor.forClass(PadPipeline.class);
+    verify(padPipelinePersisterService).savePadPipelineAndMaterialiseIdentData(argumentCaptor.capture());
+    assertThat(argumentCaptor.getValue().getOtherPipelineMaterialUsed()).isNull();
+  }
+
 }
