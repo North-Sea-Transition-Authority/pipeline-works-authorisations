@@ -516,6 +516,32 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void mapPublicNoticeDraftToForm_publicNoticeRequestExists_noDocAssociated_noError() {
+
+    var coverLetterTemplateText = "cover letter text...";
+    when(templateTextService.getLatestVersionTextByType(TemplateTextType.PUBLIC_NOTICE_COVER_LETTER)).thenReturn(coverLetterTemplateText);
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findByStatusAndPwaApplication(PublicNoticeStatus.DRAFT, pwaApplication)).thenReturn(Optional.of(publicNotice));
+
+    var expectedForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm();
+    var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice, expectedForm);
+    when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)).thenReturn(Optional.of(publicNoticeRequest));
+
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenThrow(EntityLatestVersionNotFoundException.class);
+
+    var actualForm = new PublicNoticeDraftForm();
+    publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, actualForm);
+
+    assertThat(actualForm.getCoverLetterText()).isEqualTo(expectedForm.getCoverLetterText());
+    assertThat(actualForm.getReason()).isEqualTo(expectedForm.getReason());
+    assertThat(actualForm.getReasonDescription()).isEqualTo(expectedForm.getReasonDescription());
+    verifyNoInteractions(appFileService);
+
+  }
+
+  @Test
   public void mapPublicNoticeDraftToForm_publicNoticeRequestDoesNotExist() {
 
     var coverLetterTemplateText = "cover letter text...";

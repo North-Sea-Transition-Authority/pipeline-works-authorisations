@@ -21,6 +21,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeWithdrawnEmailProps;
@@ -146,6 +147,52 @@ public class WithdrawPublicNoticeServiceTest {
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
 
     verify(publicNoticeService, times(1)).archivePublicNoticeDocument(latestPublicNoticeDocument);
+
+    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
+    assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.WITHDRAWN);
+    assertThat(actualPublicNotice.getWithdrawalReason()).isEqualTo(withdrawnPublicNotice.getWithdrawalReason());
+    assertThat(actualPublicNotice.getWithdrawalTimestamp()).isEqualTo(withdrawnPublicNotice.getWithdrawalTimestamp());
+    assertThat(actualPublicNotice.getWithdrawingPersonId()).isEqualTo(withdrawnPublicNotice.getWithdrawingPersonId());
+
+    emailRecipients.forEach(pwaManager -> {
+      var expectedEmailProps = new PublicNoticeWithdrawnEmailProps(
+          pwaManager.getFullName(),
+          pwaApplication.getAppReference(),
+          user.getLinkedPerson().getFullName(),
+          form.getWithdrawalReason());
+
+      verify(notifyService, times(1)).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
+    });
+    verify(notifyService, times(emailRecipients.size())).sendEmail(any(), any());
+  }
+
+  @Test
+  public void withdrawPublicNotice_publicNoticeAtApprovalStage_workflowEndedAndEmailSentToManagerOnly_noDoc_noError() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeService.getLatestPublicNotice(pwaApplication))
+        .thenReturn(publicNotice);
+
+    var form = new WithdrawPublicNoticeForm();
+    form.setWithdrawalReason("my reason");
+
+    var withdrawnPublicNotice = PublicNoticeTestUtil.createWithdrawnPublicNotice(
+        pwaApplication, user.getLinkedPerson(), form.getWithdrawalReason(), clock.instant());
+    when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(withdrawnPublicNotice);
+
+    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice))
+        .thenThrow(EntityLatestVersionNotFoundException.class);
+
+    var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
+    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(emailRecipients);
+
+    withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
+
+    verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
+        publicNotice, PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
+
+    verify(publicNoticeService, times(0)).archivePublicNoticeDocument(any());
 
     verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
