@@ -8,6 +8,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.MaterialType;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositsForm;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 @Service
@@ -50,7 +51,7 @@ class PermanentDepositsGeneratorService implements TestHarnessAppFormService {
 
     form.setMaterialType(MaterialType.ROCK);
     form.setRocksSize("Large");
-    form.setQuantityRocks("50");
+    form.setQuantityRocks(new DecimalInput("50"));
 
     form.setFromCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
     form.setToCoordinateForm(TestHarnessAppFormUtil.getRandomCoordinatesForm());
