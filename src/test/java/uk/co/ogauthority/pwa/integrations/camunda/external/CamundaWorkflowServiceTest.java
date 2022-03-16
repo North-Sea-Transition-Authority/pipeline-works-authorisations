@@ -73,7 +73,7 @@ public class CamundaWorkflowServiceTest {
   }
 
   @Test
-  public void completeTask() {
+  public void completeTask_singleTask() {
 
     camundaWorkflowService.startWorkflow(application);
     camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
@@ -86,6 +86,44 @@ public class CamundaWorkflowServiceTest {
         .active()
         .taskDefinitionKey(PwaApplicationWorkflowTask.PREPARE_APPLICATION.getTaskKey())
         .singleResult()).isNull();
+
+  }
+
+  @Test
+  public void completeTask_multipleTasks() {
+
+    camundaWorkflowService.startWorkflow(application);
+
+    camundaWorkflowService.setWorkflowProperty(application, PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.PREPARE_APPLICATION));
+
+    camundaWorkflowService.triggerMessageEvent(
+        application, PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName());
+
+    // trigger a second update request event to replicate bug
+    camundaWorkflowService.triggerMessageEvent(
+        application, PwaApplicationWorkflowMessageEvents.UPDATE_APPLICATION_REQUEST.getMessageEventName());
+
+    // verify we have two instances of the update task
+    assertThat(taskService
+        .createTaskQuery()
+        .processDefinitionKey(WorkflowType.PWA_APPLICATION.getProcessDefinitionKey())
+        .processInstanceBusinessKey("1")
+        .active()
+        .taskDefinitionKey(PwaApplicationWorkflowTask.UPDATE_APPLICATION.getTaskKey())
+        .list()
+        .size()).isEqualTo(2);
+
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.UPDATE_APPLICATION));
+
+    // verify both instances are no longer active
+    assertThat(taskService
+        .createTaskQuery()
+        .processDefinitionKey(WorkflowType.PWA_APPLICATION.getProcessDefinitionKey())
+        .processInstanceBusinessKey("1")
+        .active()
+        .taskDefinitionKey(PwaApplicationWorkflowTask.UPDATE_APPLICATION.getTaskKey())
+        .list()).isEmpty();
 
   }
 
