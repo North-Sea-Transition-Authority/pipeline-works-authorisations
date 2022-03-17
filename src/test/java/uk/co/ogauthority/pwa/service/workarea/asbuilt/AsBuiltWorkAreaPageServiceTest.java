@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea.asbuilt;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +32,7 @@ public class AsBuiltWorkAreaPageServiceTest {
   @Mock
   private AsBuiltNotificationDtoRepository asBuiltNotificationDtoRepository;
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
+  private final AuthenticatedUserAccount user = new AuthenticatedUserAccount(
       new WebUserAccount(10),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
 
@@ -52,7 +53,7 @@ public class AsBuiltWorkAreaPageServiceTest {
     asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(
         user, REQUESTED_PAGE);
 
-    verify(asBuiltNotificationDtoRepository).findAllAsBuiltNotificationsForUser(user, getDefaultWorkAreaViewPageable(REQUESTED_PAGE));
+    verify(asBuiltNotificationDtoRepository).findAllAsBuiltNotificationsForUser(eq(user), eq(getDefaultWorkAreaViewPageable(REQUESTED_PAGE)));
 
   }
 

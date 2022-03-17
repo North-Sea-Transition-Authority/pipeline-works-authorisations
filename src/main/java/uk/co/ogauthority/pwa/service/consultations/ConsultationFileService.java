@@ -48,7 +48,7 @@ public class ConsultationFileService {
         .stream()
         .collect(Collectors.toMap(UploadedFileView::getFileId, Function.identity()));
 
-    var consultationResponseIdToDocLinksMap = consultationResponseFileLinkRepository.findALlByConsultationResponseIn(responses).stream()
+    var consultationResponseIdToDocLinksMap = consultationResponseFileLinkRepository.findAllByConsultationResponseIn(responses).stream()
         .collect(Collectors.groupingBy(ConsultationResponseFileLink::getConsultationResponse));
 
     return consultationResponseIdToDocLinksMap.keySet().stream()

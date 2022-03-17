@@ -32,6 +32,8 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "reference", "reference.required",
         "Enter a deposit reference");
 
+    ValidatorUtils.validateMaxStringLength(errors, "reference", form::getReference, "Drawing reference", 150);
+
     if (StringUtils.isNotBlank(form.getReference()) && validationHints[0] instanceof DepositDrawingsService) {
       var depositDrawingsService = (DepositDrawingsService) validationHints[0];
       var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];

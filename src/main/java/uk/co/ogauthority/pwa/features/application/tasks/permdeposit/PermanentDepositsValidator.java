@@ -1,15 +1,11 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_DP_EXCEEDED;
-import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-
 import io.micrometer.core.instrument.util.StringUtils;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -20,9 +16,11 @@ import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.util.DateUtils;
-import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.PositiveNumberHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.DateWithinRangeHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -31,16 +29,17 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValid
 @Service
 public class PermanentDepositsValidator implements SmartValidator {
 
-  private static final int CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES = 2;
-
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
   private final CoordinateFormValidator coordinateFormValidator;
+  private final DecimalInputValidator decimalInputValidator;
 
   @Autowired
   public PermanentDepositsValidator(TwoFieldDateInputValidator twoFieldDateInputValidator,
-                                    CoordinateFormValidator coordinateFormValidator) {
+                                    CoordinateFormValidator coordinateFormValidator,
+                                    DecimalInputValidator decimalInputValidator) {
     this.twoFieldDateInputValidator = twoFieldDateInputValidator;
     this.coordinateFormValidator = coordinateFormValidator;
+    this.decimalInputValidator = decimalInputValidator;
   }
 
   @Override
@@ -67,10 +66,13 @@ public class PermanentDepositsValidator implements SmartValidator {
               PermanentDepositsValidationHints.class.toString());
     }
 
-    if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && BooleanUtils.isFalse(form.getDepositIsForPipelinesOnOtherApp())) {
-      errors.rejectValue("depositIsForConsentedPipeline", "depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode(),
+    if (BooleanUtils.isFalse(form.getDepositIsForConsentedPipeline()) && BooleanUtils.isFalse(
+        form.getDepositIsForPipelinesOnOtherApp())) {
+      errors.rejectValue("depositIsForConsentedPipeline",
+          "depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode(),
           "Select 'Yes' to one or both of the pipeline linking questions.");
-      errors.rejectValue("depositIsForPipelinesOnOtherApp", "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode(),
+      errors.rejectValue("depositIsForPipelinesOnOtherApp",
+          "depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode(),
           "Select 'Yes' to one or both of the pipeline linking questions.");
     }
 
@@ -92,7 +94,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           "Enter the application reference and proposed pipeline number for each pipeline");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "appRefAndPipelineNum", form::getAppRefAndPipelineNum, "Application reference and proposed pipeline numbers");
+          errors, "appRefAndPipelineNum", form::getAppRefAndPipelineNum,
+          "Application reference and proposed pipeline numbers");
     }
 
     validateDepositReference(errors, depositValidationHints, form);
@@ -123,78 +126,81 @@ public class PermanentDepositsValidator implements SmartValidator {
   private void validateMaterialTypes(PermanentDepositsForm form, Errors errors) {
 
     if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressLength", REQUIRED.errorCode("concreteMattressLength"),
-          "Enter a concrete mattress length");
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressWidth", REQUIRED.errorCode("concreteMattressWidth"),
-          "Enter a concrete mattress width");
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "concreteMattressDepth", REQUIRED.errorCode("concreteMattressDepth"),
-          "Enter a concrete mattress depth");
-
-      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "concreteMattressLength",
           form.getConcreteMattressLength(),
-          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
-          true)
-      ) {
-        errors.rejectValue("concreteMattressLength",
-            MAX_DP_EXCEEDED.errorCode("concreteMattressLength"),
-            "Enter a maximum of 2 decimal places for concrete mattress length");
-      }
+          getPositiveNumberFieldHints("concrete mattress length")
+      );
 
-      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "concreteMattressWidth",
           form.getConcreteMattressWidth(),
-          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
-          true)
-      ) {
-        errors.rejectValue("concreteMattressWidth",
-            MAX_DP_EXCEEDED.errorCode("concreteMattressWidth"),
-            "Enter a maximum of 2 decimal places for concrete mattress width");
-      }
+          getPositiveNumberFieldHints("concrete mattress width")
+      );
 
-      if (!PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "concreteMattressDepth",
           form.getConcreteMattressDepth(),
-          CONCRETE_MATTRESS_DIMENSION_MAX_DECIMAL_PLACES,
-          true)
-      ) {
-        errors.rejectValue("concreteMattressDepth",
-            MAX_DP_EXCEEDED.errorCode("concreteMattressDepth"),
-            "Enter a maximum of 2 decimal places for concrete mattress depth");
-      }
+          getPositiveNumberFieldHints("concrete mattress depth")
+      );
 
-
-      if (!NumberUtils.isCreatable(form.getQuantityConcrete())) {
-        errors.rejectValue("quantityConcrete", "quantityConcrete.invalid",
-            "Enter a valid quantity for the material type");
-      }
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "quantityConcrete",
+          form.getQuantityConcrete(),
+          getPositiveNumberFieldHints("quantity material")
+      );
 
       ValidatorUtils.validateMaxStringLength(errors, "contingencyConcreteAmount", form::getContingencyConcreteAmount,
           "Concrete mattresses contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "rocksSize", "rocksSize.invalid",
+          "Enter a valid size for the material type");
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "rocksSize", "rocksSize.invalid", "Enter a valid size for the material type");
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "quantityRocks",
+          form.getQuantityRocks(),
+          getPositiveNumberFieldHints("quantity rocks")
+      );
 
-      if (!NumberUtils.isCreatable(form.getQuantityRocks())) {
-        errors.rejectValue("quantityRocks", "quantityRocks.invalid",
-            "Enter a valid quantity for the material type");
-      }
+      ValidatorUtils.validateMaxStringLength(errors, "rocksSize", form::getRocksSize,
+          "Rock size", 20);
 
       ValidatorUtils.validateMaxStringLength(errors, "contingencyRocksAmount", form::getContingencyRocksAmount,
           "Rock contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "groutBagsSize",
+          form.getGroutBagsSize(),
+          getPositiveNumberFieldHints("grout bags")
+      );
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsSize", "groutBagsSize.invalid",
-          "Enter a valid size for the material type");
-
-      if (!NumberUtils.isCreatable(form.getQuantityGroutBags())) {
-        errors.rejectValue("quantityGroutBags", "quantityGroutBags.invalid",
-            "Enter a valid quantity for the material type");
-      }
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "quantityGroutBags",
+          form.getQuantityGroutBags(),
+          getPositiveNumberFieldHints("quantity grout bags")
+      );
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsBioDegradable", "groutBagsBioDegradable.required",
           "Select yes if the grout bags are bio degradable");
 
-      if (BooleanUtils.isFalse(form.getGroutBagsBioDegradable()) && StringUtils.isBlank(form.getBioGroutBagsNotUsedDescription())) {
+      if (BooleanUtils.isFalse(form.getGroutBagsBioDegradable()) && StringUtils.isBlank(
+          form.getBioGroutBagsNotUsedDescription())) {
         errors.rejectValue("bioGroutBagsNotUsedDescription", "bioGroutBagsNotUsedDescription.blank",
             "Explain why bio-degradable grout bags aren’t being used");
       }
@@ -206,20 +212,24 @@ public class PermanentDepositsValidator implements SmartValidator {
           "Grout bags contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
-
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialSize", "otherMaterialSize.invalid",
           "Enter a valid size for the material type");
 
-      if (!NumberUtils.isCreatable(form.getQuantityOther())) {
-        errors.rejectValue("quantityOther", "quantityOther.invalid",
-            "Enter a valid quantity for the material type");
-      }
+      ValidatorUtils.invokeNestedValidator(
+          errors,
+          decimalInputValidator,
+          "quantityOther",
+          form.getQuantityOther(),
+          getPositiveNumberFieldHints("quantity of material")
+      );
+
+      ValidatorUtils.validateMaxStringLength(errors, "otherMaterialSize", form::getOtherMaterialSize,
+          "Other material size", 20);
 
       ValidatorUtils.validateMaxStringLength(errors, "contingencyOtherAmount", form::getContingencyOtherAmount,
-          "Other contingency amount", 150);
-
+          "Contingency amount",
+          150);
     }
-
   }
 
   private void validateStartDate(Errors errors, PermanentDepositsValidationHints validationHints,
@@ -230,7 +240,8 @@ public class PermanentDepositsValidator implements SmartValidator {
 
     if (Objects.nonNull(validationHints.getProjectInfoProposedStartTimestamp())) {
       dateValidationHints.add(new OnOrAfterDateHint(
-          DateUtils.instantToLocalDate(validationHints.getProjectInfoProposedStartTimestamp()), "the proposed start of works date"));
+          DateUtils.instantToLocalDate(validationHints.getProjectInfoProposedStartTimestamp()),
+          "the proposed start of works date"));
 
     } else {
       dateValidationHints.add(new OnOrAfterDateHint(LocalDate.now(), "the current date"));
@@ -270,7 +281,8 @@ public class PermanentDepositsValidator implements SmartValidator {
   }
 
 
-  private void validateDepositReference(Errors errors, PermanentDepositsValidationHints validationHints, PermanentDepositsForm form) {
+  private void validateDepositReference(Errors errors, PermanentDepositsValidationHints validationHints,
+                                        PermanentDepositsForm form) {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "depositReference", "depositReference.required",
         "Enter a deposit reference");
@@ -289,4 +301,11 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   }
 
+  private Object[] getPositiveNumberFieldHints(String formInputLabelText) {
+    return new Object[]{
+        new FormInputLabel(formInputLabelText),
+        new DecimalPlaceHint(2),
+        new PositiveNumberHint()
+    };
+  }
 }

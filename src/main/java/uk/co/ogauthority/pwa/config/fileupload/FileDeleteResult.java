@@ -19,6 +19,8 @@ public class FileDeleteResult {
   }
 
   public boolean isValid() {
-    return this.deleteOutcomeType.equals(DeleteOutcomeType.SUCCESS) && this.fileId != null;
+    return (this.deleteOutcomeType.equals(DeleteOutcomeType.SUCCESS)
+        || this.deleteOutcomeType.equals(DeleteOutcomeType.NOT_FIRST_VERSION))
+        && this.fileId != null;
   }
 }

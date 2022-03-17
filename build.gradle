@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-  id 'org.springframework.boot' version '2.2.2.RELEASE'
+  id 'org.springframework.boot' version '2.6.3'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
@@ -40,7 +40,8 @@ compileJava {
 repositories {
   mavenCentral()
   maven {
-    url("http://nexus.fivium.local:8081/repository/maven-releases/")
+    url = "http://nexus.fivium.local:8081/repository/maven-releases/"
+    allowInsecureProtocol = true
   }
 }
 
@@ -56,55 +57,58 @@ dependencies {
   implementation 'org.springframework:spring-test'
   implementation 'org.springframework.boot:spring-boot-starter-freemarker'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
-  implementation 'io.micrometer:micrometer-registry-statsd:1.3.2'
+  implementation 'org.springframework.boot:spring-boot-starter-validation'
+  implementation 'io.micrometer:micrometer-registry-statsd:1.7.8'
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-  compile 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
-  compile 'com.oracle:ojdbc7:12.1.0.2'
-  compile('uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE')
-  compile 'org.springframework.session:spring-session-jdbc'
-  compile 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
+  implementation 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
+  implementation 'com.oracle:ojdbc7:12.1.0.2'
+  implementation 'uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE'
+  implementation 'org.springframework.session:spring-session-jdbc'
+  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
 
   // Required by Hibernate Envers
   // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
-  compile 'org.hibernate:hibernate-envers:5.4.27.Final'
+  implementation 'org.hibernate:hibernate-envers:5.6.5.Final'
 
   // automatically generates jpa meta-model for type safe criteria builder queries
   annotationProcessor("javax.xml.bind:jaxb-api")
   annotationProcessor("org.hibernate:hibernate-jpamodelgen")
 
-  compile 'com.google.guava:guava:28.1-jre'
-  compile 'org.apache.commons:commons-lang3:3.9'
-  compile 'org.apache.commons:commons-collections4:4.4'
-  compile group: 'commons-validator', name: 'commons-validator', version: '1.7'
+  implementation 'com.google.guava:guava:31.0.1-jre'
+  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation 'org.apache.commons:commons-collections4:4.4'
+  implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
 
-  compile group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
+  implementation group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
 
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-core
-  compile group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.4'
+  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.4'
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-pdfbox
-  compile group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.4'
+  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.4'
 
   // https://mvnrepository.com/artifact/org.jsoup/jsoup
-  compile group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
+  implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.3'
 
   // https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib
-  compile group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
+  implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
 
-  compile group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.15.2'
-  compile group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.15.2'
+  implementation group: 'com.atlassian.commonmark', name: 'commonmark', version: '0.15.2'
+  implementation group: 'com.atlassian.commonmark', name: 'commonmark-ext-gfm-tables', version: '0.15.2'
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
-  testCompile 'com.h2database:h2:1.4.197'
-  testCompile 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
+  testImplementation 'com.h2database:h2:1.4.197'
+  testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
       'com.squareup.okhttp3:mockwebserver:4.9.1',
       'com.squareup.okhttp3:okhttp:4.9.1' // Required otherwise MockWebServer gives ClassNotFoundException
   )
+  testImplementation 'junit:junit:4.13.1'
+
 }
 
 checkstyle {
