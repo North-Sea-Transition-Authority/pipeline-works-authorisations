@@ -34,6 +34,8 @@ import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -54,13 +56,16 @@ public class PermanentDepositsValidatorTest {
 
   @Before
   public void setUp() {
-    validator = new PermanentDepositsValidator(new TwoFieldDateInputValidator(), new CoordinateFormValidator());
+    validator = new PermanentDepositsValidator(new TwoFieldDateInputValidator(),
+        new CoordinateFormValidator(),
+        new DecimalInputValidator()
+    );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     validationHints = PadPermanentDepositTestUtil.createValidationHints(pwaApplicationDetail);
   }
 
-  public PermanentDepositsForm getPermanentDepositsFormWithCoordinates(){
+  public PermanentDepositsForm getPermanentDepositsFormWithCoordinates() {
     var form = new PermanentDepositsForm();
     form.setFromDate(new TwoFieldDateInput());
     form.setToDate(new TwoFieldDateInput());
@@ -77,22 +82,26 @@ public class PermanentDepositsValidatorTest {
     form.setDepositIsForPipelinesOnOtherApp(false);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
-        entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode())),
-        entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode())));
+        entry("depositIsForConsentedPipeline",
+            Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.INVALID.getCode())),
+        entry("depositIsForPipelinesOnOtherApp",
+            Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
   @Test
   public void validate_consentedPipelinesNull() {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline", Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
+    assertThat(errorsMap).contains(entry("depositIsForConsentedPipeline",
+        Set.of("depositIsForConsentedPipeline" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   public void validate_otherAppQuestionNull() {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("depositIsForPipelinesOnOtherApp", Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode())));
+    assertThat(errorsMap).contains(entry("depositIsForPipelinesOnOtherApp",
+        Set.of("depositIsForPipelinesOnOtherApp" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
@@ -100,7 +109,8 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     form.setDepositIsForConsentedPipeline(true);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.REQUIRED.getCode())));
+    assertThat(errorsMap).contains(
+        entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
@@ -119,7 +129,8 @@ public class PermanentDepositsValidatorTest {
     form.setAppRefAndPipelineNum(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
-        entry("appRefAndPipelineNum", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("appRefAndPipelineNum"))));
+        entry("appRefAndPipelineNum",
+            Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("appRefAndPipelineNum"))));
   }
 
   public void supports_whenSupported() {
@@ -136,7 +147,8 @@ public class PermanentDepositsValidatorTest {
   public void validate_reference_blank() {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
+    assertThat(errorsMap).contains(
+        entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
@@ -144,7 +156,8 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
     form.setDepositReference(StringUtils.repeat('d', 51));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("depositReference", Set.of("depositReference" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
+    assertThat(errorsMap).contains(entry("depositReference",
+        Set.of("depositReference" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
   }
 
   @Test
@@ -160,7 +173,8 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDepositFormWithReference(1, "myRef");
     var depositSameRef = PadPermanentDepositTestUtil.createDepositsWithReference(2, "myRef");
 
-    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail, List.of(depositSameRef));
+    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail,
+        List.of(depositSameRef));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
@@ -172,7 +186,8 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDepositFormWithReference(1, "myRef");
     var depositSameRef = PadPermanentDepositTestUtil.createDepositsWithReference(1, "myRef");
 
-    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail, List.of(depositSameRef));
+    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail,
+        List.of(depositSameRef));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).doesNotContain(
@@ -184,13 +199,14 @@ public class PermanentDepositsValidatorTest {
     var form = PadPermanentDepositTestUtil.createDepositFormWithReference(1, "myRef2");
     var depositSameRef = PadPermanentDepositTestUtil.createDepositsWithReference(2, "myRef1");
 
-    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail, List.of(depositSameRef));
+    validationHints = PadPermanentDepositTestUtil.createValidationHintsWithDeposits(pwaApplicationDetail,
+        List.of(depositSameRef));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).doesNotContain(
         entry("depositReference", Set.of(FieldValidationErrorCodes.NOT_UNIQUE.errorCode("depositReference"))));
   }
-  
+
 
   @Test
   public void validate_startDate_noStartOfWorksDate_fromDateBeforeToday_invalid() {
@@ -198,7 +214,8 @@ public class PermanentDepositsValidatorTest {
     var startDate = TODAY.minusMonths(1L);
     var form = PadPermanentDepositTestUtil.createFormWithStartDate(startDate.getMonthValue(), startDate.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+    assertThat(errorsMap).contains(
+        entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
   }
 
   @Test
@@ -206,7 +223,8 @@ public class PermanentDepositsValidatorTest {
 
     var form = PadPermanentDepositTestUtil.createFormWithStartDate(TODAY.getMonthValue(), TODAY.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).doesNotContain(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+    assertThat(errorsMap).doesNotContain(
+        entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
   }
 
   @Test
@@ -215,8 +233,10 @@ public class PermanentDepositsValidatorTest {
     var startDate = TODAY.minusMonths(1L);
     var form = PadPermanentDepositTestUtil.createFormWithStartDate(startDate.getMonthValue(), startDate.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, form, PadPermanentDepositTestUtil.createValidationHintsWithTimestamp(pwaApplicationDetail, TODAY_TS));
-    assertThat(errorsMap).contains(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+        validator, form,
+        PadPermanentDepositTestUtil.createValidationHintsWithTimestamp(pwaApplicationDetail, TODAY_TS));
+    assertThat(errorsMap).contains(
+        entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
   }
 
   @Test
@@ -224,8 +244,10 @@ public class PermanentDepositsValidatorTest {
 
     var form = PadPermanentDepositTestUtil.createFormWithStartDate(TODAY.getMonthValue(), TODAY.getYear());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
-        validator, form, PadPermanentDepositTestUtil.createValidationHintsWithTimestamp(pwaApplicationDetail, TODAY_TS));
-    assertThat(errorsMap).doesNotContain(entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
+        validator, form,
+        PadPermanentDepositTestUtil.createValidationHintsWithTimestamp(pwaApplicationDetail, TODAY_TS));
+    assertThat(errorsMap).doesNotContain(
+        entry("fromDate.month", Set.of("month" + FieldValidationErrorCodes.AFTER_SOME_DATE.getCode())));
   }
 
   @Test
@@ -234,7 +256,8 @@ public class PermanentDepositsValidatorTest {
     form.getFromDate().setMonth(2);
     form.getFromDate().setYear(2120);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).doesNotContain(entry("toDate.month", Set.of("toDate.month" + FieldValidationErrorCodes.BEFORE_TODAY.getCode())),
+    assertThat(errorsMap).doesNotContain(
+        entry("toDate.month", Set.of("toDate.month" + FieldValidationErrorCodes.BEFORE_TODAY.getCode())),
         entry("toDate.month", Set.of("month.month" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
@@ -403,15 +426,16 @@ public class PermanentDepositsValidatorTest {
   public void validate_whenConcreteMattress_andNullData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setConcreteMattressLength(new DecimalInput(""));
+    form.setConcreteMattressWidth(new DecimalInput(""));
+    form.setConcreteMattressDepth(new DecimalInput(""));
+    form.setQuantityConcrete(new DecimalInput(""));
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
 
     assertThat(errors).contains(
-        entry(CONCRETE_MATTRESS_LENGTH_ATTR,
-            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_LENGTH_ATTR))),
-        entry(CONCRETE_MATTRESS_WIDTH_ATTR,
-            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_WIDTH_ATTR))),
-        entry(CONCRETE_MATTRESS_DEPTH_ATTR,
-            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(CONCRETE_MATTRESS_DEPTH_ATTR)))
+        entry(CONCRETE_MATTRESS_LENGTH_ATTR + ".value", Set.of("value.required")),
+        entry(CONCRETE_MATTRESS_WIDTH_ATTR + ".value", Set.of("value.required")),
+        entry(CONCRETE_MATTRESS_DEPTH_ATTR + ".value", Set.of("value.required"))
     );
 
   }
@@ -421,9 +445,10 @@ public class PermanentDepositsValidatorTest {
 
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    form.setConcreteMattressLength(BigDecimal.ONE);
-    form.setConcreteMattressWidth(BigDecimal.TEN);
-    form.setConcreteMattressDepth(BigDecimal.TEN);
+    form.setConcreteMattressLength(new DecimalInput(BigDecimal.TEN));
+    form.setConcreteMattressWidth(new DecimalInput(BigDecimal.TEN));
+    form.setConcreteMattressDepth(new DecimalInput(BigDecimal.TEN));
+    form.setQuantityConcrete(new DecimalInput(BigDecimal.TEN));
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
 
     assertThat(errors).doesNotContainKeys(
@@ -438,18 +463,16 @@ public class PermanentDepositsValidatorTest {
   public void validate_whenConcreteMattress_andMaxDpExceeded() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    form.setConcreteMattressLength(BigDecimal.valueOf(1.111));
-    form.setConcreteMattressWidth(BigDecimal.valueOf(1.111));
-    form.setConcreteMattressDepth(BigDecimal.valueOf(1.111));
+    form.setConcreteMattressLength(new DecimalInput(BigDecimal.valueOf(1.111)));
+    form.setConcreteMattressWidth(new DecimalInput(BigDecimal.valueOf(1.111)));
+    form.setConcreteMattressDepth(new DecimalInput(BigDecimal.valueOf(1.111)));
+    form.setQuantityConcrete(new DecimalInput("42"));
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
 
     assertThat(errors).contains(
-        entry(CONCRETE_MATTRESS_LENGTH_ATTR,
-            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_LENGTH_ATTR))),
-        entry(CONCRETE_MATTRESS_WIDTH_ATTR,
-            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_WIDTH_ATTR))),
-        entry(CONCRETE_MATTRESS_DEPTH_ATTR,
-            Set.of(FieldValidationErrorCodes.MAX_DP_EXCEEDED.errorCode(CONCRETE_MATTRESS_DEPTH_ATTR)))
+        entry(CONCRETE_MATTRESS_LENGTH_ATTR + ".value", Set.of("value.maxDpExceeded")),
+        entry(CONCRETE_MATTRESS_WIDTH_ATTR + ".value", Set.of("value.maxDpExceeded")),
+        entry(CONCRETE_MATTRESS_DEPTH_ATTR + ".value", Set.of("value.maxDpExceeded"))
     );
 
   }
@@ -458,15 +481,22 @@ public class PermanentDepositsValidatorTest {
   public void validate_concrete_invalidQuantity() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
-    form.setQuantityConcrete("no num");
+    form.setQuantityConcrete(new DecimalInput("no num"));
+    form.setConcreteMattressLength(new DecimalInput("42"));
+    form.setConcreteMattressWidth(new DecimalInput("42"));
+    form.setConcreteMattressDepth(new DecimalInput("42"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("quantityConcrete", Set.of("quantityConcrete.invalid")));
+    assertThat(errorsMap).contains(entry("quantityConcrete.value", Set.of("value.invalid")));
   }
 
   @Test
   public void validate_concrete_contingencyTooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setConcreteMattressLength(new DecimalInput("42"));
+    form.setConcreteMattressWidth(new DecimalInput("42"));
+    form.setConcreteMattressDepth(new DecimalInput("42"));
+    form.setQuantityConcrete(new DecimalInput("42"));
     form.setContingencyConcreteAmount(StringUtils.repeat('a', 151));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("contingencyConcreteAmount", Set.of("contingencyConcreteAmount.maxLengthExceeded")));
@@ -476,6 +506,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_rocks_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
+    form.setQuantityRocks(new DecimalInput("42"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("rocksSize", Set.of("rocksSize.invalid")));
   }
@@ -484,6 +515,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_rocksSize_lengthExceeded() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
+    form.setQuantityRocks(new DecimalInput("42"));
     form.setRocksSize(ValidatorTestUtils.overCharLength(20));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("rocksSize", Set.of("rocksSize.maxLengthExceeded")));
@@ -493,16 +525,16 @@ public class PermanentDepositsValidatorTest {
   public void validate_rocks_invalidQuantity() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
-    form.setQuantityRocks("no num");
+    form.setQuantityRocks(new DecimalInput("no num"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("quantityRocks", Set.of("quantityRocks.invalid")));
+    assertThat(errorsMap).contains(entry("quantityRocks.value", Set.of("value.invalid")));
   }
 
   @Test
   public void validate_rocks_contingencyTooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.ROCK);
-    form.setQuantityRocks("qq");
+    form.setQuantityRocks(new DecimalInput("no num"));
     form.setContingencyRocksAmount(StringUtils.repeat('a', 151));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("contingencyRocksAmount", Set.of("contingencyRocksAmount.maxLengthExceeded")));
@@ -512,23 +544,28 @@ public class PermanentDepositsValidatorTest {
   public void validate_groutBags_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsSize(new DecimalInput(""));
+    form.setQuantityGroutBags(new DecimalInput(""));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("groutBagsSize", Set.of("groutBagsSize.invalid")));
+    assertThat(errorsMap).contains(entry("groutBagsSize.value", Set.of("value.required")));
   }
 
   @Test
   public void validate_groutBags_invalidQuantity() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
-    form.setQuantityRocks("no num");
+    form.setQuantityGroutBags(new DecimalInput("no num"));
+    form.setGroutBagsSize(new DecimalInput("42"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("quantityGroutBags", Set.of("quantityGroutBags.invalid")));
+    assertThat(errorsMap).contains(entry("quantityGroutBags.value", Set.of("value.invalid")));
   }
 
   @Test
   public void validate_groutBags_bioDegradableNotSelected() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsSize(new DecimalInput("42"));
+    form.setQuantityGroutBags(new DecimalInput("42"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("groutBagsBioDegradable", Set.of("groutBagsBioDegradable.required")));
   }
@@ -537,15 +574,20 @@ public class PermanentDepositsValidatorTest {
   public void validate_groutBags_bioDegradableNotUsedDescription_Blank() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsSize(new DecimalInput("42"));
+    form.setQuantityGroutBags(new DecimalInput("42"));
     form.setGroutBagsBioDegradable(false);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("bioGroutBagsNotUsedDescription", Set.of("bioGroutBagsNotUsedDescription.blank")));
+    assertThat(errorsMap).contains(
+        entry("bioGroutBagsNotUsedDescription", Set.of("bioGroutBagsNotUsedDescription.blank")));
   }
 
   @Test
   public void validate_groutBags_bioDegradableNotUsedDescription_tooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsSize(new DecimalInput("42"));
+    form.setQuantityGroutBags(new DecimalInput("42"));
     form.setGroutBagsBioDegradable(false);
     form.setBioGroutBagsNotUsedDescription(StringUtils.repeat('a', 5000));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -556,6 +598,8 @@ public class PermanentDepositsValidatorTest {
   public void validate_groutBags_contingencyTooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.GROUT_BAGS);
+    form.setGroutBagsSize(new DecimalInput("42"));
+    form.setQuantityGroutBags(new DecimalInput("42"));
     form.setContingencyGroutBagsAmount(StringUtils.repeat('a', 151));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("contingencyGroutBagsAmount", Set.of("contingencyGroutBagsAmount.maxLengthExceeded")));
@@ -565,6 +609,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_otherMaterial_noSizeData() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
+    form.setQuantityOther(new DecimalInput(""));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("otherMaterialSize", Set.of("otherMaterialSize.invalid")));
   }
@@ -573,6 +618,7 @@ public class PermanentDepositsValidatorTest {
   public void validate_otherSize_lengthExceeded() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
+    form.setQuantityOther(new DecimalInput("42"));
     form.setOtherMaterialSize(ValidatorTestUtils.overCharLength(20));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("otherMaterialSize", Set.of("otherMaterialSize.maxLengthExceeded")));
@@ -583,16 +629,17 @@ public class PermanentDepositsValidatorTest {
   public void validate_otherMaterial_invalidQuantity() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
-    form.setQuantityRocks("no num");
+    form.setQuantityOther(new DecimalInput("no num"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
-    assertThat(errorsMap).contains(entry("quantityOther", Set.of("quantityOther.invalid")));
+    assertThat(errorsMap).contains(entry("quantityOther.value", Set.of("value.invalid")));
   }
 
   @Test
   public void validate_contingencyOtherAmount_tooBig() {
     var form = getPermanentDepositsFormWithCoordinates();
     form.setMaterialType(MaterialType.OTHER);
-    form.setQuantityRocks("no num");
+    form.setQuantityOther(new DecimalInput("42"));
+    form.setQuantityRocks(new DecimalInput("no num"));
     form.setContingencyOtherAmount(RandomStringUtils.randomAlphabetic(151));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("contingencyOtherAmount", Set.of("contingencyOtherAmount.maxLengthExceeded")));

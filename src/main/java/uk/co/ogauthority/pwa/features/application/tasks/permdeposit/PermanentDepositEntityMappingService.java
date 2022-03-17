@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
@@ -41,20 +42,20 @@ public class PermanentDepositEntityMappingService {
       form.setMaterialType(entity.getMaterialType());
 
       if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-        form.setConcreteMattressLength(entity.getConcreteMattressLength());
-        form.setConcreteMattressWidth(entity.getConcreteMattressWidth());
-        form.setConcreteMattressDepth(entity.getConcreteMattressDepth());
-        form.setQuantityConcrete(String.valueOf(entity.getQuantity()));
+        form.setConcreteMattressLength(new DecimalInput(entity.getConcreteMattressLength()));
+        form.setConcreteMattressWidth(new DecimalInput(entity.getConcreteMattressWidth()));
+        form.setConcreteMattressDepth(new DecimalInput(entity.getConcreteMattressDepth()));
+        form.setQuantityConcrete(DecimalInput.from(entity.getQuantity()));
         form.setContingencyConcreteAmount(entity.getContingencyAmount());
 
       } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
         form.setRocksSize(entity.getMaterialSize());
-        form.setQuantityRocks(String.valueOf(entity.getQuantity()));
+        form.setQuantityRocks(DecimalInput.from(entity.getQuantity()));
         form.setContingencyRocksAmount(entity.getContingencyAmount());
 
       } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-        form.setGroutBagsSize(Integer.parseInt(entity.getMaterialSize()));
-        form.setQuantityGroutBags(String.valueOf(entity.getQuantity()));
+        form.setGroutBagsSize(new DecimalInput(entity.getMaterialSize()));
+        form.setQuantityGroutBags(DecimalInput.from(entity.getQuantity()));
         form.setContingencyGroutBagsAmount(entity.getContingencyAmount());
         form.setGroutBagsBioDegradable(entity.getGroutBagsBioDegradable());
         form.setBioGroutBagsNotUsedDescription(entity.getBagsNotUsedDescription());
@@ -62,7 +63,8 @@ public class PermanentDepositEntityMappingService {
       } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
         form.setOtherMaterialType(entity.getOtherMaterialType());
         form.setOtherMaterialSize(entity.getMaterialSize());
-        form.setQuantityOther(String.valueOf(entity.getQuantity()));
+        form.setQuantityOther(DecimalInput.from(entity.getQuantity()));
+        form.setQuantityOther(DecimalInput.from(entity.getQuantity()));
         form.setContingencyOtherAmount(entity.getContingencyAmount());
       }
 
@@ -95,20 +97,20 @@ public class PermanentDepositEntityMappingService {
     entity.setMaterialType(form.getMaterialType());
 
     if (form.getMaterialType().equals(MaterialType.CONCRETE_MATTRESSES)) {
-      entity.setConcreteMattressLength(form.getConcreteMattressLength());
-      entity.setConcreteMattressWidth(form.getConcreteMattressWidth());
-      entity.setConcreteMattressDepth(form.getConcreteMattressDepth());
-      entity.setQuantity(Double.parseDouble(form.getQuantityConcrete()));
+      entity.setConcreteMattressLength(form.getConcreteMattressLength().createBigDecimalOrNull());
+      entity.setConcreteMattressWidth(form.getConcreteMattressWidth().createBigDecimalOrNull());
+      entity.setConcreteMattressDepth(form.getConcreteMattressDepth().createBigDecimalOrNull());
+      entity.setQuantity(Double.parseDouble(form.getQuantityConcrete().getValue()));
       entity.setContingencyAmount(form.getContingencyConcreteAmount());
 
     } else if (form.getMaterialType().equals(MaterialType.ROCK)) {
       entity.setMaterialSize(String.valueOf(form.getRocksSize()));
-      entity.setQuantity(Double.parseDouble(form.getQuantityRocks()));
+      entity.setQuantity(Double.parseDouble(form.getQuantityRocks().getValue()));
       entity.setContingencyAmount(form.getContingencyRocksAmount());
 
     } else if (form.getMaterialType().equals(MaterialType.GROUT_BAGS)) {
-      entity.setMaterialSize(String.valueOf(form.getGroutBagsSize()));
-      entity.setQuantity(Double.parseDouble(form.getQuantityGroutBags()));
+      entity.setMaterialSize(String.valueOf(form.getGroutBagsSize().getValue()));
+      entity.setQuantity(Double.parseDouble(form.getQuantityGroutBags().getValue()));
       entity.setContingencyAmount(form.getContingencyGroutBagsAmount());
       entity.setGroutBagsBioDegradable(form.getGroutBagsBioDegradable());
       entity.setBagsNotUsedDescription(form.getBioGroutBagsNotUsedDescription());
@@ -116,7 +118,7 @@ public class PermanentDepositEntityMappingService {
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
       entity.setOtherMaterialType(form.getOtherMaterialType());
       entity.setMaterialSize(String.valueOf(form.getOtherMaterialSize()));
-      entity.setQuantity(Double.parseDouble(form.getQuantityOther()));
+      entity.setQuantity(Double.parseDouble(form.getQuantityOther().getValue()));
       entity.setContingencyAmount(form.getContingencyOtherAmount());
     }
 
