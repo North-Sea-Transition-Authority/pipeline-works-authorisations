@@ -20,7 +20,7 @@
   <#list consulteeGroupRequestsViews as consultationRequestViewData>
 
     <@consultationRequestView consultationRequestViewData=consultationRequestViewData.currentRequest applicationReference=caseSummaryView.pwaApplicationRef>
-      <#if consultationRequestViewData.currentRequest.canWithdraw>
+      <#if consultationRequestViewData.currentRequest.canWithdraw && userCanWithdrawConsultations>
           <@fdsAction.link linkText="Withdraw consultation" linkUrl=springUrl(consultationsUrlFactory.getWithdrawConsultationUrl(consultationRequestViewData.currentRequest.consultationRequestId))
           linkClass="govuk-link" linkScreenReaderText="for ${consultationRequestViewData.currentRequest.consulteeGroupName}" role=false start=false />
       </#if>
