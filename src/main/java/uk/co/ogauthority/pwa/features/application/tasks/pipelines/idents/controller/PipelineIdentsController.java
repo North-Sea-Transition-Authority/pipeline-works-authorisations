@@ -82,7 +82,7 @@ public class PipelineIdentsController {
             new IdentUrlFactory(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(),
                 padPipeline.getId()))
         .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)))
         .addObject("coreType", padPipeline.getCoreType());
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
@@ -146,7 +146,7 @@ public class PipelineIdentsController {
           applicationContext.getPadPipeline());
       if (identSummaryValidationResult.isSectionComplete()) {
         return ReverseRouter.redirect(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+            .renderPipelinesOverview(applicationId, pwaApplicationType, null, null));
       } else {
         var modelAndView = getIdentOverviewModelAndView(
             applicationContext.getApplicationDetail(),

@@ -34,7 +34,7 @@ public class PipelineControllerRouteUtils {
       FlashUtils.error(redirectAttributes, padPipeline.getPipelineRef() + " information cannot be edited");
       return ReverseRouter.redirect(on(PipelinesTaskListController.class)
           .renderPipelinesOverview(applicationContext.getMasterPwaApplicationId(),
-              applicationContext.getApplicationType(), null));
+              applicationContext.getApplicationType(), null, null));
     }
     return modelAndViewIfAllowed.get();
   }

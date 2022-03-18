@@ -310,7 +310,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
             .renderHuooSummary(applicationType, applicationId, null, null));
       case PIPELINES:
         return ReverseRouter.route(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(applicationId, applicationType, null));
+            .renderPipelinesOverview(applicationId, applicationType, null, null));
       case PIPELINES_HUOO:
         return ReverseRouter.route(on(PipelinesHuooController.class)
             .renderSummary(applicationType, applicationId, null));
