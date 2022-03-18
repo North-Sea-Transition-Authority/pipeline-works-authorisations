@@ -156,7 +156,7 @@ public class PadPipelineIdentService {
       if (totalIdentLength.compareTo(padPipeline.getLength()) != 0) {
         lengthValidationValid = false;
         errorMessage = "The total length of all idents must equal the total pipeline length of: " +
-            StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m") +
+          StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m") +
           ". Current total ident length: " +
           StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(totalIdentLength, "m");
       }
