@@ -11,7 +11,7 @@
 
 
     <@fdsInsetText.insetText >
-      <p>Use update requests to get the applicant to remove options that haven’t been approved by OGA or consultees. </p>
+      <p>Use update requests to get the applicant to remove options that haven’t been approved by NSTA or consultees. </p>
       <p>By approving using this screen you are giving the applicant consent to proceed with any of the options defined in the application.</p>
     </@fdsInsetText.insetText>
 

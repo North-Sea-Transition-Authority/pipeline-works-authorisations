@@ -12,7 +12,7 @@
             <@fdsRadio.radio path="form.treatyAgreement" labelText="Which country is the treaty agreement with?" radioItems=treatyAgreements nestingPath="form.huooType"/>
         </#if>
 
-        <@fdsDetails.details detailsText="If you are unable to find the legal entity or treaty agreement you are looking for, please contact the OGA." detailsTitle="I can't find a legal entity"/>
+        <@fdsDetails.details detailsText="If you are unable to find the legal entity or treaty agreement you are looking for, please contact the NSTA." detailsTitle="I can't find a legal entity"/>
 
         <@fdsAction.submitButtons primaryButtonText="${screenActionType.submitButtonText} holder, user, operator, or owner" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(backUrl)/>
     </@fdsForm.htmlForm>

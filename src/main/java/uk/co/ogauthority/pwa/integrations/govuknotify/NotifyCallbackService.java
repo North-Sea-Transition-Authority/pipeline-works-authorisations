@@ -65,7 +65,7 @@ public class NotifyCallbackService {
 
       } else {
         // otherwise we failed to email the OGA mailbox
-        LOGGER.error("{} Email send to the OGA consents mailbox failed {}", NotifyService.EMAIL_LOG_PREFIX, notifyCallback);
+        LOGGER.error("{} Email send to the NSTA consents mailbox failed {}", NotifyService.EMAIL_LOG_PREFIX, notifyCallback);
       }
     }
   }

@@ -20,7 +20,7 @@
         content: element(header-content);
       }
 
-      @bottom-left-corner {
+      @bottom-center {
         content: element(issuer-content);
       }
 
@@ -71,8 +71,16 @@
 
     .issuer-content {
       position: running(issuer-content);
-      padding-left: 50px;
-      width: 700px;
+      padding-bottom: 10px;
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .issuer-content p {
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      width: 100%;
     }
 
     .logo-image {
@@ -91,6 +99,10 @@
 
     .header-issue-info {
       font-size: 14px;
+    }
+
+    .nsta-disclaimer {
+      font-size: 8px;
     }
 
     table {
@@ -229,16 +241,15 @@
 
   <div id="header-content">
 
-    <img class="logo-image" src="classpath:///document-assets/oga-logo.png"/>
+    <img class="logo-image" src="classpath:///document-assets/nsta-logo.png"/>
 
     <h1 class="header-heading">${consentRef!"Pipeline Works Authorisations document"}</h1>
 
   </div>
 
   <div class="issuer-content">
-    <span class="header-issue-info">
-      Authorised and Issued by the Oil and Gas Authority ${issueDate}
-    </span>
+    <p class="header-issue-info">Authorised and Issued by the Oil and Gas Authority ${issueDate}</p>
+    <p class="nsta-disclaimer">North Sea Transition Authority is a business name of the Oil and Gas Authority. Oil and Gas Authority is a limited company registered in England and Wales with registered number 09666504 and VAT registered number 249433979. Our registered office is at 21 Bloomsbury Street, London, WC1B 3HF</p>
   </div>
 
   <#if showWatermark>

@@ -60,8 +60,8 @@
                     <@fdsSearchSelector.searchSelectorEnhanced
                         path="form.submitterPersonId"
                         options=submitterCandidates
-                        labelText="Select person to submit the application to the OGA"
-                        hintText="Only people with submission permissions in the holder organisation are allowed to submit this application to the OGA"
+                        labelText="Select person to submit the application to the NSTA"
+                        hintText="Only people with submission permissions in the holder organisation are allowed to submit this application to the NSTA"
                         formGroupClass="govuk-!-width-two-thirds"/>
 
                 </#if>
