@@ -87,6 +87,16 @@ public class PermanentDepositsValidator implements SmartValidator {
     if (BooleanUtils.isTrue(form.getDepositIsForConsentedPipeline())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "selectedPipelines", "selectedPipelines.required",
           "Select at least one pipeline");
+      if (
+          form.getSelectedPipelines() != null
+          && !depositValidationHints.getAcceptedPipelineIds().containsAll(form.getSelectedPipelines())
+      ) {
+        errors.rejectValue(
+            "selectedPipelines",
+            "selectedPipelines" + FieldValidationErrorCodes.INVALID.getCode(),
+            "Please select a valid pipeline"
+        );
+      }
     }
     if (BooleanUtils.isTrue(form.getDepositIsForPipelinesOnOtherApp())) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "appRefAndPipelineNum",
