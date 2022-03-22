@@ -58,6 +58,22 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
+  public void validate_inputSizeLargerThanMax() {
+    var validationRequiredHints = List.of();
+    var inputWithNumberOfDigitsAllowed = String.format("%030d", 1);
+    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+      validator, new MinMaxInput(inputWithNumberOfDigitsAllowed, inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints);
+
+    assertThat(errorsMap).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+    assertThat(errorsMap).contains(
+      Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
   public void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(

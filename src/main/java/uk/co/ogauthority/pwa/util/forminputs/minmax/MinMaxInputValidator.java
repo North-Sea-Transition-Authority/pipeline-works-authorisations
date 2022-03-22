@@ -10,7 +10,9 @@ import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes
 
 @Component
 public class MinMaxInputValidator implements SmartValidator {
-  
+
+  static final Integer MAX_INPUT_LENGTH = 30;
+
   private String minInputName;
   private String maxInputName;
 
@@ -56,7 +58,6 @@ public class MinMaxInputValidator implements SmartValidator {
 
         } else if (validationRequired instanceof IntegerHint) {
           validateInteger(errors, minMaxInput, propertyName);
-
         }
       }
     }
@@ -69,6 +70,7 @@ public class MinMaxInputValidator implements SmartValidator {
     if (!validationRulesToByPass.contains(byPassMinSmallerThanMaxHint)) {
       validateMinSmallerOrEqualToMax(errors, minMaxInput, property);
     }
+    validateLength(errors, minMaxInput, property, MAX_INPUT_LENGTH);
   }
 
 
@@ -115,7 +117,16 @@ public class MinMaxInputValidator implements SmartValidator {
     }
   }
 
-
+  private void validateLength(Errors errors, MinMaxInput minMaxInput, String property, int maxLength) {
+    if (minMaxInput.getMinValue().length() > maxLength) {
+      errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          "The " + minInputName + " value should not have more than " + maxLength + " characters for " + property.toLowerCase());
+    }
+    if (minMaxInput.getMaxValue().length() > maxLength) {
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          "The " + maxInputName + " value should not have more than " + maxLength + " characters for " + property.toLowerCase());
+    }
+  }
 
 
 }
