@@ -94,7 +94,7 @@ public class PermanentDepositsValidator implements SmartValidator {
         errors.rejectValue(
             "selectedPipelines",
             "selectedPipelines" + FieldValidationErrorCodes.INVALID.getCode(),
-            "Please select a valid pipeline"
+            "Select a valid pipeline"
         );
       }
     }

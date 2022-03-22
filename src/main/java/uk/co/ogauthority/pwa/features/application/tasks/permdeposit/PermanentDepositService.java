@@ -184,7 +184,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         pwaApplicationDetail,
         PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES
     )
-        .entrySet().stream()
+        .entrySet()
+        .stream()
         .filter(entry -> entry.getValue().getPipelineStatus().getPhysicalPipelineState() == PhysicalPipelineState.ON_SEABED)
         .map(e -> String.valueOf(e.getKey().getPipelineIdAsInt()))
         .collect(Collectors.toSet());
