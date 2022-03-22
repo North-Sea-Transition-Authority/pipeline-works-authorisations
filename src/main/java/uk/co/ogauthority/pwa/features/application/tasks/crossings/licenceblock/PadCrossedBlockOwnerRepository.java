@@ -9,13 +9,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 @Repository
 public interface PadCrossedBlockOwnerRepository extends CrudRepository<PadCrossedBlockOwner, Integer> {
 
-  @EntityGraph(attributePaths = { "padCrossedBlock" })
+  @EntityGraph(attributePaths = { "padCrossedBlock.licence" })
   List<PadCrossedBlockOwner> findByPadCrossedBlock(PadCrossedBlock padCrossedBlock);
 
-  @EntityGraph(attributePaths = { "padCrossedBlock" })
+  @EntityGraph(attributePaths = { "padCrossedBlock.licence" })
   List<PadCrossedBlockOwner> findByPadCrossedBlockIn(Iterable<PadCrossedBlock> padCrossedBlock);
 
-  @EntityGraph(attributePaths = { "padCrossedBlock" })
+  @EntityGraph(attributePaths = { "padCrossedBlock.licence" })
   List<PadCrossedBlockOwner> findByPadCrossedBlock_PwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);
 
 }
