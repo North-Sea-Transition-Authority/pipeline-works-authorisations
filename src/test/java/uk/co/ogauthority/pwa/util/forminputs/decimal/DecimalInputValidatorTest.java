@@ -412,6 +412,30 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
+  public void validate_valueEnteredHasTooManyDigits_invalidError() {
+
+    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    decimalInput.setValue(inputWithMoreDigitsThanAllowed);
+    var fieldErrors = getValidationErrors();
+
+    assertThat(fieldErrors).contains(
+      entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
+  public void validate_valueEnteredHasMaxDigits_noErrors() {
+
+    var inputWithNumberOfDigitsAllowed  = String.format("%030d", 1);
+    decimalInput.setValue(inputWithNumberOfDigitsAllowed );
+    var fieldErrors = getValidationErrors();
+
+    assertThat(fieldErrors).doesNotContain(
+      entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
   public void testBuilder_allFunctions() {
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");

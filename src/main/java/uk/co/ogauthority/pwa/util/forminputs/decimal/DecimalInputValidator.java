@@ -24,6 +24,7 @@ public class DecimalInputValidator implements SmartValidator {
   private static final String VALUE_INVALID_CODE = VALUE + FieldValidationErrorCodes.INVALID.getCode();
   private static final String DECIMAL_REQUIRED_ERROR_FORMAT = "Enter a number for %s";
   private static final String DECIMAL_INVALID_ERROR_FORMAT = "Enter a valid number for %s";
+  private static final Integer MAX_INPUT_LENGTH = 30;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -101,6 +102,7 @@ public class DecimalInputValidator implements SmartValidator {
       nonNegativeNumberHint.ifPresent(hint -> validateNonNegative(errors, decimalInput, inputLabel));
       lessThanFieldHint.ifPresent(hint -> validateLessThanField(errors, decimalInput, inputLabel, hint));
       lessThanEqualToHint.ifPresent(hint -> validateLessThanEqualToNumber(errors, decimalInput, inputLabel, hint));
+      validateInputLength(errors, decimalInput, inputLabel);
     }
 
   }
@@ -156,6 +158,16 @@ public class DecimalInputValidator implements SmartValidator {
           String.format("The %s must have a value of %s or less", inputLabel.getLabel(), hint.getLargerNumber().toPlainString()));
     }
 
+  }
+
+  public void validateInputLength(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel) {
+    if (decimalInput.getValue().length() > MAX_INPUT_LENGTH) {
+      errors.rejectValue(
+          VALUE,
+          FieldValidationErrorCodes.INVALID.errorCode(VALUE),
+          String.format("%s must be %s characters or fewer", StringUtils.capitalize(inputLabel.getLabel()), MAX_INPUT_LENGTH)
+      );
+    }
   }
 
   public DecimalInputValidatorInvocationBuilder invocationBuilder() {
