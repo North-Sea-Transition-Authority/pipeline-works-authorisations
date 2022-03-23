@@ -42,7 +42,7 @@ public enum ConsultationResponseOption {
       "Pursuant to the Offshore Oil and Gas Exploration, Production, Unloading and Storage " +
           "(Environmental Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for " +
           "Environment and Decommissioning, acting on behalf of the Secretary of State for Business, " +
-          "Energy and Industrial Strategy, agrees to the OGA’s grant of consent for the activities " +
+          "Energy and Industrial Strategy, agrees to the NSTA’s grant of consent for the activities " +
           "described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
       null, false),
@@ -54,7 +54,7 @@ public enum ConsultationResponseOption {
       "Pursuant to the Offshore Oil and Gas Exploration, Production, Unloading and Storage (Environmental " +
           "Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for Environment and " +
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
-          "Strategy, does not agree to the OGA’s grant of consent for the activities described in application " +
+          "Strategy, does not agree to the NSTA’s grant of consent for the activities described in application " +
           "reference %s and a copy of the Secretary of State’s decision is attached.",
       null, false),
   EIA_NOT_RELEVANT(
@@ -66,7 +66,7 @@ public enum ConsultationResponseOption {
           "Impact Assessment) Regulations 2020 , the Offshore Petroleum Regulator for Environment and " +
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
           "Strategy, does not consider that the Secretary of State’s agreement to the grant of consent by " +
-          "the OGA for the activities described in application reference %s is required.",
+          "the NSTA for the activities described in application reference %s is required.",
       null, false),
 
   HABITATS_AGREE(
@@ -76,7 +76,7 @@ public enum ConsultationResponseOption {
       "Habitats consent conditions",
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), " +
           "the Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary " +
-          "of State for Business, Energy and Industrial Strategy, agrees to the OGA’s grant of consent for the " +
+          "of State for Business, Energy and Industrial Strategy, agrees to the NSTA’s grant of consent for the " +
           "activities described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
       null, false),
@@ -87,7 +87,7 @@ public enum ConsultationResponseOption {
       "Why does not agree under Habitats regulations",
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), " +
           "the Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary " +
-          "of State for Business, Energy and Industrial Strategy, does not agree to the OGA’s grant of consent for " +
+          "of State for Business, Energy and Industrial Strategy, does not agree to the NSTA’s grant of consent for " +
           "the activities described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
       null, false),
@@ -99,7 +99,7 @@ public enum ConsultationResponseOption {
       "Pursuant to the Offshore Petroleum Activities (Conservation of Habitats) Regulations 2001 (as amended), the " +
           "Offshore Petroleum Regulator for Environment and Decommissioning, acting on behalf of the Secretary of " +
           "State for Business, Energy and Industrial Strategy, does not consider that the Secretary of State’s " +
-          "agreement to the grant of consent by the OGA for the activities described in application reference " +
+          "agreement to the grant of consent by the NSTA for the activities described in application reference " +
           "%s is required.",
       null, false);
 

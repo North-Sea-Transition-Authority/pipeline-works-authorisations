@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -38,7 +39,7 @@ public interface PwaApplicationDetailRepository extends CrudRepository<PwaApplic
       "JOIN FETCH pad.pwaApplication pa " +
       "JOIN FETCH pa.masterPwa mp " +
       "WHERE pad.status in :status")
-  List<PwaApplicationDetail> findLastSubmittedAppDetailsWithStatusIn(Collection<PwaApplicationStatus> status);
+  List<PwaApplicationDetail> findLastSubmittedAppDetailsWithStatusIn(@Param("status") Collection<PwaApplicationStatus> status);
 
   List<PwaApplicationDetail> findByPwaApplication(PwaApplication pwaApplication);
 

@@ -23,7 +23,7 @@
     <#if submissionSummary.isFirstVersion>
       We have sent you a confirmation email.
     <#else>
-      An email notification has been sent to the OGA
+      An email notification has been sent to the NSTA
     </#if>
   </p>
 

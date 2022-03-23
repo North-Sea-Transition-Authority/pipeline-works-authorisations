@@ -23,7 +23,7 @@ public enum ConsultationResponseOptionGroup {
       ConsultationResponseOption.EIA_AGREE,
       ConsultationResponseOption.EIA_DISAGREE,
       ConsultationResponseOption.EIA_NOT_RELEVANT),
-      "What is your response to the OGA’s grant of consent under the EIA regulations?",
+      "What is your response to the NSTA’s grant of consent under the EIA regulations?",
       "EIA response",
       30),
 
@@ -31,7 +31,7 @@ public enum ConsultationResponseOptionGroup {
       ConsultationResponseOption.HABITATS_AGREE,
       ConsultationResponseOption.HABITATS_DISAGREE,
       ConsultationResponseOption.HABITATS_NOT_RELEVANT),
-      "What is your response to the OGA’s grant of consent under the Habitats regulations?",
+      "What is your response to the NSTA’s grant of consent under the Habitats regulations?",
       "Habitats response",
       40);
 

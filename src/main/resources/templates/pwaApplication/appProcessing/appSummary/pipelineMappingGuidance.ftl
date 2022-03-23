@@ -23,7 +23,7 @@
         </#list>
     </ol>
 
-    <p class="govuk-body">The OGA provides a variety of UKCS offshore data sets and interactive maps that you may find useful when using the ${serviceName}.</p>
+    <p class="govuk-body">The NSTA provides a variety of UKCS offshore data sets and interactive maps that you may find useful when using the ${serviceName}.</p>
 
     <h3 class="govuk-heading-m">How do I plot application pipelines on a map?</h3>
     <ol class="govuk-list govuk-list--number">

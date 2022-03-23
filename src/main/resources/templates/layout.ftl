@@ -29,10 +29,10 @@ noIndex=false
 headerIcon=true
 errorItems=[]>
 
-    <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
+    <@genericLayout htmlTitle=htmlTitle htmlAppTitle="NSTA Pipelines" errorCheck=errorCheck noIndex=noIndex>
 
     <#--Header-->
-        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
+        <@pipelinesHeader.header logoText="NSTA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
 
     <#--Phase banner-->
         <#if phaseBanner>
