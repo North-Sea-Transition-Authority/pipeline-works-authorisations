@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.DecimalPlacesHint;
@@ -42,18 +43,26 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (PipelineOtherPropertiesDataForm) o;
     var formProperty = (OtherPipelineProperty) validationHints[0];
+    var validationType = (ValidationType) validationHints[1];
 
-    if (form.getPropertyAvailabilityOption() == null) {
-      errors.rejectValue("propertyAvailabilityOption", "propertyAvailabilityOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Select an availability option for " + formProperty.getDisplayText());
+    if (validationType.equals(ValidationType.FULL)) {
+      if (form.getPropertyAvailabilityOption() == null) {
+        errors.rejectValue("propertyAvailabilityOption", "propertyAvailabilityOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Select an availability option for " + formProperty.getDisplayText());
 
-    } else if (form.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
-      validateMinMaxInput(form.getMinMaxInput(), errors, formProperty);
+      }
+    }
+    if (form.getPropertyAvailabilityOption() != null
+          && form.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+      validateMinMaxInput(form.getMinMaxInput(), errors, formProperty, validationType);
     }
   }
 
 
-  private void validateMinMaxInput(MinMaxInput minMaxInput, Errors errors, OtherPipelineProperty formProperty) {
+  private void validateMinMaxInput(MinMaxInput minMaxInput,
+                                   Errors errors,
+                                   OtherPipelineProperty formProperty,
+                                   ValidationType validationType) {
     List<Object> validationHints = new ArrayList<>();
 
     if (formProperty.equals(OtherPipelineProperty.WAX_CONTENT)) {
@@ -86,7 +95,7 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
     }
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator,
-        "minMaxInput", minMaxInput, formProperty.getDisplayText(), List.of(), validationHints);
+        "minMaxInput", minMaxInput, formProperty.getDisplayText(), List.of(), validationHints, validationType);
 
   }
 

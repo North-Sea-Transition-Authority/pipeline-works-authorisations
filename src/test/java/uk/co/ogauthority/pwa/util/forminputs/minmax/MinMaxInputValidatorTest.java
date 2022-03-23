@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -116,6 +117,23 @@ public class MinMaxInputValidatorTest {
         Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode())),
         Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
             "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_validationTypeIsPartial_onlyValidateInputLength() {
+    var validationRequiredHints = List.of(new DecimalPlacesHint(2), new PositiveNumberHint());
+    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+      validator, new MinMaxInput(String.valueOf(-3.222), inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints,
+      ValidationType.PARTIAL);
+
+    assertThat(errorsMap).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+        "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+    assertThat(errorsMap).contains(
+      Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 

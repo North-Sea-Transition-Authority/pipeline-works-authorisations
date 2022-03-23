@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 
@@ -35,34 +36,46 @@ public class MinMaxInputValidator implements SmartValidator {
     var validationRulesToByPass = (List<ByPassDefaultValidationHint>) objects[1];
     var validationRequiredHints = (List<Object>) objects [2];
 
+    ValidationType validationType;
+    try {
+      validationType = (ValidationType) objects[3];
+    } catch (IndexOutOfBoundsException e) {
+      validationType = ValidationType.FULL;
+    }
+
     minInputName = objects.length >= 5 ? (String) objects[3] : "minimum";
     maxInputName = objects.length >= 5 ? (String) objects[4] : "maximum";
 
-    if (!minMaxInput.isMinNumeric()) {
-      errors.rejectValue("minValue", "minValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid " + minInputName + " value for " + propertyName.toLowerCase());
-    }
-    if (!minMaxInput.isMaxNumeric()) {
-      errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid " + maxInputName + " value for " + propertyName.toLowerCase());
-    }
+    if (validationType.equals(ValidationType.FULL)) {
+      if (!minMaxInput.isMinNumeric()) {
+        errors.rejectValue("minValue", "minValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid " + minInputName + " value for " + propertyName.toLowerCase());
+      }
+      if (!minMaxInput.isMaxNumeric()) {
+        errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid " + maxInputName + " value for " + propertyName.toLowerCase());
+      }
 
-    if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
-      performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
-      for (var validationRequired: validationRequiredHints) {
-        if (validationRequired instanceof DecimalPlacesHint) {
-          var decimalPlacesHint = (DecimalPlacesHint) validationRequired;
-          validateDecimalPlaces(errors, minMaxInput, propertyName, decimalPlacesHint.getDecimalPlaces());
+      if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
+        performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
+        for (var validationRequired: validationRequiredHints) {
+          if (validationRequired instanceof DecimalPlacesHint) {
+            var decimalPlacesHint = (DecimalPlacesHint) validationRequired;
+            validateDecimalPlaces(errors, minMaxInput, propertyName, decimalPlacesHint.getDecimalPlaces());
 
-        } else if (validationRequired instanceof PositiveNumberHint) {
-          validatePositiveNumber(errors, minMaxInput, propertyName);
+          } else if (validationRequired instanceof PositiveNumberHint) {
+            validatePositiveNumber(errors, minMaxInput, propertyName);
 
-        } else if (validationRequired instanceof IntegerHint) {
-          validateInteger(errors, minMaxInput, propertyName);
+          } else if (validationRequired instanceof IntegerHint) {
+            validateInteger(errors, minMaxInput, propertyName);
+          }
         }
       }
     }
 
+    if (minMaxInput.getMaxValue() != null && minMaxInput.getMinValue() != null) {
+      validateLength(errors, minMaxInput, propertyName, MAX_INPUT_LENGTH);
+    }
   }
 
   private void performDefaultValidation(
@@ -71,7 +84,6 @@ public class MinMaxInputValidator implements SmartValidator {
     if (!validationRulesToByPass.contains(byPassMinSmallerThanMaxHint)) {
       validateMinSmallerOrEqualToMax(errors, minMaxInput, property);
     }
-    validateLength(errors, minMaxInput, property, MAX_INPUT_LENGTH);
   }
 
 
