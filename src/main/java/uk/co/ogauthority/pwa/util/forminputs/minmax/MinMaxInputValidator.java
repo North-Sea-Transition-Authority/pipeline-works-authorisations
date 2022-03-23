@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.util.forminputs.minmax;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
@@ -120,11 +121,21 @@ public class MinMaxInputValidator implements SmartValidator {
   private void validateLength(Errors errors, MinMaxInput minMaxInput, String property, int maxLength) {
     if (minMaxInput.getMinValue().length() > maxLength) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "The " + minInputName + " value should not have more than " + maxLength + " characters for " + property.toLowerCase());
+          String.format(
+            "%s for %s must be %s characters or fewer",
+            StringUtils.capitalize(minInputName),
+            property.toLowerCase(),
+            maxLength
+          ));
     }
     if (minMaxInput.getMaxValue().length() > maxLength) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
-          "The " + maxInputName + " value should not have more than " + maxLength + " characters for " + property.toLowerCase());
+          String.format(
+            "%s for %s must be %s characters or fewer",
+            StringUtils.capitalize(maxInputName),
+            property.toLowerCase(),
+            maxLength
+          ));
     }
   }
 
