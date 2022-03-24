@@ -45,12 +45,9 @@ public class PipelineOtherPropertiesDataValidator implements SmartValidator {
     var formProperty = (OtherPipelineProperty) validationHints[0];
     var validationType = (ValidationType) validationHints[1];
 
-    if (validationType.equals(ValidationType.FULL)) {
-      if (form.getPropertyAvailabilityOption() == null) {
-        errors.rejectValue("propertyAvailabilityOption", "propertyAvailabilityOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
+    if (validationType.equals(ValidationType.FULL) && form.getPropertyAvailabilityOption() == null) {
+      errors.rejectValue("propertyAvailabilityOption", "propertyAvailabilityOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Select an availability option for " + formProperty.getDisplayText());
-
-      }
     }
     if (form.getPropertyAvailabilityOption() != null
           && form.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {

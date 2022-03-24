@@ -66,11 +66,10 @@ public class MinMaxInputValidatorTest {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
       validator, new MinMaxInput(inputWithNumberOfDigitsAllowed, inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints);
 
-    assertThat(errorsMap).doesNotContain(
-      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
     assertThat(errorsMap).contains(
       Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    ).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 
@@ -128,12 +127,11 @@ public class MinMaxInputValidatorTest {
       validator, new MinMaxInput(String.valueOf(-3.222), inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints,
       ValidationType.PARTIAL);
 
-    assertThat(errorsMap).doesNotContain(
-      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
-        "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
-    );
     assertThat(errorsMap).contains(
       Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    ).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+        "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
