@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
@@ -28,7 +29,8 @@ public class FluidCompositionDataValidatorTest {
   @Test
   public void validateForm_invalid() {
     var form = new FluidCompositionDataForm();
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("fluidCompositionOption", Set.of("fluidCompositionOption.required"))
     );
@@ -39,7 +41,8 @@ public class FluidCompositionDataValidatorTest {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.NONE);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).isEmpty();
   }
 
@@ -49,7 +52,8 @@ public class FluidCompositionDataValidatorTest {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     form.setMoleValue(new DecimalInput(BigDecimal.valueOf(0.2)));
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).isEmpty();
   }
 
@@ -57,7 +61,8 @@ public class FluidCompositionDataValidatorTest {
   public void validateForm_molePercentageRequired_invalid() {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("moleValue", Set.of("moleValue.required"))
     );
@@ -68,7 +73,8 @@ public class FluidCompositionDataValidatorTest {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     form.setMoleValue(new DecimalInput(BigDecimal.ZERO));
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
       entry("moleValue.value", Set.of("value.invalid"))
     );
@@ -79,7 +85,8 @@ public class FluidCompositionDataValidatorTest {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     form.setMoleValue(new DecimalInput(BigDecimal.valueOf(101)));
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("moleValue.value", Set.of("value.invalid"))
     );
@@ -90,11 +97,19 @@ public class FluidCompositionDataValidatorTest {
     var form = new FluidCompositionDataForm();
     form.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
     form.setMoleValue(new DecimalInput(new BigDecimal("99.011")));
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
       entry("moleValue.value", Set.of("value.maxDpExceeded"))
     );
   }
 
+  @Test
+  public void validateForm_partialValidation_allowsEmptyForm() {
+    var form = new FluidCompositionDataForm();
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
+      ValidationType.PARTIAL);
+    assertThat(errorsMap).isEmpty();
+  }
 
 }
