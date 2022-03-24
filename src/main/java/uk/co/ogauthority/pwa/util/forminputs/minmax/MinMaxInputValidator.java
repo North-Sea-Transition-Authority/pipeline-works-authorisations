@@ -36,12 +36,7 @@ public class MinMaxInputValidator implements SmartValidator {
     var validationRulesToByPass = (List<ByPassDefaultValidationHint>) objects[1];
     var validationRequiredHints = (List<Object>) objects [2];
 
-    ValidationType validationType;
-    try {
-      validationType = (ValidationType) objects[3];
-    } catch (IndexOutOfBoundsException e) {
-      validationType = ValidationType.FULL;
-    }
+    var validationType = getValidationType(objects);
 
     minInputName = objects.length >= 5 ? (String) objects[3] : "minimum";
     maxInputName = objects.length >= 5 ? (String) objects[4] : "maximum";
@@ -75,6 +70,14 @@ public class MinMaxInputValidator implements SmartValidator {
 
     if (minMaxInput.getMaxValue() != null && minMaxInput.getMinValue() != null) {
       validateLength(errors, minMaxInput, propertyName, MAX_INPUT_LENGTH);
+    }
+  }
+
+  private ValidationType getValidationType(Object[] objects) {
+    try {
+      return (ValidationType) objects[3];
+    } catch (IndexOutOfBoundsException e) {
+      return ValidationType.FULL;
     }
   }
 

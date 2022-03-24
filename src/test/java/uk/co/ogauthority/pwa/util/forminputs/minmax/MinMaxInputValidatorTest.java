@@ -61,8 +61,8 @@ public class MinMaxInputValidatorTest {
   @Test
   public void validate_inputSizeLargerThanMax() {
     var validationRequiredHints = List.of();
-    var inputWithNumberOfDigitsAllowed = String.format("%030d", 1);
-    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    var inputWithNumberOfDigitsAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH);
+    var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
       validator, new MinMaxInput(inputWithNumberOfDigitsAllowed, inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints);
 
@@ -122,7 +122,7 @@ public class MinMaxInputValidatorTest {
   @Test
   public void validate_validationTypeIsPartial_onlyValidateInputLength() {
     var validationRequiredHints = List.of(new DecimalPlacesHint(2), new PositiveNumberHint());
-    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(
       validator, new MinMaxInput(String.valueOf(-3.222), inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints,
       ValidationType.PARTIAL);
