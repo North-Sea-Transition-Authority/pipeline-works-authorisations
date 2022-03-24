@@ -414,7 +414,7 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_valueEnteredHasTooManyDigits_invalidError() {
 
-    var inputWithMoreDigitsThanAllowed = String.format("%031d", 1);
+    var inputWithMoreDigitsThanAllowed = "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH + 1);
     decimalInput.setValue(inputWithMoreDigitsThanAllowed);
     var fieldErrors = getValidationErrors();
 
@@ -426,7 +426,7 @@ public class DecimalInputValidatorTest {
   @Test
   public void validate_valueEnteredHasMaxDigits_noErrors() {
 
-    var inputWithNumberOfDigitsAllowed  = String.format("%030d", 1);
+    var inputWithNumberOfDigitsAllowed  = "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH);
     decimalInput.setValue(inputWithNumberOfDigitsAllowed );
     var fieldErrors = getValidationErrors();
 

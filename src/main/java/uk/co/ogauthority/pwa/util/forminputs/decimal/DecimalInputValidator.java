@@ -24,7 +24,8 @@ public class DecimalInputValidator implements SmartValidator {
   private static final String VALUE_INVALID_CODE = VALUE + FieldValidationErrorCodes.INVALID.getCode();
   private static final String DECIMAL_REQUIRED_ERROR_FORMAT = "Enter a number for %s";
   private static final String DECIMAL_INVALID_ERROR_FORMAT = "Enter a valid number for %s";
-  private static final Integer MAX_INPUT_LENGTH = 30;
+
+  static final Integer MAX_INPUT_LENGTH = 30;
 
   @Override
   public boolean supports(Class<?> clazz) {
