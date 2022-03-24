@@ -142,7 +142,9 @@ public class ConsultationController {
         .addObject("consultationsUrlFactory", new ConsultationsUrlFactory(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
         .addObject("caseSummaryView", pwaAppProcessingContext.getCaseSummaryView())
-        .addObject("canEditConsultations", canEditConsultations);
+        .addObject("canEditConsultations", canEditConsultations)
+        .addObject("userCanWithdrawConsultations",
+          pwaAppProcessingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.WITHDRAW_CONSULTATION));
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplicationDetail.getPwaApplication(), modelAndView,
         PwaAppProcessingTask.CONSULTATIONS.getTaskName());
