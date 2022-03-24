@@ -151,10 +151,15 @@ public class PadPipelineIdentService {
       lengthValidationValid = false;
       errorMessage = "Add at least one ident";
 
-    } else if (getTotalIdentLength(idents).compareTo(padPipeline.getLength()) != 0) {
-      lengthValidationValid = false;
-      errorMessage = "The total length of all idents must equal the total pipeline length of: " +
-          StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m");
+    } else {
+      var totalIdentLength = getTotalIdentLength(idents);
+      if (!totalIdentLength.equals(padPipeline.getLength())) {
+        lengthValidationValid = false;
+        errorMessage = "The total length of all idents must equal the total pipeline length of: " +
+          StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m") +
+          ". Current total ident length: " +
+          StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(totalIdentLength, "m");
+      }
     }
 
 
