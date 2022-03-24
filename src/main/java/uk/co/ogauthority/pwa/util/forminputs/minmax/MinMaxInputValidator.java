@@ -1,16 +1,20 @@
 package uk.co.ogauthority.pwa.util.forminputs.minmax;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 
 @Component
 public class MinMaxInputValidator implements SmartValidator {
-  
+
+  static final Integer MAX_INPUT_LENGTH = 30;
+
   private String minInputName;
   private String maxInputName;
 
@@ -32,35 +36,49 @@ public class MinMaxInputValidator implements SmartValidator {
     var validationRulesToByPass = (List<ByPassDefaultValidationHint>) objects[1];
     var validationRequiredHints = (List<Object>) objects [2];
 
+    var validationType = getValidationType(objects);
+
     minInputName = objects.length >= 5 ? (String) objects[3] : "minimum";
     maxInputName = objects.length >= 5 ? (String) objects[4] : "maximum";
 
-    if (!minMaxInput.isMinNumeric()) {
-      errors.rejectValue("minValue", "minValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid " + minInputName + " value for " + propertyName.toLowerCase());
-    }
-    if (!minMaxInput.isMaxNumeric()) {
-      errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Enter a valid " + maxInputName + " value for " + propertyName.toLowerCase());
-    }
+    if (validationType.equals(ValidationType.FULL)) {
+      if (!minMaxInput.isMinNumeric()) {
+        errors.rejectValue("minValue", "minValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid " + minInputName + " value for " + propertyName.toLowerCase());
+      }
+      if (!minMaxInput.isMaxNumeric()) {
+        errors.rejectValue("maxValue", "maxValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a valid " + maxInputName + " value for " + propertyName.toLowerCase());
+      }
 
-    if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
-      performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
-      for (var validationRequired: validationRequiredHints) {
-        if (validationRequired instanceof DecimalPlacesHint) {
-          var decimalPlacesHint = (DecimalPlacesHint) validationRequired;
-          validateDecimalPlaces(errors, minMaxInput, propertyName, decimalPlacesHint.getDecimalPlaces());
+      if (minMaxInput.isMinNumeric() && minMaxInput.isMaxNumeric()) {
+        performDefaultValidation(validationRulesToByPass, errors, minMaxInput, propertyName);
+        for (var validationRequired: validationRequiredHints) {
+          if (validationRequired instanceof DecimalPlacesHint) {
+            var decimalPlacesHint = (DecimalPlacesHint) validationRequired;
+            validateDecimalPlaces(errors, minMaxInput, propertyName, decimalPlacesHint.getDecimalPlaces());
 
-        } else if (validationRequired instanceof PositiveNumberHint) {
-          validatePositiveNumber(errors, minMaxInput, propertyName);
+          } else if (validationRequired instanceof PositiveNumberHint) {
+            validatePositiveNumber(errors, minMaxInput, propertyName);
 
-        } else if (validationRequired instanceof IntegerHint) {
-          validateInteger(errors, minMaxInput, propertyName);
-
+          } else if (validationRequired instanceof IntegerHint) {
+            validateInteger(errors, minMaxInput, propertyName);
+          }
         }
       }
     }
 
+    if (minMaxInput.getMaxValue() != null && minMaxInput.getMinValue() != null) {
+      validateLength(errors, minMaxInput, propertyName, MAX_INPUT_LENGTH);
+    }
+  }
+
+  private ValidationType getValidationType(Object[] objects) {
+    try {
+      return (ValidationType) objects[3];
+    } catch (IndexOutOfBoundsException e) {
+      return ValidationType.FULL;
+    }
   }
 
   private void performDefaultValidation(
@@ -115,7 +133,26 @@ public class MinMaxInputValidator implements SmartValidator {
     }
   }
 
-
+  private void validateLength(Errors errors, MinMaxInput minMaxInput, String property, int maxLength) {
+    if (minMaxInput.getMinValue().length() > maxLength) {
+      errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          String.format(
+            "%s for %s must be %s characters or fewer",
+            StringUtils.capitalize(minInputName),
+            property.toLowerCase(),
+            maxLength
+          ));
+    }
+    if (minMaxInput.getMaxValue().length() > maxLength) {
+      errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          String.format(
+            "%s for %s must be %s characters or fewer",
+            StringUtils.capitalize(maxInputName),
+            property.toLowerCase(),
+            maxLength
+          ));
+    }
+  }
 
 
 }

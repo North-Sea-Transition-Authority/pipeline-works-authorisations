@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -58,6 +59,21 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
+  public void validate_inputSizeLargerThanMax() {
+    var validationRequiredHints = List.of();
+    var inputWithNumberOfDigitsAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH);
+    var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+      validator, new MinMaxInput(inputWithNumberOfDigitsAllowed, inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints);
+
+    assertThat(errorsMap).contains(
+      Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    ).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
+
+  @Test
   public void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -100,6 +116,22 @@ public class MinMaxInputValidatorTest {
         Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode())),
         Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
             "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
+    );
+  }
+
+  @Test
+  public void validate_validationTypeIsPartial_onlyValidateInputLength() {
+    var validationRequiredHints = List.of(new DecimalPlacesHint(2), new PositiveNumberHint());
+    var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(
+      validator, new MinMaxInput(String.valueOf(-3.222), inputWithMoreDigitsThanAllowed), "My Property", List.of(), validationRequiredHints,
+      ValidationType.PARTIAL);
+
+    assertThat(errorsMap).contains(
+      Map.entry("maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    ).doesNotContain(
+      Map.entry("minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
+        "minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode()))
     );
   }
 
