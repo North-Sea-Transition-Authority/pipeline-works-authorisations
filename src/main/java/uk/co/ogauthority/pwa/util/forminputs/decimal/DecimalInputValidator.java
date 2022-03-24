@@ -81,7 +81,7 @@ public class DecimalInputValidator implements SmartValidator {
         .findFirst();
 
     Optional<PartialValidateHint> partialValidateHint = Arrays.stream(objects)
-        .filter(hint -> hint.getClass().equals(PartialValidateHint.class))
+        .filter(hint -> hint instanceof PartialValidateHint)
         .map(hint -> ((PartialValidateHint) hint))
         .findFirst();
 
