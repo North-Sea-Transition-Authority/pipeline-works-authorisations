@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.asbuilt;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -151,7 +152,8 @@ public class AsBuiltNotificationSubmissionController {
     if (asBuiltSubmissionResult == AsBuiltSubmissionResult.AS_BUILT_GROUP_COMPLETED) {
       FlashUtils.success(redirectAttributes, String.format("All as-built notifications for application %s have been successfully submitted",
           asBuiltNotificationGroup.getReference()));
-      return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null));
+      return ReverseRouter.redirect(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null,
+          Optional.empty()));
     }
 
     FlashUtils.success(redirectAttributes, "As-built notification submitted.");

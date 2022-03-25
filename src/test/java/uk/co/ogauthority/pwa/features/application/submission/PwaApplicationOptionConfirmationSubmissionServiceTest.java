@@ -83,7 +83,12 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
 
   @Test
   public void doAfterSubmit_doesNothing() {
-
     verifyNoInteractions(applicationInvolvementService, padPipelineNumberingService);
   }
+
+  @Test
+  public void getSubmissionType() {
+    assertThat(pwaApplicationOptionConfirmationSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.OPTIONS_CONFIRMATION);
+  }
+
 }

@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
@@ -30,6 +32,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -139,12 +142,15 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .thenReturn(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_UNCHANGED);
 
     mockMvc.perform(get(ReverseRouter.route(
-        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null)))
+        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS/"))
         .andExpect(flash().attributeCount(2));
+
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED));
+
   }
 
   @Test
@@ -157,12 +163,15 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .thenReturn(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID);
 
     mockMvc.perform(get(ReverseRouter.route(
-        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null)))
+        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/payment-result"))
         .andExpect(flash().attributeCount(0));
+
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED));
+
   }
 
   @Test
@@ -172,7 +181,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .thenThrow(new PwaEntityNotFoundException("some error"));
 
     mockMvc.perform(get(ReverseRouter.route(
-        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null)))
+        on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(paymentUser)))
         .andExpect(status().is4xxClientError());
   }

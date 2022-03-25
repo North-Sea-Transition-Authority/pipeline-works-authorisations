@@ -4,6 +4,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.con
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,6 +33,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -39,7 +41,6 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestForm;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestValidator;
-import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.controller.RequestApplicationUpdateController;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -165,7 +166,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         .addRequestParam(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(RequestApplicationUpdateController.class)
-                .requestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .requestUpdate(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null, Optional.empty())));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -182,7 +183,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
-            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
+            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -208,7 +209,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
-            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
+            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -235,7 +236,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
-            .requestUpdate(APP_ID, APP_TYPE, null, null, form, null)
+            .requestUpdate(APP_ID, APP_TYPE, null, null, form, null, Optional.empty())
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
@@ -248,6 +249,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(
         pwaApplicationDetail, user, form);
+    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.UPDATE_REQUEST_SENT));
 
   }
 
@@ -262,7 +264,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
 
     mockMvc.perform(
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
-            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null)
+            .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
             .with(authenticatedUserAndSession(user))
             .with(csrf())

@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.webapp.footer.controller.AccessibilityStatementController;
 import uk.co.ogauthority.pwa.features.webapp.footer.controller.ContactInformationController;
+import uk.co.ogauthority.pwa.features.webapp.footer.controller.CookiesController;
 import uk.co.ogauthority.pwa.model.Checkable;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -45,6 +46,10 @@ public class ControllerUtils {
 
   public static String getContactInformationUrl() {
     return ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null));
+  }
+
+  public static String getCookiesUrl() {
+    return ReverseRouter.route(on(CookiesController.class).getCookiePreferences());
   }
 
   public static void startVariationControllerCheckAppType(PwaApplicationType pwaApplicationType) {

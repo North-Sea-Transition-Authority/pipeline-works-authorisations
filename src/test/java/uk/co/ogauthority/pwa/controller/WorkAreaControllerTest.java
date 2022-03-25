@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -16,6 +17,8 @@ import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,13 +28,13 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -49,13 +52,8 @@ import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(WorkAreaController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class WorkAreaControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   @MockBean
   private WorkAreaService workAreaService;
@@ -86,6 +84,8 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
     when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt()))
+        .thenReturn(new WorkAreaResult(emptyResultPageView, null, null));
+    when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_WAITING_ON_OTHERS), anyInt()))
         .thenReturn(new WorkAreaResult(emptyResultPageView, null, null));
 
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
@@ -135,27 +135,44 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         new WebUserAccount(),
         EnumSet.noneOf(PwaUserPrivilege.class));
 
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, null, null)))
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(unauthorisedUserAccount)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied() throws Exception {
-    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null)))
+  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_forAttentionTab() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null, Optional.empty())))
         .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
         .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
+
+    verifyNoInteractions(analyticsService);
+
   }
 
+  @Test
+  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_backgroundTab() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, null, Optional.empty())))
+            .with(authenticatedUserAndSession(pwaManagerUser)))
+        .andExpect(status().isOk());
+
+    verify(workAreaService, times(1))
+        .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
+
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB),
+        eq(Map.of("tab", WorkAreaTab.REGULATOR_WAITING_ON_OTHERS.getLabel())));
+
+  }
 
   @Test
   public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100)))
+        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100, Optional.empty())))
         .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isOk());
 
@@ -170,7 +187,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null)))
+        .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null, Optional.empty())))
         .with(authenticatedUserAndSession(pwaManagerUser)))
         .andExpect(status().isForbidden());
   }
@@ -194,7 +211,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void getWorkAreaModelAndView_timerMetricStarted_timeRecordedAndLogged() {
 
     var controller = new WorkAreaController(workAreaService, workAreaContextService,
-        Mockito.mock(SystemAreaAccessService.class), metricsProvider);
+        Mockito.mock(SystemAreaAccessService.class), metricsProvider, analyticsService);
 
     controller.renderWorkArea(null, pwaManagerUser, null);
 

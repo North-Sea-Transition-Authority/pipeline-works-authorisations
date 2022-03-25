@@ -36,9 +36,9 @@ public class PwaApplicationSubmissionService {
   }
 
   @Transactional
-  public void submitApplication(WebUserAccount submittedByUser,
-                                PwaApplicationDetail detail,
-                                @Nullable String submissionDescription) {
+  public ApplicationSubmissionType submitApplication(WebUserAccount submittedByUser,
+                                                     PwaApplicationDetail detail,
+                                                     @Nullable String submissionDescription) {
 
     if (!detail.isTipFlag()) {
       throw new IllegalArgumentException(String.format("Application Detail not tip! id: %s", detail.getId()));
@@ -67,6 +67,8 @@ public class PwaApplicationSubmissionService {
     pwaApplicationDetailService.setSubmitted(detail, submittedByUser, newStatus);
 
     submissionService.doAfterSubmit(detail);
+
+    return submissionService.getSubmissionType();
 
   }
 

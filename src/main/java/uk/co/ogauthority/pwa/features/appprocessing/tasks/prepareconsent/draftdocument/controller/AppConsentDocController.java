@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftd
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +25,8 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
@@ -73,6 +77,7 @@ public class AppConsentDocController {
   private final DocgenService docgenService;
   private final MarkdownService markdownService;
   private final ConsentFileViewerService consentFileViewerService;
+  private final AnalyticsService analyticsService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -85,7 +90,8 @@ public class AppConsentDocController {
                                  MailMergeService mailMergeService,
                                  DocgenService docgenService,
                                  MarkdownService markdownService,
-                                 ConsentFileViewerService consentFileViewerService) {
+                                 ConsentFileViewerService consentFileViewerService,
+                                 AnalyticsService analyticsService) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.prepareConsentTaskService = prepareConsentTaskService;
@@ -97,6 +103,7 @@ public class AppConsentDocController {
     this.docgenService = docgenService;
     this.markdownService = markdownService;
     this.consentFileViewerService = consentFileViewerService;
+    this.analyticsService = analyticsService;
   }
 
   @GetMapping
@@ -175,7 +182,8 @@ public class AppConsentDocController {
                                       @PathVariable("applicationType")
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       PwaAppProcessingContext processingContext,
-                                      AuthenticatedUserAccount authenticatedUserAccount) {
+                                      AuthenticatedUserAccount authenticatedUserAccount,
+                                      @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
 
     return whenPrepareConsentAvailable(processingContext, () -> {
 
@@ -187,10 +195,11 @@ public class AppConsentDocController {
       var run = docgenService.createDocgenRun(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
       docgenService.scheduleDocumentGeneration(run);
 
+      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.DOCUMENT_PREVIEW);
+
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));
     });
-
 
   }
 

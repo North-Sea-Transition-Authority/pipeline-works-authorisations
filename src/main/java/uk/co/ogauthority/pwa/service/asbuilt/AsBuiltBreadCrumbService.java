@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
@@ -26,7 +27,7 @@ public class AsBuiltBreadCrumbService {
   private Map<String, String> workArea() {
     Map<String, String> breadcrumbs = new LinkedHashMap<>();
     breadcrumbs.put(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null,
-        WorkAreaTab.AS_BUILT_NOTIFICATIONS, null)), "Work area");
+        WorkAreaTab.AS_BUILT_NOTIFICATIONS, null, Optional.empty())), "Work area");
     return breadcrumbs;
   }
 

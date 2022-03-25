@@ -52,7 +52,7 @@ public class FinalisePublicNoticeService {
       FinalisePublicNoticeValidator finalisePublicNoticeValidator,
       CamundaWorkflowService camundaWorkflowService,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
-      @Value("${service.name}") String serviceName,
+      @Value("${service.full-name}") String serviceName,
       PwaContactService pwaContactService, NotifyService notifyService,
       CaseLinkService caseLinkService,
       @Qualifier("utcClock") Clock clock) {

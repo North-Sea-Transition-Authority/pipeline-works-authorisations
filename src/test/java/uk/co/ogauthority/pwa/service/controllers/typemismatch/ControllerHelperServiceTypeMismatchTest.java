@@ -25,9 +25,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -37,11 +38,10 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(SpringRunner.class)
-@Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
+@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, PwaMvcTestConfiguration.class})
 @WebMvcTest(
     controllers = ControllerHelperServiceTypeMismatchController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {ControllerHelperService.class}))
@@ -73,15 +73,6 @@ public class ControllerHelperServiceTypeMismatchTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService pwaAppProcessingContextService;
-
-  @MockBean
-  private PwaContextService pwaContextService;
-
   @Autowired
   private ControllerHelperService controllerHelperService;
 
@@ -90,6 +81,12 @@ public class ControllerHelperServiceTypeMismatchTest {
 
   @SpyBean
   protected FooterService footerServices;
+
+  @MockBean
+  protected AnalyticsConfiguration analyticsConfiguration;
+
+  @MockBean
+  protected AnalyticsService analyticsService;
 
   @Before
   public void setUp() {

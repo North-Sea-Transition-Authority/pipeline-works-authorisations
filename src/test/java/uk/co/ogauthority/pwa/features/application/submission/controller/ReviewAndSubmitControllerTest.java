@@ -19,6 +19,8 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
 import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +35,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
@@ -41,9 +42,11 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.submission.ApplicationSubmissionType;
 import uk.co.ogauthority.pwa.features.application.submission.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
@@ -116,8 +119,6 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
       EnumSet.allOf(PwaUserPrivilege.class)
   );
 
-  private MockHttpSession session;
-
   @Before
   public void setup() {
     doCallRealMethod().when(breadcrumbService).fromTaskList(any(), any(), any());
@@ -134,13 +135,14 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     when(validator.supports(any())).thenReturn(true);
     when(pwaApplicationValidationService.isApplicationValid(any())).thenReturn(true);
 
-    session = new MockHttpSession();
-
     when(personService.getPersonById(user.getLinkedPerson().getId())).thenReturn(user.getLinkedPerson());
 
     timer = TimerMetricTestUtils.setupTimerMetric(
         ReviewAndSubmitController.class, "pwa.appSubmissionTimer", appender);
     when(metricsProvider.getAppSubmissionTimer()).thenReturn(timer);
+
+    when(pwaApplicationSubmissionService.submitApplication(any(), any(), any())).thenReturn(ApplicationSubmissionType.FIRST_DRAFT);
+
   }
 
   @Test
@@ -183,7 +185,8 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(ReviewAndSubmitController.class)
-                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null))
+                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null,
+                    Optional.empty()))
         )
         .performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -195,7 +198,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(ReviewAndSubmitController.class)
-                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null))
+                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
         )
         .performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -207,7 +210,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
             ReverseRouter.route(on(ReviewAndSubmitController.class)
-                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null))
+                .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
         )
         .performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -219,7 +222,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -227,6 +230,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             "pwaApplication/shared/submission/submitConfirmation"));
 
     verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, null);
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
+        Map.of("applicationType", detail.getPwaApplicationType().name(),
+            "submissionType", ApplicationSubmissionType.FIRST_DRAFT.name())));
 
   }
 
@@ -241,13 +247,14 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     }).when(validator).validate(any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
             .with(authenticatedUserAndSession(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
 
     verifyNoInteractions(pwaApplicationSubmissionService);
+    verifyNoInteractions(analyticsService);
 
   }
 
@@ -257,13 +264,14 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
-        .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+        .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
 
     verifyNoInteractions(pwaApplicationSubmissionService);
+    verifyNoInteractions(analyticsService);
 
   }
 
@@ -275,7 +283,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null))
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
         ).param("madeOnlyRequestedChanges", "false")
         .param("otherChangesDescription", description)
             .with(authenticatedUserAndSession(user))
@@ -286,6 +294,9 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             "pwaApplication/shared/submission/submitConfirmation"));
 
     verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, description);
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
+        Map.of("applicationType", detail.getPwaApplicationType().name(),
+            "submissionType", ApplicationSubmissionType.FIRST_DRAFT.name())));
   }
 
   @Test
@@ -296,7 +307,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null))
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
         )
         .param("madeOnlyRequestedChanges", "true")
         .param("otherChangesDescription", description)
@@ -448,13 +459,13 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
     var controller = new ReviewAndSubmitController(Mockito.mock(ControllerHelperService.class), pwaApplicationRedirectService,
         pwaApplicationSubmissionService, applicationSummaryViewService, applicationUpdateRequestViewService, validator,
         pwaHolderTeamService, sendAppToSubmitterService, personService, metricsProvider, pwaAppNotificationBannerService,
-        pwaApplicationValidationService);
+        pwaApplicationValidationService, analyticsService);
 
     var form = new ReviewAndSubmitApplicationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     var applicationContext = new PwaApplicationContext(detail, new WebUserAccount(1), Set.of());
 
-    controller.submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), applicationContext, form, bindingResult);
+    controller.submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), applicationContext, form, bindingResult, Optional.empty());
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Application submitted");
   }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.review
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.controller.AppConsentDocController;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.controller.ConsentReviewController;
@@ -37,7 +38,7 @@ public class ConsentDocumentUrlProvider {
 
   public String getPreviewUrl() {
     return ReverseRouter.route(on(AppConsentDocController.class)
-        .schedulePreview(application.getId(), application.getApplicationType(), null, null));
+        .schedulePreview(application.getId(), application.getApplicationType(), null, null, Optional.empty()));
   }
 
   public String getDownloadUrl() {

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -187,7 +189,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null, Optional.empty())));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
   }
@@ -202,7 +204,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(IndustryPaymentController.class)
-                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .startPaymentAttempt(applicationDetail.getMasterPwaApplicationId(), type, null, null, Optional.empty())));
 
     endpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -214,12 +216,13 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
         .thenReturn(permissionsDto);
 
-    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:" + attemptSuccessResult.getStartExternalJourneyUrl()));
 
+    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED));
     verify(applicationChargeRequestService).startChargeRequestPaymentAttempt(pwaApplicationDetail.getPwaApplication(), user);
 
   }
@@ -234,7 +237,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
     when(applicationChargeRequestService.startChargeRequestPaymentAttempt(any(), any()))
         .thenReturn(alreadyPaidResult);
 
-    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null, Optional.empty())))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())

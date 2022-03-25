@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +61,7 @@ public class WorkAreaService {
     switch (workAreaTab) {
       case INDUSTRY_OPEN_APPLICATIONS:
         workAreaTabAndPageRoute = ReverseRouter.route(
-            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page));
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS, page, Optional.empty()));
         return new WorkAreaResult(
             PageView.fromPage(
                 applicationWorkAreaPageService.getUsersWorkAreaTabContents(
@@ -76,7 +77,7 @@ public class WorkAreaService {
 
       case INDUSTRY_SUBMITTED_APPLICATIONS:
         workAreaTabAndPageRoute = ReverseRouter.route(
-            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page));
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS, page, Optional.empty()));
         return new WorkAreaResult(
             PageView.fromPage(
                 applicationWorkAreaPageService.getUsersWorkAreaTabContents(
@@ -92,7 +93,7 @@ public class WorkAreaService {
 
       case REGULATOR_REQUIRES_ATTENTION:
         workAreaTabAndPageRoute = ReverseRouter.route(
-            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page));
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, page, Optional.empty()));
         return new WorkAreaResult(
             PageView.fromPage(
                 applicationWorkAreaPageService.getUsersWorkAreaTabContents(
@@ -108,7 +109,7 @@ public class WorkAreaService {
 
       case REGULATOR_WAITING_ON_OTHERS:
         workAreaTabAndPageRoute = ReverseRouter.route(
-            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page));
+            on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, page, Optional.empty()));
         return new WorkAreaResult(
             PageView.fromPage(
                 applicationWorkAreaPageService.getUsersWorkAreaTabContents(
