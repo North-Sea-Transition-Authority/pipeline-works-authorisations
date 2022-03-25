@@ -288,7 +288,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .setEndpointUrlProducer((applicationDetail, type) -> {
           padPipeline.setPwaApplicationDetail(applicationDetail);
           return ReverseRouter.route(on(PipelinesController.class)
-              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null));
         });
 
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
@@ -304,7 +304,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .setEndpointUrlProducer((applicationDetail, type) -> {
           padPipeline.setPwaApplicationDetail(applicationDetail);
           return ReverseRouter.route(on(PipelinesController.class)
-              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null));
         });
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
@@ -320,7 +320,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
         .setEndpointUrlProducer((applicationDetail, type) -> {
           padPipeline.setPwaApplicationDetail(applicationDetail);
           return ReverseRouter.route(on(PipelinesController.class)
-              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null));
+              .postRemovePipeline(applicationDetail.getMasterPwaApplicationId(), type, 1, null, null));
         });
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());

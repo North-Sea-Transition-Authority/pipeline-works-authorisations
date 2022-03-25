@@ -91,7 +91,7 @@ public class ApplicationBreadcrumbService {
   public void fromPipelinesOverview(PwaApplication pwaApplication, ModelAndView modelAndView, String thisPage) {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(PipelinesTaskListController.class)
-        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
+        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null, null)), "Pipelines");
     addAttrs(modelAndView, map, thisPage);
   }
 
@@ -115,7 +115,7 @@ public class ApplicationBreadcrumbService {
       String thisPage) {
     var map = taskList(pwaApplication);
     map.put(ReverseRouter.route(on(PipelinesTaskListController.class)
-        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null)), "Pipelines");
+        .renderPipelinesOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), null, null)), "Pipelines");
     map.put(ReverseRouter.route(on(PipelineIdentsController.class)
             .renderIdentOverview(pwaApplication.getId(), pwaApplication.getApplicationType(), padPipeline.getId(), null,
                 null)),

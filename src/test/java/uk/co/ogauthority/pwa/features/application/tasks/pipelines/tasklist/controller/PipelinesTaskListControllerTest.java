@@ -118,7 +118,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesTaskListController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -130,7 +130,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesTaskListController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -142,7 +142,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelinesTaskListController.class)
-                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null)));
+                .renderPipelinesOverview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
