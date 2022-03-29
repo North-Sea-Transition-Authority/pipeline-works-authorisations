@@ -80,6 +80,17 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
+  public void getTabsAvailableToUser_regulatorAndConsultee() {
+
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.CONSULTEE, UserType.OGA));
+    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+
+    var tabs = workAreaContextService.getTabsAvailableToUser(user);
+    assertThat(tabs).containsExactly(WorkAreaTab.OPEN_CONSULTATIONS);
+
+  }
+
+  @Test
   public void getTabsAvailableToUser_noTabs() {
 
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
@@ -87,7 +98,6 @@ public class WorkAreaContextServiceTest {
     assertThat(tabs).isEmpty();
 
   }
-
 
   @Test
   public void getTabsAvailableToUser_filterByPwaUserPriviledge_asBuiltNotifications() {
