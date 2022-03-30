@@ -67,10 +67,7 @@ public class MinMaxInputValidator implements SmartValidator {
         }
       }
     }
-
-    if (minMaxInput.getMaxValue() != null && minMaxInput.getMinValue() != null) {
-      validateLength(errors, minMaxInput, propertyName, MAX_INPUT_LENGTH);
-    }
+    validateLength(errors, minMaxInput, propertyName, MAX_INPUT_LENGTH);
   }
 
   private ValidationType getValidationType(Object[] objects) {
@@ -134,7 +131,7 @@ public class MinMaxInputValidator implements SmartValidator {
   }
 
   private void validateLength(Errors errors, MinMaxInput minMaxInput, String property, int maxLength) {
-    if (minMaxInput.getMinValue().length() > maxLength) {
+    if (minMaxInput.getMinValue() != null && minMaxInput.getMinValue().length() > maxLength) {
       errors.rejectValue("minValue", "minValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
           String.format(
             "%s for %s must be %s characters or fewer",
@@ -143,7 +140,7 @@ public class MinMaxInputValidator implements SmartValidator {
             maxLength
           ));
     }
-    if (minMaxInput.getMaxValue().length() > maxLength) {
+    if (minMaxInput.getMaxValue() != null && minMaxInput.getMaxValue().length() > maxLength) {
       errors.rejectValue("maxValue", "maxValue" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
           String.format(
             "%s for %s must be %s characters or fewer",
