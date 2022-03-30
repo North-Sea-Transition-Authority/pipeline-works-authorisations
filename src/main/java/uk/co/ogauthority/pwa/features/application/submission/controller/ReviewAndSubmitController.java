@@ -34,8 +34,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.submission.PwaApplicationSubmissionService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSummaryViewService;
-import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.AppProcessingTab;
-import uk.co.ogauthority.pwa.features.appprocessing.casemanagement.controller.CaseManagementController;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
