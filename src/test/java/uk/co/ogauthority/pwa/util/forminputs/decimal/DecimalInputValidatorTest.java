@@ -436,6 +436,34 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
+  public void validate_partialValidation_allowsEmptyInput() {
+  decimalInput.setValue("");
+  var fieldErrors = getValidationErrors(List.of(new PartialValidateHint(), new PositiveNumberHint()));
+
+  assertThat(fieldErrors).isEmpty();
+  }
+
+  @Test
+  public void validate_partialValidation_validatesLength() {
+    decimalInput.setValue("-" + "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH));
+    var fieldErrors = getValidationErrors(List.of(new PartialValidateHint()));
+
+    assertThat(fieldErrors).contains(
+        entry(VALUE, Set.of(VALUE_INVALID_CODE))
+      );
+  }
+
+  @Test
+  public void validate_partialValidation_validatesHintsPassedIn() {
+    decimalInput.setValue("-35");
+    var fieldErrors = getValidationErrors(List.of(new PartialValidateHint(), new PositiveNumberHint()));
+
+    assertThat(fieldErrors).contains(
+      entry(VALUE, Set.of(VALUE_INVALID_CODE))
+    );
+  }
+
+  @Test
   public void testBuilder_allFunctions() {
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");

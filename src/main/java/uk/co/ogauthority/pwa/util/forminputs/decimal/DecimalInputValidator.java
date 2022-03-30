@@ -80,22 +80,30 @@ public class DecimalInputValidator implements SmartValidator {
         .map(hint -> ((LessThanEqualToHint) hint))
         .findFirst();
 
-    //field is null and required
-    if (decimalOptional.isEmpty() && !decimalInput.hasContent() && fieldIsMandatory) {
-      errors.rejectValue(
-          VALUE,
-          VALUE_REQUIRED_CODE,
-          String.format(DECIMAL_REQUIRED_ERROR_FORMAT, inputLabel.getLabel()));
+    Optional<PartialValidateHint> partialValidateHint = Arrays.stream(objects)
+        .filter(hint -> hint instanceof PartialValidateHint)
+        .map(hint -> ((PartialValidateHint) hint))
+        .findFirst();
 
-      //field required and invalid OR field optionally provided and invalid
-    }  else if (decimalOptional.isEmpty() && (fieldIsMandatory || decimalInput.hasContent())) {
-      errors.rejectValue(
-          VALUE,
-          VALUE_INVALID_CODE,
-          String.format(DECIMAL_INVALID_ERROR_FORMAT, inputLabel.getLabel()));
+    if (partialValidateHint.isEmpty()) {
+      //field is null and required
+      if (decimalOptional.isEmpty() && !decimalInput.hasContent() && fieldIsMandatory) {
+        errors.rejectValue(
+            VALUE,
+            VALUE_REQUIRED_CODE,
+            String.format(DECIMAL_REQUIRED_ERROR_FORMAT, inputLabel.getLabel()));
 
-      //field provided and valid as a big decimal type
-    } else if (decimalOptional.isPresent()) {
+        //field required and invalid OR field optionally provided and invalid
+      }  else if (decimalOptional.isEmpty() && (fieldIsMandatory || decimalInput.hasContent())) {
+        errors.rejectValue(
+            VALUE,
+            VALUE_INVALID_CODE,
+            String.format(DECIMAL_INVALID_ERROR_FORMAT, inputLabel.getLabel()));
+      }
+    }
+
+    //field provided and valid as a big decimal type
+    if (decimalOptional.isPresent()) {
 
       // only do additional validation when the decimal is valid
       decimalPlaceHint.ifPresent(hint -> validateDecimalPlaces(errors, decimalInput, inputLabel, hint));
@@ -212,6 +220,11 @@ public class DecimalInputValidator implements SmartValidator {
 
     public DecimalInputValidatorInvocationBuilder mustBeLessThanField(BigDecimal smallerThan, String label) {
       this.hints.add(new SmallerThanFieldHint(smallerThan, label));
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder partialValidate() {
+      this.hints.add(new PartialValidateHint());
       return this;
     }
 
