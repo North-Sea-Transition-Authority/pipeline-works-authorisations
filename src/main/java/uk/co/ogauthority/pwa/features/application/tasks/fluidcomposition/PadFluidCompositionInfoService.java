@@ -107,9 +107,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.FULL)) {
-      fluidCompositionValidator.validate(form, bindingResult, pwaApplicationDetail);
-    }
+    fluidCompositionValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 
