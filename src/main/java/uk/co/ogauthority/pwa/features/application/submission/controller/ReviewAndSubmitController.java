@@ -6,6 +6,7 @@ import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
@@ -45,6 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -63,7 +65,6 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.Review
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 public class ReviewAndSubmitController {
 
   private final ControllerHelperService controllerHelperService;
@@ -116,7 +117,11 @@ public class ReviewAndSubmitController {
                              @PathVariable("applicationId") int applicationId,
                              PwaApplicationContext applicationContext,
                              @ModelAttribute("form") ReviewAndSubmitApplicationForm form) {
-    return getModelAndView(applicationContext, form);
+    var applicationDetail = applicationContext.getApplicationDetail();
+    if (Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED).contains(applicationDetail.getStatus())) {
+      return getModelAndView(applicationContext, form);
+    }
+    return CaseManagementUtils.redirectCaseManagement(applicationContext.getPwaApplication());
   }
 
   private ModelAndView getModelAndView(PwaApplicationContext applicationContext, ReviewAndSubmitApplicationForm form) {
@@ -170,6 +175,7 @@ public class ReviewAndSubmitController {
 
   @PostMapping
   @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView submit(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                              @PathVariable("applicationId") int applicationId,
                              PwaApplicationContext applicationContext,
@@ -215,6 +221,7 @@ public class ReviewAndSubmitController {
 
   @PostMapping("/send-to-submitter")
   @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView sendToSubmitter(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") int applicationId,

@@ -165,7 +165,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             ReverseRouter.route(on(ReviewAndSubmitController.class)
                 .review(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null))
         )
-        .performAppStatusChecks(status().isOk(), status().isNotFound());
+        .performAppStatusChecks(status().isOk(), status().is3xxRedirection());
   }
 
   @Test
