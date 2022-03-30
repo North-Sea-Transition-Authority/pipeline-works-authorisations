@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.designopconditions;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   private static final Logger LOGGER = LoggerFactory.getLogger(
       PadDesignOpConditionsValidator.class);
 
+  static final Integer MAX_INPUT_LENGTH = 30;
+
   private final MinMaxInputValidator minMaxInputValidator;
 
   @Autowired
@@ -47,19 +50,33 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     var form = (DesignOpConditionsForm) o;
     var validationType = (ValidationType) validationHints[0];
 
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
+        form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(), List.of(new IntegerHint()), validationType);
+
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
+        form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(), List.of(new IntegerHint()), validationType);
+
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
+        form.getPressureOpMinMax(), "pressure operating conditions",
+        List.of(new ByPassDefaultValidationHint(DefaultValidationRule.MIN_SMALLER_THAN_MAX)),
+        List.of(new PositiveNumberHint(), new IntegerHint()),
+        validationType);
+
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
+        form.getFlowrateOpMinMax(), "flowrate operating conditions",
+        List.of(), List.of(new DecimalPlacesHint(2)), validationType);
+
+    ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
+        form.getFlowrateDesignMinMax(), "flowrate design conditions",
+        List.of(), List.of(new DecimalPlacesHint(2)), validationType);
+
+    validateStringLength(errors, form.getPressureDesignMax(), "pressureDesignMax", "pressure design conditions");
+    validateStringLength(errors, form.getUvalueDesign(), "uvalueDesign", "U-value design conditions");
+
     if (validationType.equals(ValidationType.FULL)) {
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
-          form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(), List.of(new IntegerHint()));
-
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureDesignMinMax",
-          form.getTemperatureDesignMinMax(), "temperature design conditions", List.of(), List.of(new IntegerHint()));
-
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "pressureOpMinMax",
-          form.getPressureOpMinMax(), "pressure operating conditions",
-          List.of(new ByPassDefaultValidationHint(DefaultValidationRule.MIN_SMALLER_THAN_MAX)),
-          List.of(new PositiveNumberHint(), new IntegerHint()));
-
       var pressureDesignMax = createBigDecimal(form.getPressureDesignMax());
+      var uvalueDesign = createBigDecimal(form.getUvalueDesign());
+
       if (pressureDesignMax.isEmpty()) {
         errors.rejectValue("pressureDesignMax", "pressureDesignMax" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a valid value for pressure design conditions");
@@ -67,15 +84,6 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
         validatePositiveNumber(errors, pressureDesignMax.get(), "pressureDesignMax", "pressure design conditions");
       }
 
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateOpMinMax",
-          form.getFlowrateOpMinMax(), "flowrate operating conditions",
-          List.of(), List.of(new DecimalPlacesHint(2)));
-
-      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
-          form.getFlowrateDesignMinMax(), "flowrate design conditions",
-          List.of(), List.of(new DecimalPlacesHint(2)));
-
-      var uvalueDesign = createBigDecimal(form.getUvalueDesign());
       if (uvalueDesign.isEmpty()) {
         errors.rejectValue("uvalueDesign", "uvalueDesign" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a valid value for U-value design conditions");
@@ -116,5 +124,11 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     }
   }
 
+  private void validateStringLength(Errors errors, String value, String formProperty, String inputRef) {
+    if (value != null && value.length() > MAX_INPUT_LENGTH) {
+      errors.rejectValue(formProperty, formProperty + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(),
+          String.format("%s must be %s characters or fewer", StringUtils.capitalize(inputRef), MAX_INPUT_LENGTH));
+    }
+  }
 
 }

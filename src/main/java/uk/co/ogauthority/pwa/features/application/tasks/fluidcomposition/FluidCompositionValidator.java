@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -30,16 +31,19 @@ public class FluidCompositionValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
 
     var fluidCompositionForm = (FluidCompositionForm) target;
+    var validationType = (ValidationType) validationHints[0];
 
     var chemicalDataFormMap = fluidCompositionForm.getChemicalDataFormMap();
 
-    fluidCompositionFormValidator.validate(fluidCompositionForm, errors);
+    if (validationType.equals(ValidationType.FULL)) {
+      fluidCompositionFormValidator.validate(fluidCompositionForm, errors);
+    }
 
     // sort form map by chemical display order to ensure the validation errors are ordered correctly
     chemicalDataFormMap.entrySet().stream()
         .sorted(Comparator.comparing(e -> e.getKey().getDisplayOrder()))
         .forEach(e -> ValidatorUtils.invokeNestedValidator(errors, fluidCompositionDataValidator,
-            "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey()));
+            "chemicalDataFormMap[" + e.getKey() + "]", e.getValue(), e.getKey(), validationType));
   }
 
   @Override
