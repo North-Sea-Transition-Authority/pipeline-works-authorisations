@@ -2,7 +2,16 @@
 
 <@defaultPage htmlTitle="Cookies" pageHeading="Cookies" fullWidthColumn=true topNavigation=false backLink=true phaseBanner=false>
 
-  <@fdsCookiePreferences.cookiePreferences serviceName=service.serviceName>
+  <#assign essentialCookies>
+      <@fdsCookiePreferences.essentialCookieRow name="field_set" purpose="Used for session security" expiry="When you close your browser"/>
+      <@fdsCookiePreferences.essentialCookieRow name="p_dti_session_id" purpose="Used to keep you signed in" expiry="When you close your browser"/>
+      <@fdsCookiePreferences.essentialCookieRow name="CONTAINER" purpose="Used to deliver the service" expiry="When you close your browser"/>
+      <@fdsCookiePreferences.essentialCookieRow name="FOX_ORIGIN_ID" purpose="Used to keep you signed in" expiry="When you close your browser"/>
+      <@fdsCookiePreferences.essentialCookieRow name="JSESSIONID" purpose="Used to keep you signed in" expiry="When you close your browser"/>
+      <@fdsCookiePreferences.essentialCookieRow name="SESSION" purpose="Used to keep you signed in" expiry="When you close your browser"/>
+  </#assign>
+
+  <@fdsCookiePreferences.cookiePreferences serviceName=service.serviceName essentialCookies=essentialCookies>
 
     <h2 class="govuk-heading-m">Analytics cookies (optional)</h2>
 
@@ -57,6 +66,13 @@
         <td class="govuk-table__cell">
           2 years
         </td>
+      </tr>
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">pwa-ga-client-id</td>
+        <td class="govuk-table__cell govuk-!-width-one-half">
+          Stores information about how you use this service. This helps us improve the service for other people.
+        </td>
+        <td class="govuk-table__cell">When you close your browser</td>
       </tr>
       </tbody>
     </table>
