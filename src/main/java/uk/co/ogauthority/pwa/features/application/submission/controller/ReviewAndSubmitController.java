@@ -48,6 +48,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -122,13 +123,7 @@ public class ReviewAndSubmitController {
     if (Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED).contains(applicationDetail.getStatus())) {
       return getModelAndView(applicationContext, form);
     }
-    return ReverseRouter.redirect(on(CaseManagementController.class).renderCaseManagement(
-      applicationId,
-      applicationDetail.getPwaApplicationType(),
-      AppProcessingTab.TASKS,
-      null,
-      null
-    ));
+    return CaseManagementUtils.redirectCaseManagement(applicationContext.getPwaApplication());
   }
 
   private ModelAndView getModelAndView(PwaApplicationContext applicationContext, ReviewAndSubmitApplicationForm form) {
