@@ -13,7 +13,9 @@ public class AnalyticsConfig {
   @NotNull
   private final boolean enabled;
 
-  private final String apiSecret;
+  private final String appTagApiSecret;
+
+  private final String globalTagApiSecret;
 
   private final String endpointUrl;
 
@@ -22,12 +24,14 @@ public class AnalyticsConfig {
   private final Integer connectionTimeoutSeconds;
 
   public AnalyticsConfig(boolean enabled,
-                         String apiSecret,
+                         String appTagApiSecret,
+                         String globalTagApiSecret,
                          String endpointUrl,
                          String userAgent,
                          Integer connectionTimeoutSeconds) {
     this.enabled = enabled;
-    this.apiSecret = apiSecret;
+    this.appTagApiSecret = appTagApiSecret;
+    this.globalTagApiSecret = globalTagApiSecret;
     this.endpointUrl = endpointUrl;
     this.userAgent = userAgent;
     this.connectionTimeoutSeconds = connectionTimeoutSeconds;
@@ -37,8 +41,12 @@ public class AnalyticsConfig {
     return enabled;
   }
 
-  public String getApiSecret() {
-    return apiSecret;
+  public String getAppTagApiSecret() {
+    return appTagApiSecret;
+  }
+
+  public String getGlobalTagApiSecret() {
+    return globalTagApiSecret;
   }
 
   public String getEndpointUrl() {

@@ -78,8 +78,23 @@ public class AnalyticsService {
           .requestFactory(() -> requestFactory)
           .build();
 
-      sendEventForTag(restTemplate, configuration.getProperties().getAppTag(), clientId, eventCategory, paramMap);
-      sendEventForTag(restTemplate, configuration.getProperties().getGlobalTag(), clientId, eventCategory, paramMap);
+      sendEventForTag(
+          restTemplate,
+          configuration.getProperties().getAppTag(),
+          configuration.getConfig().getAppTagApiSecret(),
+          clientId,
+          eventCategory,
+          paramMap
+      );
+
+      sendEventForTag(
+          restTemplate,
+          configuration.getProperties().getGlobalTag(),
+          configuration.getConfig().getGlobalTagApiSecret(),
+          clientId,
+          eventCategory,
+          paramMap
+      );
 
     } catch (Exception e) {
       LOGGER.error("Error sending Google Analytics event. Response was still served to user", e);
@@ -88,6 +103,7 @@ public class AnalyticsService {
 
   private void sendEventForTag(RestTemplate restTemplate,
                                String trackingId,
+                               String apiSecret,
                                String clientId,
                                AnalyticsEventCategory eventCategory,
                                Map<String, String> paramMap) throws JsonProcessingException {
@@ -101,7 +117,7 @@ public class AnalyticsService {
 
     var uriTemplate = UriComponentsBuilder.fromHttpUrl(configuration.getConfig().getEndpointUrl())
         .queryParam("measurement_id", trackingId)
-        .queryParam("api_secret", configuration.getConfig().getApiSecret())
+        .queryParam("api_secret", apiSecret)
         .build()
         .toUriString();
 
