@@ -15,8 +15,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
 import uk.co.ogauthority.pwa.component.RequestLogger;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextArgumentResolver;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextArgumentResolver;
+import uk.co.ogauthority.pwa.mvc.PwaApplicationRouteInterceptor;
 import uk.co.ogauthority.pwa.mvc.ResponseBufferSizeHandlerInterceptor;
 import uk.co.ogauthority.pwa.mvc.UserPrivReloadInterceptor;
 import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentResolver;
@@ -34,18 +36,21 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final PwaContextArgumentResolver pwaContextArgumentResolver;
   private final UserSessionService userSessionService;
   private final Optional<RequestLogger> requestLoggerOpt;
+  private final AnalyticsService analyticsService;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
                       PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver,
                       PwaContextArgumentResolver pwaContextArgumentResolver,
                       UserSessionService userSessionService,
-                      Optional<RequestLogger> requestLoggerOpt) {
+                      Optional<RequestLogger> requestLoggerOpt,
+                      AnalyticsService analyticsService) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
     this.userSessionService = userSessionService;
     this.requestLoggerOpt = requestLoggerOpt;
+    this.analyticsService = analyticsService;
   }
 
   @Override
@@ -65,6 +70,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     registry.addInterceptor(new UserPrivReloadInterceptor(userSessionService))
         .addPathPatterns("/work-area/*", "/work-area");
+
+    registry.addInterceptor(new PwaApplicationRouteInterceptor(analyticsService))
+        .addPathPatterns("/pwa-application/**");
 
     requestLoggerOpt.ifPresent(requestLogger -> registry.addInterceptor(requestLogger)
           .excludePathPatterns("/assets/**"));

@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
@@ -13,6 +15,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -30,16 +34,21 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 public class IndustryPaymentCallbackController {
 
   private final ApplicationChargeRequestService applicationChargeRequestService;
+  private final AnalyticsService analyticsService;
 
   @Autowired
-  public IndustryPaymentCallbackController(ApplicationChargeRequestService applicationChargeRequestService) {
+  public IndustryPaymentCallbackController(ApplicationChargeRequestService applicationChargeRequestService,
+                                           AnalyticsService analyticsService) {
     this.applicationChargeRequestService = applicationChargeRequestService;
+    this.analyticsService = analyticsService;
   }
 
   @GetMapping("/pwa-application/pay/return/{paymentJourneyUuid}")
   public ModelAndView reconcilePaymentRequestAndRedirect(@PathVariable("paymentJourneyUuid") UUID paymentJourneyUuid,
                                                          AuthenticatedUserAccount user,
-                                                         RedirectAttributes redirectAttributes) {
+                                                         RedirectAttributes redirectAttributes,
+                                                         @CookieValue(name = "pwa-ga-client-id", required = false)
+                                                               Optional<String> analyticsClientId) {
     var reconciledPaymentAttempt = applicationChargeRequestService
         .reconcilePaymentRequestCallbackUuidToPaymentAttempt(paymentJourneyUuid);
 
@@ -51,12 +60,21 @@ public class IndustryPaymentCallbackController {
     );
 
     if (processPaymentAttemptOutcome.equals(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID)) {
+
+      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED);
+
       return ReverseRouter.redirect(on(this.getClass())
           .renderPaymentResult(pwaApplication.getId(), pwaApplication.getApplicationType(), null));
+
     } else {
+
+      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED);
+
       FlashUtils.info(redirectAttributes,
           String.format("No payment for application %s has been completed", pwaApplication.getAppReference()));
+
       return CaseManagementUtils.redirectCaseManagement(pwaApplication);
+
     }
 
   }

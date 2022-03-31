@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -132,6 +133,34 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
         .with(csrf()))
         .andExpect(status().isForbidden());
 
+  }
+
+  @Test
+  public void renderConsultations_userCannotWithdrawConsultations_withdrawLinkNotOnPage() throws Exception {
+    var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
+      pwaApplicationDetail.getPwaApplication()), Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultations(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+      .with(authenticatedUserAndSession(user))
+      .with(csrf()))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("userCanWithdrawConsultations", false));
+  }
+
+  @Test
+  public void renderConsultations_userCanWithdrawConsultations_withdrawLinkOnPage() throws Exception {
+    var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
+      pwaApplicationDetail.getPwaApplication()), Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS, PwaAppProcessingPermission.WITHDRAW_CONSULTATION));
+
+    when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultations(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+      .with(authenticatedUserAndSession(user))
+      .with(csrf()))
+      .andExpect(status().isOk())
+      .andExpect(model().attribute("userCanWithdrawConsultations", true));
   }
 
   @Test

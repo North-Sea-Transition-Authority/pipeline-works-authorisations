@@ -5,10 +5,12 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,6 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
@@ -50,6 +54,7 @@ public class IndustryPaymentController {
   private final ApplicationChargeRequestService applicationChargeRequestService;
   private final ApplicationPaymentSummariser applicationPaymentSummariser;
   private final PwaHolderService pwaHolderService;
+  private final AnalyticsService analyticsService;
 
   private final String appBaseUrl;
 
@@ -62,11 +67,13 @@ public class IndustryPaymentController {
                                    ApplicationPaymentSummariser applicationPaymentSummariser,
                                    PwaHolderService pwaHolderService,
                                    @Value("${pwa.url.base}") String pwaUrlBase,
-                                   @Value("${context-path}") String contextPath) {
+                                   @Value("${context-path}") String contextPath,
+                                   AnalyticsService analyticsService) {
     this.breadcrumbService = breadcrumbService;
     this.applicationChargeRequestService = applicationChargeRequestService;
     this.applicationPaymentSummariser = applicationPaymentSummariser;
     this.pwaHolderService = pwaHolderService;
+    this.analyticsService = analyticsService;
     this.appBaseUrl = pwaUrlBase + contextPath;
   }
 
@@ -93,7 +100,8 @@ public class IndustryPaymentController {
                                           @PathVariable("applicationType")
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaAppProcessingContext processingContext,
-                                          RedirectAttributes redirectAttributes) {
+                                          RedirectAttributes redirectAttributes,
+                                          @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
 
     var startPaymentAttemptResult = applicationChargeRequestService.startChargeRequestPaymentAttempt(
         processingContext.getPwaApplication(),
@@ -107,6 +115,8 @@ public class IndustryPaymentController {
       );
       return CaseManagementUtils.redirectCaseManagement(processingContext);
     }
+
+    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED);
 
     return new ModelAndView("redirect:" + startPaymentAttemptResult.getStartExternalJourneyUrl());
 

@@ -44,8 +44,11 @@ backToTopLink=true>
             </#if>
         </div>
 
-          <#--Footer goes below me-->
-          <@fdsFooter.footer wrapperWidth=wrapperWidth/>
+        <#--Footer goes below me-->
+        <@fdsFooter.footer wrapperWidth=wrapperWidth/>
+
+        <@pwaCustomScripts />
+
       </div>
     </@genericLayout>
 </#macro>

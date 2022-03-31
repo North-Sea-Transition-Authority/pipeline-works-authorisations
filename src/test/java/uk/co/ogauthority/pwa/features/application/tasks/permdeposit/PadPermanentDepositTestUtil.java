@@ -256,15 +256,19 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PermanentDepositsValidationHints createValidationHints(PwaApplicationDetail pwaApplicationDetail) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of());
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of(), Set.of());
+  }
+
+  public static PermanentDepositsValidationHints createValidationHints(PwaApplicationDetail pwaApplicationDetail, Set<String> acceptedPipelineIds) {
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of(), acceptedPipelineIds);
   }
 
   public static PermanentDepositsValidationHints createValidationHintsWithDeposits(PwaApplicationDetail pwaApplicationDetail, List<PadPermanentDeposit> deposits) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, deposits);
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, deposits, Set.of());
   }
 
   public static PermanentDepositsValidationHints createValidationHintsWithTimestamp(PwaApplicationDetail pwaApplicationDetail, Instant projectInfoProposedStartTimestamp) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, projectInfoProposedStartTimestamp, List.of());
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, projectInfoProposedStartTimestamp, List.of(), Set.of());
   }
 
 

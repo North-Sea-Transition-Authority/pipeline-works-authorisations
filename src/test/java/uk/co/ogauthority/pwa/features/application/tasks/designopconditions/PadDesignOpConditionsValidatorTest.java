@@ -152,8 +152,25 @@ public class PadDesignOpConditionsValidatorTest {
     );
   }
 
+  @Test
+  public void validate_partialValidation_invalidInputAccepted() {
+    var form = createBlankForm();
+    form.setPressureDesignMax("abcs");
+    form.setUvalueDesign("");
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    assertThat(errorsMap).isEmpty();
+  }
 
-
-
-
+  @Test
+  public void validate_partialValidation_inputWithTooManyCharactersNotAccepted() {
+    var form = createBlankForm();
+    form.setPressureDesignMax("9".repeat(PadDesignOpConditionsValidator.MAX_INPUT_LENGTH + 1));
+    form.setUvalueDesign("9".repeat(PadDesignOpConditionsValidator.MAX_INPUT_LENGTH));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    assertThat(errorsMap).contains(
+      entry("pressureDesignMax", Set.of("pressureDesignMax" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    ).doesNotContain(
+      entry("uvalueDesign", Set.of("uvalueDesign" + MinMaxValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+    );
+  }
 }

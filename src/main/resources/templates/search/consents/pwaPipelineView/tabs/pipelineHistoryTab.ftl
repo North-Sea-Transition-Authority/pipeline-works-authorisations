@@ -14,7 +14,7 @@
         <@fdsAction.button buttonText="Show version"/>
     </@fdsForm.htmlForm>
 
-    <@diffChanges.toggler/>
+    <@diffChanges.toggler analyticsEventCategory="SHOW_DIFFS_PIPE"/>
 
     <#if diffedPipelineSummaryModel.pipelineHeader?has_content>
         <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0/>

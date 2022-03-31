@@ -39,12 +39,12 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.PrepareConsentTaskService;
-import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.controller.AppConsentDocController;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdocument.ConsentDocumentService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.PreSendForApprovalChecksViewTestUtil;
@@ -247,7 +247,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
-                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null, Optional.empty())));
 
     editDocumentEndpointTester.performProcessingPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -264,7 +264,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     editDocumentEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AppConsentDocController.class)
-                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null)));
+                .schedulePreview(applicationDetail.getMasterPwaApplicationId(), type, null, null, Optional.empty())));
 
     editDocumentEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -280,12 +280,13 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(docgenService.createDocgenRun(any(), any(), any())).thenReturn(run);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
-        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, Optional.empty())))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
     verify(docgenService, times(1)).scheduleDocumentGeneration(run);
+    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.DOCUMENT_PREVIEW));
 
   }
 
@@ -295,7 +296,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
-        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
+        .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, Optional.empty())))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
         .andExpect(status().isForbidden());

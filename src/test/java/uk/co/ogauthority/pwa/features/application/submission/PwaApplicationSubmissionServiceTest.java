@@ -126,7 +126,10 @@ public class PwaApplicationSubmissionServiceTest {
     verifyOrder.verify(pwaApplicationDetailService).setSubmitted(pwaApplicationDetail, user, DEFAULT_STATUS);
     verifyOrder.verify(applicationSubmissionService).doAfterSubmit(pwaApplicationDetail);
 
+    verifyOrder.verify(applicationSubmissionService).getSubmissionType();
+
     verifyOrder.verifyNoMoreInteractions();
+
   }
 
 
@@ -149,6 +152,8 @@ public class PwaApplicationSubmissionServiceTest {
 
     verifyOrder.verify(pwaApplicationDetailService).setSubmitted(pwaApplicationDetail, user, DEFAULT_STATUS);
     verifyOrder.verify(applicationSubmissionService).doAfterSubmit(pwaApplicationDetail);
+
+    verifyOrder.verify(applicationSubmissionService).getSubmissionType();
 
     verifyOrder.verifyNoMoreInteractions();
   }

@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
+import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
@@ -63,6 +64,9 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingContextService appProcessingContextService;
+
+  @MockBean
+  private PwaContextService pwaContextService;
 
   @MockBean
   private MasterPwaViewService masterPwaViewService;

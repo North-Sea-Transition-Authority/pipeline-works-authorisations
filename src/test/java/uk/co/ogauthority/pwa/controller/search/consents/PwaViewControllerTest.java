@@ -1,12 +1,9 @@
 package uk.co.ogauthority.pwa.controller.search.consents;
 
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,11 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
-import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -35,9 +28,6 @@ public class PwaViewControllerTest extends PwaContextAbstractControllerTest {
 
   private PwaEndpointTestBuilder endpointTester;
 
-  private MasterPwa masterPwa;
-  private AuthenticatedUserAccount user;
-
   @MockBean
   protected PwaPermissionService pwaPermissionService;
 
@@ -49,17 +39,6 @@ public class PwaViewControllerTest extends PwaContextAbstractControllerTest {
 
     endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
         .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA);
-
-    user = new AuthenticatedUserAccount(
-        new WebUserAccount(1),
-        Set.of(PwaUserPrivilege.PWA_REGULATOR));
-
-    this.masterPwa = new MasterPwa();
-    this.masterPwa.setId(1);
-    this.masterPwa.setCreatedTimestamp(Instant.MIN);
-    when(masterPwaService.getMasterPwaById(masterPwa.getId())).thenReturn(masterPwa);
-
-    when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of(PwaPermission.VIEW_PWA));
 
   }
 

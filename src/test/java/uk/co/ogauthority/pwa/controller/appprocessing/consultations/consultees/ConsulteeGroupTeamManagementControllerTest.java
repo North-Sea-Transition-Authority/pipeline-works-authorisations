@@ -26,16 +26,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -52,13 +52,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ConsulteeGroupTeamManagementController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class ConsulteeGroupTeamManagementControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService applicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   @MockBean
   private ConsulteeGroupTeamService consulteeGroupTeamService;

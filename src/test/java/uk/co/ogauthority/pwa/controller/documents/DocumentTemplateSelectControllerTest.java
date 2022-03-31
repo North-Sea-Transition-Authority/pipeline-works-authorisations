@@ -9,24 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(DocumentTemplateSelectController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class DocumentTemplateSelectControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   private AuthenticatedUserAccount templateClauseManager, caseOfficer;
 

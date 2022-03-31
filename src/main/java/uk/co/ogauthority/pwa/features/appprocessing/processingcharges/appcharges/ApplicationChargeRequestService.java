@@ -336,7 +336,7 @@ public class ApplicationChargeRequestService {
         pwaAppChargeRequestDetail.getChargeSummary(),
         applicationChargeRequestMetadataService.getMetadataMapForDetail(latestSubmittedDetail),
         uuid -> ReverseRouter.route(
-            on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null))
+            on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty()))
     );
 
     var startExternalJourneyUrl = createCardPaymentResult.getStartExternalJourneyUrl()

@@ -25,13 +25,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -47,13 +46,8 @@ import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PortalTeamManagementController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class PortalTeamManagementControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   private static final int UNKNOWN_PERSON_ID = 123456789;
   private static final int UNKNOWN_RES_ID = 99999;

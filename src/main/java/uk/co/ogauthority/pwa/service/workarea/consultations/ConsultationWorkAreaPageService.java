@@ -38,7 +38,8 @@ public class ConsultationWorkAreaPageService {
                                                                Set<Integer> consultationRequestIds,
                                                                int page) {
 
-    var workAreaUri = ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.OPEN_CONSULTATIONS, page));
+    var workAreaUri = ReverseRouter.route(on(WorkAreaController.class)
+        .renderWorkAreaTab(null, WorkAreaTab.OPEN_CONSULTATIONS, page, Optional.empty()));
 
     return PageView.fromPage(
         getConsultationSearchResults(authenticatedUserAccount, consultationRequestIds, page),

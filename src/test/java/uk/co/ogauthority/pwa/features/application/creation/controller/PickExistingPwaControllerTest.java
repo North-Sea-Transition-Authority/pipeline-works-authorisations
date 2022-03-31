@@ -31,6 +31,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -38,16 +39,15 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.PickableMasterPwaOptions;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -61,11 +61,10 @@ import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PickExistingPwaController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class PickExistingPwaControllerTest extends AbstractControllerTest {
-  private static final int MASTER_PWA_ID = 1;
 
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
+  private static final int MASTER_PWA_ID = 1;
 
   @MockBean
   private PickedPwaRetrievalService pickedPwaRetrievalService;
@@ -81,9 +80,6 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   @MockBean
   private MetricsProvider metricsProvider;

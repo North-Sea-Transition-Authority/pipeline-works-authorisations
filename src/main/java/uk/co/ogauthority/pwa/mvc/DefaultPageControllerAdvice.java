@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.mvc;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.controller.MarkdownController;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsController;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -33,18 +36,24 @@ public class DefaultPageControllerAdvice {
   private final HttpServletRequest request;
   private final ServiceProperties serviceProperties;
   private final FooterService footerService;
+  private final AnalyticsConfiguration analyticsConfiguration;
+  private final String analyticsMeasurementUrl;
 
   @Autowired
   public DefaultPageControllerAdvice(FoxUrlService foxUrlService,
                                      TopMenuService topMenuService,
                                      HttpServletRequest request,
                                      ServiceProperties serviceProperties,
-                                     FooterService footerService) {
+                                     FooterService footerService,
+                                     AnalyticsConfiguration analyticsConfiguration) {
     this.foxUrlService = foxUrlService;
     this.topMenuService = topMenuService;
     this.request = request;
     this.serviceProperties = serviceProperties;
     this.footerService = footerService;
+    this.analyticsConfiguration = analyticsConfiguration;
+    this.analyticsMeasurementUrl = ReverseRouter.route(on(AnalyticsController.class)
+        .collectAnalyticsEvent(null, Optional.empty()));
   }
 
   @InitBinder
@@ -64,6 +73,9 @@ public class DefaultPageControllerAdvice {
     model.addAttribute("service", serviceProperties);
     model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
     model.addAttribute("feedbackUrl", ControllerUtils.getFeedbackUrl());
+    model.addAttribute("analytics", analyticsConfiguration.getProperties());
+    model.addAttribute("analyticsMeasurementUrl", analyticsMeasurementUrl);
+    model.addAttribute("cookiePrefsUrl", ControllerUtils.getCookiesUrl());
   }
 
   private void addCurrentUserView(Model model) {

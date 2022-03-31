@@ -64,6 +64,11 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
     sendApplicationSubmittedEmail(pwaApplicationDetail);
   }
 
+  @Override
+  public ApplicationSubmissionType getSubmissionType() {
+    return ApplicationSubmissionType.FIRST_DRAFT;
+  }
+
   private void sendApplicationSubmittedEmail(PwaApplicationDetail detail) {
 
     var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);

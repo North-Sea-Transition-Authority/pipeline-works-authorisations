@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
@@ -31,7 +32,8 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_availability_notSelected() {
     var form = new PipelineOtherPropertiesDataForm();
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, OtherPipelineProperty.MERCURY);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, OtherPipelineProperty.MERCURY,
+      ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("propertyAvailabilityOption", Set.of("propertyAvailabilityOption.required"))
     );
@@ -47,7 +49,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_waxContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-3, 5.21), OtherPipelineProperty.WAX_CONTENT);
+        createForm(-3, 5.21), OtherPipelineProperty.WAX_CONTENT, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -58,7 +60,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_valid_waxContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(3, 5.2), OtherPipelineProperty.WAX_CONTENT);
+        createForm(3, 5.2), OtherPipelineProperty.WAX_CONTENT, ValidationType.FULL);
 
     assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode(),
@@ -71,7 +73,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_waxAppearanceTemp() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(2.3, 5.2), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
+        createForm(2.3, 5.2), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode())),
@@ -82,7 +84,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_valid_waxAppearanceTemp() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(2, 5), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE);
+        createForm(2, 5), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE, ValidationType.FULL);
 
     assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode())),
@@ -93,7 +95,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_acidNum() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.2), OtherPipelineProperty.ACID_NUM);
+        createForm(-4, 5.2), OtherPipelineProperty.ACID_NUM, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -104,7 +106,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_viscosity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.22), OtherPipelineProperty.VISCOSITY);
+        createForm(-4, 5.22), OtherPipelineProperty.VISCOSITY, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -115,7 +117,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_valid_viscosity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(4, 5.2), OtherPipelineProperty.VISCOSITY);
+        createForm(4, 5.2), OtherPipelineProperty.VISCOSITY, ValidationType.FULL);
 
     assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.INVALID_DECIMAL_PLACE.getCode(),
@@ -128,7 +130,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_densityGravity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.22), OtherPipelineProperty.DENSITY_GRAVITY);
+        createForm(-4, 5.22), OtherPipelineProperty.DENSITY_GRAVITY, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -140,7 +142,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_valid_densityGravity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(4, 5), OtherPipelineProperty.DENSITY_GRAVITY);
+        createForm(4, 5), OtherPipelineProperty.DENSITY_GRAVITY, ValidationType.FULL);
 
     assertThat(errorsMap).doesNotContain(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode(),
@@ -153,7 +155,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_sulphurContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.232), OtherPipelineProperty.SULPHUR_CONTENT);
+        createForm(-4, 5.232), OtherPipelineProperty.SULPHUR_CONTENT, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -164,7 +166,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_pourPoint() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(4, 5.2), OtherPipelineProperty.POUR_POINT);
+        createForm(4, 5.2), OtherPipelineProperty.POUR_POINT, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.maxValue", Set.of("maxValue" + MinMaxValidationErrorCodes.NOT_INTEGER.getCode()))
@@ -174,7 +176,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_solidContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.232), OtherPipelineProperty.SOLID_CONTENT);
+        createForm(-4, 5.232), OtherPipelineProperty.SOLID_CONTENT, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),
@@ -185,7 +187,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   @Test
   public void validate_invalid_mercury() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
-        createForm(-4, 5.232), OtherPipelineProperty.MERCURY);
+        createForm(-4, 5.232), OtherPipelineProperty.MERCURY, ValidationType.FULL);
 
     assertThat(errorsMap).contains(
         entry("minMaxInput.minValue", Set.of("minValue" + MinMaxValidationErrorCodes.NOT_POSITIVE.getCode())),

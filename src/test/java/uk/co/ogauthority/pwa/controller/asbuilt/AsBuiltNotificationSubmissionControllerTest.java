@@ -24,15 +24,15 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipelineUtil;
@@ -56,13 +56,8 @@ import uk.co.ogauthority.pwa.validators.asbuilt.AsBuiltNotificationSubmissionVal
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AsBuiltNotificationSubmissionController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   @MockBean
   private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
@@ -218,7 +213,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS,
-            null))));
+            null, Optional.empty()))));
 
     verify(asBuiltInteractorService)
         .submitAsBuiltNotification(eq(asBuiltNotificationGroupPipeline), any(AsBuiltNotificationSubmissionForm.class), eq(user));

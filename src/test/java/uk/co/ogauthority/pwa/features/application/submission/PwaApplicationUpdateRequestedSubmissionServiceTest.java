@@ -106,4 +106,10 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
     assertThat(pwaApplicationUpdateRequestedSubmissionService.getSubmittedApplicationDetailStatus(pwaApplicationDetail))
         .isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
   }
+
+  @Test
+  public void getSubmissionType() {
+    assertThat(pwaApplicationUpdateRequestedSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.UPDATE);
+  }
+
 }

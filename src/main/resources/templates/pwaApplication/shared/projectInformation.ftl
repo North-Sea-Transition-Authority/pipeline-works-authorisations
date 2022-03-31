@@ -19,11 +19,11 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("PROJECT_OVERVIEW")>
-            <@fdsTextarea.textarea path="form.projectOverview" labelText="Overview of project" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+            <@fdsTextarea.textarea path="form.projectOverview" labelText="Overview of project" characterCount=true maxCharacterLength=maxCharacterLength?c rows=12/>
         </#if>
 
         <#if requiredQuestions?seq_contains("METHOD_OF_PIPELINE_DEPLOYMENT")>
-            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) of new pipelines that are being installed." characterCount=true maxCharacterLength=maxCharacterLength?c optionalLabel=isPipelineDeploymentQuestionOptional/>
+            <@fdsTextarea.textarea path="form.methodOfPipelineDeployment" labelText="Pipeline installation method" hintText="Brief overview of method that will be deployed for the pipeline installation(s) of new pipelines that are being installed." characterCount=true maxCharacterLength=maxCharacterLength?c optionalLabel=isPipelineDeploymentQuestionOptional rows=12/>
         </#if>
 
         <#if requiredQuestions?seq_contains("MOBILISATION_DATE")>

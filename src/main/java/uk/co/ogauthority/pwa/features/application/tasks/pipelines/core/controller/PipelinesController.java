@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -80,7 +81,7 @@ public class PipelinesController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/removePipeline")
         .addObject("pipeline", padPipelineService.getPipelineOverview(padPipeline))
         .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)));
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)));
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Remove pipeline");
     return modelAndView;
   }
@@ -94,7 +95,7 @@ public class PipelinesController {
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)))
         .addObject("screenActionType", type)
         .addObject("pipelineFlexibilityTypes", PipelineFlexibility.asList())
         .addObject("pipelineMaterialTypes", PipelineMaterial.asList())
@@ -139,7 +140,7 @@ public class PipelinesController {
           padPipelineService.addPipeline(applicationContext.getApplicationDetail(), form, validationHints.getRequiredQuestions());
 
           return ReverseRouter.redirect(
-              on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null));
+              on(PipelinesTaskListController.class).renderPipelinesOverview(applicationId, pwaApplicationType, null, null));
 
         });
 
@@ -187,7 +188,7 @@ public class PipelinesController {
             padPipelineService.updatePipeline(padPipeline, form, validationHints.getRequiredQuestions());
 
             return ReverseRouter.redirect(on(PipelinesTaskListController.class)
-                .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+                .renderPipelinesOverview(applicationId, pwaApplicationType, null, null));
 
           });
 
@@ -210,10 +211,13 @@ public class PipelinesController {
                                          @PathVariable("applicationType")
                                          @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                          @PathVariable("padPipelineId") Integer padPipelineId,
-                                         PwaApplicationContext applicationContext) {
-    pipelineRemovalService.removePipeline(applicationContext.getPadPipeline());
+                                         PwaApplicationContext applicationContext,
+                                         RedirectAttributes redirectAttributes) {
+    var padPipeline = applicationContext.getPadPipeline();
+    FlashUtils.info(redirectAttributes,"Deleted pipeline " +  padPipelineService.getPipelineOverview(padPipeline).getPipelineName());
+    pipelineRemovalService.removePipeline(padPipeline);
     return ReverseRouter.redirect(on(PipelinesTaskListController.class)
-        .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+        .renderPipelinesOverview(applicationId, pwaApplicationType, null, null));
   }
 
 }

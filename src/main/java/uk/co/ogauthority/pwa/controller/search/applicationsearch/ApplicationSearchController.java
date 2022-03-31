@@ -8,12 +8,14 @@ import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller.PortalOrganisationUnitRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -55,6 +60,7 @@ public class ApplicationSearchController {
   private final ApplicationInvolvementService applicationInvolvementService;
   private final PwaHolderTeamService pwaHolderTeamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private final AnalyticsService analyticsService;
 
   public static String routeToLandingPage() {
     return ReverseRouter.route(on(ApplicationSearchController.class)
@@ -72,13 +78,15 @@ public class ApplicationSearchController {
                                      ApplicationSearchDisplayItemCreator applicationSearchDisplayItemCreator,
                                      ApplicationInvolvementService applicationInvolvementService,
                                      PwaHolderTeamService pwaHolderTeamService,
-                                     PortalOrganisationsAccessor portalOrganisationsAccessor) {
+                                     PortalOrganisationsAccessor portalOrganisationsAccessor,
+                                     AnalyticsService analyticsService) {
     this.applicationDetailSearchService = applicationDetailSearchService;
     this.applicationSearchContextCreator = applicationSearchContextCreator;
     this.applicationSearchDisplayItemCreator = applicationSearchDisplayItemCreator;
     this.applicationInvolvementService = applicationInvolvementService;
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
+    this.analyticsService = analyticsService;
   }
 
   private ModelAndView redirectAndRunSearch(ApplicationSearchParameters applicationSearchParameters) {
@@ -109,8 +117,20 @@ public class ApplicationSearchController {
 
 
   @PostMapping
-  public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters) {
+  public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters,
+                                         @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+
+    // create a map of filters used so that we can log them to google analytics
+    var safeParams = Objects.requireNonNullElse(
+        applicationSearchParameters,
+        ApplicationSearchParametersBuilder.createEmptyParams()
+    );
+
+    var paramMap = AnalyticsUtils.getFiltersUsedParamMap(safeParams);
+    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SEARCH, paramMap);
+
     return redirectAndRunSearch(applicationSearchParameters);
+
   }
 
   @VisibleForTesting

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.email;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
@@ -39,7 +40,7 @@ public class CaseLinkService {
 
   public String generateAsBuiltNotificationWorkareaLink() {
     return pwaUrlBase + contextPath + ReverseRouter.route(on(WorkAreaController.class)
-        .renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null));
+        .renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, null, Optional.empty()));
   }
 
 }

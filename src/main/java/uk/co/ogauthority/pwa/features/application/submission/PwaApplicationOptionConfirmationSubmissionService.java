@@ -61,4 +61,9 @@ class PwaApplicationOptionConfirmationSubmissionService implements ApplicationSu
     // nothing to do here
   }
 
+  @Override
+  public ApplicationSubmissionType getSubmissionType() {
+    return ApplicationSubmissionType.OPTIONS_CONFIRMATION;
+  }
+
 }

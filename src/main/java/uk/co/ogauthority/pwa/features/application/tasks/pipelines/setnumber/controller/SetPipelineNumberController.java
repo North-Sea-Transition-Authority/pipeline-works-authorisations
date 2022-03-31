@@ -95,7 +95,7 @@ public class SetPipelineNumberController {
           () -> {
             regulatorPipelineNumberTaskService.setPipelineNumber(applicationContext.getPadPipeline(), form.getPipelineNumber());
             return ReverseRouter.redirect(on(PipelinesTaskListController.class)
-                .renderPipelinesOverview(applicationId, pwaApplicationType, null));
+                .renderPipelinesOverview(applicationId, pwaApplicationType, null, null));
           });
     });
 

@@ -46,6 +46,8 @@ public class PermanentDepositsValidatorTest {
   private final String CONCRETE_MATTRESS_WIDTH_ATTR = "concreteMattressWidth";
   private final String CONCRETE_MATTRESS_DEPTH_ATTR = "concreteMattressDepth";
 
+  private final Set<String> ACCEPTED_PIPELINE_IDS = Set.of("1", "2");
+
   private final static Instant TODAY_TS = Instant.now();
   private final static LocalDate TODAY = DateUtils.instantToLocalDate(TODAY_TS);
 
@@ -62,7 +64,7 @@ public class PermanentDepositsValidatorTest {
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-    validationHints = PadPermanentDepositTestUtil.createValidationHints(pwaApplicationDetail);
+    validationHints = PadPermanentDepositTestUtil.createValidationHints(pwaApplicationDetail, ACCEPTED_PIPELINE_IDS);
   }
 
   public PermanentDepositsForm getPermanentDepositsFormWithCoordinates() {
@@ -111,6 +113,26 @@ public class PermanentDepositsValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(
         entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAnsweredYes_invalidPipelineIdSelected() {
+    var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
+    form.setDepositIsForConsentedPipeline(true);
+    form.setSelectedPipelines(Set.of("Invalid pipeline id"));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(
+      entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.INVALID.getCode())));
+  }
+
+  @Test
+  public void validate_consentedPipelinesAnsweredYes_validPipelineIdSelected() {
+    var form = PadPermanentDepositTestUtil.createDefaultDepositForm();
+    form.setDepositIsForConsentedPipeline(true);
+    form.setSelectedPipelines(ACCEPTED_PIPELINE_IDS);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).doesNotContain(
+      entry("selectedPipelines", Set.of("selectedPipelines" + FieldValidationErrorCodes.INVALID.getCode())));
   }
 
   @Test

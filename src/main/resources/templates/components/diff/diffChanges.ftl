@@ -143,13 +143,22 @@
 
 <#-- This macro must be used in when using other diff macros to display information.
      The styling those macros apply has to be activiated by the embedded javascript in the toggler.    -->
-<#macro toggler showDiffOnLoad=false togglerLabel="Show difference from previous version" showTogglerCheckBox=true>
+<#macro toggler
+  analyticsEventCategory
+  showDiffOnLoad=false
+  togglerLabel="Show difference from previous version"
+  showTogglerCheckBox=true>
 
   <#if showTogglerCheckBox>
     <div class="govuk-form-group">
       <div class="govuk-checkboxes">
         <div class="govuk-checkboxes__item">
-          <input class="govuk-checkboxes__input" id="toggle-diff" type="checkbox" ${showDiffOnLoad?then('checked','')}>
+          <input
+            class="govuk-checkboxes__input"
+            id="toggle-diff"
+            type="checkbox"
+            data-analytics-event-category="${analyticsEventCategory}"
+            ${showDiffOnLoad?then('checked','')}>
           <label class="govuk-label govuk-checkboxes__label" for="toggle-diff">
               ${togglerLabel}
           </label>

@@ -24,6 +24,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -31,11 +32,10 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -60,6 +60,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(ApplicationSearchController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   private static final String APP_REF_SEARCH = "SEARCH_REF";
@@ -71,12 +72,6 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   @MockBean
   private ApplicationDetailSearchService applicationDetailSearchService;
@@ -105,8 +100,13 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Before
   public void setUp() throws Exception {
     applicationSearchController = new ApplicationSearchController(
-        applicationDetailSearchService, applicationSearchContextCreator, applicationSearchDisplayItemCreator, applicationInvolvementService,
-        pwaHolderTeamService, portalOrganisationsAccessor);
+        applicationDetailSearchService,
+        applicationSearchContextCreator,
+        applicationSearchDisplayItemCreator,
+        applicationInvolvementService,
+        pwaHolderTeamService,
+        portalOrganisationsAccessor,
+        analyticsService);
 
     permittedUserSearchContext = ApplicationSearchContextTestUtil.emptyUserContext(permittedUser, UserType.OGA);
     when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
@@ -299,7 +299,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Test
   public void submitSearchParams_whenPermitted() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty())))
         .with(authenticatedUserAndSession(permittedUser))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -308,7 +308,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Test
   public void submitSearchParams_whenProhibited() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null)))
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty())))
         .with(authenticatedUserAndSession(prohibitedUser))
         .with(csrf()))
         .andExpect(status().isForbidden());
@@ -317,7 +317,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   @Test
   public void submitSearchParams_whenNotLoggedIn() throws Exception {
 
-    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null))))
+    mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty()))))
         .andExpect(status().isForbidden());
   }
 }

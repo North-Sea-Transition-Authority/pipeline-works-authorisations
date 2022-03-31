@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="feedbackCharacterLimit" type="String" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 
-<#assign pageTitle = "Give feedback on ${service.serviceName}"/>
+<#assign pageTitle = "Give feedback on ${service.fullServiceName}"/>
 
 <@defaultPage
   htmlTitle=pageTitle

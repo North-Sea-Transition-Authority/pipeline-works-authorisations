@@ -29,19 +29,19 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -57,15 +57,10 @@ import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaHolderController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class PwaHolderControllerTest extends AbstractControllerTest {
 
   private static final int APP_ID = 1;
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   @MockBean
   private PwaApplicationCreationService pwaApplicationCreationService;
