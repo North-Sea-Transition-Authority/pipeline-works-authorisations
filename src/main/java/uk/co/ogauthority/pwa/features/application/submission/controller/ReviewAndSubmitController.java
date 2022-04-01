@@ -5,6 +5,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import com.google.common.base.Stopwatch;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.appsummary.ApplicationPipelineDataMapGuidanceController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -41,6 +46,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -59,7 +65,6 @@ import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.Review
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 public class ReviewAndSubmitController {
 
   private final ControllerHelperService controllerHelperService;
@@ -74,6 +79,7 @@ public class ReviewAndSubmitController {
   private final MetricsProvider metricsProvider;
   private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
   private final PwaApplicationValidationService pwaApplicationValidationService;
+  private final AnalyticsService analyticsService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ReviewAndSubmitController.class);
 
@@ -89,7 +95,8 @@ public class ReviewAndSubmitController {
                                    PersonService personService,
                                    MetricsProvider metricsProvider,
                                    PwaAppNotificationBannerService pwaAppNotificationBannerService,
-                                   PwaApplicationValidationService pwaApplicationValidationService) {
+                                   PwaApplicationValidationService pwaApplicationValidationService,
+                                   AnalyticsService analyticsService) {
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pwaApplicationSubmissionService = pwaApplicationSubmissionService;
@@ -102,6 +109,7 @@ public class ReviewAndSubmitController {
     this.metricsProvider = metricsProvider;
     this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
     this.pwaApplicationValidationService = pwaApplicationValidationService;
+    this.analyticsService = analyticsService;
   }
 
   @GetMapping
@@ -109,7 +117,11 @@ public class ReviewAndSubmitController {
                              @PathVariable("applicationId") int applicationId,
                              PwaApplicationContext applicationContext,
                              @ModelAttribute("form") ReviewAndSubmitApplicationForm form) {
-    return getModelAndView(applicationContext, form);
+    var applicationDetail = applicationContext.getApplicationDetail();
+    if (Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED).contains(applicationDetail.getStatus())) {
+      return getModelAndView(applicationContext, form);
+    }
+    return CaseManagementUtils.redirectCaseManagement(applicationContext.getPwaApplication());
   }
 
   private ModelAndView getModelAndView(PwaApplicationContext applicationContext, ReviewAndSubmitApplicationForm form) {
@@ -127,7 +139,7 @@ public class ReviewAndSubmitController {
         .addObject("form", form)
         .addObject("userPermissions", applicationContext.getPermissions())
         .addObject("submitUrl", ReverseRouter.route(on(ReviewAndSubmitController.class)
-            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null)))
+            .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
         .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)
             .renderMappingGuidance(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null)))
         .addObject("showDiffCheckbox", true)
@@ -163,11 +175,13 @@ public class ReviewAndSubmitController {
 
   @PostMapping
   @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.SUBMIT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView submit(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                              @PathVariable("applicationId") int applicationId,
                              PwaApplicationContext applicationContext,
                              @ModelAttribute("form") ReviewAndSubmitApplicationForm form,
-                             BindingResult bindingResult) {
+                             BindingResult bindingResult,
+                             @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
 
     var stopwatch = Stopwatch.createStarted();
 
@@ -178,15 +192,21 @@ public class ReviewAndSubmitController {
         getModelAndView(applicationContext, form),
         () -> {
 
-          if (!pwaApplicationValidationService.isApplicationValid(applicationContext.getApplicationDetail())) {
+          var detail = applicationContext.getApplicationDetail();
+
+          if (!pwaApplicationValidationService.isApplicationValid(detail)) {
             return review(applicationType, applicationId, applicationContext, null);
           }
 
-          pwaApplicationSubmissionService.submitApplication(
+          var submissionType = pwaApplicationSubmissionService.submitApplication(
               applicationContext.getUser(),
-              applicationContext.getApplicationDetail(),
+              detail,
               BooleanUtils.isFalse(form.getMadeOnlyRequestedChanges()) ? form.getOtherChangesDescription() : null
           );
+
+          analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SUBMISSION,
+              Map.of("submissionType", submissionType.name(),
+                  "applicationType", detail.getPwaApplicationType().name()));
 
           return ReverseRouter.redirect(
               on(SubmitConfirmationController.class).confirmSubmission(applicationType, applicationId, null));
@@ -201,6 +221,7 @@ public class ReviewAndSubmitController {
 
   @PostMapping("/send-to-submitter")
   @PwaApplicationPermissionCheck(permissions = PwaApplicationPermission.EDIT)
+  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView sendToSubmitter(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") int applicationId,

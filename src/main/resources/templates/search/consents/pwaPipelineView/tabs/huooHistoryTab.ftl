@@ -12,7 +12,7 @@
         <@fdsAction.button buttonText="Show version" buttonScreenReaderText="Show HUOO information for the selected consent version"/>
     </@fdsForm.htmlForm>
 
-    <@diffChanges.toggler/>
+    <@diffChanges.toggler analyticsEventCategory="SHOW_DIFFS_HUOO"/>
     
     <#if diffedHuooSummary?has_content>
         <#assign pipelinesDataRowKey = "Pipeline sections"/>

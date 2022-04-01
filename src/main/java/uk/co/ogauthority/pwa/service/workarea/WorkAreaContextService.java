@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
@@ -43,9 +44,16 @@ public class WorkAreaContextService {
   }
 
   private boolean isUserAllowedToAccessTab(AuthenticatedUserAccount userAccount, WorkAreaTab tab) {
-    var userType = userTypeService.getPriorityUserType(userAccount);
+
+    var userType = userTypeService.getUserTypes(userAccount)
+        .stream()
+        .filter(type -> type.equals(UserType.CONSULTEE))
+        .findFirst()
+        .orElse(userTypeService.getPriorityUserType(userAccount));
+
     return Objects.nonNull(userType) && tab.getUserTypes().contains(userType)
         || allPwaUserPrivsMatch(userAccount, tab.getPwaUserPrivileges());
+
   }
 
   private boolean allPwaUserPrivsMatch(AuthenticatedUserAccount authenticatedUserAccount, Set<PwaUserPrivilege> requiredTabPrivs) {

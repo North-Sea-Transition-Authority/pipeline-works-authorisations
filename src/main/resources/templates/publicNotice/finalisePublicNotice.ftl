@@ -28,7 +28,7 @@
             <@grid.gridRow>
                 <@grid.twoThirdsColumn>
                     <@fdsInsetText.insetText>
-                        You must ensure that you provide the finalised public notice document to the OGA content team for publishing on the OGA website.
+                        You must ensure that you provide the finalised public notice document to the NSTA content team for publishing on the NSTA website.
                     </@fdsInsetText.insetText>
                 </@grid.twoThirdsColumn>
             </@grid.gridRow>

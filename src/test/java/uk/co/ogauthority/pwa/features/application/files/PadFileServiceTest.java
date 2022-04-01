@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -83,6 +84,7 @@ public class PadFileServiceTest {
     file = new PadFile();
     file.setFileId(FILE_ID);
     file.setPurpose(ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    file.setPwaApplicationDetail(pwaApplicationDetail);
 
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
         FileDeleteResult.generateSuccessfulFileDeleteResult(invocation.getArgument(0))
@@ -204,7 +206,16 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenFilesNotOnForm_thenFilesAreDeleted() {
+  public void updateFiles_whenFirstVersionOfApplication_thenPadAndUploadedFilesAreDeleted() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.setVersionNo(1);
+    file = new PadFile();
+    file.setFileId(FILE_ID);
+    file.setPurpose(ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    file.setPwaApplicationDetail(pwaApplicationDetail);
+
+    when(padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS))
+        .thenReturn(List.of(file));
 
     var form = new LocationDetailsForm();
     padFileService.updateFiles(
@@ -217,7 +228,31 @@ public class PadFileServiceTest {
 
     verify(fileUploadService, times(1)).deleteUploadedFile(FILE_ID, wua);
     verify(padFileRepository, times(1)).deleteAll(Set.of(file));
+  }
 
+  @Test
+  public void updateFiles_whenNotFirstVersionOfApplication_thenOnlyPadFilesAreDeleted() {
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.setVersionNo(2);
+    file = new PadFile();
+    file.setFileId(FILE_ID);
+    file.setPurpose(ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    file.setPwaApplicationDetail(pwaApplicationDetail);
+
+    when(padFileRepository.findAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS))
+        .thenReturn(List.of(file));
+
+    var form = new LocationDetailsForm();
+    padFileService.updateFiles(
+        form,
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.LOCATION_DETAILS,
+        FileUpdateMode.DELETE_UNLINKED_FILES,
+        wua
+    );
+
+    verify(fileUploadService, never()).deleteUploadedFile(FILE_ID, wua);
+    verify(padFileRepository, times(1)).deleteAll(Set.of(file));
   }
 
   @Test
@@ -372,13 +407,21 @@ public class PadFileServiceTest {
   @Test
   public void deleteTemporaryFilesForDetail_tempPadFilesRemoveSuccessful() {
 
+    var pwaApplicationDetail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail1.setVersionNo(1);
+
+    var pwaApplicationDetail2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    pwaApplicationDetail.setVersionNo(2);
+
     var file1 = new PadFile();
     file1.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
     file1.setFileId(FILE_ID);
+    file1.setPwaApplicationDetail(pwaApplicationDetail1);
 
     var file2 = new PadFile();
     file2.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
     file2.setFileId(FILE_ID);
+    file2.setPwaApplicationDetail(pwaApplicationDetail2);
 
     when(padFileRepository.findAllByPwaApplicationDetailAndFileLinkStatus(pwaApplicationDetail, ApplicationFileLinkStatus.TEMPORARY))
         .thenReturn(List.of(file1, file2));

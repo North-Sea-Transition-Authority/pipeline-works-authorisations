@@ -1,5 +1,9 @@
 <#include 'pwaLayoutImports.ftl'>
 
+<#macro cookieBannerContent>
+  <@fdsCookieBanner.analyticsCookieBanner serviceName=service.serviceName cookieSettingsUrl=springUrl(cookiePrefsUrl)/>
+</#macro>
+
 <#macro defaultPage
 htmlTitle
 mainClasses="govuk-main-wrapper"
@@ -29,10 +33,16 @@ noIndex=false
 headerIcon=true
 errorItems=[]>
 
-    <@genericLayout htmlTitle=htmlTitle htmlAppTitle="OGA Pipelines" errorCheck=errorCheck noIndex=noIndex>
+    <@genericLayout
+      htmlTitle=htmlTitle
+      htmlAppTitle="${service.customerMnemonic} Pipelines"
+      errorCheck=errorCheck
+      noIndex=noIndex
+      cookieBannerMacro=cookieBannerContent
+      disableOnSubmit=true>
 
     <#--Header-->
-        <@pipelinesHeader.header logoText="OGA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
+    <@pipelinesHeader.header logoText=service.customerMnemonic logoProductText="" headerNav=true serviceName=service.serviceName topNavigation=topNavigation wrapperWidth=wrapperWidth/>
 
     <#--Phase banner-->
         <#if phaseBanner>
@@ -55,9 +65,12 @@ errorItems=[]>
         </#if>
 
     <#--Navigation-->
-        <#if topNavigation>
-            <@fdsNavigation.navigation navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=wrapperWidth />
-        </#if>
+    <#if topNavigation>
+        <@fdsNavigation.navigation navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=wrapperWidth />
+    </#if>
+
+    <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.appTag />
+    <@fdsGoogleAnalytics.googleAnalytics measurementId=analytics.globalTag />
 
     <#if !masthead>
       <div class="<#if wrapperWidth>govuk-width-container-wide<#else> govuk-width-container </#if>${wrapperClasses}">
@@ -144,16 +157,16 @@ errorItems=[]>
     <#--Footer-->
     <#local footerMetaContent>
       <@fdsFooter.footerMeta footerMetaHiddenHeading="Support links">
-        <@fdsFooter.footerMetaLink linkText="Accessibility statement" linkUrl=springUrl(accessibilityStatementUrl)/>
-        <@fdsFooter.footerMetaLink linkText="Contact" linkUrl=springUrl(contactInformationUrl)/>
-        <@fdsFooter.footerMetaLink linkText="Feedback" linkUrl=springUrl(feedbackUrl)/>
+        <#list footerItems?sort_by("displayOrder") as footerItem>
+          <@fdsFooter.footerMetaLink linkText=footerItem.displayName linkUrl=springUrl(footerItem.url) />
+        </#list>
       </@fdsFooter.footerMeta>
     </#local>
     <@fdsFooter.footer wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>
 
-
     <#--Custom scripts go here-->
-        <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
+    <@pwaCustomScripts />
 
     </@genericLayout>
+
 </#macro>

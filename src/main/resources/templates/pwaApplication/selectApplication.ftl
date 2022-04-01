@@ -38,9 +38,9 @@
               <#elseif appTypeName == "HUOO_VARIATION">
                 <p class="govuk-body">For any changes to the current holder, user, operator or owner information only.</p>
               <#elseif appTypeName == "OPTIONS_VARIATION">
-                <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points of possible failure, OGA may consider an Options case. To apply under the above circumstances, the Holder should provide details to why they would like OGA to consider the case to be handled as an Options.</p>
+                <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points of possible failure, NSTA may consider an Options case. To apply under the above circumstances, the Holder should provide details to why they would like NSTA to consider the case to be handled as an Options.</p>
               <#elseif appTypeName == "DECOMMISSIONING">
-                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning. This is only to be used on the condition that OGA has agreed Cessation of Production and the operator has confirmed the last day of production in writing to OGA Operations.</p>
+                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning. This is only to be used on the condition that NSTA has agreed Cessation of Production and the operator has confirmed the last day of production in writing to NSTA Operations.</p>
               </#if>
             </@fdsRadio.radioItem>
 

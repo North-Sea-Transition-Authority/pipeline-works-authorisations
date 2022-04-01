@@ -3,15 +3,20 @@ package uk.co.ogauthority.pwa.controller.search.consents;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.model.form.search.consents.ConsentSearchForm;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
@@ -31,14 +36,17 @@ public class ConsentSearchController {
   private final ConsentSearchService consentSearchService;
   private final ConsentSearchContextCreator consentSearchContextCreator;
   private final PwaOrganisationAccessor pwaOrganisationAccessor;
+  private final AnalyticsService analyticsService;
 
   @Autowired
   public ConsentSearchController(ConsentSearchService consentSearchService,
                                  ConsentSearchContextCreator consentSearchContextCreator,
-                                 PwaOrganisationAccessor pwaOrganisationAccessor) {
+                                 PwaOrganisationAccessor pwaOrganisationAccessor,
+                                 AnalyticsService analyticsService) {
     this.consentSearchService = consentSearchService;
     this.consentSearchContextCreator = consentSearchContextCreator;
     this.pwaOrganisationAccessor = pwaOrganisationAccessor;
+    this.analyticsService = analyticsService;
   }
 
   @GetMapping
@@ -74,11 +82,16 @@ public class ConsentSearchController {
 
   @PostMapping
   public ModelAndView postSearch(@ModelAttribute("form") ConsentSearchForm form,
-                                 AuthenticatedUserAccount user) {
+                                 AuthenticatedUserAccount user,
+                                 @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
 
     // create new search params from form posted by user, pass them via redirect
     var searchParams = ConsentSearchParams.from(form);
     searchParams.setSearch(true);
+
+    var analyticsParamMap = AnalyticsUtils.getFiltersUsedParamMap(searchParams);
+    analyticsParamMap.remove("search");
+    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.CONSENT_SEARCH, analyticsParamMap);
 
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(searchParams));

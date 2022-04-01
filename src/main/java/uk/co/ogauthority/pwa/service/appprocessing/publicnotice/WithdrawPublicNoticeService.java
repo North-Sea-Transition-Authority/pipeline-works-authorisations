@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeWithdrawnEmailProps;
@@ -89,8 +90,12 @@ public class WithdrawPublicNoticeService {
     publicNotice.setWithdrawingPersonId(authenticatedUserAccount.getLinkedPerson().getId());
     publicNoticeService.savePublicNotice(publicNotice);
 
-    var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
-    publicNoticeService.archivePublicNoticeDocument(latestPublicNoticeDocument);
+    try {
+      var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
+      publicNoticeService.archivePublicNoticeDocument(latestPublicNoticeDocument);
+    } catch (EntityLatestVersionNotFoundException e) {
+      // do nothing if there's no doc attached to the PN, no work to do
+    }
 
     var emailRecipients = new ArrayList<Person>();
     var statusesDeterminingPublicNoticeWasSentToApplicant = Set.of(

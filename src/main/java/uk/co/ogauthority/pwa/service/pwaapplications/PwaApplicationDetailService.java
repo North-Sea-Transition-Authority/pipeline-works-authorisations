@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesForm;
@@ -334,10 +335,12 @@ public class PwaApplicationDetailService {
       return latestSatisfactoryDetail;
     }
 
-    throw new IllegalStateException(String.format(
-        "Unrecognised user types [%s] encountered when retrieving app detail for user with WUA id [%s]",
-        userTypes,
-        user.getWuaId()));
+    var loggerMessage = String.format(
+        "User with WUA id [%s] and user types [%s] has no access to PWA",
+        user.getWuaId(),
+        userTypes);
+    LOGGER.info(loggerMessage);
+    throw new AccessDeniedException(loggerMessage);
 
   }
 

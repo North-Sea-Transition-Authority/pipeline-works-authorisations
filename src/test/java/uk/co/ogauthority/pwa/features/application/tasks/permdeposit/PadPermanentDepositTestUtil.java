@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public final class PadPermanentDepositTestUtil {
@@ -224,6 +225,10 @@ public final class PadPermanentDepositTestUtil {
     form.setFromDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
     form.setToDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
     form.setMaterialType(MaterialType.CONCRETE_MATTRESSES);
+    form.setConcreteMattressLength(new DecimalInput("42"));
+    form.setConcreteMattressWidth(new DecimalInput("42"));
+    form.setConcreteMattressDepth(new DecimalInput("42"));
+    form.setQuantityConcrete(new DecimalInput("42"));
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
     return form;
@@ -251,15 +256,19 @@ public final class PadPermanentDepositTestUtil {
   }
 
   public static PermanentDepositsValidationHints createValidationHints(PwaApplicationDetail pwaApplicationDetail) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of());
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of(), Set.of());
+  }
+
+  public static PermanentDepositsValidationHints createValidationHints(PwaApplicationDetail pwaApplicationDetail, Set<String> acceptedPipelineIds) {
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, List.of(), acceptedPipelineIds);
   }
 
   public static PermanentDepositsValidationHints createValidationHintsWithDeposits(PwaApplicationDetail pwaApplicationDetail, List<PadPermanentDeposit> deposits) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, deposits);
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, null, deposits, Set.of());
   }
 
   public static PermanentDepositsValidationHints createValidationHintsWithTimestamp(PwaApplicationDetail pwaApplicationDetail, Instant projectInfoProposedStartTimestamp) {
-    return new PermanentDepositsValidationHints(pwaApplicationDetail, projectInfoProposedStartTimestamp, List.of());
+    return new PermanentDepositsValidationHints(pwaApplicationDetail, projectInfoProposedStartTimestamp, List.of(), Set.of());
   }
 
 

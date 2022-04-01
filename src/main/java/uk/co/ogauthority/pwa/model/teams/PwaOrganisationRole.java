@@ -25,7 +25,7 @@ public enum PwaOrganisationRole implements PwaUserRole {
   APPLICATION_SUBMITTER(
       "APPLICATION_SUBMITTER",
       "Application submitter",
-      "Can submit applications to the OGA (Application submitter)",
+      "Can submit applications to the NSTA (Application submitter)",
       40),
 
   FINANCE_ADMIN(
@@ -37,7 +37,7 @@ public enum PwaOrganisationRole implements PwaUserRole {
   AS_BUILT_NOTIFICATION_SUBMITTER(
       "AS_BUILT_NOTIF_SUBMITTER",
       "As-built notification submitter",
-      "Can submit as-built notifications to the OGA (As-built notification submitter)",
+      "Can submit as-built notifications to the NSTA (As-built notification submitter)",
       60);
 
   private final String portalTeamRoleName;

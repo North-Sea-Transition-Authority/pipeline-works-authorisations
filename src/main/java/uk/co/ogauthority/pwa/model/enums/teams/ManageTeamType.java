@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 public enum ManageTeamType {
 
   REGULATOR_TEAM(
-      "OGA team",
+      "NSTA team",
       "Team for regulator users",
       null, // requires res id so cannot be hardcoded
       10

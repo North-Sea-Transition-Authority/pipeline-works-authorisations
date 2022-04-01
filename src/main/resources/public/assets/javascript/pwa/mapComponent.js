@@ -148,7 +148,7 @@ class MapComponent {
     return new ol.source.Vector({
       url: layerUrl,
       format: new ol.format.GeoJSON(),
-      attributions: "Contains information provided by the <a href='https://www.ogauthority.co.uk'>OGA</a>"
+      attributions: "Contains information provided by the <a href='https://www.nstauthority.co.uk'>NSTA</a>"
     });
   }
 

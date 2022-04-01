@@ -22,7 +22,6 @@ public class ParallelConsentCheckLog {
   private Integer checkedByPersonId;
   private Instant checkConfirmedTimestamp;
 
-
   public ParallelConsentCheckLog(ConsentReview consentReview,
                                  Integer pwaConsentId,
                                  Person checkedByPerson,
@@ -31,6 +30,10 @@ public class ParallelConsentCheckLog {
     this.pwaConsentId = pwaConsentId;
     this.checkedByPersonId = checkedByPerson.getId().asInt();
     this.checkConfirmedTimestamp = checkConfirmedTimestamp;
+  }
+
+  public ParallelConsentCheckLog() {
+
   }
 
   public Integer getId() {

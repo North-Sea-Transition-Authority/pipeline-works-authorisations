@@ -49,7 +49,7 @@
         </#if>
         <#if isOgaUser == true>
             <#if submission.ogaSubmissionReason?hasContent>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="OGA submission reason">
+                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="NSTA submission reason">
                     ${submission.ogaSubmissionReason}
                 </@fdsCheckAnswers.checkAnswersRowNoAction>
             </#if>

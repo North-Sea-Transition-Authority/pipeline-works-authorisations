@@ -141,10 +141,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    if (validationType.equals(ValidationType.FULL)) {
-      pipelineOtherPropertiesValidator.validate(form, bindingResult);
-    }
-
+    pipelineOtherPropertiesValidator.validate(form, bindingResult, validationType);
     if (bindingResult.hasErrors()) {
       var otherPropertiesForm = (PipelineOtherPropertiesForm) form;
       for (var phaseEntry: otherPropertiesForm.getPhasesSelection().entrySet()) {

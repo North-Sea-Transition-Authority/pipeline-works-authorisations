@@ -34,6 +34,10 @@ public class PipelineTechInfoValidator implements SmartValidator {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedFieldLife", "estimatedFieldLife.required",
           "Enter a valid year for the estimated field life");
 
+      if (form.getEstimatedFieldLife() != null && form.getEstimatedFieldLife() <= 0) {
+        errors.rejectValue("estimatedFieldLife", "estimatedFieldLife.valueOutOfRange", "Enter a value greater than 0");
+      }
+
       if (BooleanUtils.isTrue(form.getPipelineDesignedToStandards())) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pipelineStandardsDescription", "pipelineStandardsDescription.required",
             "Enter details of the design codes/standards for the pipelines system");

@@ -12,18 +12,20 @@ public interface PadPipelineIdentRepository extends CrudRepository<PadPipelineId
 
   Long countAllByPadPipeline(PadPipeline pipeline);
 
+  @EntityGraph(attributePaths = "padPipeline")
   Optional<PadPipelineIdent> findTopByPadPipelineOrderByIdentNoDesc(PadPipeline pipeline);
 
   @EntityGraph(attributePaths = "padPipeline")
   List<PadPipelineIdent> getAllByPadPipeline(PadPipeline pipeline);
 
+  @EntityGraph(attributePaths = "padPipeline")
   Optional<PadPipelineIdent> getPadPipelineIdentByPadPipelineAndId(PadPipeline pipeline, Integer identId);
 
+  @EntityGraph(attributePaths = "padPipeline")
   Optional<PadPipelineIdent> getByPadPipelineAndAndIdentNo(PadPipeline pipeline, Integer identNo);
 
   @EntityGraph(attributePaths = "padPipeline")
   List<PadPipelineIdent> getAllByPadPipeline_IdIn(List<Integer> padPipelineIds);
-
 
   @EntityGraph(attributePaths = "padPipeline")
   List<PadPipelineIdent> getAllByPadPipeline_PwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail);

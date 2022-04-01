@@ -3,11 +3,13 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.con
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +19,8 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -39,16 +43,19 @@ public class RequestApplicationUpdateController {
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
   private final ApplicationUpdateRequestValidator applicationUpdateRequestValidator;
   private final AppProcessingBreadcrumbService appProcessingBreadcrumbService;
+  private final AnalyticsService analyticsService;
 
   @Autowired
   public RequestApplicationUpdateController(ControllerHelperService controllerHelperService,
                                             ApplicationUpdateRequestService applicationUpdateRequestService,
                                             ApplicationUpdateRequestValidator applicationUpdateRequestValidator,
-                                            AppProcessingBreadcrumbService appProcessingBreadcrumbService) {
+                                            AppProcessingBreadcrumbService appProcessingBreadcrumbService,
+                                            AnalyticsService analyticsService) {
     this.controllerHelperService = controllerHelperService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
     this.applicationUpdateRequestValidator = applicationUpdateRequestValidator;
     this.appProcessingBreadcrumbService = appProcessingBreadcrumbService;
+    this.analyticsService = analyticsService;
   }
 
 
@@ -71,7 +78,8 @@ public class RequestApplicationUpdateController {
                                     PwaAppProcessingContext processingContext,
                                     AuthenticatedUserAccount authenticatedUserAccount,
                                     @Valid @ModelAttribute("form") ApplicationUpdateRequestForm form,
-                                    BindingResult bindingResult) {
+                                    BindingResult bindingResult,
+                                    @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
     return whenZeroOpenUpdateRequests(processingContext, pwaApplicationDetail -> {
           var modelAndView = getModelAndView(processingContext);
           applicationUpdateRequestValidator.validate(form, bindingResult);
@@ -79,18 +87,23 @@ public class RequestApplicationUpdateController {
               bindingResult,
               modelAndView,
               () -> {
+
                 applicationUpdateRequestService.submitApplicationUpdateRequest(
                     processingContext.getApplicationDetail(),
                     authenticatedUserAccount,
                     form
                 );
+
+                analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.UPDATE_REQUEST_SENT);
+
                 return ReverseRouter.redirect(on(CaseManagementController.class)
                     .renderCaseManagement(applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));
+
               }
+
           );
         }
     );
-
 
   }
 

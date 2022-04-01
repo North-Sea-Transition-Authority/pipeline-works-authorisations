@@ -42,3 +42,14 @@
     <#local combinedPath="${listPath}[${listItemIndex}].${listItemAttribute}"/>
     <#return combinedPath>
 </#function>
+
+<#macro pwaCustomScripts>
+    <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
+    <script src="<@spring.url'/assets/static/js/pwa/googleAnalyticsEventTracking.js'/>"></script>
+    <script>
+        var PWA_CONFIG = {
+            analyticsMeasurementUrl: "<@spring.url analyticsMeasurementUrl/>",
+            globalTag: "${analytics.globalTag}"
+        };
+    </script>
+</#macro>

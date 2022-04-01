@@ -125,4 +125,9 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
 
   }
 
+  @Test
+  public void getSubmissionType() {
+    assertThat(pwaApplicationFirstDraftSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.FIRST_DRAFT);
+  }
+
 }

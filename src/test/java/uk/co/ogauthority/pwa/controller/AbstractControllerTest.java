@@ -2,12 +2,15 @@ package uk.co.ogauthority.pwa.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.CustomScopeConfigurer;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -15,12 +18,18 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
@@ -32,10 +41,14 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.pwacontext.PwaContextService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
-@Import(AbstractControllerTest.AbstractControllerTestConfiguration.class)
+@ActiveProfiles("test")
+@EnableConfigurationProperties(value = {
+    AnalyticsProperties.class,
+    AnalyticsConfig.class
+})
+@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfiguration.class})
 public abstract class AbstractControllerTest {
 
   protected MockMvc mockMvc;
@@ -64,14 +77,8 @@ public abstract class AbstractControllerTest {
   @MockBean
   private TopMenuService topMenuService;
 
-  @MockBean
-  protected PwaContextService pwaContextService;
-
   @SpyBean
   private ControllerHelperService controllerHelperService;
-
-  @MockBean
-  protected ServiceProperties serviceProperties;
 
   @MockBean
   protected ErrorService errorService;
@@ -79,8 +86,11 @@ public abstract class AbstractControllerTest {
   @SpyBean
   protected FooterService footerServices;
 
+  @MockBean
+  protected AnalyticsService analyticsService;
+
   @Before
-  public void abstractControllerTestSetup() {
+  public void commonControllerTestSetup() {
 
     mockMvc = MockMvcBuilders
         .webAppContextSetup(context)
@@ -94,11 +104,9 @@ public abstract class AbstractControllerTest {
 
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenCallRealMethod();
+    when(pwaApplicationRedirectService.getTaskListRoute(anyInt(), any())).thenCallRealMethod();
 
-    when(serviceProperties.getCustomerName()).thenReturn("oga");
-    when(serviceProperties.getServiceName()).thenReturn("pwa");
   }
-
 
   @TestConfiguration
   public static class AbstractControllerTestConfiguration {
@@ -122,6 +130,23 @@ public abstract class AbstractControllerTest {
       messageSource.setBasename("messages");
       messageSource.setDefaultEncoding("UTF-8");
       return messageSource;
+    }
+
+    // for controllers using session scoped attributes
+    @Bean
+    public CustomScopeConfigurer customScopeConfigurer() {
+      CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+      configurer.addScope("session", new SimpleThreadScope());
+      return configurer;
+    }
+
+    @Bean
+    public ServiceProperties serviceProperties() {
+      return new ServiceProperties(
+          "serviceName",
+          "fullServiceName",
+          "customerMnemonic",
+          "customerName");
     }
 
   }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.workarea.asbuilt;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -27,7 +28,7 @@ public class AsBuiltWorkAreaPageService {
   public PageView<AsBuiltNotificationWorkAreaItem> getAsBuiltNotificationsPageView(AuthenticatedUserAccount authenticatedUserAccount,
                                                                                    int page) {
     var workAreaUri = ReverseRouter.route(
-        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, page));
+        on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS, page, Optional.empty()));
 
     var asBuiltNotificationSearchResults = asBuiltNotificationDtoRepository
         .findAllAsBuiltNotificationsForUser(authenticatedUserAccount,

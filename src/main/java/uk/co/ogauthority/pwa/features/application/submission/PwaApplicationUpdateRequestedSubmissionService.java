@@ -69,4 +69,9 @@ class PwaApplicationUpdateRequestedSubmissionService implements ApplicationSubmi
     // nothing to do here
   }
 
+  @Override
+  public ApplicationSubmissionType getSubmissionType() {
+    return ApplicationSubmissionType.UPDATE;
+  }
+
 }

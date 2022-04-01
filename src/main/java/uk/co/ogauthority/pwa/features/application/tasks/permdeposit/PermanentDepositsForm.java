@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
+import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
@@ -23,19 +23,19 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
   private String otherMaterialType;
 
   private String rocksSize;
-  private Integer groutBagsSize;
+  private DecimalInput groutBagsSize;
   private String otherMaterialSize;
-  private BigDecimal concreteMattressLength;
-  private BigDecimal concreteMattressWidth;
-  private BigDecimal concreteMattressDepth;
+  private DecimalInput concreteMattressLength;
+  private DecimalInput concreteMattressWidth;
+  private DecimalInput concreteMattressDepth;
 
   private Boolean groutBagsBioDegradable;
   private String bioGroutBagsNotUsedDescription;
 
-  private String quantityConcrete;
-  private String quantityRocks;
-  private String quantityGroutBags;
-  private String quantityOther;
+  private DecimalInput quantityConcrete;
+  private DecimalInput quantityRocks;
+  private DecimalInput quantityGroutBags;
+  private DecimalInput quantityOther;
 
   private String contingencyConcreteAmount;
   private String contingencyRocksAmount;
@@ -112,11 +112,11 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.rocksSize = rocksSize;
   }
 
-  public Integer getGroutBagsSize() {
+  public DecimalInput getGroutBagsSize() {
     return groutBagsSize;
   }
 
-  public void setGroutBagsSize(Integer groutBagsSize) {
+  public void setGroutBagsSize(DecimalInput groutBagsSize) {
     this.groutBagsSize = groutBagsSize;
   }
 
@@ -128,27 +128,27 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.otherMaterialSize = otherMaterialSize;
   }
 
-  public BigDecimal getConcreteMattressLength() {
+  public DecimalInput getConcreteMattressLength() {
     return concreteMattressLength;
   }
 
-  public void setConcreteMattressLength(BigDecimal concreteMattressLength) {
+  public void setConcreteMattressLength(DecimalInput concreteMattressLength) {
     this.concreteMattressLength = concreteMattressLength;
   }
 
-  public BigDecimal getConcreteMattressWidth() {
+  public DecimalInput getConcreteMattressWidth() {
     return concreteMattressWidth;
   }
 
-  public void setConcreteMattressWidth(BigDecimal concreteMattressWidth) {
+  public void setConcreteMattressWidth(DecimalInput concreteMattressWidth) {
     this.concreteMattressWidth = concreteMattressWidth;
   }
 
-  public BigDecimal getConcreteMattressDepth() {
+  public DecimalInput getConcreteMattressDepth() {
     return concreteMattressDepth;
   }
 
-  public void setConcreteMattressDepth(BigDecimal concreteMattressDepth) {
+  public void setConcreteMattressDepth(DecimalInput concreteMattressDepth) {
     this.concreteMattressDepth = concreteMattressDepth;
   }
 
@@ -168,35 +168,35 @@ public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionFor
     this.bioGroutBagsNotUsedDescription = bioGroutBagsNotUsedDescription;
   }
 
-  public String getQuantityConcrete() {
+  public DecimalInput getQuantityConcrete() {
     return quantityConcrete;
   }
 
-  public void setQuantityConcrete(String quantityConcrete) {
+  public void setQuantityConcrete(DecimalInput quantityConcrete) {
     this.quantityConcrete = quantityConcrete;
   }
 
-  public String getQuantityRocks() {
+  public DecimalInput getQuantityRocks() {
     return quantityRocks;
   }
 
-  public void setQuantityRocks(String quantityRocks) {
+  public void setQuantityRocks(DecimalInput quantityRocks) {
     this.quantityRocks = quantityRocks;
   }
 
-  public String getQuantityGroutBags() {
+  public DecimalInput getQuantityGroutBags() {
     return quantityGroutBags;
   }
 
-  public void setQuantityGroutBags(String quantityGroutBags) {
+  public void setQuantityGroutBags(DecimalInput quantityGroutBags) {
     this.quantityGroutBags = quantityGroutBags;
   }
 
-  public String getQuantityOther() {
+  public DecimalInput getQuantityOther() {
     return quantityOther;
   }
 
-  public void setQuantityOther(String quantityOther) {
+  public void setQuantityOther(DecimalInput quantityOther) {
     this.quantityOther = quantityOther;
   }
 

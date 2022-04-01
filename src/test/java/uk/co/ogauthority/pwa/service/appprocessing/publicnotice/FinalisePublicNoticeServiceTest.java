@@ -74,7 +74,7 @@ public class FinalisePublicNoticeServiceTest {
   @Mock
   private Clock clock;
 
-  @Value("${service.name}")
+  @Value("${service.full-name}")
   private String serviceName;
 
   @Captor

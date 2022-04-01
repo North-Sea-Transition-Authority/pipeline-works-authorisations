@@ -18,7 +18,7 @@ public interface PadTechnicalDrawingLinkRepository extends CrudRepository<PadTec
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(PwaApplicationDetail detail,
                                                                                          PadPipeline pipeline);
 
-  @EntityGraph(attributePaths = {"technicalDrawing"})
+  @EntityGraph(attributePaths = { "technicalDrawing.file", "pipeline.pipeline" })
   List<PadTechnicalDrawingLink> getAllByTechnicalDrawing_PwaApplicationDetail(PwaApplicationDetail detail);
 
 }

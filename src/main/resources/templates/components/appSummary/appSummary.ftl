@@ -54,7 +54,7 @@
             </@fdsForm.htmlForm>
         </#if>
 
-        <@diffChanges.toggler togglerLabel="Show differences from consented data" showTogglerCheckBox=showDiffCheckbox/>
+        <@diffChanges.toggler analyticsEventCategory="SHOW_DIFFS_APP" togglerLabel="Show differences from consented data" showTogglerCheckBox=showDiffCheckbox/>
 
         ${appSummaryView.summaryHtml?no_esc}
 

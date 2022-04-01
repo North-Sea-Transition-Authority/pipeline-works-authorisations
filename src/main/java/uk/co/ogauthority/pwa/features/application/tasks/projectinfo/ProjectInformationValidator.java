@@ -58,8 +58,8 @@ public class ProjectInformationValidator implements SmartValidator {
     var validationType = projectInfoValidationHints.getValidationType();
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
-      ValidatorUtils.validateDefaultStringLength(
-          errors, "projectName", form::getProjectName, "Project name");
+      ValidatorUtils.validateMaxStringLength(
+          errors, "projectName", form::getProjectName, "Project name", 150);
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROPOSED_START_DATE) && validationType != ValidationType.FULL) {

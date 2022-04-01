@@ -16,23 +16,18 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallback;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallbackService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = NotifyCallbackController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class NotifyCallbackControllerTest extends AbstractControllerTest {
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
-
-  @MockBean
-  private PwaAppProcessingContextService pwaAppProcessingContextService;
 
   @MockBean
   private NotifyCallbackService notifyCallbackServiceMock;

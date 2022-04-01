@@ -24,18 +24,18 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
-import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ApplicantOrganisationController.class)
+@Import(PwaMvcTestConfiguration.class)
 public class ApplicantOrganisationControllerTest extends AbstractControllerTest {
 
   private static final EnumSet<PwaApplicationType> RELEVANT_APP_TYPES = EnumSet.of(
@@ -62,9 +63,6 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
       PwaApplicationType.DECOMMISSIONING
   );
   private static final int MASTER_PWA_ID = 1;
-
-  @MockBean
-  private PwaApplicationContextService pwaApplicationContextService;
 
   @MockBean
   private ApplicantOrganisationService applicantOrganisationService;
@@ -83,9 +81,6 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
   @MockBean
   private PwaHolderTeamService pwaHolderTeamService;
-
-  @MockBean
-  private PwaAppProcessingContextService appProcessingContextService;
 
   private final AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));

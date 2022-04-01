@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -44,6 +45,21 @@ public class CamundaWorkflowService {
     runtimeService.startProcessInstanceByKey(
         workflowSubject.getWorkflowType().getProcessDefinitionKey(),
         workflowSubject.getBusinessKey().toString());
+  }
+
+  /**
+   * This should be removed after update request for PA/3923 has been submitted and double click fix is on live.
+   * Shouldn't be possible to have multiple of the same task for a workflow subject.
+   */
+  private List<Task> getWorkflowTasks(WorkflowTaskInstance workflowTaskInstance) {
+
+    return taskService.createTaskQuery()
+        .processDefinitionKey(workflowTaskInstance.getWorkflowType().getProcessDefinitionKey())
+        .processInstanceBusinessKey(workflowTaskInstance.getBusinessKey().toString())
+        .active()
+        .taskDefinitionKey(workflowTaskInstance.getTaskKey())
+        .list();
+
   }
 
   private Optional<Task> getWorkflowTask(WorkflowTaskInstance workflowTaskInstance) {
@@ -120,10 +136,13 @@ public class CamundaWorkflowService {
   @Transactional
   public void completeTask(WorkflowTaskInstance workflowTaskInstance) {
 
-    getWorkflowTask(workflowTaskInstance).ifPresentOrElse(
-        foundTask -> taskService.complete(foundTask.getId()),
-        () -> throwTaskNotFoundException(workflowTaskInstance)
-    );
+    var tasks = getWorkflowTasks(workflowTaskInstance);
+
+    if (tasks.isEmpty()) {
+      throwTaskNotFoundException(workflowTaskInstance);
+    }
+
+    tasks.forEach(task -> taskService.complete(task.getId()));
 
   }
 

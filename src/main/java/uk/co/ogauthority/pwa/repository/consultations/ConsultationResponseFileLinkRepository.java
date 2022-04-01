@@ -13,6 +13,10 @@ public interface ConsultationResponseFileLinkRepository extends CrudRepository<C
 
   Optional<ConsultationResponseFileLink> findByAppFile_PwaApplicationAndAppFile(PwaApplication application, AppFile appFile);
 
-  @EntityGraph(attributePaths = {"consultationResponse", "appFile"})
-  Set<ConsultationResponseFileLink> findALlByConsultationResponseIn(Set<ConsultationResponse> consultationResponses);
+  @EntityGraph(attributePaths = {
+      "consultationResponse.consultationRequest.pwaApplication.masterPwa",
+      "consultationResponse.consultationRequest.consulteeGroup",
+      "appFile"
+  })
+  Set<ConsultationResponseFileLink> findAllByConsultationResponseIn(Set<ConsultationResponse> consultationResponses);
 }

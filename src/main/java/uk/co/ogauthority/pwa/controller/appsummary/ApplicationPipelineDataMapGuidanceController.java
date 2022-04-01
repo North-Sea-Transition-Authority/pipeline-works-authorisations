@@ -36,7 +36,7 @@ public class ApplicationPipelineDataMapGuidanceController {
   @Autowired
   public ApplicationPipelineDataMapGuidanceController(
       ApplicationVersionAccessRequester applicationVersionAccessRequester,
-      @Value("${service.name}") String serviceName,
+      @Value("${service.full-name}") String serviceName,
       @Value("${oga.interactivemapsandtools.link}") String regulatorMapsAndToolsUrl,
       @Value("${oga.interactivemapsandtools.label}") String regulatorMapsAndToolsLabel,
       @Value("${oga.interactivemapsandtools.offshoremap.label}") String offshoreMapLabel) {

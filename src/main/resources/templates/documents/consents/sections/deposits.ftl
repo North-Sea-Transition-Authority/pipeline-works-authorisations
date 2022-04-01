@@ -48,7 +48,7 @@
 
   <p>
     This Consent authorises only Deposits exactly as described, up to the maximum quantities specified in column 4 to be laid, in the positions listed and within the period stated within the Table - nothing else can be laid.  
-    If anything different to what has been authorised within this Consent is required you must have prior consent from OGA before it can be laid.
+    If anything different to what has been authorised within this Consent is required you must have prior consent from NSTA before it can be laid.
   </p>
 
   <#if depositFootnotes?has_content>

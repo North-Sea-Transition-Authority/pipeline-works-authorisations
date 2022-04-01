@@ -43,7 +43,8 @@ class TestHarnessAppFormUtil {
 
     var coordinatesForm = new CoordinateForm();
 
-    var latitudeDirections = Stream.of(LatitudeDirection.values()).collect(Collectors.toList());
+    // hardcode NORTH as not possible or allowed to use SOUTH in the app
+    var latitudeDirections = Stream.of(LatitudeDirection.NORTH).collect(Collectors.toList());
     coordinatesForm.setLatitudeDegrees(RandomUtils.nextInt(45, 65));
     coordinatesForm.setLatitudeMinutes(RandomUtils.nextInt(0, 60));
     coordinatesForm.setLatitudeSeconds(BigDecimal.valueOf(RandomUtils.nextDouble(0, 60)).setScale(2, RoundingMode.HALF_EVEN));

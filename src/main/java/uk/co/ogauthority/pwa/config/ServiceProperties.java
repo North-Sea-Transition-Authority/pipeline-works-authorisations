@@ -8,20 +8,27 @@ import org.springframework.stereotype.Component;
 public class ServiceProperties {
 
   private final String serviceName;
+  private final String fullServiceName;
   private final String customerMnemonic;
   private final String customerName;
 
   @Autowired
   public ServiceProperties(@Value("${service.name}") String serviceName,
+                           @Value("${service.full-name}") String fullServiceName,
                            @Value("${service.customer.mnemonic}") String customerMnemonic,
                            @Value("${service.customer.name}") String customerName) {
     this.serviceName = serviceName;
+    this.fullServiceName = fullServiceName;
     this.customerMnemonic = customerMnemonic;
     this.customerName = customerName;
   }
 
   public String getServiceName() {
     return serviceName;
+  }
+
+  public String getFullServiceName() {
+    return fullServiceName;
   }
 
   public String getCustomerMnemonic() {
@@ -31,5 +38,6 @@ public class ServiceProperties {
   public String getCustomerName() {
     return customerName;
   }
+
 }
 

@@ -38,5 +38,6 @@ public interface ApplicationSubmissionService {
    */
   void doAfterSubmit(PwaApplicationDetail pwaApplicationDetail);
 
+  ApplicationSubmissionType getSubmissionType();
 
 }

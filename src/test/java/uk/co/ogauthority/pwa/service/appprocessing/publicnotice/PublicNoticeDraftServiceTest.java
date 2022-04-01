@@ -22,6 +22,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
@@ -265,7 +266,54 @@ public class PublicNoticeDraftServiceTest {
     verify(camundaWorkflowService).completeTask(new WorkflowTaskInstance(publicNotice, PwaApplicationPublicNoticeWorkflowTask.DRAFT));
   }
 
+  @Test
+  public void submitPublicNoticeDraft_firstDraftRejected_submittingSecondDraft_noErrorWhenNoDocAssociatedWithPublicNotice() {
 
+    var publicNotice = PublicNoticeTestUtil.createDraftPublicNotice(pwaApplication);
+    when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+
+    var latestPublicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice);
+    when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice)).thenReturn(latestPublicNoticeRequest);
+
+    when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenThrow(EntityLatestVersionNotFoundException.class);
+
+    var newPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    newPublicNoticeDocument.setVersion(1);
+    when(publicNoticeService.savePublicNoticeDocument(newPublicNoticeDocument)).thenReturn(newPublicNoticeDocument);
+
+    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
+        FILE_ID, "desc", clock.instant());
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var publicNoticeAppFile = new AppFile();
+    var publicNoticeDocumentLink = new PublicNoticeDocumentLink(newPublicNoticeDocument, publicNoticeAppFile);
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, newPublicNoticeDocument))
+        .thenReturn(publicNoticeDocumentLink);
+
+    publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
+
+    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
+    assertThat(actualPublicNotice).isEqualTo(publicNotice);
+
+    verify(publicNoticeService, times(1)).savePublicNoticeDocument(publicNoticeDocumentArgumentCaptor.capture());
+    var actualNewPublicNoticeDocument = publicNoticeDocumentArgumentCaptor.getValue();
+    assertThat(actualNewPublicNoticeDocument).isEqualTo(newPublicNoticeDocument);
+
+    verify(publicNoticeService, times(1)).savePublicNoticeDocumentLink(publicNoticeDocumentLinkArgumentCaptor.capture());
+    var actualPublicNoticeDocumentLink = publicNoticeDocumentLinkArgumentCaptor.getValue();
+    assertThat(actualPublicNoticeDocumentLink.getPublicNoticeDocument()).isEqualTo(actualNewPublicNoticeDocument);
+    assertThat(actualPublicNoticeDocumentLink.getAppFile()).isEqualTo(publicNoticeAppFile);
+
+    verify(publicNoticeService, times(1)).savePublicNoticeRequest(publicNoticeRequestArgumentCaptor.capture());
+    var publicNoticeRequest = publicNoticeRequestArgumentCaptor.getValue();
+    assertThat(publicNoticeRequest.getPublicNotice()).isEqualTo(actualPublicNotice);
+    assertThat(publicNoticeRequest.getStatus()).isEqualTo(PublicNoticeRequestStatus.WAITING_MANAGER_APPROVAL);
+    assertThat(publicNoticeRequest.getVersion()).isEqualTo(latestPublicNoticeRequest.getVersion() + 1);
+
+    verify(camundaWorkflowService).completeTask(new WorkflowTaskInstance(publicNotice, PwaApplicationPublicNoticeWorkflowTask.DRAFT));
+
+  }
 
   @Test
   public void submitPublicNoticeDraft_firstVersionEnded_submittingSecondVersion_firstDraft() {

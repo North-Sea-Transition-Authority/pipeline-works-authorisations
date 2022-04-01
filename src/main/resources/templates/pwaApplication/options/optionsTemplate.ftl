@@ -9,11 +9,11 @@
 
         <#assign optionsTemplateLink>
             <@fdsAction.link
-            linkText="the OGA website"
+            linkText="the NSTA website"
             linkUrl=ogaOptionsTemplateLink
             openInNewTab=true
             linkClass="govuk-link"
-            linkScreenReaderText="OGA options template link"/>
+            linkScreenReaderText="NSTA options template link"/>
         </#assign>
 
         <@fdsFieldset.fieldset legendHeading="Template document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" hintText="Upload a completed template from ${optionsTemplateLink}">

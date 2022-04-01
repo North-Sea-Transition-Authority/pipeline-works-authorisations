@@ -11,12 +11,12 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole
 
 public interface PwaConsentOrganisationRoleRepository extends CrudRepository<PwaConsentOrganisationRole, Integer> {
 
-  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa"})
+  @EntityGraph(attributePaths = { "addedByPwaConsent", "addedByPwaConsent.masterPwa", "addedByPwaConsent.sourcePwaApplication" })
   List<PwaConsentOrganisationRole> findByOrganisationUnitIdInAndRoleInAndEndTimestampIsNull(
       Collection<Integer> organisationUnitIds,
       Collection<HuooRole> roles);
 
-  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa"})
+  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa", "addedByPwaConsent.sourcePwaApplication"})
   List<PwaConsentOrganisationRole> findByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
       Collection<PwaConsent> pwaConsents,
       Collection<HuooRole> roles);
@@ -25,7 +25,7 @@ public interface PwaConsentOrganisationRoleRepository extends CrudRepository<Pwa
       Collection<PwaConsent> pwaConsents,
       Collection<HuooRole> roles);
 
-  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa"})
+  @EntityGraph(attributePaths = {"addedByPwaConsent", "addedByPwaConsent.masterPwa", "addedByPwaConsent.sourcePwaApplication"})
   List<PwaConsentOrganisationRole> findByAddedByPwaConsentInAndEndTimestampIsNull(Collection<PwaConsent> consents);
 
 }

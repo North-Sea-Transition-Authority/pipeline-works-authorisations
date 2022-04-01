@@ -180,8 +180,17 @@ public class PermanentDepositService implements ApplicationFormSectionService {
 
     var projectInfo = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail);
     var existingDeposits = permanentDepositRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+    var acceptedPipelineIds = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
+        pwaApplicationDetail,
+        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES
+    )
+        .entrySet()
+        .stream()
+        .filter(entry -> entry.getValue().getPipelineStatus().getPhysicalPipelineState() == PhysicalPipelineState.ON_SEABED)
+        .map(e -> String.valueOf(e.getKey().getPipelineIdAsInt()))
+        .collect(Collectors.toSet());
     var validationHints = new PermanentDepositsValidationHints(
-        pwaApplicationDetail, projectInfo.getProposedStartTimestamp(), existingDeposits);
+        pwaApplicationDetail, projectInfo.getProposedStartTimestamp(), existingDeposits, acceptedPipelineIds);
     permanentDepositsValidator.validate(form, bindingResult, validationHints);
 
     return bindingResult;

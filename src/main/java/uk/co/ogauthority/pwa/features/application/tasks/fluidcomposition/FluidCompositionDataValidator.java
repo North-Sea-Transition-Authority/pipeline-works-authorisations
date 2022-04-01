@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
@@ -36,21 +37,30 @@ public class FluidCompositionDataValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (FluidCompositionDataForm) o;
     var chemical = (Chemical) validationHints[0];
+    var validationType = (ValidationType) validationHints[1];
 
-    if (form.getFluidCompositionOption() == null) {
-      errors.rejectValue("fluidCompositionOption", "fluidCompositionOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
-          "Select a fluid composition option for " + chemical.getDisplayText());
+    if (validationType.equals(ValidationType.FULL)) {
+      if (form.getFluidCompositionOption() == null) {
+        errors.rejectValue("fluidCompositionOption", "fluidCompositionOption" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Select a fluid composition option for " + chemical.getDisplayText());
 
-    } else if (form.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "moleValue", "moleValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Enter a mole percentage for " + chemical.getDisplayText());
+      } else if (form.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "moleValue", "moleValue" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Enter a mole percentage for " + chemical.getDisplayText());
 
+        decimalInputValidator.invocationBuilder()
+            .mustBeGreaterThanZero()
+            .mustBeLessThanOrEqualTo(new BigDecimal(100))
+            .mustHaveNoMoreThanDecimalPlaces(2)
+            .invokeNestedValidator(errors, "moleValue", form.getMoleValue(), chemical.getDisplayText() + " mole percentage");
+
+      }
+    } else if (validationType.equals(ValidationType.PARTIAL)
+        && form.getFluidCompositionOption() != null
+        && form.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
       decimalInputValidator.invocationBuilder()
-          .mustBeGreaterThanZero()
-          .mustBeLessThanOrEqualTo(new BigDecimal(100))
-          .mustHaveNoMoreThanDecimalPlaces(2)
+        .partialValidate()
           .invokeNestedValidator(errors, "moleValue", form.getMoleValue(), chemical.getDisplayText() + " mole percentage");
-
     }
   }
 

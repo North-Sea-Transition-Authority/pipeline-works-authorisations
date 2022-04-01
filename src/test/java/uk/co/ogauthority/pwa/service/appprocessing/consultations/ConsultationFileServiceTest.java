@@ -97,7 +97,7 @@ public class ConsultationFileServiceTest {
   public void getConsultationResponseIdToFileViewsMap_isPopulatedCorrectly() {
     when(appFileService.getUploadedFileViewsWithNoUrl(any(), any(), any())).thenReturn(List.of(uploadedFileView));
 
-    when(consultationResponseFileLinkRepository.findALlByConsultationResponseIn(Set.of(consultationResponse))).thenReturn(Set.of(consultationResponseFileLink));
+    when(consultationResponseFileLinkRepository.findAllByConsultationResponseIn(Set.of(consultationResponse))).thenReturn(Set.of(consultationResponseFileLink));
 
     var responseIdToFileViewsMap = consultationFileService.getConsultationResponseIdToFileViewsMap(pwaApplication, Set.of(consultationResponse));
     assertThat(responseIdToFileViewsMap).isEqualTo(Map.of(consultationResponse.getId(), List.of(uploadedFileView)));
