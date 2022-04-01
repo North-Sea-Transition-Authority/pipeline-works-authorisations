@@ -1,3 +1,5 @@
+<!-- Iterates entries list and checks for a DiffedField on each entry with a matching DiffType -->
+<!-- Returns the count of entries with the matching DiffType -->
 <#function getDiffUnmatchedFieldCount entries field diffType>
     <#if !(entries?has_content)>
         <#return 0>
