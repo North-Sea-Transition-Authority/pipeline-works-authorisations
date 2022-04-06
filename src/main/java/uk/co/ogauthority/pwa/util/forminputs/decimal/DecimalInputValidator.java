@@ -134,7 +134,7 @@ public class DecimalInputValidator implements SmartValidator {
 
     if (decimalInput.createBigDecimalOrNull().compareTo(BigDecimal.ZERO) <= 0) {
       errors.rejectValue(VALUE, FieldValidationErrorCodes.INVALID.errorCode(VALUE),
-          String.format("%s must be a positive number", StringUtils.capitalize(inputLabel.getLabel())));
+          String.format("%s must be 1 or more", StringUtils.capitalize(inputLabel.getLabel())));
     }
   }
 
@@ -142,7 +142,7 @@ public class DecimalInputValidator implements SmartValidator {
     if (decimalInput.createBigDecimalOrNull().compareTo(BigDecimal.ZERO) < 0) {
       errors.rejectValue(VALUE,
           FieldValidationErrorCodes.INVALID.errorCode(VALUE),
-          String.format("%s must have a value of 0 or greater", StringUtils.capitalize(inputLabel.getLabel())));
+          String.format("%s must be 0 or more", StringUtils.capitalize(inputLabel.getLabel())));
     }
   }
 

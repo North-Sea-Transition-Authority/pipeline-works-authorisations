@@ -64,7 +64,7 @@ public class PipelineValidationUtils {
 
     if (length.compareTo(BigDecimal.ZERO) <= 0) {
       errors.rejectValue(fieldName, FieldValidationErrorCodes.INVALID.errorCode(fieldName),
-          String.format("%s must be a positive number", fieldLabel));
+          String.format("%s must be 1 or more", fieldLabel));
     }
 
   }

@@ -212,7 +212,7 @@ public class DecimalInputValidatorTest {
         entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
     );
 
-    assertSingleErrorMessageContains(fieldErrorMessages, "must be a positive number");
+    assertSingleErrorMessageContains(fieldErrorMessages, "must be 1 or more");
   }
 
   @Test
@@ -254,7 +254,7 @@ public class DecimalInputValidatorTest {
         entry(VALUE, Set.of(VALUE + FieldValidationErrorCodes.INVALID.getCode()))
     );
 
-    assertSingleErrorMessageContains(fieldErrorMessages, "must have a value of 0 or greater");
+    assertSingleErrorMessageContains(fieldErrorMessages, "must be 0 or more");
   }
 
   @Test
