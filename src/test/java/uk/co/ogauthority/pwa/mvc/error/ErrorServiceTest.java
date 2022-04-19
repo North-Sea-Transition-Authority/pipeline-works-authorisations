@@ -9,7 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorServiceTest {
@@ -17,11 +19,17 @@ public class ErrorServiceTest {
   @Mock
   private TechnicalSupportContactProperties technicalSupportContactProperties;
 
+  @Mock
+  private ServiceProperties serviceProperties;
+
+  @Mock
+  private AnalyticsConfiguration analyticsConfiguration;
+
   private ErrorService errorService;
 
   @Before
   public void setup() {
-    errorService = new ErrorService(technicalSupportContactProperties);
+    errorService = new ErrorService(technicalSupportContactProperties, serviceProperties, analyticsConfiguration);
   }
 
   @Test
@@ -34,7 +42,11 @@ public class ErrorServiceTest {
     assertThat(resultingModelMap).containsOnlyKeys(
         "errorRef",
         "technicalSupportContact",
-        "feedbackUrl");
+        "feedbackUrl",
+        "service",
+        "cookiePrefsUrl",
+        "analyticsMeasurementUrl",
+        "analytics");
     assertThat(resultingModelMap.get("errorRef")).isNotNull();
     assertCommonModelProperties(resultingModelMap);
   }
@@ -48,7 +60,11 @@ public class ErrorServiceTest {
 
     assertThat(resultingModelMap).containsOnlyKeys(
         "technicalSupportContact",
-        "feedbackUrl"
+        "feedbackUrl",
+        "service",
+        "cookiePrefsUrl",
+        "analyticsMeasurementUrl",
+        "analytics"
     );
     assertCommonModelProperties(resultingModelMap);
   }
