@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -25,6 +26,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
+import uk.co.ogauthority.pwa.model.documents.generation.DocgenRunSectionData;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
@@ -35,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
+import uk.co.ogauthority.pwa.repository.docgen.DocgenRunSectionDataRepository;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
@@ -70,8 +73,14 @@ public class DocumentCreationServiceTest {
   @Mock
   private PwaConsentService pwaConsentService;
 
+  @Mock
+  private DocgenRunSectionDataRepository docgenRunSectionDataRepository;
+
   @Captor
   private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
+
+  @Captor
+  private ArgumentCaptor<List<DocgenRunSectionData>> docgenRunSectionDataCaptor;
 
   private DocumentCreationService documentCreationService;
 
@@ -97,7 +106,8 @@ public class DocumentCreationServiceTest {
         documentInstanceService,
         mailMergeService,
         pwaApplicationDetailService,
-        pwaConsentService);
+        pwaConsentService,
+        docgenRunSectionDataRepository);
 
     documentInstance = new DocumentInstance();
     documentInstance.setPwaApplication(pwaApplicationDetail.getPwaApplication());
@@ -111,6 +121,15 @@ public class DocumentCreationServiceTest {
 
   @Test
   public void generateConsentDocument_allDocSectionsProcessed_preview() {
+
+    testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef());
+
+  }
+
+  @Test
+  public void generateConsentDocument_errorWhileLogging_stillCompletes() {
+
+    when(docgenRunSectionDataRepository.saveAll(any())).thenThrow(RuntimeException.class);
 
     testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef());
 
@@ -164,6 +183,10 @@ public class DocumentCreationServiceTest {
         "consentRef", expectedReference,
         "issueDate", DateUtils.formatDate(LocalDate.now())
     ));
+
+    verify(docgenRunSectionDataRepository).saveAll(docgenRunSectionDataCaptor.capture());
+
+    assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections);
 
   }
 
