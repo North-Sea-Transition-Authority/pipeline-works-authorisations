@@ -176,7 +176,7 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
                                             BindingResult bindingResult) {
     bindingResult = depositDrawingsService.validateDrawingEdit(form,
-        bindingResult, ValidationType.FULL, applicationContext.getApplicationDetail(), depositDrawingId);
+        bindingResult, applicationContext.getApplicationDetail(), depositDrawingId);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
