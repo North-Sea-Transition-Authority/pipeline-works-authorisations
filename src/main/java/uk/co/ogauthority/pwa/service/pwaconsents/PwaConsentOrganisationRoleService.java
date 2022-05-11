@@ -143,7 +143,8 @@ public class PwaConsentOrganisationRoleService {
 
   }
 
-  public OrganisationRolesSummaryDto getOrganisationRoleSummaryForConsentsAndPipeline(Collection<PwaConsent> pwaConsents, Pipeline pipeline) {
+  public OrganisationRolesSummaryDto getOrganisationRoleSummaryForConsentsAndPipeline(Collection<PwaConsent> pwaConsents,
+                                                                                      Pipeline pipeline) {
 
     var organisationPipelineRole = pwaConsentPipelineOrganisationRoleLinkRepository
         .findActiveOrganisationPipelineRolesByPwaConsent(pwaConsents, pipeline);
