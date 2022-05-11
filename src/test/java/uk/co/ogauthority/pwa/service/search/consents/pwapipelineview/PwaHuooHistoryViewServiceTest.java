@@ -112,10 +112,10 @@ public class PwaHuooHistoryViewServiceTest {
         .thenReturn(previousOrgRoleSummary);
 
     var selectedOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
-    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedAndPreviousConsentsList, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
 
     var previousOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
-    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, previousOrgRoleSummary)).thenReturn(previousOrgRolePipelineGroupsView);
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, previousConsentsList, previousOrgRoleSummary)).thenReturn(previousOrgRolePipelineGroupsView);
 
     pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(selectedConsent.getId(), masterPwa, pipelineId);
 
@@ -153,7 +153,7 @@ public class PwaHuooHistoryViewServiceTest {
         .thenReturn(selectedOrgRoleSummary);
 
     var selectedOrgRolePipelineGroupsView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
-    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
+    when(pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, selectedAndPreviousConsentsList, selectedOrgRoleSummary)).thenReturn(selectedOrgRolePipelineGroupsView);
 
     pwaHuooHistoryViewService.getDiffedHuooSummaryAtTimeOfConsentAndPipeline(selectedConsent.getId(), masterPwa, pipelineId);
 
