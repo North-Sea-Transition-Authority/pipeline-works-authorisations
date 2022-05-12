@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -35,9 +34,7 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
-import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineNumbersAndSplits;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.features.generalcase.pipelinehuooview.PipelineNumberAndSplitsService;
@@ -334,12 +331,9 @@ public class PwaConsentOrganisationRoleServiceTest {
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
     var pipelineOverview = new PadPipelineOverview(padPipeline);
-    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = new HashMap<>();
-    allPipelineNumbersAndSplitsRole.put(new PipelineId(1), new PipelineNumbersAndSplits(
-        new PipelineId(1), pipelineOverview.getPipelineNumber(), null));
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
-        .thenReturn(allPipelineNumbersAndSplitsRole);
-
+    Map<PipelineId, PipelineOverview> pipelineOverviewMap = new HashMap<>();
+    pipelineOverviewMap.put(pipeline.getPipelineId(), pipelineOverview);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaMap(masterPwa)).thenReturn(pipelineOverviewMap);
 
     //asserts
     var actualView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa);
