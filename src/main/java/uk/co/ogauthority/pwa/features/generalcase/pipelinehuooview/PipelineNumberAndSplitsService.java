@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineSummaryAndSpl
 @Service
 public class PipelineNumberAndSplitsService {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(PipelineNumberAndSplitsService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PipelineNumberAndSplitsService.class);
 
   /**
    * <p>From some supplied map of potentially "split" pipeline Ids to pipeline overviews and some supplied set of
