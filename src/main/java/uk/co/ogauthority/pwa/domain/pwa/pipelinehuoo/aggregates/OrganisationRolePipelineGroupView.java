@@ -25,7 +25,6 @@ public class OrganisationRolePipelineGroupView {
   private final OrganisationRoleOwnerDto organisationRoleOwner;
   private final List<PipelineNumbersAndSplits> pipelineNumbersAndSplits;
 
-
   public OrganisationRolePipelineGroupView(HuooType huooType,
                                            OrganisationUnitDetailDto orgUnitDetailDto,
                                            Boolean isManuallyEnteredName,
@@ -40,8 +39,8 @@ public class OrganisationRolePipelineGroupView {
     this.treatyAgreement = treatyAgreement;
     this.organisationRoleOwner = organisationRoleOwner;
     this.pipelineNumbersAndSplits = pipelineNumbersAndSplits.stream()
-        .sorted(Comparator.comparing(PipelineNumbersAndSplits::toString)).collect(
-        Collectors.toList());
+        .sorted(Comparator.comparing(PipelineNumbersAndSplits::toString))
+        .collect(Collectors.toList());
   }
 
   public HuooType getHuooType() {

@@ -8,9 +8,11 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates.AllOrgRolePipelineGroupsView;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.HuooSummaryService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.huoosummary.DiffedAllOrgRolePipelineGroups;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
@@ -66,11 +68,8 @@ public class PwaHuooHistoryViewService {
 
     var pipeline = pipelineService.getPipelineFromId(pipelineId);
 
-    var selectedOrgRoleSummaryDto = pwaConsentOrganisationRoleService
-        .getOrganisationRoleSummaryForConsentsAndPipeline(selectedAndPreviousConsents, pipeline);
-
-    var selectedConsentHuooRolePipelineGroupsView = pwaConsentOrganisationRoleService
-        .getAllOrganisationRolePipelineGroupView(masterPwa, selectedOrgRoleSummaryDto);
+    var selectedConsentHuooRolePipelineGroupsView = getOrgRolePipelineGroupView(
+        masterPwa, selectedAndPreviousConsents, pipeline);
 
     // if we have another version to compare to, get a summary for all the previous consents
     // that we can diff the selected one against
@@ -81,11 +80,8 @@ public class PwaHuooHistoryViewService {
 
     var consentsToDiff = previousConsents.isEmpty() ? selectedAndPreviousConsents : previousConsents;
 
-    var previousOrgRoleSummaryDto = pwaConsentOrganisationRoleService
-        .getOrganisationRoleSummaryForConsentsAndPipeline(consentsToDiff, pipeline);
-
-    var previousConsentsHuooRolePipelineGroupsView = pwaConsentOrganisationRoleService
-        .getAllOrganisationRolePipelineGroupView(masterPwa, previousOrgRoleSummaryDto);
+    var previousConsentsHuooRolePipelineGroupsView = getOrgRolePipelineGroupView(
+        masterPwa, consentsToDiff, pipeline);
 
     return huooSummaryService.getDiffedViewUsingSummaryViews(
         selectedConsentHuooRolePipelineGroupsView,
@@ -110,6 +106,18 @@ public class PwaHuooHistoryViewService {
     throw new PwaEntityNotFoundException(String.format(
         "The selected consent with id: %s was not found in any of the consents for master pwa with id: %s",
         selectedConsent.getId(), selectedConsent.getMasterPwa().getId()));
+  }
+
+  private AllOrgRolePipelineGroupsView getOrgRolePipelineGroupView(MasterPwa masterPwa,
+                                                                   List<PwaConsent> consents,
+                                                                   Pipeline pipeline) {
+
+    var orgRoleSummaryDto = pwaConsentOrganisationRoleService
+        .getOrganisationRoleSummaryForConsentsAndPipeline(consents, pipeline);
+
+    return pwaConsentOrganisationRoleService
+        .getAllOrganisationRolePipelineGroupView(masterPwa, consents, orgRoleSummaryDto);
+
   }
 
   /**
@@ -165,13 +173,16 @@ public class PwaHuooHistoryViewService {
                                                                                       Integer selectedPipelineDetailId) {
 
     var selectedPipelineDetail = pipelineDetailService.getByPipelineDetailId(selectedPipelineDetailId);
-    var orgRoleSummaryDto = pipelineDetailMigrationHuooDataService.getOrganisationRoleSummaryForHuooMigratedData(selectedPipelineDetail);
-    var huooRolePipelineGroupsView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(
-        masterPwa, orgRoleSummaryDto);
+
+    var orgRoleSummaryDto = pipelineDetailMigrationHuooDataService
+        .getOrganisationRoleSummaryForHuooMigratedData(selectedPipelineDetail);
+
+    var huooRolePipelineGroupsView = pwaConsentOrganisationRoleService
+        .getAllOrganisationRolePipelineGroupView(masterPwa, orgRoleSummaryDto);
 
     return huooSummaryService.getDiffedViewUsingSummaryViews(huooRolePipelineGroupsView, huooRolePipelineGroupsView,
         HuooSummaryService.PipelineLabelAction.SHOW_EVERY_PIPELINE_WITHIN_GROUP);
-  }
 
+  }
 
 }

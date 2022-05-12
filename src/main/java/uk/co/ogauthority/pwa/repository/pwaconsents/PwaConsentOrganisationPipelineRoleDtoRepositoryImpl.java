@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.repository.pwaconsents;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
@@ -56,7 +56,7 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
 
   @Override
   public List<OrganisationPipelineRoleInstanceDto> findActiveOrganisationPipelineRolesByPwaConsent(
-      List<PwaConsent> pwaConsents, Pipeline pipeline) {
+      Collection<PwaConsent> pwaConsents, Pipeline pipeline) {
 
     var query = entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto( " +
@@ -74,13 +74,12 @@ public class PwaConsentOrganisationPipelineRoleDtoRepositoryImpl implements PwaC
             ") " +
             "FROM PwaConsentPipelineOrganisationRoleLink cporl " +
             "JOIN PwaConsentOrganisationRole cor ON cporl.pwaConsentOrganisationRole = cor " +
-            "JOIN PwaConsent pc ON cor.addedByPwaConsent = pc " +
-            "WHERE pc.id  in (:pwaConsentIds) " +
-            "AND (cor.endedByPwaConsent IS NULL OR cor.endedByPwaConsent NOT IN (:pwaConsentIds)) " +
-            "AND (cporl.endedByPwaConsent IS NULL OR cporl.endedByPwaConsent NOT IN (:pwaConsentIds)) " +
+            "WHERE cporl.addedByPwaConsent IN (:pwaConsents) " +
+            "AND (cor.endedByPwaConsent IS NULL OR cor.endedByPwaConsent NOT IN (:pwaConsents)) " +
+            "AND (cporl.endedByPwaConsent IS NULL OR cporl.endedByPwaConsent NOT IN (:pwaConsents)) " +
             "AND cporl.pipeline = :pipeline ",
         OrganisationPipelineRoleInstanceDto.class)
-        .setParameter("pwaConsentIds", pwaConsents.stream().map(PwaConsent::getId).collect(Collectors.toList()))
+        .setParameter("pwaConsents", pwaConsents)
         .setParameter("pipeline", pipeline);
     return query.getResultList();
 

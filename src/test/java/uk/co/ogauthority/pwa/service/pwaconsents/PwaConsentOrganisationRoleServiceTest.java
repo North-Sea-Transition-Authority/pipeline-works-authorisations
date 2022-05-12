@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,17 +23,18 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
-import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineNumbersAndSplits;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.features.generalcase.pipelinehuooview.PipelineNumberAndSplitsService;
@@ -47,6 +47,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentOrganisationRoleRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
@@ -83,7 +84,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
-  @Mock
+  @Spy
   private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
 
   @Mock
@@ -330,12 +331,9 @@ public class PwaConsentOrganisationRoleServiceTest {
     pipeline.setId(1);
     padPipeline.setPipeline(pipeline);
     var pipelineOverview = new PadPipelineOverview(padPipeline);
-    Map<PipelineIdentifier, PipelineNumbersAndSplits> allPipelineNumbersAndSplitsRole = new HashMap<>();
-    allPipelineNumbersAndSplitsRole.put(new PipelineId(1), new PipelineNumbersAndSplits(
-        new PipelineId(1), pipelineOverview.getPipelineNumber(), null));
-    when(pipelineNumberAndSplitsService.getAllPipelineNumbersAndSplitsRole(any(), any()))
-        .thenReturn(allPipelineNumbersAndSplitsRole);
-
+    Map<PipelineId, PipelineOverview> pipelineOverviewMap = new HashMap<>();
+    pipelineOverviewMap.put(pipeline.getPipelineId(), pipelineOverview);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaMap(masterPwa)).thenReturn(pipelineOverviewMap);
 
     //asserts
     var actualView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa);
@@ -376,6 +374,112 @@ public class PwaConsentOrganisationRoleServiceTest {
     assertThat(ownerPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address4");
     assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
     assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+  }
+
+  @Test
+  public void getAllOrganisationRolePipelineGroupView_forConsents() {
+
+    var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwa();
+    var initialConsent = PwaConsentTestUtil.createInitial(masterPwa);
+
+    //Organisation Roles Summary DTO
+    var orgPipelineRoleInstanceDto1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.HOLDER,
+        1,
+        1
+    );
+
+    var orgPipelineRoleInstanceDto2 = OrganisationRoleDtoTestUtil.createTreatyOrgUnitPipelineRoleInstance(
+        HuooRole.USER,
+        TreatyAgreement.ANY_TREATY_COUNTRY,
+        1);
+
+    var orgPipelineRoleInstanceDto3 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.OPERATOR,
+        3,
+        1
+    );
+
+    var orgPipelineRoleInstanceDto4 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
+        HuooRole.OWNER,
+        4,
+        1
+    );
+
+    //Portal org units
+    var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "123");
+    var organisationUnitDetailDto1 = OrganisationUnitDetailDto.from(portalOrgUnitDetail1);
+
+    var portalOrgUnitDetail3 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        PortalOrganisationTestUtils.generateOrganisationUnit(3, "company3"), "address3", "1234");
+    var organisationUnitDetailDto3 = OrganisationUnitDetailDto.from(portalOrgUnitDetail3);
+
+    var portalOrgUnitDetail4 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
+        PortalOrganisationTestUtils.generateOrganisationUnit(4, "company4"), "address4", "12345");
+    var organisationUnitDetailDto4 = OrganisationUnitDetailDto.from(portalOrgUnitDetail4);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitDetailDtosByOrganisationUnitId(
+        Set.of(new OrganisationUnitId(1), new OrganisationUnitId(3), new OrganisationUnitId(4))))
+        .thenReturn(List.of(organisationUnitDetailDto1, organisationUnitDetailDto3, organisationUnitDetailDto4));
+
+    // Pipeline numbers and splits
+    var padPipeline = new PadPipeline();
+    padPipeline.setId(1);
+    Pipeline pipeline = new Pipeline();
+    pipeline.setId(1);
+    padPipeline.setPipeline(pipeline);
+    var pipelineOverview = new PadPipelineOverview(padPipeline);
+    Map<PipelineId, PipelineOverview> pipelineOverviewMap = new HashMap<>();
+    pipelineOverviewMap.put(pipeline.getPipelineId(), pipelineOverview);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaMap(masterPwa)).thenReturn(pipelineOverviewMap);
+
+    var orgRoleSummaryDto = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+        List.of(orgPipelineRoleInstanceDto1, orgPipelineRoleInstanceDto2, orgPipelineRoleInstanceDto3, orgPipelineRoleInstanceDto4));
+
+    //asserts
+    var actualView = pwaConsentOrganisationRoleService.getAllOrganisationRolePipelineGroupView(masterPwa, List.of(initialConsent), orgRoleSummaryDto);
+
+    var holderPortalOrgRolePipelineGroup = actualView.getHolderOrgRolePipelineGroups().get(0);
+    assertThat(holderPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(holderPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company");
+    assertThat(holderPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(holderPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("123");
+    assertThat(holderPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address");
+    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(holderPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var userTreatyOrgRolePipelineGroup = actualView.getUserOrgRolePipelineGroups().get(0);
+    assertThat(userTreatyOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.TREATY_AGREEMENT);
+    assertThat(userTreatyOrgRolePipelineGroup.getCompanyName()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getTreatyAgreement()).isEqualTo(TreatyAgreement.ANY_TREATY_COUNTRY);
+    assertThat(userTreatyOrgRolePipelineGroup.getRegisteredNumber()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getCompanyAddress()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var operatorPortalOrgRolePipelineGroup = actualView.getOperatorOrgRolePipelineGroups().get(0);
+    assertThat(operatorPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company3");
+    assertThat(operatorPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(operatorPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("1234");
+    assertThat(operatorPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address3");
+    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(operatorPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+    assertThat(userTreatyOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    var ownerPortalOrgRolePipelineGroup = actualView.getOwnerOrgRolePipelineGroups().get(0);
+    assertThat(ownerPortalOrgRolePipelineGroup.getHuooType()).isEqualTo(HuooType.PORTAL_ORG);
+    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyName()).isEqualTo("company4");
+    assertThat(ownerPortalOrgRolePipelineGroup.getTreatyAgreement()).isNull();
+    assertThat(ownerPortalOrgRolePipelineGroup.getRegisteredNumber()).isEqualTo("12345");
+    assertThat(ownerPortalOrgRolePipelineGroup.getCompanyAddress()).isEqualTo("address4");
+    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getPipelineIdentifier()).isEqualTo(new PipelineId(1));
+    assertThat(ownerPortalOrgRolePipelineGroup.getPipelineNumbersAndSplits().get(0).getSplitInfo()).isNull();
+
+    verify(pwaConsentPipelineOrganisationRoleLinkRepository, times((int) HuooRole.stream().count()))
+        .findActiveLinksAtTimeOfPwaConsents(List.of(initialConsent));
 
   }
 
