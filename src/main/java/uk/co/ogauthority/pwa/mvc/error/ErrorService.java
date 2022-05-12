@@ -1,12 +1,19 @@
 package uk.co.ogauthority.pwa.mvc.error;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsController;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 
 @Service
@@ -15,10 +22,19 @@ public class ErrorService {
   private static final Logger LOGGER = LoggerFactory.getLogger(ErrorService.class);
 
   private final TechnicalSupportContactProperties technicalSupportContactProperties;
+  private final ServiceProperties serviceProperties;
+  private final AnalyticsConfiguration analyticsConfiguration;
+  private final String analyticsMeasurementUrl;
 
   @Autowired
-  public ErrorService(TechnicalSupportContactProperties technicalSupportContactProperties) {
+  public ErrorService(TechnicalSupportContactProperties technicalSupportContactProperties,
+                      ServiceProperties serviceProperties,
+                      AnalyticsConfiguration analyticsConfiguration) {
     this.technicalSupportContactProperties = technicalSupportContactProperties;
+    this.serviceProperties = serviceProperties;
+    this.analyticsConfiguration = analyticsConfiguration;
+    this.analyticsMeasurementUrl = ReverseRouter.route(on(AnalyticsController.class)
+        .collectAnalyticsEvent(null, Optional.empty()));
   }
 
   private String getErrorReference() {
@@ -41,6 +57,11 @@ public class ErrorService {
     }
     addTechnicalSupportContactDetails(modelAndView);
     modelAndView.addObject("feedbackUrl", ControllerUtils.getFeedbackUrl());
+    modelAndView.addObject("service", serviceProperties);
+    modelAndView.addObject("analytics", analyticsConfiguration.getProperties());
+    modelAndView.addObject("analyticsMeasurementUrl", analyticsMeasurementUrl);
+    modelAndView.addObject("cookiePrefsUrl", ControllerUtils.getCookiesUrl());
+
     return modelAndView;
   }
 
