@@ -249,7 +249,7 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
       mapEntityToForm(detail, depositDrawing, form);
 
       BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
-      validateDrawingEdit(form, bindingResult, ValidationType.FULL, detail, depositDrawing.getId());
+      validateDrawingEdit(form, bindingResult, detail, depositDrawing.getId());
       if (bindingResult.hasErrors()) {
         invalidDrawingIdToDescriptorMap.put(
             String.valueOf(depositDrawing.getId()), depositDrawing.getReference());
@@ -282,8 +282,9 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
     return bindingResult;
   }
 
-  public BindingResult validateDrawingEdit(Object form, BindingResult bindingResult, ValidationType validationType,
-                                           PwaApplicationDetail pwaApplicationDetail, Integer padDepositDrawingId) {
+  public BindingResult validateDrawingEdit(Object form, BindingResult bindingResult,
+                                           PwaApplicationDetail pwaApplicationDetail,
+                                           Integer padDepositDrawingId) {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail, padDepositDrawingId);
     return bindingResult;
   }
