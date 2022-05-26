@@ -164,9 +164,19 @@ public class HolderChangeEmailServiceTest {
 
   @Test
   public void sendHolderChangeEmail_parentOrgIdentical() {
-    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(shellOrgUnit, bpOrgUnit));
 
-    holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellConsentHolderRole), List.of(bpConsentHolderRole));
+    var shellUkOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell UK", shellOrgGroup);
+    var shellClairOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell Clair", shellOrgGroup);
+
+    var shellUkConsentHolderRole = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(shellConsentHolderRole.getAddedByPwaConsent(), new OrganisationUnitId(shellUkOrgUnit.getOuId()), HuooRole.HOLDER);
+
+    var shellClairConsentHolderRole = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(shellConsentHolderRole.getAddedByPwaConsent(), new OrganisationUnitId(shellClairOrgUnit.getOuId()), HuooRole.HOLDER);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(shellUkOrgUnit, shellClairOrgUnit));
+
+    holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellUkConsentHolderRole), List.of(shellClairConsentHolderRole));
 
     verify(notifyService, never()).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
   }

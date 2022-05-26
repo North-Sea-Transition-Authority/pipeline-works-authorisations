@@ -77,10 +77,14 @@ public class HolderChangeEmailService {
 
     addedOrgUnitPortalOrgGroupIds.removeAll(endedOrgUnitPortalOrgGroupIds);
 
-    var primaryHolderChanged = !addedOrgUnitPortalOrgGroupIds.isEmpty();
+    var primaryHolderIdentical = addedOrgUnitPortalOrgGroupIds.isEmpty();
 
-    if (!primaryHolderChanged) {
-      LOGGER.info("Holder changed however belongs to same org group");
+    if (primaryHolderIdentical) {
+      var endedOrgUnitNames = endedOrgUnits.stream()
+          .map(PortalOrganisationUnit::getName)
+          .collect(Collectors.joining(","));
+      LOGGER.info(String.format("Holder(s) [%s] was changed however belongs to same org group on application [%d]",
+              endedOrgUnitNames, pwaApplication.getId()));
       return;
     }
 
