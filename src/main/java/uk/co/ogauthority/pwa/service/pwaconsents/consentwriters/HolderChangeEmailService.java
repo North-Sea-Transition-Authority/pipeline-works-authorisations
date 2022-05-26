@@ -77,7 +77,7 @@ public class HolderChangeEmailService {
 
     addedOrgUnitPortalOrgGroupIds.removeAll(endedOrgUnitPortalOrgGroupIds);
 
-    var primaryHolderChanged = addedOrgUnitPortalOrgGroupIds.size() > 0;
+    var primaryHolderChanged = !addedOrgUnitPortalOrgGroupIds.isEmpty();
 
     if (!primaryHolderChanged) {
       LOGGER.info("Holder changed however belongs to same org group");
