@@ -21,8 +21,13 @@
 
         <#if propertyValue.propertyAvailabilityOption?has_content>        
           <#if propertyValue.propertyAvailabilityOption == "AVAILABLE">
-            min: ${propertyValue.minValue!} ${property.getUnitMeasurement().getSuffixDisplay()}</br>
-            max: ${propertyValue.maxValue!} ${property.getUnitMeasurement().getSuffixDisplay()}
+            <@minMaxSummary.minMaxSummary
+              propertyValue.minValue
+              propertyValue.maxValue
+              'min'
+              'max'
+              property.getUnitMeasurement().getSuffixDisplay()
+            />
           <#else>
             ${propertyValue.propertyAvailabilityOption.getDisplayText()}
           </#if>

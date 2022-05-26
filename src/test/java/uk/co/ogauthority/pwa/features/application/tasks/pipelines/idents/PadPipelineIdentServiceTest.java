@@ -74,7 +74,7 @@ public class PadPipelineIdentServiceTest {
   @Mock
   private PipelineIdentFormValidator pipelineIdentFormValidator;
 
-  // not a mock to allow full testing with labda params
+  // not a mock to allow full testing with lambda params
   private PipelineIdentViewCollectorService pipelineIdentViewCollectorService;
 
   @Captor
@@ -877,6 +877,17 @@ public class PadPipelineIdentServiceTest {
         .thenReturn(List.of(ident));
     var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
     assertThat(result.isSectionComplete()).isFalse();
+  }
+
+  @Test
+  public void getSummaryScreenValidationResult_identLengthMatchesPadPipelineLength_differentScale_sectionComplete() {
+    padPipeline.setLength(BigDecimal.valueOf(50)); // 50
+    ident.setLength(BigDecimal.valueOf(50).setScale(1, RoundingMode.HALF_UP)); // 50.0
+    when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
+        .thenReturn(List.of(ident));
+    var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
+    assertThat(result.getErrorItems()).isEmpty();
+    assertThat(result.isSectionComplete()).isTrue();
   }
 
   @Test

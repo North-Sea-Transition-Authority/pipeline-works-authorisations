@@ -153,7 +153,7 @@ public class PadPipelineIdentService {
 
     } else {
       var totalIdentLength = getTotalIdentLength(idents);
-      if (!totalIdentLength.equals(padPipeline.getLength())) {
+      if (totalIdentLength.compareTo(padPipeline.getLength()) != 0) {
         lengthValidationValid = false;
         errorMessage = "The total length of all idents must equal the total pipeline length of: " +
           StringDisplayUtils.formatDecimal2DpSeparatedSuffixedOrNull(padPipeline.getLength(), "m") +

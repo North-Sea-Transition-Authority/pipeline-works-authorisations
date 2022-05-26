@@ -50,13 +50,12 @@
 
 </#macro>
 
-
-
 <#macro minMaxView minMaxViewData>
-  <#if minMaxViewData.minValue?has_content> 
-    ${minMaxViewData.minPrompt}: ${minMaxViewData.minValue} ${stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)} </br> 
-  </#if>
-  <#if minMaxViewData.maxValue?has_content> 
-    ${minMaxViewData.maxPrompt}: ${minMaxViewData.maxValue} ${stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)} 
-  </#if>
+  <@minMaxSummary.minMaxSummary
+    minMaxViewData.minValue
+    minMaxViewData.maxValue
+    minMaxViewData.minPrompt
+    minMaxViewData.maxPrompt
+    stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)
+  />
 </#macro>
