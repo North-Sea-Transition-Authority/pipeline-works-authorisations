@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.controller.documents.generation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -147,15 +149,24 @@ public class DocumentCreationServiceTest {
 
   }
 
+  private DocumentSectionGenerator defaultDocumentSectionGenerator(DocGenType docGenType) {
+    var documentSectionGenerator = mock(DocumentSectionGenerator.class);
+    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
+        .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
+    return documentSectionGenerator;
+  }
+
   private void testAndAssertGeneration(DocGenType docGenType, boolean watermarkShown, String expectedReference) {
+    testAndAssertGeneration(docGenType, watermarkShown, expectedReference, this::defaultDocumentSectionGenerator);
+  }
+
+  private void testAndAssertGeneration(DocGenType docGenType, boolean watermarkShown, String expectedReference, Function<DocGenType, DocumentSectionGenerator> documentSectionGeneratorFunction) {
 
     docgenRun = new DocgenRun(documentInstance, docGenType, DocgenRunStatus.PENDING);
     var person = PersonTestUtil.createDefaultPerson();
     docgenRun.setScheduledByPerson(person);
 
-    var documentSectionGenerator = mock(DocumentSectionGenerator.class);
-    when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
-        .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("test", "test")));
+    var documentSectionGenerator = documentSectionGeneratorFunction.apply(docGenType);
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
 
@@ -188,6 +199,24 @@ public class DocumentCreationServiceTest {
 
     assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections);
 
+  }
+
+  @Test
+  public void nbspSuccessfulGeneration() {
+    Map<String, Object> dataMap = Map.of("testing", "test\u00A0ing");
+    when(templateRenderingService.render(anyString(), eq(dataMap), anyBoolean())).thenReturn("test\u00A0ing");
+    testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef(), docGenType -> {
+      var documentSectionGenerator = mock(DocumentSectionGenerator.class);
+      when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
+          .thenReturn(new DocumentSectionData("TEMPLATE", Map.of("testing", "test\u00A0ing")));
+      return documentSectionGenerator;
+    });
+
+    var captor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderingService).render(eq("documents/consents/consentDocument.ftl"), captor.capture(), anyBoolean());
+
+    var sectionHtml = (String) captor.getValue().get("sectionHtml");
+    assertThat(sectionHtml).doesNotContain("\u00A0");
   }
 
 }

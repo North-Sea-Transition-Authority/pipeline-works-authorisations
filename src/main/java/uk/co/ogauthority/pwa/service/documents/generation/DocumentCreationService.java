@@ -42,6 +42,8 @@ public class DocumentCreationService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DocumentCreationService.class);
 
+  private static final String NON_BREAKING_SPACE_CHAR = "\u00A0";
+
   @Autowired
   public DocumentCreationService(ApplicationContext springApplicationContext,
                                  TemplateRenderingService templateRenderingService,
@@ -112,9 +114,12 @@ public class DocumentCreationService {
         .map(PwaConsent::getReference)
         .orElse(latestSubmittedDetail.getPwaApplicationRef());
 
+    var htmlString = combinedHtmlStringBuilder.toString();
+    htmlString = htmlString.replace(NON_BREAKING_SPACE_CHAR, " ");
+
     // render the main consent doc template using the joined-up section html as the 'data'
     Map<String, Object> docModelAndView = Map.of(
-        "sectionHtml", combinedHtmlStringBuilder.toString(),
+        "sectionHtml", htmlString,
         "consentRef", consentRef,
         "showWatermark", docGenType == DocGenType.PREVIEW,
         "issueDate", DateUtils.formatDate(LocalDate.now())
