@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.integrations.camunda.external;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
+import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.TaskService;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,8 +90,8 @@ public class CamundaWorkflowServiceTest {
 
   }
 
-  @Test
-  public void completeTask_multipleTasks() {
+  @Test(expected = ProcessEngineException.class)
+  public void completeTask_multipleTasks_error() {
 
     camundaWorkflowService.startWorkflow(application);
 
@@ -115,15 +116,6 @@ public class CamundaWorkflowServiceTest {
         .size()).isEqualTo(2);
 
     camundaWorkflowService.completeTask(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.UPDATE_APPLICATION));
-
-    // verify both instances are no longer active
-    assertThat(taskService
-        .createTaskQuery()
-        .processDefinitionKey(WorkflowType.PWA_APPLICATION.getProcessDefinitionKey())
-        .processInstanceBusinessKey("1")
-        .active()
-        .taskDefinitionKey(PwaApplicationWorkflowTask.UPDATE_APPLICATION.getTaskKey())
-        .list()).isEmpty();
 
   }
 
