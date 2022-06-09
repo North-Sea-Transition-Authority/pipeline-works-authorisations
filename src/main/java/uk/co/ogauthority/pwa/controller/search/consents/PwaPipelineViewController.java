@@ -108,7 +108,8 @@ public class PwaPipelineViewController {
         .addObject("currentProcessingTab", tab)
         .addObject("pwaPipelineViewUrlFactory", new PwaPipelineViewUrlFactory(pwaContext.getMasterPwa().getId(), pipelineId))
         .addObject("pipelineReference", latestPipelineDetail.getPipelineNumber())
-        .addObject("showPwaNavigation", pwaContext.getPwaPermissions().contains(PwaPermission.SHOW_PWA_NAVIGATION));
+        .addObject("showPwaNavigation", pwaContext.getPwaPermissions().contains(PwaPermission.SHOW_PWA_NAVIGATION))
+        .addObject("isConsented", true);
 
 
     if (tab.equals(PwaPipelineViewTab.PIPELINE_HISTORY)) {

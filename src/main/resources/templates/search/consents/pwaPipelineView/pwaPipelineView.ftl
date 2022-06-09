@@ -32,7 +32,7 @@
    <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
       <#if currentProcessingTab == "PIPELINE_HISTORY">
-          <@pipelineHistoryTab.tab diffedPipelineSummaryModel/>
+          <@pipelineHistoryTab.tab diffedPipelineSummaryModel isConsented/>
       <#elseif currentProcessingTab == "HUOO_HISTORY">
           <@huooHistoryTab.tab diffedHuooSummary/>
       <#elseif currentProcessingTab == "AS_BUILT_NOTIFICATION_HISTORY">

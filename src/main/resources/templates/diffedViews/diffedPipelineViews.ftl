@@ -1,12 +1,14 @@
 <#include '../pwaLayoutImports.ftl'>
 
-<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[]>
+<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[] consentedModel=false>
 
     <@fdsCheckAnswers.checkAnswers>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline name" actionUrl="" screenReaderActionText="" actionText="">
-           <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineName />
-        </@fdsCheckAnswers.checkAnswersRow>
+        <#if !consentedModel>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline name" actionUrl="" screenReaderActionText="" actionText="">
+               <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineName />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <#if pipelineHeader.hasTemporaryPipelineNumber>
             <@fdsCheckAnswers.checkAnswersRow keyText="Reference used in drawing" actionUrl="" screenReaderActionText="" actionText="">
@@ -57,9 +59,11 @@
              <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_productsToBeConveyed multiLineTextBlockClass="govuk-summary-list" />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Will be trenched and/or buried and/or backfilled?" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled />
-        </@fdsCheckAnswers.checkAnswersRow>
+        <#if !consentedModel>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Will be trenched and/or buried and/or backfilled?" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <#if pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled?has_content && pipelineHeader.PipelineHeaderView_trenchedBuriedBackfilled.currentValue?lower_case == "yes">
             <@fdsCheckAnswers.checkAnswersRow keyText="Method of trenching/burying/backfilling" actionUrl="" screenReaderActionText="" actionText="">
@@ -67,13 +71,17 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Flexible or rigid?" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineFlexibility />
-        </@fdsCheckAnswers.checkAnswersRow>
+        <#if !consentedModel>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Flexible or rigid?" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineFlexibility />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline material" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineMaterial />
-        </@fdsCheckAnswers.checkAnswersRow>
+        <#if !consentedModel>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline material" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineMaterial />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <#if pipelineHeader.PipelineHeaderView_pipelineMaterial?has_content && pipelineHeader.PipelineHeaderView_pipelineMaterial.currentValue?lower_case == "other">
             <@fdsCheckAnswers.checkAnswersRow keyText="Other material used" actionUrl="" screenReaderActionText="" actionText="">
@@ -93,14 +101,16 @@
 
         </#if>
 
-        <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
-            <#if drawingSummaryView?has_content>
-                <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId)) 
-                    linkClass="govuk-link" linkScreenReaderText="Download ${drawingSummaryView.fileName}" role=false start=false openInNewTab=true/>
-            <#else>
-                No drawing uploaded
-            </#if>
-        </@fdsCheckAnswers.checkAnswersRow>             
+        <#if !consentedModel>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Schematic drawing" actionUrl="" screenReaderActionText="" actionText="">
+                <#if drawingSummaryView?has_content>
+                    <@fdsAction.link linkText=drawingSummaryView.fileName linkUrl=springUrl(urlFactory.getPipelineDrawingDownloadUrl(drawingSummaryView.fileId))
+                        linkClass="govuk-link" linkScreenReaderText="Download ${drawingSummaryView.fileName}" role=false start=false openInNewTab=true/>
+                <#else>
+                    No drawing uploaded
+                </#if>
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
         <#if pipelineHeader.canShowFootnote>
             <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Special features">
