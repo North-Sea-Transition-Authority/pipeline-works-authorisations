@@ -12,11 +12,13 @@
 
     <@paragraphs />
 
-    <@boldText />
+    <#if markdownType == 'PWA_COMMON_MARKDOWN'>
+        <@boldText />
 
-    <@italics />
+        <@italics />
+    </#if>
 
-    <@bulletedLists />
+    <@bulletedLists markdownType/>
 
     <@links />
 
@@ -130,7 +132,7 @@ will add a paragraph.
 
 </#macro>
 
-<#macro bulletedLists>
+<#macro bulletedLists markdownType>
 
     <#outputformat "HTML">
         <#assign htmlExample>
@@ -150,8 +152,10 @@ will add a paragraph.
 - a hyphen
 - another hyphen
 
+<#if markdownType == 'PWA_COMMON_MARKDOWN'>
 + plus signs
 + more plus signs
+</#if>
     </#assign>
 
     <#assign codeLanguages = {
@@ -159,7 +163,11 @@ will add a paragraph.
     }>
 
   <h3 class="govuk-heading-m">Bulleted lists</h3>
-  <p class="govuk-body">Create bulleted lists using asterisks, hyphens or plus signs at the start of each line:</p>
+  <#if markdownType == 'PWA_COMMON_MARKDOWN'>
+    <p class="govuk-body">Create bulleted lists using asterisks, hyphens or plus signs at the start of each line:</p>
+  <#elseif markdownType == 'GOVUK_NOTIFY_MARKDOWN'>
+    <p class="govuk-body">Create bulleted lists using asterisks or hyphens at the start of each line:</p>
+  </#if>
 
     <@fdsCodeSample.renderedCodeSample id="bulleted-lists-markdown-example" languageTabs=codeLanguages>
         ${htmlExample}

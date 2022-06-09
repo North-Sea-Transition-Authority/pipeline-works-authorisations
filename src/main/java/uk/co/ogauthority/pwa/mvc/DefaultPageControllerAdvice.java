@@ -69,6 +69,7 @@ public class DefaultPageControllerAdvice {
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
     addMarkdownGuidanceUrl(model);
+    addGovNotifyMarkdownGuidanceUrl(model);
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
     model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
@@ -103,6 +104,11 @@ public class DefaultPageControllerAdvice {
   private void addMarkdownGuidanceUrl(Model model) {
     model.addAttribute("markdownGuidanceUrl",
         ReverseRouter.route(on(MarkdownController.class).renderMarkdownGuidance(null)));
+  }
+
+  private void addGovNotifyMarkdownGuidanceUrl(Model model) {
+    model.addAttribute("govNotifyMarkdownGuidanceUrl",
+        ReverseRouter.route(on(MarkdownController.class).renderEmailMarkdownGuidance(null)));
   }
 
 }
