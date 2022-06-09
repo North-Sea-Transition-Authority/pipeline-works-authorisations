@@ -36,7 +36,6 @@ public class PipelineHeaderServiceTest {
     when(pipelineDetailService.isPipelineConsented(pipeline)).thenReturn(false);
 
     var notAllowedTypes = List.of(
-        PwaApplicationType.OPTIONS_VARIATION,
         PwaApplicationType.DEPOSIT_CONSENT,
         PwaApplicationType.HUOO_VARIATION);
 
