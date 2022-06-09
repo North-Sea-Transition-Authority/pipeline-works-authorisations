@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.events;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class PwaApplicationEventService {
         consentIssueFailedEvent.getIssuingUser());
 
     var stackTrace = ExceptionUtils.getStackTrace(consentIssueFailedEvent.getException());
-    failure.setMessage(stackTrace.substring(0, Math.min(stackTrace.length(), 4000)));
+    failure.setMessage(StringUtils.abbreviate(stackTrace, 4000));
 
     pwaApplicationEventRepository.save(failure);
 
