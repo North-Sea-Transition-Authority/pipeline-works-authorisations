@@ -38,7 +38,7 @@ public class PwaApplicationEventService {
         clock.instant(),
         consentIssueFailedEvent.getIssuingUser());
 
-    failure.setMessage(ExceptionUtils.getStackTrace(consentIssueFailedEvent.getException()));
+    failure.setMessage(ExceptionUtils.getStackTrace(consentIssueFailedEvent.getException()).substring(0, 4000));
 
     pwaApplicationEventRepository.save(failure);
 
