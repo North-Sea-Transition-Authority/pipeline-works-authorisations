@@ -83,7 +83,8 @@ public class ConsentSearchController {
   @PostMapping
   public ModelAndView postSearch(@ModelAttribute("form") ConsentSearchForm form,
                                  AuthenticatedUserAccount user,
-                                 @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                 @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                 Optional<String> analyticsClientId) {
 
     // create new search params from form posted by user, pass them via redirect
     var searchParams = ConsentSearchParams.from(form);
@@ -91,7 +92,7 @@ public class ConsentSearchController {
 
     var analyticsParamMap = AnalyticsUtils.getFiltersUsedParamMap(searchParams);
     analyticsParamMap.remove("search");
-    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.CONSENT_SEARCH, analyticsParamMap);
+    analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.CONSENT_SEARCH, analyticsParamMap);
 
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(searchParams));

@@ -68,7 +68,7 @@
         </td>
       </tr>
       <tr class="govuk-table__row">
-        <td class="govuk-table__cell">pwa-ga-client-id</td>
+        <td class="govuk-table__cell">${analyticsClientIdCookieName}</td>
         <td class="govuk-table__cell govuk-!-width-one-half">
           Stores information about how you use this service. This helps us improve the service for other people.
         </td>

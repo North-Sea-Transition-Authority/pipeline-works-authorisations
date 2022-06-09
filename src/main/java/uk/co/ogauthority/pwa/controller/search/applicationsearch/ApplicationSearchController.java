@@ -118,7 +118,8 @@ public class ApplicationSearchController {
 
   @PostMapping
   public ModelAndView submitSearchParams(@ModelAttribute("form") ApplicationSearchParameters applicationSearchParameters,
-                                         @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                         @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                         Optional<String> analyticsClientId) {
 
     // create a map of filters used so that we can log them to google analytics
     var safeParams = Objects.requireNonNullElse(
@@ -127,7 +128,7 @@ public class ApplicationSearchController {
     );
 
     var paramMap = AnalyticsUtils.getFiltersUsedParamMap(safeParams);
-    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SEARCH, paramMap);
+    analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SEARCH, paramMap);
 
     return redirectAndRunSearch(applicationSearchParameters);
 

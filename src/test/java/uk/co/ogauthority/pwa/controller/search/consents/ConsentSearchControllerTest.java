@@ -150,7 +150,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
         .contains("holderOrgUnitId=25")
         .contains("search=true");
 
-    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.CONSENT_SEARCH), eq(Map.of("holderOrgUnitId", "true")));
+    verify(analyticsService, times(1)).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.CONSENT_SEARCH), eq(Map.of("holderOrgUnitId", "true")));
 
   }
 

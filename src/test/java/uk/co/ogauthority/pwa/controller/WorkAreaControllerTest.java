@@ -164,7 +164,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
     verify(workAreaService, times(1))
         .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
 
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB),
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB),
         eq(Map.of("tab", WorkAreaTab.REGULATOR_WAITING_ON_OTHERS.getLabel())));
 
   }

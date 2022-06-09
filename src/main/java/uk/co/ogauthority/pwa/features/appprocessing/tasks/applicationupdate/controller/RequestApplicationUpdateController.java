@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -79,7 +80,8 @@ public class RequestApplicationUpdateController {
                                     AuthenticatedUserAccount authenticatedUserAccount,
                                     @Valid @ModelAttribute("form") ApplicationUpdateRequestForm form,
                                     BindingResult bindingResult,
-                                    @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                    @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                    Optional<String> analyticsClientId) {
     return whenZeroOpenUpdateRequests(processingContext, pwaApplicationDetail -> {
           var modelAndView = getModelAndView(processingContext);
           applicationUpdateRequestValidator.validate(form, bindingResult);
@@ -94,7 +96,7 @@ public class RequestApplicationUpdateController {
                     form
                 );
 
-                analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.UPDATE_REQUEST_SENT);
+                analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.UPDATE_REQUEST_SENT);
 
                 return ReverseRouter.redirect(on(CaseManagementController.class)
                     .renderCaseManagement(applicationId, pwaApplicationType, AppProcessingTab.TASKS, null, null));

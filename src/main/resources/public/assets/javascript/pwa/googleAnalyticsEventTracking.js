@@ -12,9 +12,9 @@ $(document).ready(() => {
   if (window.FDS.googleAnalytics !== undefined) {
     window.FDS.googleAnalytics._gtag('get', PWA_CONFIG.globalTag, 'client_id', clientId => {
       if (clientId !== 'anonymous_user') {
-        setCookie('pwa-ga-client-id', clientId);
+        setCookie(PWA_CONFIG.analyticsClientIdCookieName, clientId);
       } else {
-        window.FDS.cookies.deleteCookie('pwa-ga-client-id');
+        window.FDS.cookies.deleteCookie(PWA_CONFIG.analyticsClientIdCookieName);
       }
     })
   }

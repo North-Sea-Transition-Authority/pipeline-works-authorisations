@@ -286,7 +286,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .andExpect(status().is3xxRedirection());
 
     verify(docgenService, times(1)).scheduleDocumentGeneration(run);
-    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.DOCUMENT_PREVIEW));
+    verify(analyticsService, times(1)).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.DOCUMENT_PREVIEW));
 
   }
 

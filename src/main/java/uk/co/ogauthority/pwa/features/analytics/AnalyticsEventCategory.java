@@ -2,38 +2,28 @@ package uk.co.ogauthority.pwa.features.analytics;
 
 public enum AnalyticsEventCategory {
 
-  SAVE_APP_FORM("Save application form"),
-  SAVE_APP_FORM_COMPLETE_LATER("Save application form and complete later"),
+  SAVE_APP_FORM,
+  SAVE_APP_FORM_COMPLETE_LATER,
 
-  APPLICATION_SEARCH("Application search"),
-  CONSENT_SEARCH("Consent search"),
+  APPLICATION_SEARCH,
+  CONSENT_SEARCH,
 
-  SHOW_DIFFS_APP("Show differences between app and consents"),
-  SHOW_DIFFS_PIPE("Show differences between pipeline versions"),
-  SHOW_DIFFS_HUOO("Show differences between HUOO versions"),
+  SHOW_DIFFS_APP,
+  SHOW_DIFFS_PIPE,
+  SHOW_DIFFS_HUOO,
 
-  UPDATE_REQUEST_SENT("Update request sent"),
+  UPDATE_REQUEST_SENT,
 
-  APPLICATION_SUBMISSION("Application submitted"),
+  APPLICATION_SUBMISSION,
 
-  APPLICATION_DELETED("Application deleted"),
+  APPLICATION_DELETED,
 
-  PAYMENT_ATTEMPT_STARTED("Payment attempt started"),
-  PAYMENT_ATTEMPT_COMPLETED("Payment attempt completed"),
-  PAYMENT_ATTEMPT_NOT_COMPLETED("Payment attempt not completed"),
+  PAYMENT_ATTEMPT_STARTED,
+  PAYMENT_ATTEMPT_COMPLETED,
+  PAYMENT_ATTEMPT_NOT_COMPLETED,
 
-  BACKGROUND_WORKAREA_TAB("Background work area tab accessed"),
+  BACKGROUND_WORKAREA_TAB,
 
-  DOCUMENT_PREVIEW("Preview document");
-
-  private final String displayName;
-
-  AnalyticsEventCategory(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
+  DOCUMENT_PREVIEW
 
 }

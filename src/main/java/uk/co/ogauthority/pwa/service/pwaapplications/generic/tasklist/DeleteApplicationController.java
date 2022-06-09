@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -74,11 +75,12 @@ public class DeleteApplicationController {
                                             @PathVariable("applicationId") Integer applicationId,
                                             PwaApplicationContext applicationContext,
                                             RedirectAttributes redirectAttributes,
-                                            @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                            @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                            Optional<String> analyticsClientId) {
 
     pwaApplicationDeleteService.deleteApplication(applicationContext.getUser(), applicationContext.getApplicationDetail());
 
-    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_DELETED);
+    analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_DELETED);
 
     FlashUtils.info(redirectAttributes,"Deleted application " + applicationContext.getApplicationDetail().getPwaApplicationRef());
 

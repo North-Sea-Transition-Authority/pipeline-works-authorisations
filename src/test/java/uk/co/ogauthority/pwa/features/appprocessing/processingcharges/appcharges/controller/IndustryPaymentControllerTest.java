@@ -222,7 +222,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:" + attemptSuccessResult.getStartExternalJourneyUrl()));
 
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED));
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED));
     verify(applicationChargeRequestService).startChargeRequestPaymentAttempt(pwaApplicationDetail.getPwaApplication(), user);
 
   }

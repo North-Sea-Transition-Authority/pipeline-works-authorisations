@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
@@ -101,7 +102,9 @@ public class IndustryPaymentController {
                                           @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                           PwaAppProcessingContext processingContext,
                                           RedirectAttributes redirectAttributes,
-                                          @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                          @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+
+                                          Optional<String> analyticsClientId) {
 
     var startPaymentAttemptResult = applicationChargeRequestService.startChargeRequestPaymentAttempt(
         processingContext.getPwaApplication(),
@@ -116,7 +119,7 @@ public class IndustryPaymentController {
       return CaseManagementUtils.redirectCaseManagement(processingContext);
     }
 
-    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED);
+    analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_STARTED);
 
     return new ModelAndView("redirect:" + startPaymentAttemptResult.getStartExternalJourneyUrl());
 

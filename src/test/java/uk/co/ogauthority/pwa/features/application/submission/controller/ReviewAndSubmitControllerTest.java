@@ -230,7 +230,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             "pwaApplication/shared/submission/submitConfirmation"));
 
     verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, null);
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
         Map.of("applicationType", detail.getPwaApplicationType().name(),
             "submissionType", ApplicationSubmissionType.FIRST_DRAFT.name())));
 
@@ -294,7 +294,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             "pwaApplication/shared/submission/submitConfirmation"));
 
     verify(pwaApplicationSubmissionService, times(1)).submitApplication(user, detail, description);
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_SUBMISSION), eq(
         Map.of("applicationType", detail.getPwaApplicationType().name(),
             "submissionType", ApplicationSubmissionType.FIRST_DRAFT.name())));
   }

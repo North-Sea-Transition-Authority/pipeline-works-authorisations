@@ -8,6 +8,8 @@ import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 
 public class AnalyticsUtils {
 
+  public static final String GA_CLIENT_ID_COOKIE_NAME = "pwa-ga-client-id";
+
   private AnalyticsUtils() {
     throw new AssertionError("No util for you");
   }
