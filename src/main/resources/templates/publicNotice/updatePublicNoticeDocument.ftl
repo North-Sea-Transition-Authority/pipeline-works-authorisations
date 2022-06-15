@@ -53,11 +53,11 @@
         </@grid.twoThirdsColumn>
     </@grid.gridRow>
       <@fdsCheckAnswers.checkAnswers>
-        <@fdsCheckAnswers.checkAnswersRow keyText="File Name" actionUrl="" screenReaderActionText="" actionText="">
+        <@fdsCheckAnswers.checkAnswersRow keyText="File name" actionUrl="" screenReaderActionText="" actionText="">
           <@fdsAction.link linkText=publicNoticeDocumentFileView.fileName linkUrl=springUrl(publicNoticeDocumentFileView.fileUrl)
-          linkClass="govuk-link" linkScreenReaderText="Download ${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/>
+          linkClass="govuk-link" linkScreenReaderText="${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/>
         </@fdsCheckAnswers.checkAnswersRow>
-        <@fdsCheckAnswers.checkAnswersRow keyText="File Description" actionUrl="" screenReaderActionText="" actionText="">
+        <@fdsCheckAnswers.checkAnswersRow keyText="File description" actionUrl="" screenReaderActionText="" actionText="">
           ${publicNoticeDocumentFileView.fileDescription}
         </@fdsCheckAnswers.checkAnswersRow>
       </@fdsCheckAnswers.checkAnswers>
