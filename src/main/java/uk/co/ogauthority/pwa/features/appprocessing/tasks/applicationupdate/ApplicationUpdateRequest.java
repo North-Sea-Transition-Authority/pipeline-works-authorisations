@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate;
 import java.time.Clock;
 import java.time.Instant;
 import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -37,6 +38,7 @@ public class ApplicationUpdateRequest {
 
   private Instant requestedTimestamp;
 
+  @Column(name = "request_reason", columnDefinition = "CLOB")
   private String requestReason;
 
   private Instant deadlineTimestamp;
