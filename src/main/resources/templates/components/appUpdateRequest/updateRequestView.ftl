@@ -2,17 +2,17 @@
 
 <#-- @ftlvariable name="view" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="taskListUrl" type="String" -->
-
 <#macro banner view canUpdate=false taskListUrl="">
-  <#assign headingCaptions = ["Requested on ${view.getRequestedTimestampDisplay()}", "Update due on ${view.getDeadlineTimestampDisplay()}"]/>
-    <#assign formattedRequestText>
-        <span class="further-info-text-block">
-          <@multiLineText.multiLineText blockClass="further-info-text-block">${view.requestReason!}</@multiLineText.multiLineText>
-        </span>
-    </#assign>
-  <@fdsContactPanel.contactPanel headingText="Further information requested" contentHeadingText=formattedRequestText contentHeadingCaptionList=headingCaptions>
-      <#if canUpdate>
-          <@fdsAction.link linkText="Update application" linkClass="govuk-button govuk-button--negative" linkUrl=springUrl(taskListUrl) role=true/>
-      </#if>
-  </@fdsContactPanel.contactPanel>
+  <@fdsNotificationBanner.notificationBannerInfo bannerTitleText="Further information requested">
+          <@fdsNotificationBanner.notificationBannerContent headingText="Update due on ${view.getDeadlineTimestampDisplay()}" moreContent=moreContent>
+              <p class="govuk-body">Update requested on ${view.getRequestedTimestampDisplay()}
+              <@fdsDetails.summaryDetails summaryTitle="Information request summary">
+                ${view.requestReason!}
+              </@fdsDetails.summaryDetails>
+              <#if canUpdate>
+                <@fdsAction.link linkText="Update application" linkClass="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" linkUrl=springUrl(taskListUrl) role=true/>
+              </#if>
+              </p>
+          </@fdsNotificationBanner.notificationBannerContent>
+  </@fdsNotificationBanner.notificationBannerInfo>
 </#macro>

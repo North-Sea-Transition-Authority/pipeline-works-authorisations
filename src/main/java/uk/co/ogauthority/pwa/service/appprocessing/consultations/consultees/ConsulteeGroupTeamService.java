@@ -17,8 +17,10 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -40,13 +42,17 @@ public class ConsulteeGroupTeamService {
   private final ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
   private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
+  private final NotifyService notifyService;
+
   @Autowired
   public ConsulteeGroupTeamService(ConsulteeGroupDetailRepository groupDetailRepository,
                                    ConsulteeGroupTeamMemberRepository groupTeamMemberRepository,
-                                   NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher) {
+                                   NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher,
+                                   NotifyService notifyService) {
     this.groupDetailRepository = groupDetailRepository;
     this.groupTeamMemberRepository = groupTeamMemberRepository;
     this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
+    this.notifyService = notifyService;
   }
 
   public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(AuthenticatedUserAccount user) {
@@ -134,7 +140,22 @@ public class ConsulteeGroupTeamService {
     groupTeamMemberRepository.save(newTeamMember);
 
     nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
+    notifyNewTeamUser(consulteeGroup, person, roles);
 
+  }
+
+  public void notifyNewTeamUser(ConsulteeGroup consulteeGroup, Person person, Set<ConsulteeGroupMemberRole> selectedRoles) {
+    var consulteeGroupDetail = groupDetailRepository.findByConsulteeGroupAndTipFlagIsTrue(consulteeGroup);
+    if (consulteeGroupDetail.isPresent()) {
+      var mdFormattedRoles = selectedRoles.stream()
+          .map(ConsulteeGroupMemberRole::getDisplayName)
+          .map(str -> "* " + str)
+          .collect(Collectors.joining("\n"));
+
+      var groupName = consulteeGroupDetail.get().getName();
+      var emailProps = new AddedToTeamEmailProps(person.getFullName(), groupName, mdFormattedRoles);
+      notifyService.sendEmail(emailProps, person.getEmailAddress());
+    }
   }
 
   private void updateMemberRoles(ConsulteeGroupTeamMember teamMember, Set<ConsulteeGroupMemberRole> newRoles) {

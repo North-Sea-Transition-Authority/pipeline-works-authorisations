@@ -25,8 +25,10 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -52,6 +54,9 @@ public class ConsulteeGroupTeamServiceTest {
   @Mock
   private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
+  @Mock
+  private NotifyService notifyService;
+
   @Captor
   private ArgumentCaptor<ConsulteeGroupTeamMember> teamMemberArgumentCaptor;
 
@@ -71,7 +76,10 @@ public class ConsulteeGroupTeamServiceTest {
 
     when(groupDetailRepository.findAllByEndTimestampIsNull()).thenReturn(List.of(emtGroupDetail, oduGroupDetail));
 
-    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository, groupTeamMemberRepository, nonFoxTeamMemberEventPublisher);
+    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository,
+        groupTeamMemberRepository,
+        nonFoxTeamMemberEventPublisher,
+        notifyService);
 
     user = new WebUserAccount(1, new Person(1, "forename", "surname", null, null));
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
@@ -393,6 +401,22 @@ public class ConsulteeGroupTeamServiceTest {
 
     assertThat(thrown).isTrue();
 
+  }
+
+  @Test
+  public void addMember_NotificationSent() {
+    var person = new Person(1, "PersonForeName", "PersonSurname", "person.person@person.co.uk", null);
+    var form = getRolesFormWithRoles(Set.of(ConsulteeGroupMemberRole.RECIPIENT));
+
+    when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), person))
+        .thenReturn(Optional.empty());
+    when(groupDetailRepository.findByConsulteeGroupAndTipFlagIsTrue(emtGroupDetail.getConsulteeGroup()))
+        .thenReturn(Optional.of(emtGroupDetail));
+
+    groupTeamService.updateUserRoles(emtGroupDetail.getConsulteeGroup(), person, form);
+
+    var emailProps = new AddedToTeamEmailProps(person.getFullName(), emtGroupDetail.getName(), "* " + ConsulteeGroupMemberRole.RECIPIENT.getDisplayName());
+    verify(notifyService).sendEmail(emailProps, "person.person@person.co.uk");
   }
 
   private UserRolesForm getRolesFormWithRoles(Set<ConsulteeGroupMemberRole> roles) {

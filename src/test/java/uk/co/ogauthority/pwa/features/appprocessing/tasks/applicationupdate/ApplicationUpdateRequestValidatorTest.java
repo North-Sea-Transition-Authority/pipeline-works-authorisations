@@ -65,7 +65,7 @@ public class ApplicationUpdateRequestValidatorTest {
 
     form.setRequestReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(result).contains(entry("requestReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("requestReason"))));
+    assertThat(result).doesNotContain(entry("requestReason", Set.of(MAX_LENGTH_EXCEEDED.errorCode("requestReason"))));
   }
 
   @Test

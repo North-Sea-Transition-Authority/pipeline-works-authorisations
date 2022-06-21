@@ -34,7 +34,7 @@ public class AddedToTeamEmailProps extends EmailProperties {
     }
     AddedToTeamEmailProps that = (AddedToTeamEmailProps) o;
     return Objects.equals(teamName, that.teamName)
-        && Objects.equals(this.getRecipientFullName(), that.getRecipientFullName())
+        && Objects.equals(getRecipientFullName(), that.getRecipientFullName())
         && Objects.equals(rolesAssigned, that.rolesAssigned);
   }
 

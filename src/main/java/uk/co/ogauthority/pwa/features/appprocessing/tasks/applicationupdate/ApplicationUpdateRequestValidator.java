@@ -24,7 +24,6 @@ public class ApplicationUpdateRequestValidator implements Validator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "requestReason", REQUIRED.errorCode("requestReason"),
         "A reason for the update request must be provided");
-    ValidatorUtils.validateDefaultStringLength(errors, "requestReason", form::getRequestReason, "The reason for update request");
     ValidatorUtils.validateDatePickerDateIsPresentOrFuture("deadlineTimestampStr", "Due date", form.getDeadlineTimestampStr(), errors);
   }
 
