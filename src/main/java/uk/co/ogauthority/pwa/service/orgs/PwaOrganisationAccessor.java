@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
@@ -58,14 +58,13 @@ public class PwaOrganisationAccessor {
         );
   }
 
-  public List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
+  public List<PortalOrganisationSearchUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
 
     if (userTypeService.getPriorityUserType(user) == UserType.OGA) {
-      return portalOrganisationsAccessor.getAllActiveOrganisationUnits();
+      return portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch();
     }
 
-    return portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
-
+    return portalOrganisationsAccessor.getSearchableOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
   }
 
 }

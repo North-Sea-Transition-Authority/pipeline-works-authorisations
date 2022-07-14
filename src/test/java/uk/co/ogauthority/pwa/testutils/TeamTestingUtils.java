@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -111,10 +112,25 @@ public class TeamTestingUtils {
     return generateOrganisationUnit(1000, "ORGANISATION_UNIT", portalOrganisationGroup);
   }
 
+  public static PortalOrganisationSearchUnit createOrgSearchUnit() {
+    var portalOrganisationGroup = generateOrganisationGroup(100, "ORGANISATION_GROUP", "ORG_GRP");
+    return generateOrganisationSearchUnit(1000, "ORGANISATION_UNIT", "XX001", portalOrganisationGroup);
+  }
+
   private static PortalOrganisationUnit generateOrganisationUnit(int ouId, String name,
                                                                 PortalOrganisationGroup portalOrganisationGroup) {
     return PortalOrganisationTestUtils.generateOrganisationUnit(
         ouId, name, portalOrganisationGroup);
+  }
+
+  private static PortalOrganisationSearchUnit generateOrganisationSearchUnit(int ouId,
+                                                                             String name,
+                                                                             String companyNumber,
+                                                                             PortalOrganisationGroup portalOrganisationGroup) {
+    return PortalOrganisationTestUtils.generateOrganisationSearchUnit(ouId,
+        name,
+        companyNumber,
+        portalOrganisationGroup);
   }
 
   public static PortalOrganisationGroup generateOrganisationGroup(int orgGrpId, String name, String shortName) {

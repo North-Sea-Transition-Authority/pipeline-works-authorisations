@@ -80,6 +80,16 @@ public class PortalOrganisationTestUtils {
     return organisationUnit;
   }
 
+  public static PortalOrganisationSearchUnit generateOrganisationSearchUnit(int ouId,
+                                                                            String name,
+                                                                            String companyReference,
+                                                                            PortalOrganisationGroup portalOrganisationGroup) {
+    return new PortalOrganisationSearchUnit(ouId,
+        name + " (" + companyReference + ")",
+        portalOrganisationGroup.getOrgGrpId(),
+        true);
+  }
+
   public static PortalOrganisationGroup generateOrganisationGroup(int orgGrpId, String name, String shortName) {
 
     PortalOrganisationGroup portalOrganisationGroup = new PortalOrganisationGroup();
