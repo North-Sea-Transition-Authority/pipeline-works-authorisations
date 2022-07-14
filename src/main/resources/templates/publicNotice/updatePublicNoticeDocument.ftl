@@ -52,15 +52,15 @@
             </@fdsInsetText.insetText>
         </@grid.twoThirdsColumn>
     </@grid.gridRow>
-      <@fdsCheckAnswers.checkAnswers>
-        <@fdsCheckAnswers.checkAnswersRow keyText="File name" actionUrl="" screenReaderActionText="" actionText="">
+      <@fdsCheckAnswers.summaryList>
+        <@fdsCheckAnswers.summaryListRowNoAction keyText="File name">
           <@fdsAction.link linkText=publicNoticeDocumentFileView.fileName linkUrl=springUrl(publicNoticeDocumentFileView.fileUrl)
           linkClass="govuk-link" linkScreenReaderText="${publicNoticeDocumentFileView.fileName}" role=false start=false openInNewTab=true/>
-        </@fdsCheckAnswers.checkAnswersRow>
-        <@fdsCheckAnswers.checkAnswersRow keyText="File description" actionUrl="" screenReaderActionText="" actionText="">
+        </@fdsCheckAnswers.summaryListRowNoAction>
+        <@fdsCheckAnswers.summaryListRowNoAction keyText="File description">
           ${publicNoticeDocumentFileView.fileDescription}
-        </@fdsCheckAnswers.checkAnswersRow>
-      </@fdsCheckAnswers.checkAnswers>
+        </@fdsCheckAnswers.summaryListRowNoAction>
+      </@fdsCheckAnswers.summaryList>
       <@fdsFieldset.fieldset legendHeading="Public notice document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h3" hintText="Upload the updated public notice document (parts A-D)">
         <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl multiFile=false
         maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl dropzoneText="Drag and drop your document here" />
