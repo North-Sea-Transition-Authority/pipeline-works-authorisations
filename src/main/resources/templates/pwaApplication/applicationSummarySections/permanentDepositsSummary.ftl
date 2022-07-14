@@ -21,7 +21,7 @@
         <#if deposit.depositIsForConsentedPipeline?has_content>${deposit.depositIsForConsentedPipeline?then('Yes', 'No')}</#if>
       </dd>
     </div>
-    
+
     <#if deposit.depositIsForConsentedPipeline?has_content && deposit.depositIsForConsentedPipeline == true>
       <div class="govuk-summary-list__row">
         <dt class="govuk-summary-list__key">Pipelines</dt>
@@ -64,6 +64,22 @@
       <dt class="govuk-summary-list__key">Type of materials</dt>
       <dd class="govuk-summary-list__value">${deposit.materialType.value} </dd>
     </div>
+    <#local showGroutBagFields=(deposit.materialTypeLookup == "GROUT_BAGS")/>
+    <#if showGroutBagFields>
+      <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Biodegradable grout bags used</dt>
+        <dd class="govuk-summary-list__value">${deposit.groutBagsBioDegradable?string("Yes", "No")} </dd>
+      </div>
+      <#local showGroutBagDescription=(deposit.groutBagsBioDegradable)/>
+      <#if !showGroutBagDescription>
+        <div class="govuk-summary-list__row">
+          <dt class="govuk-summary-list__key">Non-biodegradable grout bags used reason</dt>
+          <dd class="govuk-summary-list__value">
+              ${deposit.bioGroutBagsNotUsedDescription}
+          </dd>
+        </div>
+      </#if>
+    </#if>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Size</dt>
       <dd class="govuk-summary-list__value">${deposit.materialSize} </dd>
@@ -77,19 +93,7 @@
       <dd class="govuk-summary-list__value">${deposit.contingencyAmount!} </dd>
     </div>
 
-    <#local showGroutBagFields=("GROUT_BAGS"==deposit.materialTypeLookup.currentValue! || "GROUT_BAGS"==deposit.materialTypeLookup.previousValue!)/>
-    <#if showGroutBagFields>
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Biodegradable grout bags used</dt>
-        <dd class="govuk-summary-list__value">${deposit.groutBagsBioDegradable} </dd>
-      </div>
-      <div class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Non-biodegradable grout bags used reason</dt>
-        <dd class="govuk-summary-list__value">
-          ${deposit.bioGroutBagsNotUsedDescription}
-        </dd>
-      </div>
-    </#if>
+
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">From (WGS84)</dt>
       <dd class="govuk-summary-list__value">
@@ -107,7 +111,7 @@
       <div class="govuk-summary-list__row">
           <dt class="govuk-summary-list__key">Other information</dt>
           <dd class="govuk-summary-list__value">
-              <@multiLineText.multiLineText blockClass="footnote__text">${deposit.footnote}</@multiLineText.multiLineText> 
+              <@multiLineText.multiLineText blockClass="footnote__text">${deposit.footnote}</@multiLineText.multiLineText>
           </dd>
       </div>
     </#if>
