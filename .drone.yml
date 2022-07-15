@@ -153,3 +153,12 @@ volumes:
   - name: nvd-db
     host:
       path: /home/fivium/nvd-db
+
+
+  - name: docker-sock
+    host:
+      path: /var/run/docker.sock
+
+  - name: drone-trivy-cache
+    host:
+      path: /root/.cache/
