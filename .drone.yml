@@ -67,7 +67,7 @@ steps:
         - success
 
   - name: trivy-build-image
-    image: docker:20.10.9
+    image: docker:19.03.8
     volumes:
       - name: docker-sock
         path: /var/run/docker.sock
