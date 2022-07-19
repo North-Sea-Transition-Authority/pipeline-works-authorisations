@@ -64,7 +64,7 @@ dependencies {
   implementation 'com.oracle:ojdbc7:12.1.0.2'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
+  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.17.0'
 
   // Required by Hibernate Envers
   // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
