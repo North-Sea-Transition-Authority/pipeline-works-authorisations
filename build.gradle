@@ -50,7 +50,6 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-  implementation 'org.springframework.boot:spring-boot-starter-security'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework:spring-test'
   implementation 'org.springframework.boot:spring-boot-starter-freemarker'
@@ -80,6 +79,9 @@ dependencies {
   implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
 
   implementation group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
+
+  // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-security
+  implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.7.1'
 
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-core
   implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.4'
