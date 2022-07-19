@@ -66,7 +66,7 @@ dependencies {
   implementation 'com.oracle:ojdbc7:12.1.0.2'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
+  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.17.0'
 
   // Required by Hibernate Envers
   // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
@@ -86,7 +86,7 @@ dependencies {
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-core
   implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.4'
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-pdfbox
-  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.4'
+  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.10'
 
   // https://mvnrepository.com/artifact/org.jsoup/jsoup
   implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.3'
@@ -99,7 +99,7 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
-  testImplementation 'com.h2database:h2:1.4.197'
+  testImplementation 'com.h2database:h2:2.1.214'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
