@@ -85,7 +85,7 @@ steps:
         path: /var/webfiles
     commands:
       # timeout set as initial cache population can seemingly take a while sometimes
-      - trivy image -f template -t "@contrib/html.tpl" -o build/reports/trivy-scan.html --timeout 30m --exit-code 1 quay.io/fivium/pipeline-works-authorisations:trivy-scan-target
+      - trivy image -o build/reports/trivy-scan.html --timeout 30m --exit-code 1 quay.io/fivium/pipeline-works-authorisations:trivy-scan-target
     when:
       status:
         - success
