@@ -97,7 +97,7 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
-  testImplementation 'com.h2database:h2:2.1.212'
+  testImplementation 'com.h2database:h2:1.4.197'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
