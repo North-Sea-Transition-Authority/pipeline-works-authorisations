@@ -71,9 +71,9 @@ dependencies {
   implementation 'org.imgscalr:imgscalr-lib:4.2'
   implementation 'org.jsoup:jsoup:1.14.3'
 
-  implementation 'com.atlassian.commonmark:commonmark:0.15.2'
-  implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.15.2'
-  implementation 'com.google.guava:guava:31.0.1-jre'
+  implementation 'com.atlassian.commonmark:commonmark:0.17.0'
+  implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.17.0'
+  implementation 'com.google.guava:guava:31.1-jre'
   implementation 'com.oracle:ojdbc7:12.1.0.2'
   implementation 'com.openhtmltopdf:openhtmltopdf-core:1.0.10'
   implementation 'com.openhtmltopdf:openhtmltopdf-pdfbox:1.0.10'
@@ -82,7 +82,7 @@ dependencies {
 
   implementation 'fi.solita.clamav:clamav-client:1.0.1'
 
-  implementation 'io.micrometer:micrometer-registry-statsd:1.7.8'
+  implementation 'io.micrometer:micrometer-registry-statsd:1.9.0'
 
   implementation 'uk.co.fivium.feedbackmanagementservice:client:2.1.1'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.3-RELEASE'
@@ -92,14 +92,14 @@ dependencies {
   annotationProcessor("org.hibernate:hibernate-jpamodelgen")
 
   testImplementation 'com.h2database:h2:1.4.197'
-  testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
+  testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.10'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
-      'com.squareup.okhttp3:mockwebserver:4.9.1',
-      'com.squareup.okhttp3:okhttp:4.9.1' // Required otherwise MockWebServer gives ClassNotFoundException
+      'com.squareup.okhttp3:mockwebserver:4.10.0',
+      'com.squareup.okhttp3:okhttp:4.10.0' // Required otherwise MockWebServer gives ClassNotFoundException
   )
-  testImplementation 'junit:junit:4.13.1'
+  testImplementation 'junit:junit:4.13.2'
 }
 
 checkstyle {
