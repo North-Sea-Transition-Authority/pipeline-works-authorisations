@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-  id 'org.springframework.boot' version '2.6.9'
+  id 'org.springframework.boot' version '2.6.8'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
