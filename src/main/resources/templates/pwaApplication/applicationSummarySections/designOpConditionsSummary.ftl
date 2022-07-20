@@ -13,7 +13,7 @@
 </div>
 
 
-<#macro designOpConditionsDetails designOpConditionsView>  
+<#macro designOpConditionsDetails designOpConditionsView>
 
   <@fdsCheckAnswers.checkAnswers>
 
@@ -44,18 +44,18 @@
     <@fdsCheckAnswers.checkAnswersRow keyText="U-value design conditions" actionUrl="" screenReaderActionText="" actionText="">
         <#if designOpConditionsView.uvalueDesign?has_content> ${designOpConditionsView.uvalueDesign!} ${unitMeasurements.KSCM_D.suffixDisplay} </#if>
     </@fdsCheckAnswers.checkAnswersRow>
-    
-      
+
+
   </@fdsCheckAnswers.checkAnswers>
 
 </#macro>
 
 <#macro minMaxView minMaxViewData>
   <@minMaxSummary.minMaxSummary
-    minMaxViewData.minValue
-    minMaxViewData.maxValue
-    minMaxViewData.minPrompt
-    minMaxViewData.maxPrompt
+  minMaxViewData.minValue!""
+  minMaxViewData.maxValue!""
+  minMaxViewData.minPrompt!""
+  minMaxViewData.maxPrompt!""
     stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)
   />
 </#macro>
