@@ -26,7 +26,7 @@ public class DecimalInputValidator implements SmartValidator {
   private static final String DECIMAL_REQUIRED_ERROR_FORMAT = "Enter a number for %s";
   private static final String DECIMAL_INVALID_ERROR_FORMAT = "Enter a valid number for %s";
 
-  static Integer MAX_INPUT_LENGTH = 30;
+  static final Integer MAX_INPUT_LENGTH = 30;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -56,14 +56,11 @@ public class DecimalInputValidator implements SmartValidator {
         .map(hint -> ((FieldIsOptionalHint) hint))
         .findFirst().isEmpty();
 
-    var maxLength = MAX_INPUT_LENGTH;
     Optional<MaxLengthHint> maxLengthHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(MaxLengthHint.class))
         .map(hint -> (MaxLengthHint) hint)
         .findFirst();
-    if (maxLengthHint.isPresent()) {
-      maxLength = maxLengthHint.get().getMaxInputLength();
-    }
+    var maxLength = maxLengthHint.map(MaxLengthHint::getMaxInputLength).orElse(MAX_INPUT_LENGTH);
 
     Optional<DecimalPlaceHint> decimalPlaceHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(DecimalPlaceHint.class))
