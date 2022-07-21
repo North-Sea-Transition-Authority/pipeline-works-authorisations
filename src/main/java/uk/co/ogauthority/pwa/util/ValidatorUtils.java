@@ -22,7 +22,6 @@ import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 public class ValidatorUtils {
 
