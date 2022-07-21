@@ -61,7 +61,7 @@ public class DecimalInputValidator implements SmartValidator {
         .filter(hint -> hint.getClass().equals(MaxLengthHint.class))
         .map(hint -> (MaxLengthHint) hint)
         .findFirst();
-    if(maxLengthHint.isPresent()) {
+    if (maxLengthHint.isPresent()) {
       maxLength = maxLengthHint.get().getMaxInputLength();
     }
 
