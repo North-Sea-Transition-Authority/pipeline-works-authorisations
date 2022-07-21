@@ -199,7 +199,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           decimalInputValidator,
           "groutBagsSize",
           form.getGroutBagsSize(),
-          getPositiveNumberFieldHints("grout bags")
+          getPositiveNumberFieldHints("grout bags",
+              new MaxLengthHint(20))
       );
 
       ValidatorUtils.invokeNestedValidator(
@@ -207,7 +208,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           decimalInputValidator,
           "quantityGroutBags",
           form.getQuantityGroutBags(),
-          getPositiveNumberFieldHints("quantity grout bags", new MaxLengthHint(20))
+          getPositiveNumberFieldHints("quantity grout bags",
+              new MaxLengthHint(20))
       );
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsBioDegradable", "groutBagsBioDegradable.required",
