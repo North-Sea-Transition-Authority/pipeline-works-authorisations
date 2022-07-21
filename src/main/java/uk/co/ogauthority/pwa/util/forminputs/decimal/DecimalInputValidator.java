@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.util.PwaNumberUtils;
 import uk.co.ogauthority.pwa.util.StringDisplayUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
+import uk.co.ogauthority.pwa.util.forminputs.generic.MaxLengthHint;
 
 @Component
 public class DecimalInputValidator implements SmartValidator {
@@ -25,7 +26,7 @@ public class DecimalInputValidator implements SmartValidator {
   private static final String DECIMAL_REQUIRED_ERROR_FORMAT = "Enter a number for %s";
   private static final String DECIMAL_INVALID_ERROR_FORMAT = "Enter a valid number for %s";
 
-  static final Integer MAX_INPUT_LENGTH = 30;
+  static Integer MAX_INPUT_LENGTH = 30;
 
   @Override
   public boolean supports(Class<?> clazz) {
@@ -54,6 +55,15 @@ public class DecimalInputValidator implements SmartValidator {
         .filter(hint -> hint.getClass().equals(FieldIsOptionalHint.class))
         .map(hint -> ((FieldIsOptionalHint) hint))
         .findFirst().isEmpty();
+
+    var maxLength = MAX_INPUT_LENGTH;
+    Optional<MaxLengthHint> maxLengthHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(MaxLengthHint.class))
+        .map(hint -> (MaxLengthHint) hint)
+        .findFirst();
+    if(maxLengthHint.isPresent()) {
+      maxLength = maxLengthHint.get().getMaxInputLength();
+    }
 
     Optional<DecimalPlaceHint> decimalPlaceHint = Arrays.stream(objects)
         .filter(hint -> hint.getClass().equals(DecimalPlaceHint.class))
@@ -111,7 +121,7 @@ public class DecimalInputValidator implements SmartValidator {
       nonNegativeNumberHint.ifPresent(hint -> validateNonNegative(errors, decimalInput, inputLabel));
       lessThanFieldHint.ifPresent(hint -> validateLessThanField(errors, decimalInput, inputLabel, hint));
       lessThanEqualToHint.ifPresent(hint -> validateLessThanEqualToNumber(errors, decimalInput, inputLabel, hint));
-      validateInputLength(errors, decimalInput, inputLabel);
+      validateInputLength(errors, decimalInput, inputLabel, maxLength);
     }
 
   }
@@ -169,12 +179,12 @@ public class DecimalInputValidator implements SmartValidator {
 
   }
 
-  public void validateInputLength(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel) {
-    if (decimalInput.getValue().length() > MAX_INPUT_LENGTH) {
+  public void validateInputLength(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel, int maxLength) {
+    if (decimalInput.getValue().length() > maxLength) {
       errors.rejectValue(
           VALUE,
           FieldValidationErrorCodes.INVALID.errorCode(VALUE),
-          String.format("%s must be %s characters or fewer", StringUtils.capitalize(inputLabel.getLabel()), MAX_INPUT_LENGTH)
+          String.format("%s must be %s characters or fewer", StringUtils.capitalize(inputLabel.getLabel()), maxLength)
       );
     }
   }
