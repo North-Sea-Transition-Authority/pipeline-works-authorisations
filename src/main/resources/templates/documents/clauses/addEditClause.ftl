@@ -18,7 +18,7 @@
         <#if mergeFieldNames?has_content>
           <@fdsDetails.summaryDetails summaryTitle="How can I include application data in my clause?">
 
-            <h3 class="govuk-heading-m">Mail merge fields</h3>
+            <h2 class="govuk-heading-m">Mail merge fields</h2>
             <p class="govuk-body">Any of the fields listed below can be included in clause text to pull in information from the application.
               This will be visible after saving the clause.</p>
             <@pwaMailMerge.mailMergeFieldList mergeFields=mergeFieldNames />
@@ -28,7 +28,7 @@
           </@fdsDetails.summaryDetails>
         </#if>
 
-        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} clause" linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl)/>
+        <@fdsAction.submitButtons primaryButtonText="${actionType.submitButtonText} clause"  linkSecondaryAction=true secondaryLinkText="Go back" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 
     </@fdsForm.htmlForm>
 
