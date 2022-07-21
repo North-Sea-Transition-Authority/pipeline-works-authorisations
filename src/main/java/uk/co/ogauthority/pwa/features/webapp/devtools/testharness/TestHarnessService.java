@@ -40,7 +40,7 @@ public class TestHarnessService {
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
 
   private static final Set<PwaApplicationType> APP_TYPES_FOR_PIPELINES =
-      EnumSet.complementOf(EnumSet.of(PwaApplicationType.HUOO_VARIATION, PwaApplicationType.DEPOSIT_CONSENT));
+      EnumSet.complementOf(EnumSet.of(PwaApplicationType.DEPOSIT_CONSENT));
 
   private static final Set<PwaApplicationStatus> TEST_HARNESS_APP_STATUSES =
       EnumSet.complementOf(EnumSet.of(PwaApplicationStatus.UPDATE_REQUESTED, PwaApplicationStatus.WITHDRAWN, PwaApplicationStatus.DELETED));
