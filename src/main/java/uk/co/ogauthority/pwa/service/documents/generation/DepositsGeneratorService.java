@@ -144,6 +144,10 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
     return "";
   }
 
+  private String getMaterialTypeDisplay(PadPermanentDeposit deposit) {
+    var materialType = deposit.getMaterialType();
+    return materialType == MaterialType.OTHER ? deposit.getOtherMaterialType() : materialType.getDisplayText();
+  }
 
   private DepositTableRowView mapDepositAndPipelinesToTableRowView(
       PadPermanentDeposit deposit, String pipelineColumnText, List<String> drawingRefs) {
@@ -151,7 +155,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
     var proposedDate = DateUtils.createDateEstimateString(deposit.getFromMonth(), deposit.getFromYear()) + "-" +
         DateUtils.createDateEstimateString(deposit.getToMonth(), deposit.getToYear());
 
-    var typeAndSizeOfMaterials = deposit.getMaterialType().getDisplayText() +
+    var typeAndSizeOfMaterials = getMaterialTypeDisplay(deposit) +
         getMaterialSizeDisplay(deposit) + getUnitMeasurementDisplay(deposit) + getMaterialsPropertiesDisplay(deposit);
 
     return new DepositTableRowView(
