@@ -105,6 +105,11 @@ public class DepositGeneratorServiceTest {
     var deposit3 = createDeposit(3);
     deposit3.setDepositIsForPipelinesOnOtherApp(true);
     deposit3.setAppRefAndPipelineNum("App refs and pipeline numbers xyz");
+    var deposit4 =  PadPermanentDepositTestUtil.createOtherPadDeposit(
+        4, "ref " + 4, pwaApplicationDetail, "4", "5", 1, null,
+        LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 5),
+        CoordinatePairTestUtil.getDefaultCoordinate(), CoordinatePairTestUtil.getDefaultCoordinate());
+    deposit4.setDepositIsForPipelinesOnOtherApp(false);
 
     //deposits for pipelines
     var pipeline1 = createPipeline(1);
@@ -113,17 +118,17 @@ public class DepositGeneratorServiceTest {
     var deposit1AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline1);
     var deposit1AndPipeline2 = PadPermanentDepositTestUtil.createDepositPipeline(deposit1, pipeline2);
     var deposit2AndPipeline1 = PadPermanentDepositTestUtil.createDepositPipeline(deposit2, pipeline1);
+    var deposit4AndPipeline2 = PadPermanentDepositTestUtil.createDepositPipeline(deposit4, pipeline2);
 
     Map<PadPermanentDeposit, List<PadDepositPipeline>> depositForPipelinesMap = new HashMap<>();
     depositForPipelinesMap.put(deposit1, List.of(deposit1AndPipeline1, deposit1AndPipeline2));
     depositForPipelinesMap.put(deposit2, List.of(deposit2AndPipeline1));
+    depositForPipelinesMap.put(deposit4, List.of(deposit4AndPipeline2));
 
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(depositForPipelinesMap);
 
-
     //deposits that have pipelines on other apps
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of(deposit3));
-
 
     //deposit drawings
     var drawing1 = createDepositDrawing(1);
@@ -133,6 +138,7 @@ public class DepositGeneratorServiceTest {
     var deposit1drawingLink2 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit1, drawing2);
     var deposit2drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit2, drawing1);
     var deposit3drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit3, drawing1);
+    var deposit4drawingLink1 = PadPermanentDepositTestUtil.createPadDepositDrawingLink(deposit4, drawing1);
 
     var allDeposits = new ArrayList<PadPermanentDeposit>();
     allDeposits.addAll(List.of(deposit3));
@@ -141,9 +147,9 @@ public class DepositGeneratorServiceTest {
     when(depositDrawingsService.getDepositAndDrawingLinksMapForDeposits(allDeposits)).thenReturn(Map.of(
         deposit1, List.of(deposit1drawingLink1, deposit1drawingLink2),
         deposit2, List.of(deposit2drawingLink1),
-        deposit3, List.of(deposit3drawingLink1)
+        deposit3, List.of(deposit3drawingLink1),
+        deposit4, List.of(deposit4drawingLink1)
     ));
-
 
     //pipeline overviews
     var overviewForPipeline1 = createPipelineOverview(pipeline1, "PL1");
@@ -161,14 +167,17 @@ public class DepositGeneratorServiceTest {
         pipeline1.getPipelineId(), overviewForPipeline1
     ));
 
-
+    when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds(
+        pwaApplicationDetail, List.of(pipeline2.getPipelineId()))).thenReturn(Map.of(
+        pipeline2.getPipelineId(), overviewForPipeline2
+    ));
 
     var documentSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     var depositTableRowViews = (List<DepositTableRowView>) documentSectionData.getTemplateModel().get("depositTableRowViews");
     var sectionName = documentSectionData.getTemplateModel().get("sectionName");
 
     assertThat(sectionName).isEqualTo(DocumentSection.DEPOSITS.getDisplayName());
-    assertThat(depositTableRowViews).hasSize(3);
+    assertThat(depositTableRowViews).hasSize(4);
 
     var expectedProposedStartDateDeposit1 = DateUtils.createDateEstimateString(deposit1.getFromMonth(), deposit1.getFromYear()) + "-" +
         DateUtils.createDateEstimateString(deposit1.getToMonth(), deposit1.getToYear());
@@ -210,9 +219,21 @@ public class DepositGeneratorServiceTest {
         List.of(drawing1.getReference())
     );
 
+    var expectedTableRowViewForDeposit4 = new DepositTableRowView(
+        deposit4.getReference(),
+        overviewForPipeline2.getPipelineNumber(),
+        expectedProposedStartDateDeposit2,
+        deposit4.getOtherMaterialType() + ", " + deposit4.getMaterialSize(),
+        String.valueOf((int) deposit4.getQuantity()),
+        deposit4.getFromCoordinates(),
+        deposit4.getToCoordinates(),
+        List.of(drawing1.getReference())
+    );
+
     assertThat(depositTableRowViews.get(0)).isEqualTo(expectedTableRowViewForDeposit1);
     assertThat(depositTableRowViews.get(1)).isEqualTo(expectedTableRowViewForDeposit2);
     assertThat(depositTableRowViews.get(2)).isEqualTo(expectedTableRowViewForDeposit3);
+    assertThat(depositTableRowViews.get(3)).isEqualTo(expectedTableRowViewForDeposit4);
 
     var footnotes = (List<String>) documentSectionData.getTemplateModel().get("depositFootnotes");
     assertThat(footnotes).containsExactly(

@@ -277,7 +277,8 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   }
 
   public BindingResult validateDrawingEdit(Object form, BindingResult bindingResult,
-                                           PwaApplicationDetail pwaApplicationDetail, Integer padDepositDrawingId) {
+                                           PwaApplicationDetail pwaApplicationDetail,
+                                           Integer padDepositDrawingId) {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail, padDepositDrawingId);
     return bindingResult;
   }
