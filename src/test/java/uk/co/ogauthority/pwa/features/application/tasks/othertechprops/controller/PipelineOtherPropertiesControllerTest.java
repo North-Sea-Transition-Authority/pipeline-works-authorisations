@@ -1,11 +1,14 @@
 package uk.co.ogauthority.pwa.features.application.tasks.othertechprops.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +20,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -24,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PipelineOtherPropertiesForm;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -152,6 +159,26 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
+  }
+
+  @Test
+  public void postAddPipelineOtherProperties_minMaxFailValidation() throws Exception {
+    var bindingResult = new BeanPropertyBindingResult(new PipelineOtherPropertiesForm(), "form");
+    bindingResult.addError(new FieldError("form", "propertyDataFormMap[WAX_CONTENT].minMaxInput.minValue", "fake"));
+    bindingResult.addError(new FieldError("form", "propertyDataFormMap[WAX_CONTENT].minMaxInput.maxValue", "fake"));
+    when(padPipelineOtherPropertiesService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
+
+
+    endpointTester.setRequestMethod(HttpMethod.POST)
+        .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
+        .setEndpointUrlProducer((applicationDetail, type) ->
+            ReverseRouter.route(on(PipelineOtherPropertiesController.class)
+                .postAddPipelineOtherProperties(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+
+
+    ArrayList<ErrorItem> errorList = (ArrayList<ErrorItem>) endpointTester.performModelGeneration().get("errorList");
+    assertThat(errorList.get(0).getFieldName()).isEqualTo("propertyDataFormMap[WAX_CONTENT].minMaxInput.minValue");
+    assertThat(errorList.get(1).getFieldName()).isEqualTo("propertyDataFormMap[WAX_CONTENT].minMaxInput.maxValue");
   }
 
 
