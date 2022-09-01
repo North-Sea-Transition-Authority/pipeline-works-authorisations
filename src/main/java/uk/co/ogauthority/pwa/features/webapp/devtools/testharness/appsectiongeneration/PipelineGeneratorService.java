@@ -122,9 +122,11 @@ class PipelineGeneratorService implements TestHarnessAppFormService {
 
     //complies with validation rule for total ident length matching header length
     var headerLength = padPipeline.getLength();
+    //This might return a BigDecimal with an exponent inside, which will result in a null value
     var eachIdentLength = headerLength.divide(BigDecimal.valueOf(totalIdents), new MathContext(2));
+    var eachIdentLengthNoExponent = new BigDecimal(eachIdentLength.toPlainString());
     var totalIdentLength = eachIdentLength.multiply(BigDecimal.valueOf(totalIdents));
-    identForm.setLength(new DecimalInput(eachIdentLength));
+    identForm.setLength(new DecimalInput(eachIdentLengthNoExponent));
 
     if (identNumber == totalIdents
         && totalIdentLength.compareTo(headerLength) != 0) {
