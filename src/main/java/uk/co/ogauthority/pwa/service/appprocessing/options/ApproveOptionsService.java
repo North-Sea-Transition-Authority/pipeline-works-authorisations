@@ -70,7 +70,7 @@ public class ApproveOptionsService {
     return getOptionsApproval(pwaApplication).isPresent();
   }
 
-  private Optional<OptionsApplicationApproval> getOptionsApproval(PwaApplication pwaApplication) {
+  public Optional<OptionsApplicationApproval> getOptionsApproval(PwaApplication pwaApplication) {
     return optionsApplicationApprovalRepository.findByPwaApplication(
         pwaApplication
     );
