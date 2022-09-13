@@ -60,7 +60,6 @@ public class ApplicationSummaryController {
       selectedAppDetailId = latestAppDetail.getId();
       form.setApplicationDetailId(latestAppDetail.getId());
     }
-    LOGGER.debug(String.format("applicationDetailId value is %s", selectedAppDetailId));
 
     var visibleApplicationVersionOptionsForUser =
         getVisibleAppVersionOptionsForUser(processingContext.getPwaApplication(), authenticatedUserAccount, applicationDetailId);
