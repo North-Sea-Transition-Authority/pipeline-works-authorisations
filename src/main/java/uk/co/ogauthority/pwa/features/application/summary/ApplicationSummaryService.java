@@ -40,7 +40,9 @@ public class ApplicationSummaryService {
 
       if (summariserService.canSummarise(pwaApplicationDetail)) {
 
-        LOGGER.debug(String.format("Summarise started for app detail id %s and section %s", pwaApplicationDetail.getId(), applicationSectionSummaryType.getSectionSummariserServiceClass().getSimpleName()));
+        LOGGER.debug(String.format("Summarise started for app detail id %s and section %s",
+            pwaApplicationDetail.getId(),
+            applicationSectionSummaryType.getSectionSummariserServiceClass().getSimpleName()));
 
         appSummarySections.add(
             summariserService.summariseSection(
@@ -48,7 +50,9 @@ public class ApplicationSummaryService {
                 applicationSectionSummaryType.getTemplatePath())
         );
 
-        LOGGER.debug(String.format("Summarise finished for app detail id %s and section %s", pwaApplicationDetail.getId(), applicationSectionSummaryType.getSectionSummariserServiceClass().getSimpleName()));
+        LOGGER.debug(String.format("Summarise finished for app detail id %s and section %s",
+            pwaApplicationDetail.getId(),
+            applicationSectionSummaryType.getSectionSummariserServiceClass().getSimpleName()));
 
       }
 
