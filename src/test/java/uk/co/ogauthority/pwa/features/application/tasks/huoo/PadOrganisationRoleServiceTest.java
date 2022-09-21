@@ -144,7 +144,6 @@ public class PadOrganisationRoleServiceTest {
         pipelineNumberAndSplitsService,
         padPipelineService,
         entityManager,
-        padHuooValidationService,
         padHuooRoleMetadataProvider,
         pwaApplicationService);
 

@@ -54,13 +54,10 @@ public class PipelineDetailService {
     return pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail);
   }
 
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
-    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwa(masterPwa);
-  }
-
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
-                                                                             Set<PipelineStatus> statusFilter) {
-    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(MasterPwa masterPwa,
+                                                                                      Set<PipelineStatus> statusFilter,
+                                                                                      Instant instant) {
+    return pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, statusFilter, instant);
   }
 
   public Map<PipelineId, PipelineOverview> getAllPipelineOverviewsForMasterPwaMap(MasterPwa masterPwa) {

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.repository.pipelines;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;
@@ -15,10 +16,8 @@ public interface PipelineDetailDtoRepository {
 
   List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa);
 
-  List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa, Set<PipelineStatus> statusFilter);
+  List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(MasterPwa masterPwa, Set<PipelineStatus> statusFilter, Instant searchInstant);
 
   List<CountPipelineDetailsForPipelineDto> getCountOfPipelineDetailsForPipelines(Set<PipelineId> pipelineIds);
-
-
 
 }

@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.features.generalcase.pipelineview;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,6 +16,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -22,6 +25,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
@@ -38,17 +43,24 @@ public class PipelineAndIdentViewFactory {
   private final PadPipelineIdentService padPipelineIdentService;
 
   private final PipelineDetailService pipelineDetailService;
-  private PipelineDetailIdentViewService pipelineDetailIdentViewService;
+  private final PipelineDetailIdentViewService pipelineDetailIdentViewService;
+
+  private final PwaConsentService pwaConsentService;
+  private final Clock clock;
 
   @Autowired
   public PipelineAndIdentViewFactory(PadPipelineService padPipelineService,
                                      PadPipelineIdentService padPipelineIdentService,
                                      PipelineDetailService pipelineDetailService,
-                                     PipelineDetailIdentViewService pipelineDetailIdentViewService) {
+                                     PipelineDetailIdentViewService pipelineDetailIdentViewService,
+                                     PwaConsentService pwaConsentService,
+                                     @Qualifier("utcClock") Clock clock) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineDetailService = pipelineDetailService;
     this.pipelineDetailIdentViewService = pipelineDetailIdentViewService;
+    this.pwaConsentService = pwaConsentService;
+    this.clock = clock;
   }
 
   /**
@@ -138,15 +150,20 @@ public class PipelineAndIdentViewFactory {
     // 3. add consented pipelines to return map where the same pipeline does not exist in application
     // 4. add all application pipelines to return map
 
-    Map<PipelineId, PipelineOverview> applicationPipelineIds = padPipelineService.getApplicationPipelineOverviews(
-        pwaApplicationDetail)
+    Map<PipelineId, PipelineOverview> applicationPipelineIds = padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail)
         .stream()
         .collect(toMap(PipelineId::from, pipelineOverview -> pipelineOverview));
 
+    // look for consented pipeline details that had the statuses we're looking for at the time of consent, falling back to current details if app not consented
+    var pipelineDetailTimestampToCheck = pwaConsentService.getConsentByPwaApplication(pwaApplicationDetail.getPwaApplication())
+        .map(PwaConsent::getConsentInstant)
+        .orElse(Instant.now(clock));
+
     Map<PipelineId, PipelineOverview> consentedPipelineIdentifiers = pipelineDetailService
-        .getAllPipelineOverviewsForMasterPwaAndStatus(
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             pwaApplicationDetail.getPwaApplication().getMasterPwa(),
-            consentedPipelineFilter.getPipelineStatusSet()
+            consentedPipelineFilter.getPipelineStatusSet(),
+            pipelineDetailTimestampToCheck
         )
         .stream()
         .collect(toUnmodifiableMap(PipelineId::from, pipelineOverview -> pipelineOverview));

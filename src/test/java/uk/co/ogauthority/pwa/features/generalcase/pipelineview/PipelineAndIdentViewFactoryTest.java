@@ -9,6 +9,8 @@ import static uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAn
 import static uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.ONLY_APPLICATION_PIPELINE_EXISTS;
 import static uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactoryTest.ConsentedPipelineImportedIntoApplication.ONLY_CONSENTED_PIPELINE_EXISTS;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -31,6 +33,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -61,6 +65,9 @@ public class PipelineAndIdentViewFactoryTest {
   private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
   @Mock
+  private PwaConsentService pwaConsentService;
+
+  @Mock
   private PipelineOverview consentedPipelineOverview;
 
   @Mock
@@ -78,19 +85,31 @@ public class PipelineAndIdentViewFactoryTest {
   @Mock
   private IdentView ident3View;
 
+  @Mock
+  private Clock clock;
+
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   private PwaApplicationDetail detail;
 
   private PadPipeline padPipeline;
 
+  private final Instant clockTime = Instant.now();
+
+  private PwaConsent pwaConsent;
+
   @Before
   public void setUp() throws Exception {
+
+    when(clock.instant()).thenReturn(clockTime);
+
     pipelineAndIdentViewFactory = new PipelineAndIdentViewFactory(
         padPipelineService,
         padPipelineIdentService,
         pipelineDetailService,
-        pipelineDetailIdentViewService
+        pipelineDetailIdentViewService,
+        pwaConsentService,
+        clock
     );
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -100,6 +119,11 @@ public class PipelineAndIdentViewFactoryTest {
     when(ident1View.getIdentNumber()).thenReturn(1);
     when(ident2View.getIdentNumber()).thenReturn(2);
     when(ident3View.getIdentNumber()).thenReturn(3);
+
+    pwaConsent = new PwaConsent();
+    pwaConsent.setSourcePwaApplication(detail.getPwaApplication());
+    pwaConsent.setConsentInstant(clockTime.minusSeconds(86400));
+
   }
 
   @Test
@@ -291,9 +315,10 @@ public class PipelineAndIdentViewFactoryTest {
     );
 
     verify(pipelineDetailService)
-        .getAllPipelineOverviewsForMasterPwaAndStatus(
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getMasterPwa(),
-            PipelineStatus.currentStatusSet()
+            PipelineStatus.currentStatusSet(),
+            clock.instant()
         );
   }
 
@@ -308,9 +333,10 @@ public class PipelineAndIdentViewFactoryTest {
     );
 
     verify(pipelineDetailService)
-        .getAllPipelineOverviewsForMasterPwaAndStatus(
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getMasterPwa(),
-            PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED)
+            PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED),
+            clock.instant()
         );
   }
 
@@ -368,6 +394,39 @@ public class PipelineAndIdentViewFactoryTest {
 
   }
 
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwa_usesConsentTimestampForPwaPipelines_whenApplicationConsented() {
+
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
+    var consentedPipelineFilter = PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES;
+
+    when(pwaConsentService.getConsentByPwaApplication(detail.getPwaApplication())).thenReturn(Optional.of(pwaConsent));
+
+    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(detail, consentedPipelineFilter);
+
+    verify(pipelineDetailService).getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
+        detail.getPwaApplication().getMasterPwa(),
+        consentedPipelineFilter.getPipelineStatusSet(),
+        pwaConsent.getConsentInstant()
+    );
+
+  }
+
+  @Test
+  public void getAllPipelineOverviewsFromAppAndMasterPwa_usesCurrentTimeForPwaPipelines_whenApplicationNotConsented() {
+
+    setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
+    var consentedPipelineFilter = PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES;
+
+    pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(detail, consentedPipelineFilter);
+
+    verify(pipelineDetailService).getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
+        detail.getPwaApplication().getMasterPwa(),
+        consentedPipelineFilter.getPipelineStatusSet(),
+        clock.instant()
+    );
+
+  }
 
   @Test
   public void getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds() {
@@ -439,42 +498,55 @@ public class PipelineAndIdentViewFactoryTest {
     when(importedConsentedPipelineSummary.getPipelineType()).thenReturn(IMPORTED_CONSENTED_PIPELINE_TYPE);
     when(importedConsentedPipelineSummary.getPadPipelineId()).thenReturn(999);
 
-
-    switch(consentedPipelineImportedIntoApplication){
+    switch(consentedPipelineImportedIntoApplication) {
       case CONSENTED_PIPELINE_EXISTS_AND_IMPORTED:
+
         when(padPipelineService.getApplicationPipelineOverviews(detail))
             .thenReturn(List.of(importedConsentedPipelineSummary, applicationNewPipelineSummary));
-        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getPwaApplication().getMasterPwa(),
-            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet())
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet(),
+            clock.instant())
         ).thenReturn(List.of(consentedPipelineOverview));
+
         break;
 
       case CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED:
+
         when(padPipelineService.getApplicationPipelineOverviews(detail))
             .thenReturn(List.of(applicationNewPipelineSummary));
-        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getPwaApplication().getMasterPwa(),
-            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet())
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet(),
+            clock.instant())
         ).thenReturn(List.of(consentedPipelineOverview));
+
         break;
 
       case ONLY_APPLICATION_PIPELINE_EXISTS:
-        when(padPipelineService.getApplicationPipelineOverviews(detail))
-            .thenReturn(List.of(applicationNewPipelineSummary));
-        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+
+        when(padPipelineService.getApplicationPipelineOverviews(detail)).thenReturn(List.of(applicationNewPipelineSummary));
+
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getPwaApplication().getMasterPwa(),
-            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet())
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet(),
+            clock.instant())
         ).thenReturn(List.of());
+
         break;
 
       case ONLY_CONSENTED_PIPELINE_EXISTS:
-        when(padPipelineService.getApplicationPipelineOverviews(detail))
-            .thenReturn(List.of());
-        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
+
+        when(padPipelineService.getApplicationPipelineOverviews(detail)).thenReturn(List.of());
+
+        when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
             detail.getPwaApplication().getMasterPwa(),
-            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet())
+            PipelineAndIdentViewFactory.ConsentedPipelineFilter.ALL_CURRENT_STATUS_PIPELINES.getPipelineStatusSet(),
+            clock.instant())
         ).thenReturn(List.of(consentedPipelineOverview));
+
         break;
     }
 
