@@ -16,7 +16,8 @@ public interface PipelineDetailDtoRepository {
 
   List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa);
 
-  List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(MasterPwa masterPwa, Set<PipelineStatus> statusFilter, Instant searchInstant);
+  List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(
+      MasterPwa masterPwa, Set<PipelineStatus> statusFilter, Instant searchInstant);
 
   List<CountPipelineDetailsForPipelineDto> getCountOfPipelineDetailsForPipelines(Set<PipelineId> pipelineIds);
 

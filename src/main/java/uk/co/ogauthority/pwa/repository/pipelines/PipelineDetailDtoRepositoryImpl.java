@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoRepository {
 
   private final EntityManager entityManager;
+
   @Autowired
   public PipelineDetailDtoRepositoryImpl(EntityManager entityManager) {
     this.entityManager = entityManager;

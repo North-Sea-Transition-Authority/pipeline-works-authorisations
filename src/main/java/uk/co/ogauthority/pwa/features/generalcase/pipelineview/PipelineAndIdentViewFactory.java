@@ -154,7 +154,8 @@ public class PipelineAndIdentViewFactory {
         .stream()
         .collect(toMap(PipelineId::from, pipelineOverview -> pipelineOverview));
 
-    // look for consented pipeline details that had the statuses we're looking for at the time of consent, falling back to current details if app not consented
+    // look for consented pipeline details that had the statuses we're looking for at the time of
+    // consent, falling back to current details if app not consented
     var pipelineDetailTimestampToCheck = pwaConsentService.getConsentByPwaApplication(pwaApplicationDetail.getPwaApplication())
         .map(PwaConsent::getConsentInstant)
         .orElse(Instant.now(clock));
