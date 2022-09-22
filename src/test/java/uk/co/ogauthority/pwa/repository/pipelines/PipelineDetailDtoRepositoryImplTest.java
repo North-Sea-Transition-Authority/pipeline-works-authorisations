@@ -17,6 +17,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -53,10 +54,14 @@ public class PipelineDetailDtoRepositoryImplTest {
   private final Instant baseTime = Instant.now().minus(1, ChronoUnit.MINUTES);
 
   private MasterPwa masterPwa;
-  private PipelineDetail pipelineDetail1, pipelineDetail2;
-  private PwaConsent pwaConsent1, pwaConsent2;
+  private PipelineDetail inServicePipeDetail, returnedToShorePipeDetail;
+  private PwaConsent firstConsentInService, secondConsentReturnedToShore;
   private static final Set<PipelineStatus> ON_SEABED_STATUSES = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
 
+  /**
+   * This method sets  up a PWA with two consents for a single pipeline, the first consent brings the pipeline into service, the second returns it to shore.
+   * This data is then saved to the in-memory db for repo query testing.
+   */
   @Before
   public void setUp() {
 
@@ -68,36 +73,36 @@ public class PipelineDetailDtoRepositoryImplTest {
     pipeline.setMasterPwa(masterPwa);
 
     // first consent, setting pipeline to IN_SERVICE
-    pwaConsent1 = new PwaConsent();
-    pwaConsent1.setId(1);
-    pwaConsent1.setConsentInstant(baseTime.minus(5, ChronoUnit.MINUTES));
-    pwaConsent1.setMasterPwa(masterPwa);
+    firstConsentInService = new PwaConsent();
+    firstConsentInService.setId(1);
+    firstConsentInService.setConsentInstant(baseTime.minus(5, ChronoUnit.MINUTES));
+    firstConsentInService.setMasterPwa(masterPwa);
 
     // second consent, setting pipeline to RETURNED_TO_SHORE
-    pwaConsent2 = new PwaConsent();
-    pwaConsent2.setId(2);
-    pwaConsent2.setConsentInstant(baseTime);
-    pwaConsent2.setMasterPwa(masterPwa);
+    secondConsentReturnedToShore = new PwaConsent();
+    secondConsentReturnedToShore.setId(2);
+    secondConsentReturnedToShore.setConsentInstant(baseTime);
+    secondConsentReturnedToShore.setMasterPwa(masterPwa);
 
-    var consentList = List.of(pwaConsent1, pwaConsent2);
+    var consentList = List.of(firstConsentInService, secondConsentReturnedToShore);
 
     // detail linked to first consent
-    pipelineDetail1 = new PipelineDetail();
-    pipelineDetail1.setPipeline(pipeline);
-    pipelineDetail1.setPwaConsent(pwaConsent1);
-    pipelineDetail1.setStartTimestamp(pwaConsent1.getConsentInstant());
-    pipelineDetail1.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    pipelineDetail1.setEndTimestamp(pwaConsent2.getConsentInstant());
+    inServicePipeDetail = new PipelineDetail();
+    inServicePipeDetail.setPipeline(pipeline);
+    inServicePipeDetail.setPwaConsent(firstConsentInService);
+    inServicePipeDetail.setStartTimestamp(firstConsentInService.getConsentInstant());
+    inServicePipeDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    inServicePipeDetail.setEndTimestamp(secondConsentReturnedToShore.getConsentInstant());
 
     // detail linked to second consent
-    pipelineDetail2 = new PipelineDetail();
-    pipelineDetail2.setPipeline(pipeline);
-    pipelineDetail2.setPwaConsent(pwaConsent2);
-    pipelineDetail2.setStartTimestamp(pwaConsent2.getConsentInstant());
-    pipelineDetail2.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
-    pipelineDetail2.setTipFlag(true);
+    returnedToShorePipeDetail = new PipelineDetail();
+    returnedToShorePipeDetail.setPipeline(pipeline);
+    returnedToShorePipeDetail.setPwaConsent(secondConsentReturnedToShore);
+    returnedToShorePipeDetail.setStartTimestamp(secondConsentReturnedToShore.getConsentInstant());
+    returnedToShorePipeDetail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    returnedToShorePipeDetail.setTipFlag(true);
 
-    var detailList = List.of(pipelineDetail1, pipelineDetail2);
+    var detailList = List.of(inServicePipeDetail, returnedToShorePipeDetail);
 
     // store entities if not stored before
     if(masterPwaRepository.findById(1).isEmpty()) {
@@ -126,7 +131,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atSecondConsentTime_pipelineNotFound() {
 
     var details = pipelineDetailDtoRepositoryImpl
-        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, pwaConsent2.getConsentInstant());
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, secondConsentReturnedToShore.getConsentInstant());
 
     // pipeline is returned to shore at consent2 time, therefore not on seabed and not found
     assertThat(details).isEmpty();
@@ -137,11 +142,13 @@ public class PipelineDetailDtoRepositoryImplTest {
   public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atFirstConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
-        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, pwaConsent1.getConsentInstant());
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, firstConsentInService.getConsentInstant());
 
     // at time of first consent, pipeline was in service therefore on seabed, returned
     assertThat(details).hasSize(1);
-    assertThat(details.get(0).getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
+    assertThat(details.get(0))
+        .extracting(PipelineOverview::getPipelineStatus)
+        .isEqualTo(PipelineStatus.IN_SERVICE);
 
   }
 
@@ -153,7 +160,9 @@ public class PipelineDetailDtoRepositoryImplTest {
 
     // pipeline is returned to shore at current time, no status filter applied
     assertThat(details).hasSize(1);
-    assertThat(details.get(0).getPipelineStatus()).isEqualTo(PipelineStatus.RETURNED_TO_SHORE);
+    assertThat(details.get(0))
+        .extracting(PipelineOverview::getPipelineStatus)
+        .isEqualTo(PipelineStatus.RETURNED_TO_SHORE);
 
   }
 
@@ -161,11 +170,13 @@ public class PipelineDetailDtoRepositoryImplTest {
   public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atSecondConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
-        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), pwaConsent2.getConsentInstant());
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), secondConsentReturnedToShore.getConsentInstant());
 
     // pipeline is returned to shore at consent2 time, no status filter applied
     assertThat(details).hasSize(1);
-    assertThat(details.get(0).getPipelineStatus()).isEqualTo(PipelineStatus.RETURNED_TO_SHORE);
+    assertThat(details.get(0))
+        .extracting(PipelineOverview::getPipelineStatus)
+        .isEqualTo(PipelineStatus.RETURNED_TO_SHORE);
 
   }
 
@@ -173,11 +184,13 @@ public class PipelineDetailDtoRepositoryImplTest {
   public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atFirstConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
-        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), pwaConsent1.getConsentInstant());
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), firstConsentInService.getConsentInstant());
 
     // pipeline is in service at consent1 time, no status filter applied
     assertThat(details).hasSize(1);
-    assertThat(details.get(0).getPipelineStatus()).isEqualTo(PipelineStatus.IN_SERVICE);
+    assertThat(details.get(0))
+        .extracting(PipelineOverview::getPipelineStatus)
+        .isEqualTo(PipelineStatus.IN_SERVICE);
 
   }
 

@@ -11,6 +11,8 @@ import static uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAn
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -85,9 +87,6 @@ public class PipelineAndIdentViewFactoryTest {
   @Mock
   private IdentView ident3View;
 
-  @Mock
-  private Clock clock;
-
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
 
   private PwaApplicationDetail detail;
@@ -95,13 +94,12 @@ public class PipelineAndIdentViewFactoryTest {
   private PadPipeline padPipeline;
 
   private final Instant clockTime = Instant.now();
+  private final Clock clock = Clock.fixed(Instant.from(clockTime), ZoneId.systemDefault());
 
   private PwaConsent pwaConsent;
 
   @Before
   public void setUp() throws Exception {
-
-    when(clock.instant()).thenReturn(clockTime);
 
     pipelineAndIdentViewFactory = new PipelineAndIdentViewFactory(
         padPipelineService,
@@ -122,7 +120,7 @@ public class PipelineAndIdentViewFactoryTest {
 
     pwaConsent = new PwaConsent();
     pwaConsent.setSourcePwaApplication(detail.getPwaApplication());
-    pwaConsent.setConsentInstant(clockTime.minusSeconds(86400));
+    pwaConsent.setConsentInstant(clockTime.minus(1, ChronoUnit.DAYS));
 
   }
 
