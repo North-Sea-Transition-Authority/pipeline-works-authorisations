@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -50,17 +51,17 @@ public class PwaViewTabServiceTest {
 
   private PwaContext pwaContext;
 
-
   private final String PIPELINE_REF_ID1 = "PLU001";
   private final String PIPELINE_REF_ID2 = "PL002";
   private final String PIPELINE_REF_ID3 = "PL003";
 
-
+  private final Instant clockTime = Instant.now();
+  private final Clock clock = Clock.fixed(Instant.from(clockTime), ZoneId.systemDefault());
 
   @Before
   public void setUp() throws Exception {
 
-    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService);
+    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService, clock);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -76,7 +77,7 @@ public class PwaViewTabServiceTest {
         PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(pwaContext.getMasterPwa(), pipelineStatusFilter, clock.instant()))
         .thenReturn(unOrderedPipelineOverviews);
     when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews)).thenReturn(unOrderedPipelineOverviews);
 
@@ -102,7 +103,7 @@ public class PwaViewTabServiceTest {
             overview.getAsBuiltNotificationStatus());
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(pwaContext.getMasterPwa(), pipelineStatusFilter))
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(pwaContext.getMasterPwa(), pipelineStatusFilter, clock.instant()))
         .thenReturn(unOrderedPipelineOverviews);
     when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews))
         .thenReturn(List.of(pipelineOverviewWithAsBuiltStatus));
