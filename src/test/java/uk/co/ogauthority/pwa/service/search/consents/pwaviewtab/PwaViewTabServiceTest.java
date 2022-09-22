@@ -47,9 +47,6 @@ public class PwaViewTabServiceTest {
   @Mock
   private AsBuiltViewerService asBuiltViewerService;
 
-  @Mock
-  private Clock clock;
-
   private PwaViewTabService pwaViewTabService;
 
   private PwaContext pwaContext;
@@ -59,11 +56,10 @@ public class PwaViewTabServiceTest {
   private final String PIPELINE_REF_ID3 = "PL003";
 
   private final Instant clockTime = Instant.now();
+  private final Clock clock = Clock.fixed(Instant.from(clockTime), ZoneId.systemDefault());
 
   @Before
   public void setUp() throws Exception {
-
-    when(clock.instant()).thenReturn(clockTime);
 
     pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService, clock);
 
