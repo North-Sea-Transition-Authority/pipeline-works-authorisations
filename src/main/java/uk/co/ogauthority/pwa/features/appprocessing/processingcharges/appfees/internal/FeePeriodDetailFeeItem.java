@@ -1,12 +1,19 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal;
 
+import java.time.Instant;
+import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 import javax.persistence.Table;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
 @Table(name = "fee_period_detail_fee_items")
@@ -25,6 +32,13 @@ public class FeePeriodDetailFeeItem {
   private FeeItem feeItem;
 
   private Integer pennyAmount;
+
+  @CreatedDate
+  private Instant created;
+
+  @LastModifiedDate
+  @Column(name = "last_modified")
+  private Instant modified;
 
 
   public Integer getId() {
@@ -62,4 +76,46 @@ public class FeePeriodDetailFeeItem {
     this.pennyAmount = pennyAmount;
   }
 
+  public Instant getCreated() {
+    return created;
+  }
+
+  public void setCreated(Instant created) {
+    this.created = created;
+  }
+
+  public Instant getModified() {
+    return modified;
+  }
+
+  public void setModified(Instant modified) {
+    this.modified = modified;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FeePeriodDetailFeeItem that = (FeePeriodDetailFeeItem) o;
+    return Objects.equals(feePeriodDetail, that.feePeriodDetail) && Objects.equals(feeItem,
+        that.feeItem) && Objects.equals(pennyAmount, that.pennyAmount);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(feePeriodDetail, feeItem, pennyAmount);
+  }
+
+  @PrePersist
+  @PreUpdate
+  private void updateTimeStamps() {
+    if (created == null) {
+      created = Instant.now();
+    }
+    modified = Instant.now();
+  }
 }

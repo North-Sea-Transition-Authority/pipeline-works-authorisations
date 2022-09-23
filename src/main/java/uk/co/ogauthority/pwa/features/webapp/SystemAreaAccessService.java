@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.webapp;
 
+import static uk.co.ogauthority.pwa.auth.PwaUserPrivilege.PWA_MANAGER;
+
 import java.util.EnumSet;
 import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
@@ -131,6 +133,12 @@ public class SystemAreaAccessService {
   public boolean canAccessTemplateClauseManagement(AuthenticatedUserAccount user) {
     return user.getUserPrivileges().stream()
         .anyMatch(validDocumentTemplatePrivileges::contains);
+  }
+
+  public boolean canAccessFeePeriodManagement(AuthenticatedUserAccount user) {
+    return  user.getUserPrivileges()
+        .stream()
+        .anyMatch(PWA_MANAGER::equals);
   }
 
 }

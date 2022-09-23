@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.documents.DocumentTemplateSelectControll
 import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController;
 import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
 import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
+import uk.co.ogauthority.pwa.features.feemanagement.controller.FeeManagementController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -23,6 +24,8 @@ public class TopMenuService {
   public static final String APPLICATION_SEARCH_TITLE = "Search applications";
   public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
   public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
+
+  public static final String TEMPLATE_FEE_MANAGE_TITLE = "Manage fees";
 
   private final SystemAreaAccessService systemAreaAccessService;
 
@@ -59,6 +62,11 @@ public class TopMenuService {
     if (systemAreaAccessService.canAccessTemplateClauseManagement(user)) {
       menuItems.add(new TopMenuItem(TEMPLATE_CLAUSE_MANAGE_TITLE, ReverseRouter.route(on(DocumentTemplateSelectController.class)
           .getTemplatesForSelect(null))));
+    }
+
+    if (systemAreaAccessService.canAccessFeePeriodManagement(user)) {
+      menuItems.add(new TopMenuItem(TEMPLATE_FEE_MANAGE_TITLE, ReverseRouter.route(on(FeeManagementController.class)
+          .renderFeeManagementOverview(null))));
     }
     return menuItems;
   }
