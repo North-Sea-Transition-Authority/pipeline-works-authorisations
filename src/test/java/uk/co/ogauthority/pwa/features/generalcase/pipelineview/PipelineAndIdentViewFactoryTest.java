@@ -46,7 +46,7 @@ public class PipelineAndIdentViewFactoryTest {
   private static final PipelineType CONSENTED_PIPELINE_TYPE = PipelineType.PRODUCTION_FLOWLINE;
   private static final PipelineType APPLICATION_NEW_PIPELINE_TYPE = PipelineType.GAS_LIFT_JUMPER;
 
-  private static final PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER;
+  private static final PipelineType IMPORTED_CONSENTED_PIPELINE_TYPE = PipelineType.CONTROL_JUMPER_SINGLE_CORE;
 
   @Mock
   private PadPipelineService padPipelineService;

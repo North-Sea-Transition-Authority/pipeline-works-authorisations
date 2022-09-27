@@ -407,7 +407,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   public void renderIdentOverview_permissionSmokeTest() {
 
     padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
     var padPipelineOverview = new PadPipelineOverview(padPipeline);
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
@@ -424,7 +424,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   @Test
   public void renderIdentOverview_appTypeSmokeTest() {
     padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
     var padPipelineOverview = new PadPipelineOverview(padPipeline);
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
@@ -442,7 +442,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   public void renderIdentOverview_appStatusSmokeTest() {
 
     padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
     var padPipelineOverview = new PadPipelineOverview(padPipeline);
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
@@ -685,7 +685,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   public void postIdentOverview_failValidation() {
 
     padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
     var padPipelineOverview = new PadPipelineOverview(padPipeline);
     when(padPipelineService.getPipelineOverview(any())).thenReturn(padPipelineOverview);
