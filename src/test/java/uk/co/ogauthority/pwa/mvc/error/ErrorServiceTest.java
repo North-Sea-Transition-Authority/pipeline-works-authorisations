@@ -11,7 +11,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
-import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ErrorServiceTest {
@@ -23,13 +23,14 @@ public class ErrorServiceTest {
   private ServiceProperties serviceProperties;
 
   @Mock
-  private AnalyticsConfiguration analyticsConfiguration;
+  private AnalyticsConfigurationProperties analyticsConfigurationProperties;
 
   private ErrorService errorService;
 
   @Before
   public void setup() {
-    errorService = new ErrorService(technicalSupportContactProperties, serviceProperties, analyticsConfiguration);
+    errorService = new ErrorService(technicalSupportContactProperties, serviceProperties,
+        analyticsConfigurationProperties);
   }
 
   @Test

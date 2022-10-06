@@ -27,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
-import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -48,7 +48,7 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
     AnalyticsProperties.class,
     AnalyticsConfig.class
 })
-@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfiguration.class})
+@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfigurationProperties.class})
 public abstract class AbstractControllerTest {
 
   protected MockMvc mockMvc;

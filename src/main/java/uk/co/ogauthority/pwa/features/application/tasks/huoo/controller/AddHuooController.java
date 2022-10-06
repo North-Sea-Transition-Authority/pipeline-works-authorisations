@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.huoo.AddHuooValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.EditHuooValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.HuooForm;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
@@ -92,11 +92,12 @@ public class AddHuooController {
         .addObject("huooTypes", HuooType.streamSelectable()
             .sorted(Comparator.comparing(HuooType::getDisplayOrder))
             .collect(StreamUtils.toLinkedHashMap(Enum::name, HuooType::getDisplayText)))
-        .addObject("portalOrgs", portalOrganisationsAccessor.getAllActiveOrganisationUnits()
+        .addObject("portalOrgs", portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch()
             .stream()
-            .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
+            .sorted(Comparator.comparing(PortalOrganisationSearchUnit::getOrgSearchableUnitName))
             .collect(
-                StreamUtils.toLinkedHashMap(unit -> String.valueOf(unit.getOuId()), PortalOrganisationUnit::getName)))
+                StreamUtils.toLinkedHashMap(unit ->
+                    String.valueOf(unit.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName)))
         .addObject("backUrl", ReverseRouter.route(on(HuooController.class)
             .renderHuooSummary(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)));
   }

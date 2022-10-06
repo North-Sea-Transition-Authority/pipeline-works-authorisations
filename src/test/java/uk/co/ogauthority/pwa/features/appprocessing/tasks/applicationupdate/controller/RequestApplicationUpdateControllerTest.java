@@ -249,7 +249,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     verify(applicationUpdateRequestService, times(1)).applicationHasOpenUpdateRequest(pwaApplicationDetail);
     verify(applicationUpdateRequestService, times(1)).submitApplicationUpdateRequest(
         pwaApplicationDetail, user, form);
-    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.UPDATE_REQUEST_SENT));
+    verify(analyticsService, times(1)).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.UPDATE_REQUEST_SENT));
 
   }
 

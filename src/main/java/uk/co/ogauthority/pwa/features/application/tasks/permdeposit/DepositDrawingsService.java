@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
@@ -28,7 +27,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 
 /* Service providing simplified API for Permanent Deposit Drawings app form */
@@ -38,7 +36,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   private final PadDepositDrawingRepository padDepositDrawingRepository;
   private final PadDepositDrawingLinkRepository padDepositDrawingLinkRepository;
   private final PermanentDepositsDrawingValidator permanentDepositsDrawingValidator;
-  private final SpringValidatorAdapter groupValidator;
   private final PadFileService padFileService;
   private final PermanentDepositService permanentDepositService;
 
@@ -49,13 +46,11 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
       PadDepositDrawingRepository padDepositDrawingRepository,
       PadDepositDrawingLinkRepository padDepositDrawingLinkRepository,
       PermanentDepositsDrawingValidator permanentDepositsDrawingValidator,
-      SpringValidatorAdapter groupValidator,
       PadFileService padFileService,
       PermanentDepositService permanentDepositService) {
     this.padDepositDrawingRepository = padDepositDrawingRepository;
     this.padDepositDrawingLinkRepository = padDepositDrawingLinkRepository;
     this.permanentDepositsDrawingValidator = permanentDepositsDrawingValidator;
-    this.groupValidator = groupValidator;
     this.padFileService = padFileService;
     this.permanentDepositService = permanentDepositService;
   }
@@ -278,7 +273,6 @@ public class DepositDrawingsService implements ApplicationFormSectionService {
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
     permanentDepositsDrawingValidator.validate(form, bindingResult, this, pwaApplicationDetail);
-    groupValidator.validate(form, bindingResult, FullValidation.class);
     return bindingResult;
   }
 

@@ -19,10 +19,15 @@
     <#list otherPropertiesView.propertyValueMap as property, propertyValue>
       <@fdsCheckAnswers.checkAnswersRow keyText=property.getDisplayText() actionUrl="" screenReaderActionText="" actionText="">
 
-        <#if propertyValue.propertyAvailabilityOption?has_content>        
+        <#if propertyValue.propertyAvailabilityOption?has_content>
           <#if propertyValue.propertyAvailabilityOption == "AVAILABLE">
-            min: ${propertyValue.minValue!} ${property.getUnitMeasurement().getSuffixDisplay()}</br>
-            max: ${propertyValue.maxValue!} ${property.getUnitMeasurement().getSuffixDisplay()}
+            <@minMaxSummary.minMaxSummary
+              propertyValue.minValue
+              propertyValue.maxValue
+              'min'
+              'max'
+              property.getUnitMeasurement().getSuffixDisplay()
+            />
           <#else>
             ${propertyValue.propertyAvailabilityOption.getDisplayText()}
           </#if>
@@ -39,12 +44,12 @@
       </ul>
     </@fdsCheckAnswers.checkAnswersRow>
 
-    <#if otherPropertiesView.selectedPropertyPhases?has_content && otherPropertiesView.selectedPropertyPhases?seq_contains("OTHER")> 
+    <#if otherPropertiesView.selectedPropertyPhases?has_content && otherPropertiesView.selectedPropertyPhases?seq_contains("OTHER")>
       <@fdsCheckAnswers.checkAnswersRow keyText="Other phase present" actionUrl="" screenReaderActionText="" actionText="">
         ${otherPropertiesView.otherPhaseDescription!}
       </@fdsCheckAnswers.checkAnswersRow>
     </#if>
-      
+
   </@fdsCheckAnswers.checkAnswers>
 
 </#macro>

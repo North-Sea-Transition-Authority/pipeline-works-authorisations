@@ -6,7 +6,7 @@
 <#-- @ftlvariable name="pipelinesVersionSearchSelectorItems" type="java.util.Map<java.lang.String, java.lang.String>" -->
 
 
-<#macro tab diffedPipelineSummaryModel>
+<#macro tab diffedPipelineSummaryModel isConsented=false>
 
     <@fdsForm.htmlForm actionUrl=springUrl(viewPwaPipelineUrl)>
         <@fdsSearchSelector.searchSelectorEnhanced path="form.pipelineDetailId" options=pipelinesVersionSearchSelectorItems labelText="Select version" inputClass="govuk-!-width-one-half"/>
@@ -17,7 +17,7 @@
     <@diffChanges.toggler analyticsEventCategory="SHOW_DIFFS_PIPE"/>
 
     <#if diffedPipelineSummaryModel.pipelineHeader?has_content>
-        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0/>
+        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0 consentedModel=isConsented/>
     </#if>
 
     <#if diffedPipelineSummaryModel.pipelineIdents?has_content>

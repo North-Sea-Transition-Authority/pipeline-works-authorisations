@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.documents.DocumentInstanceException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
@@ -183,7 +184,8 @@ public class AppConsentDocController {
                                       @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                       PwaAppProcessingContext processingContext,
                                       AuthenticatedUserAccount authenticatedUserAccount,
-                                      @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                      @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                      Optional<String> analyticsClientId) {
 
     return whenPrepareConsentAvailable(processingContext, () -> {
 
@@ -195,7 +197,7 @@ public class AppConsentDocController {
       var run = docgenService.createDocgenRun(docInstance, DocGenType.PREVIEW, authenticatedUserAccount.getLinkedPerson());
       docgenService.scheduleDocumentGeneration(run);
 
-      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.DOCUMENT_PREVIEW);
+      analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.DOCUMENT_PREVIEW);
 
       return ReverseRouter.redirect(on(AppConsentDocController.class)
           .renderDocumentGenerating(applicationId, pwaApplicationType, run.getId(), null, null));

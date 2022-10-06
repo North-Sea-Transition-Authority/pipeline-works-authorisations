@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
@@ -54,9 +53,6 @@ public class DepositDrawingsServiceTest {
   private PadFileService padFileService;
 
   @Mock
-  private SpringValidatorAdapter springValidatorAdapter;
-
-  @Mock
   private PermanentDepositsDrawingValidator validator;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -65,7 +61,7 @@ public class DepositDrawingsServiceTest {
   @Before
   public void setUp() {
     depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository,
-        padDepositDrawingLinkRepository, validator, springValidatorAdapter, padFileService, permanentDepositService);
+        padDepositDrawingLinkRepository, validator, padFileService, permanentDepositService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 

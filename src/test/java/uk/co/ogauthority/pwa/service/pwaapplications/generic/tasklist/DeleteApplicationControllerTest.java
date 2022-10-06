@@ -136,7 +136,7 @@ public class DeleteApplicationControllerTest extends PwaApplicationContextAbstra
         ).andExpect(status().is3xxRedirection());
 
     verify(pwaApplicationDeleteService, times(1)).deleteApplication(user, pwaApplicationDetail);
-    verify(analyticsService, times(1)).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_DELETED));
+    verify(analyticsService, times(1)).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.APPLICATION_DELETED));
 
   }
 

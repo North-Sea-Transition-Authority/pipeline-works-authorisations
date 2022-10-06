@@ -68,7 +68,7 @@
             </@fdsCheckbox.checkboxGroup>
         </#if>
 
-        <@pwaMarkdownInsetText.text "cover letter text area"/>
+        <@pwaMarkdownInsetText.text widgetDisplayName="cover letter text area" govNotifyMarkdown=true/>
 
         <@fdsTextarea.textarea path="form.coverLetterText" labelText="Consent email cover letter" inputClass="govuk-!-width-two-thirds" rows="15"/>
 

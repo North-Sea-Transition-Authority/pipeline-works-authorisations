@@ -22,11 +22,13 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
@@ -109,18 +111,19 @@ public class PwaHolderController {
     var modelAndView =  controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getHolderModelAndView(user, form), () -> {
 
-          List<PortalOrganisationUnit> orgUnitsForUser = getOrgUnitsUserCanAccess(user);
+          List<Integer> orgUnitsForUser = getOrgUnitsUserCanAccess(user).stream()
+              .map(PortalOrganisationSearchUnit::getOrgUnitId)
+              .collect(Collectors.toList());
 
           // check that selected org is accessible to user
-          PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor.getOrganisationUnitById(
-              form.getHolderOuId())
-              .filter(orgUnitsForUser::contains)
-              .orElseThrow(() ->
-                  new PwaEntityNotFoundException(
-                      String.format(
-                          "Couldn't find PortalOrganisationUnit with ID: %s accessible to user with WUA ID: %s",
-                          form.getHolderOuId(),
-                          user.getWuaId())));
+          PortalOrganisationUnit organisationUnit = portalOrganisationsAccessor
+              .getOrganisationUnitById(OrganisationUnitId.fromInt(form.getHolderOuId()))
+              .filter(ou -> orgUnitsForUser.contains(ou.getOuId()))
+              .orElseThrow(() -> new PwaEntityNotFoundException(
+                  String.format(
+                      "Couldn't find PortalOrganisationUnit with ID: %s accessible to user with WUA ID: %s",
+                      form.getHolderOuId(),
+                      user.getWuaId())));
 
           PwaApplication pwaApplication = pwaApplicationCreationService
               .createInitialPwaApplication(organisationUnit, user).getPwaApplication();
@@ -142,8 +145,9 @@ public class PwaHolderController {
                                              PwaHolderForm form) {
 
     Map<String, String> ouMap = getOrgUnitsUserCanAccess(user).stream()
-        .sorted(Comparator.comparing(PortalOrganisationUnit::getName))
-        .collect(StreamUtils.toLinkedHashMap(ou -> String.valueOf(ou.getOuId()), PortalOrganisationUnit::getName));
+        .sorted(Comparator.comparing(PortalOrganisationSearchUnit::getOrgSearchableUnitName))
+        .collect(StreamUtils.toLinkedHashMap(ou ->
+            String.valueOf(ou.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName));
 
     List<String> ogList = getOrgGroupsUserCanAccess(user).stream()
             .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
@@ -167,8 +171,8 @@ public class PwaHolderController {
         .collect(Collectors.toList());
   }
 
-  private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
-    return portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
+  private List<PortalOrganisationSearchUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
+    return portalOrganisationsAccessor.getSearchableOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
   }
 
 }

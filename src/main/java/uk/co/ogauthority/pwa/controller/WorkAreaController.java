@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.creation.controller.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -89,7 +90,8 @@ public class WorkAreaController {
   public ModelAndView renderWorkAreaTab(AuthenticatedUserAccount authenticatedUserAccount,
                                         @PathVariable("tabKey") WorkAreaTab tab,
                                         @RequestParam(defaultValue = "0", name = "page") Integer page,
-                                        @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                        @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                        Optional<String> analyticsClientId) {
 
     var context = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
@@ -106,7 +108,7 @@ public class WorkAreaController {
     }
 
     if (tab.getWorkAreaTabCategory() == WorkAreaTabCategory.BACKGROUND) {
-      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB,
+      analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB,
           Map.of("tab", tab.getLabel()));
     }
 

@@ -71,7 +71,11 @@ public enum NotifyTemplate {
   AS_BUILT_DEADLINE_PASSED("AS_BUILT_DEADLINE_PASSED_V1"),
 
   //Feedback
-  FEEDBACK_FAILED_TO_SEND("FEEDBACK_FAILED_TO_SEND_V1");
+  FEEDBACK_FAILED_TO_SEND("FEEDBACK_FAILED_TO_SEND_V1"),
+
+  // Team Management
+
+  ADDED_MEMBER_TO_TEAM("ADDED_MEMBER_TO_TEAM_V1");
 
   private final String templateName;
 

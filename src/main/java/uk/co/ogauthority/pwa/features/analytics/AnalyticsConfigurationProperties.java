@@ -4,15 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class AnalyticsConfiguration {
+public class AnalyticsConfigurationProperties {
 
   private final AnalyticsProperties properties;
 
   private final AnalyticsConfig config;
 
   @Autowired
-  public AnalyticsConfiguration(AnalyticsProperties properties,
-                                AnalyticsConfig config) {
+  public AnalyticsConfigurationProperties(AnalyticsProperties properties,
+                                          AnalyticsConfig config) {
     this.properties = properties;
     this.config = config;
   }

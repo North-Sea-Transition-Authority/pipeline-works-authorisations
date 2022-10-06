@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appsectiongeneration.TestHarnessAppFormService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appsectiongeneration.TestHarnessAppFormServiceParams;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service
@@ -69,8 +70,12 @@ public class GenerateApplicationService {
                                                        Integer pipelineQuantity,
                                                        WebUserAccount applicantUser) {
 
-    var pickedMasterPwaId = consentedMasterPwaId != null ? consentedMasterPwaId : nonConsentedMasterPwaId;
-    var pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(pickedMasterPwaId, applicantUser);
+    MasterPwa pickedPwa;
+    if (consentedMasterPwaId != null) {
+      pickedPwa = pickedPwaRetrievalService.getPickedConsentedPwa(consentedMasterPwaId, applicantUser);
+    } else {
+      pickedPwa = pickedPwaRetrievalService.getPickedNonConsentedPwa(nonConsentedMasterPwaId, applicantUser);
+    }
 
     var applicantOrgUnit = testHarnessOrganisationUnitService
         .getFirstOrgUnitUserCanAccessOrThrow(applicantUser);

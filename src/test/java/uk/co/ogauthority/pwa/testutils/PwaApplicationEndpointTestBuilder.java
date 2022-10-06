@@ -238,6 +238,31 @@ public class PwaApplicationEndpointTestBuilder {
     }
   }
 
+  private Map<String, Object> performRequest(String url) throws Exception {
+    var paramMap = generateRequestParams();
+    var requestSession = this.session != null ? this.session : new MockHttpSession();
+    if (this.requestMethod == HttpMethod.GET) {
+      return this.mockMvc.perform(
+              get(url)
+                  .with(authenticatedUserAndSession(user))
+                  .params(paramMap)
+                  .session(requestSession)
+          ).andReturn()
+          .getModelAndView()
+          .getModel();
+    } else {
+      return this.mockMvc.perform(
+              post(url)
+                  .with(authenticatedUserAndSession(user))
+                  .with(csrf())
+                  .params(paramMap)
+                  .session(requestSession))
+          .andReturn()
+          .getModelAndView()
+          .getModel();
+    }
+  }
+
   /**
    * perform a GET or POST request upon a given url and with an expected result
    */
@@ -446,6 +471,13 @@ public class PwaApplicationEndpointTestBuilder {
       throw new AssertionError("Unauthenticated check expected 3xx redirect\n" + e.getMessage(), e);
     }
 
+  }
+
+  public Map<String, Object> performModelGeneration() throws Exception {
+    setupTestObjects();
+    return performRequest(
+        this.endpointUrlProducer.apply(detail, detail.getPwaApplicationType())
+    );
   }
 
   public Set<PwaApplicationType> getAllowedTypes() {

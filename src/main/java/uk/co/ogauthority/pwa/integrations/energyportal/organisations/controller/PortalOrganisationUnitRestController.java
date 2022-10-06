@@ -35,7 +35,7 @@ public class PortalOrganisationUnitRestController {
   @GetMapping("/orgs/lax/units")
   @ResponseBody
   public RestSearchResult searchPortalOrgUnits(@RequestParam("term") String searchTerm) {
-    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameContains(
+    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameOrRegNumberContains(
         searchTerm, PageRequest.of(0, 15)
     );
     var searchResults = searchSelectorService.search(searchTerm, queryList)
@@ -52,7 +52,7 @@ public class PortalOrganisationUnitRestController {
   @GetMapping("/orgs/strict/units/")
   @ResponseBody
   public RestSearchResult searchPortalOrgUnitsNoManualEntry(@RequestParam("term") String searchTerm) {
-    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameContains(
+    var queryList = portalOrganisationsAccessor.findActiveOrganisationUnitsWhereNameOrRegNumberContains(
         searchTerm, PageRequest.of(0, 15)
     );
     var searchResults = searchSelectorService.search(searchTerm, queryList)

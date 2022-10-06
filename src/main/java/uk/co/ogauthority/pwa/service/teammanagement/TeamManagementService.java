@@ -19,11 +19,13 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.internal.PersonRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
@@ -47,12 +49,15 @@ public class TeamManagementService {
   private final PersonRepository personRepository;
   private final WebUserAccountRepository webUserAccountRepository;
 
+  private final NotifyService notifyService;
+
   public TeamManagementService(TeamService teamService,
                                PersonRepository personRepository,
-                               WebUserAccountRepository webUserAccountRepository) {
+                               WebUserAccountRepository webUserAccountRepository, NotifyService notifyService) {
     this.teamService = teamService;
     this.personRepository = personRepository;
     this.webUserAccountRepository = webUserAccountRepository;
+    this.notifyService = notifyService;
   }
 
   public PwaTeam getTeamOrError(Integer resId) {
@@ -268,8 +273,13 @@ public class TeamManagementService {
 
 
   public void notifyNewTeamUser(PwaTeam team, Person person, List<PwaRole> selectedRoles) {
-    // TODO PWA-1147 - email notifications
-    LOGGER.info("== TODO Email notification - PwaTeam member added ==");
+    String mdFormattedRoles = selectedRoles.stream()
+                                           .map(PwaRole::getTitle)
+                                           .map(str -> "* " + str)
+                                           .collect(Collectors.joining("\n"));
+
+    var emailProps = new AddedToTeamEmailProps(person.getFullName(), team.getName(), mdFormattedRoles);
+    notifyService.sendEmail(emailProps, person.getEmailAddress());
   }
 
   /**

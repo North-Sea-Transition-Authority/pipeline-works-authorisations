@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.controller.appsummary.ApplicationPipelineDataMapGui
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -181,7 +182,8 @@ public class ReviewAndSubmitController {
                              PwaApplicationContext applicationContext,
                              @ModelAttribute("form") ReviewAndSubmitApplicationForm form,
                              BindingResult bindingResult,
-                             @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                             @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                             Optional<String> analyticsClientId) {
 
     var stopwatch = Stopwatch.createStarted();
 
@@ -204,7 +206,7 @@ public class ReviewAndSubmitController {
               BooleanUtils.isFalse(form.getMadeOnlyRequestedChanges()) ? form.getOtherChangesDescription() : null
           );
 
-          analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SUBMISSION,
+          analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.APPLICATION_SUBMISSION,
               Map.of("submissionType", submissionType.name(),
                   "applicationType", detail.getPwaApplicationType().name()));
 

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -47,7 +48,7 @@ public class IndustryPaymentCallbackController {
   public ModelAndView reconcilePaymentRequestAndRedirect(@PathVariable("paymentJourneyUuid") UUID paymentJourneyUuid,
                                                          AuthenticatedUserAccount user,
                                                          RedirectAttributes redirectAttributes,
-                                                         @CookieValue(name = "pwa-ga-client-id", required = false)
+                                                         @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
                                                                Optional<String> analyticsClientId) {
     var reconciledPaymentAttempt = applicationChargeRequestService
         .reconcilePaymentRequestCallbackUuidToPaymentAttempt(paymentJourneyUuid);
@@ -61,14 +62,14 @@ public class IndustryPaymentCallbackController {
 
     if (processPaymentAttemptOutcome.equals(ProcessPaymentAttemptOutcome.CHARGE_REQUEST_PAID)) {
 
-      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED);
+      analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED);
 
       return ReverseRouter.redirect(on(this.getClass())
           .renderPaymentResult(pwaApplication.getId(), pwaApplication.getApplicationType(), null));
 
     } else {
 
-      analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED);
+      analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED);
 
       FlashUtils.info(redirectAttributes,
           String.format("No payment for application %s has been completed", pwaApplication.getAppReference()));

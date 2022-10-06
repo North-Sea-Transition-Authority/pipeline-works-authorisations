@@ -15,8 +15,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import uk.co.ogauthority.pwa.auth.CurrentUserView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.controller.MarkdownController;
-import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsController;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -36,7 +37,7 @@ public class DefaultPageControllerAdvice {
   private final HttpServletRequest request;
   private final ServiceProperties serviceProperties;
   private final FooterService footerService;
-  private final AnalyticsConfiguration analyticsConfiguration;
+  private final AnalyticsConfigurationProperties analyticsConfigurationProperties;
   private final String analyticsMeasurementUrl;
 
   @Autowired
@@ -45,13 +46,13 @@ public class DefaultPageControllerAdvice {
                                      HttpServletRequest request,
                                      ServiceProperties serviceProperties,
                                      FooterService footerService,
-                                     AnalyticsConfiguration analyticsConfiguration) {
+                                     AnalyticsConfigurationProperties analyticsConfigurationProperties) {
     this.foxUrlService = foxUrlService;
     this.topMenuService = topMenuService;
     this.request = request;
     this.serviceProperties = serviceProperties;
     this.footerService = footerService;
-    this.analyticsConfiguration = analyticsConfiguration;
+    this.analyticsConfigurationProperties = analyticsConfigurationProperties;
     this.analyticsMeasurementUrl = ReverseRouter.route(on(AnalyticsController.class)
         .collectAnalyticsEvent(null, Optional.empty()));
   }
@@ -69,13 +70,15 @@ public class DefaultPageControllerAdvice {
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
     addMarkdownGuidanceUrl(model);
+    addGovNotifyMarkdownGuidanceUrl(model);
     footerService.addFooterUrlsToModel(model);
     model.addAttribute("service", serviceProperties);
     model.addAttribute("maxCharacterLength", ValidatorUtils.MAX_DEFAULT_STRING_LENGTH);
     model.addAttribute("feedbackUrl", ControllerUtils.getFeedbackUrl());
-    model.addAttribute("analytics", analyticsConfiguration.getProperties());
+    model.addAttribute("analytics", analyticsConfigurationProperties.getProperties());
     model.addAttribute("analyticsMeasurementUrl", analyticsMeasurementUrl);
     model.addAttribute("cookiePrefsUrl", ControllerUtils.getCookiesUrl());
+    model.addAttribute("analyticsClientIdCookieName", AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME);
   }
 
   private void addCurrentUserView(Model model) {
@@ -103,6 +106,11 @@ public class DefaultPageControllerAdvice {
   private void addMarkdownGuidanceUrl(Model model) {
     model.addAttribute("markdownGuidanceUrl",
         ReverseRouter.route(on(MarkdownController.class).renderMarkdownGuidance(null)));
+  }
+
+  private void addGovNotifyMarkdownGuidanceUrl(Model model) {
+    model.addAttribute("govNotifyMarkdownGuidanceUrl",
+        ReverseRouter.route(on(MarkdownController.class).renderEmailMarkdownGuidance(null)));
   }
 
 }

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -162,9 +163,29 @@ public class HolderChangeEmailServiceTest {
   }
 
   @Test
+  public void sendHolderChangeEmail_parentOrgIdentical() {
+
+    var shellUkOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell UK", shellOrgGroup);
+    var shellClairOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell Clair", shellOrgGroup);
+
+    var shellUkConsentHolderRole = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(shellConsentHolderRole.getAddedByPwaConsent(), new OrganisationUnitId(shellUkOrgUnit.getOuId()), HuooRole.HOLDER);
+
+    var shellClairConsentHolderRole = PwaConsentOrganisationRoleTestUtil
+        .createOrganisationRole(shellConsentHolderRole.getAddedByPwaConsent(), new OrganisationUnitId(shellClairOrgUnit.getOuId()), HuooRole.HOLDER);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(shellUkOrgUnit, shellClairOrgUnit));
+
+    holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellUkConsentHolderRole), List.of(shellClairConsentHolderRole));
+
+    verify(notifyService, never()).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
+  }
+
+  @Test
   public void sendHolderChangeEmail_holderEnded_holderAdded() {
 
-    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(shellOrgUnit, bpOrgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));
 
     when(teamService.getOrganisationTeamsForOrganisationGroups(any()))
         .thenReturn(List.of(shellOrgTeam, bpOrgTeam));
@@ -203,7 +224,8 @@ public class HolderChangeEmailServiceTest {
   @Test
   public void sendHolderChangeEmail_multipleHoldersEnded_holderAdded() {
 
-    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(shellOrgUnit, bpOrgUnit, wintershallOrgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId(), wintershallOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit, wintershallOrgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));
 
     when(teamService.getOrganisationTeamsForOrganisationGroups(any()))
         .thenReturn(List.of(shellOrgTeam, bpOrgTeam, wintershallOrgTeam));

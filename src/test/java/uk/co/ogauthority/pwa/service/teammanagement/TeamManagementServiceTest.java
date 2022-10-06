@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -33,6 +34,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
+import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
@@ -58,6 +60,9 @@ public class TeamManagementServiceTest {
 
   @Mock
   private WebUserAccountRepository webUserAccountRepository;
+
+  @Mock
+  private NotifyService notifyService;
 
   private PwaRegulatorTeam regulatorTeam;
   private PwaRole regTeamAdminRole;
@@ -87,7 +92,7 @@ public class TeamManagementServiceTest {
   @Before
   public void setUp() {
 
-    teamManagementService = new TeamManagementService(teamService, personRepository, webUserAccountRepository);
+    teamManagementService = new TeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
 
@@ -358,6 +363,16 @@ public class TeamManagementServiceTest {
     var orderVerifier = Mockito.inOrder(teamService);
     orderVerifier.verify(teamService).addPersonToTeamInRoles(regulatorTeam, regulatorTeamAdminPerson, userRolesForm.getUserRoles(), someWebUserAccount);
     orderVerifier.verifyNoMoreInteractions();
+
+    var expectedRoles = (List.of(regTeamAdminRole, regTeamSomeOtherRole)).stream()
+        .map(PwaRole::getTitle)
+        .map(str -> "* " + str)
+        .collect(Collectors.joining("\n"));
+    var expectedEmailProperties = new AddedToTeamEmailProps(regulatorTeamAdminPerson.getFullName(),
+                                                            regulatorTeam.getName(),
+                                                            expectedRoles);
+
+    verify(notifyService).sendEmail(expectedEmailProperties, regulatorTeamAdminPerson.getEmailAddress());
   }
 
   @Test

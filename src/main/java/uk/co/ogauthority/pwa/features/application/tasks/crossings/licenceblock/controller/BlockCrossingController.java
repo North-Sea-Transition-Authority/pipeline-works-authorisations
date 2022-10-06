@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.P
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.controller.PearsRestController;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -239,10 +239,11 @@ public class BlockCrossingController {
   }
 
   private void addGenericBlockCrossingModelAttributes(ModelAndView modelAndView, PwaApplicationContext context) {
-    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllActiveOrganisationUnits()
+    var sortedOrganisationUnits = portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch()
         .stream()
-        .sorted(Comparator.comparing(o -> o.getName().toLowerCase()))
-        .collect(StreamUtils.toLinkedHashMap(o -> String.valueOf(o.getOuId()), PortalOrganisationUnit::getName));
+        .sorted(Comparator.comparing(o -> o.getOrgSearchableUnitName().toLowerCase()))
+        .collect(StreamUtils.toLinkedHashMap(o ->
+            String.valueOf(o.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName));
 
     modelAndView.addObject("crossedBlockOwnerOptions", CrossedBlockOwner.asList());
     modelAndView.addObject("orgUnits", sortedOrganisationUnits);

@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.Organisatio
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationGroupRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitDetailRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.PortalOrganisationUnitSearchableRepository;
 
 /**
  * API to interact with Portal Organisations. This service should not be polluted with business logic, and
@@ -28,13 +29,17 @@ public class PortalOrganisationsAccessor {
   private final PortalOrganisationUnitRepository organisationUnitRepository;
   private final PortalOrganisationUnitDetailRepository organisationUnitDetailRepository;
 
+  private final PortalOrganisationUnitSearchableRepository organisationUnitSearchableRepository;
+
   @Autowired
   public PortalOrganisationsAccessor(PortalOrganisationGroupRepository organisationGroupRepository,
                                      PortalOrganisationUnitRepository organisationUnitRepository,
-                                     PortalOrganisationUnitDetailRepository organisationUnitDetailRepository) {
+                                     PortalOrganisationUnitDetailRepository organisationUnitDetailRepository,
+                                     PortalOrganisationUnitSearchableRepository organisationUnitSearchableRepository) {
     this.organisationGroupRepository = organisationGroupRepository;
     this.organisationUnitRepository = organisationUnitRepository;
     this.organisationUnitDetailRepository = organisationUnitDetailRepository;
+    this.organisationUnitSearchableRepository = organisationUnitSearchableRepository;
   }
 
   /**
@@ -73,8 +78,14 @@ public class PortalOrganisationsAccessor {
    * @param searchString find org units with name containing this string
    * @return organisation unit Entities matching search term.
    */
-  public List<PortalOrganisationUnit> findActiveOrganisationUnitsWhereNameContains(String searchString, Pageable pageable) {
+  public List<PortalOrganisationUnit> findActiveOrganisationUnitsWhereNameContains(String searchString,
+                                                                                   Pageable pageable) {
     return organisationUnitRepository.findByNameContainingIgnoreCaseAndIsActiveIsTrue(searchString, pageable);
+  }
+
+  public List<PortalOrganisationSearchUnit> findActiveOrganisationUnitsWhereNameOrRegNumberContains(String searchString,
+                                                                                                    Pageable pageable) {
+    return organisationUnitSearchableRepository.findByOrgSearchableUnitNameContainingIgnoreCaseAndIsActiveIsTrue(searchString, pageable);
   }
 
   /**
@@ -82,6 +93,10 @@ public class PortalOrganisationsAccessor {
    */
   public List<PortalOrganisationUnit> getAllActiveOrganisationUnits() {
     return organisationUnitRepository.findByIsActiveIsTrue();
+  }
+
+  public List<PortalOrganisationSearchUnit> getAllActiveOrganisationUnitsSearch() {
+    return organisationUnitSearchableRepository.findByIsActiveIsTrue();
   }
 
   /**
@@ -180,5 +195,14 @@ public class PortalOrganisationsAccessor {
       Collection<PortalOrganisationGroup> organisationGroups) {
     return organisationUnitRepository.findByPortalOrganisationGroupInAndIsActiveIsTrue(List.copyOf(organisationGroups));
   }
+
+  public List<PortalOrganisationSearchUnit> getSearchableOrganisationUnitsForOrganisationGroupsIn(
+      Collection<PortalOrganisationGroup> organisationGroups) {
+    var groupList = organisationGroups.stream()
+        .map(PortalOrganisationGroup::getOrgGrpId)
+        .collect(Collectors.toList());
+    return organisationUnitSearchableRepository.findByGroupIdInAndIsActiveIsTrue(groupList);
+  }
+
 
 }

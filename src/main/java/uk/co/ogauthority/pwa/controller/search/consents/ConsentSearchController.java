@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.model.form.search.consents.ConsentSearchForm;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchParams;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
@@ -60,8 +60,9 @@ public class ConsentSearchController {
 
     var sortedOrganisationUnits = pwaOrganisationAccessor.getOrgUnitsUserCanAccess(user)
         .stream()
-        .sorted(Comparator.comparing(o -> o.getName().toLowerCase()))
-        .collect(StreamUtils.toLinkedHashMap(o -> String.valueOf(o.getOuId()), PortalOrganisationUnit::getName));
+        .sorted(Comparator.comparing(o -> o.getOrgSearchableUnitName().toLowerCase()))
+        .collect(StreamUtils.toLinkedHashMap(o ->
+            String.valueOf(o.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName));
 
     boolean doSearch = consentSearchParams.isSearch();
 
@@ -83,7 +84,8 @@ public class ConsentSearchController {
   @PostMapping
   public ModelAndView postSearch(@ModelAttribute("form") ConsentSearchForm form,
                                  AuthenticatedUserAccount user,
-                                 @CookieValue(name = "pwa-ga-client-id", required = false) Optional<String> analyticsClientId) {
+                                 @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
+                                 Optional<String> analyticsClientId) {
 
     // create new search params from form posted by user, pass them via redirect
     var searchParams = ConsentSearchParams.from(form);
@@ -91,7 +93,7 @@ public class ConsentSearchController {
 
     var analyticsParamMap = AnalyticsUtils.getFiltersUsedParamMap(searchParams);
     analyticsParamMap.remove("search");
-    analyticsService.sendGoogleAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.CONSENT_SEARCH, analyticsParamMap);
+    analyticsService.sendAnalyticsEvent(analyticsClientId, AnalyticsEventCategory.CONSENT_SEARCH, analyticsParamMap);
 
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(searchParams));

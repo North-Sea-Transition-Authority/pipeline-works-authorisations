@@ -26,7 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
-import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfiguration;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
@@ -83,7 +83,7 @@ public class ControllerHelperServiceTypeMismatchTest {
   protected FooterService footerServices;
 
   @MockBean
-  protected AnalyticsConfiguration analyticsConfiguration;
+  protected AnalyticsConfigurationProperties analyticsConfigurationProperties;
 
   @MockBean
   protected AnalyticsService analyticsService;

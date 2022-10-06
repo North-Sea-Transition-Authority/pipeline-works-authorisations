@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 @Component
@@ -47,7 +48,7 @@ public class PwaApplicationRouteInterceptor implements HandlerInterceptor {
         }
 
         var analyticsClientIdOpt = Arrays.stream(request.getCookies())
-            .filter(cookie -> Objects.equals(cookie.getName(), "pwa-ga-client-id"))
+            .filter(cookie -> Objects.equals(cookie.getName(), AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME))
             .map(Cookie::getValue)
             .findFirst();
 
@@ -55,7 +56,7 @@ public class PwaApplicationRouteInterceptor implements HandlerInterceptor {
         var endpointIdString = StringUtils.substringBefore(StringUtils.reverseDelimited(request.getRequestURI(), '/'), "/");
 
         resolvedValidationTypes.forEach(validationType -> analyticsService
-            .sendGoogleAnalyticsEvent(
+            .sendAnalyticsEvent(
                 analyticsClientIdOpt,
                 validationType.getAnalyticsEventCategory(),
                 Map.of("endpoint", endpointIdString)));

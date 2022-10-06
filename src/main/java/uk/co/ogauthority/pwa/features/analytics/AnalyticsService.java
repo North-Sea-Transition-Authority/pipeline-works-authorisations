@@ -25,12 +25,12 @@ public class AnalyticsService {
   private static final Logger LOGGER = LoggerFactory.getLogger(AnalyticsService.class);
 
   private final ClientHttpRequestFactory requestFactory;
-  private final AnalyticsConfiguration configuration;
+  private final AnalyticsConfigurationProperties configuration;
   private final ObjectMapper objectMapper;
 
   @Autowired
   public AnalyticsService(ClientHttpRequestFactory requestFactory,
-                          AnalyticsConfiguration configuration,
+                          AnalyticsConfigurationProperties configuration,
                           ObjectMapper objectMapper) {
     this.requestFactory = requestFactory;
     this.configuration = configuration;
@@ -38,7 +38,7 @@ public class AnalyticsService {
   }
 
   @Async
-  public void sendGoogleAnalyticsEvent(
+  public void sendAnalyticsEvent(
       Optional<String> cookieClientId,
       AnalyticsEventCategory eventCategory
   ) {
@@ -47,7 +47,7 @@ public class AnalyticsService {
 
 
   @Async
-  public void sendGoogleAnalyticsEvent(
+  public void sendAnalyticsEvent(
       Optional<String> cookieClientId,
       AnalyticsEventCategory eventCategory,
       Map<String, String> paramMap

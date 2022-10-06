@@ -37,11 +37,13 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -96,6 +98,8 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
   private PortalOrganisationUnit orgUnit;
 
+  private PortalOrganisationSearchUnit orgSearchUnit;
+
   private PwaApplicationDetail detail;
 
   @Before
@@ -108,8 +112,13 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     orgUnit = TeamTestingUtils.createOrgUnit();
+    orgSearchUnit = TeamTestingUtils.createOrgSearchUnit();
+
     when(portalOrganisationsAccessor.getOrganisationUnitById(111)).thenReturn(Optional.of(orgUnit));
+    when(portalOrganisationsAccessor.getOrganisationUnitById(OrganisationUnitId.fromInt(111))).thenReturn(Optional.of(orgUnit));
+
     when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
+    when(portalOrganisationsAccessor.getSearchableOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgSearchUnit));
 
     timer = TimerMetricTestUtils.setupTimerMetric(
         PwaHolderController.class, "pwa.startAppTimer", appender);

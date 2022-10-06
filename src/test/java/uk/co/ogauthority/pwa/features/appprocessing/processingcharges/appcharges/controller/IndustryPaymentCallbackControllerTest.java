@@ -149,7 +149,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS/"))
         .andExpect(flash().attributeCount(2));
 
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED));
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED));
 
   }
 
@@ -170,7 +170,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .andExpect(view().name("redirect:/pwa-application/huoo/1/payment-result"))
         .andExpect(flash().attributeCount(0));
 
-    verify(analyticsService).sendGoogleAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED));
+    verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_COMPLETED));
 
   }
 
