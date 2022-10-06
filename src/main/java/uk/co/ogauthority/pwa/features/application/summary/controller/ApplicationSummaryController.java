@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.features.application.summary.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,8 @@ public class ApplicationSummaryController {
 
   private final ApplicationSummaryViewService applicationSummaryViewService;
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSummaryController.class);
+
   @Autowired
   public ApplicationSummaryController(ApplicationSummaryViewService applicationSummaryViewService) {
     this.applicationSummaryViewService = applicationSummaryViewService;
@@ -48,8 +52,9 @@ public class ApplicationSummaryController {
                                     @ModelAttribute("form") PwaApplicationDetailVersionForm form,
                                     @RequestParam(value = "applicationDetailId", required = false) Integer applicationDetailId) {
 
-
     var latestAppDetail = processingContext.getApplicationDetail();
+    LOGGER.debug(String.format("Got latest app detail with id %s", latestAppDetail.getId()));
+
     var selectedAppDetailId = applicationDetailId;
     if (applicationDetailId == null) {
       selectedAppDetailId = latestAppDetail.getId();
@@ -58,15 +63,28 @@ public class ApplicationSummaryController {
 
     var visibleApplicationVersionOptionsForUser =
         getVisibleAppVersionOptionsForUser(processingContext.getPwaApplication(), authenticatedUserAccount, applicationDetailId);
+    LOGGER.debug("visibleApplicationVersionOptionsForUser retrieved");
 
     var viewAppSummaryUrl  = ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(
         applicationId, pwaApplicationType, null, null, null, null));
 
+    var appSummaryView = applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(selectedAppDetailId);
+    LOGGER.debug("appSummaryView created");
+
+    var caseSummaryView = processingContext.getCaseSummaryView();
+    LOGGER.debug("caseSummaryView created");
+
+    var appDetailVersionSearchSelectorItems = visibleApplicationVersionOptionsForUser.getApplicationVersionOptions();
+    LOGGER.debug("appDetailVersionSearchSelectorItems created");
+
+    var showVersionSelector = !visibleApplicationVersionOptionsForUser.getApplicationVersionOptions().isEmpty();
+    LOGGER.debug("showVersionSelector created");
+
     return new ModelAndView("pwaApplication/appProcessing/appSummary/viewAppSummary")
-        .addObject("appSummaryView", applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(selectedAppDetailId))
-        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("appDetailVersionSearchSelectorItems", visibleApplicationVersionOptionsForUser.getApplicationVersionOptions())
-        .addObject("showVersionSelector", !visibleApplicationVersionOptionsForUser.getApplicationVersionOptions().isEmpty())
+        .addObject("appSummaryView", appSummaryView)
+        .addObject("caseSummaryView", caseSummaryView)
+        .addObject("appDetailVersionSearchSelectorItems", appDetailVersionSearchSelectorItems)
+        .addObject("showVersionSelector", showVersionSelector)
         .addObject("viewAppSummaryUrl", viewAppSummaryUrl)
         .addObject("showDiffCheckbox", !PwaApplicationStatus.COMPLETE.equals(latestAppDetail.getStatus()))
         .addObject("mappingGuidanceUrl", ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class)

@@ -66,7 +66,6 @@ public class PadOrganisationRoleService {
   private final PadPipelineService padPipelineService;
   private final EntityManager entityManager;
 
-  private final PadHuooValidationService padHuooValidationService;
   private final PadHuooRoleMetadataProvider padHuooRoleMetadataProvider;
 
   private final PwaApplicationService pwaApplicationService;
@@ -80,7 +79,6 @@ public class PadOrganisationRoleService {
       PipelineNumberAndSplitsService pipelineNumberAndSplitsService,
       PadPipelineService padPipelineService,
       EntityManager entityManager,
-      PadHuooValidationService padHuooValidationService,
       PadHuooRoleMetadataProvider padHuooRoleMetadataProvider,
       PwaApplicationService pwaApplicationService) {
     this.padOrganisationRolesRepository = padOrganisationRolesRepository;
@@ -90,18 +88,12 @@ public class PadOrganisationRoleService {
     this.pipelineNumberAndSplitsService = pipelineNumberAndSplitsService;
     this.padPipelineService = padPipelineService;
     this.entityManager = entityManager;
-    this.padHuooValidationService = padHuooValidationService;
     this.padHuooRoleMetadataProvider = padHuooRoleMetadataProvider;
     this.pwaApplicationService = pwaApplicationService;
   }
 
   public List<PadOrganisationRole> getOrgRolesForDetail(PwaApplicationDetail pwaApplicationDetail) {
     return padOrganisationRolesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
-  }
-
-  public List<PadOrganisationRole> getOrgRolesForDetailAndRole(PwaApplicationDetail pwaApplicationDetail,
-                                                               HuooRole huooRole) {
-    return padOrganisationRolesRepository.getAllByPwaApplicationDetailAndRole(pwaApplicationDetail, huooRole);
   }
 
   public List<PadOrganisationRole> getAllAssignableAndNonAssignableOrgRolesForDetailByRole(
@@ -160,10 +152,10 @@ public class PadOrganisationRoleService {
 
   private OrganisationRolesSummaryDto getOrganisationRoleSummary(PwaApplicationDetail detail) {
 
-    //Get active and inactive pipeline ids
     Set<PipelineId> activeAppPipelineIds = new HashSet<>();
     Set<PipelineId> inactiveAppPipelineIds = new HashSet<>();
 
+    // Get active and inactive pipeline ids for pad pipelines on the app detail
     var pipelineInactiveStatuses = padPipelineService.getPadPipelineInactiveStatuses();
     padPipelineService.getPipelines(detail).forEach(padPipeline -> {
       if (pipelineInactiveStatuses.contains(padPipeline.getPipelineStatus())) {
@@ -173,12 +165,11 @@ public class PadOrganisationRoleService {
       }
     });
 
-
-    //Get active organisation pipeline roles
+    // Get active organisation pipeline roles as dtos
+    // If org role is for an inactive pipeline, keep the role owner but discard pipeline by creating new role instance dto
     var allOrganisationPipelineRoles = padOrganisationRolesRepository.findActiveOrganisationPipelineRolesByPwaApplicationDetail(detail);
     var activeOrgPipelineRoles = allOrganisationPipelineRoles.stream()
         .map(orgPipelineRole -> {
-          //if org role is an inactive pipeline, keep the  role owner but discard pipeline
           if (orgPipelineRole.getPipelineIdentifier() != null
               && inactiveAppPipelineIds.contains(orgPipelineRole.getPipelineIdentifier().getPipelineId())) {
             return OrganisationPipelineRoleInstanceDto.copyWithoutPipeline(orgPipelineRole);
@@ -187,9 +178,7 @@ public class PadOrganisationRoleService {
         })
         .collect(Collectors.toList());
 
-
-
-    //Place unassigned active pipelines in their own "unassigned for role" section
+    // group up pipeline ids from roles by H/U/O/O role type
     Map<HuooRole, Set<PipelineId>> huooRoleToPipelineIds = activeOrgPipelineRoles.stream()
         .filter(activeOrgPipelineRole -> activeOrgPipelineRole.getPipelineIdentifier() != null)
         .collect(groupingBy(
@@ -197,10 +186,13 @@ public class PadOrganisationRoleService {
             Collectors.mapping(orgPipelineRole -> orgPipelineRole.getPipelineIdentifier().getPipelineId(), Collectors.toSet())
         ));
 
+    // for each H/U/O/O role type
     for (HuooRole role : HuooRole.values()) {
-      //Do not add unassigned pipelines when no role owner exists for type
+
+      // if there is at least one pipeline assigned to the role type
       if (activeOrgPipelineRoles.stream().anyMatch(orgRole -> orgRole.getHuooRole().equals(role))) {
 
+        // add any pipelines that have not yet been assigned a role of this type to the list
         var activePipelineIdsForRole = huooRoleToPipelineIds.getOrDefault(role, Set.of());
         var unassignedPipelinesForRole = SetUtils.difference(activeAppPipelineIds, activePipelineIdsForRole);
         unassignedPipelinesForRole.forEach(pipelineId -> activeOrgPipelineRoles.add(

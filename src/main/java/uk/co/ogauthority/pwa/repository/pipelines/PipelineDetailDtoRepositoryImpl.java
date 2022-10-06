@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.repository.pipelines;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,8 +48,9 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
   }
 
   @Override
-  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatus(MasterPwa masterPwa,
-                                                                             Set<PipelineStatus> statusFilter) {
+  public List<PipelineOverview> getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(MasterPwa masterPwa,
+                                                                                      Set<PipelineStatus> statusFilter,
+                                                                                      Instant searchInstant) {
 
     return entityManager.createQuery("" +
             "SELECT new uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailSummaryDto(" +
@@ -94,8 +96,8 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
             "JOIN PwaConsent pc ON pd.pwaConsent = pc " +
             "JOIN Pipeline p ON pd.pipeline = p " +
             "LEFT JOIN PipelineDetailIdent pdi ON pd = pdi.pipelineDetail " +
-            "WHERE pd.tipFlag = true " +
-            "AND pc.masterPwa = :master_pwa " +
+            "WHERE pc.masterPwa = :master_pwa " +
+            "AND :searchInstant BETWEEN pd.startTimestamp AND COALESCE(pd.endTimestamp, :currentInstant) " +
             "GROUP BY " +
             "  pd.id " +
             ", p.id " +
@@ -136,6 +138,8 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
             ", pd.pipelineStatusReason ",
         PipelineDetailSummaryDto.class)
         .setParameter("master_pwa", masterPwa)
+        .setParameter("searchInstant", searchInstant)
+        .setParameter("currentInstant", Instant.now())
         .getResultList()
         .stream()
         .map(PadPipelineOverview::from)
@@ -150,7 +154,7 @@ public class PipelineDetailDtoRepositoryImpl implements PipelineDetailDtoReposit
   @Override
   public List<PipelineOverview> getAllPipelineOverviewsForMasterPwa(MasterPwa masterPwa) {
     var statusFilter = PipelineStatus.currentStatusSet();
-    return getAllPipelineOverviewsForMasterPwaAndStatus(masterPwa, statusFilter);
+    return getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, statusFilter, Instant.now());
   }
 
   @Override
