@@ -187,10 +187,10 @@ public class PipelineDetailServiceTest {
     var overview = PipelineDetailTestUtil
         .createPipelineOverview("REF", PipelineStatus.IN_SERVICE);
 
-    when(pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+    when(pipelineDetailRepository.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(detail.getMasterPwa(), pipelineStatusFilter, clock.instant()))
         .thenReturn(List.of(overview));
 
-    assertThat(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(detail.getMasterPwa(), pipelineStatusFilter))
+    assertThat(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(detail.getMasterPwa(), pipelineStatusFilter, clock.instant()))
         .extracting(PipelineOverview::getPipelineId)
         .containsExactly(overview.getPipelineId());
   }
