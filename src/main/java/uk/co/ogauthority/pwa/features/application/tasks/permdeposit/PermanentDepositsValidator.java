@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import io.micrometer.core.instrument.util.StringUtils;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -229,8 +228,18 @@ public class PermanentDepositsValidator implements SmartValidator {
           "Grout bags contingency amount", 150);
 
     } else if (form.getMaterialType().equals(MaterialType.OTHER)) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialType", "otherMaterialType.invalid",
+          "Enter other deposit material");
+
+      ValidatorUtils.validateMaxStringLength(errors, "otherMaterialType", form::getOtherMaterialType,
+          "Other deposit material", 50);
+
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherMaterialSize", "otherMaterialSize.invalid",
-          "Enter a valid size for the material type");
+          "Enter a valid size for other deposit material");
+
+      ValidatorUtils.validateMaxStringLength(errors, "otherMaterialSize", form::getOtherMaterialSize,
+          "Other deposit material size", 20);
 
       ValidatorUtils.invokeNestedValidator(
           errors,
@@ -240,13 +249,12 @@ public class PermanentDepositsValidator implements SmartValidator {
           getPositiveNumberFieldHints("quantity of material")
       );
 
-      ValidatorUtils.validateMaxStringLength(errors, "otherMaterialSize", form::getOtherMaterialSize,
-          "Other material size", 20);
-
       ValidatorUtils.validateMaxStringLength(errors, "contingencyOtherAmount", form::getContingencyOtherAmount,
           "Contingency amount",
           150);
+
     }
+
   }
 
   private void validateStartDate(Errors errors, PermanentDepositsValidationHints validationHints,
