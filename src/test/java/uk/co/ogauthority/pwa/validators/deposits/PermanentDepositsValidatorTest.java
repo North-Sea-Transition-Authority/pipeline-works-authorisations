@@ -640,7 +640,7 @@ public class PermanentDepositsValidatorTest {
     form.setMaterialType(MaterialType.OTHER);
     var today = LocalDate.now();
     form.setFromDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
-    form.setToDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
+    form.setToDate(new TwoFieldDateInput(today.getYear(), today.getMonth().plus(1).getValue()));
     form.setOtherMaterialType(StringUtils.repeat('a', 50));
     form.setQuantityOther(new DecimalInput("33"));
     return form;
