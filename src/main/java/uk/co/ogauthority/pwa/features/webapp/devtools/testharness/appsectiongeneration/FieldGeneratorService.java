@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
+import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 
 @Service
 @Profile("test-harness")
@@ -32,7 +33,7 @@ class FieldGeneratorService implements TestHarnessAppFormService {
   public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
     var form = new PwaFieldForm();
-    form.setFieldIds(List.of("2692"));
+    form.setFieldIds(List.of(new SearchResult("2692")));
     form.setLinkedToField(true);
     padFieldService.updateFieldInformation(appFormServiceParams.getApplicationDetail(), form);
   }
