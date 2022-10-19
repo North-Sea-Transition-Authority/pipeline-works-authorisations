@@ -2,14 +2,12 @@ package uk.co.ogauthority.pwa.features.feemanagement.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
-import org.springframework.validation.SmartValidator;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.util.CurrencyUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
 @Service
 public class FeePeriodValidator implements Validator {
@@ -50,7 +48,7 @@ public class FeePeriodValidator implements Validator {
           var message = applicationFeeType.getDisplayName() +
               " for " +
               applicationType.getDisplayName() +
-              " , must be £0.00 or more";
+              " must be £0.00 or more";
 
           errors.rejectValue(fieldKey, "newPeriod.feeValue.invalid", message);
         }
@@ -63,7 +61,7 @@ public class FeePeriodValidator implements Validator {
         var message = applicationFeeType.getDisplayName() +
             " for " +
             applicationType.getDisplayName() +
-            " , must be a number";
+            " must be a number";
 
         errors.rejectValue(fieldKey, "newPeriod.feeValue.numberFormat", message);
       }

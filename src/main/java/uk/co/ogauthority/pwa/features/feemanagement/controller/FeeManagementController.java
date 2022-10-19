@@ -42,6 +42,8 @@ public class FeeManagementController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(FeeManagementController.class);
 
+  private static final String ROUTE_OVERVIEW_URL = ReverseRouter.route(on(FeeManagementController.class).renderFeeManagementOverview(null));
+
   @Autowired
   public FeeManagementController(FeePeriodDisplayService displayService,
                                  FeePeriodValidator validator,
@@ -85,8 +87,7 @@ public class FeeManagementController {
         .addObject("backUrl", ReverseRouter.route(on(FeeManagementController.class)
             .renderFeeManagementOverview(authenticatedUser)))
         .addObject("feePeriod", feePeriodOptional.get())
-        .addObject("DefaultFees", displayService.findDefaultFeesByPeriodId(periodId))
-        .addObject("FastTrackFees", displayService.findFastTrackFeesByPeriodId(periodId));
+        .addObject("feeMap", displayService.getFeesByPeriodId(periodId));
   }
 
   @GetMapping("/new")
@@ -100,7 +101,8 @@ public class FeeManagementController {
 
     return new ModelAndView("fees/form/newFeePeriod")
         .addObject("applicationTypes", PwaApplicationType.values())
-        .addObject("applicationFeeTypes", PwaApplicationFeeType.values());
+        .addObject("applicationFeeTypes", PwaApplicationFeeType.values())
+        .addObject("cancelUrl", ROUTE_OVERVIEW_URL);
   }
 
   @PostMapping("/new")
@@ -136,10 +138,18 @@ public class FeeManagementController {
 
     checkUserPrivilege(authenticatedUser);
     displayService.populatePeriodFormForEdit(form, periodId);
+    return createEditPeriodFormModelAndView(periodId, form);
+
+  }
+
+  private ModelAndView createEditPeriodFormModelAndView(Integer periodId, FeePeriodForm form) {
+
     return new ModelAndView("fees/form/editFeePeriod")
         .addObject("feePeriod", displayService.findPeriodById(periodId))
         .addObject("applicationTypes", PwaApplicationType.values())
-        .addObject("applicationFeeTypes", PwaApplicationFeeType.values());
+        .addObject("applicationFeeTypes", PwaApplicationFeeType.values())
+        .addObject("cancelUrl", ROUTE_OVERVIEW_URL);
+
   }
 
   @PostMapping("/edit/{periodId}")
@@ -150,8 +160,8 @@ public class FeeManagementController {
                                          RedirectAttributes redirectAttributes) {
 
     checkUserPrivilege(authenticatedUser);
-    var modelAndView = renderEditPeriodForm(authenticatedUser, periodId, form);
     validator.validate(form, bindingResult);
+    var modelAndView = createEditPeriodFormModelAndView(periodId, form);
 
     return helperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
       feePeriodService.saveFeePeriod(form, authenticatedUser.getLinkedPerson());

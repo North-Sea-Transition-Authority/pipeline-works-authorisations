@@ -1,15 +1,16 @@
 package uk.co.ogauthority.pwa.features.feemanagement.display;
 
-import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType.DEFAULT;
-import static uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType.FAST_TRACK;
-
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.feemanagement.display.internal.DisplayableFeeItemDetail;
 import uk.co.ogauthority.pwa.features.feemanagement.display.internal.DisplayableFeePeriodDetail;
 import uk.co.ogauthority.pwa.features.feemanagement.display.internal.FeePeriodDetailViewRepository;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.features.feemanagement.display.internal.FeePeriodIt
 import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.util.CurrencyUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 public class FeePeriodDisplayService {
@@ -41,15 +43,16 @@ public class FeePeriodDisplayService {
     return feePeriodDetailViewRepository.findById(id);
   }
 
-  public List<DisplayableFeeItemDetail> findDefaultFeesByPeriodId(Integer id) {
-    return  feePeriodItemViewRepository
-        .findAllByFeePeriodIdAndApplicationFeeType(id, DEFAULT);
+  public Map<PwaApplicationFeeType, List<DisplayableFeeItemDetail>> getFeesByPeriodId(Integer id) {
 
-  }
+    // group items by fee type
+    var feesMap = feePeriodItemViewRepository.findAllByFeePeriodId(id).stream()
+        .collect(Collectors.groupingBy(DisplayableFeeItemDetail::getApplicationFeeType));
 
-  public List<DisplayableFeeItemDetail> findFastTrackFeesByPeriodId(Integer id) {
-    return  feePeriodItemViewRepository
-        .findAllByFeePeriodIdAndApplicationFeeType(id, FAST_TRACK);
+    // return sorted map
+    return feesMap.entrySet().stream()
+        .sorted(Comparator.comparing(entry -> entry.getKey().getDisplayOrder()))
+        .collect(StreamUtils.toLinkedHashMap(Map.Entry::getKey, Map.Entry::getValue));
 
   }
 

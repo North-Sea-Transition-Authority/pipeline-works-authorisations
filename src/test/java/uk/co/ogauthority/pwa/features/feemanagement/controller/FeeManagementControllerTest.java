@@ -2,10 +2,8 @@ package uk.co.ogauthority.pwa.features.feemanagement.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
@@ -16,6 +14,7 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -41,6 +40,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 @RunWith(SpringRunner.class)
 @WebMvcTest(FeeManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
+@Ignore // TODO EDU-6566 turn on fee management functionality
 public class FeeManagementControllerTest extends AbstractControllerTest {
 
   @MockBean

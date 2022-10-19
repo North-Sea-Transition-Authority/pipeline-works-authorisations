@@ -88,6 +88,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .mvcMatchers("/assets/**", "/error")
           .permitAll()
 
+        // TODO EDU-6566 turn on fee management
+        .mvcMatchers("/fee-management/**")
+          .denyAll()
+
         .anyRequest()
           .authenticated();
 

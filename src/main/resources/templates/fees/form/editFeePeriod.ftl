@@ -12,6 +12,6 @@ errorItems=errorList
 errorCheck=errorList?has_content>
     <@fdsForm.htmlForm>
       <#include 'feePeriodBaseForm.ftl'>
-      <@fdsAction.button buttonText="Save"/>
+        <@fdsAction.submitButtons primaryButtonText="Save" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(cancelUrl)/>
     </@fdsForm.htmlForm>
 </@defaultPage>

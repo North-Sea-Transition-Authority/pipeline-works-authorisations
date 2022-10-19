@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.in
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeePeriodDetailRepository;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeePeriodRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.util.CurrencyUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -105,36 +104,51 @@ public class FeePeriodService {
     return feePeriodDetail;
   }
 
-  private void updateFeePeriodDetail(FeePeriodDetail newPendingDetail, Integer username) {
+  private void updateFeePeriodDetail(FeePeriodDetail newPendingDetail, Integer personId) {
+
+    // get the current detail for this new detail's fee period and end it
     var oldPendingDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndFeePeriod(newPendingDetail.getFeePeriod());
-    oldPendingDetailOptional.ifPresent(feePeriodDetail -> updateOldPendingDetail(feePeriodDetail, newPendingDetail, username));
+    oldPendingDetailOptional.ifPresent(feePeriodDetail -> updateOldPendingDetail(feePeriodDetail, newPendingDetail, personId));
 
+    // update the detail for the latest un-ended detail
     var oldActiveDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestampIsNull();
-    oldActiveDetailOptional.ifPresent(feePeriodDetail -> updateActivePeriodDetails(feePeriodDetail, newPendingDetail, username));
+    oldActiveDetailOptional.ifPresent(feePeriodDetail -> updateActivePeriodDetails(feePeriodDetail, newPendingDetail, personId));
 
-    newPendingDetail.setLastModifiedBy(username);
+    newPendingDetail.setLastModifiedBy(personId);
     feePeriodDetailRepository.save(newPendingDetail);
     LOGGER.debug("Added new pending fee period detail object");
   }
 
   private void updateOldPendingDetail(FeePeriodDetail oldPendingDetail, FeePeriodDetail newPendingDetail, Integer username) {
+
+    // end the previous 'current' detail
     oldPendingDetail.setTipFlag(false);
     oldPendingDetail.setLastModifiedBy(username);
     feePeriodDetailRepository.save(oldPendingDetail);
     LOGGER.debug("Removed tip flag from Old Pending Fee Period Detail Object");
 
+    // get the day before the previous 'current' detail's period start
     var oldActiveEndDate = oldPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
+
+    // try and find a fee period which currently ends on that date (should be the currently active fee period)
     var oldActiveDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestamp(oldActiveEndDate);
+
     if (oldActiveDetailOptional.isPresent()) {
+
       var oldActiveDetail = oldActiveDetailOptional.get();
 
+      // end the detail
       oldActiveDetail.setTipFlag(false);
       oldActiveDetail.setLastModifiedBy(username);
       feePeriodDetailRepository.save(oldActiveDetail);
       LOGGER.debug("Removed tip flag from Old Active Fee Period Detail Object");
+
       var oldActiveItems = feePeriodDetailItemRepository.findAllByFeePeriodDetail(oldActiveDetail);
 
+      // get the day before the new period detail is due to start
       var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
+
+      // update the end date of the old active period, set this to be the new tip detail for that period and save
       oldActiveDetail.setPeriodEndTimestamp(newActiveEndDate);
       oldActiveDetail.setTipFlag(true);
       oldActiveDetail.setId(null);
@@ -142,6 +156,7 @@ public class FeePeriodService {
       oldActiveDetail = feePeriodDetailRepository.save(oldActiveDetail);
       LOGGER.debug("Added new active fee period detail object");
 
+      // copy forward each fee item to the new tip detail and save
       for (var oldActiveItem : oldActiveItems) {
         oldActiveItem.setFeePeriodDetail(oldActiveDetail);
         oldActiveItem.setId(null);
@@ -152,6 +167,7 @@ public class FeePeriodService {
   }
 
   private void updateActivePeriodDetails(FeePeriodDetail oldActiveDetail, FeePeriodDetail newPendingDetail, Integer username) {
+
     var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
 
     oldActiveDetail.setTipFlag(false);
