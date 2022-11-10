@@ -47,6 +47,7 @@ public class ErrorServiceTest {
         "service",
         "cookiePrefsUrl",
         "analyticsMeasurementUrl",
+        "analyticsClientIdCookieName",
         "analytics");
     assertThat(resultingModelMap.get("errorRef")).isNotNull();
     assertCommonModelProperties(resultingModelMap);
@@ -65,6 +66,7 @@ public class ErrorServiceTest {
         "service",
         "cookiePrefsUrl",
         "analyticsMeasurementUrl",
+        "analyticsClientIdCookieName",
         "analytics"
     );
     assertCommonModelProperties(resultingModelMap);
