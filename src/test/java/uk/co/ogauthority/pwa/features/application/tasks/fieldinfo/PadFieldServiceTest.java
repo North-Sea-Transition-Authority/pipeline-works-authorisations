@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
@@ -145,10 +147,15 @@ public class PadFieldServiceTest {
     var form = new PwaFieldForm();
     form.setLinkedToField(true);
 
-    form.setFieldIds(List.of(String.valueOf(DEVUK_FIELD_ID),  SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
+    form.setFieldIds(List.of(
+        new SearchResult(String.valueOf(DEVUK_FIELD_ID)),
+        new SearchResult(SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName)
+    ));
 
-    var searchSelectionView = new SearchSelectionView<>(form.getFieldIds(),
-        pickedFieldString -> devukFieldService.findById(Integer.parseInt(pickedFieldString)));
+    var searchSelectionView = new SearchSelectionView<>(
+        form.getFieldIds().stream().map(SearchResult::getValue).collect(Collectors.toList()),
+        pickedFieldString -> devukFieldService.findById(Integer.parseInt(pickedFieldString))
+    );
     when(devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds())).thenReturn(searchSelectionView);
 
     padFieldService.updateFieldInformation(pwaApplicationDetail, form);
@@ -314,7 +321,10 @@ public class PadFieldServiceTest {
 
     padFieldService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldIds()).isEqualTo(List.of(String.valueOf(DEVUK_FIELD_ID), SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
+    assertThat(form.getFieldIds()).isEqualTo(List.of(
+        new SearchResult(String.valueOf(DEVUK_FIELD_ID)),
+        new SearchResult(SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName))
+    );
     assertThat(form.getLinkedToField()).isTrue();
     assertThat(form.getNoLinkedFieldDescription()).isNull();
   }
