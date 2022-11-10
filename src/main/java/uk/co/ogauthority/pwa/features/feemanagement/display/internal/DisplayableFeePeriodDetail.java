@@ -72,7 +72,9 @@ public class DisplayableFeePeriodDetail {
   public DisplayableFeePeriodStatus getStatus() {
     if (getPeriodStartTimestamp() != null && getPeriodStartTimestamp().isAfter(Instant.now())) {
       return PENDING;
-    } else if (getPeriodEndTimestamp() == null || getPeriodEndTimestamp().isAfter(Instant.now())) {
+    } else if (getPeriodEndTimestamp() == null
+        || getPeriodEndTimestamp().isAfter(Instant.now())
+        || getPeriodEndTimestamp().equals(Instant.now())) {
       return ACTIVE;
     } else {
       return COMPLETE;
