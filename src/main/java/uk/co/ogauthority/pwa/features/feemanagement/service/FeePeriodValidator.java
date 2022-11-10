@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.feemanagement.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -27,11 +28,14 @@ public class FeePeriodValidator implements Validator {
         newPeriodForm.getPeriodStartDate(),
         errors);
 
-    ValidatorUtils.validateDatePickerDateIsPresentOrFuture(
+    ValidatorUtils.validateDatePickerDateIsOnOrAfterComparisonDate(
         "periodStartDate",
         "Period start date",
         newPeriodForm.getPeriodStartDate(),
-        errors);
+        LocalDate.now().plusDays(1),
+        "Period start date",
+        errors
+    );
 
     //Work through each of the different types of application and validate their cost.
     //Each entry consists of ["applicationType:applicationFeeType", "cost"]

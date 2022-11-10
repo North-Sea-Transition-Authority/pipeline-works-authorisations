@@ -81,7 +81,16 @@ public class FeePeriodValidatorTest {
     form.setPeriodStartDate(formatter.format(date));
 
     validator.validate(form, errorList);
-    assertThat(getAllErrorCodes()).contains("periodStartDate.beforeToday");
+    assertThat(getAllErrorCodes()).contains("periodStartDate.beforeDate");
+  }
+
+  @Test
+  public void validateStartDate_failOnToday() {
+    var date = Instant.now();
+    form.setPeriodStartDate(formatter.format(date));
+
+    validator.validate(form, errorList);
+    assertThat(getAllErrorCodes()).contains("periodStartDate.beforeDate");
   }
 
   @Test
