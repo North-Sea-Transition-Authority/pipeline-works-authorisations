@@ -21,15 +21,13 @@ public enum PipelineType implements DiffableAsString {
   WATER_INJECTION_JUMPER("Water Injection Jumper", 6, PipelineCoreType.SINGLE_CORE),
   METHANOL_PIPELINE("Methanol Pipeline", 7, PipelineCoreType.SINGLE_CORE),
   SERVICES_UMBILICAL("Services Umbilical", 8, PipelineCoreType.MULTI_CORE),
-  HYDRAULIC_JUMPER("Hydraulic Jumper", 9, PipelineCoreType.MULTI_CORE),
-  HYDRAULIC_JUMPER_SINGLE_CORE("Hydraulic Jumper (single-core)", 10, PipelineCoreType.SINGLE_CORE),
-  HYDRAULIC_JUMPER_MULTI_CORE("Hydraulic Jumper (multi-core)", 11, PipelineCoreType.MULTI_CORE),
-  CHEMICAL_JUMPER("Chemical Jumper", 12, PipelineCoreType.SINGLE_CORE),
-  CONTROL_JUMPER("Control Jumper", 13, PipelineCoreType.SINGLE_CORE),
-  CONTROL_JUMPER_SINGLE_CORE("Control Jumper (single-core)", 14, PipelineCoreType.SINGLE_CORE),
-  CONTROL_JUMPER_MULTI_CORE("Control Jumper (multi-core)", 15, PipelineCoreType.MULTI_CORE),
-  UMBILICAL_JUMPER("Umbilical Jumper", 16, PipelineCoreType.MULTI_CORE),
-  CABLE("Cable", 17, PipelineCoreType.SINGLE_CORE);
+  HYDRAULIC_JUMPER_SINGLE_CORE("Hydraulic Jumper (single-core)", 9, PipelineCoreType.SINGLE_CORE),
+  HYDRAULIC_JUMPER_MULTI_CORE("Hydraulic Jumper (multi-core)", 10, PipelineCoreType.MULTI_CORE),
+  CHEMICAL_JUMPER("Chemical Jumper", 11, PipelineCoreType.SINGLE_CORE),
+  CONTROL_JUMPER_SINGLE_CORE("Control Jumper (single-core)", 12, PipelineCoreType.SINGLE_CORE),
+  CONTROL_JUMPER_MULTI_CORE("Control Jumper (multi-core)", 13, PipelineCoreType.MULTI_CORE),
+  UMBILICAL_JUMPER("Umbilical Jumper", 14, PipelineCoreType.MULTI_CORE),
+  CABLE("Cable", 15, PipelineCoreType.SINGLE_CORE);
 
   private final String displayName;
   private final int displayOrder;
