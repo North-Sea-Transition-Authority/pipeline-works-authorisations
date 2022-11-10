@@ -119,7 +119,7 @@ public class FeePeriodValidatorTest {
     form.setApplicationCostMap(costMap);
 
     validator.validate(form, errorList);
-    assertThat(getAllErrorCodes()).contains("newPeriod.feeValue.invalid");
+    assertThat(getAllErrorCodes()).contains("newPeriod.feeValue.numberFormat");
   }
 
   @Test
