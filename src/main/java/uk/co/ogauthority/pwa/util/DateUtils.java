@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.Locale;
@@ -82,7 +83,7 @@ public class DateUtils {
 
   public static Instant datePickerStringToInstant(String dateStr) {
     return datePickerStringToDate(dateStr)
-        .atStartOfDay(ZoneId.systemDefault())
+        .atStartOfDay(ZoneId.of(ZoneOffset.UTC.getId()))
         .toInstant();
   }
 

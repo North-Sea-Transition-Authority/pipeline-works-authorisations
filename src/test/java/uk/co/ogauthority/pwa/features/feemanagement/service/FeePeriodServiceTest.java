@@ -124,7 +124,7 @@ public class FeePeriodServiceTest {
     assertThat(captorValues.stream()
         .map(FeePeriodDetail::getPeriodEndTimestamp)
         .collect(Collectors.toList()))
-        .contains(DateUtils.datePickerStringToInstant("10/07/2000"));
+        .contains(DateUtils.datePickerStringToInstant("10/07/2000").plusSeconds(86399));
   }
 
   @Test
@@ -146,7 +146,7 @@ public class FeePeriodServiceTest {
     assertThat(captorValues.stream()
         .map(FeePeriodDetail::getPeriodEndTimestamp)
         .collect(Collectors.toList()))
-        .contains(DateUtils.datePickerStringToInstant("10/07/2000"));
+        .contains(DateUtils.datePickerStringToInstant("10/07/2000").plusSeconds(86399));
   }
 
   @Test
@@ -170,7 +170,7 @@ public class FeePeriodServiceTest {
     assertThat(captorValues.stream()
         .map(FeePeriodDetail::getPeriodEndTimestamp)
         .collect(Collectors.toList()))
-        .contains(DateUtils.datePickerStringToInstant("10/07/2000"));
+        .contains(DateUtils.datePickerStringToInstant("10/07/2000").plusSeconds(86399));
   }
 
   private FeePeriod getSavedFeePeriod() {
