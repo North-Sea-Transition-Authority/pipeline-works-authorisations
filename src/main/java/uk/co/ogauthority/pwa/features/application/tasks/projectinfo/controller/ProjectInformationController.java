@@ -151,11 +151,11 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private String getProjectTimelineGuidance(PwaApplicationDetail pwaApplicationDetail) {
     var projectType = MaxCompletionPeriod.valueOf(pwaApplicationDetail.getPwaApplicationType().name());
     var guidance = "For example, 31 3 2023 \n";
-    guidance += String.format("This must be within %s months of the proposed start of works date. \n",
+    guidance += String.format("This must be within %s months of the proposed start of works date. ",
         projectType.getMaxMonthsCompletion());
 
     if (projectType.isExtendable()) {
-      guidance += "Unless prior approval has been received from the Consents and Authorisations Manager.";
+      guidance += "\n Unless prior approval has been received from the Consents and Authorisations Manager.";
     }
     return guidance;
   }

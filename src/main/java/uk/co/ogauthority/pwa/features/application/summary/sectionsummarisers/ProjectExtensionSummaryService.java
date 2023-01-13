@@ -40,7 +40,7 @@ public class ProjectExtensionSummaryService implements ApplicationSectionSummari
     var permissionFile = padFileService.getUploadedFileViews(
         pwaApplicationDetail,
         ApplicationDetailFilePurpose.PROJECT_EXTENSION,
-        ApplicationFileLinkStatus.FULL);;
+        ApplicationFileLinkStatus.FULL);
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("permissionFile", permissionFile.isEmpty() ? null : permissionFile.get(0));

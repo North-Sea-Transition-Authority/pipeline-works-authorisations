@@ -13,8 +13,6 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 public final class CampaignWorkScheduleValidationHint {
 
   public static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
-  private static final long OPTIONS_VARIATION_MAX_MONTH = 6L;
-  private static final long DEFAULT_MAX_MONTH = 12L;
   private static final String PROJECT_INFO_PROP_START_DATE_LABEL = ApplicationTask.PROJECT_INFORMATION.getDisplayName() +
       " proposed start of works date";
 
