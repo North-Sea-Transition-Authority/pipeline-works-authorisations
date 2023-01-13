@@ -144,8 +144,12 @@ public class CampaignWorksService implements ApplicationFormSectionService {
     var projectStartDate = padProjectInformationService.getProposedStartDate(pwaApplicationDetail)
         .map(instant -> LocalDate.ofInstant(instant, ZoneId.systemDefault()));
 
+    var projectEndDate = padProjectInformationService.getLatestProjectCompletionDate(pwaApplicationDetail)
+        .map(instant -> LocalDate.ofInstant(instant, ZoneId.systemDefault()));
+
     return new CampaignWorkScheduleValidationHint(
         projectStartDate.orElse(null),
+        projectEndDate.orElse(null),
         pwaApplicationDetail.getPwaApplicationType());
   }
 

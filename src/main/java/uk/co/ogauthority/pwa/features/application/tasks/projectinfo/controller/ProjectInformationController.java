@@ -25,6 +25,8 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
@@ -56,6 +58,8 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final PadProjectInformationService padProjectInformationService;
   private final ControllerHelperService controllerHelperService;
 
+  private final PadProjectExtensionService projectExtensionService;
+
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
@@ -63,12 +67,14 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
                                       PadProjectInformationService padProjectInformationService,
                                       PadFileService padFileService,
-                                      ControllerHelperService controllerHelperService) {
+                                      ControllerHelperService controllerHelperService,
+                                      PadProjectExtensionService projectExtensionService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.controllerHelperService = controllerHelperService;
+    this.projectExtensionService = projectExtensionService;
   }
 
   @GetMapping
@@ -98,6 +104,15 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         validationType,
         applicationContext.getApplicationDetail());
 
+    //Remove extension permission uploads for any project that now no longer needs it.
+    //Move to submission clean up - requires refactor to allow cleaning of hidden task list items.
+    if (!projectExtensionService.canShowInTaskList(applicationContext.getApplicationDetail())) {
+      var extensionFiles = padFileService.getAllByPwaApplicationDetailAndPurpose(
+          applicationContext.getApplicationDetail(),
+          ApplicationDetailFilePurpose.PROJECT_EXTENSION);
+      extensionFiles.forEach(file -> padFileService.processFileDeletion(file, applicationContext.getUser()));
+    }
+
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         // if invalid form, get all files, including not yet saved ones as they may have errored.
         getProjectInformationModelAndView(applicationContext.getApplicationDetail(), form), () -> {
@@ -121,17 +136,28 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
     );
 
     modelAndView.addObject("permanentDepositsMadeOptions", PermanentDepositMade.asList(pwaApplicationDetail.getPwaApplicationType()))
-            .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
-            .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
-                pwaApplicationDetail.getPwaApplicationType()))
-            .addObject("isPipelineDeploymentQuestionOptional",
-                ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()));
+        .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
+        .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
+            pwaApplicationDetail.getPwaApplicationType()))
+        .addObject("isPipelineDeploymentQuestionOptional",
+            ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
+        .addObject("timelineGuidance", getProjectTimelineGuidance(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");
-
     return modelAndView;
+  }
 
+  private String getProjectTimelineGuidance(PwaApplicationDetail pwaApplicationDetail) {
+    var projectType = MaxCompletionPeriod.valueOf(pwaApplicationDetail.getPwaApplicationType().name());
+    var guidance = "For example, 31 3 2023 \n";
+    guidance += String.format("This must be within %s months of the proposed start of works date. \n",
+        projectType.getMaxMonthsCompletion());
+
+    if (projectType.isExtendable()) {
+      guidance += "Unless prior approval has been received from the Consents and Authorisations Manager.";
+    }
+    return guidance;
   }
 
   @GetMapping("/files/download/{fileId}")
