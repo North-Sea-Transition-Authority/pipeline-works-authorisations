@@ -37,6 +37,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
@@ -60,6 +62,9 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private PadProjectInformationService padProjectInformationService;
+
+  @MockBean
+  private PadProjectExtensionService projectExtensionService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -339,7 +344,9 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     verify(padProjectInformationService, times(1)).getPadProjectInformationData(pwaApplicationDetail);
     verify(padProjectInformationService, times(1)).saveEntityUsingForm(any(), any(), any());
     verify(padProjectInformationService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
-
-
+    verify(projectExtensionService).canShowInTaskList(any(PwaApplicationDetail.class));
+    verify(padFileService).getAllByPwaApplicationDetailAndPurpose(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PROJECT_EXTENSION);
   }
 }
