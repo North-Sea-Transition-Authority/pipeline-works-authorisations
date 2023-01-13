@@ -26,7 +26,6 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
-import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
@@ -367,7 +366,4 @@ public class PadPipelineService {
     return INACTIVE_STATUSES;
   }
 
-  public List<PadPipeline> getPadPipelineByPipelines(List<Pipeline> pipelines) {
-    return padPipelineRepository.findAllByPipelineIn(pipelines);
-  }
 }
