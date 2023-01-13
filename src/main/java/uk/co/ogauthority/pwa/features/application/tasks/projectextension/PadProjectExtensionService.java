@@ -28,7 +28,6 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
     this.padProjectInformationService = padProjectInformationService;
   }
 
-
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     return !padFileService.getAllByPwaApplicationDetailAndPurpose(
@@ -53,8 +52,8 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
     var startTimestamp = Optional.ofNullable(projectInfo.getProposedStartTimestamp());
     var endTimestamp = Optional.ofNullable(projectInfo.getLatestCompletionTimestamp());
 
-    if (startTimestamp.isPresent() && endTimestamp.isPresent()) {
-      var completionPeriod = MaxCompletionPeriod.valueOf(applicationType.name());
+    var completionPeriod = MaxCompletionPeriod.valueOf(applicationType.name());
+    if (completionPeriod.isExtendable() && startTimestamp.isPresent() && endTimestamp.isPresent()) {
       var maxEndDate = LocalDate.ofInstant(startTimestamp.get(), ZoneId.systemDefault())
           .plus(completionPeriod.getMaxMonthsCompletion(), ChronoUnit.MONTHS);
 

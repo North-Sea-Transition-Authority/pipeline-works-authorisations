@@ -71,8 +71,8 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
         applicationDetail,
         ApplicationDetailFilePurpose.PROJECT_EXTENSION,
         form)
-        .addObject("startDate", startDate)
-        .addObject("endDate", endDate)
+        .addObject("startDate", DateUtils.formatDate(startDate))
+        .addObject("endDate", DateUtils.formatDate(endDate))
         .addObject("modifyUrl", ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(applicationDetail.getPwaApplicationType(),
                 applicationDetail.getMasterPwaApplicationId(),
