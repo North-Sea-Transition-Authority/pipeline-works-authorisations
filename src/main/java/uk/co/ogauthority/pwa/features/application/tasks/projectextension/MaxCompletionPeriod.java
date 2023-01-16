@@ -1,20 +1,25 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectextension;
 
+import static uk.co.ogauthority.pwa.features.application.tasks.projectextension.ProjectExtensionType.NO;
+import static uk.co.ogauthority.pwa.features.application.tasks.projectextension.ProjectExtensionType.YES;
+
+import java.util.List;
+
 public enum MaxCompletionPeriod {
 
-  INITIAL(12, true),
-  CAT_1_VARIATION(12, true),
-  CAT_2_VARIATION(12, false),
-  HUOO_VARIATION(12, false),
-  DEPOSIT_CONSENT(12, false),
-  OPTIONS_VARIATION(6, false),
-  DECOMMISSIONING(12, false);
+  INITIAL(12, YES),
+  CAT_1_VARIATION(12, YES),
+  CAT_2_VARIATION(12, NO),
+  HUOO_VARIATION(12, NO),
+  DEPOSIT_CONSENT(12, NO),
+  OPTIONS_VARIATION(6, NO),
+  DECOMMISSIONING(12, NO);
 
   private Integer maxMonthsCompletion;
 
-  private boolean extendable;
+  private ProjectExtensionType extendable;
 
-  MaxCompletionPeriod(Integer maxMonthsCompletion, boolean extendable) {
+  MaxCompletionPeriod(Integer maxMonthsCompletion, ProjectExtensionType extendable) {
     this.maxMonthsCompletion = maxMonthsCompletion;
     this.extendable = extendable;
   }
@@ -23,7 +28,11 @@ public enum MaxCompletionPeriod {
     return maxMonthsCompletion;
   }
 
-  public boolean isExtendable() {
+  public ProjectExtensionType getExtendable() {
     return extendable;
+  }
+
+  public boolean isExtendable() {
+    return List.of(YES).contains(extendable);
   }
 }
