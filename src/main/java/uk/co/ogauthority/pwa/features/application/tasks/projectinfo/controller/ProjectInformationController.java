@@ -105,7 +105,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         applicationContext.getApplicationDetail());
 
     //Remove extension permission uploads for any project that now no longer needs it.
-    //Move to submission clean up - requires refactor to allow cleaning of hidden task list items.
+    //TODO: Move to submission clean up - requires refactor to allow cleaning of hidden task list items.
     if (!projectExtensionService.canShowInTaskList(applicationContext.getApplicationDetail())) {
       var extensionFiles = padFileService.getAllByPwaApplicationDetailAndPurpose(
           applicationContext.getApplicationDetail(),

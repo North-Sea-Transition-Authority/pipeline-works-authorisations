@@ -11,15 +11,23 @@
   breadcrumbs=false
   errorItems=errorList>
   <@fdsInsetText.insetText>
-    The expectation is for a 12 month term. You must have approval from the Consents and Authorisations Manager (CAM) for anything beyond 12 months. You should also discuss BEIS requirements with them at an early stage.
-    <br/><br/>
-    Current start date: ${startDate}
-    <br/>
-    Latest completion date: ${endDate}
-    <br/><br/>
-    <a href="${springUrl(modifyUrl)}" class="govuk-link">Click here to change your start or end dates</a>
-    <br/>
-    You will lose any progress on this page by clicking this link.
+    <p class="govuk-body">
+      The expectation is for a 12 month term.
+      You must have approval from the Consents and Authorisations Manager (CAM) for anything beyond 12 months.
+      You should also discuss BEIS requirements with them at an early stage.
+    </p>
+    <p class="govuk-body govuk-">
+      Current start date: ${startDate}
+    </p>
+    <p class="govuk-body">
+      Latest completion date: ${endDate}
+    </p>
+    <p class="govuk-body">
+      <a href="${springUrl(modifyUrl)}" class="govuk-link">Click here to change your start or end dates</a>
+    </p>
+    <p class="govuk-body">
+      You will lose any progress on this page by clicking this link.
+    </p>
   </@fdsInsetText.insetText>
   <@fdsForm.htmlForm>
       <@fdsFieldset.fieldset
