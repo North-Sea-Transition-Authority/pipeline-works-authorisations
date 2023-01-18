@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FeePeriodDetailRepository extends CrudRepository<FeePeriodDetail, Integer> {
 
-
   @Query(value = "FROM FeePeriodDetail fpd " +
       "WHERE fpd.tipFlag = TRUE " +
       "AND ( " +
@@ -24,5 +23,11 @@ public interface FeePeriodDetailRepository extends CrudRepository<FeePeriodDetai
       @Param(value = "feePeriodEndOverrideIfNull") Instant feePeriodEndOverrideIfNull
   );
 
+  Optional<FeePeriodDetail> findFirstByTipFlagIsTrueOrderByPeriodStartTimestampDesc();
 
+  Optional<FeePeriodDetail> findByTipFlagIsTrueAndFeePeriod(FeePeriod feePeriod);
+
+  Optional<FeePeriodDetail> findByTipFlagIsTrueAndPeriodEndTimestamp(Instant periodEndTimeStamp);
+
+  Optional<FeePeriodDetail> findByTipFlagIsTrueAndPeriodEndTimestampIsNull();
 }

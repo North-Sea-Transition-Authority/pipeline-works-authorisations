@@ -24,6 +24,8 @@ public class TopMenuService {
   public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
   public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
 
+  public static final String TEMPLATE_FEE_MANAGE_TITLE = "Manage fees";
+
   private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
@@ -60,6 +62,13 @@ public class TopMenuService {
       menuItems.add(new TopMenuItem(TEMPLATE_CLAUSE_MANAGE_TITLE, ReverseRouter.route(on(DocumentTemplateSelectController.class)
           .getTemplatesForSelect(null))));
     }
+
+    // TODO EDU-6566 turn on fees management
+    //    if (systemAreaAccessService.canAccessFeePeriodManagement(user)) {
+    //      menuItems.add(new TopMenuItem(TEMPLATE_FEE_MANAGE_TITLE, ReverseRouter.route(on(FeeManagementController.class)
+    //          .renderFeeManagementOverview(null))));
+    //    }
+
     return menuItems;
   }
 

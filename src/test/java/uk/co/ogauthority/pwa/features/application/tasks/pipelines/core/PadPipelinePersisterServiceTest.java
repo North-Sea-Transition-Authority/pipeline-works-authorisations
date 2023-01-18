@@ -69,7 +69,7 @@ public class PadPipelinePersisterServiceTest {
   @Test
   public void setMaxEternalDiameter_multiCore() {
     PadPipeline padPipeline = new PadPipeline();
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
 
     padPipelinePersisterService.savePadPipelineAndMaterialiseIdentData(padPipeline);

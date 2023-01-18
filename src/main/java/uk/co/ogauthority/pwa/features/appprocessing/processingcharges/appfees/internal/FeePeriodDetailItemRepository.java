@@ -16,4 +16,5 @@ public interface FeePeriodDetailItemRepository extends CrudRepository<FeePeriodD
       PwaApplicationFeeType pwaApplicationFeeType
   );
 
+  List<FeePeriodDetailFeeItem> findAllByFeePeriodDetail(FeePeriodDetail feePeriodDetail);
 }

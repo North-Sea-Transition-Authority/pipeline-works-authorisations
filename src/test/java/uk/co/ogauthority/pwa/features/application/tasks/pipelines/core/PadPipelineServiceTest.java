@@ -251,7 +251,7 @@ public class PadPipelineServiceTest {
   public void addPipeline_otherMaterialSelected() {
     var form = new PipelineHeaderForm();
 
-    form.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    form.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     form.setOtherPipelineMaterialUsed("other material");
     var fromCoordinateForm = new CoordinateForm();
