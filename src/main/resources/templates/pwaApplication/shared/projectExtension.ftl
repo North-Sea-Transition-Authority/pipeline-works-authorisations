@@ -32,7 +32,7 @@
   <@fdsForm.htmlForm>
       <@fdsFieldset.fieldset
         legendHeadingClass="govuk-fieldset__legend--l"
-        legendHeading="Project Extension Permission"
+        legendHeading="Project extension permission"
         caption="Provide the email on which the CAM approved your request"
         hintText="If this has not been approved you should email the CAM at consents@authority.co.uk with the background details and your justification."
         captionClass="govuk-caption-l">

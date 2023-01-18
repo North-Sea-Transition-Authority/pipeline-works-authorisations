@@ -30,6 +30,9 @@ public class PadProjectExtensionServiceTest {
   @Mock
   PadProjectInformationService padProjectInformationService;
 
+  @Mock
+  ProjectExtensionValidator projectExtensionValidator;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   PadProjectExtensionService projectExtensionService;
@@ -38,7 +41,8 @@ public class PadProjectExtensionServiceTest {
   public void setup() {
     projectExtensionService = new PadProjectExtensionService(
         padFileService,
-        padProjectInformationService);
+        padProjectInformationService,
+        projectExtensionValidator);
 
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
         .thenReturn(getProjectInformation());

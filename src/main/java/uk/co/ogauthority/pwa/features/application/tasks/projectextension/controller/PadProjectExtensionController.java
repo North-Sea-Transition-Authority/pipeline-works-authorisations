@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -83,7 +84,9 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
   @PostMapping
   @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postProjectExtension(PwaApplicationContext applicationContext,
-                                           @ModelAttribute("form") ProjectExtensionForm form) {
+                                           @ModelAttribute("form") ProjectExtensionForm form,
+                                           ValidationType validationType) {
+
     padFileService.updateFiles(
         form,
         applicationContext.getApplicationDetail(),

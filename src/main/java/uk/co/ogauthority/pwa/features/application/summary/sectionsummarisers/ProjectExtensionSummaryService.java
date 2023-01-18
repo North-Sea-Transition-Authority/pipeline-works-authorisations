@@ -49,7 +49,7 @@ public class ProjectExtensionSummaryService implements ApplicationSectionSummari
         templateName,
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#ProjectExtensionDetails"
+            "#projectExtensionDetails"
         )),
         summaryModel
     );

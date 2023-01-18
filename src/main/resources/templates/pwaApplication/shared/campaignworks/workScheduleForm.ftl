@@ -13,7 +13,7 @@
        </@fdsNumberInput.twoNumberInputs>
 
        <@fdsNumberInput.twoNumberInputs pathOne="form.workEnd.month" pathTwo="form.workEnd.year" labelText="Expected end of work" formId="end-month-year"
-        hintText="Must be no more than 12 months after the proposed start of works date of the project (6 months for Options variations)">
+        hintText="Must be no more than 12 months after the proposed start of works date of the project (6 months for Options variations) without prior approval from the Consents and Authorisations Manager (CAM).">
            <@fdsNumberInput.numberInputItem path="form.workEnd.month" labelText="Month" inputClass="govuk-input--width-2"/>
            <@fdsNumberInput.numberInputItem path="form.workEnd.year" labelText="Year" inputClass="govuk-input--width-4"/>
        </@fdsNumberInput.twoNumberInputs>
