@@ -424,7 +424,7 @@ public class ValidatorUtils {
                                                  Supplier<String> stringSupplier,
                                                  String messagePrefix) {
 
-    validateMaxLength(errors, field, stringSupplier, messagePrefix + MAX_DEFAULT_STRING_LENGTH_MESSAGE, MAX_DEFAULT_STRING_LENGTH);
+    validateMaxLength(errors, field, stringSupplier.get(), messagePrefix + MAX_DEFAULT_STRING_LENGTH_MESSAGE, MAX_DEFAULT_STRING_LENGTH);
 
   }
 
@@ -434,17 +434,16 @@ public class ValidatorUtils {
                                           String messagePrefix,
                                           int maxLength) {
 
-    validateMaxLength(errors, field, stringSupplier, messagePrefix + String.format(" must be %s characters or fewer", maxLength),
+    validateMaxLength(errors, field, stringSupplier.get(), messagePrefix + String.format(" must be %s characters or fewer", maxLength),
         maxLength);
 
   }
 
   private static void validateMaxLength(Errors errors,
                                         String fieldName,
-                                        Supplier<String> stringSupplier,
+                                        String testString,
                                         String message,
                                         int maxLength) {
-    var testString = stringSupplier.get();
     if (testString != null && testString.length() > maxLength) {
       errors.rejectValue(fieldName, fieldName + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode(), message);
     }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal;
 
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -61,4 +62,21 @@ public class FeeItem {
     this.displayDescription = displayDescription;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    FeeItem feeItem = (FeeItem) o;
+    return pwaApplicationType == feeItem.pwaApplicationType && pwaApplicationFeeType == feeItem.pwaApplicationFeeType && Objects.equals(
+        displayDescription, feeItem.displayDescription);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(pwaApplicationType, pwaApplicationFeeType, displayDescription);
+  }
 }

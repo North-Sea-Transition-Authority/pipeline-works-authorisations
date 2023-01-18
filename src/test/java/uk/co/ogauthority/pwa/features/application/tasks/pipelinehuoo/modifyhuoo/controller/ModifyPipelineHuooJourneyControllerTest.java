@@ -17,6 +17,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController.UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
@@ -597,21 +599,27 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         pickablePipelineStrings
     )).thenReturn(Set.of(reconciledPipeline));
 
+    // ReverseRouter.route uri encodes the string here
+    String postUrlEncoded = ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class).editGroupRouter(
+        PwaApplicationType.INITIAL,
+        pwaApplicationDetail.getMasterPwaApplicationId(),
+        DEFAULT_ROLE,
+        null,
+        ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
+        encodeStringSet(pickablePipelineStrings),
+        null,
+        null
+    ));
+
+    // decode the uri encoded string here (mimic Spring) otherwise the Base64 decode fails on the
+    // picked pipeline strings
+    String postUrlDecoded = URLDecoder.decode(postUrlEncoded, StandardCharsets.UTF_8);
+
     // check redirect target as expected
-    mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
-        .editGroupRouter(
-            PwaApplicationType.INITIAL,
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            DEFAULT_ROLE,
-            null,
-            ModifyPipelineHuooJourneyController.JourneyPage.PIPELINE_SELECTION,
-            encodeStringSet(pickablePipelineStrings),
-            null,
-            null
-        )))
-        .with(authenticatedUserAndSession(user))
-        .with(csrf())
-    )
+    mockMvc.perform(post(postUrlDecoded)
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+        )
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/pwa-application/initial/10/pipeline-huoo/HOLDER/pipelines"))
         .andReturn();
@@ -715,7 +723,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
   // have to mimic encoding done by url factory. Yuck.
   private Set<String> encodeStringSet(Set<String> stringSet){
-    var encoder = Base64.getEncoder();
+    var encoder = Base64.getUrlEncoder();
     return stringSet.stream()
         .map(s -> encoder.encodeToString(s.getBytes()))
         .collect(Collectors.toSet());

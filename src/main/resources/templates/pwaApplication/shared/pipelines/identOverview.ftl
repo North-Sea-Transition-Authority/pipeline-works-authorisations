@@ -13,6 +13,7 @@
 
 <@defaultPage htmlTitle="${pipelineOverview.getPipelineName()} idents" breadcrumbs=true fullWidthColumn=true>
 
+
     <@validationResult.singleErrorSummary summaryValidationResult=identSummaryValidationResult! />
     <@validationResult.errorSummary summaryValidationResult=identSummaryValidationResult! />
 
@@ -25,20 +26,18 @@
         <p>Main component parts such as ESDV, Manifolds, SSIV, Termination Units or component(s) that affect flow should have their own ident with the from, to and description defined as that component. This only applies to the main production or umbilical pipeline.</p>
         <p>All idents are to follow the direction of flow.</p>
     </@fdsDetails.summaryDetails>
-
     <#if summaryView?has_content && summaryView.connectedPipelineIdents?has_content>
         <@fdsCheckAnswers.checkAnswers>
             <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Total idents length">
                 ${summaryView.totalIdentLength}
             </@fdsCheckAnswers.checkAnswersRowNoAction>
         </@fdsCheckAnswers.checkAnswers>
-
         <@fdsTimeline.timeline>
             <@fdsTimeline.timelineSection sectionHeading="">
                 <#assign pastFirstIteration = false/>
                 <#list summaryView.connectedPipelineIdents as connectedPipelineIdentView>
                     <#if pastFirstIteration == true && lastConnectedPipelineIdentView?has_content>
-                        <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
+                        <@fdsTimeline.timelineTimeStamp timeStampHeadingSize="h2" timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
                     </#if>
                     <#list connectedPipelineIdentView.identViews as identView>
                         <#assign timelineAction>
@@ -46,7 +45,7 @@
                             <@fdsAction.link linkText="Edit ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getEditUrl(identView.identId)) linkScreenReaderText="Edit ident ${identView.identNumber}" />
                             <@fdsAction.link linkText="Remove ident" linkClass="govuk-link" linkUrl=springUrl(identUrlFactory.getRemoveUrl(identView.identId)) linkScreenReaderText="Remove ident ${identView.identNumber}" />
                         </#assign>
-                        <@fdsTimeline.timelineTimeStamp timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
+                        <@fdsTimeline.timelineTimeStamp timeStampHeadingSize="h2" timeStampHeading=identView.fromLocation nodeNumber=" " timeStampClass="fds-timeline__time-stamp" timelineActionContent=timelineAction>
                             <#if identSummaryValidationResult?has_content>
                                 <#list identSummaryValidationResult.errorItems as errorItem>
                                     <#assign subIdPrefix = errorItem?index?c/>
@@ -92,7 +91,7 @@
                     <#assign lastConnectedPipelineIdentView = connectedPipelineIdentView/>
                     <#assign pastFirstIteration = true/>
                 </#list>
-                <@fdsTimeline.timelineTimeStamp timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
+                <@fdsTimeline.timelineTimeStamp timeStampHeadingSize="h2" timeStampHeading="${lastConnectedPipelineIdentView.endIdent.toLocation}" nodeNumber=" " timeStampClass="fds-timeline__time-stamp--no-border"/>
             </@fdsTimeline.timelineSection>
         </@fdsTimeline.timeline>
         <@fdsAction.link linkText="Add ident" linkUrl=springUrl(addIdentUrl) linkClass="govuk-button govuk-button--blue" />

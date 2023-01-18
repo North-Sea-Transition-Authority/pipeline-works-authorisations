@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -9,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -30,15 +33,18 @@ public class PwaViewTabService {
   private final PipelineDetailService pipelineDetailService;
   private final PwaConsentDtoRepository pwaConsentDtoRepository;
   private final AsBuiltViewerService asBuiltViewerService;
+  private final Clock clock;
 
 
   @Autowired
   public PwaViewTabService(PipelineDetailService pipelineDetailService,
                            PwaConsentDtoRepository pwaConsentDtoRepository,
-                           AsBuiltViewerService asBuiltViewerService) {
+                           AsBuiltViewerService asBuiltViewerService,
+                           @Qualifier("utcClock") Clock clock) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaConsentDtoRepository = pwaConsentDtoRepository;
     this.asBuiltViewerService = asBuiltViewerService;
+    this.clock = clock;
   }
 
 
@@ -61,8 +67,8 @@ public class PwaViewTabService {
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
-    var pipelineOverviews = pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatus(
-        pwaContext.getMasterPwa(), pipelineStatusFilter);
+    var pipelineOverviews = pipelineDetailService
+        .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(pwaContext.getMasterPwa(), pipelineStatusFilter, Instant.now(clock));
     var consentedPipelineOverviews = asBuiltViewerService.getOverviewsWithAsBuiltStatus(pipelineOverviews);
 
     return consentedPipelineOverviews

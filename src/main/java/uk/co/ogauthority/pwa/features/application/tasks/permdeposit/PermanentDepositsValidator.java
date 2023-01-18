@@ -1,10 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import io.micrometer.core.instrument.util.StringUtils;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalPlaceHint;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.PositiveNumberHint;
+import uk.co.ogauthority.pwa.util.forminputs.generic.MaxLengthHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.DateWithinRangeHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
@@ -130,6 +133,8 @@ public class PermanentDepositsValidator implements SmartValidator {
     if (form.getFootnote() != null) {
       ValidatorUtils.validateDefaultStringLength(errors, "footnote", form::getFootnote, "Other information");
     }
+
+
   }
 
 
@@ -195,7 +200,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           decimalInputValidator,
           "groutBagsSize",
           form.getGroutBagsSize(),
-          getPositiveNumberFieldHints("grout bags")
+          getPositiveNumberFieldHints("grout bags",
+              new MaxLengthHint(20))
       );
 
       ValidatorUtils.invokeNestedValidator(
@@ -203,7 +209,8 @@ public class PermanentDepositsValidator implements SmartValidator {
           decimalInputValidator,
           "quantityGroutBags",
           form.getQuantityGroutBags(),
-          getPositiveNumberFieldHints("quantity grout bags")
+          getPositiveNumberFieldHints("quantity grout bags",
+              new MaxLengthHint(20))
       );
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "groutBagsBioDegradable", "groutBagsBioDegradable.required",
@@ -311,11 +318,13 @@ public class PermanentDepositsValidator implements SmartValidator {
 
   }
 
-  private Object[] getPositiveNumberFieldHints(String formInputLabelText) {
-    return new Object[]{
+  private Object[] getPositiveNumberFieldHints(String formInputLabelText, Object... additionalHints) {
+    var standardHints =  new Object[]{
         new FormInputLabel(formInputLabelText),
         new DecimalPlaceHint(2),
         new PositiveNumberHint()
     };
+
+    return ArrayUtils.addAll(standardHints, additionalHints);
   }
 }

@@ -249,7 +249,7 @@
 
   <div class="issuer-content">
     <p class="header-issue-info">Authorised and Issued by the Oil and Gas Authority ${issueDate}</p>
-    <p class="nsta-disclaimer">North Sea Transition Authority is a business name of the Oil and Gas Authority. Oil and Gas Authority is a limited company registered in England and Wales with registered number 09666504 and VAT registered number 249433979. Our registered office is at 21 Bloomsbury Street, London, WC1B 3HF</p>
+    <p class="nsta-disclaimer">North Sea Transition Authority is a business name of the Oil and Gas Authority. Oil and Gas Authority is a limited company registered in England and Wales with registered number 09666504 and VAT registered number 249433979. Our registered office is at Sanctuary Buildings, 20 Great Smith Street, London, SW1P 3BT</p>
   </div>
 
   <#if showWatermark>

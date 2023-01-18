@@ -277,7 +277,7 @@ public class PadPipelineIdentDataServiceTest {
     identData.setProductsToBeConveyedMultiCore("some text");
 
     var pipeline = new PadPipeline();
-    pipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    pipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     var pipelineIdent = new PadPipelineIdent();
     pipelineIdent.setPadPipeline(pipeline);
     identData.setPadPipelineIdent(pipelineIdent);

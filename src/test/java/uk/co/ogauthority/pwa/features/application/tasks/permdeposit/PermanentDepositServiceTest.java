@@ -278,7 +278,7 @@ public class PermanentDepositServiceTest {
     padPipelineOnSeabed.setPipeline(pipelineOnSeabed);
     padPipelineOnSeabed.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipelineOnSeabed.setPipelineRef("my ref");
-    padPipelineOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipelineOnSeabed.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     var padPipelineOverviewOnSeabed = new PadPipelineOverview(padPipelineOnSeabed, 1L);
 
     var pipelineNotOnSeabed = new Pipeline();

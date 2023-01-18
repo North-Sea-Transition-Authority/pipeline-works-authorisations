@@ -80,6 +80,12 @@ public class DateUtils {
     return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
   }
 
+  public static Instant datePickerStringToInstant(String dateStr) {
+    return datePickerStringToDate(dateStr)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant();
+  }
+
   public static String formatToDatePickerString(LocalDate date) {
     return date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
   }
@@ -87,5 +93,4 @@ public class DateUtils {
   public static boolean isOnOrAfter(LocalDate thisDate, LocalDate thatDate) {
     return thisDate.compareTo(thatDate) >= 0;
   }
-
 }

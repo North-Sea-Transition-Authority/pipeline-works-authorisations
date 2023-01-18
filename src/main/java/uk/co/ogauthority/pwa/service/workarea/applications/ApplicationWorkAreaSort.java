@@ -7,7 +7,6 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaSort;
 
 public enum ApplicationWorkAreaSort implements WorkAreaSort {
 
-  CREATED_DATE_DESC(WorkAreaApplicationDetailSearchItem_.PAD_CREATED_TIMESTAMP, Sort.Direction.DESC),
   PROPOSED_START_DATE_ASC(WorkAreaApplicationDetailSearchItem_.PAD_PROPOSED_START, Sort.Direction.ASC, Sort.NullHandling.NULLS_FIRST),
   SUBMITTED_APP_START_ASC_THEN_DRAFT_APP_START_ASC(
       WorkAreaApplicationDetailSearchItem_.SUBMITTED_FLAG, Sort.Direction.DESC, Sort.NullHandling.NULLS_LAST) {
@@ -16,7 +15,8 @@ public enum ApplicationWorkAreaSort implements WorkAreaSort {
       return Sort.by(
           List.of(
               new Sort.Order(getPrimarySortDirection(), getPrimarySortAttribute(), getPrimaryNullHandling()),
-              new Sort.Order(Sort.Direction.ASC, WorkAreaApplicationDetailSearchItem_.PAD_PROPOSED_START, Sort.NullHandling.NULLS_LAST)
+              new Sort.Order(Sort.Direction.ASC, WorkAreaApplicationDetailSearchItem_.PAD_PROPOSED_START, Sort.NullHandling.NULLS_LAST),
+              new Sort.Order(Sort.Direction.DESC, WorkAreaApplicationDetailSearchItem_.PAD_STATUS_TIMESTAMP, Sort.NullHandling.NULLS_FIRST)
           )
       );
     }
@@ -30,10 +30,6 @@ public enum ApplicationWorkAreaSort implements WorkAreaSort {
     this.sortAttribute = sortAttribute;
     this.sortDirection = sortDirection;
     this.nullHandling = nullHandling;
-  }
-
-  ApplicationWorkAreaSort(String sortAttribute, Sort.Direction sortDirection) {
-    this(sortAttribute, sortDirection, Sort.NullHandling.NULLS_LAST);
   }
 
   @Override

@@ -31,11 +31,11 @@ public class PadPipelineOverviewTest {
   public void getPipelineName_multipleDiameters() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
-    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER);
+    padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
 
     padPipelineOverview = new PadPipelineOverview(padPipeline);
-    var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER.getDisplayName();
+    var expectedPipelineName = "my ref - " + PipelineType.HYDRAULIC_JUMPER_MULTI_CORE.getDisplayName();
     assertThat(padPipelineOverview.getPipelineName()).isEqualTo(expectedPipelineName);
   }
 

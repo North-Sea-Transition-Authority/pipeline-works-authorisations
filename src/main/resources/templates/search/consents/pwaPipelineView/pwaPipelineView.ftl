@@ -31,12 +31,13 @@
 
    <@fdsBackendTabs.tabContent tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value>
 
+     <h2 class="govuk-heading-l">${currentProcessingTab.label}</h2>
       <#if currentProcessingTab == "PIPELINE_HISTORY">
-          <@pipelineHistoryTab.tab diffedPipelineSummaryModel isConsented/>
+          <@pipelineHistoryTab.tab diffedPipelineSummaryModel=diffedPipelineSummaryModel isConsented=isConsented/>
       <#elseif currentProcessingTab == "HUOO_HISTORY">
-          <@huooHistoryTab.tab diffedHuooSummary/>
+          <@huooHistoryTab.tab diffedHuooSummary=diffedHuooSummary/>
       <#elseif currentProcessingTab == "AS_BUILT_NOTIFICATION_HISTORY">
-          <@asBuiltSubmissionHistoryTab.tab submissionHistoryView isOgaUser/>
+          <@asBuiltSubmissionHistoryTab.tab submissionHistoryView=submissionHistoryView isOgaUser=isOgaUser/>
       </#if>
 
     </@fdsBackendTabs.tabContent>

@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.controller.search.applicationsearch;
 
+import static java.net.URLEncoder.encode;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.nio.charset.Charset;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
