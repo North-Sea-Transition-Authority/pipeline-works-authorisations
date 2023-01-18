@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectextension;
 
-import static uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose.*;
+import static uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose.PROJECT_EXTENSION;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
@@ -85,7 +84,7 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
   public void removeExtensionsForProject(PwaApplicationContext applicationContext) {
     var extensionFiles = padFileService.getAllByPwaApplicationDetailAndPurpose(
         applicationContext.getApplicationDetail(),
-        ApplicationDetailFilePurpose.PROJECT_EXTENSION);
+        PROJECT_EXTENSION);
     extensionFiles.forEach(file -> padFileService.processFileDeletion(file, applicationContext.getUser()));
   }
 

@@ -108,7 +108,10 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
         ApplicationDetailFilePurpose.PROJECT_EXTENSION,
         FileUpdateMode.DELETE_UNLINKED_FILES,
         applicationContext.getUser());
-    bindingResult = projectExtensionService.validate(projectExtensionForm, bindingResult, validationType, applicationContext.getApplicationDetail());
+    bindingResult = projectExtensionService.validate(projectExtensionForm,
+        bindingResult, 
+        validationType,
+        applicationContext.getApplicationDetail());
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         renderProjectExtension(applicationContext,
             applicationId,
