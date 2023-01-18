@@ -103,7 +103,7 @@ steps:
         from_secret: drone_token
       fork: true
       repositories:
-        - fiviumuk/oga-dev-app@master
+        - fiviumuk/fivium-dev-app@master
     when:
       branch:
         - develop
