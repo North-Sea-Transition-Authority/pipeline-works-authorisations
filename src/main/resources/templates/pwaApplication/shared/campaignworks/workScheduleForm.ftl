@@ -3,6 +3,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="pipelineViews" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview>" -->
 <#-- @ftlvariable name="screenActionType" type="uk.co.ogauthority.pwa.model.form.enums.ScreenActionType" -->
+<#-- @ftlvariable name="timelineGuidance" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="${screenActionType.getActionText()} work schedule" pageHeading="${screenActionType.getActionText()} work schedule" breadcrumbs=true fullWidthColumn=true errorItems=errorList>
 
@@ -13,7 +14,7 @@
        </@fdsNumberInput.twoNumberInputs>
 
        <@fdsNumberInput.twoNumberInputs pathOne="form.workEnd.month" pathTwo="form.workEnd.year" labelText="Expected end of work" formId="end-month-year"
-        hintText="Must be no more than 12 months after the proposed start of works date of the project (6 months for Options variations) without prior approval from the Consents and Authorisations Manager (CAM).">
+        hintText=timelineGuidance>
            <@fdsNumberInput.numberInputItem path="form.workEnd.month" labelText="Month" inputClass="govuk-input--width-2"/>
            <@fdsNumberInput.numberInputItem path="form.workEnd.year" labelText="Year" inputClass="govuk-input--width-4"/>
        </@fdsNumberInput.twoNumberInputs>

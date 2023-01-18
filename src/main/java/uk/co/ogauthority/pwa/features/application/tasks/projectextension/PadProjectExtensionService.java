@@ -88,4 +88,16 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
         ApplicationDetailFilePurpose.PROJECT_EXTENSION);
     extensionFiles.forEach(file -> padFileService.processFileDeletion(file, applicationContext.getUser()));
   }
+
+  public String getProjectTimelineGuidance(PwaApplicationDetail pwaApplicationDetail) {
+    var projectType = MaxCompletionPeriod.valueOf(pwaApplicationDetail.getPwaApplicationType().name());
+    var guidance = "For example, 31 3 2023 \n";
+    guidance += String.format("This must be within %s months of the proposed start of works date. ",
+        projectType.getMaxMonthsCompletion());
+
+    if (projectType.isExtendable()) {
+      guidance += "\n Unless prior approval has been received from the Consents and Authorisations Manager.";
+    }
+    return guidance;
+  }
 }

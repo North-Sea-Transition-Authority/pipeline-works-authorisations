@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectextension;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,18 +46,12 @@ public class PadProjectExtensionServiceTest {
         projectExtensionValidator);
 
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
-        .thenReturn(getProjectInformation());
-  }
-
-  @Test
-  public void isProjectExtensionRequired_overMaxPeriod() {
-    pwaApplicationDetail = new PwaApplicationDetail();
-    assertTrue(projectExtensionService.canShowInTaskList(pwaApplicationDetail));
+        .thenReturn(getProjectInformation(PwaApplicationType.INITIAL));
   }
 
   @Test
   public void isProjectExtensionRequired_overMaxPeriod_NotExtendable() {
-    var projectInformation = getProjectInformation();
+    var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
 
     var applicationDetail = projectInformation.getPwaApplicationDetail();
 
@@ -75,7 +70,7 @@ public class PadProjectExtensionServiceTest {
 
   @Test
   public void isProjectExtensionRequired_underMaxPeriod() {
-    var projectInformation = getProjectInformation();
+    var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
     projectInformation.setLatestCompletionTimestamp(
         LocalDateTime.of(2020, 7, 2, 3, 4, 5)
             .toInstant(ZoneOffset.ofTotalSeconds(0)));
@@ -88,14 +83,98 @@ public class PadProjectExtensionServiceTest {
 
   @Test
   public void isProjectExtensionComplete_verifyServiceInteraction() {
-    projectExtensionService.isComplete(getProjectInformation().getPwaApplicationDetail());
-    verify(padFileService).getAllByPwaApplicationDetailAndPurpose(getProjectInformation().getPwaApplicationDetail(),
+    projectExtensionService.isComplete(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail());
+    verify(padFileService).getAllByPwaApplicationDetailAndPurpose(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail(),
         ApplicationDetailFilePurpose.PROJECT_EXTENSION);
   }
 
-  private PadProjectInformation getProjectInformation() {
+  @Test
+  public void canShowInTaskList_notExtendable() {
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(getProjectInformation(PwaApplicationType.CAT_2_VARIATION));
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.CAT_2_VARIATION).getPwaApplicationDetail()));
+
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(getProjectInformation(PwaApplicationType.DEPOSIT_CONSENT));
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.DEPOSIT_CONSENT).getPwaApplicationDetail()));
+
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(getProjectInformation(PwaApplicationType.OPTIONS_VARIATION));
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.OPTIONS_VARIATION).getPwaApplicationDetail()));
+
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(getProjectInformation(PwaApplicationType.HUOO_VARIATION));
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.HUOO_VARIATION).getPwaApplicationDetail()));
+
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(getProjectInformation(PwaApplicationType.DECOMMISSIONING));
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.DECOMMISSIONING).getPwaApplicationDetail()));
+  }
+  @Test
+  public void canShowInTaskList_NoStartTime() {
+    var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
+    projectInformation.setProposedStartTimestamp(null);
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(projectInformation);
+
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail()));
+  }
+
+  @Test
+  public void canShowInTaskList_NoEndTime() {
+    var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
+    projectInformation.setLatestCompletionTimestamp(null);
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(projectInformation);
+
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail()));
+  }
+
+  @Test
+  public void canShowInTaskList_underMaxPeriod() {
+    var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
+    projectInformation.setLatestCompletionTimestamp(
+        LocalDateTime.of(2020, 6, 2, 3, 4, 5)
+            .toInstant(ZoneOffset.ofTotalSeconds(0)));
+    when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
+        .thenReturn(projectInformation);
+
+    assertFalse(projectExtensionService
+        .canShowInTaskList(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail()));
+  }
+
+  @Test
+  public void isProjectExtensionRequired_overMaxPeriod() {
+    pwaApplicationDetail = new PwaApplicationDetail();
+    assertTrue(projectExtensionService.canShowInTaskList(pwaApplicationDetail));
+  }
+
+  @Test
+  public void getProjectTimelineGuidance() {
+    assertThat(projectExtensionService.getProjectTimelineGuidance(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail()))
+        .isEqualTo("For example, 31 3 2023 \n" +
+            "This must be within 12 months of the proposed start of works date. " +
+            "\n Unless prior approval has been received from the Consents and Authorisations Manager.");
+
+    assertThat(projectExtensionService.getProjectTimelineGuidance(getProjectInformation(PwaApplicationType.OPTIONS_VARIATION).getPwaApplicationDetail()))
+        .isEqualTo("For example, 31 3 2023 \n" +
+            "This must be within 6 months of the proposed start of works date. ");
+
+    assertThat(projectExtensionService.getProjectTimelineGuidance(getProjectInformation(PwaApplicationType.CAT_2_VARIATION).getPwaApplicationDetail()))
+        .isEqualTo("For example, 31 3 2023 \n" +
+            "This must be within 12 months of the proposed start of works date. ");
+  }
+
+  private PadProjectInformation getProjectInformation(PwaApplicationType applicationType) {
     var pwaAplication = new PwaApplication();
-    pwaAplication.setApplicationType(PwaApplicationType.INITIAL);
+    pwaAplication.setApplicationType(applicationType);
 
     var pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setPwaApplication(pwaAplication);

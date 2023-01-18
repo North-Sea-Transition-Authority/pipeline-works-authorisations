@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,10 +26,12 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.ProjectExtensionForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -45,12 +48,20 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
 
   private final PadProjectInformationService padProjectInformationService;
 
+  private final PadProjectExtensionService  projectExtensionService;
+
+  private final ControllerHelperService controllerHelperService;
+
   public PadProjectExtensionController(PadFileService padFileService,
                                        PwaApplicationRedirectService pwaApplicationRedirectService,
-                                       PadProjectInformationService padProjectInformationService) {
+                                       PadProjectInformationService padProjectInformationService,
+                                       PadProjectExtensionService projectExtensionService,
+                                       ControllerHelperService controllerHelperService) {
     super(padFileService);
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
+    this.projectExtensionService = projectExtensionService;
+    this.controllerHelperService = controllerHelperService;
   }
 
   @GetMapping
@@ -84,16 +95,26 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
   @PostMapping
   @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public ModelAndView postProjectExtension(PwaApplicationContext applicationContext,
-                                           @ModelAttribute("form") ProjectExtensionForm form,
-                                           ValidationType validationType) {
+                                           @ModelAttribute("form") ProjectExtensionForm projectExtensionForm,
+                                           BindingResult bindingResult,
+                                           ValidationType validationType,
+                                           @PathVariable("applicationId") Integer applicationId,
+                                           @PathVariable("applicationType") @ApplicationTypeUrl
+                                             PwaApplicationType pwaApplicationType) {
 
     padFileService.updateFiles(
-        form,
+        projectExtensionForm,
         applicationContext.getApplicationDetail(),
         ApplicationDetailFilePurpose.PROJECT_EXTENSION,
         FileUpdateMode.DELETE_UNLINKED_FILES,
         applicationContext.getUser());
-    return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
+    bindingResult = projectExtensionService.validate(projectExtensionForm, bindingResult, validationType, applicationContext.getApplicationDetail());
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult,
+        renderProjectExtension(applicationContext,
+            applicationId,
+            pwaApplicationType,
+            projectExtensionForm),
+        () -> pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication()));
   }
 
   @PostMapping("/files/upload")
@@ -104,6 +125,8 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
                                        Integer applicationId,
                                        MultipartFile file,
                                        PwaApplicationContext applicationContext) {
+
+
     return padFileService.processInitialUpload(
         file,
         applicationContext.getApplicationDetail(),

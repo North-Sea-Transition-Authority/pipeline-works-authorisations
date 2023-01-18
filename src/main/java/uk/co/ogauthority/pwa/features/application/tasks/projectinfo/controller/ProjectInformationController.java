@@ -57,9 +57,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadProjectInformationService padProjectInformationService;
   private final ControllerHelperService controllerHelperService;
-
   private final PadProjectExtensionService projectExtensionService;
-
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
@@ -138,23 +136,11 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
             pwaApplicationDetail.getPwaApplicationType()))
         .addObject("isPipelineDeploymentQuestionOptional",
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
-        .addObject("timelineGuidance", getProjectTimelineGuidance(pwaApplicationDetail));
+        .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");
     return modelAndView;
-  }
-
-  private String getProjectTimelineGuidance(PwaApplicationDetail pwaApplicationDetail) {
-    var projectType = MaxCompletionPeriod.valueOf(pwaApplicationDetail.getPwaApplicationType().name());
-    var guidance = "For example, 31 3 2023 \n";
-    guidance += String.format("This must be within %s months of the proposed start of works date. ",
-        projectType.getMaxMonthsCompletion());
-
-    if (projectType.isExtendable()) {
-      guidance += "\n Unless prior approval has been received from the Consents and Authorisations Manager.";
-    }
-    return guidance;
   }
 
   @GetMapping("/files/download/{fileId}")

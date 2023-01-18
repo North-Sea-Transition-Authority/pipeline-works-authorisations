@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -534,6 +535,11 @@ public class ProjectInformationValidatorTest {
     form.setLatestCompletionMonth(nextDayOfMonth == 1 ? month + 1 : month);
     form.setLatestCompletionYear(maxFutureDate.getYear());
 
+    var expectedErrorMap = new HashMap<String, Set<String>>();
+    expectedErrorMap.put("latestCompletionDay", Set.of("latestCompletionDay.afterDate"));
+    expectedErrorMap.put("latestCompletionMonth", Set.of("latestCompletionMonth.afterDate"));
+    expectedErrorMap.put("latestCompletionYear", Set.of("latestCompletionYear.afterDate"));
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(
             PwaApplicationType.INITIAL,
@@ -541,9 +547,55 @@ public class ProjectInformationValidatorTest {
             Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
                 ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
                 ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
-
     assertThat(errorsMap).isEmpty();
-
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.CAT_1_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEmpty();
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.CAT_2_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEqualTo(expectedErrorMap);
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.OPTIONS_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEqualTo(expectedErrorMap);
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.HUOO_VARIATION,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEqualTo(expectedErrorMap);
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.DEPOSIT_CONSENT,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEqualTo(expectedErrorMap);
+    errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(
+            PwaApplicationType.DECOMMISSIONING,
+            ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
+                ProjectInformationQuestion.EARLIEST_COMPLETION_DATE,
+                ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
+    assertThat(errorsMap).isEqualTo(expectedErrorMap);
   }
 
   @Test
