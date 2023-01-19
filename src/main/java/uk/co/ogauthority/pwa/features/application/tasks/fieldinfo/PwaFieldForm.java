@@ -1,13 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fieldinfo;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 
 public class PwaFieldForm {
 
   private Boolean linkedToField;
 
-  private List<SearchResult> fieldIds;
+  private List<String> fieldIds;
 
   private String noLinkedFieldDescription;
 
@@ -19,11 +18,11 @@ public class PwaFieldForm {
     this.linkedToField = linkedToField;
   }
 
-  public List<SearchResult> getFieldIds() {
+  public List<String> getFieldIds() {
     return fieldIds;
   }
 
-  public void setFieldIds(List<SearchResult> fieldIds) {
+  public void setFieldIds(List<String> fieldIds) {
     this.fieldIds = fieldIds;
   }
 

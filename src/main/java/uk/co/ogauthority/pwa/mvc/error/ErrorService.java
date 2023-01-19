@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsController;
+import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 
@@ -60,6 +61,7 @@ public class ErrorService {
     modelAndView.addObject("service", serviceProperties);
     modelAndView.addObject("analytics", analyticsConfigurationProperties.getProperties());
     modelAndView.addObject("analyticsMeasurementUrl", analyticsMeasurementUrl);
+    modelAndView.addObject("analyticsClientIdCookieName", AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME);
     modelAndView.addObject("cookiePrefsUrl", ControllerUtils.getCookiesUrl());
 
     return modelAndView;

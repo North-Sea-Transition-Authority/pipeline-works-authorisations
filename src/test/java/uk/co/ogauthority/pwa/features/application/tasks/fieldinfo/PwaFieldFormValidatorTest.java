@@ -16,7 +16,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
-import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -82,7 +81,7 @@ public class PwaFieldFormValidatorTest {
   public void full_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToField(true);
-    form.setFieldIds(List.of(new SearchResult("1")));
+    form.setFieldIds(List.of("1"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -94,7 +93,7 @@ public class PwaFieldFormValidatorTest {
   public void partial_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToField(true);
-    form.setFieldIds(List.of(new SearchResult("1")));
+    form.setFieldIds(List.of("1"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 
@@ -106,11 +105,9 @@ public class PwaFieldFormValidatorTest {
   public void full_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToField(true);
+    form.setFieldIds(List.of("1"));
 
-    var fieldIds = List.of(new SearchResult("1"));
-    form.setFieldIds(fieldIds);
-
-    when(devukFieldService.getLinkedAndManualFieldEntries(fieldIds)).thenThrow(new PwaEntityNotFoundException("not found"));
+    when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
@@ -123,11 +120,9 @@ public class PwaFieldFormValidatorTest {
   public void partial_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToField(true);
+    form.setFieldIds(List.of("1"));
 
-    var fieldIds = List.of(new SearchResult("1"));
-    form.setFieldIds(fieldIds);
-
-    when(devukFieldService.getLinkedAndManualFieldEntries(fieldIds)).thenThrow(new PwaEntityNotFoundException("not found"));
+    when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
 

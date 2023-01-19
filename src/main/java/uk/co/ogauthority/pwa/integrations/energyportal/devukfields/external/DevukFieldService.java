@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldRepository;
-import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 
 @Service
@@ -45,8 +44,8 @@ public class DevukFieldService {
     );
   }
 
-  public SearchSelectionView<DevukField> getLinkedAndManualFieldEntries(List<SearchResult> fieldIdSearchResults) {
-    return new SearchSelectionView<>(fieldIdSearchResults.stream().map(SearchResult::getValue).collect(Collectors.toList()),
+  public SearchSelectionView<DevukField> getLinkedAndManualFieldEntries(List<String> fieldIds) {
+    return new SearchSelectionView<>(fieldIds,
         pickedFieldString -> findById(Integer.parseInt(pickedFieldString)));
   }
 
