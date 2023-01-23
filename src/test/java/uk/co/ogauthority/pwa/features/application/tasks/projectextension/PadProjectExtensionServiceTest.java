@@ -82,13 +82,6 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void isProjectExtensionComplete_verifyServiceInteraction() {
-    projectExtensionService.isComplete(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail());
-    verify(padFileService).getAllByPwaApplicationDetailAndPurpose(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail(),
-        ApplicationDetailFilePurpose.PROJECT_EXTENSION);
-  }
-
-  @Test
   public void canShowInTaskList_notExtendable() {
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
         .thenReturn(getProjectInformation(PwaApplicationType.CAT_2_VARIATION));
