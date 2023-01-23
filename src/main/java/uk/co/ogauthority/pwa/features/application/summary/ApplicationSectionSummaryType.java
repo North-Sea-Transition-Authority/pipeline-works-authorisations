@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.Par
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.PermanentDepositSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.PipelineCrossingsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.PipelinesSummaryService;
+import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.ProjectExtensionSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.ProjectInformationSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.SupplementaryDocumentsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.TechnicalDrawingsSummaryService;
@@ -73,6 +74,12 @@ public enum ApplicationSectionSummaryType {
       40,
       "pwaApplication/applicationSummarySections/fastTrackSummary.ftl",
       FastTrackSummaryService.class
+  ),
+
+  PROJECT_EXTENSION(
+      42,
+      "pwaApplication/applicationSummarySections/projectExtensionSummary.ftl",
+      ProjectExtensionSummaryService.class
   ),
 
   SUPPLEMENTARY_DOCUMENTS(

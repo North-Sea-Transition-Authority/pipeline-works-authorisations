@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWo
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -54,18 +55,21 @@ public class CampaignWorksController {
   private final CampaignWorksService campaignWorksService;
   private final ControllerHelperService controllerHelperService;
 
+  private final PadProjectExtensionService projectExtensionService;
+
   @Autowired
   public CampaignWorksController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
       PadPipelineService padPipelineService,
       CampaignWorksService campaignWorksService,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService, PadProjectExtensionService projectExtensionService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPipelineService = padPipelineService;
     this.campaignWorksService = campaignWorksService;
     this.controllerHelperService = controllerHelperService;
+    this.projectExtensionService = projectExtensionService;
   }
 
   private ModelAndView createWorkScheduleFormModelAndView(PwaApplicationContext applicationContext,
@@ -75,7 +79,9 @@ public class CampaignWorksController {
             .renderSummary(applicationContext.getApplicationType(), applicationContext.getMasterPwaApplicationId(),
                 null)))
         .addObject("pipelineViews", padPipelineService.getApplicationPipelineOverviews(applicationContext.getApplicationDetail()))
-        .addObject("screenActionType", screenActionType);
+        .addObject("screenActionType", screenActionType)
+        .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(
+            applicationContext.getApplicationDetail()));
 
     applicationBreadcrumbService.fromCampaignWorksOverview(applicationContext.getPwaApplication(), modelAndView,
         screenActionType.getActionText() + " work schedule");
