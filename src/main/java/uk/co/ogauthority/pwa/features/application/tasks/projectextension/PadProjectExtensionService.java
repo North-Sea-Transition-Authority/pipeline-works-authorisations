@@ -5,9 +5,11 @@ import static uk.co.ogauthority.pwa.features.application.files.ApplicationDetail
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
@@ -37,13 +39,12 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var permissionFile = padFileService.getAllByPwaApplicationDetailAndPurpose(detail, PROJECT_EXTENSION)
-        .stream()
-        .filter(file -> file.getFileLinkStatus().equals(ApplicationFileLinkStatus.FULL))
-        .findFirst()
-        .orElse(new PadFile());
+    var projectExtensionForm = new ProjectExtensionForm();
+    padFileService.mapFilesToForm(projectExtensionForm, detail, PROJECT_EXTENSION);
+    var bindingResult = new BeanPropertyBindingResult(projectExtensionForm, "form");
+    validate(projectExtensionForm, bindingResult, ValidationType.FULL, detail);
 
-    return (permissionFile.getDescription() != null && !permissionFile.getDescription().isEmpty());
+    return !bindingResult.hasErrors();
   }
 
   @Override

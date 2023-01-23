@@ -16,7 +16,7 @@
       You must have approval from the Consents and Authorisations Manager (CAM) for anything beyond 12 months.
       You should also discuss BEIS requirements with them at an early stage.
     </p>
-    <p class="govuk-body govuk-">
+    <p class="govuk-body">
       Current start date: ${startDate}
     </p>
     <p class="govuk-body">
