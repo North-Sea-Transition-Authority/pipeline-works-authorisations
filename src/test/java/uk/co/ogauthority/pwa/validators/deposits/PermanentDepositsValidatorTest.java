@@ -155,6 +155,7 @@ public class PermanentDepositsValidatorTest {
             Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("appRefAndPipelineNum"))));
   }
 
+  @Test
   public void supports_whenSupported() {
     assertThat(validator.supports(PermanentDepositsForm.class)).isTrue();
   }
@@ -163,7 +164,6 @@ public class PermanentDepositsValidatorTest {
   public void supports_whenNotSupported() {
     assertThat(validator.supports(Object.class)).isFalse();
   }
-
 
   @Test
   public void validate_reference_blank() {
@@ -625,6 +625,40 @@ public class PermanentDepositsValidatorTest {
     form.setContingencyGroutBagsAmount(StringUtils.repeat('a', 151));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
     assertThat(errorsMap).contains(entry("contingencyGroutBagsAmount", Set.of("contingencyGroutBagsAmount.maxLengthExceeded")));
+  }
+
+  @Test
+  public void validate_otherMaterial_otherMaterialType_notProvided() {
+    PermanentDepositsForm form = getOtherPermanentDepositForm();
+    form.setOtherMaterialType("");
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("otherMaterialType", Set.of("otherMaterialType.invalid")));
+  }
+
+  private PermanentDepositsForm getOtherPermanentDepositForm() {
+    var form = getPermanentDepositsFormWithCoordinates();
+    form.setMaterialType(MaterialType.OTHER);
+    var today = LocalDate.now();
+    form.setFromDate(new TwoFieldDateInput(today.getYear(), today.getMonthValue()));
+    form.setToDate(new TwoFieldDateInput(today.getYear(), today.getMonth().plus(1).getValue()));
+    form.setOtherMaterialType(StringUtils.repeat('a', 50));
+    form.setQuantityOther(new DecimalInput("33"));
+    return form;
+  }
+
+  @Test
+  public void validate_otherMaterial_otherMaterialType_sizeTooBig() {
+    PermanentDepositsForm form = getOtherPermanentDepositForm();
+    form.setOtherMaterialType(StringUtils.repeat('a', 51));
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).contains(entry("otherMaterialType", Set.of(FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.errorCode("otherMaterialType"))));
+  }
+
+  @Test
+  public void validate_otherMaterial_otherMaterialType_sizeOk() {
+    PermanentDepositsForm form = getOtherPermanentDepositForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
+    assertThat(errorsMap).doesNotContainKey("otherMaterialType");
   }
 
   @Test
