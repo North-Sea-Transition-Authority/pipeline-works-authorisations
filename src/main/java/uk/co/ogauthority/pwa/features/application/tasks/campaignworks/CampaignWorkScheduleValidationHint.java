@@ -8,7 +8,6 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
-import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 
 /* contain earliest and latest work dates as determined by application type. Could be inlined into validator */
 public final class CampaignWorkScheduleValidationHint {
