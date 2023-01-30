@@ -6,6 +6,7 @@ import org.springframework.lang.Nullable;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
+import uk.co.ogauthority.pwa.util.forminputs.twofielddate.BeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 
@@ -18,7 +19,7 @@ public final class CampaignWorkScheduleValidationHint {
 
   private final LocalDate earliestDate;
   private final OnOrAfterDateHint earliestWorkStartDateHint;
-  private final OnOrBeforeDateHint latestWorkEndDateHint;
+  private final BeforeDateHint latestWorkEndDateHint;
 
   public CampaignWorkScheduleValidationHint(@Nullable LocalDate projectInfoProposedStartDate,
                                             @Nullable LocalDate projectInfoProposedEndDate,
@@ -36,7 +37,7 @@ public final class CampaignWorkScheduleValidationHint {
 
     var beforeDateFormatted = beforeDate.format(DATETIME_FORMATTER);
 
-    this.latestWorkEndDateHint = new OnOrBeforeDateHint(beforeDate, beforeDateFormatted);
+    this.latestWorkEndDateHint = new BeforeDateHint(beforeDate, beforeDateFormatted);
     this.earliestWorkStartDateHint = new OnOrAfterDateHint(this.earliestDate, earliestDateLabel);
 
   }
@@ -49,7 +50,7 @@ public final class CampaignWorkScheduleValidationHint {
     return earliestWorkStartDateHint;
   }
 
-  public OnOrBeforeDateHint getLatestWorkEndDateHint() {
+  public BeforeDateHint getLatestWorkEndDateHint() {
     return latestWorkEndDateHint;
   }
 }

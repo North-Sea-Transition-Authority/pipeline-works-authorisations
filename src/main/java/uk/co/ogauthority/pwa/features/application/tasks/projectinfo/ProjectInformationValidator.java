@@ -278,7 +278,9 @@ public class ProjectInformationValidator implements SmartValidator {
               form.getLatestCompletionDay(),
               form.getLatestCompletionMonth(),
               form.getLatestCompletionYear(),
-              proposedStartDate.plusMonths(maxCompletionPeriod.getMaxMonthsCompletion()),
+              proposedStartDate
+                  .plusMonths(maxCompletionPeriod.getMaxMonthsCompletion())
+                  .minusDays(1),
               String.format("more than %s months after proposed start date", maxCompletionPeriod.getMaxMonthsCompletion()),
               errors
           );
