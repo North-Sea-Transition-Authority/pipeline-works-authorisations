@@ -181,7 +181,7 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages.get("workEnd.year"))
-        .contains("Work end must be the same as or before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+        .contains("Work end must be before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
     assertThat(messages.get("workEnd.month")).contains("");
 
   }
@@ -215,7 +215,7 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages.get("workEnd.year"))
-        .contains("Work end must be the same as or before " +
+        .contains("Work end must be before " +
             LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()).plusMonths(8)
                 .format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
     assertThat(messages.get("workEnd.month")).contains("");
@@ -250,7 +250,7 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages.get("workEnd.year"))
-        .contains("Work end must be the same as or before " +
+        .contains("Work end must be before " +
             LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault())
                 .plusMonths(MaxCompletionPeriod.OPTIONS_VARIATION.getMaxMonthsCompletion())
                 .format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
