@@ -34,7 +34,7 @@
         legendHeadingClass="govuk-fieldset__legend--l"
         legendHeading="Project extension permission"
         caption="Provide the email on which the CAM approved your request"
-        hintText="If this has not been approved you should email the CAM at consents@authority.co.uk with the background details and your justification."
+        hintText="If this has not been approved you should email the CAM at ${ogaConsentsEmail} with the background details and your justification."
         captionClass="govuk-caption-l">
           <@fdsFileUpload.fileUpload
             id="project-extension-upload-file-id"

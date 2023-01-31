@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -52,16 +53,20 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
 
   private final ControllerHelperService controllerHelperService;
 
+  private final String ogaConsentsMailboxEmail;
+
   public PadProjectExtensionController(PadFileService padFileService,
                                        PwaApplicationRedirectService pwaApplicationRedirectService,
                                        PadProjectInformationService padProjectInformationService,
                                        PadProjectExtensionService projectExtensionService,
-                                       ControllerHelperService controllerHelperService) {
+                                       ControllerHelperService controllerHelperService,
+                                       @Value("${oga.consents.email}") String ogaConsentsMailboxEmail) {
     super(padFileService);
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.projectExtensionService = projectExtensionService;
     this.controllerHelperService = controllerHelperService;
+    this.ogaConsentsMailboxEmail = ogaConsentsMailboxEmail;
   }
 
   @GetMapping
@@ -83,6 +88,7 @@ public class PadProjectExtensionController extends PwaApplicationDetailDataFileU
         applicationDetail,
         ApplicationDetailFilePurpose.PROJECT_EXTENSION,
         form)
+        .addObject("ogaConsentsEmail", ogaConsentsMailboxEmail)
         .addObject("startDate", DateUtils.formatDate(startDate))
         .addObject("endDate", DateUtils.formatDate(endDate))
         .addObject("modifyUrl", ReverseRouter.route(on(ProjectInformationController.class)
