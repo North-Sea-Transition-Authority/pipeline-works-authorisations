@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
@@ -266,23 +266,24 @@ public class ProjectInformationValidator implements SmartValidator {
       if (latestCompletionDateValid && proposedStartDateValid
           && (!earliestCompletionDateValid || latestCompletionAfterEarliestCompletion)) {
 
-        var validMonthsAfterProposedStart = applicationType.equals(PwaApplicationType.OPTIONS_VARIATION) ? 6L : 12L;
+        var maxCompletionPeriod = MaxCompletionPeriod.valueOf(applicationType.name());
         var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(),
             form.getProposedStartDay());
 
-        var maxValidDate = proposedStartDate.plusMonths(validMonthsAfterProposedStart);
-
-        ValidatorUtils.validateDateIsOnOrBeforeComparisonDate(
-            "latestCompletion",
-            "Latest completion date",
-            form.getLatestCompletionDay(),
-            form.getLatestCompletionMonth(),
-            form.getLatestCompletionYear(),
-            maxValidDate,
-            String.format("more than %s months after proposed start date", validMonthsAfterProposedStart),
-            errors
-        );
-
+        if (!maxCompletionPeriod.isExtendable()) {
+          ValidatorUtils.validateDateIsOnOrBeforeComparisonDate(
+              "latestCompletion",
+              "Latest completion date",
+              form.getLatestCompletionDay(),
+              form.getLatestCompletionMonth(),
+              form.getLatestCompletionYear(),
+              proposedStartDate
+                  .plusMonths(maxCompletionPeriod.getMaxMonthsCompletion())
+                  .minusDays(1),
+              String.format("more than %s months after proposed start date", maxCompletionPeriod.getMaxMonthsCompletion()),
+              errors
+          );
+        }
       }
 
     }

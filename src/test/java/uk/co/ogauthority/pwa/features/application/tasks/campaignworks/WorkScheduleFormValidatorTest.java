@@ -19,6 +19,7 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -58,6 +59,7 @@ public class WorkScheduleFormValidatorTest {
 
     campaignWorkScheduleValidationHint = new CampaignWorkScheduleValidationHint(
         LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()),
+       null,
         pwaApplicationDetail.getPwaApplicationType()
     );
 
@@ -179,9 +181,80 @@ public class WorkScheduleFormValidatorTest {
     );
 
     assertThat(messages.get("workEnd.year"))
-        .contains("Work end must be the same as or before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+        .contains("Work end must be before " + latestValidEndDate.format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
     assertThat(messages.get("workEnd.month")).contains("");
 
+  }
+
+  @Test
+  public void validate_workEndAfter_ShorterProposedWorks() {
+    var form = new WorkScheduleForm();
+    var latestValidEndDate = campaignWorkScheduleValidationHint.getLatestWorkEndDateHint().getDate();
+    var validStartDate = latestValidEndDate.minusMonths(1);
+    var invalidEndDate = latestValidEndDate.plusMonths(1);
+
+    form.setWorkStart(new TwoFieldDateInput(validStartDate.getYear(), validStartDate.getMonthValue()));
+    form.setWorkEnd(new TwoFieldDateInput(invalidEndDate.getYear(), invalidEndDate.getMonthValue()));
+
+    var campaignWorkScheduleValidationHint = new CampaignWorkScheduleValidationHint(
+        LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()),
+        LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()).plusMonths(8),
+        pwaApplicationDetail.getPwaApplicationType()
+    );
+    defaultHints[1] = campaignWorkScheduleValidationHint;
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidationUtils.invokeValidator(validator, form, bindingResult, defaultHints);
+
+    var codes = ValidatorTestUtils.extractErrors(bindingResult);
+    var messages = ValidatorTestUtils.extractErrorMessages(bindingResult);
+
+    assertThat(codes).contains(
+        entry("workEnd.month", Set.of("month.beforeDate")),
+        entry("workEnd.year", Set.of("year.beforeDate"))
+    );
+
+    assertThat(messages.get("workEnd.year"))
+        .contains("Work end must be before " +
+            LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()).plusMonths(8)
+                .format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+    assertThat(messages.get("workEnd.month")).contains("");
+  }
+
+  @Test
+  public void validate_workEndAfter_OptionsVariation() {
+    var form = new WorkScheduleForm();
+    var latestValidEndDate = campaignWorkScheduleValidationHint.getLatestWorkEndDateHint().getDate();
+    var validStartDate = latestValidEndDate.minusMonths(1);
+    var invalidEndDate = latestValidEndDate.plusMonths(1);
+
+    form.setWorkStart(new TwoFieldDateInput(validStartDate.getYear(), validStartDate.getMonthValue()));
+    form.setWorkEnd(new TwoFieldDateInput(invalidEndDate.getYear(), invalidEndDate.getMonthValue()));
+
+    var campaignWorkScheduleValidationHint = new CampaignWorkScheduleValidationHint(
+        LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault()),
+        null,
+        PwaApplicationType.OPTIONS_VARIATION
+    );
+    defaultHints[1] = campaignWorkScheduleValidationHint;
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+    ValidationUtils.invokeValidator(validator, form, bindingResult, defaultHints);
+
+    var codes = ValidatorTestUtils.extractErrors(bindingResult);
+    var messages = ValidatorTestUtils.extractErrorMessages(bindingResult);
+
+    assertThat(codes).contains(
+        entry("workEnd.month", Set.of("month.beforeDate")),
+        entry("workEnd.year", Set.of("year.beforeDate"))
+    );
+
+    assertThat(messages.get("workEnd.year"))
+        .contains("Work end must be before " +
+            LocalDate.ofInstant(clock.instant(), ZoneId.systemDefault())
+                .plusMonths(MaxCompletionPeriod.OPTIONS_VARIATION.getMaxMonthsCompletion())
+                .format(CampaignWorkScheduleValidationHint.DATETIME_FORMATTER));
+    assertThat(messages.get("workEnd.month")).contains("");
   }
 
   @Test

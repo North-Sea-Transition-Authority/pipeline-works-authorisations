@@ -21,7 +21,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.searchselector.SearchResult;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
@@ -203,13 +202,8 @@ public class PadFieldService implements ApplicationFormSectionService {
 
     if (!fields.isEmpty()) {
       form.setFieldIds(fields.stream()
-          .map(field ->
-              new SearchResult(
-                  field.isLinkedToDevuk()
-                      ? field.getDevukField().getFieldId().toString()
-                      : SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName()
-              )
-          )
+          .map(field -> field.isLinkedToDevuk() ? field.getDevukField().getFieldId().toString()
+              : SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName())
           .collect(Collectors.toList())
       );
 

@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWo
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorkSchedule;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleForm;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.WorkScheduleView;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
@@ -67,6 +68,9 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
 
   @MockBean
   private CampaignWorksService campaignWorksService;
+
+  @MockBean
+  PadProjectExtensionService projectExtensionService;
 
   @Mock
   private WorkScheduleView workScheduleViewMock;
