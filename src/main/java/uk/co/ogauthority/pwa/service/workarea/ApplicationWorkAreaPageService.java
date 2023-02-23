@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -63,13 +65,11 @@ class ApplicationWorkAreaPageService {
     );
   }
 
-  private <T_SELECT> Predicate getAppContactPredicate(Root<WorkAreaAppUserTab> root,
-                                                      CriteriaQuery<T_SELECT> query,
-                                                      WorkAreaContext workAreaContext,
-                                                      WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Optional<Predicate> getAppContactPredicate(Root<WorkAreaAppUserTab> root,
+                                                                CriteriaQuery<T_SELECT> query,
+                                                                WorkAreaContext workAreaContext,
+                                                                WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
-
-    Predicate appContactAppRestriction = cb.isFalse(cb.literal(true));
 
     if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.APPLICATION_CONTACT)) {
 
@@ -85,21 +85,19 @@ class ApplicationWorkAreaPageService {
           cb.equal(root.get(WorkAreaAppUserTab_.APP_USER_WORKAREA_CATEGORY), workAreaTabCategory)
       ));
 
-      appContactAppRestriction = cb.in(root.get(WorkAreaApplicationDetailSearchItem_.PWA_APPLICATION_ID)).value(contactAppIdSubQuery);
+      var appContactAppRestriction = cb.in(root.get(WorkAreaApplicationDetailSearchItem_.PWA_APPLICATION_ID)).value(contactAppIdSubQuery);
+      return Optional.of(appContactAppRestriction);
 
     }
 
-    return appContactAppRestriction;
-
+    return Optional.empty();
   }
 
-  private <T_SELECT> Predicate getCaseOfficerPredicate(Root<WorkAreaAppUserTab> root,
-                                                       CriteriaQuery<T_SELECT> query,
-                                                       WorkAreaContext workAreaContext,
-                                                       WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Optional<Predicate> getCaseOfficerPredicate(Root<WorkAreaAppUserTab> root,
+                                                                 CriteriaQuery<T_SELECT> query,
+                                                                 WorkAreaContext workAreaContext,
+                                                                 WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
-
-    Predicate caseOfficerAppRestriction = cb.isFalse(cb.literal(true));
 
     if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.CASE_OFFICER)) {
       Subquery<Integer> assignmentSubQuery = query.subquery(Integer.class);
@@ -109,30 +107,31 @@ class ApplicationWorkAreaPageService {
 
       assignmentSubQuery.select(cb.toInteger(appIdPath));
       assignmentSubQuery.where(cb.and(
-          cb.equal(assignmentRoot.get(Assignment_.ASSIGNEE_PERSON_ID), workAreaContext.getPersonId())),
+              cb.equal(assignmentRoot.get(Assignment_.ASSIGNEE_PERSON_ID), workAreaContext.getPersonId())),
           cb.equal(assignmentRoot.get(Assignment_.WORKFLOW_TYPE), WorkflowType.PWA_APPLICATION),
           cb.equal(assignmentRoot.get(Assignment_.WORKFLOW_ASSIGNMENT), WorkflowAssignment.CASE_OFFICER),
           cb.equal(root.get(WorkAreaAppUserTab_.CASE_OFFICER_WORKAREA_CATEGORY), workAreaTabCategory)
       );
 
-      caseOfficerAppRestriction = cb.in(root.get(WorkAreaApplicationDetailSearchItem_.PWA_APPLICATION_ID)).value(assignmentSubQuery);
+      var caseOfficerAppRestriction = cb.in(root.get(WorkAreaApplicationDetailSearchItem_.PWA_APPLICATION_ID)).value(assignmentSubQuery);
+      return Optional.of(caseOfficerAppRestriction);
     }
 
-    return caseOfficerAppRestriction;
+    return Optional.empty();
   }
 
-  private <T_SELECT> Predicate getPwaManagerPredicate(Root<WorkAreaAppUserTab> root,
-                                                      CriteriaQuery<T_SELECT> query,
-                                                      WorkAreaContext workAreaContext,
-                                                      WorkAreaTabCategory workAreaTabCategory) {
+  private <T_SELECT> Optional<Predicate> getPwaManagerPredicate(Root<WorkAreaAppUserTab> root,
+                                                                CriteriaQuery<T_SELECT> query,
+                                                                WorkAreaContext workAreaContext,
+                                                                WorkAreaTabCategory workAreaTabCategory) {
     var cb = entityManager.getCriteriaBuilder();
 
-    Predicate pwaManagerAppPredicate = cb.isFalse(cb.literal(true));
     if (workAreaContext.containsWorkAreaUserType(WorkAreaUserType.PWA_MANAGER)) {
-      pwaManagerAppPredicate = cb.equal(root.get(WorkAreaAppUserTab_.PWA_MANAGER_WORKAREA_CATEGORY), workAreaTabCategory);
+      var pwaManagerAppPredicate = cb.equal(root.get(WorkAreaAppUserTab_.PWA_MANAGER_WORKAREA_CATEGORY), workAreaTabCategory);
+      return Optional.of(pwaManagerAppPredicate);
     }
 
-    return pwaManagerAppPredicate;
+    return Optional.empty();
   }
 
   // this helper creates the predicate that does all the core heavy lifting so we return the applications for a user
@@ -145,26 +144,29 @@ class ApplicationWorkAreaPageService {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    Predicate appContactAppRestriction = getAppContactPredicate(
+    Optional<Predicate> appContactAppRestriction = getAppContactPredicate(
         root, query, workAreaContext, workAreaTabCategory
     );
 
-    Predicate caseOfficerAppRestriction = getCaseOfficerPredicate(
+    Optional<Predicate> caseOfficerAppRestriction = getCaseOfficerPredicate(
         root, query, workAreaContext, workAreaTabCategory
     );
 
-    Predicate pwaManagerAppPredicate = getPwaManagerPredicate(
+    Optional<Predicate> pwaManagerAppPredicate = getPwaManagerPredicate(
         root, query, workAreaContext, workAreaTabCategory
     );
 
-    Predicate workAreaUserTypeAndTabCategoryPredicate = cb.or(
-        pwaManagerAppPredicate,
-        appContactAppRestriction,
-        caseOfficerAppRestriction
-    );
 
-    return workAreaUserTypeAndTabCategoryPredicate;
+    var predicates = Stream.of(
+            pwaManagerAppPredicate,
+            appContactAppRestriction,
+            caseOfficerAppRestriction
+        )
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toArray(Predicate[]::new);
 
+    return cb.or(predicates);
   }
 
   // using non parameterised CriteriaQuery to be able to use same predicate provider for count and results query
@@ -174,25 +176,7 @@ class ApplicationWorkAreaPageService {
       Pageable pageable) {
     var cb = entityManager.getCriteriaBuilder();
 
-    // have to work out total results by doing a count query based off the search query predicate,
-    // 1. get count of app possible results given the predicate
-    CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
-    Root<WorkAreaAppUserTab> countResultsRoot = countResultsQuery.from(WorkAreaAppUserTab.class);
-    Join<WorkAreaAppUserTab, WorkAreaApplicationDetailSearchItem> countWorkAreaSearchItemJoin = countResultsRoot
-        .join(WorkAreaAppUserTab_.workAreaApplicationDetailSearchItem);
-    countResultsQuery
-        .select(cb.count(countWorkAreaSearchItemJoin))
-        .where(
-            getWorkAreaUserTypeAndTabCategoryTypePredicate(
-                countResultsRoot,
-                countResultsQuery,
-                workAreaContext,
-                workAreaTabCategory
-            )
-      );
-    var totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
-
-    // 2. Create results query using predicate
+    // 1. Create results query using predicate
     CriteriaQuery<WorkAreaApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(
         WorkAreaApplicationDetailSearchItem.class);
     Root<WorkAreaAppUserTab> searchResultsRoot = searchResultsQuery.from(WorkAreaAppUserTab.class);
@@ -208,10 +192,10 @@ class ApplicationWorkAreaPageService {
         )
     );
 
-    //3. apply sort from pageable to query
+    //2. apply sort from pageable to query
     searchResultsQuery.orderBy(getOrderListFromPageable(cb, workAreaSearchItemJoin, pageable));
 
-    // 4. Limits search results to requested page
+    // 3. Limits search results to requested page
     TypedQuery<WorkAreaApplicationDetailSearchItem> typedQuery = entityManager.createQuery(searchResultsQuery);
 
     // limits results based on pageable args
@@ -219,6 +203,26 @@ class ApplicationWorkAreaPageService {
     typedQuery.setMaxResults(pageable.getPageSize());
 
     var results = typedQuery.getResultList();
+
+    long totalResults = results.size();
+    // have to work out total results by doing a count query based off the search query predicate,
+    // when there are more results than on a single page
+    // get count of app possible results given the predicate
+    if (totalResults >= WorkAreaService.PAGE_SIZE) {
+      CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
+      Root<WorkAreaAppUserTab> countResultsRoot = countResultsQuery.from(WorkAreaAppUserTab.class);
+      Join<WorkAreaAppUserTab, WorkAreaApplicationDetailSearchItem> countWorkAreaSearchItemJoin = countResultsRoot
+          .join(WorkAreaAppUserTab_.workAreaApplicationDetailSearchItem);
+      countResultsQuery
+          .select(cb.count(countWorkAreaSearchItemJoin))
+          .where(
+              getWorkAreaUserTypeAndTabCategoryTypePredicate(
+                  countResultsRoot,
+                  countResultsQuery,
+                  workAreaContext,
+                  workAreaTabCategory));
+      totalResults = entityManager.createQuery(countResultsQuery).getSingleResult();
+    }
 
     return new PageImpl<>(results, pageable, totalResults);
   }

@@ -37,13 +37,16 @@ public class WorkAreaContextService {
   @VisibleForTesting
   List<WorkAreaTab> getTabsAvailableToUser(AuthenticatedUserAccount authenticatedUserAccount) {
     //either get tabs based on user type or based on specific privs
+    var privs = teamService.getAllUserPrivilegesForPerson(authenticatedUserAccount.getLinkedPerson());
+
     return WorkAreaTab.stream()
-        .filter(tab -> isUserAllowedToAccessTab(authenticatedUserAccount, tab))
+        .filter(tab -> isUserAllowedToAccessTab(authenticatedUserAccount, tab, privs))
         .sorted(Comparator.comparing(WorkAreaTab::getDisplayOrder))
         .collect(Collectors.toUnmodifiableList());
   }
 
-  private boolean isUserAllowedToAccessTab(AuthenticatedUserAccount userAccount, WorkAreaTab tab) {
+  private boolean isUserAllowedToAccessTab(AuthenticatedUserAccount userAccount, WorkAreaTab tab,
+                                           Set<PwaUserPrivilege> pwaUserPrivileges) {
 
     var userType = userTypeService.getUserTypes(userAccount)
         .stream()
@@ -51,19 +54,16 @@ public class WorkAreaContextService {
         .findFirst()
         .orElse(userTypeService.getPriorityUserType(userAccount));
 
-    return Objects.nonNull(userType) && tab.getUserTypes().contains(userType)
-        || allPwaUserPrivsMatch(userAccount, tab.getPwaUserPrivileges());
+    var allPrivsMatch = !SetUtils.intersection(tab.getPwaUserPrivileges(), pwaUserPrivileges).isEmpty();
 
-  }
+    return Objects.nonNull(userType) && tab.getUserTypes().contains(userType) || allPrivsMatch;
 
-  private boolean allPwaUserPrivsMatch(AuthenticatedUserAccount authenticatedUserAccount, Set<PwaUserPrivilege> requiredTabPrivs) {
-    return !SetUtils.intersection(requiredTabPrivs,
-        teamService.getAllUserPrivilegesForPerson(authenticatedUserAccount.getLinkedPerson())).isEmpty();
   }
 
   public WorkAreaContext createWorkAreaContext(AuthenticatedUserAccount authenticatedUserAccount) {
 
     var userAppEventSubscriberTypes = EnumSet.noneOf(WorkAreaUserType.class);
+
     // if the selected tab is available to the user get it.
     var userTabs = getTabsAvailableToUser(authenticatedUserAccount);
 
