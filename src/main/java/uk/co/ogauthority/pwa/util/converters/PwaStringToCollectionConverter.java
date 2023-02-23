@@ -9,11 +9,10 @@ import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.lang.Nullable;
 
-
 /**
- * Converts a String to a Collection.
- * This implementation differs from the default StringToCollectionConverter
- * as it does not split strings containing commas into multiple values.
+ * Modified version of the default Spring StringToCollectionConverter which does not split strings containing commas
+ * into multiple values.
+ * https://github.com/spring-projects/spring-framework/blob/main/spring-core/src/main/java/org/springframework/core/convert/support/StringToCollectionConverter.java
  */
 public class PwaStringToCollectionConverter implements ConditionalGenericConverter {
 
