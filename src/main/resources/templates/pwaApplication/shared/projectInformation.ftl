@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="isPermDepQuestionRequired" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="isAnyDepQuestionRequired" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="requiredQuestions" type="java.util.Set< uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion>" -->
-
+<#-- @ftlvariable name="timelineGuidance" type="java.lang.String" -->
 
 <@defaultPage htmlTitle="Project information" pageHeading="Project information" breadcrumbs=true errorItems=errorList>
 
@@ -35,7 +35,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("LATEST_COMPLETION_DATE")>
-            <@fdsDateInput.dateInput dayPath="form.latestCompletionDay" monthPath="form.latestCompletionMonth" yearPath="form.latestCompletionYear" labelText="Latest completion date" formId="form.latestCompletion"/>
+            <@fdsDateInput.dateInput dayPath="form.latestCompletionDay" monthPath="form.latestCompletionMonth" yearPath="form.latestCompletionYear" labelText="Latest completion date" formId="form.latestCompletion" hintText=timelineGuidance defaultHint=false/>
         </#if>
 
         <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_PLANNED")>

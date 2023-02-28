@@ -49,6 +49,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview.co
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelinesController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.PadPipelineTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.controller.PipelinesTaskListController;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.controller.PadProjectExtensionController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.SupplementaryDocumentsService;
@@ -107,6 +109,14 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       FastTrackController.class,
       PadFastTrackService.class,
       20, 20
+  ),
+
+  PROJECT_EXTENSION(
+      "Project timeline extension",
+      PadProjectExtensionController.class,
+      PadProjectExtensionService.class,
+      25,
+      25
   ),
 
   LOCATION_DETAILS(
@@ -287,6 +297,9 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       case FAST_TRACK:
         return ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(applicationType, applicationId, null, null, null));
+      case PROJECT_EXTENSION:
+        return ReverseRouter.route(on(PadProjectExtensionController.class)
+            .renderProjectExtension(null, applicationId, applicationType, null));
       case OPTIONS_TEMPLATE:
         return ReverseRouter.route(on(OptionsTemplateController.class)
             .renderOptionsTemplate(applicationId, applicationType, null, null, null));

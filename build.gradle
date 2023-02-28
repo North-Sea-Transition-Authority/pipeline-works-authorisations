@@ -39,10 +39,8 @@ compileJava {
 
 repositories {
   mavenCentral()
-  maven {
-    url = "http://nexus.fivium.local:8081/repository/maven-releases/"
-    allowInsecureProtocol = true
-  }
+  maven { url "https://nexus.fivium.co.uk/repository/maven-releases/" }
+  maven { url "https://nexus.fivium.co.uk/repository/maven-snapshots/" }
 }
 
 dependencies {
