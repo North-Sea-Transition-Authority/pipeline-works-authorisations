@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.P
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.controller.AdmiraltyChartDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.controller.PipelineDrawingController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.controller.UmbilicalCrossSectionDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.projectextension.controller.PadProjectExtensionController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
 
@@ -22,6 +23,7 @@ public enum ApplicationDetailFilePurpose {
 
   LOCATION_DETAILS(LocationDetailsController.class),
   PROJECT_INFORMATION(ProjectInformationController.class),
+  PROJECT_EXTENSION(PadProjectExtensionController.class),
   BLOCK_CROSSINGS(BlockCrossingDocumentsController.class),
   CABLE_CROSSINGS(CableCrossingDocumentsController.class),
   PIPELINE_CROSSINGS(PipelineCrossingDocumentsController.class),

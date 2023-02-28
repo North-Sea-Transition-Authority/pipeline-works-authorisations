@@ -39,6 +39,7 @@ public enum ApplicationTaskGroup {
           OrderedTaskGroupTask.from(ApplicationTask.FIELD_INFORMATION, 10),
           OrderedTaskGroupTask.from(ApplicationTask.PROJECT_INFORMATION, 20),
           OrderedTaskGroupTask.from(ApplicationTask.FAST_TRACK, 30),
+          OrderedTaskGroupTask.from(ApplicationTask.PROJECT_EXTENSION, 35),
           OrderedTaskGroupTask.from(ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING, 40),
           OrderedTaskGroupTask.from(ApplicationTask.HUOO, 50),
           OrderedTaskGroupTask.from(ApplicationTask.PARTNER_LETTERS, 60)
