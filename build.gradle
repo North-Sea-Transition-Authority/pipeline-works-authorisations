@@ -65,14 +65,11 @@ dependencies {
 
   implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'org.apache.commons:commons-collections4:4.4'
-  implementation ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.4') {
-    exclude group: 'org.mybatis', module: 'mybatis'
-  }
+  implementation ('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1')
   implementation 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
   implementation 'org.hibernate:hibernate-envers:5.6.5.Final'
   implementation 'org.imgscalr:imgscalr-lib:4.2'
   implementation 'org.jsoup:jsoup:1.14.3'
-  implementation 'org.mybatis:mybatis:3.5.10'
 
   implementation 'com.atlassian.commonmark:commonmark:0.15.2'
   implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables:0.15.2'
