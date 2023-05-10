@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationResourceType.*;
+
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +40,9 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
   @Enumerated(EnumType.STRING)
   private PwaApplicationType applicationType;
 
+  @Enumerated(EnumType.STRING)
+  private PwaApplicationResourceType resourceType = PETROLEUM;
+
   private String appReference;
 
   private String consentReference;
@@ -67,6 +72,17 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
     this.variationNo = variationNo;
   }
 
+  public PwaApplication(MasterPwa masterPwa,
+                        PwaApplicationType applicationType,
+                        PwaApplicationResourceType resourceType,
+                        Integer variationNo) {
+    this.masterPwa = masterPwa;
+    this.applicationType = applicationType;
+    this.resourceType = resourceType;
+    this.variationNo = variationNo;
+  }
+
+
   public Integer getId() {
     return id;
   }
@@ -89,6 +105,14 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
 
   public void setApplicationType(PwaApplicationType applicationType) {
     this.applicationType = applicationType;
+  }
+
+  public PwaApplicationResourceType getResourceType() {
+    return resourceType;
+  }
+
+  public void setResourceType(PwaApplicationResourceType resourceType) {
+    this.resourceType = resourceType;
   }
 
   public String getAppReference() {
