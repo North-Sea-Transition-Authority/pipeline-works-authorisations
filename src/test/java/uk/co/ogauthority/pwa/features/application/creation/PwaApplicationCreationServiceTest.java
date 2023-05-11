@@ -14,7 +14,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import javax.persistence.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,6 +39,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -150,19 +153,33 @@ public class PwaApplicationCreationServiceTest {
 
 
     // check application set up correctly
-    assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
-    assertThat(application.getAppReference()).isEqualTo("PA/1");
-    assertThat(application.getConsentReference()).isNull();
-    assertThat(application.getVariationNo()).isEqualTo(0);
-    assertThat(application.getDecision()).isEmpty();
-    assertThat(application.getDecisionTimestamp()).isEmpty();
-    assertThat(application.getApplicationCreatedTimestamp()).isEqualTo(clock.instant());
-    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.PETROLEUM,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
     verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
-
   }
 
 
@@ -247,14 +264,30 @@ public class PwaApplicationCreationServiceTest {
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
     // check application set up correctly
-    assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
-    assertThat(application.getAppReference()).isEqualTo("PA/1");
-    assertThat(application.getConsentReference()).isNull();
-    assertThat(application.getVariationNo()).isEqualTo(0);
-    assertThat(application.getDecision()).isEmpty();
-    assertThat(application.getDecisionTimestamp()).isEmpty();
-    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            pwaApplicationType,
+            PwaResourceType.PETROLEUM,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
 

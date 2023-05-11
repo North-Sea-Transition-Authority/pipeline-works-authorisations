@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationResourceType.PETROLEUM;
+import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.PETROLEUM;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.OrganisationUnitIdConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 
 @Entity
@@ -41,7 +42,7 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
   private PwaApplicationType applicationType;
 
   @Enumerated(EnumType.STRING)
-  private PwaApplicationResourceType resourceType = PETROLEUM;
+  private PwaResourceType resourceType;
 
   private String appReference;
 
@@ -69,12 +70,13 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
   public PwaApplication(MasterPwa masterPwa, PwaApplicationType applicationType, Integer variationNo) {
     this.masterPwa = masterPwa;
     this.applicationType = applicationType;
+    this.resourceType = PETROLEUM;
     this.variationNo = variationNo;
   }
 
   public PwaApplication(MasterPwa masterPwa,
                         PwaApplicationType applicationType,
-                        PwaApplicationResourceType resourceType,
+                        PwaResourceType resourceType,
                         Integer variationNo) {
     this.masterPwa = masterPwa;
     this.applicationType = applicationType;
@@ -107,11 +109,11 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
     this.applicationType = applicationType;
   }
 
-  public PwaApplicationResourceType getResourceType() {
+  public PwaResourceType getResourceType() {
     return resourceType;
   }
 
-  public void setResourceType(PwaApplicationResourceType resourceType) {
+  public void setResourceType(PwaResourceType resourceType) {
     this.resourceType = resourceType;
   }
 
