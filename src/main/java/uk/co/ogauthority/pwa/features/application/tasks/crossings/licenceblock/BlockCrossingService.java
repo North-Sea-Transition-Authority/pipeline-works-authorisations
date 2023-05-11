@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
+import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.HYDROGEN;
+
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -256,6 +258,9 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
+    if (detail.getPwaApplication().getResourceType().equals(HYDROGEN)) {
+      return true;
+    }
     return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(detail) > 0
         && (!isDocumentsRequired(detail) || blockCrossingFileService.isComplete(detail));
   }

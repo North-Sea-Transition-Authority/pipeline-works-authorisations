@@ -26,6 +26,9 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview" -->
 
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.HasBlockCrossingForm" -->
+
+
 <@defaultPage htmlTitle=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
 
     <#if errorMessage?has_content>
@@ -58,7 +61,11 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        <@fdsRadio.radio
+        radioItems=radioItems
+        path="form.hasMoreBlocks"
+        labelText="Do you want to add another associated liscense block?"/>
+        <@fdsAction.button buttonText="Save and continue"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>
