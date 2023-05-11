@@ -43,29 +43,36 @@
         blockCrossingFileViews=blockCrossingFiles
         urlFactory=blockCrossingUrlFactory
         isDocumentsRequired=isDocumentsRequired/>
+        <@fdsForm.htmlForm>
+            <@fdsRadio.radio
+            radioItems=radioItems
+            path="form.hasMoreBlocks"
+            labelText="Do you want to add another associated licence block?"/>
+            <@fdsAction.button buttonText="Save and continue"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "PIPELINE_CROSSINGS">
         <@pipelineCrossingManagement.pipelineCrossingManagement
         urlFactory=pipelineCrossingUrlFactory
         pipelineCrossingFileViews=pipelineCrossingFiles
         pipelineCrossings=pipelineCrossings/>
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "CABLE_CROSSINGS">
         <@cableCrossingManagement.cableCrossingManagement
         cableCrossingViews=cableCrossings
         cableCrossingFileViews=cableCrossingFiles
         urlFactory=cableCrossingUrlFactory/>
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "MEDIAN_LINE_CROSSING">
         <@medianLineCrossingManagement.medianLineCrossingManagement
         urlFactory=medianLineUrlFactory
         medianLineAgreementView=medianLineAgreementView!""
         medianLineFileViews=medianLineFiles />
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     </#if>
-
-    <@fdsForm.htmlForm>
-        <@fdsRadio.radio
-        radioItems=radioItems
-        path="form.hasMoreBlocks"
-        labelText="Do you want to add another associated licence block?"/>
-        <@fdsAction.button buttonText="Save and continue"/>
-    </@fdsForm.htmlForm>
-
 </@defaultPage>

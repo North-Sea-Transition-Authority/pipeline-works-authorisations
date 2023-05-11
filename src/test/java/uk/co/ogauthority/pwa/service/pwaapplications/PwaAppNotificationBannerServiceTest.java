@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.enums.appprocessing.DefaultNotificationBannerType;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
@@ -48,7 +49,7 @@ public class PwaAppNotificationBannerServiceTest {
     siblingPwaApplication.setAppReference("PWA_REF_2");
 
     siblingPwaApplicationDetail = PwaApplicationTestUtil.createApplicationDetail(siblingPwaApplication.getMasterPwa(),
-        PwaApplicationType.CAT_1_VARIATION, PwaApplicationStatus.CASE_OFFICER_REVIEW, siblingPwaApplication.getId(), 22, 10);
+        PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, PwaApplicationStatus.CASE_OFFICER_REVIEW, siblingPwaApplication.getId(), 22, 10);
     siblingPwaApplicationDetail.setPwaApplication(siblingPwaApplication);
 
     when(pwaApplicationService.getAllApplicationsForMasterPwa(pwaApplicationDetail.getMasterPwa()))
