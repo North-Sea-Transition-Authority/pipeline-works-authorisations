@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
-import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationResourceType.*;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationResourceType.PETROLEUM;
 
 import java.time.Instant;
 import java.util.Objects;
