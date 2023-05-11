@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.P
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlockService;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -436,6 +437,37 @@ public class BlockCrossingServiceTest {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
         pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
     assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void isComplete_hydrogenNoDocsRequired_valid() {
+    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isComplete_hydrogenDocsRequired_valid() {
+    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+    when(blockCrossingFileService.isComplete(pwaApplicationDetail)).thenReturn(true);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
+  }
+
+  @Test
+  public void isComplete_hydrogenDocsRequiredAndNotProvided_invalid() {
+    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
+    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
+        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
+  }
+
+  @Test
+  public void isComplete_hydrogenNoBlocks_valid() {
+    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
+    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
   }
 
   @Test
