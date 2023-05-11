@@ -258,11 +258,11 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    if (detail.getPwaApplication().getResourceType().equals(HYDROGEN)) {
-      return true;
+    if (detail.getPwaApplication().getResourceType().equals(HYDROGEN)
+        || padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(detail) > 0) {
+      return (!isDocumentsRequired(detail) || blockCrossingFileService.isComplete(detail));
     }
-    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(detail) > 0
-        && (!isDocumentsRequired(detail) || blockCrossingFileService.isComplete(detail));
+    return false;
   }
 
   @Override
