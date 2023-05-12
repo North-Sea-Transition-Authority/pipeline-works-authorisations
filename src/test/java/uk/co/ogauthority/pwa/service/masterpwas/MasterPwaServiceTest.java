@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.HYDROGEN;
+import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.PETROLEUM;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -75,6 +77,7 @@ public class MasterPwaServiceTest {
 
     assertThat(masterPwaDetail.getStartInstant()).isEqualTo(clock.instant());
     assertThat(masterPwaDetail.getReference()).isEqualTo("REFERENCE");
+    assertThat(masterPwaDetail.getResourceType()).isEqualTo(PETROLEUM);
     assertThat(masterPwaDetail.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.APPLICATION);
 
   }
@@ -126,6 +129,7 @@ public class MasterPwaServiceTest {
     detail.setMasterPwa(masterPwa);
     detail.setReference("ref");
     detail.setLinkedToFields(false);
+    detail.setResourceType(HYDROGEN);
     detail.setPwaLinkedToDescription("some description");
     detail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
 
@@ -142,6 +146,7 @@ public class MasterPwaServiceTest {
     assertThat(pwaDetailArgumentCaptor.getAllValues().get(1)).satisfies(second -> {
       assertThat(second.getMasterPwa()).isEqualTo(masterPwa);
       assertThat(second.getStartInstant()).isEqualTo(clock.instant());
+      assertThat(second.getResourceType()).isEqualTo(HYDROGEN);
       assertThat(second.getReference()).isEqualTo(detail.getReference());
       assertThat(second.getLinkedToFields()).isEqualTo(detail.getLinkedToFields());
       assertThat(second.getPwaLinkedToDescription()).isEqualTo(detail.getPwaLinkedToDescription());

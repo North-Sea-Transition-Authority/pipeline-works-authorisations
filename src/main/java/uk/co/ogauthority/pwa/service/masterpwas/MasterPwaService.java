@@ -105,6 +105,7 @@ public class MasterPwaService {
         masterPwaDetail.getMasterPwa(),
         masterPwaDetailStatus,
         masterPwaDetail.getReference(),
+        masterPwaDetail.getResourceType(),
         clock.instant());
 
     newDetail.setLinkedToFields(masterPwaDetail.getLinkedToFields());
