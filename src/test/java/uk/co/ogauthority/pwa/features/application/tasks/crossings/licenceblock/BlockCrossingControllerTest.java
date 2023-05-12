@@ -92,7 +92,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private HasBlockCrossingForm hasBlocksForm;
+  private AddBlockOptionsForm hasBlocksForm;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
       new WebUserAccount(1),
       EnumSet.allOf(PwaUserPrivilege.class));
@@ -102,8 +102,8 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   @Before
   public void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
-    hasBlocksForm = new HasBlockCrossingForm();
-    hasBlocksForm.setHasMoreBlocks(HasMoreBlocks.NO);
+    hasBlocksForm = new AddBlockOptionsForm();
+    hasBlocksForm.setAddBlockOptions(AddBlockOptions.NO);
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(

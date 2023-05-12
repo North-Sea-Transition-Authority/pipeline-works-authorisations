@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public enum HasMoreBlocks {
+public enum AddBlockOptions {
   YES_NOW("Yes, I want to add one now", 10),
   YES_LATER("Yes, but I will add it later before I submit my application", 20),
   NO("No, I have added all the associated blocks I need to", 30);
@@ -14,17 +14,17 @@ public enum HasMoreBlocks {
   private final String displayName;
   private final Integer displayOrder;
 
-  HasMoreBlocks(String displayName, Integer displayOrder) {
+  AddBlockOptions(String displayName, Integer displayOrder) {
     this.displayName = displayName;
     this.displayOrder = displayOrder;
   }
 
-  public static Map<String, String> getRadioItems() {
-    return Arrays.stream(HasMoreBlocks.values())
-        .sorted(Comparator.comparingInt(HasMoreBlocks::getDisplayOrder))
+  public static Map<String, String> getAddBlockOptions() {
+    return Arrays.stream(AddBlockOptions.values())
+        .sorted(Comparator.comparingInt(AddBlockOptions::getDisplayOrder))
         .collect(Collectors.toMap(
-            HasMoreBlocks::getEnumName,
-            HasMoreBlocks::getDisplayName,
+            AddBlockOptions::getEnumName,
+            AddBlockOptions::getDisplayName,
             (x, y) -> y,
             LinkedHashMap::new
         ));

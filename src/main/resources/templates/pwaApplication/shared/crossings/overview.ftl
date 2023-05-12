@@ -26,7 +26,7 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview" -->
 
-<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.HasBlockCrossingForm" -->
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptionsForm" -->
 
 
 <@defaultPage htmlTitle=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
@@ -45,9 +45,9 @@
         isDocumentsRequired=isDocumentsRequired/>
         <@fdsForm.htmlForm>
             <@fdsRadio.radio
-            radioItems=radioItems
-            path="form.hasMoreBlocks"
-            labelText="Do you want to add another associated licence block?"/>
+            radioItems=addBlockOptions
+            path="form.addBlockOptions"
+            labelText="Do you want to add another block?"/>
             <@fdsAction.button buttonText="Save and continue"/>
         </@fdsForm.htmlForm>
     <#elseif overview == "PIPELINE_CROSSINGS">

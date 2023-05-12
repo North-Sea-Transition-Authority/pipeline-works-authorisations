@@ -7,8 +7,9 @@
 <#macro blockCrossingManagement urlFactory isDocumentsRequired blockCrossings=[] blockCrossingFileViews=[]>
   <h2 class="govuk-heading-l">Blocks</h2>
     <@fdsInsetText.insetText>
-      <span>Add each block the pipelines are located in or will cross.</span><br/>
-      <span>Hydrogen based pipelines do not require an associated block.</span>
+      <span>Add each block the pipelines are located in or will cross.</span>
+      <br/>
+      <span>Hydrogen applications do not require a block to be added.</span>
     </@fdsInsetText.insetText>
 
     <#if blockCrossings?has_content>
