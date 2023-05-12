@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -42,6 +43,8 @@ public abstract class ApplicationWorkAreaItem {
   private final PwaApplicationType applicationType;
 
   private final PwaApplicationStatus applicationStatus;
+
+  private final PwaResourceType resourceType;
 
   private final Instant padStatusSetInstant;
 
@@ -80,6 +83,7 @@ public abstract class ApplicationWorkAreaItem {
     this.pwaApplicationReference = applicationDetailItemView.getPadReference();
     this.masterPwaReference = applicationDetailItemView.getPwaReference();
     this.applicationType = applicationDetailItemView.getApplicationType();
+    this.resourceType = applicationDetailItemView.getResourceType();
     this.applicationStatus = applicationDetailItemView.getPadStatus();
     this.padStatusSetInstant = applicationDetailItemView.getPadStatusTimestamp();
     this.tipFlag = applicationDetailItemView.isTipFlag();

@@ -13,6 +13,7 @@ import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeparatedListConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 @Entity
@@ -35,6 +36,9 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
 
   @Enumerated(EnumType.STRING)
   private PwaApplicationType applicationType;
+
+  @Enumerated(EnumType.STRING)
+  private PwaResourceType resourceType;
 
   @Convert(converter = SemiColonSeparatedListConverter.class)
   @Column(name = "pad_field_name_list")
@@ -163,6 +167,16 @@ public class WorkAreaApplicationDetailSearchItem implements ApplicationDetailIte
   @Override
   public void setApplicationType(PwaApplicationType applicationType) {
     this.applicationType = applicationType;
+  }
+
+  @Override
+  public PwaResourceType getResourceType() {
+    return resourceType;
+  }
+
+  @Override
+  public void setResourceType(PwaResourceType resourceType) {
+    this.resourceType = resourceType;
   }
 
   @Override
