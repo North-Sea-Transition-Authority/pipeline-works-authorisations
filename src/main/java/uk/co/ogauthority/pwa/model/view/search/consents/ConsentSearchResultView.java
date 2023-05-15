@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.model.view.search.consents;
 import java.time.Instant;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ConsentSearchResultView {
@@ -10,6 +11,8 @@ public class ConsentSearchResultView {
   private final Integer pwaId;
 
   private final String pwaReference;
+
+  private final String resourceType;
 
   private final String fieldNameOrOtherReference;
 
@@ -23,13 +26,14 @@ public class ConsentSearchResultView {
 
   public ConsentSearchResultView(Integer pwaId,
                                  String pwaReference,
-                                 String fieldNameOrOtherReference,
+                                 PwaResourceType resourceType, String fieldNameOrOtherReference,
                                  String holderNamesCsv,
                                  Instant firstConsentTimestamp,
                                  String latestConsentReference,
                                  Instant latestConsentTimestamp) {
     this.pwaId = pwaId;
     this.pwaReference = pwaReference;
+    this.resourceType = resourceType.getDisplayName();
     this.fieldNameOrOtherReference = fieldNameOrOtherReference;
     this.holderNamesCsv = holderNamesCsv;
     this.firstConsentTimestampDisplay = DateUtils.formatDate(firstConsentTimestamp);
@@ -42,6 +46,7 @@ public class ConsentSearchResultView {
     return new ConsentSearchResultView(
         consentSearchItem.getPwaId(),
         consentSearchItem.getPwaReference(),
+        consentSearchItem.getResourceType(),
         consentSearchItem.getFieldNameOrOtherReference(),
         consentSearchItem.getHolderNamesCsv(),
         consentSearchItem.getFirstConsentTimestamp(),
@@ -57,6 +62,10 @@ public class ConsentSearchResultView {
 
   public String getPwaReference() {
     return pwaReference;
+  }
+
+  public String getResourceType() {
+    return resourceType;
   }
 
   public String getFieldNameOrOtherReference() {

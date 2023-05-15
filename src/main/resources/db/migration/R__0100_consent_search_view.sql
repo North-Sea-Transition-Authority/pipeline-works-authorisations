@@ -65,6 +65,7 @@ WITH consents_fragment AS (
 SELECT
   pd.pwa_id
 , pd.reference
+, pd.resource_type
 , fcsv.field_or_other_ref_csv
 , LISTAGG(phou.ou_name, ', ') WITHIN GROUP (ORDER BY 1) holder_names_csv
 , initial_consent.consent_timestamp first_consent_timestamp
@@ -85,4 +86,5 @@ GROUP BY
 , latest_consent.reference
 , latest_consent.consent_timestamp
 , fcsv.field_or_other_ref_csv
+, pd.resource_type
 /

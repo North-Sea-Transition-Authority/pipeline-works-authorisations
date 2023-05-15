@@ -1,6 +1,16 @@
 package uk.co.ogauthority.pwa.model.enums;
 
 public enum PwaResourceType {
-  PETROLEUM,
-  HYDROGEN
+  PETROLEUM("Petroleum"),
+  HYDROGEN("Hydrogen");
+
+  private final String displayName;
+
+  PwaResourceType(String displayName) {
+    this.displayName = displayName;
+  }
+
+  public String getDisplayName() {
+    return displayName;
+  }
 }

@@ -59,9 +59,20 @@ public class TaskListControllerModelAndViewCreator {
   public ModelAndView getTaskListModelAndView(PwaApplicationDetail pwaApplicationDetail, List<TaskListGroup> applicationTaskGroups) {
 
     var modelAndView = new ModelAndView(TASK_LIST_TEMPLATE_PATH)
-        .addObject("applicationType", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
-        .addObject("applicationTaskGroups", applicationTaskGroups)
-        .addObject("submissionTask", taskListEntryFactory.createReviewAndSubmitTask(pwaApplicationDetail));
+        .addObject("applicationType",
+            pwaApplicationDetail
+                .getPwaApplicationType()
+                .getDisplayName())
+        .addObject("resourceType",
+            pwaApplicationDetail
+                .getPwaApplication()
+                .getResourceType()
+                .getDisplayName())
+        .addObject("applicationTaskGroups",
+            applicationTaskGroups)
+        .addObject("submissionTask",
+            taskListEntryFactory
+                .createReviewAndSubmitTask(pwaApplicationDetail));
 
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
       modelAndView.addObject("masterPwaReference",
