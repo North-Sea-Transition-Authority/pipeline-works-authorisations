@@ -628,7 +628,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
     endpointTester
-        .addFlashAttribute("form", hasBlocksForm)
+        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
         .setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -643,7 +643,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
     endpointTester
-        .addFlashAttribute("form", hasBlocksForm)
+        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
         .setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -658,7 +658,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
     endpointTester
-        .addFlashAttribute("form", hasBlocksForm)
+        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
         .setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
