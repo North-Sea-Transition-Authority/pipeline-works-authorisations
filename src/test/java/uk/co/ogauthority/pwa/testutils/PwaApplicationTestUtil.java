@@ -7,12 +7,14 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public class PwaApplicationTestUtil {
 
   public static PwaApplicationDetail createApplicationDetail(MasterPwa masterPwa,
                                                              PwaApplicationType applicationType,
+                                                             PwaResourceType resourceType,
                                                              PwaApplicationStatus pwaApplicationStatus,
                                                              int appId,
                                                              int appDetailId,
@@ -23,6 +25,7 @@ public class PwaApplicationTestUtil {
     masterApp.setId(appId);
     masterApp.setAppReference("APP_REFERENCE/" + appId);
     masterApp.setApplicationCreatedTimestamp(Instant.now());
+    masterApp.setResourceType(resourceType);
 
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(masterApp);
@@ -45,14 +48,22 @@ public class PwaApplicationTestUtil {
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId, int appDetailId) {
-    return createDefaultApplicationDetail(applicationType, appId, appDetailId, 1);
+    return createDefaultApplicationDetail(applicationType, PwaResourceType.PETROLEUM, appId, appDetailId, 1);
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, int appId, int appDetailId, int versionNumber) {
+    return createDefaultApplicationDetail(applicationType, PwaResourceType.PETROLEUM, appId, appDetailId, versionNumber);
+  }
+
+  public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, PwaResourceType resourceType, int appId, int appDetailId) {
+    return createDefaultApplicationDetail(applicationType, resourceType, appId, appDetailId, 1);
+  }
+
+  public static PwaApplicationDetail createDefaultApplicationDetail(PwaApplicationType applicationType, PwaResourceType pwaResourceType,  int appId, int appDetailId, int versionNumber) {
     var masterPwa = new MasterPwa(Instant.now());
     masterPwa.setId(10);
 
-    return createApplicationDetail(masterPwa, applicationType, PwaApplicationStatus.DRAFT, appId, appDetailId, versionNumber);
+    return createApplicationDetail(masterPwa, applicationType, pwaResourceType, PwaApplicationStatus.DRAFT, appId, appDetailId, versionNumber);
   }
 
   public static PwaApplicationDetail createDefaultApplicationDetail(int appId, int appDetailId, int versionNumber, Instant submittedTimestamp, PwaApplicationStatus status) {

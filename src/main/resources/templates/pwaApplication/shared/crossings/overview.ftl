@@ -26,6 +26,9 @@
 <#-- @ftlvariable name="crossingAgreementValidationResult" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult" -->
 <#-- @ftlvariable name="overview" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview" -->
 
+<#-- @ftlvariable name="form" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptionsForm" -->
+
+
 <@defaultPage htmlTitle=overview.sectionTitle breadcrumbs=true fullWidthColumn=true>
 
     <#if errorMessage?has_content>
@@ -40,25 +43,36 @@
         blockCrossingFileViews=blockCrossingFiles
         urlFactory=blockCrossingUrlFactory
         isDocumentsRequired=isDocumentsRequired/>
+        <@fdsForm.htmlForm>
+            <@fdsRadio.radio
+            radioItems=addBlockOptions
+            path="form.addBlockOptions"
+            labelText="Do you want to add another block?"/>
+            <@fdsAction.button buttonText="Save and continue"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "PIPELINE_CROSSINGS">
         <@pipelineCrossingManagement.pipelineCrossingManagement
         urlFactory=pipelineCrossingUrlFactory
         pipelineCrossingFileViews=pipelineCrossingFiles
         pipelineCrossings=pipelineCrossings/>
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "CABLE_CROSSINGS">
         <@cableCrossingManagement.cableCrossingManagement
         cableCrossingViews=cableCrossings
         cableCrossingFileViews=cableCrossingFiles
         urlFactory=cableCrossingUrlFactory/>
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     <#elseif overview == "MEDIAN_LINE_CROSSING">
         <@medianLineCrossingManagement.medianLineCrossingManagement
         urlFactory=medianLineUrlFactory
         medianLineAgreementView=medianLineAgreementView!""
         medianLineFileViews=medianLineFiles />
+        <@fdsForm.htmlForm>
+            <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        </@fdsForm.htmlForm>
     </#if>
-
-    <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
-    </@fdsForm.htmlForm>
-
 </@defaultPage>
