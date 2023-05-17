@@ -15,8 +15,7 @@ public class PwaApplicationTestUtil {
   public static PwaApplicationDetail createApplicationDetail(MasterPwa masterPwa,
                                                              PwaApplicationType applicationType,
                                                              PwaResourceType resourceType,
-                                                             PwaApplicationStatus pwaApplicationStatus,
-                                                             int appId,
+                                                             PwaApplicationStatus pwaApplicationStatus, int appId,
                                                              int appDetailId,
                                                              int versionNumber) {
     var masterApp = new PwaApplication();
