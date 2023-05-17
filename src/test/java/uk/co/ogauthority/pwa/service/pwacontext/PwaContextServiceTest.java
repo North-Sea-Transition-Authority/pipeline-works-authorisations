@@ -18,6 +18,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
@@ -59,6 +60,7 @@ public class PwaContextServiceTest {
     var consentSearchItem = new ConsentSearchItem();
     consentSearchItem.setFirstConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentTimestamp(Instant.now());
+    consentSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     consentSearchResultView = ConsentSearchResultView.fromSearchItem(consentSearchItem);
 
     contextService = new PwaContextService(pwaPermissionService, masterPwaService, consentSearchService, pipelineService);

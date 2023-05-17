@@ -59,7 +59,7 @@ public class CaseSummaryViewServiceTest {
         .collect(Collectors.toList());
 
     assertThat(caseSummaryView.getPwaApplicationRef()).isEqualTo(applicationDetailView.getPadReference());
-    assertThat(caseSummaryView.getPwaApplicationTypeDisplay()).isEqualTo(applicationDetailView.getApplicationType().getDisplayName());
+    assertThat(caseSummaryView.getPwaApplicationTypeDisplay()).isEqualTo(applicationDetailView.getApplicationType().getDisplayName() + " - " + applicationDetailView.getResourceType().getDisplayName());
     assertThat(holderNameStringList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadHolderNameList());
     assertThat(fieldNameList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadFields());
     assertThat(caseSummaryView.getCaseOfficerName()).isEqualTo(applicationDetailView.getCaseOfficerName());
