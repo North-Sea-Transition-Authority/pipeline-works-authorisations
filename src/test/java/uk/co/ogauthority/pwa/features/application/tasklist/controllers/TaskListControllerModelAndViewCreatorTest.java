@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.Appl
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaView;
@@ -85,6 +86,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(1);
@@ -123,6 +125,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(2);
@@ -164,6 +167,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(2);

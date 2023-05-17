@@ -10,6 +10,7 @@ import java.util.function.Function;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -146,6 +147,7 @@ public class ApplicationWorkAreaItemTestUtil {
                                                                        Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
     applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now());
 
