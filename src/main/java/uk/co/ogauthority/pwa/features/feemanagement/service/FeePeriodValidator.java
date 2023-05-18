@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.feemanagement.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -26,17 +28,24 @@ public class FeePeriodValidator implements Validator {
         newPeriodForm.getPeriodStartDate(),
         errors);
 
-    ValidatorUtils.validateDatePickerDateIsPresentOrFuture(
+    ValidatorUtils.validateDatePickerDateIsOnOrAfterComparisonDate(
         "periodStartDate",
         "Period start date",
         newPeriodForm.getPeriodStartDate(),
-        errors);
+        LocalDate.now().plusDays(1),
+        "Period start date",
+        errors
+    );
 
     //Work through each of the different types of application and validate their cost.
     //Each entry consists of ["applicationType:applicationFeeType", "cost"]
     for (var pennyAmount : newPeriodForm.getApplicationCostMap().entrySet()) {
       try {
         if (!CurrencyUtils.isValueCurrency(Double.valueOf(pennyAmount.getValue()))) {
+          if (BigDecimal.valueOf(Double.valueOf(pennyAmount.getValue())).scale() > 2) {
+            throw new NumberFormatException();
+          }
+
           var fieldKey = "applicationCostMap[" + pennyAmount.getKey() + "]";
 
           //Application type is for New PWA's or changes to existing ones.
@@ -61,7 +70,7 @@ public class FeePeriodValidator implements Validator {
         var message = applicationFeeType.getDisplayName() +
             " for " +
             applicationType.getDisplayName() +
-            " must be a number";
+            " must include pence, like 123.45 or 156.00";
 
         errors.rejectValue(fieldKey, "newPeriod.feeValue.numberFormat", message);
       }
