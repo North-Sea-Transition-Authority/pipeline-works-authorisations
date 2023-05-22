@@ -12,6 +12,7 @@
         <@fdsRadio.radio
         path="form.resourceType"
         radioItems=resourceOptionsMap
+        labelText="What application type is this?"/>
         labelText="What resource is this application for?"
         fieldsetHeadingClass="govuk-fieldset__legend--l"
         fieldsetHeadingSize="h1"/>

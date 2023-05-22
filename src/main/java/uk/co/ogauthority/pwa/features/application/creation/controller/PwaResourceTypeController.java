@@ -15,7 +15,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Controller
@@ -27,9 +27,9 @@ public class PwaResourceTypeController {
    * Render of start page for initial PWA application.
    */
   @GetMapping
-  public ModelAndView renderResourceTypeForm(@ModelAttribute("form") PwaResourceTypeForm form) {
+  public ModelAndView renderResourceTypeForm(@ModelAttribute("form") PwaHolderForm form) {
     Map<String, String> resourceOptionsMap = Arrays.stream(PwaResourceType.values())
-        .collect(Collectors.toMap(PwaResourceType::name, resourceType -> "PWA - " + resourceType.getDisplayName()));
+        .collect(Collectors.toMap(PwaResourceType::name, PwaResourceType::getDisplayName));
 
     return new ModelAndView("pwaApplication/form/resourceType")
         .addObject("resourceOptionsMap", resourceOptionsMap)
@@ -41,10 +41,11 @@ public class PwaResourceTypeController {
    */
   @PostMapping
   public ModelAndView postResourceType(AuthenticatedUserAccount user,
-                                      @ModelAttribute("form") PwaResourceTypeForm form,
+                                      @ModelAttribute("form") PwaHolderForm form,
                                       RedirectAttributes redirectAttributes) {
 
-    return ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage(form.getResourceType()));
+    redirectAttributes.addFlashAttribute("form", form);
+    return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(form, null));
   }
 
 }

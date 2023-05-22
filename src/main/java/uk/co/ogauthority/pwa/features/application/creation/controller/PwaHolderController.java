@@ -159,15 +159,11 @@ public class PwaHolderController {
             .map(PortalOrganisationGroup::getName)
             .collect(Collectors.toList());
 
-    Map<String, String> resourceOptionsMap = Arrays.stream(PwaResourceType.values())
-        .collect(Collectors.toMap(PwaResourceType::name, PwaResourceType::getDisplayName));
-
     return new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("ogList", ogList)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("errorList", List.of())
-        .addObject("resourceOptionsMap", resourceOptionsMap)
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null)
         .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);
   }
