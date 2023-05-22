@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.creation.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.base.Stopwatch;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
@@ -126,7 +128,7 @@ public class PwaHolderController {
                       user.getWuaId())));
 
           PwaApplication pwaApplication = pwaApplicationCreationService
-              .createInitialPwaApplication(organisationUnit, user).getPwaApplication();
+              .createInitialPwaApplication(organisationUnit, user, form.getResourceType()).getPwaApplication();
 
           var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
 
@@ -154,11 +156,15 @@ public class PwaHolderController {
             .map(PortalOrganisationGroup::getName)
             .collect(Collectors.toList());
 
+    Map<String, String> resourceOptionsMap = Arrays.stream(PwaResourceType.values())
+        .collect(Collectors.toMap(PwaResourceType::name, PwaResourceType::getDisplayName));
+
     return new ModelAndView("pwaApplication/form/holder")
         .addObject("ouMap", ouMap)
         .addObject("ogList", ogList)
         .addObject("workareaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .addObject("errorList", List.of())
+        .addObject("resourceOptionsMap", resourceOptionsMap)
         .addObject("hasHolderSet", form != null && form.getHolderOuId() != null)
         .addObject("ogaServiceDeskEmail", ogaServiceDeskEmail);
   }

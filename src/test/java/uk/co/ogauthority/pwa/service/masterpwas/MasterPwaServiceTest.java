@@ -64,7 +64,7 @@ public class MasterPwaServiceTest {
 
     var user = new WebUserAccount();
 
-    masterPwaService.createMasterPwa(MasterPwaDetailStatus.APPLICATION, "REFERENCE");
+    masterPwaService.createMasterPwa(MasterPwaDetailStatus.APPLICATION, "REFERENCE", PETROLEUM);
 
     verify(masterPwaRepository, times(1)).save(pwaArgumentCaptor.capture());
     verify(masterPwaDetailRepository, times(1)).save(pwaDetailArgumentCaptor.capture());
@@ -106,7 +106,7 @@ public class MasterPwaServiceTest {
   @Test
   public void updateDetailFieldInfo_setsValuesAsExpected() {
     var masterPwa = new MasterPwa();
-    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100));
+    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100), PETROLEUM);
     detail.setLinkedToFields(false);
     detail.setPwaLinkedToDescription("some description");
 

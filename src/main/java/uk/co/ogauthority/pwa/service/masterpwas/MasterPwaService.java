@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 
@@ -31,13 +32,13 @@ public class MasterPwaService {
   }
 
   @Transactional
-  public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference) {
+  public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference, PwaResourceType resourceType) {
 
     // Changing this code? have you changed the migration script?
     var creationInstant = clock.instant();
 
     var masterPwa = new MasterPwa(creationInstant);
-    var masterPwaDetail = new MasterPwaDetail(masterPwa, masterPwaDetailStatus, reference, creationInstant);
+    var masterPwaDetail = new MasterPwaDetail(masterPwa, masterPwaDetailStatus, reference, creationInstant, resourceType);
 
     masterPwaRepository.save(masterPwa);
     masterPwaDetailRepository.save(masterPwaDetail);

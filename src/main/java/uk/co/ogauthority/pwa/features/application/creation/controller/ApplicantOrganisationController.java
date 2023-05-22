@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.ApplicantOrganisationForm;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -155,7 +156,7 @@ public class ApplicantOrganisationController {
                   String.format("Couldn't find an organisation unit with id [%s]", form.getApplicantOrganisationOuId())));
 
           var newAppDetail = pwaApplicationCreationService
-              .createVariationPwaApplication(masterPwa, pwaApplicationType, applicantOrganisation, user);
+              .createVariationPwaApplication(masterPwa, pwaApplicationType, PwaResourceType.PETROLEUM, applicantOrganisation, user);
 
           return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 

@@ -53,6 +53,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
@@ -120,7 +121,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     when(pickedPwaRetrievalService.getPickedConsentedPwa(any(), any())).thenReturn(masterPwa);
     when(pickedPwaRetrievalService.getPickedNonConsentedPwa(any(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
-    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any(), any())).thenAnswer(invocation -> {
+    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
               .filter(arg -> arg instanceof PwaApplicationType)
               .map(o -> (PwaApplicationType) o)
@@ -230,7 +231,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection());
 
     verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
-    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, applicantOrganisation, user);
+    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, applicantOrganisation, user);
 
   }
 

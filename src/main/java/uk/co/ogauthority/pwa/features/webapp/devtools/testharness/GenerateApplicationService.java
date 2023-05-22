@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appsectiongene
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 
 @Service
 @Profile("test-harness")
@@ -58,7 +59,7 @@ public class GenerateApplicationService {
   PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser) {
     var applicantOrgUnit = testHarnessOrganisationUnitService
         .getFirstOrgUnitUserCanAccessOrThrow(applicantUser);
-    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrgUnit, applicantUser);
+    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrgUnit, applicantUser, PwaResourceType.PETROLEUM);
     setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
   }
@@ -83,6 +84,7 @@ public class GenerateApplicationService {
     var pwaApplicationDetail = pwaApplicationCreationService.createVariationPwaApplication(
         pickedPwa,
         pwaApplicationType,
+        PwaResourceType.PETROLEUM,
         applicantOrgUnit,
         applicantUser);
 

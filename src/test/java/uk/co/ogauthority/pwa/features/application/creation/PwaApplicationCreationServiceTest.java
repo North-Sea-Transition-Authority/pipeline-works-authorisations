@@ -16,7 +16,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.persistence.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -135,9 +134,9 @@ public class PwaApplicationCreationServiceTest {
     WebUserAccount user = new WebUserAccount(123);
 
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
-    when(masterPwaService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
 
-    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user);
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user, PwaResourceType.PETROLEUM);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
@@ -224,7 +223,7 @@ public class PwaApplicationCreationServiceTest {
   public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
 
     for(PwaApplicationType appType : EnumSet.complementOf(EXPECTED_HUOO_ROLE_CREATION_TYPES)){
-      pwaApplicationCreationService.createVariationPwaApplication(masterPwa, appType, applicantOrganisationUnit, user);
+      pwaApplicationCreationService.createVariationPwaApplication(masterPwa, appType, PwaResourceType.PETROLEUM, applicantOrganisationUnit, user);
     }
 
     verifyNoInteractions(padOrganisationRoleService);
@@ -245,6 +244,7 @@ public class PwaApplicationCreationServiceTest {
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
         masterPwa,
         pwaApplicationType,
+        PwaResourceType.PETROLEUM,
         applicantOrganisationUnit,
         user);
 
