@@ -17,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -89,10 +90,10 @@ public class PwaHolderController {
   /**
    * Screen allowing user to select the holder for a PWA.
    */
-  @GetMapping("/holder")
+  @GetMapping("/holder/{resourceType}")
   public ModelAndView renderHolderScreen(
       @ModelAttribute("form") PwaHolderForm form,
-      PwaResourceType resourceType,
+      @PathVariable PwaResourceType resourceType,
       AuthenticatedUserAccount user) {
 
     return getHolderModelAndView(user, form);
@@ -102,9 +103,10 @@ public class PwaHolderController {
   /**
    * Handle storage of holder selected by user.
    */
-  @PostMapping("/holder")
+  @PostMapping("/holder/{resourceType}")
   public ModelAndView postHolderScreen(
       @Valid @ModelAttribute("form") PwaHolderForm form,
+      @PathVariable PwaResourceType resourceType,
       BindingResult bindingResult,
       AuthenticatedUserAccount user) {
 
@@ -129,7 +131,7 @@ public class PwaHolderController {
                       user.getWuaId())));
 
           PwaApplication pwaApplication = pwaApplicationCreationService
-              .createInitialPwaApplication(organisationUnit, user, form.getResourceType()).getPwaApplication();
+              .createInitialPwaApplication(organisationUnit, user, resourceType).getPwaApplication();
 
           var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
 

@@ -153,7 +153,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, user)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, user)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -168,7 +168,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, userNoPrivs)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, userNoPrivs)))
         .with(authenticatedUserAndSession(userNoPrivs))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -185,7 +185,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, null)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", ""))
@@ -206,7 +206,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
     when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, null)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "44"))
@@ -228,7 +228,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     var form = new PwaHolderForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    controller.postHolderScreen(form, bindingResult, user);
+    controller.postHolderScreen(form, PwaResourceType.PETROLEUM, bindingResult, user);
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Initial application started");
   }

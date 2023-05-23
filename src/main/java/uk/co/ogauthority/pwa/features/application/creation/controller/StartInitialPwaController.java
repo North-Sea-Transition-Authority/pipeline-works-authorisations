@@ -4,20 +4,18 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
-import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Controller
-@RequestMapping("/pwa-application/initial/new")
+@RequestMapping("/pwa-application/initial/new/{resourceType}")
 public class StartInitialPwaController {
 
 
@@ -25,9 +23,9 @@ public class StartInitialPwaController {
    * Render of start page for initial PWA application.
    */
   @GetMapping
-  public ModelAndView renderStartPage(@ModelAttribute("form") PwaHolderForm startForm) {
+  public ModelAndView renderStartPage(@PathVariable PwaResourceType resourceType) {
     return new ModelAndView("pwaApplication/startPages/initial")
-        .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null, null, startForm.getResourceType())))
+        .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null, resourceType)))
         .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL))
         .addObject("formattedMedianLineDuration",
             ApplicationTypeUtils.getFormattedMedianLineDuration(PwaApplicationType.INITIAL));
@@ -38,8 +36,7 @@ public class StartInitialPwaController {
    */
   @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user,
-                                      RedirectAttributes redirectAttributes,
-                                      PwaResourceType resourceType) {
+                                      @PathVariable PwaResourceType resourceType) {
     return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(null, resourceType, null));
   }
 
