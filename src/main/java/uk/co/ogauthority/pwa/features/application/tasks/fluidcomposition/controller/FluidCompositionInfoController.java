@@ -93,7 +93,7 @@ public class FluidCompositionInfoController {
   private ModelAndView getAddFluidCompositionInfoModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/fluidCompositionForm");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("chemicals", Chemical.asList())
+        .addObject("chemicals", Chemical.asList(pwaApplicationDetail.getPwaApplication().getResourceType()))
         .addObject("fluidCompositionOptions", FluidCompositionOption.asList());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
