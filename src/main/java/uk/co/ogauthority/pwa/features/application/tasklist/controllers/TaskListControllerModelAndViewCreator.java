@@ -65,7 +65,6 @@ public class TaskListControllerModelAndViewCreator {
                 .getDisplayName())
         .addObject("resourceType",
             pwaApplicationDetail
-                .getPwaApplication()
                 .getResourceType()
                 .getDisplayName())
         .addObject("applicationTaskGroups",

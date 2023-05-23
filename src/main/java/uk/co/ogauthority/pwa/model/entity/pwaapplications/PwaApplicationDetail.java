@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.datainfra
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -402,6 +403,10 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setDeletingPersonId(PersonId deletingPersonId) {
     this.deletingPersonId = deletingPersonId;
+  }
+
+  public PwaResourceType getResourceType() {
+    return getPwaApplication().getResourceType();
   }
 
   @Override
