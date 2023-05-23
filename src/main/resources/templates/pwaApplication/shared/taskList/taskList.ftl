@@ -3,7 +3,7 @@
 
 <#-- @ftlvariable name="applicationTaskGroups" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup>" -->
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry" -->
-<#-- @ftlvariable name="applicationType" type="java.lang.String" -->
+<#-- @ftlvariable name="applicationDisplay" type="java.lang.String" -->
 <#-- @ftlvariable name="resourceType" type="java.lang.String" -->
 <#-- @ftlvariable name="masterPwaReference" type="java.lang.String" -->
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
@@ -12,7 +12,7 @@
 <#-- @ftlvariable name="deleteAppUrl" type="java.lang.String" -->
 
 
-<#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationType} application - ${resourceType}", "${applicationType} application - ${resourceType}")  />
+<#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationDisplay}", "${applicationDisplay}")  />
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" breadcrumbs=true>
 
