@@ -222,7 +222,7 @@ public abstract class ApplicationWorkAreaItem {
     columnItemList.add(
         WorkAreaColumnItemView.createTagItem(
             WorkAreaColumnItemView.TagType.NONE,
-            this.applicationType.getDisplayName() + " (" + this.resourceType.getDisplayName() + ")"
+            this.applicationType.getDisplayName() + this.resourceType.getAppendixBracket()
         ));
 
     if (this.applicationType != PwaApplicationType.INITIAL || this.applicationStatus == PwaApplicationStatus.COMPLETE) {
