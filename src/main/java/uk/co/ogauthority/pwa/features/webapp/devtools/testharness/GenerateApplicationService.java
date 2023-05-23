@@ -59,7 +59,11 @@ public class GenerateApplicationService {
   PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser) {
     var applicantOrgUnit = testHarnessOrganisationUnitService
         .getFirstOrgUnitUserCanAccessOrThrow(applicantUser);
-    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrgUnit, applicantUser, PwaResourceType.PETROLEUM);
+    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrgUnit,
+        applicantUser,
+        PwaResourceType.PETROLEUM
+    );
     setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
   }

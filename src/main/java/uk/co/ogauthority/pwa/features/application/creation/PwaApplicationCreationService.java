@@ -133,7 +133,14 @@ public class PwaApplicationCreationService {
 
     var masterPwa = masterPwaDetail.getMasterPwa();
 
-    var newApplication = createApplication(masterPwa, PwaApplicationType.INITIAL, resourceType, 0, createdByUser, applicantOrganisationUnit);
+    var newApplication = createApplication(
+        masterPwa,
+        PwaApplicationType.INITIAL,
+        resourceType,
+        0,
+        createdByUser,
+        applicantOrganisationUnit
+    );
     masterPwaService.updateDetailReference(masterPwaDetail, newApplication.getPwaApplicationRef());
 
     return newApplication;
