@@ -14,7 +14,7 @@ public enum PwaResourceType {
     return displayName;
   }
 
-  public String getAppendeixHyphen() {
+  public String getAppendixHyphen() {
     return " - " + getDisplayName();
   }
 

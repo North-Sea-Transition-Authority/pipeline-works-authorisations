@@ -40,7 +40,7 @@ public class CaseSummaryView {
                          Integer versionNo, String caseSummaryHeaderId) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
-    this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName() + resourceType.getAppendeixHyphen();
+    this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName() + resourceType.getAppendixHyphen();
     this.pwaApplicationRef = pwaApplicationRef;
     this.holderNames = holderNames;
     this.fieldNames = fieldNames;
