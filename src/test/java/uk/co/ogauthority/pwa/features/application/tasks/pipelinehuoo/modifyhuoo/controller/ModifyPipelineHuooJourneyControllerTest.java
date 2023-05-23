@@ -70,12 +70,8 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
   private final int APP_ID = 10;
   private final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
-  private final String PICKED_PIPELINE_STRING = "123++CONSENTED,123++APPLICATION";
-  private final String PICKED_ORG_STRING = "1,100";
-  private final Set<String> PICKED_PIPELINE_IDS = Set.of(PICKED_PIPELINE_STRING.split(","));
-  private final Set<Integer> PICKED_ORG_IDS = Set.of(PICKED_ORG_STRING.split(",")).stream()
-      .map(Integer::valueOf).collect(
-          Collectors.toSet());
+  private final Set<String> PICKED_PIPELINE_IDS = Set.of("123++CONSENTED", "123++APPLICATION");
+  private final Set<Integer> PICKED_ORG_IDS = Set.of(1, 100);
 
 
   private final String FORM_PICKED_PIPELINE_ATTR = "pickedPipelineStrings";
@@ -211,7 +207,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_STRING)
+        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
         .andExpect(status().is3xxRedirection())
         .andExpect(result -> result.getModelAndView().getViewName().equals(
@@ -350,7 +346,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_STRING)
+        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
         .andExpect(status().is3xxRedirection());
 
@@ -360,7 +356,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, String.format("%s", TreatyAgreement.ANY_TREATY_COUNTRY))
     )
         .andExpect(status().is3xxRedirection());
@@ -394,7 +390,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_STRING)
+        .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
         .andExpect(status().is3xxRedirection());
 
@@ -405,7 +401,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.ANY_TREATY_COUNTRY, TreatyAgreement.ANY_TREATY_COUNTRY))
     )
         .andExpect(status().is3xxRedirection());
@@ -433,7 +429,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
     )
         .andExpect(status().isOk());
 
@@ -491,7 +487,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         )))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_STRING)
+        .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, TreatyAgreement.ANY_TREATY_COUNTRY.name())
         .param(UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT, "")
     )
