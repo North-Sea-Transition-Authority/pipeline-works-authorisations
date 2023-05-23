@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
-import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.HYDROGEN;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.HYDROGEN;
 
 import java.time.Clock;
 import java.util.ArrayList;

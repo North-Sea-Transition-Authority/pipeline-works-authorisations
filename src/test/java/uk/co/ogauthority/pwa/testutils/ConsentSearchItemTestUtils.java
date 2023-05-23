@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 
 public class ConsentSearchItemTestUtils {
 

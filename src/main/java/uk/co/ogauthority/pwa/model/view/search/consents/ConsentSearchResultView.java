@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.model.view.search.consents;
 
 import java.time.Instant;
 import java.util.Objects;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class ConsentSearchResultView {

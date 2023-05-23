@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications.search;
 import java.time.Instant;
 import java.util.List;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public class ApplicationDetailViewTestUtil {

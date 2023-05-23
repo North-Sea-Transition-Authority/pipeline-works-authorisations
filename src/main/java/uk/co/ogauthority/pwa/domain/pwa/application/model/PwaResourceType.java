@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.enums;
+package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
 public enum PwaResourceType {
   PETROLEUM("Petroleum"),
@@ -12,13 +12,5 @@ public enum PwaResourceType {
 
   public String getDisplayName() {
     return displayName;
-  }
-
-  public String getAppendixHyphen() {
-    return " - " + getDisplayName();
-  }
-
-  public String getAppendixBracket() {
-    return " (" + getDisplayName() + ")";
   }
 }

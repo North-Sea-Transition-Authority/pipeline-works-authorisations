@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.HYDROGEN;
-import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.PETROLEUM;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.HYDROGEN;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
 
 import java.time.Clock;
 import java.time.Instant;
