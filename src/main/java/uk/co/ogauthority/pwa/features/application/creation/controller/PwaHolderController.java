@@ -92,6 +92,7 @@ public class PwaHolderController {
   @GetMapping("/holder")
   public ModelAndView renderHolderScreen(
       @ModelAttribute("form") PwaHolderForm form,
+      PwaResourceType resourceType,
       AuthenticatedUserAccount user) {
 
     return getHolderModelAndView(user, form);

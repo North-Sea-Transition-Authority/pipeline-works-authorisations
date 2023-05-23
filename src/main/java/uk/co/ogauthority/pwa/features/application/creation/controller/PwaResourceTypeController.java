@@ -45,7 +45,7 @@ public class PwaResourceTypeController {
                                       RedirectAttributes redirectAttributes) {
 
     redirectAttributes.addFlashAttribute("form", form);
-    return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(form, null));
+    return ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage(form));
   }
 
 }

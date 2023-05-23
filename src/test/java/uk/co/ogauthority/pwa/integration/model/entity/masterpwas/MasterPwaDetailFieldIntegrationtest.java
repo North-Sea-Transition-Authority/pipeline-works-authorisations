@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -54,7 +55,7 @@ public class MasterPwaDetailFieldIntegrationtest {
     masterPwa.setId(null);
     entityManager.persist(masterPwa);
 
-    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now());
+    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
     entityManager.persist(masterPwaDetail);
 
   }

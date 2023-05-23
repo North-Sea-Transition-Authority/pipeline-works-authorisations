@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -59,7 +60,7 @@ public class FieldWriterTest {
     pwaConsent.setMasterPwa(masterPwa);
     pwaConsent.setSourcePwaApplication(detail.getPwaApplication());
 
-    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now());
+    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
 
     fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padFieldService);
 

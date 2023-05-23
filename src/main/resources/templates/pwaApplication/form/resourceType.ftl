@@ -12,7 +12,9 @@
         <@fdsRadio.radio
         path="form.resourceType"
         radioItems=resourceOptionsMap
-        labelText="What application type is this?"/>
+        labelText="What resource is this application for?"
+        fieldsetHeadingClass="govuk-fieldset__legend--l"
+        fieldsetHeadingSize="h1"/>
         <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />
     </@fdsForm.htmlForm>
 
