@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications;
 
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
+
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 
 public class PwaResourceTypeForm {
   private PwaResourceType resourceType;
