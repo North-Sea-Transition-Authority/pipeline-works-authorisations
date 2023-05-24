@@ -99,7 +99,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM))
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM))
     );
 
   }
