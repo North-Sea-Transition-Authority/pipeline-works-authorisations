@@ -89,7 +89,7 @@ public class PwaHolderController {
   /**
    * Screen allowing user to select the holder for a PWA.
    */
-  @GetMapping("/holder/{resourceType}")
+  @GetMapping("/{resourceType}/holder")
   public ModelAndView renderHolderScreen(
       @ModelAttribute("form") PwaHolderForm form,
       @PathVariable PwaResourceType resourceType,
@@ -102,7 +102,7 @@ public class PwaHolderController {
   /**
    * Handle storage of holder selected by user.
    */
-  @PostMapping("/holder/{resourceType}")
+  @PostMapping("/{resourceType}/holder")
   public ModelAndView postHolderScreen(
       @Valid @ModelAttribute("form") PwaHolderForm form,
       @PathVariable PwaResourceType resourceType,
