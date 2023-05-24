@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
@@ -59,9 +60,16 @@ public class TaskListControllerModelAndViewCreator {
   public ModelAndView getTaskListModelAndView(PwaApplicationDetail pwaApplicationDetail, List<TaskListGroup> applicationTaskGroups) {
 
     var modelAndView = new ModelAndView(TASK_LIST_TEMPLATE_PATH)
-        .addObject("applicationType", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
-        .addObject("applicationTaskGroups", applicationTaskGroups)
-        .addObject("submissionTask", taskListEntryFactory.createReviewAndSubmitTask(pwaApplicationDetail));
+        .addObject("applicationDisplay",
+            PwaApplicationDisplayUtils.getApplicationTypeDisplay(
+                pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getResourceType()
+            ))
+        .addObject("applicationTaskGroups",
+            applicationTaskGroups)
+        .addObject("submissionTask",
+            taskListEntryFactory
+                .createReviewAndSubmitTask(pwaApplicationDetail));
 
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
       modelAndView.addObject("masterPwaReference",

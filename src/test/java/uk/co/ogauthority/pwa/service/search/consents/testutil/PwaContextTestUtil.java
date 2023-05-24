@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -22,7 +23,7 @@ public class PwaContextTestUtil {
 
 
   private static ConsentSearchResultView createConsentSearchResultView() {
-    return new ConsentSearchResultView(PWA_ID1, PWA_REF1, null, null,
+    return new ConsentSearchResultView(PWA_ID1, PWA_REF1, PwaResourceType.PETROLEUM, null, null,
         Instant.now(), null, Instant.now());
   }
 

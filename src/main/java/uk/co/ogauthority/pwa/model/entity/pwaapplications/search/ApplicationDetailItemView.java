@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.util.List;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -22,6 +23,8 @@ public interface ApplicationDetailItemView {
   String getPadReference();
 
   PwaApplicationType getApplicationType();
+
+  PwaResourceType getResourceType();
 
   List<String> getPadFields();
 
@@ -88,6 +91,9 @@ public interface ApplicationDetailItemView {
 
   @VisibleForTesting
   void setApplicationType(PwaApplicationType applicationType);
+
+  @VisibleForTesting
+  void setResourceType(PwaResourceType resourceType);
 
   @VisibleForTesting
   void setPadFields(List<String> padFields);

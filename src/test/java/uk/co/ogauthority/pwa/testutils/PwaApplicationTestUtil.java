@@ -4,10 +4,10 @@ import java.time.Instant;
 import java.util.function.Consumer;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public class PwaApplicationTestUtil {
@@ -15,8 +15,7 @@ public class PwaApplicationTestUtil {
   public static PwaApplicationDetail createApplicationDetail(MasterPwa masterPwa,
                                                              PwaApplicationType applicationType,
                                                              PwaResourceType resourceType,
-                                                             PwaApplicationStatus pwaApplicationStatus,
-                                                             int appId,
+                                                             PwaApplicationStatus pwaApplicationStatus, int appId,
                                                              int appDetailId,
                                                              int versionNumber) {
     var masterApp = new PwaApplication();

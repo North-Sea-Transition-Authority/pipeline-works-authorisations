@@ -5,7 +5,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.summary.controller.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -29,6 +31,7 @@ public class CaseSummaryView {
 
   public CaseSummaryView(Integer pwaApplicationId,
                          PwaApplicationType pwaApplicationType,
+                         PwaResourceType resourceType,
                          String pwaApplicationRef,
                          String holderNames,
                          String fieldNames,
@@ -38,7 +41,7 @@ public class CaseSummaryView {
                          Integer versionNo, String caseSummaryHeaderId) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
-    this.pwaApplicationTypeDisplay = pwaApplicationType.getDisplayName();
+    this.pwaApplicationTypeDisplay = PwaApplicationDisplayUtils.getApplicationTypeDisplay(pwaApplicationType, resourceType);
     this.pwaApplicationRef = pwaApplicationRef;
     this.holderNames = holderNames;
     this.fieldNames = fieldNames;
@@ -69,6 +72,7 @@ public class CaseSummaryView {
     return new CaseSummaryView(
         appWorkAreaItem.getPwaApplicationId(),
         appType,
+        detailViewItem.getResourceType(),
         appWorkAreaItem.getApplicationReference(),
         holders,
         fields,

@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
@@ -85,6 +86,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(1);
@@ -123,6 +125,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(2);
@@ -164,6 +167,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     var detail = new PwaApplicationDetail();
     detail.setPwaApplication(pwaApplication);
     detail.setVersionNo(2);

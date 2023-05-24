@@ -8,6 +8,7 @@ SELECT
 , pd.reference pwa_reference
 , pa.app_reference pad_reference
 , pa.application_type
+, pa.resource_type
 
 , pad.status pad_status
 , pad.created_timestamp pad_created_timestamp
