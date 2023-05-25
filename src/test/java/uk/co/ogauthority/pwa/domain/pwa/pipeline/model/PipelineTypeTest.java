@@ -34,7 +34,7 @@ public class PipelineTypeTest {
 
   @Test
   public void petroleumType_SpecificExclusions() {
-    var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.HYDROGEN)
+    var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM)
         .collect(Collectors.toSet());
     assertThat(hydrogenPipelines).doesNotContainAnyElementsOf(List.of(
         PipelineType.HYDROGEN_TRANSPORT
