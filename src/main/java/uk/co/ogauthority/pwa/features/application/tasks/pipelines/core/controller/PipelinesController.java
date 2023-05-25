@@ -90,8 +90,7 @@ public class PipelinesController {
                                                       PadPipeline padPipeline) {
 
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/addEditPipeline")
-        .addObject("pipelineTypes", PipelineType.streamDisplayValues()
-            .filter(pipelineType -> pipelineType.getApplicableResourceType().contains(detail.getResourceType()))
+        .addObject("pipelineTypes", PipelineType.streamDisplayValues(detail.getResourceType())
             .collect(StreamUtils.toLinkedHashMap(Enum::name, PipelineType::getDisplayName)))
         .addObject("longDirections", LongitudeDirection.stream()
             .collect(StreamUtils.toLinkedHashMap(Enum::name, LongitudeDirection::getDisplayText)))
