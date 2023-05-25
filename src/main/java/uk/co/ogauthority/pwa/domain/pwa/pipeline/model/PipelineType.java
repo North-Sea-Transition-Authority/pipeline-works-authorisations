@@ -134,8 +134,9 @@ public enum PipelineType implements DiffableAsString {
     return Stream.of(PipelineType.values());
   }
 
-  public static Stream<PipelineType> streamDisplayValues() {
+  public static Stream<PipelineType> streamDisplayValues(PwaResourceType resourceType) {
     return Stream.of(PipelineType.values())
+        .filter(pipelineType -> pipelineType.getApplicableResourceType().contains(resourceType))
         .filter(pipelineType -> pipelineType.getDisplayOrder() >= 0);
   }
 
