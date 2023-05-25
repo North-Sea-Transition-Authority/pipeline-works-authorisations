@@ -8,7 +8,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 
 @Entity
 @Table(name = "vw_consent_search")

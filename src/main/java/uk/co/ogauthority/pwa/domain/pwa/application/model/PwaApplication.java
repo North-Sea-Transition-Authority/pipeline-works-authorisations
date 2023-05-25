@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
-import static uk.co.ogauthority.pwa.model.enums.PwaResourceType.PETROLEUM;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -23,7 +23,6 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.OrganisationUnitIdConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 
 @Entity

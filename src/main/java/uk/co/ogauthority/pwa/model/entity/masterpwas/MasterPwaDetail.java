@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.masterpwas;
 
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
+
 import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -12,8 +14,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 
 @Entity
 @Table(name = "pwa_details")

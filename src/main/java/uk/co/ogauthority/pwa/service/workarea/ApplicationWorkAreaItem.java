@@ -12,12 +12,13 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -222,7 +223,7 @@ public abstract class ApplicationWorkAreaItem {
     columnItemList.add(
         WorkAreaColumnItemView.createTagItem(
             WorkAreaColumnItemView.TagType.NONE,
-            this.applicationType.getDisplayName() + " (" + this.resourceType.getDisplayName() + ")"
+            PwaApplicationDisplayUtils.getApplicationTypeDisplay(applicationType, resourceType)
         ));
 
     if (this.applicationType != PwaApplicationType.INITIAL || this.applicationStatus == PwaApplicationStatus.COMPLETE) {

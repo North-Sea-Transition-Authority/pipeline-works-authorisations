@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
@@ -29,7 +30,6 @@ import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalSer
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;

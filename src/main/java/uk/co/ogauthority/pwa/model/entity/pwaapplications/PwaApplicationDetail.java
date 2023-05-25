@@ -17,6 +17,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.datainfrastructure.PipelinePropertyPhaseConverter;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -402,6 +403,10 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setDeletingPersonId(PersonId deletingPersonId) {
     this.deletingPersonId = deletingPersonId;
+  }
+
+  public PwaResourceType getResourceType() {
+    return getPwaApplication().getResourceType();
   }
 
   @Override

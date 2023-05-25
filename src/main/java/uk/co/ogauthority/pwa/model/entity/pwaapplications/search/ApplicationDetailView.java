@@ -11,9 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.converters.SemiColonSeparatedListConverter;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 @Entity

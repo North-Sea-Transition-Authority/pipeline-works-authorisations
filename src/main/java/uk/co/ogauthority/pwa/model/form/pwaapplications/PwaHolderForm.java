@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications;
 
-import java.io.Serializable;
-
-public class PwaHolderForm implements Serializable {
+public class PwaHolderForm {
 
   private Integer holderOuId;
 
@@ -16,5 +14,4 @@ public class PwaHolderForm implements Serializable {
   public void setHolderOuId(Integer holderOuId) {
     this.holderOuId = holderOuId;
   }
-
 }

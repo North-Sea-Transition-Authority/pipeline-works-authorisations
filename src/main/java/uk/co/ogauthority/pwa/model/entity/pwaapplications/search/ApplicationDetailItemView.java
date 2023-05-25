@@ -4,8 +4,8 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
 import java.util.List;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public interface ApplicationDetailItemView {
