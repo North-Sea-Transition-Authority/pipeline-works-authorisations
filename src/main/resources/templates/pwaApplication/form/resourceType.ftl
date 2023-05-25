@@ -3,7 +3,7 @@
 <#-- @ftlvariable name="resourceOptions" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType>" -->
 
 
-<@defaultPage htmlTitle="Application Type" errorItems=errorList>
+<@defaultPage htmlTitle="Resource type" errorItems=errorList>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup

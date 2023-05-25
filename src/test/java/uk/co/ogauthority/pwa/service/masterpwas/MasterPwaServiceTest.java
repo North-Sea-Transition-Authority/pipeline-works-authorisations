@@ -106,7 +106,7 @@ public class MasterPwaServiceTest {
   @Test
   public void updateDetailFieldInfo_setsValuesAsExpected() {
     var masterPwa = new MasterPwa();
-    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100), PETROLEUM);
+    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100), HYDROGEN);
     detail.setLinkedToFields(false);
     detail.setPwaLinkedToDescription("some description");
 
@@ -117,6 +117,7 @@ public class MasterPwaServiceTest {
     assertThat(pwaDetailArgumentCaptor.getValue()).satisfies(saved -> {
       assertThat(saved.getLinkedToFields()).isTrue();
       assertThat(saved.getPwaLinkedToDescription()).isNull();
+      assertThat(saved.getResourceType()).isEqualTo(HYDROGEN);
     });
 
   }
