@@ -29,7 +29,7 @@ public class PwaApplicationRedirectService {
 
     switch (applicationType) {
       case INITIAL:
-        return ReverseRouter.redirect(on(PwaResourceTypeController.class).renderResourceTypeForm(null));
+        return ReverseRouter.redirect(on(PwaResourceTypeController.class).renderResourceTypeForm(PwaApplicationType.INITIAL, null, null));
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
       case CAT_2_VARIATION:

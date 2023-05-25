@@ -133,7 +133,13 @@ public class PickExistingPwaController {
           if (applicantOrganisations.size() == 1) {
 
             var newAppDetail = pwaApplicationCreationService
-                .createVariationPwaApplication(pickedPwa, pwaApplicationType, PwaResourceType.PETROLEUM, applicantOrganisations.iterator().next(), user);
+                .createVariationPwaApplication(
+                    pickedPwa,
+                    pwaApplicationType,
+                    PwaResourceType.PETROLEUM,
+                    applicantOrganisations.iterator().next(),
+                    user
+                );
 
             return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 

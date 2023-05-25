@@ -129,7 +129,7 @@ public class PwaApplicationCreationServiceTest {
 
 
   @Test
-  public void createInitialPwa() {
+  public void createInitialPwa_Petroleum() {
 
     WebUserAccount user = new WebUserAccount(123);
 
@@ -168,6 +168,59 @@ public class PwaApplicationCreationServiceTest {
             masterPwa,
             PwaApplicationType.INITIAL,
             PwaResourceType.PETROLEUM,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
+
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+  }
+
+  @Test
+  public void createInitialPwa_Hydrogen() {
+
+    WebUserAccount user = new WebUserAccount(123);
+
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
+
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user, PwaResourceType.HYDROGEN);
+
+    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+
+    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+
+    PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
+
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
+
+
+    // check application set up correctly
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.HYDROGEN,
             "PA/1",
             null,
             0,
