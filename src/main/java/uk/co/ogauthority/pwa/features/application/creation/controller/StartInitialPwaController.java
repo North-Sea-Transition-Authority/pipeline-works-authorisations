@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.features.application.creation.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Controller
-@RequestMapping("/pwa-application/initial/new/{resourceType}")
+@RequestMapping("/pwa-application/initial/{resourceType}/new")
 public class StartInitialPwaController {
 
 
