@@ -85,7 +85,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .with(csrf())
         .param("resourceType", PwaResourceType.HYDROGEN.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/pwa-application/initial/new/HYDROGEN/"));
+        .andExpect(view().name("redirect:/pwa-application/initial/HYDROGEN/new/"));
   }
 
   @Test
