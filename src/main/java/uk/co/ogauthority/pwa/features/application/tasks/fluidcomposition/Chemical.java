@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import uk.co.ogauthority.pwa.model.enums.PwaResourceType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 
 public enum Chemical {
   H2("H₂", 10, List.of(PwaResourceType.HYDROGEN)),
