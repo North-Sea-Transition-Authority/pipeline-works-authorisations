@@ -15,7 +15,7 @@ public class PwaResourceTypeFormValidator implements Validator {
   public void validate(Object target, Errors errors) {
     var form = (PwaResourceTypeForm) target;
     if (form.getResourceType() == null) {
-      errors.rejectValue("resourceType", "resourceType.required", "You must select a resource type");
+      errors.rejectValue("resourceType", "resourceType.required", "Select a resource type");
     }
   }
 }
