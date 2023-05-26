@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.creation.controller;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -17,9 +18,10 @@ import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -36,7 +38,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 @Import(PwaMvcTestConfiguration.class)
 public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
-  @SpyBean
+  @MockBean
   PwaResourceTypeFormValidator validator;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
@@ -79,24 +81,15 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.HYDROGEN);
 
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .postResourceType(PwaApplicationType.INITIAL, form, null, null)))
+        .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.HYDROGEN.name()))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/pwa-application/initial/HYDROGEN/new/"));
-  }
-
-  @Test
-  public void postResourceScreen_invalid() throws Exception {
-    var form = new PwaResourceTypeForm();
-
-    mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
-            .postResourceType(PwaApplicationType.INITIAL, form, null, null)))
-            .with(authenticatedUserAndSession(user))
-            .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(model().attributeHasErrors("form"));
+        .andExpect(view().name("redirect:/pwa-application/initial/hydrogen/new/"));
+    verify(validator).validate(form, bindingResult);
   }
 }

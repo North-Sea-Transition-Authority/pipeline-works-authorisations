@@ -8,7 +8,7 @@ import org.springframework.validation.Validator;
 public class PwaResourceTypeFormValidator implements Validator {
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.isInstance(PwaResourceTypeForm.class);
+    return clazz.equals(PwaResourceTypeForm.class);
   }
 
   @Override
