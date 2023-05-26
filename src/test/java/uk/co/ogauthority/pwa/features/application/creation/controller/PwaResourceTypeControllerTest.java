@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.creation.controller;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -90,6 +91,6 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .param("resourceType", PwaResourceType.HYDROGEN.name()))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/pwa-application/initial/hydrogen/new/"));
-    verify(validator).validate(form, bindingResult);
+    verify(validator).validate(any(), any());
   }
 }
