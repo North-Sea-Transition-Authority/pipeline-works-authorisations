@@ -155,6 +155,7 @@ volumes:
       path: /home/fivium/nvd-db
 
 
+
   - name: docker-sock
     host:
       path: /var/run/docker.sock
