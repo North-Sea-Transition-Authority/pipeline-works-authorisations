@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -101,7 +102,7 @@ public class PadFluidCompositionInfoServiceTest {
   @Test
   public void getPadFluidCompositionInfoEntities_newEntitiesReturned() {
     var expectedEntityList = new ArrayList<>();
-    for (Chemical chemical: Chemical.getAll()) {
+    for (Chemical chemical: Chemical.getAllByResourceType(PwaResourceType.PETROLEUM)) {
       var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
       expectedEntityList.add(padFluidCompositionInfo);
     }
