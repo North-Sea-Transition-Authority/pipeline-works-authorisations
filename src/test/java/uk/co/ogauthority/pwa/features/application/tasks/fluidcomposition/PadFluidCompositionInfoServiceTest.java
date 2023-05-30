@@ -101,7 +101,7 @@ public class PadFluidCompositionInfoServiceTest {
   @Test
   public void getPadFluidCompositionInfoEntities_newEntitiesReturned() {
     var expectedEntityList = new ArrayList<>();
-    for (Chemical chemical: Chemical.asList()) {
+    for (Chemical chemical: Chemical.getAll()) {
       var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
       expectedEntityList.add(padFluidCompositionInfo);
     }
