@@ -1,2 +1,9 @@
 # Transitive dependency from Camunda
 CVE-2022-25647
+
+#Transitive dependency from gov notify
+CVE-2021-29425
+
+#Vunerability from most up to date version of library
+CVE-2021-29425
+
