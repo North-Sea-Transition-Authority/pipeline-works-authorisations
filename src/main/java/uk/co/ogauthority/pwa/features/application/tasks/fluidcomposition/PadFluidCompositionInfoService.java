@@ -40,7 +40,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
         padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
 
     if (padFluidCompositionInfoList.isEmpty()) {
-      for (Chemical chemical : Chemical.asList()) {
+      for (Chemical chemical : Chemical.getAll()) {
         var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
         padFluidCompositionInfoList.add(padFluidCompositionInfo);
       }

@@ -277,7 +277,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
   private void createFluidCompositionData(PwaApplicationDetail pwaApplicationDetail) {
     // create fluids for all chemicals across the range of fluid amounts
     if (applicationTaskService.canShowTask(ApplicationTask.FLUID_COMPOSITION, pwaApplicationDetail)) {
-      Chemical.asList().forEach(chemical -> {
+      Chemical.getAll().forEach(chemical -> {
         if (chemical.ordinal() % 3 == 0) {
           entityManager.persist(PadFluidCompositionInfoTestUtil.createSignificantFluid(pwaApplicationDetail, chemical));
         } else if (chemical.ordinal() % 3 == 1) {
@@ -1135,7 +1135,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
-    Chemical.asList().forEach(chemical ->
+    Chemical.getAll().forEach(chemical ->
         ObjectTestUtils.assertValuesEqual(
             firstVersionApplicationContainer.getPadFluidCompositionForChemical(chemical),
             newVersionContainer.getPadFluidCompositionForChemical(chemical),
