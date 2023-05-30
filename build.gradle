@@ -127,6 +127,12 @@ dependencyCheck {
   }
 }
 
+test {
+  minHeapSize = "5g" // initial heap size
+  maxHeapSize = "10g" // maximum heap size
+  jvmArgs '-XX:MaxPermSize=10g' // mem argument for the test JVM
+}
+
 tasks.jacocoTestReport {
   reports {
     xml.enabled(true)
