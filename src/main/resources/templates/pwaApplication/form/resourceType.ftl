@@ -12,9 +12,9 @@
           fieldsetHeadingClass="govuk-fieldset__legend--l"
           fieldsetHeadingSize="h1">
             <#list resourceOptions as resourceOption>
-                <#assign appTypeName = resourceOption.name()/>
+                <#assign resourceTypeName = resourceOption.name()/>
                 <#assign displayName = resourceOption.displayName/>
-                <@fdsRadio.radioItem path="form.resourceType" itemMap={appTypeName: "PWA - " + displayName}/>
+                <@fdsRadio.radioItem path="form.resourceType" itemMap={resourceTypeName: "PWA - " + displayName}/>
             </#list>
         </@fdsRadio.radioGroup>
         <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />

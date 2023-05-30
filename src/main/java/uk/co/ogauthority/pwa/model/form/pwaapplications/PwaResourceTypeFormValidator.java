@@ -8,14 +8,14 @@ import org.springframework.validation.Validator;
 public class PwaResourceTypeFormValidator implements Validator {
   @Override
   public boolean supports(Class<?> clazz) {
-    return clazz.isInstance(PwaResourceTypeForm.class);
+    return clazz.equals(PwaResourceTypeForm.class);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
     var form = (PwaResourceTypeForm) target;
     if (form.getResourceType() == null) {
-      errors.rejectValue("resourceType", "resourceType.required", "You must select a resource type");
+      errors.rejectValue("resourceType", "resourceType.required", "Select a resource type");
     }
   }
 }

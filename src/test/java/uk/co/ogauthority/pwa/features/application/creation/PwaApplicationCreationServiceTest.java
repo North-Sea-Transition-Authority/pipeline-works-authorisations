@@ -56,6 +56,8 @@ public class PwaApplicationCreationServiceTest {
       PwaApplicationType.OPTIONS_VARIATION
   );
 
+  private ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+
   @Mock
   private MasterPwaService masterPwaService;
 
@@ -130,28 +132,24 @@ public class PwaApplicationCreationServiceTest {
 
   @Test
   public void createInitialPwa_Petroleum() {
-
     WebUserAccount user = new WebUserAccount(123);
-
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
 
-    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user, PwaResourceType.PETROLEUM);
-
-    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.PETROLEUM
+    );
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-
     PwaApplication application = applicationArgumentCaptor.getValue();
 
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
-
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-
-
-    // check application set up correctly
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -178,33 +176,29 @@ public class PwaApplicationCreationServiceTest {
         );
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
   }
 
   @Test
   public void createInitialPwa_Hydrogen() {
-
     WebUserAccount user = new WebUserAccount(123);
-
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
     when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
 
-    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user, PwaResourceType.HYDROGEN);
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.HYDROGEN);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-
     PwaApplication application = applicationArgumentCaptor.getValue();
 
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
-
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-
-
-    // check application set up correctly
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -231,7 +225,6 @@ public class PwaApplicationCreationServiceTest {
         );
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
   }
 
 
@@ -304,19 +297,15 @@ public class PwaApplicationCreationServiceTest {
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
-
     PwaApplication application = applicationArgumentCaptor.getValue();
 
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
-
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-
     verify(padFieldService, times(1)).createAndSavePadFieldsFromMasterPwa(
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
-    // check application set up correctly
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -341,10 +330,6 @@ public class PwaApplicationCreationServiceTest {
             clock.instant(),
             OrganisationUnitId.from(applicantOrganisationUnit)
         );
-
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-
   }
-
-
 }

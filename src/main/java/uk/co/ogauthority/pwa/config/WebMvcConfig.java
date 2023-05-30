@@ -29,6 +29,8 @@ import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
+import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterEnumToString;
+import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterStringToEnum;
 import uk.co.ogauthority.pwa.util.converters.PwaStringToCollectionConverter;
 
 @Configuration
@@ -103,6 +105,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void addFormatters(FormatterRegistry registry) {
     registry.addConverter(new PwaApplicationTypePathVariableConverterStringToEnum());
     registry.addConverter(new PwaApplicationTypePathVariableConverterEnumToString());
+    registry.addConverter(new PwaResourceTypePathVariableConverterStringToEnum());
+    registry.addConverter(new PwaResourceTypePathVariableConverterEnumToString());
 
     // Replace the default StringToCollectionConverter to stop Spring splitting strings containing commas
     // into multiple values.

@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/new/resource")
@@ -30,6 +32,7 @@ public class PwaResourceTypeController {
 
   private final ControllerHelperService controllerHelperService;
 
+  @Autowired
   public PwaResourceTypeController(PwaResourceTypeFormValidator validator,
                                    ControllerHelperService controllerHelperService) {
     this.validator = validator;
@@ -42,7 +45,7 @@ public class PwaResourceTypeController {
    * @return the form page.
    */
   @GetMapping
-  public ModelAndView renderResourceTypeForm(@PathVariable PwaApplicationType applicationType,
+  public ModelAndView renderResourceTypeForm(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                              @ModelAttribute("form") PwaResourceTypeForm form,
                                              AuthenticatedUserAccount user) {
     var resourceOptions = Arrays.stream(PwaResourceType.values())
@@ -61,7 +64,7 @@ public class PwaResourceTypeController {
    * @return the next step in PWA creation.
    */
   @PostMapping
-  public ModelAndView postResourceType(@PathVariable PwaApplicationType applicationType,
+  public ModelAndView postResourceType(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                        @ModelAttribute("form") PwaResourceTypeForm form,
                                        BindingResult bindingResult,
                                        AuthenticatedUserAccount user) {
@@ -69,7 +72,9 @@ public class PwaResourceTypeController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         renderResourceTypeForm(applicationType, form, user),
-        () -> ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage(form.getResourceType())));
+        () -> ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage(
+            applicationType,
+            form.getResourceType())));
   }
 
 }
