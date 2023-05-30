@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
@@ -41,6 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
@@ -87,9 +90,10 @@ public class PwaHolderController {
   /**
    * Screen allowing user to select the holder for a PWA.
    */
-  @GetMapping("/holder")
+  @GetMapping("/{resourceType}/holder")
   public ModelAndView renderHolderScreen(
       @ModelAttribute("form") PwaHolderForm form,
+      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
       AuthenticatedUserAccount user) {
 
     return getHolderModelAndView(user, form);
@@ -99,9 +103,10 @@ public class PwaHolderController {
   /**
    * Handle storage of holder selected by user.
    */
-  @PostMapping("/holder")
+  @PostMapping("/{resourceType}/holder")
   public ModelAndView postHolderScreen(
       @Valid @ModelAttribute("form") PwaHolderForm form,
+      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
       BindingResult bindingResult,
       AuthenticatedUserAccount user) {
 
@@ -126,7 +131,7 @@ public class PwaHolderController {
                       user.getWuaId())));
 
           PwaApplication pwaApplication = pwaApplicationCreationService
-              .createInitialPwaApplication(organisationUnit, user).getPwaApplication();
+              .createInitialPwaApplication(organisationUnit, user, resourceType).getPwaApplication();
 
           var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
 

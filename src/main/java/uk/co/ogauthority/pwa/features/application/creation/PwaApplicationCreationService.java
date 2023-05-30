@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -74,6 +75,7 @@ public class PwaApplicationCreationService {
 
   private PwaApplicationDetail createApplication(MasterPwa masterPwa,
                                                  PwaApplicationType applicationType,
+                                                 PwaResourceType resourceType,
                                                  int variationNo,
                                                  WebUserAccount createdByUser,
                                                  PortalOrganisationUnit applicantOrganisationUnit) {
@@ -82,6 +84,7 @@ public class PwaApplicationCreationService {
     application.setAppReference(pwaApplicationReferencingService.createAppReference());
     application.setApplicationCreatedTimestamp(clock.instant());
     application.setApplicantOrganisationUnitId(OrganisationUnitId.from(applicantOrganisationUnit));
+    application.setResourceType(resourceType);
     pwaApplicationRepository.save(application);
 
     pwaContactService.updateContact(
@@ -118,17 +121,26 @@ public class PwaApplicationCreationService {
 
   @Transactional
   public PwaApplicationDetail createInitialPwaApplication(PortalOrganisationUnit applicantOrganisationUnit,
-                                                          WebUserAccount createdByUser) {
+                                                          WebUserAccount createdByUser,
+                                                          PwaResourceType resourceType) {
 
     MasterPwaDetail masterPwaDetail = masterPwaService.createMasterPwa(
         MasterPwaDetailStatus.APPLICATION,
         // this will be updated immediately when the app reference is available
-        "New Pwa " + RandomUtils.nextInt()
+        "New Pwa " + RandomUtils.nextInt(),
+        resourceType
     );
 
     var masterPwa = masterPwaDetail.getMasterPwa();
 
-    var newApplication = createApplication(masterPwa, PwaApplicationType.INITIAL, 0, createdByUser, applicantOrganisationUnit);
+    var newApplication = createApplication(
+        masterPwa,
+        PwaApplicationType.INITIAL,
+        resourceType,
+        0,
+        createdByUser,
+        applicantOrganisationUnit
+    );
     masterPwaService.updateDetailReference(masterPwaDetail, newApplication.getPwaApplicationRef());
 
     return newApplication;
@@ -137,10 +149,11 @@ public class PwaApplicationCreationService {
   @Transactional
   public PwaApplicationDetail createVariationPwaApplication(MasterPwa masterPwa,
                                                             PwaApplicationType pwaApplicationType,
+                                                            PwaResourceType pwaResourceType,
                                                             PortalOrganisationUnit applicantOrganisationUnit,
                                                             WebUserAccount createdByUser) {
 
-    var applicationDetail = createApplication(masterPwa, pwaApplicationType, 0, createdByUser, applicantOrganisationUnit);
+    var applicationDetail = createApplication(masterPwa, pwaApplicationType, pwaResourceType, 0, createdByUser, applicantOrganisationUnit);
 
     var masterPwaDetailFields = masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa);
 

@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningService;
+import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.NonBlockingWarningPage;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -24,7 +26,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
@@ -83,7 +84,7 @@ public class SendForApprovalCheckerServiceTest {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.getPwaApplication().setApplicationCreatedTimestamp(APP_CREATION_INSTANT);
 
-    masterPwaDetail = new MasterPwaDetail(detail.getMasterPwa(), MasterPwaDetailStatus.APPLICATION, "reference", Instant.now());
+    masterPwaDetail = new MasterPwaDetail(detail.getMasterPwa(), MasterPwaDetailStatus.APPLICATION, "reference", Instant.now(), PwaResourceType.PETROLEUM);
     when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
 
     // detail is satisfactory

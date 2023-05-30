@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
@@ -105,7 +106,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     masterPwaDetail.setReference("MYREF");
 
     // fake create application service so we get an app of the requested type back
-    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any(), any())).thenAnswer(invocation -> {
+    when(pwaApplicationCreationService.createVariationPwaApplication(any(), any(), any(), any(), any())).thenAnswer(invocation -> {
           PwaApplicationType appType = Arrays.stream(invocation.getArguments())
               .filter(arg -> arg instanceof PwaApplicationType)
               .map(o -> (PwaApplicationType) o)
@@ -198,7 +199,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
         .andExpect(status().is3xxRedirection());
 
     verify(pwaApplicationCreationService, times(1))
-        .createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, applicantOrganisation, user);
+        .createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, applicantOrganisation, user);
 
   }
 

@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
@@ -132,7 +133,13 @@ public class PickExistingPwaController {
           if (applicantOrganisations.size() == 1) {
 
             var newAppDetail = pwaApplicationCreationService
-                .createVariationPwaApplication(pickedPwa, pwaApplicationType, applicantOrganisations.iterator().next(), user);
+                .createVariationPwaApplication(
+                    pickedPwa,
+                    pwaApplicationType,
+                    PwaResourceType.PETROLEUM,
+                    applicantOrganisations.iterator().next(),
+                    user
+                );
 
             return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 
