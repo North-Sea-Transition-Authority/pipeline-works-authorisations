@@ -54,10 +54,11 @@ public class MasterPwaDetail {
   public MasterPwaDetail(MasterPwa masterPwa,
                          MasterPwaDetailStatus status,
                          String reference,
-                         Instant startInstant) {
+                         Instant startInstant,
+                         PwaResourceType resourceType) {
     this.masterPwa = masterPwa;
     this.masterPwaDetailStatus = status;
-    this.resourceType = PETROLEUM;
+    this.resourceType = resourceType;
     this.reference = reference;
     this.startInstant = startInstant;
   }

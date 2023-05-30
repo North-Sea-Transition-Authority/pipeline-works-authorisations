@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
@@ -59,7 +60,7 @@ public class FieldWriterTest {
     pwaConsent.setMasterPwa(masterPwa);
     pwaConsent.setSourcePwaApplication(detail.getPwaApplication());
 
-    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now());
+    masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
 
     fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padFieldService);
 

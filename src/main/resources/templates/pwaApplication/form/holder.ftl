@@ -20,7 +20,6 @@
         <p>If the group you need to create a PWA for is not shown above then you must contact the holder to create the new PWA application on your behalf and provide you with access to the application. Alternatively, they can provide you with access to their organisation account. </p>
         <p>If you already have access to the holder group but your legal entity as per companies house is not shown in the list then provide the NSTA with the holder company name, address including postcode and companies house registration number to add to the PWA service: ${ogaServiceDeskEmail} </p>
       </@fdsDetails.summaryDetails>
-
       <@fdsAction.submitButtons primaryButtonText="Continue" linkSecondaryAction=true secondaryLinkText="Back to work area" linkSecondaryActionUrl=springUrl(workareaUrl) />
 
 
@@ -28,3 +27,4 @@
   </@fdsForm.htmlForm>
 
 </@defaultPage>
+

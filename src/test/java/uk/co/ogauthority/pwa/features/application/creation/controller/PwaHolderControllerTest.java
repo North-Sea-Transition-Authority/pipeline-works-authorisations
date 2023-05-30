@@ -39,6 +39,7 @@ import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
@@ -129,7 +130,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   public void renderHolderScreen_withAuthenticatedUser() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
-        .renderHolderScreen(null, null)))
+        .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
         .with(authenticatedUserAndSession(user))
     ).andExpect(status().isOk());
 
@@ -139,7 +140,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   public void renderHolderScreen_noPrivileges() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
-        .renderHolderScreen(null, null)))
+        .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
         .with(authenticatedUserAndSession(userNoPrivs))
     ).andExpect(status().isForbidden());
 
@@ -148,11 +149,11 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_withHolderOrgId() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, user)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, user)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -163,11 +164,11 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_withHolderOrgId_noPrivileges() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, userNoPrivs)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, userNoPrivs)))
         .with(authenticatedUserAndSession(userNoPrivs))
         .with(csrf())
         .param("holderOuId", "111"))
@@ -178,13 +179,13 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_noHolderOrgSelected() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, null)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", ""))
@@ -198,14 +199,14 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_holderOrgExists_andUserDoesntHaveAccessToOrg() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
     when(portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of());
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, null, null)))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("holderOuId", "44"))
@@ -217,7 +218,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   public void postHolderScreen_timerMetricStarted_timeRecordedAndLogged() {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetail(detail.getPwaApplication().getId())).thenReturn(detail);
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(orgUnit));
 
@@ -227,7 +228,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     var form = new PwaHolderForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    controller.postHolderScreen(form, bindingResult, user);
+    controller.postHolderScreen(form, PwaResourceType.PETROLEUM, bindingResult, user);
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Initial application started");
   }

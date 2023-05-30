@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
@@ -155,7 +156,7 @@ public class ApplicantOrganisationController {
                   String.format("Couldn't find an organisation unit with id [%s]", form.getApplicantOrganisationOuId())));
 
           var newAppDetail = pwaApplicationCreationService
-              .createVariationPwaApplication(masterPwa, pwaApplicationType, applicantOrganisation, user);
+              .createVariationPwaApplication(masterPwa, pwaApplicationType, PwaResourceType.PETROLEUM, applicantOrganisation, user);
 
           return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 
