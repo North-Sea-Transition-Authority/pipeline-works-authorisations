@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
@@ -17,18 +19,15 @@ public enum PipelineType implements DiffableAsString {
   UNKNOWN(
       "Unknown pipeline type",
       -1,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   PRODUCTION_FLOWLINE(
       "Production Flowline",
       1,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   PRODUCTION_JUMPER(
       "Production Jumper",
       2,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   GAS_LIFT_PIPELINE(
       "Gas Lift Pipeline",
       3,
@@ -52,8 +51,7 @@ public enum PipelineType implements DiffableAsString {
   METHANOL_PIPELINE(
       "Methanol Pipeline",
       7,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   SERVICES_UMBILICAL(
       "Services Umbilical",
       8,
@@ -62,8 +60,7 @@ public enum PipelineType implements DiffableAsString {
   HYDRAULIC_JUMPER_SINGLE_CORE(
       "Hydraulic Jumper (single-core)",
       9,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   HYDRAULIC_JUMPER_MULTI_CORE(
       "Hydraulic Jumper (multi-core)",
       10,
@@ -72,13 +69,11 @@ public enum PipelineType implements DiffableAsString {
   CHEMICAL_JUMPER(
       "Chemical Jumper",
       11,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   CONTROL_JUMPER_SINGLE_CORE(
       "Control Jumper (single-core)",
       12,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   CONTROL_JUMPER_MULTI_CORE(
       "Control Jumper (multi-core)",
       13,
@@ -92,8 +87,7 @@ public enum PipelineType implements DiffableAsString {
   CABLE(
       "Cable",
       15,
-      PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN, PwaResourceType.PETROLEUM)),
+      PipelineCoreType.SINGLE_CORE),
   HYDROGEN_TRANSPORT(
       "Hydrogen Transportation Pipeline",
       16,
@@ -112,6 +106,13 @@ public enum PipelineType implements DiffableAsString {
     this.displayOrder = displayOrder;
     this.coreType = coreType;
     this.applicableResourceType = applicableResourceType;
+  }
+
+  PipelineType(String displayName, int displayOrder, PipelineCoreType coreType) {
+    this.displayName = displayName;
+    this.displayOrder = displayOrder;
+    this.coreType = coreType;
+    this.applicableResourceType = PwaResourceType.getAll();
   }
 
   public String getDisplayName() {
@@ -140,9 +141,18 @@ public enum PipelineType implements DiffableAsString {
         .filter(pipelineType -> pipelineType.getDisplayOrder() >= 0);
   }
 
-
   @Override
   public String getDiffableString() {
     return this.getDisplayName();
+  }
+
+  public static List<PipelineType> getAll() {
+    return Arrays.asList(PipelineType.values());
+  }
+
+  public static List<PipelineType> getAllByResourceType(PwaResourceType resourceType) {
+    return Arrays.stream(PipelineType.values())
+        .filter(pipelineType -> pipelineType.getApplicableResourceType().contains(resourceType))
+        .collect(Collectors.toList());
   }
 }
