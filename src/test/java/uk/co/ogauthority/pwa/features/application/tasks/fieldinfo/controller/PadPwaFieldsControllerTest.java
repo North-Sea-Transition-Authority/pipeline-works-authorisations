@@ -18,7 +18,6 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSe
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import org.h2.mvstore.DataUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -152,7 +151,8 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
     var fields = (List<PadField>) modelAndView.getModel().get("fields");
     var fieldMap = (Map<String, String>) modelAndView.getModel().get("fieldMap");
     assertThat(fields).containsExactly(padField);
-    assertThat(fieldMap).containsExactly(new DataUtils.MapEntry<>(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
+    assertThat(fieldMap).containsExactly(
+        Map.entry(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
   }
 
   @Test
