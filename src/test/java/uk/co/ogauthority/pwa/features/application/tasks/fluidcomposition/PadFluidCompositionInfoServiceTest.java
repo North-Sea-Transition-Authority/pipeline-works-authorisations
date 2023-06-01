@@ -100,9 +100,25 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void getPadFluidCompositionInfoEntities_newEntitiesReturned() {
+  public void getPadFluidCompositionInfoEntities_newPetroleumEntitiesReturned() {
     var expectedEntityList = new ArrayList<>();
     for (Chemical chemical: Chemical.getAllByResourceType(PwaResourceType.PETROLEUM)) {
+      var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
+      expectedEntityList.add(padFluidCompositionInfo);
+    }
+    when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(new ArrayList<>());
+    var actualEntityList = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(pwaApplicationDetail);
+    assertThat(actualEntityList).isEqualTo(expectedEntityList);
+  }
+
+  @Test
+  public void getPadFluidCompositionInfoEntities_newHydrogenEntitiesReturned() {
+    var application = pwaApplicationDetail.getPwaApplication();
+    application.setResourceType(PwaResourceType.HYDROGEN);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    var expectedEntityList = new ArrayList<>();
+    for (Chemical chemical: Chemical.getAllByResourceType(PwaResourceType.HYDROGEN)) {
       var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
       expectedEntityList.add(padFluidCompositionInfo);
     }
