@@ -8,7 +8,7 @@ buildscript {
 }
 
 plugins {
-  id 'org.springframework.boot' version '2.6.3'
+  id 'org.springframework.boot' version '2.7.12'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
@@ -64,7 +64,7 @@ dependencies {
   implementation 'com.oracle:ojdbc7:12.1.0.2'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.1'
+  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.4'
 
   // Required by Hibernate Envers
   // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
@@ -82,12 +82,12 @@ dependencies {
   implementation group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
 
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-core
-  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.4'
+  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-core', version: '1.0.10'
   // https://mvnrepository.com/artifact/com.openhtmltopdf/openhtmltopdf-pdfbox
-  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.4'
+  implementation group: 'com.openhtmltopdf', name: 'openhtmltopdf-pdfbox', version: '1.0.10'
 
   // https://mvnrepository.com/artifact/org.jsoup/jsoup
-  implementation group: 'org.jsoup', name: 'jsoup', version: '1.14.3'
+  implementation group: 'org.jsoup', name: 'jsoup', version: '1.16.1'
 
   // https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib
   implementation group: 'org.imgscalr', name: 'imgscalr-lib', version: '4.2'
@@ -97,7 +97,7 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
-  testImplementation 'com.h2database:h2:1.4.197'
+  testImplementation 'com.h2database:h2:1.4.200'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
@@ -125,6 +125,12 @@ dependencyCheck {
     // Comment this out to run locally
     directory='/var/nvd-db'
   }
+}
+
+test {
+  minHeapSize = "5g" // initial heap size
+  maxHeapSize = "10g" // maximum heap size
+  jvmArgs '-XX:MaxPermSize=10g' // mem argument for the test JVM
 }
 
 tasks.jacocoTestReport {
