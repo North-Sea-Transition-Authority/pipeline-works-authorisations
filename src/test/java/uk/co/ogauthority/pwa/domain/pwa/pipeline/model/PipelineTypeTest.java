@@ -17,27 +17,31 @@ public class PipelineTypeTest {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.HYDROGEN)
         .map(PipelineType::getCoreType)
         .collect(Collectors.toSet());
-    assertThat(hydrogenPipelines).doesNotContain(PipelineCoreType.MULTI_CORE);
+    assertThat(hydrogenPipelines)
+        .isNotEmpty()
+        .doesNotContain(PipelineCoreType.MULTI_CORE);
   }
 
   @Test
   public void hydrogenType_SpecificExclusions() {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.HYDROGEN)
         .collect(Collectors.toSet());
-    assertThat(hydrogenPipelines).doesNotContainAnyElementsOf(List.of(
-        PipelineType.GAS_LIFT_PIPELINE,
-        PipelineType.GAS_LIFT_JUMPER,
-        PipelineType.WATER_INJECTION_PIPELINE,
-        PipelineType.WATER_INJECTION_JUMPER
-    ));
+    assertThat(hydrogenPipelines)
+        .isNotEmpty()
+        .doesNotContainAnyElementsOf(List.of(
+            PipelineType.GAS_LIFT_PIPELINE,
+            PipelineType.GAS_LIFT_JUMPER,
+            PipelineType.WATER_INJECTION_PIPELINE,
+            PipelineType.WATER_INJECTION_JUMPER
+        ));
   }
 
   @Test
   public void petroleumType_SpecificExclusions() {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM)
         .collect(Collectors.toSet());
-    assertThat(hydrogenPipelines).doesNotContainAnyElementsOf(List.of(
-        PipelineType.HYDROGEN_TRANSPORT
-    ));
+    assertThat(hydrogenPipelines)
+        .isNotEmpty()
+        .doesNotContainAnyElementsOf(List.of(PipelineType.HYDROGEN_TRANSPORT));
   }
 }
