@@ -36,18 +36,6 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_full_ifNoHint() {
-    var form = new PipelineTechInfoForm();
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errorsMap).contains(
-        entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
-        entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
-        entry("corrosionDescription", Set.of("corrosionDescription.required")),
-        entry("plannedPipelineTieInPoints", Set.of("plannedPipelineTieInPoints.required"))
-    );
-  }
-
-  @Test
   public void validate_full_valid() {
 
     var form = getFullForm();

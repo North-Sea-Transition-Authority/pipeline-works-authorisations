@@ -63,8 +63,7 @@ public class PipelineTechInfoController {
     var applicationDetail = applicationContext.getApplicationDetail();
     var entity = padPipelineTechInfoService.getPipelineTechInfoEntity(applicationDetail);
     padPipelineTechInfoService.mapEntityToForm(form, entity);
-    return getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail())
-        .addObject("showFieldLife", applicationDetail.getResourceType().equals(PwaResourceType.PETROLEUM));
+    return getAddPipelineTechInfoModelAndView(applicationContext.getApplicationDetail());
   }
 
 
@@ -95,7 +94,9 @@ public class PipelineTechInfoController {
 
   private ModelAndView getAddPipelineTechInfoModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineTechInfoForm");
-    modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
+    modelAndView
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
+        .addObject("showFieldLife", pwaApplicationDetail.getResourceType().equals(PwaResourceType.PETROLEUM));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "General technical details");
