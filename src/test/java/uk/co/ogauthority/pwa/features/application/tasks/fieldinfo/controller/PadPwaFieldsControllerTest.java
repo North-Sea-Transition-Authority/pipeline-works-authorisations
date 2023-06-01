@@ -15,7 +15,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
-import com.mchange.v2.collection.MapEntry;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -152,7 +151,8 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
     var fields = (List<PadField>) modelAndView.getModel().get("fields");
     var fieldMap = (Map<String, String>) modelAndView.getModel().get("fieldMap");
     assertThat(fields).containsExactly(padField);
-    assertThat(fieldMap).containsExactly(new MapEntry(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
+    assertThat(fieldMap).containsExactly(
+        Map.entry(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
   }
 
   @Test
