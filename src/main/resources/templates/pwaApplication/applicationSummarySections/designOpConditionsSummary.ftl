@@ -42,7 +42,7 @@
     </@fdsCheckAnswers.checkAnswersRow>
 
     <@fdsCheckAnswers.checkAnswersRow keyText="U-value design conditions" actionUrl="" screenReaderActionText="" actionText="">
-        <#if designOpConditionsView.uvalueDesign?has_content> ${designOpConditionsView.uvalueDesign!} ${unitMeasurements.KSCM_D.suffixDisplay} </#if>
+        <#if designOpConditionsView.uvalueDesign?has_content> ${designOpConditionsView.uvalueDesign!} ${unitMeasurements.WM2K.suffixDisplay} </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
 
