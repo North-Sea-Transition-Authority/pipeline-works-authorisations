@@ -48,7 +48,7 @@ class FluidCompositionGeneratorService implements TestHarnessAppFormService {
   private FluidCompositionForm createForm() {
 
     Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new EnumMap<>(Chemical.class);
-    Chemical.asList().forEach(chemical -> {
+    Chemical.getAll().forEach(chemical -> {
       var dataForm = new FluidCompositionDataForm();
       dataForm.setFluidCompositionOption(FluidCompositionOption.NONE);
       chemicalDataFormMap.put(chemical, dataForm);

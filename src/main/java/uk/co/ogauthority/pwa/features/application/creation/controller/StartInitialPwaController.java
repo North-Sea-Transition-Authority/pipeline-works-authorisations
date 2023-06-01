@@ -13,9 +13,11 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/initial/{resourceType}/new")
+@RequestMapping("/pwa-application/{applicationType}/{resourceType}/new")
 public class StartInitialPwaController {
 
 
@@ -23,7 +25,8 @@ public class StartInitialPwaController {
    * Render of start page for initial PWA application.
    */
   @GetMapping
-  public ModelAndView renderStartPage(@PathVariable PwaResourceType resourceType) {
+  public ModelAndView renderStartPage(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     return new ModelAndView("pwaApplication/startPages/initial")
         .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null, resourceType)))
         .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL))
@@ -36,7 +39,7 @@ public class StartInitialPwaController {
    */
   @PostMapping
   public ModelAndView startInitialPwa(AuthenticatedUserAccount user,
-                                      @PathVariable PwaResourceType resourceType) {
+                                      @ResourceTypeUrl PwaResourceType resourceType) {
     return ReverseRouter.redirect(on(PwaHolderController.class).renderHolderScreen(null, resourceType, null));
   }
 

@@ -43,6 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
@@ -92,7 +93,7 @@ public class PwaHolderController {
   @GetMapping("/{resourceType}/holder")
   public ModelAndView renderHolderScreen(
       @ModelAttribute("form") PwaHolderForm form,
-      @PathVariable PwaResourceType resourceType,
+      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
       AuthenticatedUserAccount user) {
 
     return getHolderModelAndView(user, form);
@@ -105,7 +106,7 @@ public class PwaHolderController {
   @PostMapping("/{resourceType}/holder")
   public ModelAndView postHolderScreen(
       @Valid @ModelAttribute("form") PwaHolderForm form,
-      @PathVariable PwaResourceType resourceType,
+      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
       BindingResult bindingResult,
       AuthenticatedUserAccount user) {
 

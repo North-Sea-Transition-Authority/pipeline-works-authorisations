@@ -1,5 +1,9 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public enum PwaResourceType {
   PETROLEUM("Petroleum", 10),
   HYDROGEN("Hydrogen", 20);
@@ -19,5 +23,9 @@ public enum PwaResourceType {
 
   public int getDisplayOrder() {
     return displayOrder;
+  }
+
+  public static List<PwaResourceType> getAll() {
+    return Arrays.stream(PwaResourceType.values()).collect(Collectors.toList());
   }
 }
