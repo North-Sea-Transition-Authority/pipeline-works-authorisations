@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -26,6 +27,18 @@ public class PipelineTechInfoValidatorTest {
   public void validate_full_empty() {
     var form = new PipelineTechInfoForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    assertThat(errorsMap).contains(
+        entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
+        entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
+        entry("corrosionDescription", Set.of("corrosionDescription.required")),
+        entry("plannedPipelineTieInPoints", Set.of("plannedPipelineTieInPoints.required"))
+    );
+  }
+
+  @Test
+  public void validate_full_ifNoHint() {
+    var form = new PipelineTechInfoForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
         entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
@@ -159,4 +172,16 @@ public class PipelineTechInfoValidatorTest {
     );
   }
 
+  @Test
+  public void validate_estimatedFieldLife_NullHydrogen() {
+    var form = getFullForm();
+    form.setCorrosionDescription(null);
+    form.setEstimatedFieldLife(null);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.HYDROGEN);
+
+    assertThat(errorsMap)
+        .isNotEmpty()
+        .doesNotContain(entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")));
+  }
 }
