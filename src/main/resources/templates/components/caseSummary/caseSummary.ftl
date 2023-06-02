@@ -24,7 +24,7 @@
       <@fdsDataItems.dataValues key="Fields" value=caseSummaryView.fieldNames!"Not linked to field" />
       <@fdsDataItems.dataValues key="Case officer" value=caseSummaryView.caseOfficerName!"Not yet assigned" />
       <#if (caseSummaryView.masterPwaReference)??>
-        <@fdsDataItems.dataValues key="PWA Reference" value=caseSummaryView.masterPwaReference />
+        <@fdsDataItems.dataValues key="PWA reference" value=caseSummaryView.masterPwaReference />
       </#if>
   </@fdsDataItems.dataItem>
 
