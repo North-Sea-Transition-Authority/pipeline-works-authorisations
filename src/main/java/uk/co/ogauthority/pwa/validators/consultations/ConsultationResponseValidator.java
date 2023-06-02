@@ -44,22 +44,18 @@ public class ConsultationResponseValidator implements Validator {
   }
 
   private void validateFileUploads(ConsultationResponseForm form, Errors errors) {
-
-    var requiredFileCount = 0;
-
-    // check if EIA reg response requires file upload
-    requiredFileCount += filesRequiredByResponse(
+    // check if EIA or Habitats reg response requires file upload
+    boolean fileRequired = filesRequiredByResponse(
         form,
         ConsultationResponseOptionGroup.EIA_REGS,
         Set.of(ConsultationResponseOption.EIA_AGREE)
-    );
-
-    // check if Habitats reg response requires file upload
-    requiredFileCount += filesRequiredByResponse(
+    ) || filesRequiredByResponse(
         form,
         ConsultationResponseOptionGroup.HABITATS_REGS,
         Set.of(ConsultationResponseOption.HABITATS_AGREE)
     );
+
+    var requiredFileCount = fileRequired ? 1 : 0;
 
     FileUploadUtils.validateMinFileLimit(form, errors, requiredFileCount,
         String.format(
@@ -70,17 +66,14 @@ public class ConsultationResponseValidator implements Validator {
   }
 
   // helper which returns 1 if option group exists on form and response is contained in provided set, else 0;
-  private int filesRequiredByResponse(ConsultationResponseForm form,
+  private boolean filesRequiredByResponse(ConsultationResponseForm form,
                                       ConsultationResponseOptionGroup consultationResponseOptionGroup,
                                       Set<ConsultationResponseOption> setOfResponsesRequiringFileUpload) {
     var response = form.getResponseDataForms()
         .getOrDefault(consultationResponseOptionGroup, new ConsultationResponseDataForm())
         .getConsultationResponseOption();
 
-    if (Objects.nonNull(response) && setOfResponsesRequiringFileUpload.contains(response)) {
-      return 1;
-    }
-    return 0;
+    return Objects.nonNull(response) && setOfResponsesRequiringFileUpload.contains(response);
   }
 
 }
