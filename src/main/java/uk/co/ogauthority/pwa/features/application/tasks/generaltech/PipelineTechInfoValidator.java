@@ -60,7 +60,7 @@ public class PipelineTechInfoValidator implements SmartValidator {
     ValidatorUtils.validateDefaultStringLength(errors, "pipelineStandardsDescription", form::getPipelineStandardsDescription,
         "Design codes/standards");
 
-    if (validationType.get() == ValidationType.FULL) {
+    if (validationType.orElse(ValidationType.FULL) == ValidationType.FULL) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "corrosionDescription", "corrosionDescription.required",
           "Enter a description of the corrosion management strategy");
     }
@@ -68,7 +68,7 @@ public class PipelineTechInfoValidator implements SmartValidator {
     ValidatorUtils.validateDefaultStringLength(errors, "corrosionDescription", form::getCorrosionDescription,
         "Corrosion management strategy");
 
-    if (validationType.get() == ValidationType.FULL) {
+    if (validationType.orElse(ValidationType.FULL) == ValidationType.FULL) {
 
       if (BooleanUtils.isTrue(form.getPlannedPipelineTieInPoints())) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tieInPointsDescription", "tieInPointsDescription.required",
