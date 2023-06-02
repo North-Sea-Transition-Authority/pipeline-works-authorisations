@@ -76,7 +76,7 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    pipelineTechInfoValidator.validate(form, bindingResult, validationType);
+    pipelineTechInfoValidator.validate(form, bindingResult, validationType, pwaApplicationDetail.getResourceType());
     return bindingResult;
   }
 

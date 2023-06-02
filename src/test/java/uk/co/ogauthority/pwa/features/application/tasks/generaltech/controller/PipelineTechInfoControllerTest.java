@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
 import java.util.EnumSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,12 +18,17 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoService;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PipelineTechInfoForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -49,6 +55,8 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
 
   private PwaApplicationDetail pwaApplicationDetail;
 
+  private PwaApplicationContext pwaApplicationContext;
+
 
   @Before
   public void setUp() {
@@ -59,11 +67,18 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
+    var user = new AuthenticatedUserAccount(
+        new WebUserAccount(1),
+        EnumSet.allOf(PwaUserPrivilege.class));
+
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
+    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.PETROLEUM);
     when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    pwaApplicationContext = new PwaApplicationContext(pwaApplicationDetail, user, Collections.emptySet());
   }
 
 
@@ -74,7 +89,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(),null, null)));
+                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(),pwaApplicationContext, null)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }
@@ -84,7 +99,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -95,7 +110,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
+                .renderAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -110,7 +125,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null, null, ValidationType.FULL)));
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
   }
@@ -122,7 +137,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null, null, ValidationType.FULL)));
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 
@@ -135,7 +150,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null, null, ValidationType.FULL)));
 
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -148,7 +163,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
-                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, ValidationType.FULL)));
+                .postAddPipelineTechInfo(type, applicationDetail.getMasterPwaApplicationId(), pwaApplicationContext, null, null, ValidationType.FULL)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
