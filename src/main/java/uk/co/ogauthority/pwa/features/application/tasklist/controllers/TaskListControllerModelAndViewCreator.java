@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.DeleteApplicationController;
+import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 
 
 /**
@@ -74,6 +76,9 @@ public class TaskListControllerModelAndViewCreator {
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
       modelAndView.addObject("masterPwaReference",
           masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
+      modelAndView.addObject("viewPwaUrl",
+          ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
+              pwaApplicationDetail.getPwaApplication().getMasterPwa().getId(), PwaViewTab.PIPELINES, null, null)));
     }
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),
