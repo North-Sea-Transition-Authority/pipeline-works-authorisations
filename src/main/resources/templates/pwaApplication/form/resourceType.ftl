@@ -8,7 +8,7 @@
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup
           path="form.resourceType"
-          labelText="Please select the application type from the list below"
+          labelText="Select the application type"
           fieldsetHeadingClass="govuk-fieldset__legend--l"
           fieldsetHeadingSize="h1">
             <#list resourceOptions as resourceOption>
