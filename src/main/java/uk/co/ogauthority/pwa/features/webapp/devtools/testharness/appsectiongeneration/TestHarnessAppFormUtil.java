@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.RandomUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
@@ -31,7 +32,7 @@ class TestHarnessAppFormUtil {
 
 
   static PipelineType getRandomPipelineType() {
-    var pipelineTypes = PipelineType.streamDisplayValues().collect(Collectors.toList());
+    var pipelineTypes = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM).collect(Collectors.toList());
     return pipelineTypes.get(random.nextInt(pipelineTypes.size()));
   }
 
