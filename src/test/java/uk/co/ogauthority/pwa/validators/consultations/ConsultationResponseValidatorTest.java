@@ -72,7 +72,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eiaAndHabitats_agree_notEnoughDocumentsUploaded_fail() {
+  public void validate_validateFileUploads_eiaAndHabitats_agree_DocumentUploaded_pass() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
@@ -82,7 +82,21 @@ public class ConsultationResponseValidatorTest {
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.EIA_REGS);
-    assertThat(errorsMap).extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
+    assertThat(errorsMap).isEmpty();
+  }
+
+  @Test
+  public void validate_validateFileUploads_eiaAndHabitats_agree_noDocumentsUploaded_fail() {
+
+    dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
+    dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
+    form.setResponseDataForms(Map.of(
+        ConsultationResponseOptionGroup.EIA_REGS, dataForm1,
+        ConsultationResponseOptionGroup.HABITATS_REGS, dataForm2));
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ConsultationResponseOptionGroup.EIA_REGS);
+    assertThat(errorsMap)
+        .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .containsExactly(
             tuple(
                 "uploadedFileWithDescriptionForms",
