@@ -74,11 +74,11 @@ public class TaskListControllerModelAndViewCreator {
                 .createReviewAndSubmitTask(pwaApplicationDetail));
 
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
-      modelAndView.addObject("masterPwaReference",
-          masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
+      var masterPwaView = masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication());
+      modelAndView.addObject("masterPwaReference", masterPwaView.getReference());
       modelAndView.addObject("viewPwaUrl",
           ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-              pwaApplicationDetail.getPwaApplication().getMasterPwa().getId(), PwaViewTab.PIPELINES, null, null)));
+              masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null)));
     }
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),
