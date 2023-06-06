@@ -110,7 +110,7 @@ public class ApplicantOrganisationController {
                                        WebUserAccount user) {
 
     String backUrl = ReverseRouter.route(on(PickExistingPwaController.class)
-        .renderPickPwaToStartApplication(pwaApplicationType, null, null));
+        .renderPickPwaToStartApplication(pwaApplicationType, PwaResourceType.PETROLEUM, null, null));
 
     var pwaDetail = masterPwaService.getCurrentDetailOrThrow(masterPwa);
 

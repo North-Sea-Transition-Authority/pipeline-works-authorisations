@@ -117,7 +117,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     masterPwa = pwaApplication.getMasterPwa();
     var options = new PickableMasterPwaOptions(Map.of(), Map.of());
-    when(pickedPwaRetrievalService.getPickablePwaOptions(any())).thenReturn(options);
+    when(pickedPwaRetrievalService.getPickablePwaOptions(any(), any())).thenReturn(options);
     when(pickedPwaRetrievalService.getPickedConsentedPwa(any(), any())).thenReturn(masterPwa);
     when(pickedPwaRetrievalService.getPickedNonConsentedPwa(any(), any())).thenReturn(masterPwa);
     // fake create application service so we get an app of the requested type back
@@ -153,7 +153,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
             get(ReverseRouter.route(on(PickExistingPwaController.class)
-                .renderPickPwaToStartApplication(appType, null, null)
+                .renderPickPwaToStartApplication(appType, PwaResourceType.PETROLEUM, null, null)
             )).with(authenticatedUserAndSession(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
@@ -169,7 +169,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       mockMvc.perform(
           get(ReverseRouter.route(on(PickExistingPwaController.class)
-              .renderPickPwaToStartApplication(appType, null, null)))
+              .renderPickPwaToStartApplication(appType,PwaResourceType.PETROLEUM, null, null)))
               .with(authenticatedUserAndSession(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
@@ -192,7 +192,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
           ? status().is3xxRedirection() : status().isForbidden();
       try {
         mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-            .pickPwaAndStartApplication(appType, null, null, null)))
+            .pickPwaAndStartApplication(appType, PwaResourceType.PETROLEUM, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -208,7 +208,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM,null,  null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -224,7 +224,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation));
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -242,7 +242,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation, secondApplicantOrg));
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -256,7 +256,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_nonconsentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.DEPOSIT_CONSENT, null, null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -269,7 +269,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_nonconsentedPwaPicked_notDepositType() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -293,7 +293,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
     var form = new PickPwaForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    controller.pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, form,  bindingResult, user);
+    controller.pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, form,  bindingResult, user);
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Variation application started");
   }

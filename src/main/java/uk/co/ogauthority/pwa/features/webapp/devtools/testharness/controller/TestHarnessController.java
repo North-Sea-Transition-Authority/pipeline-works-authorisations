@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.GenerateApplicationForm;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.GenerateVariationApplicationForm;
@@ -159,7 +160,7 @@ public class TestHarnessController {
   private ModelAndView getSelectPwaModelAndView(GenerateVariationApplicationForm form) {
 
     var user = testHarnessUserRetrievalService.getWebUserAccount(form.getApplicantPersonId());
-    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user);
+    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, PwaResourceType.PETROLEUM);
     var showNonConsentedOptions = !pickableOptions.getNonconsentedPickablePwas().isEmpty()
         && PwaApplicationType.DEPOSIT_CONSENT.equals(form.getApplicationType());
 

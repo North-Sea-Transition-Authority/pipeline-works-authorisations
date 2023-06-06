@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
 import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
@@ -45,7 +46,7 @@ public class PickedPwaRetrievalServiceTest {
 
   @Test
   public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
-    var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount);
+    var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount, PwaResourceType.PETROLEUM);
     assertThat(options.getConsentedPickablePwas()).isEmpty();
     assertThat(options.getNonconsentedPickablePwas()).isEmpty();
 
