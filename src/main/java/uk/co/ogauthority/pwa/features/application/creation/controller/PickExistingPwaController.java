@@ -41,7 +41,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{resourceType}/pick-pipeline/")
+@RequestMapping("/pwa-application/{applicationType}/{resourceType}/pick-pwa-for-application/")
 public class PickExistingPwaController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PickExistingPwaController.class);
