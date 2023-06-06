@@ -11,28 +11,39 @@ public enum ConsultationResponseOption {
       "Provide consent conditions if they apply",
       "Consent conditions",
       "Consent conditions",
-      null, false),
+      null,
+      false,
+      false
+  ),
   REJECTED(
       "Rejected",
       "Why are you rejecting this application?",
       "Reason for rejecting the application",
       "Rejection reason",
-      null, false),
-
+      null,
+      false,
+      false
+  ),
   PROVIDE_ADVICE(
       "Provide advice",
       "Advice text",
       "Advice text",
       "Advice text",
       "Provide advice - On the basis of the information received HSE is able to provide the following advice " +
-          "regarding the work proposed in the application. HSE’s advice is listed below.\n\n", true),
+          "regarding the work proposed in the application. HSE’s advice is listed below.\n\n",
+      true,
+      false
+  ),
   NO_ADVICE(
       "No advice",
       "Provide comments if they apply",
       "Comments",
       "Comments",
       "No advice - On the basis of the information received HSE does not have any advice " +
-          "regarding the work proposed in the application.", false),
+          "regarding the work proposed in the application.",
+      false,
+      false
+  ),
 
   EIA_AGREE(
       "Agree",
@@ -45,7 +56,10 @@ public enum ConsultationResponseOption {
           "Energy and Industrial Strategy, agrees to the NSTA’s grant of consent for the activities " +
           "described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
-      null, false),
+      null,
+      false,
+      true
+  ),
   EIA_DISAGREE(
       "Do not agree",
       "Why do you not agree to this application?",
@@ -56,7 +70,10 @@ public enum ConsultationResponseOption {
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
           "Strategy, does not agree to the NSTA’s grant of consent for the activities described in application " +
           "reference %s and a copy of the Secretary of State’s decision is attached.",
-      null, false),
+      null,
+      false,
+      false
+  ),
   EIA_NOT_RELEVANT(
       "Agreement to consent not required under the EIA regulations",
       "Why is agreement not required under the EIA regulations?",
@@ -67,7 +84,10 @@ public enum ConsultationResponseOption {
           "Decommissioning, acting on behalf of the Secretary of State for Business, Energy and Industrial " +
           "Strategy, does not consider that the Secretary of State’s agreement to the grant of consent by " +
           "the NSTA for the activities described in application reference %s is required.",
-      null, false),
+      null,
+      false,
+      false
+  ),
 
   HABITATS_AGREE(
       "Agree",
@@ -79,7 +99,10 @@ public enum ConsultationResponseOption {
           "of State for Business, Energy and Industrial Strategy, agrees to the NSTA’s grant of consent for the " +
           "activities described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
-      null, false),
+      null,
+      false,
+      true
+  ),
   HABITATS_DISAGREE(
       "Do not agree",
       "Why do you not agree to this application?",
@@ -90,7 +113,10 @@ public enum ConsultationResponseOption {
           "of State for Business, Energy and Industrial Strategy, does not agree to the NSTA’s grant of consent for " +
           "the activities described in application reference %s and a copy of the " +
           "Secretary of State’s decision is attached.",
-      null, false),
+      null,
+      false,
+      false
+  ),
   HABITATS_NOT_RELEVANT(
       "Agreement to consent not required under the Habitats regulations",
       "Why is agreement not required under the Habitats regulations?",
@@ -101,7 +127,10 @@ public enum ConsultationResponseOption {
           "State for Business, Energy and Industrial Strategy, does not consider that the Secretary of State’s " +
           "agreement to the grant of consent by the NSTA for the activities described in application reference " +
           "%s is required.",
-      null, false);
+      null,
+      false,
+      false
+  );
 
   private final String labelText;
   private final String textAreaLabelText;
@@ -111,13 +140,16 @@ public enum ConsultationResponseOption {
   private final String emailText;
   private final boolean includeResponseTextInEmail;
 
+  private final boolean requireDocumentUpload;
+
   ConsultationResponseOption(String labelText,
                              String textAreaLabelText,
                              String textAreaLengthValidationMessagePrefix,
                              String textAreaViewLabelText,
                              String radioInsetText,
                              String emailText,
-                             boolean includeResponseTextInEmail) {
+                             boolean includeResponseTextInEmail,
+                             boolean requireDocumentUpload) {
     this.labelText = labelText;
     this.textAreaLabelText = textAreaLabelText;
     this.textAreaLengthValidationMessagePrefix = textAreaLengthValidationMessagePrefix;
@@ -125,6 +157,7 @@ public enum ConsultationResponseOption {
     this.radioInsetText = radioInsetText;
     this.emailText = emailText;
     this.includeResponseTextInEmail = includeResponseTextInEmail;
+    this.requireDocumentUpload = requireDocumentUpload;
   }
 
   ConsultationResponseOption(String labelText,
@@ -132,7 +165,8 @@ public enum ConsultationResponseOption {
                              String textAreaLengthValidationMessagePrefix,
                              String textAreaViewLabelText,
                              String emailText,
-                             boolean includeResponseTextInEmail) {
+                             boolean includeResponseTextInEmail,
+                             boolean requireDocumentUpload) {
     this.labelText = labelText;
     this.textAreaLabelText = textAreaLabelText;
     this.textAreaLengthValidationMessagePrefix = textAreaLengthValidationMessagePrefix;
@@ -140,6 +174,7 @@ public enum ConsultationResponseOption {
     this.radioInsetText = "";
     this.emailText = emailText;
     this.includeResponseTextInEmail = includeResponseTextInEmail;
+    this.requireDocumentUpload = requireDocumentUpload;
   }
 
   public String getLabelText() {
@@ -172,6 +207,10 @@ public enum ConsultationResponseOption {
 
   public static List<ConsultationResponseOption> asList() {
     return Arrays.asList(ConsultationResponseOption.values());
+  }
+
+  public boolean requireDocumentUpload() {
+    return requireDocumentUpload;
   }
 
 }

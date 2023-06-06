@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.validators.consultations;
 
 import java.util.Comparator;
-import java.util.Objects;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -10,7 +8,6 @@ import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
@@ -45,15 +42,9 @@ public class ConsultationResponseValidator implements Validator {
 
   private void validateFileUploads(ConsultationResponseForm form, Errors errors) {
     // check if EIA or Habitats reg response requires file upload
-    boolean fileRequired = filesRequiredByResponse(
-        form,
-        ConsultationResponseOptionGroup.EIA_REGS,
-        Set.of(ConsultationResponseOption.EIA_AGREE)
-    ) || filesRequiredByResponse(
-        form,
-        ConsultationResponseOptionGroup.HABITATS_REGS,
-        Set.of(ConsultationResponseOption.HABITATS_AGREE)
-    );
+    boolean fileRequired = form.getResponseDataForms().values().stream()
+        .map(ConsultationResponseDataForm::getConsultationResponseOption)
+        .anyMatch(ConsultationResponseOption::requireDocumentUpload);
 
     var requiredFileCount = fileRequired ? 1 : 0;
 
@@ -63,17 +54,6 @@ public class ConsultationResponseValidator implements Validator {
             requiredFileCount)
     );
     FileUploadUtils.validateFilesDescriptionLength(form, errors);
-  }
-
-  // helper which returns 1 if option group exists on form and response is contained in provided set, else 0;
-  private boolean filesRequiredByResponse(ConsultationResponseForm form,
-                                      ConsultationResponseOptionGroup consultationResponseOptionGroup,
-                                      Set<ConsultationResponseOption> setOfResponsesRequiringFileUpload) {
-    var response = form.getResponseDataForms()
-        .getOrDefault(consultationResponseOptionGroup, new ConsultationResponseDataForm())
-        .getConsultationResponseOption();
-
-    return Objects.nonNull(response) && setOfResponsesRequiringFileUpload.contains(response);
   }
 
 }
