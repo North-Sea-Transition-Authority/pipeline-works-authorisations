@@ -147,7 +147,7 @@ public class PickExistingPwaController {
 
           // otherwise make the user pick one
           return ReverseRouter.redirect(on(ApplicantOrganisationController.class)
-              .renderSelectOrganisation(pickedPwa.getId(), applicationType, null, null));
+              .renderSelectOrganisation(pickedPwa.getId(), applicationType, resourceType, null, null));
 
         });
 
