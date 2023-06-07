@@ -23,7 +23,7 @@
       <@fdsDataItems.dataValues key="Proposed start date" value=caseSummaryView.proposedStartDateDisplay!"" + fastTrackText />
       <@fdsDataItems.dataValues key="Fields" value=caseSummaryView.fieldNames!"Not linked to field" />
       <@fdsDataItems.dataValues key="Case officer" value=caseSummaryView.caseOfficerName!"Not yet assigned" />
-      <#if caseSummaryView.pwaApplicationType.name() != "INITIAL">
+      <#if caseSummaryView.masterPwaReference?has_content && caseSummaryView.pwaApplicationType.name() != "INITIAL">
         <@fdsDataItems.dataValues key="PWA reference" value=caseSummaryView.masterPwaReference />
       </#if>
   </@fdsDataItems.dataItem>
