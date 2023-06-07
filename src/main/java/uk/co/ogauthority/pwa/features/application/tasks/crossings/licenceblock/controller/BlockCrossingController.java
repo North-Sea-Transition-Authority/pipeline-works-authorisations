@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptions.NO;
+import static uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptions.YES_NOW;
 
 import java.util.Comparator;
 import java.util.List;
@@ -26,13 +28,13 @@ import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptions;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptionsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingFormValidator;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockOptionsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
