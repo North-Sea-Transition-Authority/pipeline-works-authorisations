@@ -32,7 +32,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaResourceTypeController.class)
@@ -42,8 +41,6 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   @MockBean
   PwaResourceTypeFormValidator validator;
 
-  @MockBean
-  PwaApplicationRedirectService redirectService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
