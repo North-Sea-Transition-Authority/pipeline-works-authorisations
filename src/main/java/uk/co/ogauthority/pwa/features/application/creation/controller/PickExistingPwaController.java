@@ -85,7 +85,9 @@ public class PickExistingPwaController {
     return getPickPwaModelAndView(user, applicationType, resourceType);
   }
 
-  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user, PwaApplicationType pwaApplicationType, PwaResourceType resourceType) {
+  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user,
+                                              PwaApplicationType pwaApplicationType,
+                                              PwaResourceType resourceType) {
     var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, resourceType);
 
     List<String> ogList = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.APPLICATION_CREATOR)
