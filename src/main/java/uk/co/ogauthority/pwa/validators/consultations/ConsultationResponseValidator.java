@@ -46,12 +46,8 @@ public class ConsultationResponseValidator implements Validator {
         .map(ConsultationResponseDataForm::getConsultationResponseOption)
         .anyMatch(ConsultationResponseOption::requireDocumentUpload);
 
-    var requiredFileCount = fileRequired ? 1 : 0;
-
-    FileUploadUtils.validateMinFileLimit(form, errors, requiredFileCount,
-        String.format(
-            "You must upload at least %s file(s) in order to support your decision",
-            requiredFileCount)
+    FileUploadUtils.validateFileUploaded(form, errors, fileRequired,
+        "Upload at least one file to support your decision"
     );
     FileUploadUtils.validateFilesDescriptionLength(form, errors);
   }
