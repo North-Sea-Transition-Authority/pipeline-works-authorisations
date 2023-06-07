@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -33,6 +32,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaResourceTypeController.class)
@@ -41,6 +41,9 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
   @MockBean
   PwaResourceTypeFormValidator validator;
+
+  @MockBean
+  PwaApplicationRedirectService redirectService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
@@ -88,9 +91,8 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param("resourceType", PwaResourceType.HYDROGEN.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/pwa-application/initial/hydrogen/new/"));
+        .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.HYDROGEN);
   }
 }
