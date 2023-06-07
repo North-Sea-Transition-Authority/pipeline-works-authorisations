@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 public enum AddBlockOptions {
   YES_NOW("Yes, I want to add one now", 10),
   YES_LATER("Yes, but I will add it later before I submit my application", 20),
-  NO("No, I have added all the blocks I need to", 30);
+  NO("No, I have added all the associated blocks I need to", 30);
 
   private final String displayName;
   private final Integer displayOrder;
