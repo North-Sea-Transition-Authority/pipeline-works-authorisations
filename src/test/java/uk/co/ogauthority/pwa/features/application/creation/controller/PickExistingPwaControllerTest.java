@@ -208,7 +208,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM,null,  null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN,null,  null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -242,7 +242,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation, secondApplicantOrg));
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
+            .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
@@ -269,7 +269,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_nonconsentedPwaPicked_notDepositType() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))

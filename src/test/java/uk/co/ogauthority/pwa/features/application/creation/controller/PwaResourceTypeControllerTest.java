@@ -78,7 +78,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_valid() throws Exception {
+  public void postResourceScreen_validHydrogen() throws Exception {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.HYDROGEN);
 
@@ -91,5 +91,21 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
     verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.HYDROGEN);
+  }
+
+  @Test
+  public void postResourceScreen_validPetroleum() throws Exception {
+    var form = new PwaResourceTypeForm();
+    form.setResourceType(PwaResourceType.PETROLEUM);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
+        .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("resourceType", PwaResourceType.PETROLEUM.name()));
+    verify(validator).validate(any(), any());
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM);
   }
 }

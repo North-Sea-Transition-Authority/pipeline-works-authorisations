@@ -51,7 +51,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().isOk() : status().isForbidden();
       try {
         mockMvc.perform(
-            get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
+            get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.HYDROGEN)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
@@ -109,7 +109,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
     for (PwaApplicationType appType : PwaApplicationType.values()) {
 
       mockMvc.perform(
-          post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.PETROLEUM)))
+          post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
               .with(authenticatedUserAndSession(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());

@@ -149,7 +149,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ApplicantOrganisationController.class)
-                .renderSelectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null)
+                .renderSelectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null)
             )).with(authenticatedUserAndSession(user))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -180,7 +180,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of());
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
@@ -209,7 +209,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     ControllerTestUtils.mockSmartValidatorErrors(applicantOrganisationFormValidator, List.of("applicantOrganisationOuId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
