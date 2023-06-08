@@ -71,7 +71,7 @@ public class StartPwaApplicationController {
                                        BindingResult bindingResult) {
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () ->
-        pwaApplicationRedirectService.getStartApplicationRedirect(
+        pwaApplicationRedirectService.getResourceTypeRedirect(
             EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType())));
 
   }

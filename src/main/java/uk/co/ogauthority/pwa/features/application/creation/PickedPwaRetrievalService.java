@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.creation;
 
 import java.util.Comparator;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -29,7 +31,7 @@ public class PickedPwaRetrievalService {
 
   }
 
-  public PickableMasterPwaOptions getPickablePwaOptions(WebUserAccount webUserAccount) {
+  public PickableMasterPwaOptions getPickablePwaOptions(WebUserAccount webUserAccount, PwaResourceType resourceType) {
 
     var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
         webUserAccount,
@@ -39,6 +41,7 @@ public class PickedPwaRetrievalService {
     var consentedMasterPwaMap = consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(
         potentialHolderOrganisationUnits)
         .stream()
+        .filter(masterPwa -> Objects.equals(masterPwa.getResourceType(), resourceType))
         .sorted(Comparator.comparing(MasterPwaDetail::getReference))
         .collect(
             StreamUtils.toLinkedHashMap(mpd -> String.valueOf(mpd.getMasterPwaId()), MasterPwaDetail::getReference));
@@ -46,6 +49,7 @@ public class PickedPwaRetrievalService {
     var nonConsentedMasterPwaMap = nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(
         potentialHolderOrganisationUnits)
         .stream()
+        .filter(masterPwa -> Objects.equals(masterPwa.getResourceType(), resourceType))
         .sorted(Comparator.comparing(MasterPwaDetail::getReference))
         .collect(
             StreamUtils.toLinkedHashMap(mpd -> String.valueOf(mpd.getMasterPwaId()), MasterPwaDetail::getReference));
