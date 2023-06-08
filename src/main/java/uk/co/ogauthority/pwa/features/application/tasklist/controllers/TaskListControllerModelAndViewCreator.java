@@ -82,15 +82,12 @@ public class TaskListControllerModelAndViewCreator {
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
       var application = pwaApplicationDetail.getPwaApplication();
       var masterPwaView = masterPwaViewService.getCurrentMasterPwaView(application);
-      var breadcrumbRoute = pwaApplicationRedirectService.getTaskListRoute(application);
 
       modelAndView.addObject("masterPwaReference", masterPwaView.getReference());
       modelAndView.addObject("viewPwaUrl", ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
-              .renderViewPwa(masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null, null),
+              .renderViewPwa(masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null),
               new LinkedMultiValueMap<>(Map.of(
-                  "breadcrumbOverrideRoute", List.of(breadcrumbRoute),
-                  "breadcrumbOverrideText", List.of("Task list")
-              ))));
+                  "showBreadcrumbs", List.of("false")))));
     }
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),
