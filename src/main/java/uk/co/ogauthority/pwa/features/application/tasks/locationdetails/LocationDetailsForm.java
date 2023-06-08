@@ -243,6 +243,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
         && Objects.equals(diversUsed, that.diversUsed)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
         && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
+        && Objects.equals(transportsMaterialsFromShore, that.transportsMaterialsFromShore)
         && Objects.equals(transportationMethodFromShore, that.transportationMethodFromShore)
         && Objects.equals(transportationMethodToShore, that.transportationMethodToShore)
         && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
@@ -260,7 +261,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
         partiallyWithinSafetyZoneForm, psrNotificationSubmittedOption, psrNotificationSubmittedDate,
         psrNotificationExpectedSubmissionDate, psrNotificationNotRequiredReason, diversUsed, facilitiesOffshore,
-        transportsMaterialsToShore, transportsMaterialsFromShore, transportsMaterialsFromShore,
+        transportsMaterialsToShore, transportsMaterialsFromShore, transportationMethodFromShore,
         transportationMethodToShore, pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason,
         withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }

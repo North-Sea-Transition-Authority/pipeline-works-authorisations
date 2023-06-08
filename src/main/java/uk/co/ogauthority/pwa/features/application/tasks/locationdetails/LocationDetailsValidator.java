@@ -102,7 +102,7 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
-          errors, "transportationMethodFromShore", form::getTransportationMethodToShore,
+          errors, "transportationMethodFromShore", form::getTransportationMethodFromShore,
           "Transportation method from the shore");
     }
 

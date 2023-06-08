@@ -241,6 +241,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .collect(Collectors.toList());
   }
 
+  public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationDetail pwaApplicationDetail) {
+    return getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getResourceType());
+  }
+
   public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType,
                                                            PwaResourceType pwaResourceType) {
 
@@ -322,9 +326,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     BindingResult bindingResult = new BeanPropertyBindingResult(locationDetailsForm, "form");
     var validationHints = new LocationDetailsFormValidationHints(
         ValidationType.FULL,
-        getRequiredQuestions(
-            detail.getPwaApplicationType(),
-            detail.getResourceType())
+        getRequiredQuestions(detail)
     );
     validator.validate(locationDetailsForm, bindingResult, validationHints);
 
@@ -339,10 +341,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                 PwaApplicationDetail pwaApplicationDetail) {
 
     var validationHints = new LocationDetailsFormValidationHints(
-        validationType, getRequiredQuestions(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getResourceType()
-    ));
+        validationType, getRequiredQuestions(pwaApplicationDetail)
+    );
 
     validator.validate(form, bindingResult, validationHints);
     return bindingResult;
@@ -352,9 +352,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   public void cleanupData(PwaApplicationDetail detail) {
 
     var locationDetails = getLocationDetailsForDraft(detail);
-    var requiredQuestions = getRequiredQuestions(
-        detail.getPwaApplicationType(),
-        detail.getResourceType());
+    var requiredQuestions = getRequiredQuestions(detail);
 
     // if no to HSE safety zone, clear facilities
     if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {

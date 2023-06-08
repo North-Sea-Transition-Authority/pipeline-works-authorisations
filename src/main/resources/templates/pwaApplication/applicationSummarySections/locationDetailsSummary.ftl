@@ -99,12 +99,12 @@
 
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_FROM_SHORE")>
             <@fdsCheckAnswers.checkAnswersRow keyText="Will the pipeline(s) be used to transport products / facilitate the transportation of products from the shore?" actionUrl="" screenReaderActionText="" actionText="">
-                <#if locationDetailsView.transportsMaterialsToShore?has_content>
-                    <@showYesNoForBool locationDetailsView.transportsMaterialsToShore/>
+                <#if locationDetailsView.transportsMaterialsFromShore?has_content>
+                    <@showYesNoForBool locationDetailsView.transportsMaterialsFromShore/>
                 </#if>
             </@fdsCheckAnswers.checkAnswersRow>
 
-            <#if locationDetailsView.transportsMaterialsToShore?has_content && locationDetailsView.transportsMaterialsToShore>
+            <#if locationDetailsView.transportsMaterialsFromShore?has_content && locationDetailsView.transportsMaterialsFromShore>
                 <@fdsCheckAnswers.checkAnswersRow keyText="Method of transportation from shore" actionUrl="" screenReaderActionText="" actionText="">
                     <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.transportationMethodFromShore!} </@multiLineText.multiLineText>
                 </@fdsCheckAnswers.checkAnswersRow>

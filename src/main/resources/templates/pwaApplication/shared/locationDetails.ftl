@@ -81,9 +81,9 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_FROM_SHORE")>
-            <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products from the shore?" hiddenContent=true>
+            <@fdsRadio.radioGroup path="form.transportsMaterialsFromShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products from the shore?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.transportsMaterialsFromShore">
-                    <@fdsTextarea.textarea path="form.transportationMethodFromShore" labelText="State the method of transportation from shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText=""/>
+                    <@fdsTextarea.textarea path="form.transportationMethodFromShore" labelText="State the method of transportation from shore" nestingPath="form.transportsMaterialsFromShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText=""/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.transportsMaterialsFromShore"/>
             </@fdsRadio.radioGroup>

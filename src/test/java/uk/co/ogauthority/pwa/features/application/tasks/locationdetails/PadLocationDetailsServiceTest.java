@@ -196,7 +196,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getApproximateProjectLocationFromShore()).isNull();
     assertThat(entity.getFacilitiesOffshore()).isNull();
     assertThat(entity.getTransportsMaterialsToShore()).isNull();
-    assertThat(entity.getTransportsMaterialsToShore()).isNull();
+    assertThat(entity.getTransportsMaterialsFromShore()).isNull();
     assertThat(entity.getPipelineRouteDetails()).isNull();
     assertThat(entity.getSurveyConcludedTimestamp()).isNull();
     assertThat(entity.getRouteSurveyUndertaken()).isNull();
@@ -216,6 +216,8 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getFacilitiesOffshore()).isEqualTo(form.getFacilitiesOffshore());
     assertThat(entity.getTransportsMaterialsToShore()).isEqualTo(form.getTransportsMaterialsToShore());
     assertThat(entity.getTransportationMethodToShore()).isEqualTo(form.getTransportationMethodToShore());
+    assertThat(entity.getTransportsMaterialsFromShore()).isEqualTo(form.getTransportsMaterialsFromShore());
+    assertThat(entity.getTransportationMethodFromShore()).isEqualTo(form.getTransportationMethodFromShore());
     assertThat(entity.getPipelineRouteDetails()).isEqualTo(form.getPipelineRouteDetails());
     assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
     assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
@@ -414,10 +416,10 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_appTypesPEtroleumThatRequireAllQuestions() {
+  public void getRequiredQuestions_appTypesPetroleumThatRequireAllQuestions() {
     PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
         .forEach(appType -> {
-          var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.HYDROGEN);
+          var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.PETROLEUM);
           assertThat(requiredQuestions).containsAll(LocationDetailsQuestion.getAllExcluding(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE));
         });
   }
@@ -578,6 +580,8 @@ public class PadLocationDetailsServiceTest {
     form.setFacilitiesOffshore(true);
     form.setTransportsMaterialsToShore(true);
     form.setTransportationMethodToShore("method");
+    form.setTransportsMaterialsFromShore(true);
+    form.setTransportationMethodFromShore("method");
     form.setPipelineRouteDetails("Route details");
     form.setRouteSurveyUndertaken(true);
     form.setWithinLimitsOfDeviation(true);

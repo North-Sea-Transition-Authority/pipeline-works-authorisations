@@ -439,7 +439,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethod_false() {
+  public void validate_full_transportMethodToShore_false() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -448,13 +448,32 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethod_true_withText() {
+  public void validate_full_transportMethodToShore_true_withText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
     form.setTransportationMethodToShore("Test");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsToShore");
+  }
+
+  @Test
+  public void validate_full_transportMethodFromShore_false() {
+    var form = new LocationDetailsForm();
+    form.setTransportsMaterialsFromShore(false);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)));
+    assertThat(result).doesNotContainKeys("transportsMaterialsFromShore");
+  }
+
+  @Test
+  public void validate_full_transportMethodFromShore_true_withText() {
+    var form = new LocationDetailsForm();
+    form.setTransportsMaterialsFromShore(true);
+    form.setTransportationMethodFromShore("Test");
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)));
+    assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsFromShore");
   }
 
   @Test
