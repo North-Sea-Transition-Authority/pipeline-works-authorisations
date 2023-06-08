@@ -25,9 +25,10 @@
     <h1 class="govuk-heading-xl">Submit a Pipeline Works Authorisation
     <#if masterPwaReference?has_content>
         <br/>
-        <@fdsAction.link linkText="View PWA"
+        <@fdsAction.link linkText="View PWA (in new tab)"
         linkUrl=springUrl(viewPwaUrl) linkClass="govuk-link
         govuk-!-font-size-19 govuk-link--no-visited-state govuk-link--case-management-heading"
+        openInNewTab=true
         />
     </#if>
     </h1>

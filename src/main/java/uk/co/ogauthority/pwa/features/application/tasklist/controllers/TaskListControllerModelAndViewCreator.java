@@ -4,8 +4,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
@@ -20,6 +22,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.DeleteApplicationController;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 
@@ -40,6 +43,7 @@ public class TaskListControllerModelAndViewCreator {
   private final ApproveOptionsService approveOptionsService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public TaskListControllerModelAndViewCreator(ApplicationBreadcrumbService breadcrumbService,
@@ -48,7 +52,8 @@ public class TaskListControllerModelAndViewCreator {
                                                ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
                                                ApproveOptionsService approveOptionsService,
                                                PwaApplicationDetailService pwaApplicationDetailService,
-                                               PwaAppNotificationBannerService pwaAppNotificationBannerService) {
+                                               PwaAppNotificationBannerService pwaAppNotificationBannerService,
+                                               PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
     this.masterPwaViewService = masterPwaViewService;
@@ -56,6 +61,7 @@ public class TaskListControllerModelAndViewCreator {
     this.approveOptionsService = approveOptionsService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
 
@@ -74,11 +80,17 @@ public class TaskListControllerModelAndViewCreator {
                 .createReviewAndSubmitTask(pwaApplicationDetail));
 
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
-      var masterPwaView = masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication());
+      var application = pwaApplicationDetail.getPwaApplication();
+      var masterPwaView = masterPwaViewService.getCurrentMasterPwaView(application);
+      var breadcrumbRoute = pwaApplicationRedirectService.getTaskListRoute(application);
+
       modelAndView.addObject("masterPwaReference", masterPwaView.getReference());
-      modelAndView.addObject("viewPwaUrl",
-          ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-              masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null)));
+      modelAndView.addObject("viewPwaUrl", ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
+              .renderViewPwa(masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null, null),
+              new LinkedMultiValueMap<>(Map.of(
+                  "breadcrumbOverrideRoute", List.of(breadcrumbRoute),
+                  "breadcrumbOverrideText", List.of("Task list")
+              ))));
     }
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),
