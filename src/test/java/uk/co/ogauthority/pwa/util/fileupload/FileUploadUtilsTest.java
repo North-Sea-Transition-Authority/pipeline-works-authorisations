@@ -90,7 +90,7 @@ public class FileUploadUtilsTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateFileUploaded(form, bindingResult, true, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
@@ -104,7 +104,7 @@ public class FileUploadUtilsTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateFileUploaded(form, bindingResult, true, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
@@ -118,7 +118,7 @@ public class FileUploadUtilsTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateFileUploaded(form, bindingResult, true, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isTrue();
 

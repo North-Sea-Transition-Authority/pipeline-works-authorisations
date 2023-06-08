@@ -41,14 +41,14 @@ public class ConsultationResponseValidator implements Validator {
   }
 
   private void validateFileUploads(ConsultationResponseForm form, Errors errors) {
-    // check if EIA or Habitats reg response requires file upload
     boolean fileRequired = form.getResponseDataForms().values().stream()
         .map(ConsultationResponseDataForm::getConsultationResponseOption)
         .anyMatch(ConsultationResponseOption::requireDocumentUpload);
 
-    FileUploadUtils.validateFileUploaded(form, errors, fileRequired,
-        "Upload at least one file to support your decision"
-    );
+    if (fileRequired) {
+      FileUploadUtils.validateFileUploaded(form, errors, "Upload at least one file to support your decision");
+    }
+
     FileUploadUtils.validateFilesDescriptionLength(form, errors);
   }
 

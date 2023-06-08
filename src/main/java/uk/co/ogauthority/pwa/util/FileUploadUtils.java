@@ -38,15 +38,12 @@ public class FileUploadUtils {
 
   public static void validateFileUploaded(UploadMultipleFilesWithDescriptionForm uploadForm,
                                           Errors errors,
-                                          boolean doValidate,
                                           String fileNotUploadedMessage) {
-
-    if (uploadForm.getFileFormsForValidation().size() < 1 & doValidate) {
+    if (uploadForm.getFileFormsForValidation().size() < 1) {
       errors.rejectValue(UPLOADED_FILE_FIELD_NAME,
           FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode(UPLOADED_FILE_FIELD_NAME),
           fileNotUploadedMessage);
     }
-
   }
 
   private static String getFileFormPathByIndex(int uploadedFileFormIndex) {
@@ -105,7 +102,7 @@ public class FileUploadUtils {
         });
 
     if (mandatory) {
-      validateFileUploaded(uploadForm, errors, true, fileNotUploadedMessage);
+      validateFileUploaded(uploadForm, errors, fileNotUploadedMessage);
     }
 
   }
