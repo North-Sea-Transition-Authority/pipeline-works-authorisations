@@ -71,7 +71,7 @@ public class LocationDetailsSummaryServiceTest {
     var locationDetailsView = LocationDetailsSummaryServiceTestUtil.createLocationDetailsView();
     when(padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail)).thenReturn(locationDetailsView);
 
-    when(padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType())).thenReturn(Set.of());
+    when(padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getResourceType())).thenReturn(Set.of());
 
     var appSummary = locationDetailsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

@@ -22,7 +22,11 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
 
-  private String transportationMethod;
+  private Boolean transportsMaterialsFromShore;
+
+  private String transportationMethodToShore;
+
+  private String transportationMethodFromShore;
 
   private String pipelineRouteDetails;
   private Boolean routeSurveyUndertaken;
@@ -129,12 +133,28 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
     this.transportsMaterialsToShore = transportsMaterialsToShore;
   }
 
-  public String getTransportationMethod() {
-    return transportationMethod;
+  public Boolean getTransportsMaterialsFromShore() {
+    return transportsMaterialsFromShore;
   }
 
-  public void setTransportationMethod(String transportationMethod) {
-    this.transportationMethod = transportationMethod;
+  public void setTransportsMaterialsFromShore(Boolean transportsMaterialsFromShore) {
+    this.transportsMaterialsFromShore = transportsMaterialsFromShore;
+  }
+
+  public String getTransportationMethodToShore() {
+    return transportationMethodToShore;
+  }
+
+  public void setTransportationMethodToShore(String transportationMethodToShore) {
+    this.transportationMethodToShore = transportationMethodToShore;
+  }
+
+  public String getTransportationMethodFromShore() {
+    return transportationMethodFromShore;
+  }
+
+  public void setTransportationMethodFromShore(String transportationMethodFromShore) {
+    this.transportationMethodFromShore = transportationMethodFromShore;
   }
 
   public String getPipelineRouteDetails() {
@@ -202,7 +222,7 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   }
 
 
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -223,7 +243,8 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
         && Objects.equals(diversUsed, that.diversUsed)
         && Objects.equals(facilitiesOffshore, that.facilitiesOffshore)
         && Objects.equals(transportsMaterialsToShore, that.transportsMaterialsToShore)
-        && Objects.equals(transportationMethod, that.transportationMethod)
+        && Objects.equals(transportationMethodFromShore, that.transportationMethodFromShore)
+        && Objects.equals(transportationMethodToShore, that.transportationMethodToShore)
         && Objects.equals(pipelineRouteDetails, that.pipelineRouteDetails)
         && Objects.equals(routeSurveyUndertaken, that.routeSurveyUndertaken)
         && Objects.equals(routeSurveyNotUndertakenReason, that.routeSurveyNotUndertakenReason)
@@ -237,9 +258,10 @@ public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm 
   @Override
   public int hashCode() {
     return Objects.hash(approximateProjectLocationFromShore, withinSafetyZone, completelyWithinSafetyZoneForm,
-        partiallyWithinSafetyZoneForm, psrNotificationSubmittedOption, psrNotificationSubmittedDate, psrNotificationExpectedSubmissionDate,
-        psrNotificationNotRequiredReason, diversUsed, facilitiesOffshore, transportsMaterialsToShore, transportationMethod,
-        pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason, withinLimitsOfDeviation,
-        surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
+        partiallyWithinSafetyZoneForm, psrNotificationSubmittedOption, psrNotificationSubmittedDate,
+        psrNotificationExpectedSubmissionDate, psrNotificationNotRequiredReason, diversUsed, facilitiesOffshore,
+        transportsMaterialsToShore, transportsMaterialsFromShore, transportsMaterialsFromShore,
+        transportationMethodToShore, pipelineRouteDetails, routeSurveyUndertaken, routeSurveyNotUndertakenReason,
+        withinLimitsOfDeviation, surveyConcludedDay, surveyConcludedMonth, surveyConcludedYear, pipelineAshoreLocation);
   }
 }

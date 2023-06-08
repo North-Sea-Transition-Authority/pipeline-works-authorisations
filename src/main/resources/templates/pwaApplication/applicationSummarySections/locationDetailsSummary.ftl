@@ -34,7 +34,7 @@
                     ${locationDetailsView.withinSafetyZone.getDisplayText()}
                 </#if>
             </@fdsCheckAnswers.checkAnswersRow>
-        
+
 
             <#if locationDetailsView.withinSafetyZone?has_content && locationDetailsView.withinSafetyZone == "YES">
                 <@fdsCheckAnswers.checkAnswersRow keyText="Which structures are within 500m?" actionUrl="" screenReaderActionText="" actionText="">
@@ -63,7 +63,7 @@
 
         <#if requiredQuestions?seq_contains("DIVERS_USED")>
              <@fdsCheckAnswers.checkAnswersRow keyText="Will divers be used?" actionUrl="" screenReaderActionText="" actionText="">
-                <#if locationDetailsView.diversUsed?has_content> 
+                <#if locationDetailsView.diversUsed?has_content>
                     <@showYesNoForBool locationDetailsView.diversUsed/>
                 </#if>
             </@fdsCheckAnswers.checkAnswersRow>
@@ -92,12 +92,26 @@
 
             <#if locationDetailsView.transportsMaterialsToShore?has_content && locationDetailsView.transportsMaterialsToShore>
                 <@fdsCheckAnswers.checkAnswersRow keyText="Method of transportation to shore" actionUrl="" screenReaderActionText="" actionText="">
-                    <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.transportationMethod!} </@multiLineText.multiLineText>
+                    <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.transportationMethodToShore!} </@multiLineText.multiLineText>
                 </@fdsCheckAnswers.checkAnswersRow>
             </#if>
         </#if>
 
-        <#if requiredQuestions?seq_contains("ROUTE_SURVEY_UNDERTAKEN")>            
+        <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_FROM_SHORE")>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Will the pipeline(s) be used to transport products / facilitate the transportation of products from the shore?" actionUrl="" screenReaderActionText="" actionText="">
+                <#if locationDetailsView.transportsMaterialsToShore?has_content>
+                    <@showYesNoForBool locationDetailsView.transportsMaterialsToShore/>
+                </#if>
+            </@fdsCheckAnswers.checkAnswersRow>
+
+            <#if locationDetailsView.transportsMaterialsToShore?has_content && locationDetailsView.transportsMaterialsToShore>
+                <@fdsCheckAnswers.checkAnswersRow keyText="Method of transportation from shore" actionUrl="" screenReaderActionText="" actionText="">
+                    <@multiLineText.multiLineText blockClass=multiLineTextBlockClass> ${locationDetailsView.transportationMethodFromShore!} </@multiLineText.multiLineText>
+                </@fdsCheckAnswers.checkAnswersRow>
+            </#if>
+        </#if>
+
+        <#if requiredQuestions?seq_contains("ROUTE_SURVEY_UNDERTAKEN")>
             <@fdsCheckAnswers.checkAnswersRow keyText="Has a pipeline route survey been undertaken?" actionUrl="" screenReaderActionText="" actionText="">
                 <#if locationDetailsView.routeSurveyUndertaken?has_content>
                     <@showYesNoForBool locationDetailsView.routeSurveyUndertaken/>
@@ -133,7 +147,7 @@
 
     </@fdsCheckAnswers.checkAnswers>
 
-    <#if requiredQuestions?seq_contains("ROUTE_DOCUMENTS")>            
+    <#if requiredQuestions?seq_contains("ROUTE_DOCUMENTS")>
         <#if locationDetailsView.uploadedLetterFileViews?has_content>
             <h3 class="govuk-heading-m"> Pipeline route documents </h3>
             <@pwaFiles.uploadedFileList downloadUrl=springUrl(locationDetailsUrlFactory.getDocumentDownloadUrl()) existingFiles=locationDetailsView.uploadedLetterFileViews />
@@ -153,7 +167,7 @@
    <@fdsCheckAnswers.checkAnswersRow keyText="Have you submitted a Pipelines Safety Regulations notification to HSE?" actionUrl="" screenReaderActionText="" actionText="">
         <#if psrSubmittedOption?has_content>
             ${psrSubmittedOption.getDisplayText()}
-        </#if>                    
+        </#if>
     </@fdsCheckAnswers.checkAnswersRow>
 
     <#if psrSubmittedOption?has_content && psrSubmittedOption == "YES">

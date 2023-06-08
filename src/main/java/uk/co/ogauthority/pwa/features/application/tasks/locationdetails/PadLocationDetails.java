@@ -51,7 +51,9 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
 
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
-  private String transportationMethod;
+  private Boolean transportsMaterialsFromShore;
+  private String transportationMethodToShore;
+  private String transportationMethodFromShore;
   private String pipelineRouteDetails;
   private Instant surveyConcludedTimestamp;
   private Boolean routeSurveyUndertaken;
@@ -185,12 +187,28 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
     this.transportsMaterialsToShore = transportsMaterialsToShore;
   }
 
-  public String getTransportationMethod() {
-    return transportationMethod;
+  public Boolean getTransportsMaterialsFromShore() {
+    return transportsMaterialsFromShore;
   }
 
-  public void setTransportationMethod(String transportationMethod) {
-    this.transportationMethod = transportationMethod;
+  public void setTransportsMaterialsFromShore(Boolean transportsMaterialsFromShore) {
+    this.transportsMaterialsFromShore = transportsMaterialsFromShore;
+  }
+
+  public String getTransportationMethodToShore() {
+    return transportationMethodToShore;
+  }
+
+  public void setTransportationMethodToShore(String transportationMethodToShore) {
+    this.transportationMethodToShore = transportationMethodToShore;
+  }
+
+  public String getTransportationMethodFromShore() {
+    return transportationMethodFromShore;
+  }
+
+  public void setTransportationMethodFromShore(String transportationMethodFromShore) {
+    this.transportationMethodFromShore = transportationMethodFromShore;
   }
 
   public String getPipelineRouteDetails() {

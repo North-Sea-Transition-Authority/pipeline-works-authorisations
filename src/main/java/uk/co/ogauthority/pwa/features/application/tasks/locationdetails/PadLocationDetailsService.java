@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
@@ -92,7 +93,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     locationDetailsForm.setDiversUsed(padLocationDetails.getDiversUsed());
     locationDetailsForm.setFacilitiesOffshore(padLocationDetails.getFacilitiesOffshore());
     locationDetailsForm.setTransportsMaterialsToShore(padLocationDetails.getTransportsMaterialsToShore());
-    locationDetailsForm.setTransportationMethod(padLocationDetails.getTransportationMethod());
+    locationDetailsForm.setTransportsMaterialsFromShore(padLocationDetails.getTransportsMaterialsFromShore());
+    locationDetailsForm.setTransportationMethodToShore(padLocationDetails.getTransportationMethodToShore());
+    locationDetailsForm.setTransportationMethodFromShore(padLocationDetails.getTransportationMethodFromShore());
     locationDetailsForm.setPipelineRouteDetails(padLocationDetails.getPipelineRouteDetails());
     locationDetailsForm.setPipelineAshoreLocation(padLocationDetails.getPipelineAshoreLocation());
     DateUtils.setYearMonthDayFromInstant(
@@ -145,7 +148,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     padLocationDetails.setDiversUsed(locationDetailsForm.getDiversUsed());
     padLocationDetails.setFacilitiesOffshore(locationDetailsForm.getFacilitiesOffshore());
     padLocationDetails.setTransportsMaterialsToShore(locationDetailsForm.getTransportsMaterialsToShore());
-    padLocationDetails.setTransportationMethod(locationDetailsForm.getTransportationMethod());
+    padLocationDetails.setTransportsMaterialsFromShore(locationDetailsForm.getTransportsMaterialsFromShore());
+    padLocationDetails.setTransportationMethodToShore(locationDetailsForm.getTransportationMethodToShore());
+    padLocationDetails.setTransportationMethodFromShore(locationDetailsForm.getTransportationMethodFromShore());
     if (BooleanUtils.isFalse(locationDetailsForm.getFacilitiesOffshore())) {
       padLocationDetails.setPipelineAshoreLocation(locationDetailsForm.getPipelineAshoreLocation());
     } else {
@@ -209,7 +214,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         HseSafetyZone.PARTIALLY.equals(locationDetails.getWithinSafetyZone()) ? facilityNames : List.of(),
         locationDetails.getFacilitiesOffshore(),
         locationDetails.getTransportsMaterialsToShore(),
-        locationDetails.getTransportationMethod(),
+        locationDetails.getTransportsMaterialsFromShore(),
+        locationDetails.getTransportationMethodToShore(),
+        locationDetails.getTransportationMethodFromShore(),
         locationDetails.getPipelineRouteDetails(),
         locationDetails.getRouteSurveyUndertaken(),
         locationDetails.getRouteSurveyNotUndertakenReason(),
@@ -234,26 +241,31 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         .collect(Collectors.toList());
   }
 
-  public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
+  public Set<LocationDetailsQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType,
+                                                           PwaResourceType pwaResourceType) {
 
+    Set<LocationDetailsQuestion> requiredQuestions;
     switch (pwaApplicationType) {
       case DEPOSIT_CONSENT:
-        return EnumSet.of(
+        requiredQuestions = EnumSet.of(
             LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
             LocationDetailsQuestion.WITHIN_SAFETY_ZONE,
             LocationDetailsQuestion.PSR_NOTIFICATION,
             LocationDetailsQuestion.DIVERS_USED
         );
-
+        break;
       case DECOMMISSIONING:
-        return LocationDetailsQuestion.getAllExcluding(
+        requiredQuestions = LocationDetailsQuestion.getAllExcluding(
             LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION
         );
-
+        break;
       default:
-        return EnumSet.allOf(LocationDetailsQuestion.class);
+        requiredQuestions = EnumSet.allOf(LocationDetailsQuestion.class);
     }
-
+    if (pwaResourceType.equals(PwaResourceType.PETROLEUM)) {
+      requiredQuestions.remove(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE);
+    }
+    return requiredQuestions;
   }
 
   public Map<String, String> reapplyFacilitySelections(LocationDetailsForm form) {
@@ -310,7 +322,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     BindingResult bindingResult = new BeanPropertyBindingResult(locationDetailsForm, "form");
     var validationHints = new LocationDetailsFormValidationHints(
         ValidationType.FULL,
-        getRequiredQuestions(detail.getPwaApplicationType())
+        getRequiredQuestions(
+            detail.getPwaApplicationType(),
+            detail.getResourceType())
     );
     validator.validate(locationDetailsForm, bindingResult, validationHints);
 
@@ -325,7 +339,10 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                 PwaApplicationDetail pwaApplicationDetail) {
 
     var validationHints = new LocationDetailsFormValidationHints(
-        validationType, getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()));
+        validationType, getRequiredQuestions(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getResourceType()
+    ));
 
     validator.validate(form, bindingResult, validationHints);
     return bindingResult;
@@ -335,7 +352,9 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   public void cleanupData(PwaApplicationDetail detail) {
 
     var locationDetails = getLocationDetailsForDraft(detail);
-    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
+    var requiredQuestions = getRequiredQuestions(
+        detail.getPwaApplicationType(),
+        detail.getResourceType());
 
     // if no to HSE safety zone, clear facilities
     if (locationDetails.getWithinSafetyZone().equals(HseSafetyZone.NO)) {
@@ -350,7 +369,13 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     // if not transporting materials to shore, clear transportation method
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)
         && !locationDetails.getTransportsMaterialsToShore()) {
-      locationDetails.setTransportationMethod(null);
+      locationDetails.setTransportationMethodToShore(null);
+    }
+
+    // if not transporting materials from shore, clear transportation method
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)
+        && !locationDetails.getTransportsMaterialsFromShore()) {
+      locationDetails.setTransportationMethodFromShore(null);
     }
 
     // if no to route survey, clear survey date

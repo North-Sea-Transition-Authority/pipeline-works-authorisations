@@ -96,8 +96,14 @@ public class LocationDetailsValidator implements SmartValidator {
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
       ValidatorUtils.validateDefaultStringLength(
-          errors, "transportationMethod", form::getTransportationMethod,
-          "Transportation method");
+          errors, "transportationMethodToShore", form::getTransportationMethodToShore,
+          "Transportation method to shore");
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "transportationMethodFromShore", form::getTransportationMethodToShore,
+          "Transportation method from the shore");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
@@ -201,8 +207,18 @@ public class LocationDetailsValidator implements SmartValidator {
         errors.rejectValue("transportsMaterialsToShore", "transportsMaterialsToShore.required",
             "Select yes if the pipeline will be used to transport materials / facilitate the transportation of materials to shore");
       } else if (form.getTransportsMaterialsToShore().equals(true)) {
-        ValidationUtils.rejectIfEmpty(errors, "transportationMethod", "transportationMethod.required",
+        ValidationUtils.rejectIfEmpty(errors, "transportationMethodToShore", "transportationMethodToShore.required",
             "Enter the method of transportation to shore");
+      }
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)) {
+      if (form.getTransportsMaterialsFromShore() == null) {
+        errors.rejectValue("transportsMaterialsFromShore", "transportsMaterialsFromShore.required",
+            "Select yes if the pipeline will be used to transport materials / facilitate the transportation of materials from the shore");
+      } else if (form.getTransportsMaterialsFromShore().equals(true)) {
+        ValidationUtils.rejectIfEmpty(errors, "transportationMethodFromShore", "transportationMethodFromShore.required",
+            "Enter the method of transportation from the shore");
       }
     }
 
