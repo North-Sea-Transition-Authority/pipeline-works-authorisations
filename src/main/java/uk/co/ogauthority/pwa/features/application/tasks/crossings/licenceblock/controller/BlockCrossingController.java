@@ -31,8 +31,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.B
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingFormValidator;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.HasBlockCrossingForm;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.HasMoreBlocks;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
@@ -101,36 +99,28 @@ public class BlockCrossingController {
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AddBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
-    return createOverviewModelAndView(applicationContext.getApplicationDetail(), new HasBlockCrossingForm());
+    return createOverviewModelAndView(applicationContext.getApplicationDetail());
   }
 
   @PostMapping
   public ModelAndView postOverview(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") HasBlockCrossingForm form,
+      @ModelAttribute("form") AddBlockCrossingForm form,
       PwaApplicationContext applicationContext) {
 
     var detail = applicationContext.getApplicationDetail();
 
-    switch (form.getHasMoreBlocks()) {
-      case YES_NOW:
-        return ReverseRouter.redirect(on(BlockCrossingController.class)
-            .renderAddBlockCrossing(applicationType, applicationId, null, null));
-      case NO:
-        if (blockCrossingService.isDocumentsRequired(detail) && !blockCrossingFileService.isComplete(detail)) {
-          return createOverviewModelAndView(detail, new HasBlockCrossingForm())
-              .addObject("errorMessage", "Add at least one document");
-        } else if (!blockCrossingService.isComplete(detail)) {
-          return createOverviewModelAndView(detail, new HasBlockCrossingForm())
-              .addObject("errorMessage", "Add at least one block");
-        }
-      case YES_LATER:
-      default:
-        return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
-                null));
+    if (blockCrossingService.isDocumentsRequired(detail) && !blockCrossingFileService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "Add at least one document");
+    } else if (!blockCrossingService.isComplete(detail)) {
+      return createOverviewModelAndView(detail)
+          .addObject("errorMessage", "Add at least one block");
     }
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
+            null));
   }
 
   @GetMapping("/new")
@@ -262,7 +252,7 @@ public class BlockCrossingController {
 
   }
 
-  private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail, HasBlockCrossingForm hasBlockCrossingForm) {
+  private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/overview")
         .addObject("overview", CrossingOverview.LICENCE_AND_BLOCKS)
         .addObject("blockCrossings", blockCrossingService.getCrossedBlockViews(detail))
@@ -273,9 +263,7 @@ public class BlockCrossingController {
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
                 null)))
-        .addObject("isDocumentsRequired", blockCrossingService.isDocumentsRequired(detail))
-        .addObject("form", hasBlockCrossingForm)
-        .addObject("radioItems", HasMoreBlocks.getRadioItems());
+        .addObject("isDocumentsRequired", blockCrossingService.isDocumentsRequired(detail));
     breadcrumbService.fromCrossings(detail.getPwaApplication(), modelAndView, "Licence and blocks");
     return modelAndView;
   }
