@@ -80,9 +80,9 @@ public class PickedPwaRetrievalServiceTest {
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of(orgUnit));
     when(consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(List.of(orgUnit)))
-        .thenReturn(getConsentedPwa());
+        .thenReturn(getConsentedPwas());
     when(nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(List.of(orgUnit)))
-        .thenReturn(getUnConsentedPwa());
+        .thenReturn(getUnConsentedPwas());
 
     var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount, PwaResourceType.PETROLEUM);
     assertThat(options.getConsentedPickablePwas())
@@ -102,9 +102,9 @@ public class PickedPwaRetrievalServiceTest {
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of(orgUnit));
     when(consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(List.of(orgUnit)))
-        .thenReturn(getConsentedPwa());
+        .thenReturn(getConsentedPwas());
     when(nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(List.of(orgUnit)))
-        .thenReturn(getUnConsentedPwa());
+        .thenReturn(getUnConsentedPwas());
 
     var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount, PwaResourceType.HYDROGEN);
     assertThat(options.getConsentedPickablePwas())
@@ -118,7 +118,7 @@ public class PickedPwaRetrievalServiceTest {
         .contains("UNCONSENTED/HYDROGEN/2");
   }
 
-  private List<MasterPwaDetail> getConsentedPwa() {
+  private List<MasterPwaDetail> getConsentedPwas() {
     var masterPwa = new MasterPwa();
     masterPwa.setId(1000);
 
@@ -135,7 +135,7 @@ public class PickedPwaRetrievalServiceTest {
     return List.of(master1, master2);
   }
 
-  private List<MasterPwaDetail> getUnConsentedPwa() {
+  private List<MasterPwaDetail> getUnConsentedPwas() {
     var masterPwa = new MasterPwa();
     masterPwa.setId(1000);
 

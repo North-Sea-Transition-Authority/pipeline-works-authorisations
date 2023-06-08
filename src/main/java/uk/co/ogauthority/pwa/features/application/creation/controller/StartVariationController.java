@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{resourceType}/new/variation")
+@RequestMapping("/pwa-application/{applicationType}/{resourceType}/variation/new")
 public class StartVariationController {
 
   @GetMapping

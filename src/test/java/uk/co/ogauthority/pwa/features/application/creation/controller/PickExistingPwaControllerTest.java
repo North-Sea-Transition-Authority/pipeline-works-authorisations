@@ -208,7 +208,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   @Test
   public void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
-        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN,null,  null, null)))
+        .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN,null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
