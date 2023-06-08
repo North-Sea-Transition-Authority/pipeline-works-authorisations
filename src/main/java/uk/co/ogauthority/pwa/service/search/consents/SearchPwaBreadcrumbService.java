@@ -18,7 +18,7 @@ public class SearchPwaBreadcrumbService {
 
     var crumbs = getConsentSearchBreadcrumbs();
     crumbs.put(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-        pwaId, PwaViewTab.PIPELINES, null, null)), pwaRef);
+        pwaId, PwaViewTab.PIPELINES, null, null, null)), pwaRef);
 
     addAttrs(modelAndView, crumbs, thisPage);
   }
@@ -31,7 +31,7 @@ public class SearchPwaBreadcrumbService {
 
     var crumbs = getConsentSearchBreadcrumbs();
     crumbs.put(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-        pwaId, PwaViewTab.CONSENT_HISTORY, null, null)), pwaRef);
+        pwaId, PwaViewTab.CONSENT_HISTORY, null, null, null)), pwaRef);
 
     addAttrs(modelAndView, crumbs, thisPage);
 

@@ -359,7 +359,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             )))
         );
     assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
@@ -386,7 +386,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             )))
         );
 
@@ -416,7 +416,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             ))));
 
     assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
@@ -448,7 +448,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             ))),
             tuple("reopenAsBuiltGroupUrl", ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
                 .renderReopenAsBuiltNotificationForm(asBuiltNotificationGroup.getId(), null)))

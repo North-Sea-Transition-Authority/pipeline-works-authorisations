@@ -23,7 +23,7 @@ public class PwaViewUrlFactory {
   public String getTabUrl(String tabValue) {
     var tab = PwaViewTab.resolveByValue(tabValue);
     return ReverseRouter.route(on(PwaViewController.class)
-        .renderViewPwa(pwaId, tab, null, null));
+        .renderViewPwa(pwaId, tab, null, null, null));
   }
 
   public String getConsentDocumentUrl(Integer pwaConsentId, Long docgenRunId) {
