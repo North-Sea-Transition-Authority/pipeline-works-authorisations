@@ -125,9 +125,7 @@ public class BlockCrossingController {
           return createOverviewModelAndView(detail, new HasBlockCrossingForm())
               .addObject("errorMessage", "Add at least one block");
         }
-        return ReverseRouter.redirect(on(CrossingAgreementsController.class)
-            .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,
-                null));
+      case YES_LATER:
       default:
         return ReverseRouter.redirect(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null,

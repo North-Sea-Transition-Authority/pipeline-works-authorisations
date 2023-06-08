@@ -64,7 +64,7 @@
         <@fdsRadio.radio
         radioItems=radioItems
         path="form.hasMoreBlocks"
-        labelText="Do you want to add another associated licence block?"/>
+        labelText="Do you want to add another associated liscense block?"/>
         <@fdsAction.button buttonText="Save and continue"/>
     </@fdsForm.htmlForm>
 
