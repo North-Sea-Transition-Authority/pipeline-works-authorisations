@@ -48,7 +48,7 @@ public class PwaViewControllerTest extends PwaContextAbstractControllerTest {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaViewController.class)
-                .renderViewPwa(1, PwaViewTab.PIPELINES, null, null)));
+                .renderViewPwa(1, PwaViewTab.PIPELINES, null, null, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 

@@ -135,7 +135,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
           && (appProcessingContext.getUserTypes().contains(UserType.OGA)
           || appProcessingContext.getApplicationInvolvement().isUserInHolderTeam())) {
         consentHistoryUrl = Optional.of(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-            appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY, null, null
+            appProcessingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY, null, null, null
         )));
 
         reopenAsBuiltGroupUrl = getReopenAsBuiltNotificationGroupUrl(appProcessingContext);

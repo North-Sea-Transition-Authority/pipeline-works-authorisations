@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
@@ -37,7 +38,8 @@ public class PwaViewController {
   public ModelAndView renderViewPwa(@PathVariable("pwaId") Integer pwaId,
                                     @PathVariable("tab") PwaViewTab tab,
                                     PwaContext pwaContext,
-                                    AuthenticatedUserAccount authenticatedUserAccount) {
+                                    AuthenticatedUserAccount authenticatedUserAccount,
+                                    @RequestParam(required = false) Boolean showBreadcrumbs) {
 
     Map<String, Object> tabContentModelMap = pwaViewTabService.getTabContentModelMap(pwaContext, tab);
 
@@ -48,10 +50,15 @@ public class PwaViewController {
         .addObject("pwaViewUrlFactory", new PwaViewUrlFactory(pwaId))
         .addAllObjects(tabContentModelMap);
 
+    if (showBreadcrumbs != null && !showBreadcrumbs) {
+      modelAndView.addObject("showBreadcrumbs", false);
+    } else {
+      modelAndView.addObject("showBreadcrumbs", true);
+    }
+
     searchPwaBreadcrumbService.fromPwaView(modelAndView, pwaContext.getConsentSearchResultView().getPwaReference());
 
     return modelAndView;
-
   }
 
 }

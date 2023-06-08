@@ -12,7 +12,7 @@ public class ConsentSearchUrlFactory {
 
   public String getPwaViewRoute(Integer pwaId) {
     return ReverseRouter.route(on(PwaViewController.class)
-        .renderViewPwa(pwaId, PwaViewTab.PIPELINES, null, null));
+        .renderViewPwa(pwaId, PwaViewTab.PIPELINES, null, null, null));
   }
 
   public String getSearchUrl() {
