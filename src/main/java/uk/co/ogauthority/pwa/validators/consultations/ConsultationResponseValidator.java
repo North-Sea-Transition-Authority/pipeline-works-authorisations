@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.validators.consultations;
 
 import java.util.Comparator;
-import java.util.Objects;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -10,7 +8,6 @@ import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
@@ -44,43 +41,15 @@ public class ConsultationResponseValidator implements Validator {
   }
 
   private void validateFileUploads(ConsultationResponseForm form, Errors errors) {
+    boolean fileRequired = form.getResponseDataForms().values().stream()
+        .map(ConsultationResponseDataForm::getConsultationResponseOption)
+        .anyMatch(ConsultationResponseOption::requireDocumentUpload);
 
-    var requiredFileCount = 0;
-
-    // check if EIA reg response requires file upload
-    requiredFileCount += filesRequiredByResponse(
-        form,
-        ConsultationResponseOptionGroup.EIA_REGS,
-        Set.of(ConsultationResponseOption.EIA_AGREE)
-    );
-
-    // check if Habitats reg response requires file upload
-    requiredFileCount += filesRequiredByResponse(
-        form,
-        ConsultationResponseOptionGroup.HABITATS_REGS,
-        Set.of(ConsultationResponseOption.HABITATS_AGREE)
-    );
-
-    FileUploadUtils.validateMinFileLimit(form, errors, requiredFileCount,
-        String.format(
-            "You must upload at least %s file(s) in order to support your decision",
-            requiredFileCount)
-    );
-    FileUploadUtils.validateFilesDescriptionLength(form, errors);
-  }
-
-  // helper which returns 1 if option group exists on form and response is contained in provided set, else 0;
-  private int filesRequiredByResponse(ConsultationResponseForm form,
-                                      ConsultationResponseOptionGroup consultationResponseOptionGroup,
-                                      Set<ConsultationResponseOption> setOfResponsesRequiringFileUpload) {
-    var response = form.getResponseDataForms()
-        .getOrDefault(consultationResponseOptionGroup, new ConsultationResponseDataForm())
-        .getConsultationResponseOption();
-
-    if (Objects.nonNull(response) && setOfResponsesRequiringFileUpload.contains(response)) {
-      return 1;
+    if (fileRequired) {
+      FileUploadUtils.validateFileUploaded(form, errors, "Upload at least one file to support your decision");
     }
-    return 0;
+
+    FileUploadUtils.validateFilesDescriptionLength(form, errors);
   }
 
 }

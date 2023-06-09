@@ -7,7 +7,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -41,6 +40,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
   @MockBean
   PwaResourceTypeFormValidator validator;
+
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
@@ -78,7 +78,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_valid() throws Exception {
+  public void postResourceScreen_validHydrogen() throws Exception {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.HYDROGEN);
 
@@ -88,9 +88,24 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
-        .param("resourceType", PwaResourceType.HYDROGEN.name()))
-        .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/pwa-application/initial/hydrogen/new/"));
+        .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.HYDROGEN);
+  }
+
+  @Test
+  public void postResourceScreen_validPetroleum() throws Exception {
+    var form = new PwaResourceTypeForm();
+    form.setResourceType(PwaResourceType.PETROLEUM);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
+        .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("resourceType", PwaResourceType.PETROLEUM.name()));
+    verify(validator).validate(any(), any());
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM);
   }
 }
