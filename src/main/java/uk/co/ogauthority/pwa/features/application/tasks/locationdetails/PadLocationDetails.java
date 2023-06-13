@@ -52,6 +52,7 @@ public class PadLocationDetails implements ChildEntity<Integer, PwaApplicationDe
   private Boolean facilitiesOffshore;
   private Boolean transportsMaterialsToShore;
   private Boolean transportsMaterialsFromShore;
+  @Column(name = "transportation_method")
   private String transportationMethodToShore;
   private String transportationMethodFromShore;
   private String pipelineRouteDetails;
