@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
@@ -32,11 +33,15 @@ public class PwaResourceTypeController {
 
   private final ControllerHelperService controllerHelperService;
 
+  private final PwaApplicationRedirectService redirectService;
+
   @Autowired
   public PwaResourceTypeController(PwaResourceTypeFormValidator validator,
-                                   ControllerHelperService controllerHelperService) {
+                                   ControllerHelperService controllerHelperService,
+                                   PwaApplicationRedirectService redirectService) {
     this.validator = validator;
     this.controllerHelperService = controllerHelperService;
+    this.redirectService = redirectService;
   }
 
   /**
@@ -72,9 +77,7 @@ public class PwaResourceTypeController {
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         renderResourceTypeForm(applicationType, form, user),
-        () -> ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage(
-            applicationType,
-            form.getResourceType())));
+        () -> redirectService.getStartApplicationRedirect(applicationType, form.getResourceType()));
   }
 
 }

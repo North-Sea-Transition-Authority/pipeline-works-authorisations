@@ -36,19 +36,15 @@ public class FileUploadUtils {
     uploadForm.setUploadedFileWithDescriptionForms(uploadForm.getFileFormsForValidation());
   }
 
-  public static void validateMinFileLimit(UploadMultipleFilesWithDescriptionForm uploadForm,
+  public static void validateFileUploaded(UploadMultipleFilesWithDescriptionForm uploadForm,
                                           Errors errors,
-                                          int minFileLimit,
-                                          String limitNotReachedMessage) {
-
-    if (uploadForm.getFileFormsForValidation().size() < minFileLimit) {
+                                          String fileNotUploadedMessage) {
+    if (uploadForm.getFileFormsForValidation().size() < 1) {
       errors.rejectValue(UPLOADED_FILE_FIELD_NAME,
           FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode(UPLOADED_FILE_FIELD_NAME),
-          limitNotReachedMessage);
+          fileNotUploadedMessage);
     }
-
   }
-
 
   private static String getFileFormPathByIndex(int uploadedFileFormIndex) {
     return "uploadedFileWithDescriptionForms[" + uploadedFileFormIndex + "]";
@@ -80,7 +76,7 @@ public class FileUploadUtils {
   public static void validateFiles(UploadMultipleFilesWithDescriptionForm uploadForm,
                                    Errors errors,
                                    List<Object> hints,
-                                   String limitNotReachedMessage) {
+                                   String fileNotUploadedMessage) {
 
     boolean mandatory = hints.stream()
         .anyMatch(h -> h == MandatoryUploadValidation.class);
@@ -106,7 +102,7 @@ public class FileUploadUtils {
         });
 
     if (mandatory) {
-      validateMinFileLimit(uploadForm, errors, 1, limitNotReachedMessage);
+      validateFileUploaded(uploadForm, errors, fileNotUploadedMessage);
     }
 
   }

@@ -131,7 +131,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
       try {
         mockMvc.perform(
             get(ReverseRouter.route(on(ApplicantOrganisationController.class)
-                .renderSelectOrganisation(MASTER_PWA_ID, appType, null, null)
+                .renderSelectOrganisation(MASTER_PWA_ID, appType, PwaResourceType.PETROLEUM, null, null)
             )).with(authenticatedUserAndSession(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
@@ -149,7 +149,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
     mockMvc.perform(
             get(ReverseRouter.route(on(ApplicantOrganisationController.class)
-                .renderSelectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, null, null)
+                .renderSelectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null)
             )).with(authenticatedUserAndSession(user))
                 .with(csrf()))
         .andExpect(status().isForbidden());
@@ -162,7 +162,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
       ResultMatcher expectedStatus = RELEVANT_APP_TYPES.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
       try {
         mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, appType, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, appType, PwaResourceType.PETROLEUM, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
@@ -180,7 +180,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of());
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
@@ -192,7 +192,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   public void selectOrganisation_success_appCreated() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
@@ -209,7 +209,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     ControllerTestUtils.mockSmartValidatorErrors(applicantOrganisationFormValidator, List.of("applicantOrganisationOuId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
-            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, null, null, null)))
+            .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))

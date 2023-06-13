@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
@@ -109,7 +110,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getApproximateProjectLocationFromShore()).isNull();
     assertThat(form.getFacilitiesOffshore()).isNull();
     assertThat(form.getTransportsMaterialsToShore()).isNull();
-    assertThat(form.getTransportationMethod()).isNull();
+    assertThat(form.getTransportationMethodToShore()).isNull();
     assertThat(form.getPipelineRouteDetails()).isNull();
     assertThat(form.getSurveyConcludedDay()).isNull();
     assertThat(form.getSurveyConcludedMonth()).isNull();
@@ -129,7 +130,9 @@ public class PadLocationDetailsServiceTest {
         padLocationDetails.getApproximateProjectLocationFromShore());
     assertThat(form.getFacilitiesOffshore()).isEqualTo(padLocationDetails.getFacilitiesOffshore());
     assertThat(form.getTransportsMaterialsToShore()).isEqualTo(padLocationDetails.getTransportsMaterialsToShore());
-    assertThat(form.getTransportationMethod()).isEqualTo(padLocationDetails.getTransportationMethod());
+    assertThat(form.getTransportationMethodToShore()).isEqualTo(padLocationDetails.getTransportationMethodToShore());
+    assertThat(form.getTransportsMaterialsFromShore()).isEqualTo(padLocationDetails.getTransportsMaterialsFromShore());
+    assertThat(form.getTransportationMethodFromShore()).isEqualTo(padLocationDetails.getTransportationMethodFromShore());
     assertThat(form.getPipelineRouteDetails()).isEqualTo(padLocationDetails.getPipelineRouteDetails());
     assertThat(form.getRouteSurveyUndertaken()).isEqualTo(padLocationDetails.getRouteSurveyUndertaken());
     assertThat(form.getWithinLimitsOfDeviation()).isEqualTo(padLocationDetails.getWithinLimitsOfDeviation());
@@ -181,7 +184,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(form.getPsrNotificationNotRequiredReason())
         .isEqualTo(padLocationDetails.getPsrNotificationNotRequiredReason());
   }
-  
+
 
   @Test
   public void saveEntityUsingForm_WithNulls() {
@@ -193,7 +196,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(entity.getApproximateProjectLocationFromShore()).isNull();
     assertThat(entity.getFacilitiesOffshore()).isNull();
     assertThat(entity.getTransportsMaterialsToShore()).isNull();
-    assertThat(entity.getTransportsMaterialsToShore()).isNull();
+    assertThat(entity.getTransportsMaterialsFromShore()).isNull();
     assertThat(entity.getPipelineRouteDetails()).isNull();
     assertThat(entity.getSurveyConcludedTimestamp()).isNull();
     assertThat(entity.getRouteSurveyUndertaken()).isNull();
@@ -212,7 +215,9 @@ public class PadLocationDetailsServiceTest {
         form.getApproximateProjectLocationFromShore());
     assertThat(entity.getFacilitiesOffshore()).isEqualTo(form.getFacilitiesOffshore());
     assertThat(entity.getTransportsMaterialsToShore()).isEqualTo(form.getTransportsMaterialsToShore());
-    assertThat(entity.getTransportationMethod()).isEqualTo(form.getTransportationMethod());
+    assertThat(entity.getTransportationMethodToShore()).isEqualTo(form.getTransportationMethodToShore());
+    assertThat(entity.getTransportsMaterialsFromShore()).isEqualTo(form.getTransportsMaterialsFromShore());
+    assertThat(entity.getTransportationMethodFromShore()).isEqualTo(form.getTransportationMethodFromShore());
     assertThat(entity.getPipelineRouteDetails()).isEqualTo(form.getPipelineRouteDetails());
     assertThat(entity.getSurveyConcludedTimestamp()).isEqualTo(SURVEY_CONCLUDED_DATE);
     assertThat(entity.getRouteSurveyUndertaken()).isEqualTo(form.getRouteSurveyUndertaken());
@@ -319,7 +324,7 @@ public class PadLocationDetailsServiceTest {
     assertThat(locationDetailsView.getApproximateProjectLocationFromShore()).isEqualTo("approx");
     assertThat(locationDetailsView.getFacilitiesOffshore()).isTrue();
     assertThat(locationDetailsView.getTransportsMaterialsToShore()).isTrue();
-    assertThat(locationDetailsView.getTransportationMethod()).isEqualTo("method");
+    assertThat(locationDetailsView.getTransportationMethodToShore()).isEqualTo("method");
     assertThat(locationDetailsView.getPipelineRouteDetails()).isEqualTo("Route details");
     assertThat(locationDetailsView.getRouteSurveyUndertaken()).isTrue();
     assertThat(locationDetailsView.getWithinLimitsOfDeviation()).isTrue();
@@ -383,7 +388,7 @@ public class PadLocationDetailsServiceTest {
 
   @Test
   public void getRequiredQuestions_depconAppType() {
-    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnly(
         LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
         LocationDetailsQuestion.WITHIN_SAFETY_ZONE,
@@ -394,19 +399,29 @@ public class PadLocationDetailsServiceTest {
 
   @Test
   public void getRequiredQuestions_decomAppType() {
-    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING);
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING, PwaResourceType.PETROLEUM);
     var expectedQuestions = EnumSet.allOf(LocationDetailsQuestion.class);
     expectedQuestions.remove(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION);
+    expectedQuestions.remove(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE);
     assertThat(requiredQuestions).containsAll(expectedQuestions);
   }
 
   @Test
-  public void getRequiredQuestions_appTypesThatRequireAllQuestions() {
+  public void getRequiredQuestions_appTypesResourceTypeThatRequireAllQuestions() {
     PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
       .forEach(appType -> {
-        var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType);
+        var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.HYDROGEN);
         assertThat(requiredQuestions).containsAll(EnumSet.allOf(LocationDetailsQuestion.class));
       });
+  }
+
+  @Test
+  public void getRequiredQuestions_appTypesPetroleumThatRequireAllQuestions() {
+    PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
+        .forEach(appType -> {
+          var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.PETROLEUM);
+          assertThat(requiredQuestions).containsAll(LocationDetailsQuestion.getAllExcluding(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE));
+        });
   }
 
   @Test
@@ -421,7 +436,7 @@ public class PadLocationDetailsServiceTest {
     padLocationDetails.setPipelineAshoreLocation("ashore");
 
     padLocationDetails.setTransportsMaterialsToShore(false);
-    padLocationDetails.setTransportationMethod("transport");
+    padLocationDetails.setTransportationMethodToShore("transport");
 
     padLocationDetails.setRouteSurveyUndertaken(false);
     padLocationDetails.setSurveyConcludedTimestamp(Instant.now());
@@ -432,7 +447,7 @@ public class PadLocationDetailsServiceTest {
 
     assertThat(padLocationDetails.getPipelineAshoreLocation()).isNull();
 
-    assertThat(padLocationDetails.getTransportationMethod()).isNull();
+    assertThat(padLocationDetails.getTransportationMethodToShore()).isNull();
 
     assertThat(padLocationDetails.getSurveyConcludedTimestamp()).isNull();
 
@@ -454,7 +469,7 @@ public class PadLocationDetailsServiceTest {
     padLocationDetails.setPipelineAshoreLocation("ashore");
 
     padLocationDetails.setTransportsMaterialsToShore(true);
-    padLocationDetails.setTransportationMethod("transport");
+    padLocationDetails.setTransportationMethodToShore("transport");
 
     padLocationDetails.setRouteSurveyUndertaken(true);
     padLocationDetails.setSurveyConcludedTimestamp(Instant.now());
@@ -465,7 +480,7 @@ public class PadLocationDetailsServiceTest {
 
     assertThat(padLocationDetails.getPipelineAshoreLocation()).isNotNull();
 
-    assertThat(padLocationDetails.getTransportationMethod()).isNotNull();
+    assertThat(padLocationDetails.getTransportationMethodToShore()).isNotNull();
 
     assertThat(padLocationDetails.getSurveyConcludedTimestamp()).isNotNull();
 
@@ -564,7 +579,9 @@ public class PadLocationDetailsServiceTest {
     form.setApproximateProjectLocationFromShore("approx");
     form.setFacilitiesOffshore(true);
     form.setTransportsMaterialsToShore(true);
-    form.setTransportationMethod("method");
+    form.setTransportationMethodToShore("method");
+    form.setTransportsMaterialsFromShore(true);
+    form.setTransportationMethodFromShore("method");
     form.setPipelineRouteDetails("Route details");
     form.setRouteSurveyUndertaken(true);
     form.setWithinLimitsOfDeviation(true);
@@ -583,7 +600,7 @@ public class PadLocationDetailsServiceTest {
     entity.setApproximateProjectLocationFromShore("approx");
     entity.setFacilitiesOffshore(true);
     entity.setTransportsMaterialsToShore(true);
-    entity.setTransportationMethod("method");
+    entity.setTransportationMethodToShore("method");
     entity.setPipelineRouteDetails("Route details");
     entity.setRouteSurveyUndertaken(true);
     entity.setWithinLimitsOfDeviation(true);

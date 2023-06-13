@@ -36,9 +36,10 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa/{pwaId}/pwa-application/{applicationType}/applicant-organisation")
+@RequestMapping("/pwa/{pwaId}/pwa-application/{applicationType}/{resourceType}/applicant-organisation")
 public class ApplicantOrganisationController {
 
   private final ApplicantOrganisationService applicantOrganisationService;
@@ -89,28 +90,29 @@ public class ApplicantOrganisationController {
 
   @GetMapping
   public ModelAndView renderSelectOrganisation(@PathVariable("pwaId") Integer pwaId,
-                                               @PathVariable("applicationType")
-                                               @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                               @PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+                                               @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
                                                @ModelAttribute("form") ApplicantOrganisationForm form,
                                                AuthenticatedUserAccount user) {
 
-    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(applicationType);
 
     var masterPwa = masterPwaService.getMasterPwaById(pwaId);
 
     var applicantOrganisationOptions = getApplicantOrganisationOptionsOrThrow(masterPwa, user);
 
-    return getModelAndView(pwaApplicationType, masterPwa, applicantOrganisationOptions, user);
+    return getModelAndView(applicationType, resourceType, masterPwa, applicantOrganisationOptions, user);
 
   }
 
   private ModelAndView getModelAndView(PwaApplicationType pwaApplicationType,
+                                       PwaResourceType resourceType,
                                        MasterPwa masterPwa,
                                        Map<String, String> applicantOrganisationOptions,
                                        WebUserAccount user) {
 
     String backUrl = ReverseRouter.route(on(PickExistingPwaController.class)
-        .renderPickPwaToStartApplication(pwaApplicationType, null, null));
+        .renderPickPwaToStartApplication(pwaApplicationType, resourceType, null, null));
 
     var pwaDetail = masterPwaService.getCurrentDetailOrThrow(masterPwa);
 
@@ -131,13 +133,13 @@ public class ApplicantOrganisationController {
 
   @PostMapping
   public ModelAndView selectOrganisation(@PathVariable("pwaId") Integer pwaId,
-                                         @PathVariable("applicationType")
-                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                         @PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+                                         @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
                                          @ModelAttribute("form") ApplicantOrganisationForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount user) {
 
-    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(applicationType);
 
     var masterPwa = masterPwaService.getMasterPwaById(pwaId);
 
@@ -147,7 +149,7 @@ public class ApplicantOrganisationController {
 
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        getModelAndView(pwaApplicationType, masterPwa, applicantOrganisationOptions, user),
+        getModelAndView(applicationType, resourceType, masterPwa, applicantOrganisationOptions, user),
         () -> {
 
           var applicantOrganisation = portalOrganisationsAccessor
@@ -156,7 +158,7 @@ public class ApplicantOrganisationController {
                   String.format("Couldn't find an organisation unit with id [%s]", form.getApplicantOrganisationOuId())));
 
           var newAppDetail = pwaApplicationCreationService
-              .createVariationPwaApplication(masterPwa, pwaApplicationType, PwaResourceType.PETROLEUM, applicantOrganisation, user);
+              .createVariationPwaApplication(masterPwa, applicationType, resourceType, applicantOrganisation, user);
 
           return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 

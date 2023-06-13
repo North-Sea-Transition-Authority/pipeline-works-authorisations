@@ -32,7 +32,7 @@
         </#if>
 
         <#if requiredQuestions?seq_contains("PSR_NOTIFICATION")>
-            <@fdsRadio.radioGroup path="form.psrNotificationSubmittedOption" labelText="Have you submitted a Pipelines Safety Regulations (PSR) notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">                
+            <@fdsRadio.radioGroup path="form.psrNotificationSubmittedOption" labelText="Have you submitted a Pipelines Safety Regulations (PSR) notification to HSE?" hintText="Timely submission in advance of work is advised to avoid potential delays" hiddenContent=true nestingPath="form.withinSafetyZone">
                 <#assign firstItem = true/>
                 <#list psrNotificationOptions as name, value>
                     <@fdsRadio.radioItem path="form.psrNotificationSubmittedOption" itemMap={name:value} isFirstItem=firstItem>
@@ -74,9 +74,18 @@
         <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_TO_SHORE")>
             <@fdsRadio.radioGroup path="form.transportsMaterialsToShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products to shore?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.transportsMaterialsToShore">
-                    <@fdsTextarea.textarea path="form.transportationMethod" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText="Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."/>
+                    <@fdsTextarea.textarea path="form.transportationMethodToShore" labelText="State the method of transportation to shore" nestingPath="form.transportsMaterialsToShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText="Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."/>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.transportsMaterialsToShore"/>
+            </@fdsRadio.radioGroup>
+        </#if>
+
+        <#if requiredQuestions?seq_contains("TRANSPORTS_MATERIALS_FROM_SHORE")>
+            <@fdsRadio.radioGroup path="form.transportsMaterialsFromShore" labelText="Will the pipeline(s) be used to transport products / facilitate the transportation of products from the shore?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.transportsMaterialsFromShore">
+                    <@fdsTextarea.textarea path="form.transportationMethodFromShore" labelText="State the method of transportation from shore" nestingPath="form.transportsMaterialsFromShore" characterCount=true maxCharacterLength=maxCharacterLength?c hintText=""/>
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.transportsMaterialsFromShore"/>
             </@fdsRadio.radioGroup>
         </#if>
 

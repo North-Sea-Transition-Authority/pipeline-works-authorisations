@@ -45,7 +45,7 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
 
     var form = new LocationDetailsForm();
 
-    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType());
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail);
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       form.setApproximateProjectLocationFromShore("50m");
