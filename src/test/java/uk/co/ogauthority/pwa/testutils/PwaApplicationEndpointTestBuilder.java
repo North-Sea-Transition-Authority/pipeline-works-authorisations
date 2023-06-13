@@ -59,8 +59,6 @@ public class PwaApplicationEndpointTestBuilder {
   private Set<PwaApplicationPermission> allowedAppPermissions = Set.of();
   private Set<PwaAppProcessingPermission> allowedProcessingPermissions = Set.of();
 
-  private Map<String, Object> flashAttributes = new HashMap<>();
-
   private PwaApplicationDetailService pwaApplicationDetailService;
 
   private PadPipelineService padPipelineService;
@@ -194,11 +192,6 @@ public class PwaApplicationEndpointTestBuilder {
     return this;
   }
 
-  public PwaApplicationEndpointTestBuilder addFlashAttribute(String key, Object value) {
-    this.flashAttributes.put(key, value);
-    return this;
-  }
-
   public PwaApplicationEndpointTestBuilder setConsultationRequest(ConsultationRequest consultationRequest) {
     this.consultationRequest = consultationRequest;
     return this;
@@ -228,24 +221,20 @@ public class PwaApplicationEndpointTestBuilder {
     var paramMap = generateRequestParams();
     var requestSession = this.session != null ? this.session : new MockHttpSession();
     if (this.requestMethod == HttpMethod.GET) {
-      var get = get(url)
-          .with(authenticatedUserAndSession(user))
-          .params(paramMap)
-          .session(requestSession);
-      if (!flashAttributes.isEmpty()) {
-        get.flashAttrs(flashAttributes);
-      }
-      this.mockMvc.perform(get).andExpect(resultMatcher);
+      this.mockMvc.perform(
+          get(url)
+              .with(authenticatedUserAndSession(user))
+              .params(paramMap)
+              .session(requestSession)
+      ).andExpect(resultMatcher);
     } else {
-      var post = post(url)
-          .with(authenticatedUserAndSession(user))
-          .with(csrf())
-          .params(paramMap)
-          .session(requestSession);
-      if (!flashAttributes.isEmpty()) {
-        post.flashAttrs(flashAttributes);
-      }
-      this.mockMvc.perform(post).andExpect(resultMatcher);
+      this.mockMvc.perform(
+          post(url)
+              .with(authenticatedUserAndSession(user))
+              .with(csrf())
+              .params(paramMap)
+              .session(requestSession))
+          .andExpect(resultMatcher);
     }
   }
 

@@ -91,8 +91,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   private CrossingAgreementsService crossingAgreementsService;
 
   private PwaApplicationDetail pwaApplicationDetail;
-
-  private AddBlockOptionsForm hasBlocksForm;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
       new WebUserAccount(1),
       EnumSet.allOf(PwaUserPrivilege.class));
@@ -102,8 +100,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   @Before
   public void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
-    hasBlocksForm = new AddBlockOptionsForm();
-    hasBlocksForm.setAddBlockOptions(AddBlockOptions.NO);
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
@@ -114,7 +110,6 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             PwaApplicationType.DECOMMISSIONING)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
-
 
     when(padCrossedBlock.getBlockReference()).thenReturn("some block");
 
@@ -627,12 +622,10 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
-    endpointTester
-        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
-        .setRequestMethod(HttpMethod.POST)
+    endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), hasBlocksForm, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
   }
@@ -642,12 +635,10 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
-    endpointTester
-        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
-        .setRequestMethod(HttpMethod.POST)
+    endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), hasBlocksForm, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
   }
@@ -657,12 +648,10 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
-    endpointTester
-        .addRequestParam("addBlockOptions", hasBlocksForm.getAddBlockOptions().getEnumName())
-        .setRequestMethod(HttpMethod.POST)
+    endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
-                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), hasBlocksForm, null)));
+                .postOverview(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
   }

@@ -8,10 +8,9 @@
   <h2 class="govuk-heading-l">Blocks</h2>
     <@fdsInsetText.insetText>
       <span>Add each block the pipelines are located in or will cross.</span>
-      <br/>
-      <span>Hydrogen applications do not require a block to be added.</span>
     </@fdsInsetText.insetText>
 
+    <@fdsAction.link linkText="Add block" linkUrl=springUrl(urlFactory.getAddBlockCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
     <#if blockCrossings?has_content>
       <table class="govuk-table">
         <thead class="govuk-table__head">

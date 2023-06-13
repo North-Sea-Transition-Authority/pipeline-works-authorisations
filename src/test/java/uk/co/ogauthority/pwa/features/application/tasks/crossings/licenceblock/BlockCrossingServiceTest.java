@@ -440,37 +440,6 @@ public class BlockCrossingServiceTest {
   }
 
   @Test
-  public void isComplete_hydrogenNoDocsRequired_valid() {
-    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
-    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
-    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
-  }
-
-  @Test
-  public void isComplete_hydrogenDocsRequired_valid() {
-    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
-    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
-    when(blockCrossingFileService.isComplete(pwaApplicationDetail)).thenReturn(true);
-    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
-  }
-
-  @Test
-  public void isComplete_hydrogenDocsRequiredAndNotProvided_invalid() {
-    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
-    when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
-    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
-  }
-
-  @Test
-  public void isComplete_hydrogenNoBlocks_valid() {
-    pwaApplicationDetail.getPwaApplication().setResourceType(PwaResourceType.HYDROGEN);
-    assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
-  }
-
-  @Test
   public void doesBlockExistOnApp_exists() {
     var pearsBlock = new PearsBlock(null, null, "ref", null, null, null, null);
 
