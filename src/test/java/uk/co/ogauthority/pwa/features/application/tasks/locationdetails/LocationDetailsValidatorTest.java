@@ -59,6 +59,8 @@ public class LocationDetailsValidatorTest {
         entry("diversUsed", Set.of("diversUsed" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("transportsMaterialsToShore",
             Set.of("transportsMaterialsToShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("transportsMaterialsFromShore",
+            Set.of("transportsMaterialsFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
             Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("facilitiesOffshore", Set.of("facilitiesOffshore" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -84,9 +86,10 @@ public class LocationDetailsValidatorTest {
   public void validate_full_formAllEmptyText() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore("");
-    form.setTransportationMethod("");
+    form.setTransportationMethodToShore("");
     form.setPipelineRouteDetails("");
     form.setTransportsMaterialsToShore(true);
+    form.setTransportsMaterialsFromShore(true);
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     form.setPsrNotificationNotRequiredReason("");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -95,7 +98,8 @@ public class LocationDetailsValidatorTest {
         entry("withinSafetyZone", Set.of("withinSafetyZone" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("diversUsed", Set.of("diversUsed" + FieldValidationErrorCodes.REQUIRED.getCode())),
-        entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("transportationMethodToShore", Set.of("transportationMethodToShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("transportationMethodFromShore", Set.of("transportationMethodFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("approximateProjectLocationFromShore",
             Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("facilitiesOffshore", Set.of("facilitiesOffshore" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -320,8 +324,10 @@ public class LocationDetailsValidatorTest {
     form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(2021, 6));
     form.setDiversUsed(true);
     form.setTransportsMaterialsToShore(true);
+    form.setTransportsMaterialsFromShore(true);
     form.setApproximateProjectLocationFromShore("Approx");
-    form.setTransportationMethod("Method");
+    form.setTransportationMethodToShore("Method");
+    form.setTransportationMethodFromShore("Test");
     form.setFacilitiesOffshore(true);
     form.setRouteSurveyUndertaken(false);
     form.setRouteSurveyNotUndertakenReason("reason");
@@ -336,7 +342,8 @@ public class LocationDetailsValidatorTest {
   public void validate_partial_tooManyCharacters() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore(ValidatorTestUtils.overMaxDefaultCharLength());
-    form.setTransportationMethod(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setTransportationMethodToShore(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setTransportationMethodFromShore(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setPipelineAshoreLocation(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -347,6 +354,7 @@ public class LocationDetailsValidatorTest {
         getValidationHintsPartial(Set.of(
             LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
             LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE,
+            LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE,
             LocationDetailsQuestion.FACILITIES_OFFSHORE,
             LocationDetailsQuestion.PSR_NOTIFICATION
         )));
@@ -356,7 +364,8 @@ public class LocationDetailsValidatorTest {
             Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
     assertThat(result).contains(
         entry("approximateProjectLocationFromShore", Set.of("approximateProjectLocationFromShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("transportationMethod", Set.of("transportationMethod" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("transportationMethodToShore", Set.of("transportationMethodToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
+        entry("transportationMethodFromShore", Set.of("transportationMethodFromShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("pipelineAshoreLocation", Set.of("pipelineAshoreLocation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
@@ -425,12 +434,12 @@ public class LocationDetailsValidatorTest {
     form.setTransportsMaterialsToShore(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
-    assertThat(result).containsKeys("transportationMethod");
+    assertThat(result).containsKeys("transportationMethodToShore");
     assertThat(result).doesNotContainKeys("transportsMaterialsToShore");
   }
 
   @Test
-  public void validate_full_transportMethod_false() {
+  public void validate_full_transportMethodToShore_false() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -439,13 +448,32 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethod_true_withText() {
+  public void validate_full_transportMethodToShore_true_withText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
-    form.setTransportationMethod("Test");
+    form.setTransportationMethodToShore("Test");
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)));
     assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsToShore");
+  }
+
+  @Test
+  public void validate_full_transportMethodFromShore_false() {
+    var form = new LocationDetailsForm();
+    form.setTransportsMaterialsFromShore(false);
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)));
+    assertThat(result).doesNotContainKeys("transportsMaterialsFromShore");
+  }
+
+  @Test
+  public void validate_full_transportMethodFromShore_true_withText() {
+    var form = new LocationDetailsForm();
+    form.setTransportsMaterialsFromShore(true);
+    form.setTransportationMethodFromShore("Test");
+    var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
+        getValidationHintsFull(Set.of(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)));
+    assertThat(result).doesNotContainKeys("transportationMethod", "transportsMaterialsFromShore");
   }
 
   @Test

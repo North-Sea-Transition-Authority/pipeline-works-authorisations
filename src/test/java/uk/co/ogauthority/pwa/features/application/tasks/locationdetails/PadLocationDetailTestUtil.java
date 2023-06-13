@@ -26,7 +26,9 @@ public class PadLocationDetailTestUtil {
     pl.setFacilitiesOffshore(true);
     pl.setPipelineAshoreLocation("ashore");
     pl.setTransportsMaterialsToShore(false);
-    pl.setTransportationMethod("transport");
+    pl.setTransportationMethodToShore("transport");
+    pl.setTransportsMaterialsFromShore(false);
+    pl.setTransportationMethodFromShore("transport");
     pl.setRouteSurveyUndertaken(false);
     pl.setRouteSurveyNotUndertakenReason("reason");
     pl.setSurveyConcludedTimestamp(Instant.now());

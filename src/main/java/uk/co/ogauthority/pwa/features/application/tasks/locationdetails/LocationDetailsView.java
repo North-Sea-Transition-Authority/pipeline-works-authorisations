@@ -15,16 +15,16 @@ public class LocationDetailsView {
   private final List<String> facilitiesIfPartially;
   private final Boolean facilitiesOffshore;
   private final Boolean transportsMaterialsToShore;
-  
-  private final String transportationMethod;
-
+  private final Boolean transportsMaterialsFromShore;
+  private final String transportationMethodToShore;
+  private final String transportationMethodFromShore;
   private final String pipelineRouteDetails;
   private final Boolean routeSurveyUndertaken;
   private final String routeSurveyNotUndertakenReason;
   private final Boolean withinLimitsOfDeviation;
 
   private final String surveyConcludedDate;
-  
+
   private final String pipelineAshoreLocation;
 
   private final List<UploadedFileView> uploadedLetterFileViews;
@@ -40,7 +40,9 @@ public class LocationDetailsView {
                              List<String> facilitiesIfPartially,
                              Boolean facilitiesOffshore,
                              Boolean transportsMaterialsToShore,
-                             String transportationMethod,
+                             Boolean transportsMaterialsFromShore,
+                             String transportationMethodToShore,
+                             String transportationMethodFromShore,
                              String pipelineRouteDetails,
                              Boolean routeSurveyUndertaken,
                              String routeSurveyNotUndertakenReason,
@@ -58,7 +60,9 @@ public class LocationDetailsView {
     this.facilitiesIfPartially = facilitiesIfPartially;
     this.facilitiesOffshore = facilitiesOffshore;
     this.transportsMaterialsToShore = transportsMaterialsToShore;
-    this.transportationMethod = transportationMethod;
+    this.transportsMaterialsFromShore = transportsMaterialsFromShore;
+    this.transportationMethodToShore = transportationMethodToShore;
+    this.transportationMethodFromShore = transportationMethodFromShore;
     this.pipelineRouteDetails = pipelineRouteDetails;
     this.routeSurveyUndertaken = routeSurveyUndertaken;
     this.routeSurveyNotUndertakenReason = routeSurveyNotUndertakenReason;
@@ -112,8 +116,16 @@ public class LocationDetailsView {
     return transportsMaterialsToShore;
   }
 
-  public String getTransportationMethod() {
-    return transportationMethod;
+  public Boolean getTransportsMaterialsFromShore() {
+    return transportsMaterialsFromShore;
+  }
+
+  public String getTransportationMethodToShore() {
+    return transportationMethodToShore;
+  }
+
+  public String getTransportationMethodFromShore() {
+    return transportationMethodFromShore;
   }
 
   public String getPipelineRouteDetails() {

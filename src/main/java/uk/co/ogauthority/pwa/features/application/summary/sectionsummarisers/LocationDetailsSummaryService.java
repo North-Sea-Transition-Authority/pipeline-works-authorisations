@@ -50,7 +50,7 @@ public class LocationDetailsSummaryService implements ApplicationSectionSummaris
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("locationDetailsView", padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail));
     summaryModel.put("locationDetailsUrlFactory", new LocationDetailsUrlFactory(pwaApplicationDetail));
-    summaryModel.put("requiredQuestions", padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()));
+    summaryModel.put("requiredQuestions", padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail));
 
     return new ApplicationSectionSummary(
         templateName,
