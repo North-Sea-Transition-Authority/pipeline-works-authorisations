@@ -22,7 +22,6 @@ public class MasterPwaViewService {
   public MasterPwaView getCurrentMasterPwaView(PwaApplication pwaApplication) {
     var currentDetail = getCurrentMasterPwaDetail(pwaApplication.getMasterPwa());
     return MasterPwaView.from(currentDetail);
-
   }
 
   private MasterPwaDetail getCurrentMasterPwaDetail(MasterPwa masterPwa) {
