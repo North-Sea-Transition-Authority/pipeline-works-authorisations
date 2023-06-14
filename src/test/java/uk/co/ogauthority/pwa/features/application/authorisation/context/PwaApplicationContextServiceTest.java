@@ -297,9 +297,6 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_withFileId_fileNotFound() {
-
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "bad-file")).thenThrow(PwaEntityNotFoundException.class);
-
     var builder = new PwaApplicationContextParams(1, user)
         .withFileId("bad-file");
 
