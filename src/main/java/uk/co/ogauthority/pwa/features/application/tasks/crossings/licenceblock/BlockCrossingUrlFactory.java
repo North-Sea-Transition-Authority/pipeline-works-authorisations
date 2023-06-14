@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingDocumentsController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -10,36 +9,46 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class BlockCrossingUrlFactory {
 
-  private final int pwaApplicationId;
-  private final PwaApplicationType applicationType;
+  private final PwaApplicationDetail pwaApplicationDetail;
 
   public BlockCrossingUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
-    this.pwaApplicationId = pwaApplicationDetail.getMasterPwaApplicationId();
-    this.applicationType = pwaApplicationDetail.getPwaApplicationType();
+    this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
 
   public String getAddBlockCrossingUrl() {
     return ReverseRouter.route(on(BlockCrossingController.class)
-        .renderAddBlockCrossing(applicationType, pwaApplicationId, null, null));
+        .renderAddBlockCrossing(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            null,
+            null));
   }
 
   public String getBlockCrossingDocumentsUrl() {
     return ReverseRouter.route(on(BlockCrossingDocumentsController.class)
 
-        .renderEditBlockCrossingDocuments(applicationType, pwaApplicationId, null, null));
+        .renderEditBlockCrossingDocuments(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            null,
+            null));
   }
 
   public String getFileDownloadUrl() {
     return ReverseRouter.route(on(BlockCrossingDocumentsController.class)
         // file id is full to allow templates to construct url as needed
-        .handleDownload(applicationType, pwaApplicationId, null, null));
+        .handleDownload(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            null,
+            null));
   }
 
   public String getEditBlockCrossingUrl(int blockCrossingId) {
     return ReverseRouter.route(on(BlockCrossingController.class).renderEditBlockCrossing(
-        applicationType,
-        pwaApplicationId,
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getMasterPwaApplicationId(),
         blockCrossingId,
         null,
         null
@@ -48,8 +57,8 @@ public class BlockCrossingUrlFactory {
 
   public String getRemoveBlockCrossingUrl(int blockCrossingId) {
     return ReverseRouter.route(on(BlockCrossingController.class).removeBlockCrossing(
-        applicationType,
-        pwaApplicationId,
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getMasterPwaApplicationId(),
         blockCrossingId,
         null
     ));
