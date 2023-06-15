@@ -11,9 +11,8 @@
 </div>
 
 <#macro depositViewSummary deposit>
-
+  <h3 class="govuk-heading-m">${deposit.depositReference}</h3>
   <dl class="govuk-summary-list govuk-!-margin-bottom-9">
-    <h3 class="govuk-heading-m">${deposit.depositReference}</h3>
 
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Is the deposit for a consented pipeline or a pipeline that is on this application?</dt>

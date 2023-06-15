@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -114,6 +115,34 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
+  public void getTabsAvailableToUser_whenNoUserType_filterByPwaUserPrivilege_asBuiltNotifications() {
+    when(userTypeService.getUserTypes(any())).thenReturn(Set.of());
+    when(userTypeService.getPriorityUserType(user)).thenReturn(null);
+    when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
+        .thenReturn(Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA));
+
+    var tabs = workAreaContextService.getTabsAvailableToUser(user);
+
+    assertThat(tabs).containsExactly(WorkAreaTab.AS_BUILT_NOTIFICATIONS);
+  }
+
+  @Test
+  public void getTabsAvailableToUser_whenIndustry_allPwaUserPrivileges_assertIndustryAndAsBuilt() {
+    when(userTypeService.getPriorityUserType(any()))
+        .thenReturn(UserType.INDUSTRY);
+    when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
+        .thenReturn(Set.of(PwaUserPrivilege.values()));
+
+    var tabs = workAreaContextService.getTabsAvailableToUser(user);
+
+    assertThat(tabs)
+        .containsExactly(
+            WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS,
+            WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS,
+            WorkAreaTab.AS_BUILT_NOTIFICATIONS);
+  }
+
+  @Test
   public void createWorkAreaContext_pwaManagerPriv() {
     user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_MANAGER));
 
@@ -161,6 +190,5 @@ public class WorkAreaContextServiceTest {
             WorkAreaUserType.PWA_MANAGER,
             WorkAreaUserType.CASE_OFFICER
         );
-
   }
 }
