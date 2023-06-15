@@ -14,7 +14,6 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -40,7 +39,6 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 @RunWith(SpringRunner.class)
 @WebMvcTest(FeeManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-@Ignore // TODO EDU-6566 turn on fee management functionality
 public class FeeManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
