@@ -182,7 +182,7 @@ public class PwaApplicationContextService {
         .findFirst()
         .orElseThrow(() ->
             new AccessDeniedException(
-                String.format("Could not find associated PadFile for ID: %s that belonged with Application ID: %s",
+                String.format("Could not find associated PadFile for FILE_ID: %s that belonged to PWA_APPLICATION.ID: %s",
                     fileId,
                     context.getMasterPwaApplicationId()))
         );
