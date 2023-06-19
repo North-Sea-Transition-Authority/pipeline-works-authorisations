@@ -27,11 +27,14 @@ public class StartInitialPwaController {
   @GetMapping
   public ModelAndView renderStartPage(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                       @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+    var guideText = resourceType == PwaResourceType.HYDROGEN ? "applications" : "fields";
+
     return new ModelAndView("pwaApplication/startPages/initial")
         .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null, resourceType)))
         .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(PwaApplicationType.INITIAL))
         .addObject("formattedMedianLineDuration",
-            ApplicationTypeUtils.getFormattedMedianLineDuration(PwaApplicationType.INITIAL));
+            ApplicationTypeUtils.getFormattedMedianLineDuration(PwaApplicationType.INITIAL))
+        .addObject("resourceTypeGuideText", guideText);
   }
 
   /**
