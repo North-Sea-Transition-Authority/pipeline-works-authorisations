@@ -762,6 +762,50 @@ public class PublicNoticeServiceTest {
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE, PublicNoticeAction.FINALISE);
   }
 
+  @Test
+  public void getAvailablePublicNoticeActions_viewPublicNoticePermissionsAndDocumentExists_downloadActionReturned() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(document));
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(documentFileView);
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+
+    assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.DOWNLOAD);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_documentDoesNotExist_downloadActionNotReturned() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.empty());
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+
+    assertThat(publicNoticeActions).isEmpty();
+  }
 
   @Test
   public void getAllPublicNoticeViews_noPublicNotices() {
@@ -976,6 +1020,43 @@ public class PublicNoticeServiceTest {
         .thenReturn(Optional.of(document));
 
     publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
+  }
+
+  @Test
+  public void getPublicNoticeDocumentFileViewIfExists_documentLinkExists() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(document));
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(documentFileView);
+
+    var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
+    assertThat(actualFileView).isEqualTo(Optional.of(documentFileView));
+  }
+
+  @Test
+  public void getPublicNoticeDocumentFileViewIfExists_documentLinkDoesNotExist() {
+
+    var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        Optional.of(publicNotice));
+
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.empty());
+
+    var fileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
+    assertThat(fileView).isEqualTo(Optional.empty());
   }
 
   @Test

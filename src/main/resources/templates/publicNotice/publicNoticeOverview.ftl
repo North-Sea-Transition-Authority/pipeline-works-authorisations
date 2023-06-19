@@ -24,12 +24,14 @@
   </#if>
 
   <#if (allPublicNoticesView.historicalPublicNotices?size > 0)>
-    <@fdsDetails.summaryDetails summaryTitle="Show previous public notices"> 
-      <#list allPublicNoticesView.historicalPublicNotices as historicalPublicNotice>      
-        <@publicNoticeView publicNoticeViewData=historicalPublicNotice displayAsHistoricalRequest=true/>
+    <@fdsDetails.summaryDetails summaryTitle="Show previous public notices">
+      <#assign count = allPublicNoticesView.historicalPublicNotices?size>
+      <#list allPublicNoticesView.historicalPublicNotices as historicalPublicNotice>
+        <@publicNoticeView publicNoticeViewData=historicalPublicNotice displayAsHistoricalRequest=true historicalRequestNumber=count/>
         <hr class="govuk-section-break govuk-section-break--m">
+        <#assign count-->
       </#list>
-    </@fdsDetails.summaryDetails>  
+    </@fdsDetails.summaryDetails>
   </#if>
 
   <#if allPublicNoticesView.actions?seq_contains("NEW_DRAFT")>

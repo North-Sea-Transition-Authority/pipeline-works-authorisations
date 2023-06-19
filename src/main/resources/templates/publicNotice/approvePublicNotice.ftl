@@ -13,9 +13,9 @@
         <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
         <h2 class="govuk-heading-l">Review public notice request</h2>
+        <@fdsAction.link linkUrl=springUrl(downloadPublicNoticeUrl) linkText="Download public notice document" linkClass="govuk-link govuk-!-font-size-19"/>
 
-
-        <h3 class="govuk-heading-m"> Cover letter </h3>        
+        <h3 class="govuk-heading-m"> Cover letter </h3>
         <@grid.gridRow>
             <@grid.twoThirdsColumn>
                 <@multiLineText.multiLineText blockClass="public-notice__text">
@@ -32,7 +32,7 @@
                 <p class="govuk-body"> ${requestDescription} </p>
             </@multiLineText.multiLineText>
         </#if>
-    
+
         <@fdsRadio.radioGroup path="form.requestApproved" labelText="Respond to the public notice approval request" hiddenContent=true>
             <#assign firstItem=true/>
             <#list approvalResultOptions as approvalResultOption>
@@ -41,7 +41,7 @@
                         <@fdsTextarea.textarea path="form.requestRejectedReason" nestingPath="form.requestApproved" labelText="Rejection reason" characterCount=true maxCharacterLength=maxCharacterLength?c inputClass="govuk-!-width-two-thirds"/>
                     </#if>
                 </@fdsRadio.radioItem>
-            </#list>            
+            </#list>
         </@fdsRadio.radioGroup>
 
         <@fdsAction.submitButtons primaryButtonText="Submit" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>

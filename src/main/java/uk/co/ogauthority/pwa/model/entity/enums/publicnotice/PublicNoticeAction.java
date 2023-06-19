@@ -12,7 +12,8 @@ public enum PublicNoticeAction {
   REQUEST_DOCUMENT_UPDATE("Request update"),
   FINALISE("Finalise"),
   UPDATE_DATES("Update publication dates"),
-  WITHDRAW("Withdraw public notice");
+  WITHDRAW("Withdraw"),
+  DOWNLOAD("Download");
 
   private final String actionDisplayText;
 

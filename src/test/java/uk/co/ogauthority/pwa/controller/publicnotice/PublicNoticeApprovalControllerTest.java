@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeApprovalService;
@@ -92,6 +93,10 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplicationDetail.getPwaApplication());
     when(publicNoticeService.getLatestPublicNotice(any()))
         .thenReturn(publicNotice);
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(publicNoticeService.getLatestPublicNoticeDocumentFileView(any()))
+        .thenReturn(documentFileView);
 
     publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice);
     when(publicNoticeService.getLatestPublicNoticeRequest(publicNotice))
