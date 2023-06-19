@@ -158,7 +158,11 @@ public class CaseSummaryView {
 
   @SuppressWarnings("unused")
   // used in ftl template
-  public String getViewMasterPwaUrl() {
+  public String getViewMasterPwaUrlIfVariation() {
+    if (pwaApplicationType.equals(PwaApplicationType.INITIAL)) {
+      return null;
+    }
+    
     return ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
         .renderViewPwa(getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null),
         new LinkedMultiValueMap<>(Map.of("showBreadcrumbs", List.of("false"))));
