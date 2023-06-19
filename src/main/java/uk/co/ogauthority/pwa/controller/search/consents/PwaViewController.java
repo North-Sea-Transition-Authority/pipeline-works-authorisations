@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.search.consents;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,13 +49,8 @@ public class PwaViewController {
         .addObject("availableTabs", PwaViewTab.stream().collect(Collectors.toList()))
         .addObject("currentProcessingTab", tab)
         .addObject("pwaViewUrlFactory", new PwaViewUrlFactory(pwaId))
+        .addObject("showBreadcrumbs", BooleanUtils.isTrue(showBreadcrumbs))
         .addAllObjects(tabContentModelMap);
-
-    if (showBreadcrumbs != null && !showBreadcrumbs) {
-      modelAndView.addObject("showBreadcrumbs", false);
-    } else {
-      modelAndView.addObject("showBreadcrumbs", true);
-    }
 
     searchPwaBreadcrumbService.fromPwaView(modelAndView, pwaContext.getConsentSearchResultView().getPwaReference());
 
