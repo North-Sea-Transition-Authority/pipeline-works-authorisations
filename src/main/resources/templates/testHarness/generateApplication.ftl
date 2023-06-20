@@ -19,12 +19,14 @@
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationType" labelText="Select an application type" options=applicationTypeMap labelHeadingClass="govuk-label--l" />
 
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.resourceType" labelText="Select a resource type" options=resourceTypeMap labelHeadingClass="govuk-label--l" />
+
         <@fdsSearchSelector.searchSelectorEnhanced path="form.applicationStatus" labelText="Select an application status" options=applicationStatusMap labelHeadingClass="govuk-label--l" />
-        
+
         <@fdsTextInput.textInput path="form.pipelineQuantity" labelText="How many pipelines do you want to create?" hintText="Only required for: ${appTypesForPipelines}" inputClass="govuk-input--width-10"/>
-        
+
         <@fdsSearchSelector.searchSelectorEnhanced path="form.assignedCaseOfficerId" options=caseOfficerCandidates labelText="Select a case officer" hintText="Only required for: ${appStatusesForCaseOfficer}" />
-        
+
         <@fdsSearchSelector.searchSelectorEnhanced path="form.applicantPersonId" options=applicantUsersMap labelText="Select an applicant" />
 
 
@@ -38,4 +40,3 @@
 
 
 
-  

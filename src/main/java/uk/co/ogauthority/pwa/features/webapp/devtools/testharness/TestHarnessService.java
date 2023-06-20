@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.applicationstage.TestHarnessApplicationStageService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -77,7 +78,8 @@ public class TestHarnessService {
                                     PwaApplicationStatus targetAppStatus,
                                     Integer pipelineQuantity,
                                     Integer assignedCaseOfficerId,
-                                    Integer applicantPersonId) {
+                                    Integer applicantPersonId,
+                                    PwaResourceType resourceType) {
 
 
     LOGGER.info("Starting application generation");
@@ -87,7 +89,7 @@ public class TestHarnessService {
 
     switch (applicationType) {
       case INITIAL:
-        pwaApplicationDetail = generateApplicationService.generateInitialPwaApplication(pipelineQuantity, applicantUser);
+        pwaApplicationDetail = generateApplicationService.generateInitialPwaApplication(pipelineQuantity, applicantUser, resourceType);
         break;
       case HUOO_VARIATION:
       case CAT_1_VARIATION:
@@ -100,7 +102,8 @@ public class TestHarnessService {
             consentedMasterPwaId,
             nonConsentedMasterPwaId,
             pipelineQuantity,
-            applicantUser);
+            applicantUser,
+            resourceType);
         break;
       default:
         throw new RuntimeException("Pwa application type not recognised for type: " + applicationType.name());
