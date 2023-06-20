@@ -1,5 +1,6 @@
 <#-- @ftlvariable name="startUrl" type="String" -->
 <#-- @ftlvariable name="formattedDuration" type="java.lang.String" -->
+<#-- @ftlvariable name="resourceTypeGuideText" type="java.lang.String" -->
 
 <#include '../../layout.ftl'>
 
@@ -7,8 +8,7 @@
 
   <@fdsStartPage.startPage startActionText="Start" startActionUrl=startUrl>
 
-    <p class="govuk-body">All new fields irrespective of pipeline lengths. This requires a 28 day Public Notice. This also
-      includes cases where there are Median Line implications.</p>
+    <p class="govuk-body">${resourceTypeGuideText}</p>
 
     <p class="govuk-body">A consented pipeline works authorisation should be in place before any pipeline or pipeline system
       construction works begins.</p>
