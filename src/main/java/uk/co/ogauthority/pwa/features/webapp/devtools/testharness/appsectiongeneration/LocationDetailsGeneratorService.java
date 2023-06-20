@@ -69,7 +69,8 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)) {
-      form.setTransportsMaterialsFromShore(false);
+      form.setTransportsMaterialsFromShore(true);
+      form.setTransportationMethodFromShore("My transportation method from shore");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {
