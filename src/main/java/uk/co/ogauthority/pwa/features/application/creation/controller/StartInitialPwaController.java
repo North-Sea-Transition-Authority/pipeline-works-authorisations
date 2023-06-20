@@ -27,7 +27,11 @@ public class StartInitialPwaController {
   @GetMapping
   public ModelAndView renderStartPage(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                       @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
-    var guideText = resourceType == PwaResourceType.HYDROGEN ? "applications" : "fields";
+    var guideText = resourceType == PwaResourceType.HYDROGEN
+        ? "All new applications irrespective of pipeline lengths. "
+        : "All new fields irrespective of pipeline lengths. ";
+
+    guideText += "This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.";
 
     return new ModelAndView("pwaApplication/startPages/initial")
         .addObject("startUrl", ReverseRouter.route(on(StartInitialPwaController.class).startInitialPwa(null, resourceType)))
