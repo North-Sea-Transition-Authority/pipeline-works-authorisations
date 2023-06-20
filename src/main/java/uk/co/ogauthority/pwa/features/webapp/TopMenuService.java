@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.documents.DocumentTemplateSelectControll
 import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController;
 import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
 import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
+import uk.co.ogauthority.pwa.features.feemanagement.controller.FeeManagementController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -63,12 +64,10 @@ public class TopMenuService {
           .getTemplatesForSelect(null))));
     }
 
-    // TODO EDU-6566 turn on fees management
-    //    if (systemAreaAccessService.canAccessFeePeriodManagement(user)) {
-    //      menuItems.add(new TopMenuItem(TEMPLATE_FEE_MANAGE_TITLE, ReverseRouter.route(on(FeeManagementController.class)
-    //          .renderFeeManagementOverview(null))));
-    //    }
-
+    if (systemAreaAccessService.canAccessFeePeriodManagement(user)) {
+      menuItems.add(new TopMenuItem(TEMPLATE_FEE_MANAGE_TITLE, ReverseRouter.route(on(FeeManagementController.class)
+          .renderFeeManagementOverview(null))));
+    }
     return menuItems;
   }
 

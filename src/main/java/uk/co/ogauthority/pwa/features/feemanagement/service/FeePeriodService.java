@@ -128,7 +128,7 @@ public class FeePeriodService {
     LOGGER.debug("Removed tip flag from Old Pending Fee Period Detail Object");
 
     // get the day before the previous 'current' detail's period start
-    var oldActiveEndDate = oldPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
+    var oldActiveEndDate = oldPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.SECONDS);
 
     // try and find a fee period which currently ends on that date (should be the currently active fee period)
     var oldActiveDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestamp(oldActiveEndDate);
@@ -146,7 +146,7 @@ public class FeePeriodService {
       var oldActiveItems = feePeriodDetailItemRepository.findAllByFeePeriodDetail(oldActiveDetail);
 
       // get the day before the new period detail is due to start
-      var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
+      var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.SECONDS);
 
       // update the end date of the old active period, set this to be the new tip detail for that period and save
       oldActiveDetail.setPeriodEndTimestamp(newActiveEndDate);
@@ -168,7 +168,7 @@ public class FeePeriodService {
 
   private void updateActivePeriodDetails(FeePeriodDetail oldActiveDetail, FeePeriodDetail newPendingDetail, Integer username) {
 
-    var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.DAYS);
+    var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.SECONDS);
 
     oldActiveDetail.setTipFlag(false);
     oldActiveDetail.setLastModifiedBy(username);
