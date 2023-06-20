@@ -111,7 +111,8 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
         applicationUpdateRequestViewService,
         approveOptionsService,
         pwaApplicationDetailService,
-        pwaAppNotificationBannerService);
+        pwaAppNotificationBannerService,
+        pwaApplicationRedirectService);
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(ModelAndView.class), eq("Task list"));
 

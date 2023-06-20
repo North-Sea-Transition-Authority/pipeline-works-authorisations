@@ -2,15 +2,20 @@ package uk.co.ogauthority.pwa.service.appprocessing.context;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.util.LinkedMultiValueMap;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.summary.controller.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -28,6 +33,8 @@ public class CaseSummaryView {
   private final String caseOfficerName;
   private final Integer versionNo;
   private final String caseSummaryHeaderId;
+  private final String masterPwaReference;
+  private final Integer masterPwaId;
 
   public CaseSummaryView(Integer pwaApplicationId,
                          PwaApplicationType pwaApplicationType,
@@ -38,7 +45,10 @@ public class CaseSummaryView {
                          String proposedStartDateDisplay,
                          boolean fastTrackFlag,
                          String caseOfficerName,
-                         Integer versionNo, String caseSummaryHeaderId) {
+                         Integer versionNo,
+                         String caseSummaryHeaderId,
+                         String masterPwaReference,
+                         Integer masterPwaId) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
     this.pwaApplicationTypeDisplay = PwaApplicationDisplayUtils.getApplicationTypeDisplay(pwaApplicationType, resourceType);
@@ -50,6 +60,8 @@ public class CaseSummaryView {
     this.caseOfficerName = caseOfficerName;
     this.versionNo = versionNo;
     this.caseSummaryHeaderId = caseSummaryHeaderId;
+    this.masterPwaReference = masterPwaReference;
+    this.masterPwaId = masterPwaId;
   }
 
   public static CaseSummaryView from(ApplicationDetailView detailViewItem, String caseSummaryHeaderId) {
@@ -80,8 +92,9 @@ public class CaseSummaryView {
         appWorkAreaItem.wasSubmittedAsFastTrack(),
         appWorkAreaItem.getCaseOfficerName(),
         detailViewItem.getVersionNo(),
-        caseSummaryHeaderId);
-
+        caseSummaryHeaderId,
+        appWorkAreaItem.getMasterPwaReference(),
+        detailViewItem.getPwaId());
   }
 
   public Integer getPwaApplicationId() {
@@ -128,12 +141,33 @@ public class CaseSummaryView {
     return caseSummaryHeaderId;
   }
 
+  public String getMasterPwaReference() {
+    return masterPwaReference;
+  }
+
+  public Integer getMasterPwaId() {
+    return masterPwaId;
+  }
+
   @SuppressWarnings("unused")
   // used in ftl template
   public String getAppSummaryUrl() {
     return ReverseRouter.route(on(ApplicationSummaryController.class).renderSummary(pwaApplicationId,
         pwaApplicationType, null, null, null, null));
   }
+
+  @SuppressWarnings("unused")
+  // used in ftl template
+  public String getViewMasterPwaUrlIfVariation() {
+    if (pwaApplicationType.equals(PwaApplicationType.INITIAL)) {
+      return null;
+    }
+    
+    return ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
+        .renderViewPwa(getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null),
+        new LinkedMultiValueMap<>(Map.of("showBreadcrumbs", List.of("false"))));
+  }
+
 
   @Override
   public boolean equals(Object o) {

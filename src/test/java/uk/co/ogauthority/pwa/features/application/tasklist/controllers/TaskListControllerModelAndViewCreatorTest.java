@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,6 +58,9 @@ public class TaskListControllerModelAndViewCreatorTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private PwaApplicationRedirectService pwaApplicationRedirectService;
+
   private TaskListControllerModelAndViewCreator taskListControllerModelAndViewCreator;
 
   private PwaApplicationDetail detail;
@@ -74,7 +78,8 @@ public class TaskListControllerModelAndViewCreatorTest {
         applicationUpdateRequestViewService,
         approveOptionsService,
         pwaApplicationDetailService,
-        pwaAppNotificationBannerService);
+        pwaAppNotificationBannerService,
+        pwaApplicationRedirectService);
   }
 
 
@@ -96,17 +101,20 @@ public class TaskListControllerModelAndViewCreatorTest {
     PwaApplicationType.stream().forEach(applicationType -> {
 
       pwaApplication.setApplicationType(applicationType);
-
+      if (applicationType != PwaApplicationType.INITIAL) {
+        when(masterPwaView.getMasterPwaId()).thenReturn(1);
+        when(pwaApplicationRedirectService.getTaskListRoute(pwaApplication)).thenReturn("test-route");
+      }
       var modelAndView = taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroups);
 
       assertThat(modelAndView.getViewName()).isEqualTo(TaskListControllerModelAndViewCreator.TASK_LIST_TEMPLATE_PATH);
-
       assertThat(modelAndView.getModel().get("applicationTaskGroups")).isNotNull();
-
       if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNotNull();
       } else {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNull();
       }
 
       verify(breadcrumbService, times(1)).fromWorkArea(modelAndView, "Task list");
@@ -138,17 +146,20 @@ public class TaskListControllerModelAndViewCreatorTest {
     PwaApplicationType.stream().forEach(applicationType -> {
 
       pwaApplication.setApplicationType(applicationType);
-
+      if (applicationType != PwaApplicationType.INITIAL) {
+        when(masterPwaView.getMasterPwaId()).thenReturn(1);
+        when(pwaApplicationRedirectService.getTaskListRoute(pwaApplication)).thenReturn("test-route");
+      }
       var modelAndView = taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroups);
 
       assertThat(modelAndView.getViewName()).isEqualTo(TaskListControllerModelAndViewCreator.TASK_LIST_TEMPLATE_PATH);
-
       assertThat(modelAndView.getModel().get("applicationTaskGroups")).isNotNull();
-
       if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNotNull();
       } else {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNull();
       }
 
       verify(breadcrumbService, times(1)).fromCaseManagement(pwaApplication, modelAndView, "Task list");
@@ -179,17 +190,20 @@ public class TaskListControllerModelAndViewCreatorTest {
     PwaApplicationType.stream().forEach(applicationType -> {
 
       pwaApplication.setApplicationType(applicationType);
-
+      if (applicationType != PwaApplicationType.INITIAL) {
+        when(masterPwaView.getMasterPwaId()).thenReturn(1);
+        when(pwaApplicationRedirectService.getTaskListRoute(pwaApplication)).thenReturn("test-route");
+      }
       var modelAndView = taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroups);
 
       assertThat(modelAndView.getViewName()).isEqualTo(TaskListControllerModelAndViewCreator.TASK_LIST_TEMPLATE_PATH);
-
       assertThat(modelAndView.getModel().get("applicationTaskGroups")).isNotNull();
-
       if (applicationType != PwaApplicationType.INITIAL) {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isEqualTo("PWA-Example");
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNotNull();
       } else {
         assertThat(modelAndView.getModel().get("masterPwaReference")).isNull();
+        assertThat(modelAndView.getModel().get("viewPwaUrl")).isNull();
       }
 
       verify(breadcrumbService, times(1)).fromCaseManagement(pwaApplication, modelAndView, "Task list");
