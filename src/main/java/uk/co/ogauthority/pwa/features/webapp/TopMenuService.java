@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSear
 import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
 import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
 import uk.co.ogauthority.pwa.features.feemanagement.controller.FeeManagementController;
+import uk.co.ogauthority.pwa.features.reassignment.CaseReassignmentController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -24,6 +25,7 @@ public class TopMenuService {
   public static final String APPLICATION_SEARCH_TITLE = "Search applications";
   public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
   public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
+  public static final String REASSIGN_CASE_REVIEWS_TITLE = "Reassign Applications";
 
   public static final String TEMPLATE_FEE_MANAGE_TITLE = "Manage fees";
 
@@ -68,6 +70,12 @@ public class TopMenuService {
       menuItems.add(new TopMenuItem(TEMPLATE_FEE_MANAGE_TITLE, ReverseRouter.route(on(FeeManagementController.class)
           .renderFeeManagementOverview(null))));
     }
+
+    if (systemAreaAccessService.canAccessWorkArea(user)) {
+      menuItems.add(new TopMenuItem(REASSIGN_CASE_REVIEWS_TITLE, ReverseRouter.route(on(CaseReassignmentController.class).renderCaseReassignment(
+          null, null, null))));
+    }
+
     return menuItems;
   }
 
