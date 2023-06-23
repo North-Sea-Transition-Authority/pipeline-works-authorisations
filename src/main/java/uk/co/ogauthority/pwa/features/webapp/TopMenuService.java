@@ -71,7 +71,7 @@ public class TopMenuService {
           .renderFeeManagementOverview(null))));
     }
 
-    if (systemAreaAccessService.canAccessWorkArea(user)) {
+    if (systemAreaAccessService.canAccessTeamManagement(user)) {
       menuItems.add(new TopMenuItem(REASSIGN_CASE_REVIEWS_TITLE, ReverseRouter.route(on(CaseReassignmentController.class).renderCaseReassignment(
           null, null, null, null))));
     }
