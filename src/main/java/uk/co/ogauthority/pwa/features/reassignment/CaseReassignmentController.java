@@ -49,11 +49,45 @@ public class CaseReassignmentController {
   @GetMapping
   public ModelAndView renderCaseReassignment(HttpServletRequest httpServletRequest,
                                              AuthenticatedUserAccount authenticatedUserAccount,
-                                             RedirectAttributes redirectAttributes) {
-    var workItems = caseReasignmentService.getReassignableWorkAreaItems();
+                                             RedirectAttributes redirectAttributes,
+                                             @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
+    var workItems = caseReasignmentService.getReassignableWorkAreaItems(
+        caseReassignmentFilterForm.getCaseOfficerPersonId());
     return new ModelAndView("reassignment/reassignment")
         .addObject("assignableCases", workItems)
-        .addObject("form", new CaseReassignmentSelectorForm());
+        .addObject("filterForm", caseReassignmentFilterForm)
+        .addObject("form", new CaseReassignmentSelectorForm())
+        .addObject("filterURL",
+            ReverseRouter.route(on(CaseReassignmentController.class).filterCaseReassignment(
+                httpServletRequest,
+                authenticatedUserAccount,
+                caseReassignmentFilterForm,
+                redirectAttributes)))
+        .addObject("clearURL",
+            ReverseRouter.route(on(CaseReassignmentController.class).filterCaseReassignment(
+                httpServletRequest,
+                authenticatedUserAccount,
+                null,
+                redirectAttributes)))
+        .addObject("caseOfficerCandidates",
+            workflowAssignmentService
+                .getAssignmentCandidates(null, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
+                .sorted(Comparator.comparing(Person::getFullName))
+                .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
+                    Person::getFullName)));
+  }
+
+  @PostMapping("/filter")
+  public ModelAndView filterCaseReassignment(HttpServletRequest httpServletRequest,
+                                             AuthenticatedUserAccount authenticatedUserAccount,
+                                             @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm,
+                                             RedirectAttributes redirectAttributes) {
+    redirectAttributes.addFlashAttribute("filterForm", caseReassignmentFilterForm);
+    return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
+        httpServletRequest,
+        authenticatedUserAccount,
+        redirectAttributes,
+        caseReassignmentFilterForm));
   }
 
   @PostMapping
@@ -68,6 +102,8 @@ public class CaseReassignmentController {
         caseReassignmentSelectorForm,
         redirectAttributes));
   }
+
+
 
   @GetMapping("/select")
   public ModelAndView renderSelectNewAssignee(HttpServletRequest httpServletRequest,
@@ -101,6 +137,7 @@ public class CaseReassignmentController {
     return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
         httpServletRequest,
         authenticatedUserAccount,
-        redirectAttributes));
+        redirectAttributes,
+        null));
   }
 }

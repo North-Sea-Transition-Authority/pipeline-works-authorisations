@@ -26,7 +26,7 @@ public class CaseReasignmentService {
     this.entityManager = entityManager;
   }
 
-  public List<WorkAreaApplicationDetailSearchItem> getReassignableWorkAreaItems() {
+  public List<WorkAreaApplicationDetailSearchItem> getReassignableWorkAreaItems(Integer caseOfficerId) {
     var cb = entityManager.getCriteriaBuilder();
 
     CriteriaQuery<WorkAreaApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(
@@ -38,6 +38,9 @@ public class CaseReasignmentService {
     var conditions = new ArrayList<Predicate>();
     conditions.add(cb.equal(workAreaSearchItemJoin.get(ApplicationDetailView_.PAD_STATUS), CASE_OFFICER_REVIEW));
     conditions.add(cb.isTrue(workAreaSearchItemJoin.get(ApplicationDetailView_.TIP_FLAG)));
+    if (caseOfficerId != null) {
+      conditions.add(cb.equal(workAreaSearchItemJoin.get(ApplicationDetailView_.CASE_OFFICER_PERSON_ID), caseOfficerId));
+    }
 
     searchResultsQuery.select(workAreaSearchItemJoin);
     searchResultsQuery.where(conditions.toArray(new Predicate[]{}));
