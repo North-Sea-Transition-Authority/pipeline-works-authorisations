@@ -64,11 +64,11 @@ public class CaseReassignmentController {
                 caseReassignmentFilterForm,
                 redirectAttributes)))
         .addObject("clearURL",
-            ReverseRouter.route(on(CaseReassignmentController.class).filterCaseReassignment(
+            ReverseRouter.route(on(CaseReassignmentController.class).renderCaseReassignment(
                 httpServletRequest,
                 authenticatedUserAccount,
-                null,
-                redirectAttributes)))
+                redirectAttributes,
+                new CaseReassignmentFilterForm())))
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
                 .getAssignmentCandidates(null, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
