@@ -56,13 +56,13 @@ public class GenerateApplicationService {
   }
 
 
-  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser) {
+  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser, PwaResourceType resourceType) {
     var applicantOrgUnit = testHarnessOrganisationUnitService
         .getFirstOrgUnitUserCanAccessOrThrow(applicantUser);
     var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(
         applicantOrgUnit,
         applicantUser,
-        PwaResourceType.PETROLEUM
+        resourceType
     );
     setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
@@ -73,7 +73,8 @@ public class GenerateApplicationService {
                                                        Integer consentedMasterPwaId,
                                                        Integer nonConsentedMasterPwaId,
                                                        Integer pipelineQuantity,
-                                                       WebUserAccount applicantUser) {
+                                                       WebUserAccount applicantUser,
+                                                       PwaResourceType resourceType) {
 
     MasterPwa pickedPwa;
     if (consentedMasterPwaId != null) {
@@ -88,7 +89,7 @@ public class GenerateApplicationService {
     var pwaApplicationDetail = pwaApplicationCreationService.createVariationPwaApplication(
         pickedPwa,
         pwaApplicationType,
-        PwaResourceType.PETROLEUM,
+        resourceType,
         applicantOrgUnit,
         applicantUser);
 

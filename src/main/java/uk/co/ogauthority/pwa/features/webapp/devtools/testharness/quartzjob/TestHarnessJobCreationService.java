@@ -63,6 +63,7 @@ public class TestHarnessJobCreationService {
     jobDetail.getJobDataMap().put("pipelineQuantity", form.getPipelineQuantity());
     jobDetail.getJobDataMap().put("assignedCaseOfficerId", form.getAssignedCaseOfficerId());
     jobDetail.getJobDataMap().put("applicantPersonId", form.getApplicantPersonId());
+    jobDetail.getJobDataMap().put("resourceType", form.getResourceType());
   }
 
   private void scheduleGenerateApplicationJob(JobDetail jobDetail) {

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.testharness.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,9 @@ public class TestHarnessController {
                 form.getPipelineQuantity(),
                 form.getApplicationStatus().name(),
                 form.getAssignedCaseOfficerId(),
-                form.getApplicantPersonId(), null));
+                form.getApplicantPersonId(),
+                form.getResourceType().name(),
+                null));
           }
         });
 
@@ -102,6 +105,10 @@ public class TestHarnessController {
     var applicationTypeMap = PwaApplicationType.stream()
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
+
+    var resourceTypeMap = Arrays.stream(PwaResourceType.values())
+        .sorted(Comparator.comparing(PwaResourceType::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaResourceType::getDisplayName));
 
     var applicationStatusMap = TestHarnessService.getTestHarnessAppStatuses().stream()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationStatus::getDisplayName));
@@ -121,6 +128,7 @@ public class TestHarnessController {
     return new ModelAndView("testHarness/generateApplication")
         .addObject("cancelUrl", RouteUtils.routeWorkArea())
         .addObject("applicationTypeMap", applicationTypeMap)
+        .addObject("resourceTypeMap", resourceTypeMap)
         .addObject("applicationStatusMap", applicationStatusMap)
         .addObject("caseOfficerCandidates", caseOfficerCandidates)
         .addObject("applicantUsersMap", testHarnessService.getApplicantsSelectorMap())
@@ -137,6 +145,7 @@ public class TestHarnessController {
                                       @RequestParam String applicationStatus,
                                       @RequestParam Integer assignedCaseOfficerId,
                                       @RequestParam Integer applicantPersonId,
+                                      @RequestParam String resourceType,
                                       @ModelAttribute("form") GenerateVariationApplicationForm form) {
     return getSelectPwaModelAndView(form);
   }
