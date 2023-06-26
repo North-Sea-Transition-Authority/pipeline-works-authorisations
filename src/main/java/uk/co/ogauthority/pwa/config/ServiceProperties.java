@@ -12,15 +12,19 @@ public class ServiceProperties {
   private final String customerMnemonic;
   private final String customerName;
 
+  private final String emtMnemonic;
+
   @Autowired
   public ServiceProperties(@Value("${service.name}") String serviceName,
                            @Value("${service.full-name}") String fullServiceName,
                            @Value("${service.customer.mnemonic}") String customerMnemonic,
-                           @Value("${service.customer.name}") String customerName) {
+                           @Value("${service.customer.name}") String customerName,
+                           @Value("${service.emt.authority.mnemonic}") String emtMnemonic) {
     this.serviceName = serviceName;
     this.fullServiceName = fullServiceName;
     this.customerMnemonic = customerMnemonic;
     this.customerName = customerName;
+    this.emtMnemonic = emtMnemonic;
   }
 
   public String getServiceName() {
@@ -39,5 +43,7 @@ public class ServiceProperties {
     return customerName;
   }
 
+  public String getEmtMnemonic() {
+    return emtMnemonic;
+  }
 }
-

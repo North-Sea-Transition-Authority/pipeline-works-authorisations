@@ -5,6 +5,7 @@
 <#-- @ftlvariable name="environmentalConditions" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="decommissioningConditions" type="java.util.Map<String, String>" -->
 <#-- @ftlvariable name="availableQuestions" type="java.util.Set<uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.EnvDecomQuestion>" -->
+<#-- @ftlvariable name="service" type="uk.co.ogauthority.pwa.config.ServiceProperties" -->
 
 <@defaultPage htmlTitle="Environmental and decommissioning" pageHeading="Environmental and decommissioning" breadcrumbs=true errorItems=errorList>
 
@@ -25,19 +26,19 @@
 
         <#if availableQuestions?seq_contains("BEIS_EMT_PERMITS")>
 
-          <@fdsFieldset.fieldset legendHeading="BEIS EMT" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+          <@fdsFieldset.fieldset legendHeading="${service.emtMnemonic} EMT" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
 
-              <@fdsRadio.radioGroup path="form.emtHasSubmittedPermits" labelText="Have you submitted any relevant environmental permits to BEIS EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
+              <@fdsRadio.radioGroup path="form.emtHasSubmittedPermits" labelText="Have you submitted any relevant environmental permits to ${service.emtMnemonic} EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
                   <@fdsRadio.radioYes path="form.emtHasSubmittedPermits">
-                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to BEIS?" hintText="Include the date submitted for each permit" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+                      <@fdsTextarea.textarea path="form.permitsSubmitted" nestingPath="form.permitsSubmitted" labelText="Which permits have you submitted to ${service.emtMnemonic}?" hintText="Include the date submitted for each permit" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                   </@fdsRadio.radioYes>
                   <@fdsRadio.radioNo path="form.emtHasSubmittedPermits"/>
               </@fdsRadio.radioGroup>
 
-              <@fdsRadio.radioGroup path="form.emtHasOutstandingPermits" labelText="Do you have any environmental permits that have not yet been submitted to BEIS EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
+              <@fdsRadio.radioGroup path="form.emtHasOutstandingPermits" labelText="Do you have any environmental permits that have not yet been submitted to ${service.emtMnemonic} EMT?" fieldsetHeadingSize="h4" hiddenContent=true>
                   <@fdsRadio.radioYes path="form.emtHasOutstandingPermits">
-                      <@fdsTextarea.textarea path="form.permitsPendingSubmission" labelText="Which permits have you not submitted to BEIS?" nestingPath="form.permitsPendingSubmission" characterCount=true maxCharacterLength=maxCharacterLength?c/>
-                      <@fdsDateInput.dateInput formId="emtSubmissionDay" dayPath="form.emtSubmissionDay" monthPath="form.emtSubmissionMonth" yearPath="form.emtSubmissionYear" labelText="What is the latest date all relevant environmental permits will be submitted to BEIS?" hintText="BEIS will require these permits prior to their assessment of your PWA" fieldsetHeadingSize="h5" defaultHint=false/>
+                      <@fdsTextarea.textarea path="form.permitsPendingSubmission" labelText="Which permits have you not submitted to ${service.emtMnemonic}?" nestingPath="form.permitsPendingSubmission" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+                      <@fdsDateInput.dateInput formId="emtSubmissionDay" dayPath="form.emtSubmissionDay" monthPath="form.emtSubmissionMonth" yearPath="form.emtSubmissionYear" labelText="What is the latest date all relevant environmental permits will be submitted to ${service.emtMnemonic}?" hintText="${service.emtMnemonic} will require these permits prior to their assessment of your PWA" fieldsetHeadingSize="h5" defaultHint=false/>
                   </@fdsRadio.radioYes>
                   <@fdsRadio.radioNo path="form.emtHasOutstandingPermits"/>
               </@fdsRadio.radioGroup>

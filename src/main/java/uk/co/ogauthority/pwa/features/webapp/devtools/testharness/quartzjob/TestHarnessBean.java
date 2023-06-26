@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.TestHarnessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -48,8 +49,8 @@ class TestHarnessBean extends QuartzJobBean {
           (PwaApplicationStatus) jobDataMap.get("applicationStatus"),
           (Integer) jobDataMap.get("pipelineQuantity"),
           (Integer) jobDataMap.get("assignedCaseOfficerId"),
-          (Integer) jobDataMap.get("applicantPersonId"));
-
+          (Integer) jobDataMap.get("applicantPersonId"),
+          (PwaResourceType) jobDataMap.get("resourceType"));
     } catch (Exception e) {
       throw new JobExecutionException(e);
     } finally {
