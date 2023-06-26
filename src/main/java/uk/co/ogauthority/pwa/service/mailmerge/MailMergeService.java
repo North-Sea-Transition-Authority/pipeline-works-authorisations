@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.mailmerge;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +39,10 @@ public class MailMergeService {
   }
 
   public List<MailMergeField> getMailMergeFieldsForDocumentSource(DocumentSource documentSource) {
-    var availableFieldMnems = getMailMergeResolver(documentSource).getAvailableMailMergeFields(documentSource);
+    var availableFieldMnems = getMailMergeResolver(documentSource)
+        .stream()
+        .flatMap(resolver -> resolver.getAvailableMailMergeFields(documentSource).stream())
+        .collect(Collectors.toList());
     return mailMergeFieldRepository.findAllByMnemIn(availableFieldMnems);
   }
 
@@ -49,9 +51,12 @@ public class MailMergeService {
    * @return a mail merge container storing resolved merge field data
    */
   public MailMergeContainer resolveMergeFields(DocumentSource documentSource, DocGenType docGenType) {
-
-    var resolver = getMailMergeResolver(documentSource);
-    var resolvedMergeFieldNameToValueMap = new HashMap<>(resolver.resolveMergeFields(documentSource));
+    var resolvedMergeFieldNameToValueMap = getMailMergeResolver(documentSource)
+        .stream()
+        .flatMap(resolver -> resolver.resolveMergeFields(documentSource).entrySet().stream())
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue));
 
     var container = new MailMergeContainer();
     container.setMailMergeFields(resolvedMergeFieldNameToValueMap);
@@ -92,14 +97,18 @@ public class MailMergeService {
 
   }
 
-  private DocumentSourceMailMergeResolver getMailMergeResolver(DocumentSource documentSource) {
+  private List<DocumentSourceMailMergeResolver> getMailMergeResolver(DocumentSource documentSource) {
 
-    return mailMergeResolvers.stream()
+    var resolvers = mailMergeResolvers.stream()
         .filter(r -> r.supportsDocumentSource(documentSource))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException(String.format(
-            "Couldn't find mail merge resolver for document source class %s", documentSource.getSource().getClass().getName())));
+        .collect(Collectors.toList());
 
+    if (resolvers.isEmpty()) {
+      throw new RuntimeException(String.format(
+          "Couldn't find mail merge resolver for document source class %s",
+          documentSource.getSource().getClass().getName()));
+    }
+    return resolvers;
   }
 
   public Set<String> validateMailMergeFields(DocumentSource docSource, String text) {
