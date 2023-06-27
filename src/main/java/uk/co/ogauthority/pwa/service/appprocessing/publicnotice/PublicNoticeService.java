@@ -375,7 +375,9 @@ public class PublicNoticeService implements AppProcessingService {
     var pwaApplication = pwaAppProcessingContext.getPwaApplication();
     var fileView = getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
 
-    if (processingPermissions.contains(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES) && fileView.isPresent()) {
+    if ((processingPermissions.contains(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES)
+        || processingPermissions.contains(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE))
+        && fileView.isPresent()) {
       publicNoticeActions.add(PublicNoticeAction.DOWNLOAD);
     }
 
