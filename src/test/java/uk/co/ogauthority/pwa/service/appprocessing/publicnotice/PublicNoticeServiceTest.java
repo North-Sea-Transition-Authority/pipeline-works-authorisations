@@ -857,6 +857,7 @@ public class PublicNoticeServiceTest {
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
     var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
     when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
@@ -953,6 +954,7 @@ public class PublicNoticeServiceTest {
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
     var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
     when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
