@@ -842,6 +842,25 @@ public class PublicNoticeServiceTest {
     when(personService.getPersonById(endedPublicNotice1.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
     when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
 
+    var currentDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(currentPublicNotice);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+        .thenReturn(Optional.of(currentDocument));
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice1);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
+        .thenReturn(Optional.of(document));
+
+    var document2 = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice2);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
+        .thenReturn(Optional.of(document2));
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(documentFileView);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.APPROVE_PUBLIC_NOTICE, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
@@ -922,6 +941,22 @@ public class PublicNoticeServiceTest {
     var withdrawingPerson = PersonTestUtil.createDefaultPerson();
     when(personService.getPersonById(endedPublicNotice1.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
     when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
+
+    var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice1);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
+        .thenReturn(Optional.of(document));
+
+    var document2 = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice2);
+    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
+        .thenReturn(Optional.of(document2));
+
+    var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
+    var documentLink = new PublicNoticeDocumentLink(document, publicNoticeAppFile);
+    when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
+
+    var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
+    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+        .thenReturn(documentFileView);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));

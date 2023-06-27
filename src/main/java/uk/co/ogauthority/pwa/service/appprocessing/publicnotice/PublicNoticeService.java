@@ -475,9 +475,8 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public Optional<UploadedFileView> getLatestPublicNoticeDocumentFileViewIfExists(PwaApplication pwaApplication) {
-
-    var publicNotice = getLatestPublicNotice(pwaApplication);
-    return getPublicNoticeDocumentFileViewForPublicNoticeIfExists(publicNotice, pwaApplication);
+    var publicNotice = getLatestPublicNoticeOpt(pwaApplication);
+    return publicNotice.flatMap(notice -> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(notice, pwaApplication));
   }
 
   private PublicNoticeDocument getArchivedPublicNoticeDocument(PublicNotice publicNotice) {
