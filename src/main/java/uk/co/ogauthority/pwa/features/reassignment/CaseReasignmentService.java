@@ -4,8 +4,6 @@ import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplication
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
@@ -47,13 +45,5 @@ public class CaseReasignmentService {
 
     var results =  entityManager.createQuery(searchResultsQuery).getResultList();
     return results;
-  }
-
-  public Map<String, String> getReassignableCheckboxMap(List<WorkAreaApplicationDetailSearchItem> workAreaItems) {
-    return workAreaItems.stream()
-        .collect(Collectors.toMap(
-            WorkAreaApplicationDetailSearchItem::getPadReference,
-            WorkAreaApplicationDetailSearchItem::getPadReference)
-        );
   }
 }

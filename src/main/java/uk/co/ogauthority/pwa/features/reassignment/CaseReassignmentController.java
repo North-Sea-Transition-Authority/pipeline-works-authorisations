@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.features.reassignment;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -51,6 +55,7 @@ public class CaseReassignmentController {
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              RedirectAttributes redirectAttributes,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
+    checkUserPrivilege(authenticatedUserAccount);
     var workItems = caseReasignmentService.getReassignableWorkAreaItems(
         caseReassignmentFilterForm.getCaseOfficerPersonId());
     return new ModelAndView("reassignment/reassignment")
@@ -70,11 +75,10 @@ public class CaseReassignmentController {
                 redirectAttributes,
                 new CaseReassignmentFilterForm())))
         .addObject("caseOfficerCandidates",
-            workflowAssignmentService
-                .getAssignmentCandidates(null, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
-                .sorted(Comparator.comparing(Person::getFullName))
-                .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-                    Person::getFullName)));
+            workItems.stream()
+                .map(item -> Map.entry(String.valueOf(item.getCaseOfficerPersonId()), item.getCaseOfficerName()))
+                .distinct()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
   }
 
   @PostMapping("/filter")
@@ -82,6 +86,7 @@ public class CaseReassignmentController {
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm,
                                              RedirectAttributes redirectAttributes) {
+    checkUserPrivilege(authenticatedUserAccount);
     redirectAttributes.addFlashAttribute("filterForm", caseReassignmentFilterForm);
     return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
         httpServletRequest,
@@ -95,6 +100,7 @@ public class CaseReassignmentController {
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                              RedirectAttributes redirectAttributes) {
+    checkUserPrivilege(authenticatedUserAccount);
     redirectAttributes.addFlashAttribute("form", caseReassignmentSelectorForm);
     return ReverseRouter.redirect(on(CaseReassignmentController.class).renderSelectNewAssignee(
         httpServletRequest,
@@ -110,6 +116,7 @@ public class CaseReassignmentController {
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
+    checkUserPrivilege(authenticatedUserAccount);
     return new ModelAndView("reassignment/chooseAssignee")
         .addObject("form", caseReassignmentSelectorForm)
         .addObject("caseOfficerCandidates",
@@ -125,7 +132,7 @@ public class CaseReassignmentController {
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
-
+    checkUserPrivilege(authenticatedUserAccount);
     for (var detailId : caseReassignmentSelectorForm.getSelectedCases()) {
       var applicationDetail = pwaApplicationDetailService.getDetailById(detailId);
 
@@ -139,5 +146,11 @@ public class CaseReassignmentController {
         authenticatedUserAccount,
         redirectAttributes,
         null));
+  }
+
+  private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
+    if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
+      throw new AccessDeniedException("Access to fee management denied");
+    }
   }
 }
