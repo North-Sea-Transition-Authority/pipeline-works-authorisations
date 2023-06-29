@@ -13,7 +13,8 @@
         <@pwaCaseSummary.summary caseSummaryView=caseSummaryView />
 
         <h2 class="govuk-heading-l">Review public notice request</h2>
-        <@fdsAction.link linkUrl=springUrl(downloadPublicNoticeUrl) linkText="Download public notice document" linkClass="govuk-link govuk-!-font-size-19"/>
+
+        <p class="govuk-body"><@fdsAction.link linkUrl=springUrl(downloadPublicNoticeUrl) linkText="Download public notice document" linkClass="govuk-link govuk-!-font-size-19"/></p>
 
         <h3 class="govuk-heading-m"> Cover letter </h3>
         <@grid.gridRow>

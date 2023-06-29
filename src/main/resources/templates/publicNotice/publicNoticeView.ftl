@@ -17,13 +17,13 @@
                 <@fdsSummaryList.summaryListCardActionList>
                     <#list existingPublicNoticeActions as publicNoticeAction>
                         <#if publicNoticeActions?seq_contains(publicNoticeAction)>
-                            <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) itemText=publicNoticeAction.getDisplayText() itemScreenReaderText=publicNoticeAction.getDisplayText()/>
+                            <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) itemText=publicNoticeAction.getDisplayText() itemScreenReaderText=publicNoticeAction.getScreenReaderText()/>
                         </#if>
                     </#list>
                 </@fdsSummaryList.summaryListCardActionList>
             <#else>
                 <@fdsSummaryList.summaryListCardActionList>
-                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="Download public notice document"/>
+                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
                 </@fdsSummaryList.summaryListCardActionList>
             </#if>
         </#assign>
