@@ -39,7 +39,7 @@ public class MailMergeService {
   }
 
   public List<MailMergeField> getMailMergeFieldsForDocumentSource(DocumentSource documentSource) {
-    var availableFieldMnems = getMailMergeResolver(documentSource)
+    var availableFieldMnems = getMailMergeResolvers(documentSource)
         .stream()
         .flatMap(resolver -> resolver.getAvailableMailMergeFields(documentSource).stream())
         .collect(Collectors.toList());
@@ -51,7 +51,7 @@ public class MailMergeService {
    * @return a mail merge container storing resolved merge field data
    */
   public MailMergeContainer resolveMergeFields(DocumentSource documentSource, DocGenType docGenType) {
-    var resolvedMergeFieldNameToValueMap = getMailMergeResolver(documentSource)
+    var resolvedMergeFieldNameToValueMap = getMailMergeResolvers(documentSource)
         .stream()
         .flatMap(resolver -> resolver.resolveMergeFields(documentSource).entrySet().stream())
         .collect(Collectors.toMap(
@@ -97,7 +97,7 @@ public class MailMergeService {
 
   }
 
-  private List<DocumentSourceMailMergeResolver> getMailMergeResolver(DocumentSource documentSource) {
+  private List<DocumentSourceMailMergeResolver> getMailMergeResolvers(DocumentSource documentSource) {
 
     var resolvers = mailMergeResolvers.stream()
         .filter(r -> r.supportsDocumentSource(documentSource))
