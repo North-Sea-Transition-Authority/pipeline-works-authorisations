@@ -1,22 +1,21 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
-import java.io.Serializable;
 import java.util.List;
 
-public class CaseReassignmentSelectorForm implements Serializable {
-  private List<Integer> selectedCases;
+public class CaseReassignmentSelectorForm {
+  private List<Integer> selectedApplicationIds;
 
   private Integer caseOfficerAssignee;
 
   public CaseReassignmentSelectorForm() {
   }
 
-  public List<Integer> getSelectedCases() {
-    return selectedCases;
+  public List<Integer> getSelectedApplicationIds() {
+    return selectedApplicationIds;
   }
 
-  public void setSelectedCases(List<Integer> selectedCases) {
-    this.selectedCases = selectedCases;
+  public void setSelectedApplicationIds(List<Integer> selectedApplicationIds) {
+    this.selectedApplicationIds = selectedApplicationIds;
   }
 
   public Integer getCaseOfficerAssignee() {

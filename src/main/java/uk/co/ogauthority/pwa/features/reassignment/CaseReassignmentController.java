@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
+import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -30,7 +32,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @RequestMapping("/reassign-cases")
 public class CaseReassignmentController {
 
-  private final CaseReasignmentService caseReasignmentService;
+  private final ReviewIdentifierService reviewIdentifierService;
 
   private final WorkflowAssignmentService workflowAssignmentService;
 
@@ -39,11 +41,11 @@ public class CaseReassignmentController {
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
   @Autowired
-  public CaseReassignmentController(CaseReasignmentService caseReasignmentService,
+  public CaseReassignmentController(ReviewIdentifierService reviewIdentifierService,
                                     WorkflowAssignmentService workflowAssignmentService,
                                     AssignCaseOfficerService assignCaseOfficerService,
                                     PwaApplicationDetailService pwaApplicationDetailService) {
-    this.caseReasignmentService = caseReasignmentService;
+    this.reviewIdentifierService = reviewIdentifierService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignCaseOfficerService = assignCaseOfficerService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -56,10 +58,13 @@ public class CaseReassignmentController {
                                              RedirectAttributes redirectAttributes,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
     checkUserPrivilege(authenticatedUserAccount);
-    var workItems = caseReasignmentService.getReassignableWorkAreaItems(
+    var workItems = reviewIdentifierService.findCasesInReview(
         caseReassignmentFilterForm.getCaseOfficerPersonId());
     return new ModelAndView("reassignment/reassignment")
-        .addObject("assignableCases", workItems)
+        .addObject("assignableCases", workItems
+            .stream()
+            .map(CaseReassignmentView::new)
+            .collect(Collectors.toSet()))
         .addObject("filterForm", caseReassignmentFilterForm)
         .addObject("form", new CaseReassignmentSelectorForm())
         .addObject("filterURL",
@@ -87,12 +92,15 @@ public class CaseReassignmentController {
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm,
                                              RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    redirectAttributes.addFlashAttribute("filterForm", caseReassignmentFilterForm);
-    return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
+
+    var paramMap = new LinkedMultiValueMap<String, String>();
+    paramMap.setAll(FormObjectMapper.toMap(caseReassignmentFilterForm));
+
+    return ReverseRouter.redirectWithQueryParamMap(on(CaseReassignmentController.class).renderCaseReassignment(
         httpServletRequest,
         authenticatedUserAccount,
         redirectAttributes,
-        caseReassignmentFilterForm));
+        caseReassignmentFilterForm),paramMap);
   }
 
   @PostMapping
@@ -101,17 +109,19 @@ public class CaseReassignmentController {
                                              @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                              RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    redirectAttributes.addFlashAttribute("form", caseReassignmentSelectorForm);
-    return ReverseRouter.redirect(on(CaseReassignmentController.class).renderSelectNewAssignee(
+    var paramMap = new LinkedMultiValueMap<String, String>();
+    paramMap.setAll(FormObjectMapper.toMap(caseReassignmentSelectorForm));
+
+    return ReverseRouter.redirectWithQueryParamMap(on(CaseReassignmentController.class).renderSelectNewAssignee(
         httpServletRequest,
         authenticatedUserAccount,
         caseReassignmentSelectorForm,
-        redirectAttributes));
+        redirectAttributes), paramMap);
   }
 
 
 
-  @GetMapping("/select")
+  @GetMapping("/select-case-officer")
   public ModelAndView renderSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
@@ -127,13 +137,13 @@ public class CaseReassignmentController {
                     Person::getFullName)));
   }
 
-  @PostMapping("/select")
+  @PostMapping("/select-case-officer")
   public ModelAndView submitSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    for (var detailId : caseReassignmentSelectorForm.getSelectedCases()) {
+    for (var detailId : caseReassignmentSelectorForm.getSelectedApplicationIds()) {
       var applicationDetail = pwaApplicationDetailService.getDetailById(detailId);
 
       assignCaseOfficerService.assignCaseOfficer(
@@ -150,7 +160,7 @@ public class CaseReassignmentController {
 
   private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
     if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
-      throw new AccessDeniedException("Access to fee management denied");
+      throw new AccessDeniedException("User does not have access to bulk reassignment");
     }
   }
 }

@@ -35,7 +35,7 @@ public class TopMenuServiceTest {
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
         .extracting(TopMenuItem::getDisplayName)
-        .containsExactly(TopMenuService.WORK_AREA_TITLE, TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_CASE_REVIEWS_TITLE);
+        .containsExactly(TopMenuService.WORK_AREA_TITLE, TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_APPLICATIONS_TITLE);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class TopMenuServiceTest {
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
         .extracting(TopMenuItem::getDisplayName)
-        .containsExactly(TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_CASE_REVIEWS_TITLE);
+        .containsExactly(TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_APPLICATIONS_TITLE);
   }
 
   @Test

@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
-import java.io.Serializable;
-
-public class CaseReassignmentFilterForm implements Serializable {
+public class CaseReassignmentFilterForm {
   private Integer caseOfficerPersonId;
 
   public Integer getCaseOfficerPersonId() {

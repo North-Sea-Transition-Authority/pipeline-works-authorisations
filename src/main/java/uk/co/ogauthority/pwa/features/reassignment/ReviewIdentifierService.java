@@ -16,15 +16,15 @@ import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
 
 @Service
-public class CaseReasignmentService {
+public class ReviewIdentifierService {
 
   private final EntityManager entityManager;
 
-  public CaseReasignmentService(EntityManager entityManager) {
+  public ReviewIdentifierService(EntityManager entityManager) {
     this.entityManager = entityManager;
   }
 
-  public List<WorkAreaApplicationDetailSearchItem> getReassignableWorkAreaItems(Integer caseOfficerId) {
+  public List<WorkAreaApplicationDetailSearchItem> findCasesInReview(Integer caseOfficerId) {
     var cb = entityManager.getCriteriaBuilder();
 
     CriteriaQuery<WorkAreaApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(

@@ -33,7 +33,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   private AuthenticatedUserAccount userAccount;
 
   @MockBean
-  CaseReasignmentService caseReasignmentService;
+  ReviewIdentifierService reviewIdentifierService;
 
   @MockBean
   WorkflowAssignmentService workflowAssignmentService;
@@ -57,7 +57,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void caseReasignmentService_renderTopBarScreen_rendunauthenticatedTest() throws Exception {
+  public void caseReasignmentService_renderTopBarScreen_unauthenticatedTest() throws Exception {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
 

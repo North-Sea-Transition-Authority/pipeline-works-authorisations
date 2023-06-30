@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<#-- @ftlvariable name="assignableCases" type="java.util.List<uk.co.ogauthority.pwa.model.entity.pwaapplications.search>" -->
+<#-- @ftlvariable name="assignableCases" type="java.util.Set<uk.co.ogauthority.pwa.features.reassignment.CaseReassignmentView>" -->
 
 
 <@defaultPage htmlTitle="case reassignment" pageHeading="Reassign case officers" topNavigation=true fullWidthColumn=true wrapperWidth=true>
@@ -14,8 +14,8 @@
     </@fdsSearch.searchFilter>
     <@fdsSearch.searchPageContent>
       <@fdsForm.htmlForm>
-        <@fdsAction.button buttonText="Reassign Cases"/>
-        <@spring.bind "form.selectedCases"/>
+        <@fdsAction.button buttonText="Reassign cases"/>
+        <@spring.bind "form.selectedApplicationIds"/>
         <table id="selectCaseTable" class="govuk-table">
           <thead class="govuk-table__head">
             <tr id=class="govuk-table__row">
@@ -26,8 +26,8 @@
                 selectNoneLinkText="None" selectNoneScreenReaderText="Select none of the available pipelines" />
               </th>
               <th class="govuk-table__header govuk-!-width-one-third" scope="col" >PWA application</th>
-              <th class="govuk-table__header" scope="col">Currently assigned Case officer</th>
-              <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">In review since</th>
+              <th class="govuk-table__header" scope="col">Currently assigned case officer</th>
+              <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Case officer review requested</th>
             </tr>
           </thead>
           <tbody class="govuk-table__body">
@@ -37,23 +37,23 @@
                   <div class="govuk-checkboxes govuk-checkboxes--small">
                     <div class="govuk-checkboxes__item">
                         <#assign checkboxId>
-                          reassignable-cases-${case.getPwaApplicationDetailId()}
+                          reassignable-cases-${case.getPadId()}
                         </#assign>
-                      <input class="govuk-checkboxes__input" id=${checkboxId} name="${spring.status.expression}" type="checkbox" value="${case.getPwaApplicationDetailId()}">
+                      <input class="govuk-checkboxes__input" id=${checkboxId} name="${spring.status.expression}" type="checkbox" value="${case.getPadId()}">
                       <label class="govuk-label govuk-checkboxes__label" for="pipeline-checkbox-${checkboxId}">
-                        <span class="govuk-visually-hidden">Select or de-select ${case.getPwaApplicationDetailId()}</span>
+                        <span class="govuk-visually-hidden">Select or de-select ${case.getPadReference()}</span>
                       </label>
                     </div>
                   </div>
                 </td>
                 <td class="govuk-table__cell">
-                  ${case.getPwaReference()}
+                  ${case.getPadReference()}
                 </td>
                 <td class="govuk-table__cell">
-                  ${case.getCaseOfficerName()}
+                  ${case.getAssignedCaseOfficer()}
                 </td>
                 <td class="govuk-table__cell">
-                  ${case.getPadStatusTimestamp()?datetime.iso}
+                  ${case.getInCaseOfficerReviewSinceFormatted()}
                 </td>
               </tr>
             </#list>

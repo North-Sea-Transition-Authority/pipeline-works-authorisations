@@ -25,7 +25,7 @@ public class TopMenuService {
   public static final String APPLICATION_SEARCH_TITLE = "Search applications";
   public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
   public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
-  public static final String REASSIGN_CASE_REVIEWS_TITLE = "Reassign Applications";
+  public static final String REASSIGN_APPLICATIONS_TITLE = "Reassign applications";
 
   public static final String TEMPLATE_FEE_MANAGE_TITLE = "Manage fees";
 
@@ -71,8 +71,8 @@ public class TopMenuService {
           .renderFeeManagementOverview(null))));
     }
 
-    if (systemAreaAccessService.canAccessTeamManagement(user)) {
-      menuItems.add(new TopMenuItem(REASSIGN_CASE_REVIEWS_TITLE, ReverseRouter.route(on(CaseReassignmentController.class)
+    if (systemAreaAccessService.isManagement(user)) {
+      menuItems.add(new TopMenuItem(REASSIGN_APPLICATIONS_TITLE, ReverseRouter.route(on(CaseReassignmentController.class)
           .renderCaseReassignment(null, null, null, null))));
     }
 

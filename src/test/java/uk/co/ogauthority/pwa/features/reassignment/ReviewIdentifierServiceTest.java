@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
 import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CaseReassignmentServiceTest {
+public class ReviewIdentifierServiceTest {
 
   @Mock
   EntityManager entityManager;
@@ -47,11 +47,11 @@ public class CaseReassignmentServiceTest {
   @Captor
   ArgumentCaptor<Predicate[]> criteriaCaptor;
 
-  CaseReasignmentService service;
+  ReviewIdentifierService service;
 
   @Before
   public void setup() {
-    service = new CaseReasignmentService(entityManager);
+    service = new ReviewIdentifierService(entityManager);
     when(entityManager.getCriteriaBuilder()).thenReturn(criteriaBuilder);
     when(criteriaBuilder.createQuery(WorkAreaApplicationDetailSearchItem.class)).thenReturn(criteriaQuery);
     when(criteriaQuery.from(WorkAreaAppUserTab.class)).thenReturn(rootQuery);
@@ -61,7 +61,7 @@ public class CaseReassignmentServiceTest {
 
   @Test
   public void getRassignableCases_NoCaseOfficerFilter() {
-    service.getReassignableWorkAreaItems(null);
+    service.findCasesInReview(null);
 
     verify(criteriaQuery).where(criteriaCaptor.capture());
     verify(joinQuery, never()).get(ApplicationDetailView_.CASE_OFFICER_PERSON_ID);
@@ -70,7 +70,7 @@ public class CaseReassignmentServiceTest {
 
   @Test
   public void getRassignableCases_CaseOfficerFilter() {
-    service.getReassignableWorkAreaItems(5000);
+    service.findCasesInReview(5000);
 
     verify(criteriaQuery).where(criteriaCaptor.capture());
     verify(joinQuery).get(ApplicationDetailView_.CASE_OFFICER_PERSON_ID);
