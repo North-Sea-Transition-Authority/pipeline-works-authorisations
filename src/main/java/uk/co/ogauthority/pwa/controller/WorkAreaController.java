@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
-import uk.co.ogauthority.pwa.features.application.creation.controller.StartPwaApplicationController;
+import uk.co.ogauthority.pwa.features.application.creation.controller.PwaResourceTypeController;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaContext;
@@ -123,7 +123,7 @@ public class WorkAreaController {
 
     var modelAndView = new ModelAndView("workArea")
         .addObject("startPwaApplicationUrl",
-            ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
+            ReverseRouter.route(on(PwaResourceTypeController.class).renderResourceTypeForm(null, null)))
         .addObject("workAreaResult", workAreaService.getWorkAreaResult(workareaContext, tab, page))
         .addObject("tabUrlFactory", new WorkAreaTabUrlFactory())
         .addObject("currentWorkAreaTab", tab)

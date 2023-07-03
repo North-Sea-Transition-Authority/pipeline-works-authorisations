@@ -26,6 +26,11 @@ public class StartVariationController {
                                                    @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     ModelAndView modelAndView;
 
+    if (resourceType.equals(PwaResourceType.HYDROGEN) && !applicationType.equals(PwaApplicationType.CAT_1_VARIATION)) {
+      throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
+          applicationType, resourceType));
+    }
+
     switch (applicationType) {
       case CAT_1_VARIATION:
         modelAndView = new ModelAndView("pwaApplication/startPages/category1");
@@ -65,6 +70,12 @@ public class StartVariationController {
   @PostMapping
   public ModelAndView startVariation(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+
+    if (resourceType.equals(PwaResourceType.HYDROGEN) && !applicationType.equals(PwaApplicationType.CAT_1_VARIATION)) {
+      throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
+          applicationType, resourceType));
+    }
+
     switch (applicationType) {
       case CAT_1_VARIATION:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)
