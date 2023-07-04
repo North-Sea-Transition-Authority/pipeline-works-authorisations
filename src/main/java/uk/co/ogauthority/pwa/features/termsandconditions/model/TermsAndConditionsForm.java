@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
-public class TermsAndConditionsVariationForm {
+public class TermsAndConditionsForm {
 
   private Integer pwaId;
 
@@ -20,7 +20,7 @@ public class TermsAndConditionsVariationForm {
     return pwaId;
   }
 
-  public TermsAndConditionsVariationForm setPwaId(Integer pwaId) {
+  public TermsAndConditionsForm setPwaId(Integer pwaId) {
     this.pwaId = pwaId;
     return this;
   }
@@ -29,7 +29,7 @@ public class TermsAndConditionsVariationForm {
     return variationTerm;
   }
 
-  public TermsAndConditionsVariationForm setVariationTerm(Integer variationTerm) {
+  public TermsAndConditionsForm setVariationTerm(Integer variationTerm) {
     this.variationTerm = variationTerm;
     return this;
   }
@@ -38,7 +38,7 @@ public class TermsAndConditionsVariationForm {
     return huooTermOne;
   }
 
-  public TermsAndConditionsVariationForm setHuooTermOne(Integer huooTermOne) {
+  public TermsAndConditionsForm setHuooTermOne(Integer huooTermOne) {
     this.huooTermOne = huooTermOne;
     return this;
   }
@@ -47,7 +47,7 @@ public class TermsAndConditionsVariationForm {
     return huooTermTwo;
   }
 
-  public TermsAndConditionsVariationForm setHuooTermTwo(Integer huooTermTwo) {
+  public TermsAndConditionsForm setHuooTermTwo(Integer huooTermTwo) {
     this.huooTermTwo = huooTermTwo;
     return this;
   }
@@ -56,7 +56,7 @@ public class TermsAndConditionsVariationForm {
     return huooTermThree;
   }
 
-  public TermsAndConditionsVariationForm setHuooTermThree(Integer huooTermThree) {
+  public TermsAndConditionsForm setHuooTermThree(Integer huooTermThree) {
     this.huooTermThree = huooTermThree;
     return this;
   }
@@ -65,7 +65,7 @@ public class TermsAndConditionsVariationForm {
     return depconParagraph;
   }
 
-  public TermsAndConditionsVariationForm setDepconParagraph(Integer depconParagraph) {
+  public TermsAndConditionsForm setDepconParagraph(Integer depconParagraph) {
     this.depconParagraph = depconParagraph;
     return this;
   }
@@ -74,7 +74,7 @@ public class TermsAndConditionsVariationForm {
     return depconSchedule;
   }
 
-  public TermsAndConditionsVariationForm setDepconSchedule(Integer depconSchedule) {
+  public TermsAndConditionsForm setDepconSchedule(Integer depconSchedule) {
     this.depconSchedule = depconSchedule;
     return this;
   }

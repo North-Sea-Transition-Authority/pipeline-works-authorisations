@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
-import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsVariationForm;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service
@@ -12,12 +12,12 @@ public class TermsAndConditionsVariationValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return TermsAndConditionsVariationForm.class.equals(clazz);
+    return TermsAndConditionsForm.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
-    var form = (TermsAndConditionsVariationForm) target;
+    var form = (TermsAndConditionsForm) target;
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,

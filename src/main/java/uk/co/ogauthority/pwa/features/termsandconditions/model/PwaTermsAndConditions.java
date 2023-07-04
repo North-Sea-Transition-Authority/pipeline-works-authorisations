@@ -10,7 +10,7 @@ import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
 @Entity(name = "terms_and_conditions_variations")
-public class TermsAndConditionsVariation {
+public class PwaTermsAndConditions {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class TermsAndConditionsVariation {
     return masterPwa;
   }
 
-  public TermsAndConditionsVariation setMasterPwa(
+  public PwaTermsAndConditions setMasterPwa(
       MasterPwa masterPwa) {
     this.masterPwa = masterPwa;
     return this;
@@ -50,7 +50,7 @@ public class TermsAndConditionsVariation {
     return variationTerm;
   }
 
-  public TermsAndConditionsVariation setVariationTerm(int variationTerm) {
+  public PwaTermsAndConditions setVariationTerm(int variationTerm) {
     this.variationTerm = variationTerm;
     return this;
   }
@@ -59,7 +59,7 @@ public class TermsAndConditionsVariation {
     return huooTerms;
   }
 
-  public TermsAndConditionsVariation setHuooTerms(String huooTerm) {
+  public PwaTermsAndConditions setHuooTerms(String huooTerm) {
     this.huooTerms = huooTerm;
     return this;
   }
@@ -68,7 +68,7 @@ public class TermsAndConditionsVariation {
     return depconParagraph;
   }
 
-  public TermsAndConditionsVariation setDepconParagraph(int depconParagraph) {
+  public PwaTermsAndConditions setDepconParagraph(int depconParagraph) {
     this.depconParagraph = depconParagraph;
     return this;
   }
@@ -77,7 +77,7 @@ public class TermsAndConditionsVariation {
     return depconSchedule;
   }
 
-  public TermsAndConditionsVariation setDepconSchedule(int depconSchedule) {
+  public PwaTermsAndConditions setDepconSchedule(int depconSchedule) {
     this.depconSchedule = depconSchedule;
     return this;
   }
@@ -86,7 +86,7 @@ public class TermsAndConditionsVariation {
     return createdBy;
   }
 
-  public TermsAndConditionsVariation setCreatedBy(int submittedBy) {
+  public PwaTermsAndConditions setCreatedBy(int submittedBy) {
     this.createdBy = submittedBy;
     return this;
   }
@@ -95,7 +95,7 @@ public class TermsAndConditionsVariation {
     return createdTimestamp;
   }
 
-  public TermsAndConditionsVariation setCreatedTimestamp(Instant submittedTimestamp) {
+  public PwaTermsAndConditions setCreatedTimestamp(Instant submittedTimestamp) {
     this.createdTimestamp = submittedTimestamp;
     return this;
   }

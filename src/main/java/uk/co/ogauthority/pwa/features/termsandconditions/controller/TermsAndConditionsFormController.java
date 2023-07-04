@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsVariationForm;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsVariationService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
@@ -19,12 +19,12 @@ import uk.co.ogauthority.pwa.util.RouteUtils;
 
 @Controller
 @RequestMapping("/terms-and-conditions")
-public class TermsAndConditionsVariationFormController {
+public class TermsAndConditionsFormController {
 
   private final TermsAndConditionsVariationService termsAndConditionsVariationService;
   private final ControllerHelperService controllerHelperService;
 
-  public TermsAndConditionsVariationFormController(
+  public TermsAndConditionsFormController(
       TermsAndConditionsVariationService termsAndConditionsVariationService,
       ControllerHelperService controllerHelperService) {
     this.termsAndConditionsVariationService = termsAndConditionsVariationService;
@@ -32,14 +32,14 @@ public class TermsAndConditionsVariationFormController {
   }
 
   @GetMapping
-  public ModelAndView renderTermsAndConditionsVariationForm(@ModelAttribute("form") TermsAndConditionsVariationForm form,
+  public ModelAndView renderTermsAndConditionsVariationForm(@ModelAttribute("form") TermsAndConditionsForm form,
                                                             AuthenticatedUserAccount user) {
     checkUserPrivilege(user);
     return getTermsAndConditionsVariationModelAndView();
   }
 
   @PostMapping
-  public ModelAndView submitTermsAndConditionsVariationForm(@ModelAttribute("form") TermsAndConditionsVariationForm form,
+  public ModelAndView submitTermsAndConditionsVariationForm(@ModelAttribute("form") TermsAndConditionsForm form,
                                                             BindingResult bindingResult,
                                                             AuthenticatedUserAccount user,
                                                             RedirectAttributes redirectAttributes) {
@@ -48,7 +48,7 @@ public class TermsAndConditionsVariationFormController {
 
     return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
         getTermsAndConditionsVariationModelAndView(), () -> {
-          termsAndConditionsVariationService.saveForm(form, user.getWuaId());
+          termsAndConditionsVariationService.saveForm(form, user.getLinkedPerson().getId().asInt());
           FlashUtils.success(
               redirectAttributes,
               "Submitted terms and conditions variation"
@@ -58,8 +58,8 @@ public class TermsAndConditionsVariationFormController {
   }
 
   private ModelAndView getTermsAndConditionsVariationModelAndView() {
-    return new ModelAndView("termsandconditions/termsAndConditionsVariationForm")
-        .addObject("cancelUrl", "/work-area") // placeholder
+    return new ModelAndView("termsandconditions/termsAndConditionsForm")
+        .addObject("cancelUrl", "/work-area") // TODO: PWA2022-58 link to T&Cs management screen
         .addObject("pwaSelectorOptions", termsAndConditionsVariationService.getPwasForSelector());
   }
 

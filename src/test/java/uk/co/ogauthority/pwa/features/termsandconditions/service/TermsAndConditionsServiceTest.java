@@ -15,9 +15,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
-import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsVariation;
-import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsVariationForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsVariationRepository;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TermsAndConditionsVariationServiceTest {
+public class TermsAndConditionsServiceTest {
 
   @Mock
   TermsAndConditionsVariationRepository termsAndConditionsVariationRepository;
@@ -62,7 +62,7 @@ public class TermsAndConditionsVariationServiceTest {
     try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
       mockedStatic.when(Instant::now).thenReturn(instant);
 
-      var variationToBeSaved = new TermsAndConditionsVariation()
+      var variationToBeSaved = new PwaTermsAndConditions()
           .setMasterPwa(masterPwa)
           .setVariationTerm(7)
           .setHuooTerms("3, 6 & 9")
@@ -71,7 +71,7 @@ public class TermsAndConditionsVariationServiceTest {
           .setCreatedBy(1)
           .setCreatedTimestamp(instant);
 
-      var variationForm = new TermsAndConditionsVariationForm()
+      var variationForm = new TermsAndConditionsForm()
           .setPwaId(1)
           .setVariationTerm(7)
           .setHuooTermOne(3)
