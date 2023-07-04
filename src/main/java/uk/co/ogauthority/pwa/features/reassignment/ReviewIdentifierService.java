@@ -1,49 +1,24 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
-import static uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus.CASE_OFFICER_REVIEW;
-
-import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
-import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab;
-import uk.co.ogauthority.pwa.service.workarea.viewentities.WorkAreaAppUserTab_;
 
 @Service
 public class ReviewIdentifierService {
 
-  private final EntityManager entityManager;
+  private final CaseReassignmentRepository reassignmentRepository;
 
-  public ReviewIdentifierService(EntityManager entityManager) {
-    this.entityManager = entityManager;
+  public ReviewIdentifierService(CaseReassignmentRepository reassignmentRepository) {
+    this.reassignmentRepository = reassignmentRepository;
   }
 
-  public List<WorkAreaApplicationDetailSearchItem> findCasesInReview(Integer caseOfficerId) {
-    var cb = entityManager.getCriteriaBuilder();
-
-    CriteriaQuery<WorkAreaApplicationDetailSearchItem> searchResultsQuery = cb.createQuery(
-        WorkAreaApplicationDetailSearchItem.class);
-    Root<WorkAreaAppUserTab> searchResultsRoot = searchResultsQuery.from(WorkAreaAppUserTab.class);
-    Join<WorkAreaAppUserTab, WorkAreaApplicationDetailSearchItem> workAreaSearchItemJoin = searchResultsRoot
-        .join(WorkAreaAppUserTab_.workAreaApplicationDetailSearchItem);
-
-    var conditions = new ArrayList<Predicate>();
-    conditions.add(cb.equal(workAreaSearchItemJoin.get(ApplicationDetailView_.PAD_STATUS), CASE_OFFICER_REVIEW));
-    conditions.add(cb.isTrue(workAreaSearchItemJoin.get(ApplicationDetailView_.TIP_FLAG)));
+  public List<CaseReassignmentView> findAllReassignableCases(Integer caseOfficerId) {
     if (caseOfficerId != null) {
-      conditions.add(cb.equal(workAreaSearchItemJoin.get(ApplicationDetailView_.CASE_OFFICER_PERSON_ID), caseOfficerId));
+      return reassignmentRepository.findAllByAssignedCaseOfficerPersonId(caseOfficerId);
     }
-
-    searchResultsQuery.select(workAreaSearchItemJoin);
-    searchResultsQuery.where(conditions.toArray(new Predicate[]{}));
-
-    var results =  entityManager.createQuery(searchResultsQuery).getResultList();
-    return results;
+    return StreamSupport.stream(reassignmentRepository.findAll().spliterator(), false)
+        .collect(Collectors.toList());
   }
 }

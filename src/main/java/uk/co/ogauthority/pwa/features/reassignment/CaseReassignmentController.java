@@ -58,13 +58,9 @@ public class CaseReassignmentController {
                                              RedirectAttributes redirectAttributes,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
     checkUserPrivilege(authenticatedUserAccount);
-    var workItems = reviewIdentifierService.findCasesInReview(
-        caseReassignmentFilterForm.getCaseOfficerPersonId());
+    var workItems = reviewIdentifierService.findAllReassignableCases(caseReassignmentFilterForm.getCaseOfficerPersonId());
     return new ModelAndView("reassignment/reassignment")
-        .addObject("assignableCases", workItems
-            .stream()
-            .map(CaseReassignmentView::new)
-            .collect(Collectors.toSet()))
+        .addObject("assignableCases", workItems)
         .addObject("filterForm", caseReassignmentFilterForm)
         .addObject("form", new CaseReassignmentSelectorForm())
         .addObject("filterURL",
@@ -81,7 +77,7 @@ public class CaseReassignmentController {
                 new CaseReassignmentFilterForm())))
         .addObject("caseOfficerCandidates",
             workItems.stream()
-                .map(item -> Map.entry(String.valueOf(item.getCaseOfficerPersonId()), item.getCaseOfficerName()))
+                .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
                 .distinct()
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
   }
