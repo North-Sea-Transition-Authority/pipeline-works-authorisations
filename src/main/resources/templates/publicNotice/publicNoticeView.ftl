@@ -31,7 +31,7 @@
           <#if !displayAsHistoricalRequest>
             <#assign cardHeading = "Public notice"/>
           <#else>
-            <#assign cardHeading = "Withdrawn public notice #${historicalRequestNumber}"/>
+            <#assign cardHeading = "Previous public notice #${historicalRequestNumber}"/>
           </#if>
 
             <@fdsSummaryList.summaryListCard headingText=cardHeading cardActionsContent=content summaryListId="summary-card-list">
