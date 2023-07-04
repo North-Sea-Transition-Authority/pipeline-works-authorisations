@@ -7,4 +7,6 @@ public interface CaseReassignmentRepository extends CrudRepository<CaseReassignm
 
   List<CaseReassignmentView> findAllByAssignedCaseOfficerPersonId(Integer assignedCaseOfficerPersonId);
 
+  List<CaseReassignmentView> findAllByPadIdIn(List<Integer> padIds);
+
 }

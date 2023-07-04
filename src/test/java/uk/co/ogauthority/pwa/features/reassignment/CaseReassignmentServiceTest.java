@@ -12,18 +12,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReviewIdentifierServiceTest {
+public class CaseReassignmentServiceTest {
   @Mock
   CaseReassignmentRepository reassignmentRepository;
 
   @Captor
   ArgumentCaptor<Predicate[]> criteriaCaptor;
 
-  ReviewIdentifierService service;
+  CaseReassignmentService service;
 
   @Before
   public void setup() {
-    service = new ReviewIdentifierService(reassignmentRepository);
+    service = new CaseReassignmentService(reassignmentRepository);
   }
 
   @Test

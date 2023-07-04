@@ -1,12 +1,16 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
+import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +23,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -33,7 +39,13 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   private AuthenticatedUserAccount userAccount;
 
   @MockBean
-  ReviewIdentifierService reviewIdentifierService;
+  CaseReassignmentService reviewIdentifierService;
+
+  @MockBean
+  PwaApplicationService applicationService;
+
+  @MockBean
+  PadProjectInformationService projectInformationService;
 
   @MockBean
   WorkflowAssignmentService workflowAssignmentService;
@@ -72,7 +84,8 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null)))
-        .with(authenticatedUserAndSession(userAccount))).andExpect(status().isOk())
+        .with(authenticatedUserAndSession(userAccount)))
+        .andExpect(status().isOk())
         .andExpect(model().attributeExists("filterForm"))
         .andExpect(model().attributeExists("form"))
         .andExpect(model().attribute("filterURL",
@@ -87,5 +100,56 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
                 null,
                 null,
                 new CaseReassignmentFilterForm()))));
+  }
+
+  @Test
+  public void reassignByCaseOfficer() throws Exception {
+    var form = new CaseReassignmentSelectorForm();
+    mockMvc.perform(get(ReverseRouter.route(
+        on(CaseReassignmentController.class)
+            .renderSelectNewAssignee(null, userAccount, form, null)))
+        .with(authenticatedUserAndSession(userAccount))
+            .param("selectedApplicationIds", "5000, 3000"))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void filterByCaseOfficer() throws Exception {
+    var form = new CaseReassignmentFilterForm();
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .filterCaseReassignment(null, userAccount, form, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000, 3000"))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  private List<CaseReassignmentView> getProjectList() {
+    var project1 = new CaseReassignmentView();
+    project1.setPadId(1111);
+    project1.setPadReference("Test");
+    project1.setPadName("Test");
+    project1.setAssignedCaseOfficerPersonId(1000);
+    project1.setAssignedCaseOfficer("Test");
+    project1.setInCaseOfficerReviewSince(Instant.now());
+
+    var project2 = new CaseReassignmentView();
+    project2.setPadId(2222);
+    project2.setPadReference("Test");
+    project2.setPadName("Test");
+    project2.setAssignedCaseOfficerPersonId(1000);
+    project2.setAssignedCaseOfficer("Test");
+    project2.setInCaseOfficerReviewSince(Instant.now());
+
+    var project3 = new CaseReassignmentView();
+    project3.setPadId(3333);
+    project3.setPadReference("Test");
+    project3.setPadName("Test");
+    project3.setAssignedCaseOfficerPersonId(5000);
+    project3.setAssignedCaseOfficer("Test");
+    project3.setInCaseOfficerReviewSince(Instant.now());
+
+    return List.of(project1, project2, project3);
   }
 }

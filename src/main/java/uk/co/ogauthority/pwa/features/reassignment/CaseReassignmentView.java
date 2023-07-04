@@ -28,6 +28,10 @@ public class CaseReassignmentView {
     return padId;
   }
 
+  public String getId() {
+    return String.valueOf(getPadId());
+  }
+
   public void setPadId(Integer padId) {
     this.padId = padId;
   }
@@ -46,6 +50,10 @@ public class CaseReassignmentView {
 
   public void setPadName(String padName) {
     this.padName = padName;
+  }
+
+  public String getName() {
+    return padReference + " : " + padName;
   }
 
   public String getPadStatus() {
@@ -82,5 +90,9 @@ public class CaseReassignmentView {
 
   public void setAssignedCaseOfficerPersonId(Integer assignedCaseOfficerPersonId) {
     this.assignedCaseOfficerPersonId = assignedCaseOfficerPersonId;
+  }
+
+  public Boolean isValid() {
+    return true;
   }
 }

@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @RequestMapping("/reassign-cases")
 public class CaseReassignmentController {
 
-  private final ReviewIdentifierService reviewIdentifierService;
+  private final CaseReassignmentService caseReassignmentService;
 
   private final WorkflowAssignmentService workflowAssignmentService;
 
@@ -47,13 +47,13 @@ public class CaseReassignmentController {
   private final PadProjectInformationService projectInformationService;
 
   @Autowired
-  public CaseReassignmentController(ReviewIdentifierService reviewIdentifierService,
+  public CaseReassignmentController(CaseReassignmentService caseReassignmentService,
                                     WorkflowAssignmentService workflowAssignmentService,
                                     AssignCaseOfficerService assignCaseOfficerService,
                                     PwaApplicationDetailService pwaApplicationDetailService,
                                     PwaApplicationService pwaApplicationService,
                                     PadProjectInformationService projectInformationService) {
-    this.reviewIdentifierService = reviewIdentifierService;
+    this.caseReassignmentService = caseReassignmentService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignCaseOfficerService = assignCaseOfficerService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
@@ -68,7 +68,7 @@ public class CaseReassignmentController {
                                              RedirectAttributes redirectAttributes,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
     checkUserPrivilege(authenticatedUserAccount);
-    var workItems = reviewIdentifierService.findAllReassignableCases();
+    var workItems = caseReassignmentService.findAllReassignableCases();
 
     var caseOfficerCandidates = workItems.stream()
         .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
@@ -105,8 +105,6 @@ public class CaseReassignmentController {
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm,
                                              RedirectAttributes redirectAttributes) {
-    checkUserPrivilege(authenticatedUserAccount);
-
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(caseReassignmentFilterForm));
 
@@ -141,15 +139,7 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    var selectedPwas = caseReassignmentSelectorForm.getSelectedApplicationIds()
-        .stream()
-        .map(pwaApplicationService::getApplicationFromId)
-        .map(application -> SelectedReassignmentPwasView.fromApplication(
-            application,
-            projectInformationService.getPadProjectInformationData(
-                pwaApplicationDetailService.getDetailById(application.getId())
-            )))
-        .collect(Collectors.toList());
+    var selectedPwas = caseReassignmentService.findAllCasesByPadId(caseReassignmentSelectorForm.getSelectedApplicationIds());
     return new ModelAndView("reassignment/chooseAssignee")
         .addObject("submitUrl",
             ReverseRouter.route(on(CaseReassignmentController.class).renderSelectNewAssignee(

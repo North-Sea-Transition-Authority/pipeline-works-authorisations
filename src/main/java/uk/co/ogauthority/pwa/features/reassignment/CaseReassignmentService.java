@@ -6,16 +6,20 @@ import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReviewIdentifierService {
+public class CaseReassignmentService {
 
   private final CaseReassignmentRepository reassignmentRepository;
 
-  public ReviewIdentifierService(CaseReassignmentRepository reassignmentRepository) {
+  public CaseReassignmentService(CaseReassignmentRepository reassignmentRepository) {
     this.reassignmentRepository = reassignmentRepository;
   }
 
   public List<CaseReassignmentView> findAllReassignableCases() {
     return StreamSupport.stream(reassignmentRepository.findAll().spliterator(), false)
         .collect(Collectors.toList());
+  }
+
+  public List<CaseReassignmentView> findAllCasesByPadId(List<Integer> padIds) {
+    return reassignmentRepository.findAllByPadIdIn(padIds);
   }
 }
