@@ -58,7 +58,19 @@ public class CaseReassignmentController {
                                              RedirectAttributes redirectAttributes,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
     checkUserPrivilege(authenticatedUserAccount);
-    var workItems = reviewIdentifierService.findAllReassignableCases(caseReassignmentFilterForm.getCaseOfficerPersonId());
+    var workItems = reviewIdentifierService.findAllReassignableCases();
+
+    var caseOfficerCandidates = workItems.stream()
+        .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
+        .distinct()
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    if (caseReassignmentFilterForm.getCaseOfficerPersonId() != null) {
+      workItems = workItems.stream()
+          .filter(view -> view.getAssignedCaseOfficerPersonId().equals(caseReassignmentFilterForm.getCaseOfficerPersonId()))
+          .collect(Collectors.toList());
+    }
+
     return new ModelAndView("reassignment/reassignment")
         .addObject("assignableCases", workItems)
         .addObject("filterForm", caseReassignmentFilterForm)
@@ -75,11 +87,7 @@ public class CaseReassignmentController {
                 authenticatedUserAccount,
                 redirectAttributes,
                 new CaseReassignmentFilterForm())))
-        .addObject("caseOfficerCandidates",
-            workItems.stream()
-                .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
-                .distinct()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+        .addObject("caseOfficerCandidates", caseOfficerCandidates);
   }
 
   @PostMapping("/filter")

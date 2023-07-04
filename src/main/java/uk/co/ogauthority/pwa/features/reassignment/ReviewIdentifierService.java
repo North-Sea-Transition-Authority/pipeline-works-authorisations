@@ -14,10 +14,7 @@ public class ReviewIdentifierService {
     this.reassignmentRepository = reassignmentRepository;
   }
 
-  public List<CaseReassignmentView> findAllReassignableCases(Integer caseOfficerId) {
-    if (caseOfficerId != null) {
-      return reassignmentRepository.findAllByAssignedCaseOfficerPersonId(caseOfficerId);
-    }
+  public List<CaseReassignmentView> findAllReassignableCases() {
     return StreamSupport.stream(reassignmentRepository.findAll().spliterator(), false)
         .collect(Collectors.toList());
   }

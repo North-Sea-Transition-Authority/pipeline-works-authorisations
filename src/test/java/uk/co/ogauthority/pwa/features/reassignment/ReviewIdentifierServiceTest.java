@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 
 import javax.persistence.criteria.Predicate;
 import org.junit.Before;
@@ -27,14 +27,8 @@ public class ReviewIdentifierServiceTest {
   }
 
   @Test
-  public void getRassignableCases_NoCaseOfficerFilter() {
-
-    assertThat(criteriaCaptor.getAllValues()).hasSize(2);
-  }
-
-  @Test
-  public void getRassignableCases_CaseOfficerFilter() {
-
-    assertThat(criteriaCaptor.getAllValues()).hasSize(3);
+  public void getReassignableCases_CaseOfficerFilter() {
+    service.findAllReassignableCases();
+    verify(reassignmentRepository).findAll();
   }
 }
