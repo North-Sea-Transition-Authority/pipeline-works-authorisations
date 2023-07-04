@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
 import java.time.Period;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
@@ -28,8 +27,7 @@ public enum PwaApplicationType {
       ConsentIssueEmail.NEW_PWA,
       PwaConsentType.INITIAL_PWA,
       10,
-      ParallelApplicationsWarning.NO_WARNING,
-      List.of(PwaResourceType.PETROLEUM, PwaResourceType.HYDROGEN)),
+      ParallelApplicationsWarning.NO_WARNING),
 
   CAT_1_VARIATION(
       "Cat. 1 Variation",
@@ -40,8 +38,7 @@ public enum PwaApplicationType {
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
       ConsentIssueEmail.VARIATION,
       20,
-      ParallelApplicationsWarning.SHOW_WARNING,
-      List.of(PwaResourceType.PETROLEUM, PwaResourceType.HYDROGEN)),
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   CAT_2_VARIATION(
       "Cat. 2 Variation",
@@ -52,8 +49,7 @@ public enum PwaApplicationType {
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
       ConsentIssueEmail.VARIATION,
       30,
-      ParallelApplicationsWarning.SHOW_WARNING,
-      List.of(PwaResourceType.PETROLEUM)),
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   HUOO_VARIATION(
       "HUOO Variation",
@@ -64,8 +60,7 @@ public enum PwaApplicationType {
       DocumentSpec.HUOO_CONSENT_DOCUMENT,
       ConsentIssueEmail.HUOO,
       40,
-      ParallelApplicationsWarning.SHOW_WARNING,
-      List.of(PwaResourceType.PETROLEUM)),
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   DEPOSIT_CONSENT(
       "Deposit Consent",
@@ -77,8 +72,7 @@ public enum PwaApplicationType {
       ConsentIssueEmail.DEPCON,
       PwaConsentType.DEPOSIT_CONSENT,
       50,
-      ParallelApplicationsWarning.NO_WARNING,
-      List.of(PwaResourceType.PETROLEUM)),
+      ParallelApplicationsWarning.NO_WARNING),
 
   OPTIONS_VARIATION(
       "Options Variation",
@@ -89,8 +83,7 @@ public enum PwaApplicationType {
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
       ConsentIssueEmail.VARIATION,
       60,
-      ParallelApplicationsWarning.SHOW_WARNING,
-      List.of(PwaResourceType.PETROLEUM)),
+      ParallelApplicationsWarning.SHOW_WARNING),
 
   DECOMMISSIONING(
       "Decommissioning",
@@ -101,8 +94,7 @@ public enum PwaApplicationType {
       DocumentSpec.VARIATION_CONSENT_DOCUMENT,
       ConsentIssueEmail.VARIATION,
       70,
-      ParallelApplicationsWarning.SHOW_WARNING,
-      List.of(PwaResourceType.PETROLEUM));
+      ParallelApplicationsWarning.SHOW_WARNING);
 
   private final String displayName;
   private final String urlPathString;
@@ -115,8 +107,6 @@ public enum PwaApplicationType {
   private final int displayOrder;
   private final ParallelApplicationsWarning parallelApplicationsWarning;
 
-  private final List<PwaResourceType> permittedResourceTypes;
-
   PwaApplicationType(String displayName,
                      String urlPathString,
                      Period minProcessingPeriod,
@@ -125,8 +115,7 @@ public enum PwaApplicationType {
                      DocumentSpec consentDocumentSpec,
                      ConsentIssueEmail consentIssueEmail,
                      int displayOrder,
-                     ParallelApplicationsWarning parallelApplicationsWarning,
-                     List<PwaResourceType> permittedResourceTypes) {
+                     ParallelApplicationsWarning parallelApplicationsWarning) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -136,7 +125,6 @@ public enum PwaApplicationType {
     this.displayOrder = displayOrder;
     this.parallelApplicationsWarning = parallelApplicationsWarning;
     this.consentIssueEmail = consentIssueEmail;
-    this.permittedResourceTypes = permittedResourceTypes;
     this.pwaConsentType = PwaConsentType.VARIATION;
   }
 
@@ -149,8 +137,7 @@ public enum PwaApplicationType {
                      ConsentIssueEmail consentIssueEmail,
                      PwaConsentType pwaConsentType,
                      int displayOrder,
-                     ParallelApplicationsWarning parallelApplicationsWarning,
-                     List<PwaResourceType> permittedResourceTypes) {
+                     ParallelApplicationsWarning parallelApplicationsWarning) {
     this.displayName = displayName;
     this.urlPathString = urlPathString;
     this.minProcessingPeriod = minProcessingPeriod;
@@ -161,7 +148,6 @@ public enum PwaApplicationType {
     this.pwaConsentType = pwaConsentType;
     this.displayOrder = displayOrder;
     this.parallelApplicationsWarning = parallelApplicationsWarning;
-    this.permittedResourceTypes = permittedResourceTypes;
   }
 
   public static Optional<PwaApplicationType> getFromUrlPathString(String urlPathValue) {
@@ -223,10 +209,6 @@ public enum PwaApplicationType {
 
   public ParallelApplicationsWarning getParallelApplicationsWarning() {
     return parallelApplicationsWarning;
-  }
-
-  public List<PwaResourceType> getPermittedResourceTypes() {
-    return permittedResourceTypes;
   }
 
   public static Stream<PwaApplicationType> stream() {

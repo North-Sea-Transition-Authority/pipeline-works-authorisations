@@ -26,10 +26,7 @@ public class StartVariationController {
                                                    @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     ModelAndView modelAndView;
 
-    if (resourceType.equals(PwaResourceType.HYDROGEN) && !applicationType.equals(PwaApplicationType.CAT_1_VARIATION)) {
-      throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
-          applicationType, resourceType));
-    }
+    checkApplicationResourceType(applicationType, resourceType);
 
     switch (applicationType) {
       case CAT_1_VARIATION:
@@ -70,11 +67,7 @@ public class StartVariationController {
   @PostMapping
   public ModelAndView startVariation(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
-
-    if (resourceType.equals(PwaResourceType.HYDROGEN) && !applicationType.equals(PwaApplicationType.CAT_1_VARIATION)) {
-      throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
-          applicationType, resourceType));
-    }
+    checkApplicationResourceType(applicationType, resourceType);
 
     switch (applicationType) {
       case CAT_1_VARIATION:
@@ -90,6 +83,12 @@ public class StartVariationController {
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", applicationType));
     }
+  }
 
+  private void checkApplicationResourceType(PwaApplicationType applicationType, PwaResourceType resourceType) {
+    if (!resourceType.getPermittedApplicationTypes().contains(applicationType)) {
+      throw new AccessDeniedException(String.format("Application type %s not supported for resource type %s",
+          applicationType, resourceType));
+    }
   }
 }

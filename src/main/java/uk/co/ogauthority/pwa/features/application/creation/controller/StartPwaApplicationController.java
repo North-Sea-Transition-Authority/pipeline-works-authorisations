@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/new/{resourceType}")
+@RequestMapping("/start-application/{resourceType}")
 public class StartPwaApplicationController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -55,8 +55,7 @@ public class StartPwaApplicationController {
   }
 
   private ModelAndView getStartAppModelAndView(PwaResourceType pwaResourceType) {
-    var applicationTypes = PwaApplicationType.stream()
-        .filter(pwaApplicationType -> pwaApplicationType.getPermittedResourceTypes().contains(pwaResourceType))
+    var applicationTypes = pwaResourceType.getPermittedApplicationTypes().stream()
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(Collectors.toList());
 
