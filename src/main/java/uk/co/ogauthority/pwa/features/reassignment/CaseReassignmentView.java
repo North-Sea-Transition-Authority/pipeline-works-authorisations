@@ -15,6 +15,8 @@ public class CaseReassignmentView {
   private Integer padId;
   private String padReference;
 
+  private String padName;
+
   private String padStatus;
 
   private Instant inCaseOfficerReviewSince;
@@ -36,6 +38,14 @@ public class CaseReassignmentView {
 
   public void setPadReference(String padReference) {
     this.padReference = padReference;
+  }
+
+  public String getPadName() {
+    return padName;
+  }
+
+  public void setPadName(String padName) {
+    this.padName = padName;
   }
 
   public String getPadStatus() {

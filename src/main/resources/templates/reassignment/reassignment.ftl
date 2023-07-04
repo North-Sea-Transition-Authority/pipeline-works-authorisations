@@ -25,9 +25,10 @@
                 selectAllLinkText="All" selectAllScreenReaderText="Select all available pipelines"
                 selectNoneLinkText="None" selectNoneScreenReaderText="Select none of the available pipelines" />
               </th>
-              <th class="govuk-table__header govuk-!-width-one-third" scope="col" >PWA application</th>
+              <th class="govuk-table__header" scope="col" >PWA application</th>
+              <th class="govuk-table__header govuk-!-width-one-quarter" scope="col" >Project name</th>
               <th class="govuk-table__header" scope="col">Currently assigned case officer</th>
-              <th class="govuk-table__header govuk-!-width-one-quarter" scope="col">Case officer review requested</th>
+              <th class="govuk-table__header" scope="col">Case officer review requested</th>
             </tr>
           </thead>
           <tbody class="govuk-table__body">
@@ -48,6 +49,9 @@
                 </td>
                 <td class="govuk-table__cell">
                   ${case.getPadReference()}
+                </td>
+                <td class="govuk-table__cell">
+                    ${case.getPadName()}
                 </td>
                 <td class="govuk-table__cell">
                   ${case.getAssignedCaseOfficer()}

@@ -17,7 +17,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -40,15 +42,23 @@ public class CaseReassignmentController {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
+  private final PwaApplicationService pwaApplicationService;
+
+  private final PadProjectInformationService projectInformationService;
+
   @Autowired
   public CaseReassignmentController(ReviewIdentifierService reviewIdentifierService,
                                     WorkflowAssignmentService workflowAssignmentService,
                                     AssignCaseOfficerService assignCaseOfficerService,
-                                    PwaApplicationDetailService pwaApplicationDetailService) {
+                                    PwaApplicationDetailService pwaApplicationDetailService,
+                                    PwaApplicationService pwaApplicationService,
+                                    PadProjectInformationService projectInformationService) {
     this.reviewIdentifierService = reviewIdentifierService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignCaseOfficerService = assignCaseOfficerService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.pwaApplicationService = pwaApplicationService;
+    this.projectInformationService = projectInformationService;
   }
 
 
@@ -131,8 +141,23 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
+    var selectedPwas = caseReassignmentSelectorForm.getSelectedApplicationIds()
+        .stream()
+        .map(pwaApplicationService::getApplicationFromId)
+        .map(application -> SelectedReassignmentPwasView.fromApplication(
+            application,
+            projectInformationService.getPadProjectInformationData(
+                pwaApplicationDetailService.getDetailById(application.getId())
+            )))
+        .collect(Collectors.toList());
     return new ModelAndView("reassignment/chooseAssignee")
-        .addObject("form", caseReassignmentSelectorForm)
+        .addObject("submitUrl",
+            ReverseRouter.route(on(CaseReassignmentController.class).renderSelectNewAssignee(
+                        httpServletRequest,
+                        authenticatedUserAccount,
+                        null,
+                        redirectAttributes)))
+        .addObject("selectedPwas", selectedPwas)
         .addObject("caseOfficerCandidates",
             workflowAssignmentService
                 .getAssignmentCandidates(null, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
