@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="applicationTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 
-<@defaultPage htmlTitle="Select Application Type" errorItems=errorList>
+<@defaultPage htmlTitle="Select application type" errorItems=errorList>
 
     <@fdsForm.htmlForm>
 
