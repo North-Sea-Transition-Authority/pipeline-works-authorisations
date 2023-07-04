@@ -30,6 +30,7 @@
 <#import 'components/banner/notificationBanner.ftl' as notificationBanner>
 <#import 'components/markdown/markdownInsetText.ftl' as pwaMarkdownInsetText>
 <#import 'components/minMaxSummary/minMaxSummary.ftl' as minMaxSummary>
+<#import 'components/multiNumberInput/threeNumberInputs.ftl' as threeNumberInput>
 
 <#function springUrl url>
     <#local springUrl>
