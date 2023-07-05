@@ -3,12 +3,12 @@
 <#-- @ftlvariable name="resourceOptions" type="java.util.List<uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType>" -->
 
 
-<@defaultPage htmlTitle="Resource type" errorItems=errorList>
+<@defaultPage htmlTitle="Resource type" errorItems=errorList backLink=true>
 
     <@fdsForm.htmlForm>
         <@fdsRadio.radioGroup
           path="form.resourceType"
-          labelText="Select the application type"
+          labelText="Select the resource type"
           fieldsetHeadingClass="govuk-fieldset__legend--l"
           fieldsetHeadingSize="h1">
             <#list resourceOptions as resourceOption>
