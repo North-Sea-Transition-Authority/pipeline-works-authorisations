@@ -1,10 +1,15 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -27,7 +32,9 @@ import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationServic
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 
@@ -103,17 +110,6 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void reassignByCaseOfficer() throws Exception {
-    var form = new CaseReassignmentSelectorForm();
-    mockMvc.perform(get(ReverseRouter.route(
-        on(CaseReassignmentController.class)
-            .renderSelectNewAssignee(null, userAccount, form, null)))
-        .with(authenticatedUserAndSession(userAccount))
-            .param("selectedApplicationIds", "5000, 3000"))
-        .andExpect(status().is3xxRedirection());
-  }
-
-  @Test
   public void filterByCaseOfficer() throws Exception {
     var form = new CaseReassignmentFilterForm();
     mockMvc.perform(post(ReverseRouter.route(
@@ -121,8 +117,39 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
                 .filterCaseReassignment(null, userAccount, form, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
-            .param("selectedApplicationIds", "5000, 3000"))
+            .param("caseOfficerPersonId", "5000"))
         .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void rendererReassignCaseOfficer() throws Exception {
+    var form = new CaseReassignmentSelectorForm();
+    mockMvc.perform(get(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .renderSelectNewAssignee(null, userAccount, form, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000"))
+        .andExpect(status().isOk())
+        .andExpect(model().attributeExists("selectedPwas", "caseOfficerCandidates"));
+  }
+
+  @Test
+  public void postReassignCaseOfficer() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    var form = new CaseReassignmentSelectorForm();
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitSelectNewAssignee(null, userAccount, form, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000")
+            .param("caseOfficerAssignee", "1111"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/reassign-cases/"));
+    verify(assignCaseOfficerService, times(2)).assignCaseOfficer(applicationDetail, new PersonId(1111), userAccount);
   }
 
   private List<CaseReassignmentView> getProjectList() {

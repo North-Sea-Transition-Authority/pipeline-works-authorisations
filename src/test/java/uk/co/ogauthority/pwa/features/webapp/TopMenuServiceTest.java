@@ -35,7 +35,7 @@ public class TopMenuServiceTest {
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
         .extracting(TopMenuItem::getDisplayName)
-        .containsExactly(TopMenuService.WORK_AREA_TITLE, TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_APPLICATIONS_TITLE);
+        .containsExactly(TopMenuService.WORK_AREA_TITLE, TopMenuService.TEAM_MANAGEMENT_TITLE);
   }
 
   @Test
@@ -63,7 +63,7 @@ public class TopMenuServiceTest {
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
         .extracting(TopMenuItem::getDisplayName)
-        .containsExactly(TopMenuService.TEAM_MANAGEMENT_TITLE, TopMenuService.REASSIGN_APPLICATIONS_TITLE);
+        .containsExactly(TopMenuService.TEAM_MANAGEMENT_TITLE);
   }
 
   @Test
@@ -73,6 +73,15 @@ public class TopMenuServiceTest {
     assertThat(topMenuService.getTopMenuItems(userAccount))
         .extracting(TopMenuItem::getDisplayName)
         .containsExactly(TopMenuService.CONSENT_SEARCH_TITLE);
+  }
+
+  @Test
+  public void getTopMenuItems_caseReassignmentOnly() {
+    when(systemAreaAccessService.isManagement(any())).thenReturn(true);
+
+    assertThat(topMenuService.getTopMenuItems(userAccount))
+        .extracting(TopMenuItem::getDisplayName)
+        .containsExactly(TopMenuService.REASSIGN_APPLICATIONS_TITLE);
   }
 
   @Test
