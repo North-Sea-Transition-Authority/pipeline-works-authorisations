@@ -10,34 +10,34 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndCondit
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
-import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsVariationRepository;
+import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
-public class TermsAndConditionsVariationService {
+public class TermsAndConditionsService {
 
-  private final TermsAndConditionsVariationRepository termsAndConditionsVariationRepository;
-  private final TermsAndConditionsVariationValidator termsAndConditionsVariationValidator;
+  private final TermsAndConditionsRepository termsAndConditionsRepository;
+  private final TermsAndConditionsValidator termsAndConditionsValidator;
   private final MasterPwaService masterPwaService;
   private final TermsAndConditionsPwaViewRepository termsAndConditionsPwaViewRepository;
 
-  public TermsAndConditionsVariationService(TermsAndConditionsVariationRepository termsAndConditionsVariationRepository,
-                                            TermsAndConditionsVariationValidator termsAndConditionsVariationValidator,
-                                            MasterPwaService masterPwaService,
-                                            TermsAndConditionsPwaViewRepository termsAndConditionsPwaViewRepository) {
-    this.termsAndConditionsVariationRepository = termsAndConditionsVariationRepository;
-    this.termsAndConditionsVariationValidator = termsAndConditionsVariationValidator;
+  public TermsAndConditionsService(TermsAndConditionsRepository termsAndConditionsRepository,
+                                   TermsAndConditionsValidator termsAndConditionsValidator,
+                                   MasterPwaService masterPwaService,
+                                   TermsAndConditionsPwaViewRepository termsAndConditionsPwaViewRepository) {
+    this.termsAndConditionsRepository = termsAndConditionsRepository;
+    this.termsAndConditionsValidator = termsAndConditionsValidator;
     this.masterPwaService = masterPwaService;
     this.termsAndConditionsPwaViewRepository = termsAndConditionsPwaViewRepository;
   }
 
   public void saveForm(TermsAndConditionsForm form, int personId) {
-    termsAndConditionsVariationRepository.save(convertFormToEntity(form, personId));
+    termsAndConditionsRepository.save(convertFormToEntity(form, personId));
   }
 
   public BindingResult validateForm(TermsAndConditionsForm form, BindingResult bindingResult) {
-    termsAndConditionsVariationValidator.validate(form, bindingResult);
+    termsAndConditionsValidator.validate(form, bindingResult);
     return bindingResult;
   }
 

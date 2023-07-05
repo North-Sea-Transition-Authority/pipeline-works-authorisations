@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndCondit
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
-import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsVariationRepository;
+import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -28,10 +28,10 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 public class TermsAndConditionsServiceTest {
 
   @Mock
-  TermsAndConditionsVariationRepository termsAndConditionsVariationRepository;
+  TermsAndConditionsRepository termsAndConditionsRepository;
 
   @Mock
-  TermsAndConditionsVariationValidator termsAndConditionsVariationValidator;
+  TermsAndConditionsValidator termsAndConditionsValidator;
 
   @Mock
   MasterPwaService masterPwaService;
@@ -39,7 +39,7 @@ public class TermsAndConditionsServiceTest {
   @Mock
   TermsAndConditionsPwaViewRepository termsAndConditionsPwaViewRepository;
 
-  private TermsAndConditionsVariationService termsAndConditionsVariationService;
+  private TermsAndConditionsService termsAndConditionsService;
 
   private MasterPwa masterPwa;
 
@@ -47,9 +47,9 @@ public class TermsAndConditionsServiceTest {
 
   @Before
   public void setup() {
-    termsAndConditionsVariationService = new TermsAndConditionsVariationService(
-        termsAndConditionsVariationRepository,
-        termsAndConditionsVariationValidator,
+    termsAndConditionsService = new TermsAndConditionsService(
+        termsAndConditionsRepository,
+        termsAndConditionsValidator,
         masterPwaService,
         termsAndConditionsPwaViewRepository
     );
@@ -82,9 +82,9 @@ public class TermsAndConditionsServiceTest {
 
       when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
 
-      termsAndConditionsVariationService.saveForm(variationForm, 1);
+      termsAndConditionsService.saveForm(variationForm, 1);
 
-      verify(termsAndConditionsVariationRepository).save(refEq(variationToBeSaved));
+      verify(termsAndConditionsRepository).save(refEq(variationToBeSaved));
     }
   }
 
@@ -92,7 +92,7 @@ public class TermsAndConditionsServiceTest {
   public void getPwasForSelector() {
     when(termsAndConditionsPwaViewRepository.findAll()).thenReturn(
         List.of(new TermsAndConditionsPwaView(1, "1/W/23")));
-    assertThat(termsAndConditionsVariationService.getPwasForSelector()).containsExactly(entry("1","1/W/23"));
+    assertThat(termsAndConditionsService.getPwasForSelector()).containsExactly(entry("1","1/W/23"));
   }
 
 }

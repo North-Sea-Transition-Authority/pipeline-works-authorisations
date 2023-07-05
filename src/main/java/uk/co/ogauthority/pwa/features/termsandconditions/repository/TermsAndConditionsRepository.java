@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
 
 @Repository
-public interface TermsAndConditionsVariationRepository extends CrudRepository<PwaTermsAndConditions, Integer> {
+public interface TermsAndConditionsRepository extends CrudRepository<PwaTermsAndConditions, Integer> {
 
 
 

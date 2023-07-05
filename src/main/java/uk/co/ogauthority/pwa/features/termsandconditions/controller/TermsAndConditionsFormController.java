@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
-import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsVariationService;
+import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.RouteUtils;
@@ -21,13 +21,13 @@ import uk.co.ogauthority.pwa.util.RouteUtils;
 @RequestMapping("/terms-and-conditions")
 public class TermsAndConditionsFormController {
 
-  private final TermsAndConditionsVariationService termsAndConditionsVariationService;
+  private final TermsAndConditionsService termsAndConditionsService;
   private final ControllerHelperService controllerHelperService;
 
   public TermsAndConditionsFormController(
-      TermsAndConditionsVariationService termsAndConditionsVariationService,
+      TermsAndConditionsService termsAndConditionsService,
       ControllerHelperService controllerHelperService) {
-    this.termsAndConditionsVariationService = termsAndConditionsVariationService;
+    this.termsAndConditionsService = termsAndConditionsService;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -44,11 +44,11 @@ public class TermsAndConditionsFormController {
                                                             AuthenticatedUserAccount user,
                                                             RedirectAttributes redirectAttributes) {
     checkUserPrivilege(user);
-    var validatedBindingResult = termsAndConditionsVariationService.validateForm(form, bindingResult);
+    var validatedBindingResult = termsAndConditionsService.validateForm(form, bindingResult);
 
     return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
         getTermsAndConditionsVariationModelAndView(), () -> {
-          termsAndConditionsVariationService.saveForm(form, user.getLinkedPerson().getId().asInt());
+          termsAndConditionsService.saveForm(form, user.getLinkedPerson().getId().asInt());
           FlashUtils.success(
               redirectAttributes,
               "Submitted terms and conditions variation"
@@ -60,7 +60,7 @@ public class TermsAndConditionsFormController {
   private ModelAndView getTermsAndConditionsVariationModelAndView() {
     return new ModelAndView("termsandconditions/termsAndConditionsForm")
         .addObject("cancelUrl", "/work-area") // TODO: PWA2022-58 link to T&Cs management screen
-        .addObject("pwaSelectorOptions", termsAndConditionsVariationService.getPwasForSelector());
+        .addObject("pwaSelectorOptions", termsAndConditionsService.getPwasForSelector());
   }
 
   private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {

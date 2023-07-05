@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
-import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsVariationService;
+import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 public class TermsAndConditionsFormControllerTest extends AbstractControllerTest {
 
   @MockBean
-  TermsAndConditionsVariationService termsAndConditionsVariationService;
+  TermsAndConditionsService termsAndConditionsService;
 
   @MockBean
   ControllerHelperService controllerHelperService;
@@ -60,7 +60,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   @Test
   public void renderTermsAndConditionsVariationForm() throws Exception {
     var availablePwas = Map.of("1/W/23", "1");
-    when(termsAndConditionsVariationService.getPwasForSelector()).thenReturn(availablePwas);
+    when(termsAndConditionsService.getPwasForSelector()).thenReturn(availablePwas);
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
         .renderTermsAndConditionsVariationForm(null, userAccount)))
@@ -95,7 +95,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   public void submitTermsAndConditionsVariationForm_post_validationFail() throws Exception {
     var failedBindingResult = new BeanPropertyBindingResult(new TermsAndConditionsForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
-    when(termsAndConditionsVariationService.validateForm(any(), any())).thenReturn(failedBindingResult);
+    when(termsAndConditionsService.validateForm(any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsVariationForm(null, null, userAccount, null)))

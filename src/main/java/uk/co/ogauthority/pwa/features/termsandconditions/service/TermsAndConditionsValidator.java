@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service
-public class TermsAndConditionsVariationValidator implements Validator {
+public class TermsAndConditionsValidator implements Validator {
 
   @Override
   public boolean supports(Class<?> clazz) {
