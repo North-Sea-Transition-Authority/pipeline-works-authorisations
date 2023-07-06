@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="applicationTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 
-<@defaultPage htmlTitle="Start PWA application" errorItems=errorList>
+<@defaultPage htmlTitle="Select application type" errorItems=errorList backLink=true>
 
     <@fdsForm.htmlForm>
 
@@ -22,7 +22,7 @@
             <@fdsRadio.radioItem path="form.applicationType" itemMap={appTypeName: displayName}>
 
               <#if appTypeName == "INITIAL">
-                <p class="govuk-body">All new applications irrespective of pipeline lengths. This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.</p>
+                <p class="govuk-body">${initialGuideText}This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.</p>
               <#elseif appTypeName == "DEPOSIT_CONSENT">
                 <p class="govuk-body">For any deposits being laid to support or protect a pipeline which has been authorised under a PWA</p>
               <#elseif appTypeName == "CAT_1_VARIATION">

@@ -12,19 +12,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.start.StartPwaApplicationForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.EnumUtils;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/start-application")
+@RequestMapping("/start-application/{resourceType}")
 public class StartPwaApplicationController {
 
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -42,24 +45,30 @@ public class StartPwaApplicationController {
   }
 
   /**
-   * First page in PWA application journey.
+   * Second page in PWA application journey, following resource type.
    * @return screen to select application type
    */
   @GetMapping
-  public ModelAndView renderStartApplication(@ModelAttribute("form") StartPwaApplicationForm form) {
-    return getStartAppModelAndView();
+  public ModelAndView renderStartApplication(@ModelAttribute("form") StartPwaApplicationForm form,
+                                             @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+    return getStartAppModelAndView(resourceType);
   }
 
-  private ModelAndView getStartAppModelAndView() {
-    var applicationTypes = PwaApplicationType.stream()
+  private ModelAndView getStartAppModelAndView(PwaResourceType pwaResourceType) {
+    var applicationTypes = pwaResourceType.getPermittedApplicationTypes().stream()
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(Collectors.toList());
+
+    var initialGuideText = pwaResourceType == PwaResourceType.HYDROGEN
+        ? "All new applications irrespective of pipeline lengths. "
+        : "All new fields irrespective of pipeline lengths. ";
 
     return new ModelAndView("pwaApplication/selectApplication")
       .addObject("contactEmail", contactEmail)
       .addObject("workAreaUrl", ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
       .addObject("applicationTypes", applicationTypes)
-      .addObject("errorList", List.of());
+      .addObject("errorList", List.of())
+      .addObject("initialGuideText", initialGuideText);
   }
 
   /**
@@ -68,12 +77,12 @@ public class StartPwaApplicationController {
    */
   @PostMapping
   public ModelAndView startApplication(@Valid @ModelAttribute("form") StartPwaApplicationForm form,
-                                       BindingResult bindingResult) {
+                                       BindingResult bindingResult,
+                                       @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(), () ->
-        pwaApplicationRedirectService.getResourceTypeRedirect(
-            EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType())));
-
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getStartAppModelAndView(resourceType), () ->
+        pwaApplicationRedirectService.getStartApplicationRedirect(
+            EnumUtils.getEnumValue(PwaApplicationType.class, form.getApplicationType()), resourceType));
   }
 
 }

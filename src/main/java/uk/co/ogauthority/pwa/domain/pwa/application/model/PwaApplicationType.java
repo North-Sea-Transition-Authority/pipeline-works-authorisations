@@ -72,7 +72,6 @@ public enum PwaApplicationType {
       ConsentIssueEmail.DEPCON,
       PwaConsentType.DEPOSIT_CONSENT,
       50,
-
       ParallelApplicationsWarning.NO_WARNING),
 
   OPTIONS_VARIATION(
@@ -99,17 +98,13 @@ public enum PwaApplicationType {
 
   private final String displayName;
   private final String urlPathString;
-
   private final Period minProcessingPeriod;
   private final Period maxProcessingPeriod;
   private final MedianLineImplication medianLineImplication;
-
   private final DocumentSpec consentDocumentSpec;
   private final ConsentIssueEmail consentIssueEmail;
-
   private final PwaConsentType pwaConsentType;
   private final int displayOrder;
-
   private final ParallelApplicationsWarning parallelApplicationsWarning;
 
   PwaApplicationType(String displayName,
