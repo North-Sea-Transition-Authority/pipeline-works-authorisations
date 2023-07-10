@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -14,6 +16,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDraftController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
@@ -44,6 +47,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
@@ -250,7 +254,6 @@ public class PublicNoticeService implements AppProcessingService {
     return publicNoticeDocumentLinkRepository.save(publicNoticeDocumentLink);
   }
 
-
   public void endPublicNotices(List<PublicNotice> publicNotices) {
     publicNotices.forEach(publicNotice -> publicNotice.setStatus(PublicNoticeStatus.ENDED));
     publicNoticeRepository.saveAll(publicNotices);
@@ -321,12 +324,14 @@ public class PublicNoticeService implements AppProcessingService {
     String withdrawalReason = null;
     String publicationStartTimestamp = null;
     String publicationEndTimestamp = null;
+    String downloadUrl = null;
 
 
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
       withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
       withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
       withdrawalReason = publicNotice.getWithdrawalReason();
+      downloadUrl = getArchivedPublicNoticeDocumentDownloadUrl(publicNotice);
     }
 
     var publicNoticeDateOpt = publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
@@ -346,7 +351,8 @@ public class PublicNoticeService implements AppProcessingService {
         publicationStartTimestamp,
         publicationEndTimestamp,
         publicNoticeRequest.getStatus(),
-        publicNoticeRequest.getRejectionReason()
+        publicNoticeRequest.getRejectionReason(),
+        downloadUrl
     );
   }
 
@@ -364,6 +370,15 @@ public class PublicNoticeService implements AppProcessingService {
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
         && (publicNoticeStatus == null || isPublicNoticeStatusEnded(publicNoticeStatus))) {
       return Set.of(PublicNoticeAction.NEW_DRAFT);
+    }
+
+    var pwaApplication = pwaAppProcessingContext.getPwaApplication();
+    var fileView = getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
+
+    if ((processingPermissions.contains(PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES)
+        || processingPermissions.contains(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE))
+        && fileView.isPresent()) {
+      publicNoticeActions.add(PublicNoticeAction.DOWNLOAD);
     }
 
     if (processingPermissions.contains(PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE)
@@ -425,7 +440,6 @@ public class PublicNoticeService implements AppProcessingService {
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
 
-
   private UploadedFileView getPublicNoticeDocumentFileViewForPublicNotice(PublicNotice publicNotice, PwaApplication pwaApplication) {
     var latestPublicNoticeDocument = getLatestPublicNoticeDocument(publicNotice);
     var documentLink = publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)
@@ -442,12 +456,59 @@ public class PublicNoticeService implements AppProcessingService {
     return getPublicNoticeDocumentFileViewForPublicNotice(publicNotice, pwaApplication);
   }
 
+  public Optional<PublicNoticeDocument> getLatestPublicNoticeDocumentIfExists(PublicNotice publicNotice) {
+    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+  }
+
+  private Optional<UploadedFileView> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(PublicNotice publicNotice,
+                                                                                            PwaApplication pwaApplication) {
+    var latestPublicNoticeDocumentOptional = getLatestPublicNoticeDocumentIfExists(publicNotice);
+
+    if (latestPublicNoticeDocumentOptional.isPresent()) {
+      var latestPublicNoticeDocument = latestPublicNoticeDocumentOptional.get();
+      var documentLink = publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)
+          .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
+              "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
+
+      return Optional.of(appFileService
+          .getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL));
+    }
+    return Optional.empty();
+  }
+
+  public Optional<UploadedFileView> getLatestPublicNoticeDocumentFileViewIfExists(PwaApplication pwaApplication) {
+    var publicNotice = getLatestPublicNoticeOpt(pwaApplication);
+    return publicNotice.flatMap(notice -> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(notice, pwaApplication));
+  }
+
+  private PublicNoticeDocument getArchivedPublicNoticeDocument(PublicNotice publicNotice) {
+    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.ARCHIVED)
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
+            "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
+  }
+
+  private UploadedFileView getPublicNoticeDocumentFileViewForArchivedPublicNotice(PublicNotice publicNotice) {
+    var publicNoticeDocument = getArchivedPublicNoticeDocument(publicNotice);
+    var documentLink = publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(publicNoticeDocument)
+        .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
+            "Couldn't find public notice document link with public notice document ID: %s", publicNoticeDocument.getId())));
+
+    return appFileService.getUploadedFileView(
+        publicNotice.getPwaApplication(), documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
+  }
+
+  private String getArchivedPublicNoticeDocumentDownloadUrl(PublicNotice publicNotice) {
+    var pwaApplication = publicNotice.getPwaApplication();
+    var fileId = getPublicNoticeDocumentFileViewForArchivedPublicNotice(publicNotice).getFileId();
+
+    return ReverseRouter.route(on(PublicNoticeDraftController.class)
+        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), fileId, null));
+  }
 
   public BindingResult validate(PublicNoticeDraftForm form, BindingResult bindingResult) {
     publicNoticeDraftValidator.validate(form, bindingResult);
     return bindingResult;
   }
-
 
   public Optional<PublicNoticeDocumentLink> getPublicNoticeDocumentLink(AppFile appFile) {
     return publicNoticeDocumentLinkRepository.findByAppFile(appFile);

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class PublicNoticeOverviewController {
   @GetMapping
   public ModelAndView renderPublicNoticeOverview(@PathVariable("applicationId") Integer applicationId,
                                                  @PathVariable("applicationType")
-                                                  @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                 @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
                                                  PwaAppProcessingContext processingContext,
                                                  AuthenticatedUserAccount authenticatedUserAccount) {
 
@@ -63,8 +64,10 @@ public class PublicNoticeOverviewController {
 
     var pwaApplicationId = processingContext.getMasterPwaApplicationId();
     var applicationType = processingContext.getApplicationType();
+    var pwaApplication = processingContext.getPwaApplication();
+    var fileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);
 
-    return Map.of(
+    var actions = new HashMap<>(Map.of(
         PublicNoticeAction.NEW_DRAFT.name(), ReverseRouter.route(on(PublicNoticeDraftController.class)
             .renderDraftPublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
@@ -74,7 +77,8 @@ public class PublicNoticeOverviewController {
         PublicNoticeAction.APPROVE.name(), ReverseRouter.route(on(PublicNoticeApprovalController.class)
             .renderApprovePublicNotice(pwaApplicationId, applicationType, null, null, null)),
 
-        PublicNoticeAction.REQUEST_DOCUMENT_UPDATE.name(), ReverseRouter.route(on(PublicNoticeDocumentUpdateRequestController.class)
+        PublicNoticeAction.REQUEST_DOCUMENT_UPDATE.name(),
+        ReverseRouter.route(on(PublicNoticeDocumentUpdateRequestController.class)
             .renderRequestPublicNoticeDocumentUpdate(pwaApplicationId, applicationType, null, null, null)),
 
         PublicNoticeAction.FINALISE.name(), ReverseRouter.route(on(FinalisePublicNoticeController.class)
@@ -84,9 +88,13 @@ public class PublicNoticeOverviewController {
             .renderUpdatePublicNoticePublicationDates(pwaApplicationId, applicationType, null, null, null)),
 
         PublicNoticeAction.WITHDRAW.name(), ReverseRouter.route(on(WithdrawPublicNoticeController.class)
-            .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))
-    );
+            .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))));
 
+    fileView.ifPresent(uploadedFileView -> actions.put(PublicNoticeAction.DOWNLOAD.name(),
+        ReverseRouter.route(on(PublicNoticeDraftController.class)
+            .handleDownload(applicationType, pwaApplicationId, uploadedFileView.getFileId(), null))));
+
+    return actions;
   }
 
 
