@@ -44,7 +44,6 @@ public class TermsAndConditionsService {
 
   public Map<String, String> getPwasForSelector() {
     return StreamSupport.stream(termsAndConditionsPwaViewRepository.findAll().spliterator(), false)
-        .distinct()
         .collect(StreamUtils.toLinkedHashMap(
             e -> String.valueOf(e.getPwaId()),
             TermsAndConditionsPwaView::getConsentReference)
