@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -32,8 +33,8 @@ public class TermsAndConditionsService {
     this.termsAndConditionsPwaViewRepository = termsAndConditionsPwaViewRepository;
   }
 
-  public void saveForm(TermsAndConditionsForm form, int personId) {
-    termsAndConditionsRepository.save(convertFormToEntity(form, personId));
+  public void saveForm(TermsAndConditionsForm form, Person person) {
+    termsAndConditionsRepository.save(convertFormToEntity(form, person));
   }
 
   public BindingResult validateForm(TermsAndConditionsForm form, BindingResult bindingResult) {
@@ -42,19 +43,22 @@ public class TermsAndConditionsService {
   }
 
   public Map<String, String> getPwasForSelector() {
-    var availablePwas = StreamSupport.stream(termsAndConditionsPwaViewRepository.findAll().spliterator(), false);
-    return availablePwas.collect(StreamUtils
-        .toLinkedHashMap(e -> String.valueOf(e.getPwaId()), TermsAndConditionsPwaView::getConsentReference));
+    return StreamSupport.stream(termsAndConditionsPwaViewRepository.findAll().spliterator(), false)
+        .distinct()
+        .collect(StreamUtils.toLinkedHashMap(
+            e -> String.valueOf(e.getPwaId()),
+            TermsAndConditionsPwaView::getConsentReference)
+        );
   }
 
-  private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, int personId) {
+  private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, Person person) {
     return new PwaTermsAndConditions()
         .setMasterPwa(masterPwaService.getMasterPwaById(form.getPwaId()))
         .setVariationTerm(form.getVariationTerm())
         .setHuooTerms(generateHuooTerms(form))
         .setDepconParagraph(form.getDepconParagraph())
         .setDepconSchedule(form.getDepconSchedule())
-        .setCreatedBy(personId)
+        .setCreatedBy(person.getId())
         .setCreatedTimestamp(Instant.now());
   }
 

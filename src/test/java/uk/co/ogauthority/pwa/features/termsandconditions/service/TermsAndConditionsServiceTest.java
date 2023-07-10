@@ -20,6 +20,8 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -68,7 +70,7 @@ public class TermsAndConditionsServiceTest {
           .setHuooTerms("3, 6 & 9")
           .setDepconParagraph(2)
           .setDepconSchedule(8)
-          .setCreatedBy(1)
+          .setCreatedBy(new PersonId(1))
           .setCreatedTimestamp(instant);
 
       var variationForm = new TermsAndConditionsForm()
@@ -82,7 +84,14 @@ public class TermsAndConditionsServiceTest {
 
       when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
 
-      termsAndConditionsService.saveForm(variationForm, 1);
+      var person = new Person(
+          1,
+          "Test",
+          "Test",
+          null,
+          null
+      );
+      termsAndConditionsService.saveForm(variationForm, person);
 
       verify(termsAndConditionsRepository).save(refEq(variationToBeSaved));
     }

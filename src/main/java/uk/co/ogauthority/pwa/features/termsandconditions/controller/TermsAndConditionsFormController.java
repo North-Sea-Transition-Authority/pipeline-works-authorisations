@@ -48,10 +48,10 @@ public class TermsAndConditionsFormController {
 
     return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
         getTermsAndConditionsVariationModelAndView(), () -> {
-          termsAndConditionsService.saveForm(form, user.getLinkedPerson().getId().asInt());
+          termsAndConditionsService.saveForm(form, user.getLinkedPerson());
           FlashUtils.success(
               redirectAttributes,
-              "Submitted terms and conditions variation"
+              "Added new record for terms and conditions"
           );
           return RouteUtils.redirectWorkArea();
         });

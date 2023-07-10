@@ -1,12 +1,16 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 import java.time.Instant;
+import javax.persistence.Basic;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
 @Entity(name = "terms_and_conditions_variations")
@@ -28,7 +32,9 @@ public class PwaTermsAndConditions {
 
   private int depconSchedule;
 
-  private int createdBy;
+  @Basic
+  @Convert(converter = PersonIdConverter.class)
+  private PersonId createdBy;
 
   private Instant createdTimestamp;
 
@@ -82,12 +88,12 @@ public class PwaTermsAndConditions {
     return this;
   }
 
-  public int getCreatedBy() {
+  public PersonId getCreatedBy() {
     return createdBy;
   }
 
-  public PwaTermsAndConditions setCreatedBy(int submittedBy) {
-    this.createdBy = submittedBy;
+  public PwaTermsAndConditions setCreatedBy(PersonId createdBy) {
+    this.createdBy = createdBy;
     return this;
   }
 
