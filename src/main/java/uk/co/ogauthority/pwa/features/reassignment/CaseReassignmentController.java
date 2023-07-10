@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.reassignment;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,6 +25,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
@@ -145,7 +147,11 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    var selectedPwas = caseReassignmentService.findAllCasesByPadId(caseReassignmentSelectorForm.getSelectedApplicationIds());
+    var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
+        .stream()
+        .map(Integer::valueOf)
+        .collect(Collectors.toList());
+    var selectedPwas = caseReassignmentService.findAllCasesByApplicationId(selectedIds);
     return new ModelAndView("reassignment/chooseAssignee")
         .addObject("submitUrl",
             ReverseRouter.route(on(CaseReassignmentController.class).renderSelectNewAssignee(
@@ -168,12 +174,18 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    for (var detailId : caseReassignmentSelectorForm.getSelectedApplicationIds()) {
-      var applicationDetail = pwaApplicationDetailService.getDetailById(detailId);
+    var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
+        .stream()
+        .map(appIds -> appIds.split(","))
+        .flatMap(Arrays::stream)
+        .map(Integer::valueOf)
+        .collect(Collectors.toList());
+    for (var appId : selectedIds) {
+      var applicationDetail = pwaApplicationDetailService.getDetailById(appId);
 
       assignCaseOfficerService.assignCaseOfficer(
           applicationDetail,
-          caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId(),
+          new PersonId(caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId()),
           authenticatedUserAccount);
     }
     return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(

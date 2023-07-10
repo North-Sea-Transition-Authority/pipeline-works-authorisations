@@ -38,9 +38,9 @@
                   <div class="govuk-checkboxes govuk-checkboxes--small">
                     <div class="govuk-checkboxes__item">
                         <#assign checkboxId>
-                          reassignable-cases-${case.getPadId()}
+                          reassignable-cases-${case.getApplicationId()}
                         </#assign>
-                      <input class="govuk-checkboxes__input" id=${checkboxId} name="${spring.status.expression}" type="checkbox" value="${case.getPadId()}">
+                      <input class="govuk-checkboxes__input" id=${checkboxId} name="${spring.status.expression}" type="checkbox" value="${case.getApplicationId()}">
                       <label class="govuk-label govuk-checkboxes__label" for="case-checkbox-${checkboxId}">
                         <span class="govuk-visually-hidden">Select or de-select ${case.getPadReference()}</span>
                       </label>

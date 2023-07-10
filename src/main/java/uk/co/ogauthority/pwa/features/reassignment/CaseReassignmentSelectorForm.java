@@ -1,30 +1,28 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
 import java.util.List;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public class CaseReassignmentSelectorForm {
-  private List<Integer> selectedApplicationIds;
+  private List<String> selectedApplicationIds;
 
-  private PersonId assignedCaseOfficerPersonId;
+  private Integer assignedCaseOfficerPersonId;
 
   public CaseReassignmentSelectorForm() {
   }
 
-  public List<Integer> getSelectedApplicationIds() {
+  public List<String> getSelectedApplicationIds() {
     return selectedApplicationIds;
   }
 
-  public void setSelectedApplicationIds(List<Integer> selectedApplicationIds) {
+  public void setSelectedApplicationIds(List<String> selectedApplicationIds) {
     this.selectedApplicationIds = selectedApplicationIds;
   }
 
-  public PersonId getAssignedCaseOfficerPersonId() {
+  public Integer getAssignedCaseOfficerPersonId() {
     return assignedCaseOfficerPersonId;
   }
 
-  public void setAssignedCaseOfficerPersonId(
-      PersonId assignedCaseOfficerPersonId) {
+  public void setAssignedCaseOfficerPersonId(Integer assignedCaseOfficerPersonId) {
     this.assignedCaseOfficerPersonId = assignedCaseOfficerPersonId;
   }
 }

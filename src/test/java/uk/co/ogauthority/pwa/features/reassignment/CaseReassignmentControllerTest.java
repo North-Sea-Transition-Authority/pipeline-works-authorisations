@@ -154,7 +154,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
 
   private List<CaseReassignmentView> getProjectList() {
     var project1 = new CaseReassignmentView();
-    project1.setPadId(1111);
+    project1.setApplicationId(1111);
     project1.setPadReference("Test");
     project1.setPadName("Test");
     project1.setAssignedCaseOfficerPersonId(1000);
@@ -162,7 +162,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     project1.setInCaseOfficerReviewSince(Instant.now());
 
     var project2 = new CaseReassignmentView();
-    project2.setPadId(2222);
+    project2.setApplicationId(2222);
     project2.setPadReference("Test");
     project2.setPadName("Test");
     project2.setAssignedCaseOfficerPersonId(1000);
@@ -170,7 +170,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     project2.setInCaseOfficerReviewSince(Instant.now());
 
     var project3 = new CaseReassignmentView();
-    project3.setPadId(3333);
+    project3.setApplicationId(3333);
     project3.setPadReference("Test");
     project3.setPadName("Test");
     project3.setAssignedCaseOfficerPersonId(5000);

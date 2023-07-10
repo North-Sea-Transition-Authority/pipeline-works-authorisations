@@ -13,7 +13,7 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @Immutable
 public class CaseReassignmentView implements addToListComponent {
   @Id
-  private Integer padId;
+  private Integer applicationId;
   private String padReference;
 
   private String padName;
@@ -25,16 +25,16 @@ public class CaseReassignmentView implements addToListComponent {
 
   private Integer assignedCaseOfficerPersonId;
 
-  public Integer getPadId() {
-    return padId;
+  public Integer getApplicationId() {
+    return applicationId;
   }
 
   public String getId() {
-    return String.valueOf(getPadId());
+    return String.valueOf(getApplicationId());
   }
 
-  public void setPadId(Integer padId) {
-    this.padId = padId;
+  public void setApplicationId(Integer applicationId) {
+    this.applicationId = applicationId;
   }
 
   public String getPadReference() {

@@ -9,7 +9,7 @@
       itemName="The following applications will be affected:"
       selectorInputClass="govuk-visually-hidden"/>
       <@fdsSearchSelector.searchSelectorEnhanced
-      path="form.caseOfficerAssignee"
+      path="form.assignedCaseOfficerPersonId"
       options=caseOfficerCandidates
       labelText="Select case officer to reassign cases to"/>
       <@fdsAction.button buttonText="Reassign cases"/>

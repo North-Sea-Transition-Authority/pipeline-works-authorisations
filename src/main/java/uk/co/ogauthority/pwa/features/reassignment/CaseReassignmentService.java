@@ -19,7 +19,7 @@ public class CaseReassignmentService {
         .collect(Collectors.toList());
   }
 
-  public List<CaseReassignmentView> findAllCasesByPadId(List<Integer> padIds) {
-    return reassignmentRepository.findAllByPadIdIn(padIds);
+  public List<CaseReassignmentView> findAllCasesByApplicationId(List<Integer> applicationIds) {
+    return reassignmentRepository.findAllByApplicationIdIn(applicationIds);
   }
 }
