@@ -18,8 +18,11 @@ public class PublicNoticeView {
   private final String publicationEndTimestamp;
   private final String rejectionReason;
 
+  private final String documentDownloadUrl;
+
 
   //constructor for only the fields that are required as a minimum for a public notice view
+
   public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp, PublicNoticeRequestStatus requestStatus) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
@@ -31,6 +34,7 @@ public class PublicNoticeView {
     this.publicationEndTimestamp = null;
     this.publicNoticeRequestStatus = requestStatus;
     this.rejectionReason = null;
+    this.documentDownloadUrl = null;
   }
 
   public PublicNoticeView(PublicNoticeStatus status,
@@ -42,7 +46,8 @@ public class PublicNoticeView {
                           String publicationStartTimestamp,
                           String publicationEndTimestamp,
                           PublicNoticeRequestStatus publicNoticeRequestStatus,
-                          String rejectionReason) {
+                          String rejectionReason,
+                          String documentDownloadUrl) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -53,8 +58,8 @@ public class PublicNoticeView {
     this.publicationEndTimestamp = publicationEndTimestamp;
     this.publicNoticeRequestStatus = publicNoticeRequestStatus;
     this.rejectionReason = rejectionReason;
+    this.documentDownloadUrl = documentDownloadUrl;
   }
-
 
   public PublicNoticeStatus getStatus() {
     return status;
@@ -94,6 +99,10 @@ public class PublicNoticeView {
 
   public String getRejectionReason() {
     return rejectionReason;
+  }
+
+  public String getDocumentDownloadUrl() {
+    return documentDownloadUrl;
   }
 
   @Override

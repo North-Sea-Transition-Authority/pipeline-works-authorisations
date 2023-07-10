@@ -109,13 +109,17 @@ public class PublicNoticeApprovalController  {
 
 
   private ModelAndView getApprovePublicNoticeModelAndView(PwaAppProcessingContext processingContext) {
-
-    var publicNotice = publicNoticeService.getLatestPublicNotice(processingContext.getPwaApplication());
-    var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
-
     var pwaApplication = processingContext.getPwaApplication();
+
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var publicNoticeRequest = publicNoticeService.getLatestPublicNoticeRequest(publicNotice);
+    var publicNoticeFileId = publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication).getFileId();
+
     var publicNoticeOverviewUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
         pwaApplication.getId(), pwaApplication.getApplicationType(), null, null));
+
+    var downloadPublicNoticeUrl = ReverseRouter.route(on(PublicNoticeDraftController.class)
+        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), publicNoticeFileId, null));
 
     var modelAndView = new ModelAndView("publicNotice/approvePublicNotice")
         .addObject("appRef", pwaApplication.getAppReference())
@@ -124,7 +128,8 @@ public class PublicNoticeApprovalController  {
         .addObject("requestDescription", publicNoticeRequest.getReasonDescription())
         .addObject("approvalResultOptions", PwaApplicationPublicNoticeApprovalResult.asList())
         .addObject("cancelUrl", publicNoticeOverviewUrl)
-        .addObject("caseSummaryView", processingContext.getCaseSummaryView());
+        .addObject("caseSummaryView", processingContext.getCaseSummaryView())
+        .addObject("downloadPublicNoticeUrl", downloadPublicNoticeUrl);
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Review public notice request");
     return modelAndView;

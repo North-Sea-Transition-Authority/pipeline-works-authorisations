@@ -101,7 +101,7 @@ public class PickExistingPwaController {
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("consentedPwaMap", pickableOptions.getConsentedPickablePwas())
         .addObject("nonConsentedPwaMap", pickableOptions.getNonconsentedPickablePwas())
-        .addObject("backUrl", ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
+        .addObject("backUrl", ReverseRouter.route(on(PwaResourceTypeController.class).renderResourceTypeForm(null, null)))
         .addObject("ogList", ogList)
         .addObject("errorList", List.of())
         .addObject("pwaApplicationType", pwaApplicationType)

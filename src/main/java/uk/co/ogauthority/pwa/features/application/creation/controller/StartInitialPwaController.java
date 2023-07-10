@@ -13,11 +13,10 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{resourceType}/new")
+@RequestMapping("/pwa-application/{resourceType}/new")
 public class StartInitialPwaController {
 
 
@@ -25,8 +24,7 @@ public class StartInitialPwaController {
    * Render of start page for initial PWA application.
    */
   @GetMapping
-  public ModelAndView renderStartPage(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
-                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+  public ModelAndView renderStartPage(@PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     var guideText = resourceType == PwaResourceType.HYDROGEN
         ? "All new applications irrespective of pipeline lengths. "
         : "All new fields irrespective of pipeline lengths. ";
