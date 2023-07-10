@@ -22,8 +22,8 @@
               <th class="govuk-table__header" scope="col">
                 <@pwaTableSelectionToggler.linksToggler tableId="selectCaseTable"
                 prefixText=""
-                selectAllLinkText="All" selectAllScreenReaderText="Select all available pipelines"
-                selectNoneLinkText="None" selectNoneScreenReaderText="Select none of the available pipelines" />
+                selectAllLinkText="All" selectAllScreenReaderText="Sellect all reassignable cases"
+                selectNoneLinkText="None" selectNoneScreenReaderText="Select none of the reassignable cases" />
               </th>
               <th class="govuk-table__header" scope="col" >PWA application</th>
               <th class="govuk-table__header govuk-!-width-one-quarter" scope="col" >Project name</th>
@@ -41,7 +41,7 @@
                           reassignable-cases-${case.getPadId()}
                         </#assign>
                       <input class="govuk-checkboxes__input" id=${checkboxId} name="${spring.status.expression}" type="checkbox" value="${case.getPadId()}">
-                      <label class="govuk-label govuk-checkboxes__label" for="pipeline-checkbox-${checkboxId}">
+                      <label class="govuk-label govuk-checkboxes__label" for="case-checkbox-${checkboxId}">
                         <span class="govuk-visually-hidden">Select or de-select ${case.getPadReference()}</span>
                       </label>
                     </div>

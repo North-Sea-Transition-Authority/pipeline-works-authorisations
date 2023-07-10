@@ -1,11 +1,12 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
 import java.util.List;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 public class CaseReassignmentSelectorForm {
   private List<Integer> selectedApplicationIds;
 
-  private Integer caseOfficerAssignee;
+  private PersonId assignedCaseOfficerPersonId;
 
   public CaseReassignmentSelectorForm() {
   }
@@ -18,11 +19,12 @@ public class CaseReassignmentSelectorForm {
     this.selectedApplicationIds = selectedApplicationIds;
   }
 
-  public Integer getCaseOfficerAssignee() {
-    return caseOfficerAssignee;
+  public PersonId getAssignedCaseOfficerPersonId() {
+    return assignedCaseOfficerPersonId;
   }
 
-  public void setCaseOfficerAssignee(Integer caseOfficerAssignee) {
-    this.caseOfficerAssignee = caseOfficerAssignee;
+  public void setAssignedCaseOfficerPersonId(
+      PersonId assignedCaseOfficerPersonId) {
+    this.assignedCaseOfficerPersonId = assignedCaseOfficerPersonId;
   }
 }

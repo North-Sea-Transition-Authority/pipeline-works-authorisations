@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
@@ -73,7 +73,13 @@ public class CaseReassignmentController {
     var caseOfficerCandidates = workItems.stream()
         .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
         .distinct()
-        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue,
+            (key, value) -> {
+              throw new RuntimeException("Duplicate case officers found.");
+              },
+            TreeMap::new));
 
     if (caseReassignmentFilterForm.getCaseOfficerPersonId() != null) {
       workItems = workItems.stream()
@@ -167,7 +173,7 @@ public class CaseReassignmentController {
 
       assignCaseOfficerService.assignCaseOfficer(
           applicationDetail,
-          new PersonId(caseReassignmentSelectorForm.getCaseOfficerAssignee()),
+          caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId(),
           authenticatedUserAccount);
     }
     return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(

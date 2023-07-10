@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="case reassignment" pageHeading="Select case officer to assign to" topNavigation=true twoThirdsColumn=true wrapperWidth=true>
+<@defaultPage htmlTitle="case reassignment" pageHeading="Select case officer to reassign to" topNavigation=true twoThirdsColumn=true wrapperWidth=true>
   <@fdsForm.htmlForm actionUrl=springUrl(submitUrl)>
       <@fdsAddToList.addToList
       pathForList="form.selectedApplicationIds"
@@ -11,7 +11,7 @@
       <@fdsSearchSelector.searchSelectorEnhanced
       path="form.caseOfficerAssignee"
       options=caseOfficerCandidates
-      labelText="Select case officer to assign cases to"/>
+      labelText="Select case officer to reassign cases to"/>
       <@fdsAction.button buttonText="Reassign cases"/>
   </@fdsForm.htmlForm>
 </@defaultPage>
