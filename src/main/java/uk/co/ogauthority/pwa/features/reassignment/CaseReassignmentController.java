@@ -5,7 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,12 +74,9 @@ public class CaseReassignmentController {
     var caseOfficerCandidates = workItems.stream()
         .map(item -> Map.entry(String.valueOf(item.getAssignedCaseOfficerPersonId()), item.getAssignedCaseOfficer()))
         .distinct()
-        .collect(Collectors.toMap(
+        .collect(StreamUtils.toLinkedHashMap(
             Map.Entry::getKey,
-            Map.Entry::getValue,
-            (key, value) -> {
-              throw new RuntimeException("Duplicate case officers found."); },
-            TreeMap::new));
+            Map.Entry::getValue));
 
     if (caseReassignmentFilterForm.getCaseOfficerPersonId() != null) {
       workItems = workItems.stream()
@@ -173,6 +169,13 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
+
+    /**
+     * TODO: This is required as a result of the PwaStringToCollectionConverter
+     * The converter forces comma based inputs to be returned as a string instead of an array/list
+     * This is necessary for free text entry into search selectors that could include commas.
+     * But messes with Spring binding of lists of strings
+     */
     var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
         .stream()
         .map(appIds -> appIds.split(","))
