@@ -146,7 +146,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
-            .param("caseOfficerAssignee", "1111"))
+            .param("assignedCaseOfficerPersonId", "1111"))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/reassign-cases/"));
     verify(assignCaseOfficerService, times(2)).assignCaseOfficer(applicationDetail, new PersonId(1111), userAccount);
