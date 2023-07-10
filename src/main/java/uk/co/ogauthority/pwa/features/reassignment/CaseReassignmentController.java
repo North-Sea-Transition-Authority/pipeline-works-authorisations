@@ -79,8 +79,7 @@ public class CaseReassignmentController {
             Map.Entry::getKey,
             Map.Entry::getValue,
             (key, value) -> {
-              throw new RuntimeException("Duplicate case officers found.");
-              },
+              throw new RuntimeException("Duplicate case officers found."); },
             TreeMap::new));
 
     if (caseReassignmentFilterForm.getCaseOfficerPersonId() != null) {

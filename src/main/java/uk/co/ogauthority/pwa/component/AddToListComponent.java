@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.component;
 
-public interface addToListComponent {
+public interface AddToListComponent {
 
   /** Returns the ID of the object,
    * this will be sent to the form when added to the list.

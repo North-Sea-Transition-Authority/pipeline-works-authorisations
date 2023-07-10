@@ -5,13 +5,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
-import uk.co.ogauthority.pwa.component.addToListComponent;
+import uk.co.ogauthority.pwa.component.AddToListComponent;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Entity
 @Table(name = "case_reassignment_view")
 @Immutable
-public class CaseReassignmentView implements addToListComponent {
+public class CaseReassignmentView implements AddToListComponent {
   @Id
   private Integer applicationId;
   private String padReference;
