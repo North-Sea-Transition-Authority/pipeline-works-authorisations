@@ -26,7 +26,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
@@ -55,7 +54,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
         .collect(Collectors.toList());
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .renderResourceTypeForm(PwaApplicationType.INITIAL, null, null)))
+        .renderResourceTypeForm(null, null)))
         .with(authenticatedUserAndSession(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("resourceOptions", resourceOptions));
@@ -64,7 +63,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   @Test
   public void renderResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .renderResourceTypeForm(PwaApplicationType.INITIAL, null, null)))
+        .renderResourceTypeForm(null, null)))
         .with(authenticatedUserAndSession(userNoPrivs)))
         .andExpect(status().isForbidden());
   }
@@ -72,7 +71,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   @Test
   public void postResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .postResourceType(PwaApplicationType.INITIAL, null, null, null)))
+        .postResourceType(null, null, null)))
         .with(authenticatedUserAndSession(userNoPrivs)))
         .andExpect(status().isForbidden());
   }
@@ -85,12 +84,12 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
+        .postResourceType(form, bindingResult, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
-    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.HYDROGEN);
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaResourceType.HYDROGEN);
   }
 
   @Test
@@ -101,11 +100,11 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
-        .postResourceType(PwaApplicationType.INITIAL, form, bindingResult, null)))
+        .postResourceType(form, bindingResult, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.PETROLEUM.name()));
     verify(validator).validate(any(), any());
-    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM);
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaResourceType.PETROLEUM);
   }
 }

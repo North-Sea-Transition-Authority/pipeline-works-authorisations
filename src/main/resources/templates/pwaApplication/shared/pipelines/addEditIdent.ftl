@@ -69,7 +69,7 @@
         <@fdsFieldset.fieldset legendHeading="Ident information" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend--l">
 
             <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component part" nestingPath="form.definingStructure"
-             hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc. Note: If this ident is in a bundle include the text “(within bundle)\"" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+             hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper, Control Jumper etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
             <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
 
             <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>

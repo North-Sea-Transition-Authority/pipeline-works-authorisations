@@ -167,7 +167,7 @@ public class PublicNoticeDraftController extends PwaApplicationDataFileUploadAnd
   }
 
   @PwaAppProcessingPermissionCheck(permissions = {
-      PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC})
+      PwaAppProcessingPermission.VIEW_ALL_PUBLIC_NOTICES, PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE})
   @GetMapping("/files/download/{fileId}")
   @ResponseBody
   public ResponseEntity<Resource> handleDownload(

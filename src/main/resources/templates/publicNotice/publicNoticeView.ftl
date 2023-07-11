@@ -6,83 +6,90 @@
 
 
 
-<#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false existingPublicNoticeActions=[] publicNoticeActions=[]>
+<#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false existingPublicNoticeActions=[] publicNoticeActions=[] historicalRequestNumber=0>
 
     <#if displayAsHistoricalRequest>
         <#assign submittedHeading = "Submitted ${publicNoticeViewData.submittedTimestamp}"/>
     </#if>
 
-    <@fdsCheckAnswers.checkAnswersWrapper summaryListId="" headingText=submittedHeading! headingSize="h3" headingClass="govuk-heading-m">
-    
-        <#if !displayAsHistoricalRequest>
-            <#list existingPublicNoticeActions as publicNoticeAction>
-                <#if publicNoticeActions?seq_contains(publicNoticeAction)>
-                    <@fdsAction.link linkText=publicNoticeAction.getDisplayText() linkUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) linkClass="govuk-link govuk-link--stand-alone" role=false start=false /> &nbsp;
-                </#if>
-            </#list>
-        </#if>
+        <#assign content>
+            <#if !displayAsHistoricalRequest>
+                <@fdsSummaryList.summaryListCardActionList>
+                    <#list existingPublicNoticeActions as publicNoticeAction>
+                        <#if publicNoticeActions?seq_contains(publicNoticeAction)>
+                            <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(actionUrlMap[publicNoticeAction.name()]) itemText=publicNoticeAction.getDisplayText() itemScreenReaderText=publicNoticeAction.getScreenReaderText()/>
+                        </#if>
+                    </#list>
+                </@fdsSummaryList.summaryListCardActionList>
+            <#else>
+                <@fdsSummaryList.summaryListCardActionList>
+                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
+                </@fdsSummaryList.summaryListCardActionList>
+            </#if>
+        </#assign>
 
-        <@fdsCheckAnswers.checkAnswers summaryListClass="">
+          <#if !displayAsHistoricalRequest>
+            <#assign cardHeading = "Public notice"/>
+          <#else>
+            <#assign cardHeading = "Previous public notice #${historicalRequestNumber}"/>
+          </#if>
+
+            <@fdsSummaryList.summaryListCard headingText=cardHeading cardActionsContent=content summaryListId="summary-card-list">
 
             <#if !displayAsHistoricalRequest>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Submitted">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Submitted">
                     ${publicNoticeViewData.submittedTimestamp}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
 
-            <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Status">
+            <@fdsSummaryList.summaryListRowNoAction keyText="Status">
                 ${publicNoticeViewData.status.getDisplayText()}
-            </@fdsCheckAnswers.checkAnswersRowNoAction>
+            </@fdsSummaryList.summaryListRowNoAction>
 
             <#if publicNoticeViewData.publicNoticeRequestStatus?has_content>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Public notice request status">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Public notice request status">
                     ${publicNoticeViewData.publicNoticeRequestStatus.getDisplayText()}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
 
             <#if publicNoticeViewData.rejectionReason?has_content>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Rejection reason">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Rejection reason">
                     ${publicNoticeViewData.rejectionReason}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
 
             <#if publicNoticeViewData.status == "WITHDRAWN">
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawn by">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Withdrawn by">
                     ${publicNoticeViewData.withdrawnByPersonName}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawn on">
+                </@fdsSummaryList.summaryListRowNoAction>
+                <@fdsSummaryList.summaryListRowNoAction keyText="Withdrawn on">
                     ${publicNoticeViewData.withdrawnTimestamp}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Withdrawal reason">
+                </@fdsSummaryList.summaryListRowNoAction>
+                <@fdsSummaryList.summaryListRowNoAction keyText="Withdrawal reason">
                     ${publicNoticeViewData.withdrawalReason}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
 
             <#if publicNoticeViewData.latestDocumentComments?has_content>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Case officer comments">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Case officer comments">
                    <@multiLineText.multiLineText>
-                        <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p> 
+                        <p class="govuk-body"> ${publicNoticeViewData.latestDocumentComments} </p>
                     </@multiLineText.multiLineText>
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
-            </#if>            
+                </@fdsSummaryList.summaryListRowNoAction>
+            </#if>
 
             <#if publicNoticeViewData.publicationStartTimestamp?has_content>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Publication start date">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Publication start date">
                    ${publicNoticeViewData.publicationStartTimestamp}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
-            
+
             <#if publicNoticeViewData.publicationEndTimestamp?has_content>
-                <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Publication end date">
+                <@fdsSummaryList.summaryListRowNoAction keyText="Publication end date">
                    ${publicNoticeViewData.publicationEndTimestamp}
-                </@fdsCheckAnswers.checkAnswersRowNoAction>
+                </@fdsSummaryList.summaryListRowNoAction>
             </#if>
 
-        </@fdsCheckAnswers.checkAnswers>    
-    </@fdsCheckAnswers.checkAnswersWrapper>
-
-
-
+    </@fdsSummaryList.summaryListCard>
 
 </#macro>
-
