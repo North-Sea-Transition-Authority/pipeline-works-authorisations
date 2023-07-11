@@ -98,11 +98,8 @@ public class TermsAndConditionsService {
   }
 
   private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, Person person) {
-    var masterPwa = masterPwaService.getMasterPwaById(form.getPwaId());
-    var pwaTermsAndConditions = findByMasterPwa(masterPwa).orElse(new PwaTermsAndConditions());
-
-    return pwaTermsAndConditions
-        .setMasterPwa(masterPwa)
+    return new PwaTermsAndConditions()
+        .setMasterPwa(masterPwaService.getMasterPwaById(form.getPwaId()))
         .setVariationTerm(form.getVariationTerm())
         .setHuooTermOne(form.getHuooTermOne())
         .setHuooTermTwo(form.getHuooTermTwo())

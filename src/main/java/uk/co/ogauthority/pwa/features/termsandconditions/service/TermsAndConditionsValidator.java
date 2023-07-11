@@ -21,8 +21,8 @@ public class TermsAndConditionsValidator implements Validator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "pwaId",
-        FieldValidationErrorCodes.REQUIRED.errorCode("pwaId"),
+        "pwaReference",
+        FieldValidationErrorCodes.REQUIRED.errorCode("pwaReference"),
         "Enter the PWA reference");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(

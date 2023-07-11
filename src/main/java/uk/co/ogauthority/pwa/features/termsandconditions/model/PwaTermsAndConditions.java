@@ -8,11 +8,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
 @Entity(name = "terms_and_conditions")
 public class PwaTermsAndConditions {
@@ -21,9 +18,7 @@ public class PwaTermsAndConditions {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @ManyToOne
-  @JoinColumn(name = "pwa_id")
-  private MasterPwa masterPwa;
+  private String pwaReference;
 
   private int variationTerm;
 
@@ -47,13 +42,12 @@ public class PwaTermsAndConditions {
     return id;
   }
 
-  public MasterPwa getMasterPwa() {
-    return masterPwa;
+  public String getPwaReference() {
+    return pwaReference;
   }
 
-  public PwaTermsAndConditions setMasterPwa(
-      MasterPwa masterPwa) {
-    this.masterPwa = masterPwa;
+  public PwaTermsAndConditions setPwaReference(String pwaReference) {
+    this.pwaReference = pwaReference;
     return this;
   }
 

@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 public class TermsAndConditionsForm {
 
-  private Integer pwaId;
+  private String pwaReference;
 
   private Integer variationTerm;
 
@@ -16,12 +16,12 @@ public class TermsAndConditionsForm {
 
   private Integer depconSchedule;
 
-  public Integer getPwaId() {
-    return pwaId;
+  public String getPwaReference() {
+    return pwaReference;
   }
 
-  public TermsAndConditionsForm setPwaId(Integer pwaId) {
-    this.pwaId = pwaId;
+  public TermsAndConditionsForm setPwaReference(String pwaReference) {
+    this.pwaReference = pwaReference;
     return this;
   }
 
