@@ -126,7 +126,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     var form = new CaseReassignmentSelectorForm();
     mockMvc.perform(get(ReverseRouter.route(
             on(CaseReassignmentController.class)
-                .renderSelectNewAssignee(null, userAccount, form, null)))
+                .renderSelectNewAssignee(null, userAccount, form, null, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000"))
@@ -142,7 +142,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     var form = new CaseReassignmentSelectorForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
-                .submitSelectNewAssignee(null, userAccount, form, null)))
+                .submitSelectNewAssignee(null, userAccount, form, null, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
