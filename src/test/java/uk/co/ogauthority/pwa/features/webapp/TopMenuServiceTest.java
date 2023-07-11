@@ -76,6 +76,15 @@ public class TopMenuServiceTest {
   }
 
   @Test
+  public void getTopMenuItems_caseReassignmentOnly() {
+    when(systemAreaAccessService.isManagement(any())).thenReturn(true);
+
+    assertThat(topMenuService.getTopMenuItems(userAccount))
+        .extracting(TopMenuItem::getDisplayName)
+        .containsExactly(TopMenuService.REASSIGN_APPLICATIONS_TITLE);
+  }
+
+  @Test
   public void getTopMenuItems_templateClauseManagementOnly() {
 
     when(systemAreaAccessService.canAccessTemplateClauseManagement(any())).thenReturn(true);
