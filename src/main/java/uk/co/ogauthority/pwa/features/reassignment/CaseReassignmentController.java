@@ -198,7 +198,7 @@ public class CaseReassignmentController {
           }
           FlashUtils.success(
               redirectAttributes,
-              "Succesfully reassigned PWAs"
+              "Successfully reassigned PWAs"
           );
           return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
               httpServletRequest,
