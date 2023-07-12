@@ -171,10 +171,10 @@ public class CaseReassignmentController {
                                               RedirectAttributes redirectAttributes,
                                               BindingResult bindingResult) {
     checkUserPrivilege(authenticatedUserAccount);
-    caseReassignmentService.validateForm(caseReassignmentSelectorForm, bindingResult);
+    var validatedBindingResult = caseReassignmentService.validateForm(caseReassignmentSelectorForm, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
-        bindingResult,
-        renderFormError(caseReassignmentSelectorForm, bindingResult, authenticatedUserAccount),
+        validatedBindingResult,
+        renderFormError(caseReassignmentSelectorForm, validatedBindingResult, authenticatedUserAccount),
         () -> {
           /**
            * TODO: PWA2022-74 This is required as a result of the PwaStringToCollectionConverter
@@ -198,7 +198,7 @@ public class CaseReassignmentController {
           }
           FlashUtils.success(
               redirectAttributes,
-              "Succesfully reassigned PWA's"
+              "Succesfully reassigned PWAs"
           );
           return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
               httpServletRequest,

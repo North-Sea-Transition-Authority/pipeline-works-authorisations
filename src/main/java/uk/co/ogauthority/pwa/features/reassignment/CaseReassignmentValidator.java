@@ -19,12 +19,12 @@ public class CaseReassignmentValidator implements Validator {
         errors,
         "selectedApplicationIds",
         FieldValidationErrorCodes.REQUIRED.errorCode("selectedApplicationIds"),
-        "Return to the previous page to add PWA's to reassign.");
+        "Return to the previous page to add PWAs to reassign.");
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
         "assignedCaseOfficerPersonId",
         FieldValidationErrorCodes.REQUIRED.errorCode("assignedCaseOfficerPersonId"),
-        "Select the Case Officer to reassign cases to.");
+        "Select the case officer to reassign cases to.");
   }
 }

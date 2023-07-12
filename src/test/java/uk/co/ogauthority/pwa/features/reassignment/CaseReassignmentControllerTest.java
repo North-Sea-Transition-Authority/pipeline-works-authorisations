@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +26,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -46,7 +49,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   private AuthenticatedUserAccount userAccount;
 
   @MockBean
-  CaseReassignmentService reviewIdentifierService;
+  CaseReassignmentService caseReassignmentService;
 
   @MockBean
   PwaApplicationService applicationService;
@@ -135,7 +138,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postReassignCaseOfficer() throws Exception {
+  public void postReassignCaseOfficer_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
 
@@ -150,6 +153,31 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/reassign-cases/"));
     verify(assignCaseOfficerService, times(2)).assignCaseOfficer(applicationDetail, new PersonId(1111), userAccount);
+  }
+
+  @Test
+  public void postReassignCaseOfficer_validationFails() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      errors.reject("fake", "error");
+      return errors;
+    }).when(caseReassignmentService).validateForm(any(), any());
+
+    var form = new CaseReassignmentSelectorForm();
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitSelectNewAssignee(null, userAccount, form, null, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000")
+            .param("assignedCaseOfficerPersonId", "1111"))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(view().name("reassignment/chooseAssignee"))
+        .andExpect(model().attributeHasErrors("form"));
+    verify(assignCaseOfficerService, never()).assignCaseOfficer(applicationDetail, new PersonId(1111), userAccount);
   }
 
   private List<CaseReassignmentView> getProjectList() {
