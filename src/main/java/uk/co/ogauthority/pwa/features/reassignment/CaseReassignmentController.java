@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +19,17 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
+import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -43,23 +44,19 @@ public class CaseReassignmentController {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
 
-  private final PwaApplicationService pwaApplicationService;
-
-  private final PadProjectInformationService projectInformationService;
+  private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public CaseReassignmentController(CaseReassignmentService caseReassignmentService,
                                     WorkflowAssignmentService workflowAssignmentService,
                                     AssignCaseOfficerService assignCaseOfficerService,
                                     PwaApplicationDetailService pwaApplicationDetailService,
-                                    PwaApplicationService pwaApplicationService,
-                                    PadProjectInformationService projectInformationService) {
+                                    ControllerHelperService controllerHelperService) {
     this.caseReassignmentService = caseReassignmentService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignCaseOfficerService = assignCaseOfficerService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
-    this.pwaApplicationService = pwaApplicationService;
-    this.projectInformationService = projectInformationService;
+    this.controllerHelperService = controllerHelperService;
   }
 
 
@@ -132,6 +129,7 @@ public class CaseReassignmentController {
         httpServletRequest,
         authenticatedUserAccount,
         caseReassignmentSelectorForm,
+        null,
         redirectAttributes), paramMap);
   }
 
@@ -141,6 +139,7 @@ public class CaseReassignmentController {
   public ModelAndView renderSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+                                              BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
     var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
@@ -153,6 +152,7 @@ public class CaseReassignmentController {
             ReverseRouter.route(on(CaseReassignmentController.class).renderSelectNewAssignee(
                         httpServletRequest,
                         authenticatedUserAccount,
+                        null,
                         null,
                         redirectAttributes)))
         .addObject("selectedPwas", selectedPwas)
@@ -168,39 +168,68 @@ public class CaseReassignmentController {
   public ModelAndView submitSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
                                               @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
-                                              RedirectAttributes redirectAttributes) {
+                                              RedirectAttributes redirectAttributes,
+                                              BindingResult bindingResult) {
     checkUserPrivilege(authenticatedUserAccount);
+    var validatedBindingResult = caseReassignmentService.validateForm(caseReassignmentSelectorForm, bindingResult);
+    return controllerHelperService.checkErrorsAndRedirect(
+        validatedBindingResult,
+        renderFormError(caseReassignmentSelectorForm, validatedBindingResult, authenticatedUserAccount),
+        () -> {
+          /**
+           * TODO: PWA2022-74 This is required as a result of the PwaStringToCollectionConverter
+           * The converter forces comma based inputs to be returned as a string instead of an array/list
+           * This is necessary for free text entry into search selectors that could include commas.
+           * But messes with Spring binding of lists of strings
+           */
+          var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
+              .stream()
+              .map(appIds -> appIds.split(","))
+              .flatMap(Arrays::stream)
+              .map(Integer::valueOf)
+              .collect(Collectors.toList());
+          for (var appId : selectedIds) {
+            var applicationDetail = pwaApplicationDetailService.getDetailById(appId);
 
-    /**
-     * TODO: PWA2022-74 This is required as a result of the PwaStringToCollectionConverter
-     * The converter forces comma based inputs to be returned as a string instead of an array/list
-     * This is necessary for free text entry into search selectors that could include commas.
-     * But messes with Spring binding of lists of strings
-     */
-    var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
-        .stream()
-        .map(appIds -> appIds.split(","))
-        .flatMap(Arrays::stream)
-        .map(Integer::valueOf)
-        .collect(Collectors.toList());
-    for (var appId : selectedIds) {
-      var applicationDetail = pwaApplicationDetailService.getDetailById(appId);
-
-      assignCaseOfficerService.assignCaseOfficer(
-          applicationDetail,
-          new PersonId(caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId()),
-          authenticatedUserAccount);
-    }
-    return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
-        httpServletRequest,
-        authenticatedUserAccount,
-        redirectAttributes,
-        null));
+            assignCaseOfficerService.assignCaseOfficer(
+                applicationDetail,
+                new PersonId(caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId()),
+                authenticatedUserAccount);
+          }
+          FlashUtils.success(
+              redirectAttributes,
+              "Successfully reassigned PWAs"
+          );
+          return ReverseRouter.redirect(on(CaseReassignmentController.class).renderCaseReassignment(
+              httpServletRequest,
+              authenticatedUserAccount,
+              redirectAttributes,
+              null));
+        });
   }
 
   private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
     if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
       throw new AccessDeniedException("User does not have access to bulk reassignment");
     }
+  }
+
+  private ModelAndView renderFormError(CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+                                       BindingResult bindingResult,
+                                       AuthenticatedUserAccount user) {
+    caseReassignmentSelectorForm.setSelectedApplicationIds(
+        caseReassignmentSelectorForm.getSelectedApplicationIds()
+            .stream()
+            .map(appIds -> appIds.split(","))
+            .flatMap(Arrays::stream)
+            .collect(Collectors.toList()));
+
+    return renderSelectNewAssignee(
+        null,
+        user,
+        caseReassignmentSelectorForm,
+        bindingResult,
+        null
+    );
   }
 }
