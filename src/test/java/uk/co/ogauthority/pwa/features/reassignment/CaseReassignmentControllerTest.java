@@ -142,6 +142,11 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
 
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      return errors;
+    }).when(caseReassignmentService).validateForm(any(), any());
+
     var form = new CaseReassignmentSelectorForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
