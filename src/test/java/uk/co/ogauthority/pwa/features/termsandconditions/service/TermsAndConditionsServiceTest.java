@@ -76,7 +76,7 @@ public class TermsAndConditionsServiceTest {
       mockedStatic.when(Instant::now).thenReturn(instant);
 
       var variationToBeSaved = new PwaTermsAndConditions()
-          .setPwaReference("1/W/79")
+          .setMasterPwa(masterPwa)
           .setVariationTerm(7)
           .setHuooTermOne(3)
           .setHuooTermTwo(6)
@@ -87,7 +87,7 @@ public class TermsAndConditionsServiceTest {
           .setCreatedTimestamp(instant);
 
       var variationForm = new TermsAndConditionsForm()
-          .setPwaReference("1/W/79")
+          .setPwaId(1)
           .setVariationTerm(7)
           .setHuooTermOne(3)
           .setHuooTermTwo(6)
