@@ -92,7 +92,13 @@ public enum PipelineType implements DiffableAsString {
       "Hydrogen Transportation Pipeline",
       16,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.HYDROGEN));
+      List.of(PwaResourceType.HYDROGEN)),
+  POLYMER_INJECTION_PIPELINE(
+      "Polymer Injection Pipeline",
+          17,
+      PipelineCoreType.SINGLE_CORE,
+      List.of(PwaResourceType.PETROLEUM)),
+  ;
 
   private final String displayName;
   private final int displayOrder;
