@@ -32,7 +32,8 @@ public class PipelineTypeTest {
             PipelineType.GAS_LIFT_PIPELINE,
             PipelineType.GAS_LIFT_JUMPER,
             PipelineType.WATER_INJECTION_PIPELINE,
-            PipelineType.WATER_INJECTION_JUMPER
+            PipelineType.WATER_INJECTION_JUMPER,
+            PipelineType.POLYMER_INJECTION_PIPELINE
         ));
   }
 
