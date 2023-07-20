@@ -12,7 +12,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 public interface TermsAndConditionsRepository extends CrudRepository<PwaTermsAndConditions, Integer> {
   Optional<PwaTermsAndConditions> findPwaTermsAndConditionsByMasterPwa(MasterPwa masterPwa);
 
-  Page<PwaTermsAndConditions> findAll(Pageable pageable);
-
   Page<PwaTermsAndConditions> findAllByPwaReferenceContainingIgnoreCase(Pageable pageable, String filter);
+
 }
