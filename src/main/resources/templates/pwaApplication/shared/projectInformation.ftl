@@ -41,6 +41,15 @@
         <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_PLANNED")>
             <@fdsRadio.radioGroup path="form.licenceTransferPlanned" labelText="Is a licence transfer planned?" hiddenContent=true hintText="A licence transfer is in relation to a transfer of equity share from one company to another for a defined asset, field or infrastructure.">
                 <@fdsRadio.radioYes path="form.licenceTransferPlanned">
+                    <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_REFERENCE")>
+                        <@fdsAddToList.addToList
+                        pathForList="form.licenceList"
+                        pathForSelector="form.licenceReferenceSelector"
+                        restUrl=springUrl(licenseReferenceList)
+                        alreadyAdded=[]
+                        itemName="Licence references"
+                        selectorMinInputLength=3/>
+                    </#if>
                     <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_DATE")>
                         <@fdsDateInput.dateInput dayPath="form.licenceTransferDay" monthPath="form.licenceTransferMonth" yearPath="form.licenceTransferYear" labelText="Licence transfer date" formId="form.licenceTransfer" nestingPath="form.licenceTransferPlanned"/>
                     </#if>

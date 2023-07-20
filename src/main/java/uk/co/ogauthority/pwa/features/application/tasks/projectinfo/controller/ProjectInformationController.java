@@ -1,5 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller;
 
+import static java.util.Collections.emptyList;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +33,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicenceService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -57,6 +62,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final PadProjectInformationService padProjectInformationService;
   private final ControllerHelperService controllerHelperService;
   private final PadProjectExtensionService projectExtensionService;
+  private final PearsLicenceService pearsLicenceService;
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
@@ -65,13 +71,15 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
                                       PadProjectInformationService padProjectInformationService,
                                       PadFileService padFileService,
                                       ControllerHelperService controllerHelperService,
-                                      PadProjectExtensionService projectExtensionService) {
+                                      PadProjectExtensionService projectExtensionService,
+                                      PearsLicenceService pearsLicenceService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.controllerHelperService = controllerHelperService;
     this.projectExtensionService = projectExtensionService;
+    this.pearsLicenceService = pearsLicenceService;
   }
 
   @GetMapping
@@ -135,7 +143,10 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
             pwaApplicationDetail.getPwaApplicationType()))
         .addObject("isPipelineDeploymentQuestionOptional",
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
-        .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail));
+        .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))
+        .addObject("licenseReferences", emptyList())
+        .addObject("licenseReferenceList",
+            ReverseRouter.route(on(ProjectInfoLicenseInfoRestController.class).getLicenses(null)));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");
@@ -180,5 +191,4 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
       PwaApplicationContext applicationContext) {
     return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
-
 }

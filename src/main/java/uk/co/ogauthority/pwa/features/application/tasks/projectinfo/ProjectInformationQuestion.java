@@ -15,6 +15,7 @@ public enum ProjectInformationQuestion {
   MOBILISATION_DATE((applicationType) -> false),
   EARLIEST_COMPLETION_DATE((applicationType) -> false),
   LATEST_COMPLETION_DATE((applicationType) -> false),
+  LICENCE_TRANSFER_REFERENCE((applicationType) -> false),
   LICENCE_TRANSFER_PLANNED((applicationType) -> false),
   LICENCE_TRANSFER_DATE((applicationType) -> false),
   COMMERCIAL_AGREEMENT_DATE((applicationType) -> false),

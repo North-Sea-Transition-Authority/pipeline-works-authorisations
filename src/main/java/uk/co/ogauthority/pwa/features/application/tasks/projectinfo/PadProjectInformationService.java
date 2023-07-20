@@ -167,6 +167,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
       hiddenQuestions =  EnumSet.of(
           ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+          ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE,
           ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
           ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
           ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
