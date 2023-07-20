@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.terms_and_conditions_variations ADD pwa_reference VARCHAR2(4000);

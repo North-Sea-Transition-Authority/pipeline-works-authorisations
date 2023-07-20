@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.controller;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +15,13 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
 @Controller
-@RequestMapping("/terms-and-conditions")
+@RequestMapping("/terms-and-conditions/new")
 public class TermsAndConditionsFormController {
 
   private final TermsAndConditionsService termsAndConditionsService;
@@ -59,7 +62,8 @@ public class TermsAndConditionsFormController {
 
   private ModelAndView getTermsAndConditionsVariationModelAndView() {
     return new ModelAndView("termsandconditions/termsAndConditionsForm")
-        .addObject("cancelUrl", "/work-area") // TODO: PWA2022-58 link to T&Cs management screen
+        .addObject("cancelUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
+            .renderTermsAndConditionsManagement(null, null, null, null)))
         .addObject("pwaSelectorOptions", termsAndConditionsService.getPwasForSelector());
   }
 

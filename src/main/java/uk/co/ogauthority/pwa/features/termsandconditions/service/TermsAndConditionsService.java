@@ -1,18 +1,27 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.service;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.features.termsandconditions.controller.TermsAndConditionsManagementController;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsManagementViewItem;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.mvc.PageView;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -20,6 +29,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @Service
 public class TermsAndConditionsService {
 
+  private static final int PAGE_SIZE = 10;
   private final TermsAndConditionsRepository termsAndConditionsRepository;
   private final TermsAndConditionsValidator termsAndConditionsValidator;
   private final MasterPwaService masterPwaService;
@@ -56,15 +66,33 @@ public class TermsAndConditionsService {
         );
   }
 
+  public PageView<TermsAndConditionsManagementViewItem> getPwaManagementScreenPageView(int pageNumber, String filter) {
+    var route = ReverseRouter.route(on(TermsAndConditionsManagementController.class)
+        .renderTermsAndConditionsManagement(null, pageNumber, filter, null));
+
+    return PageView.fromPage(
+        termsAndConditionsRepository.findAllByPwaReferenceContainingIgnoreCase(getTermsAndConditionsRequest(pageNumber), filter),
+        route,
+        page -> new TermsAndConditionsManagementViewItem(page, masterPwaService)
+    );
+  }
+
+  private Pageable getTermsAndConditionsRequest(int pageNumber) {
+    return PageRequest.of(pageNumber, PAGE_SIZE, Sort.by("createdTimestamp").descending());
+  }
+
   private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, Person person) {
+    var masterPwa = masterPwaService.getMasterPwaById(form.getPwaId());
+
     return new PwaTermsAndConditions()
-        .setMasterPwa(masterPwaService.getMasterPwaById(form.getPwaId()))
+        .setMasterPwa(masterPwa)
         .setVariationTerm(form.getVariationTerm())
         .setHuooTerms(generateHuooTerms(form))
         .setDepconParagraph(form.getDepconParagraph())
         .setDepconSchedule(form.getDepconSchedule())
         .setCreatedBy(person.getId())
-        .setCreatedTimestamp(Instant.now());
+        .setCreatedTimestamp(Instant.now())
+        .setPwaReference(masterPwaService.getCurrentDetailOrThrow(masterPwa).getReference());
   }
 
   private String generateHuooTerms(TermsAndConditionsForm form) {
