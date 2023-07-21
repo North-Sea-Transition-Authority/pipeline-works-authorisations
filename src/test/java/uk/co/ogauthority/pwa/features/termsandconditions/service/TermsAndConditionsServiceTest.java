@@ -104,4 +104,11 @@ public class TermsAndConditionsServiceTest {
     assertThat(termsAndConditionsService.getPwasForSelector()).containsExactly(entry("1","1/W/23"));
   }
 
+  @Test
+  public void findByMasterPwa() {
+    var masterPwa = new MasterPwa();
+    termsAndConditionsService.findByMasterPwa(masterPwa);
+    verify(termsAndConditionsRepository).findPwaTermsAndConditionsByMasterPwa(masterPwa);
+  }
+
 }

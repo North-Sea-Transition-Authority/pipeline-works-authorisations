@@ -14,7 +14,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.junit.Before;
@@ -393,17 +392,42 @@ public class PadProjectInformationServiceTest {
 
       var mergeFields = service.getAvailableMailMergeFields(detail.getPwaApplicationType());
 
-      var expectedMergeFields = new ArrayList<>(
-          List.of(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME));
+      var expectedMergeFields = new ArrayList<MailMergeFieldMnem>();
+      expectedMergeFields.add(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE);
+      expectedMergeFields.add(MailMergeFieldMnem.PROJECT_NAME);
+
 
       if (appType != PwaApplicationType.INITIAL) {
         expectedMergeFields.add(MailMergeFieldMnem.PWA_REFERENCE);
+
+      } else {
+        expectedMergeFields.add(MailMergeFieldMnem.ADMIRALTY_CHART_REF);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_NUMBER_LIST);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_DRAWING_REF_LIST);
+      }
+      if (appType == PwaApplicationType.CAT_1_VARIATION) {
+        expectedMergeFields.add(MailMergeFieldMnem.ADMIRALTY_CHART_REF);
+        expectedMergeFields.add(MailMergeFieldMnem.VARIATION_TERM);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_NUMBER_LIST);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_DRAWING_REF_LIST);
+      }
+      if (appType == PwaApplicationType.CAT_2_VARIATION
+          || appType == PwaApplicationType.OPTIONS_VARIATION
+          || appType == PwaApplicationType.DECOMMISSIONING) {
+        expectedMergeFields.add(MailMergeFieldMnem.VARIATION_TERM);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_NUMBER_LIST);
+        expectedMergeFields.add(MailMergeFieldMnem.PL_DRAWING_REF_LIST);
+      }
+      if (appType == PwaApplicationType.HUOO_VARIATION) {
+        expectedMergeFields.add(MailMergeFieldMnem.HUOO_TERMS);
+      }
+      if (appType == PwaApplicationType.DEPOSIT_CONSENT) {
+        expectedMergeFields.add(MailMergeFieldMnem.DEPCON_TERMS);
       }
 
       assertThat(mergeFields).containsExactlyInAnyOrderElementsOf(expectedMergeFields);
 
     });
-
   }
 
   @Test

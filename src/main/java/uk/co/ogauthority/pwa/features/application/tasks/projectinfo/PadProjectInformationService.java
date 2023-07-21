@@ -3,13 +3,14 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -272,24 +273,19 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
 
     var questions = getRequiredQuestions(pwaApplicationType);
-    var mailMergeFieldList = new ArrayList<MailMergeFieldMnem>();
+    var mailMergeFieldList = Arrays.stream(MailMergeFieldMnem.values())
+        .filter(field -> field.appTypeIsSupported(pwaApplicationType))
+        .collect(Collectors.toList());
 
-    if (MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.appTypeIsSupported(pwaApplicationType)
-        && questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
-      mailMergeFieldList.add(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE);
+    if (!questions.contains(ProjectInformationQuestion.PROPOSED_START_DATE)) {
+      mailMergeFieldList.remove(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE);
     }
 
-    if (MailMergeFieldMnem.PROJECT_NAME.appTypeIsSupported(pwaApplicationType)
-        && questions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
-      mailMergeFieldList.add(MailMergeFieldMnem.PROJECT_NAME);
-    }
-
-    if (MailMergeFieldMnem.PWA_REFERENCE.appTypeIsSupported(pwaApplicationType)) {
-      mailMergeFieldList.add(MailMergeFieldMnem.PWA_REFERENCE);
+    if (!questions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
+      mailMergeFieldList.remove(MailMergeFieldMnem.PROJECT_NAME);
     }
 
     return mailMergeFieldList;
-
   }
 
   @Override
