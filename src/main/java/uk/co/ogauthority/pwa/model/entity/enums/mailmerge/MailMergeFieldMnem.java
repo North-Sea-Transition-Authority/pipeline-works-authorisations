@@ -84,6 +84,7 @@ public enum MailMergeFieldMnem {
     this.preventedAppTypes = preventedAppTypes;
     preventedDocumentSpecs = EnumSet.noneOf(DocumentSpec.class);
   }
+
   MailMergeFieldMnem(Set<PwaApplicationType> preventedAppTypes, Set<DocumentSpec> preventedDocumentSpecs) {
     this.preventedAppTypes = preventedAppTypes;
     this.preventedDocumentSpecs = preventedDocumentSpecs;
