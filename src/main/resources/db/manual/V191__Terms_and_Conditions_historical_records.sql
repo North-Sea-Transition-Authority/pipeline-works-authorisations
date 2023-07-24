@@ -25,12 +25,12 @@ BEGIN
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,4);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,4);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,4);
-    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3. 6 & 8', 9,2);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 9,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 9,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 9,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 7,2);
-    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3. 6 & 8', 11,2);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 11,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 4,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
@@ -58,7 +58,7 @@ BEGIN
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 6,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 8,2);
-    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3,6 & 9', 8,2);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
@@ -148,7 +148,7 @@ BEGIN
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,4);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 6,2);
-    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 &8', 8,2);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
@@ -228,7 +228,7 @@ BEGIN
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
-    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6, & 9', 8,2);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 9', 8,2);
@@ -402,4 +402,6 @@ BEGIN
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 8,4);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 7,4);
     ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 8,4);
+    ${datasource.user}.ADDHISTORICALTERMS('213',7, '3, 6 & 8', 10,4);
+
 END;
