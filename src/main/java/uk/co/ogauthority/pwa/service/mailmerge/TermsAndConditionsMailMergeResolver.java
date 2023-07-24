@@ -46,36 +46,46 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
 
   @Override
   public Map<String, String> resolveMergeFields(DocumentSource documentSource) {
-    var resolvedFields = new HashMap<String, String>();
     if (documentSource instanceof PwaApplication) {
-      var app = (PwaApplication) documentSource;
-      var termsAndConditions = termsAndConditionsService.findByMasterPwa(app.getMasterPwa());
-      if (termsAndConditions.isPresent()) {
-        for (var field : getAvailableMailMergeFields(documentSource)) {
-          switch (field) {
-            case VARIATION_TERM:
-              resolvedFields.put(VARIATION_TERM.name(), String.valueOf(termsAndConditions.get().getVariationTerm()));
-              break;
-            case HUOO_TERMS:
-              resolvedFields.put(HUOO_TERMS.name(), termsAndConditions.get().getHuooTerms());
-              break;
-            case DEPCON_TERMS:
-              resolvedFields.put(DEPCON_TERMS.name(),
-                  String.valueOf(termsAndConditions.get().getDepconParagraph() + termsAndConditions.get().getDepconSchedule()));
-              break;
-            default:
-              break;
-          }
-        }
-      } else {
-        for (var field : getAvailableMailMergeFields(documentSource)) {
-          resolvedFields.put(field.name(), "??" + field.name() + "??");
+      return resolveForApplication(documentSource);
+    } else {
+      return resolveForTemplate(documentSource);
+    }
+  }
+
+  public Map<String, String> resolveForApplication(DocumentSource documentSource) {
+    var resolvedFields = new HashMap<String, String>();
+    var app = (PwaApplication) documentSource;
+    var termsAndConditions = termsAndConditionsService.findByMasterPwa(app.getMasterPwa());
+    if (termsAndConditions.isPresent()) {
+      for (var field : getAvailableMailMergeFields(documentSource)) {
+        switch (field) {
+          case VARIATION_TERM:
+            resolvedFields.put(VARIATION_TERM.name(), String.valueOf(termsAndConditions.get().getVariationTerm()));
+            break;
+          case HUOO_TERMS:
+            resolvedFields.put(HUOO_TERMS.name(), termsAndConditions.get().getHuooTerms());
+            break;
+          case DEPCON_TERMS:
+            resolvedFields.put(DEPCON_TERMS.name(),
+                String.valueOf(termsAndConditions.get().getDepconParagraph() + termsAndConditions.get().getDepconSchedule()));
+            break;
+          default:
+            break;
         }
       }
     } else {
       for (var field : getAvailableMailMergeFields(documentSource)) {
         resolvedFields.put(field.name(), "??" + field.name() + "??");
       }
+    }
+    return resolvedFields;
+  }
+
+  public Map<String, String> resolveForTemplate(DocumentSource documentSource) {
+    var resolvedFields = new HashMap<String, String>();
+    for (var field : getAvailableMailMergeFields(documentSource)) {
+      resolvedFields.put(field.name(), "??" + field.name() + "??");
     }
     return resolvedFields;
   }
