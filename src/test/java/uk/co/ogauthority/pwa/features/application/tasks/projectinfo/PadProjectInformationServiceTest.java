@@ -166,6 +166,7 @@ public class PadProjectInformationServiceTest {
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
         ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE,
         ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
         ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,

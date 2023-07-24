@@ -94,6 +94,14 @@ public class ProjectInformationValidator implements SmartValidator {
           errors);
     }
 
+    if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (Objects.isNull(form.getLicenceList()) || form.getLicenceList().isEmpty()) {
+        errors.rejectValue("licenceReferenceSelector",
+            "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Specify at least one licence due to be transferred");
+      }
+    }
+
     if (requiredQuestions.contains(ProjectInformationQuestion.LATEST_COMPLETION_DATE) && validationType != ValidationType.FULL) {
       ValidatorUtils.validateDateWhenPresent(
           "latestCompletion", "Latest completion",
@@ -116,24 +124,13 @@ public class ProjectInformationValidator implements SmartValidator {
             form.getCommercialAgreementDay(), form.getCommercialAgreementMonth(), form.getCommercialAgreementYear(), errors
         );
       }
-
-      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
-        if (Objects.isNull(form.getLicenceList()) || form.getLicenceList().isEmpty()) {
-          errors.rejectValue("licenceReferenceSelector",
-              "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Specify at least one licence due to be transferred");
-        }
-
-        if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
-          ValidatorUtils.validateDefaultStringLength(
-              errors, "temporaryDepDescription", form::getTemporaryDepDescription,
-              "Temporary deposits description");
-        }
-      }
     }
 
-
+    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "temporaryDepDescription", form::getTemporaryDepDescription,
+          "Temporary deposits description");
+    }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)
         && PermanentDepositMade.LATER_APP.equals(form.getPermanentDepositsMadeType()) && validationType != ValidationType.FULL) {
