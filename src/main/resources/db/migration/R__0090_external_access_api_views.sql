@@ -68,6 +68,9 @@ FROM (
   SELECT 'CABLE' type_mnem, 'Cable' type_display, 'SINGLE_CORE' core_type
   FROM dual
   UNION ALL
+  SELECT 'HYDROGEN_TRANSPORT' type_mnem, 'Hydrogen Transportation Pipeline' type_display, 'SINGLE_CORE' core_type
+  FROM dual
+  UNION ALL
   SELECT 'POLYMER_INJECTION_PIPELINE' type_mnem, 'Polymer Injection Pipeline' type_display, 'SINGLE_CORE' core_type
   FROM dual
   )
