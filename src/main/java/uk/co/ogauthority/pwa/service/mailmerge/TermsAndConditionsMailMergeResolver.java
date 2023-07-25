@@ -47,16 +47,15 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
   @Override
   public Map<String, String> resolveMergeFields(DocumentSource documentSource) {
     if (documentSource instanceof PwaApplication) {
-      return resolveForApplication(documentSource);
+      return resolveForApplication((PwaApplication) documentSource);
     } else {
-      return resolveForTemplate(documentSource);
+      return resolveForTemplate((TemplateDocumentSource) documentSource);
     }
   }
 
-  public Map<String, String> resolveForApplication(DocumentSource documentSource) {
+  public Map<String, String> resolveForApplication(PwaApplication documentSource) {
     var resolvedFields = new HashMap<String, String>();
-    var app = (PwaApplication) documentSource;
-    var termsAndConditions = termsAndConditionsService.findByMasterPwa(app.getMasterPwa());
+    var termsAndConditions = termsAndConditionsService.findByMasterPwa(documentSource.getMasterPwa());
     if (termsAndConditions.isPresent()) {
       for (var field : getAvailableMailMergeFields(documentSource)) {
         switch (field) {
@@ -68,7 +67,11 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
             break;
           case DEPCON_TERMS:
             resolvedFields.put(DEPCON_TERMS.name(),
-                String.valueOf(termsAndConditions.get().getDepconParagraph() + termsAndConditions.get().getDepconSchedule()));
+                String.valueOf(
+                    "Paragraph " +
+                        termsAndConditions.get().getDepconParagraph() +
+                        " Schedule " +
+                        termsAndConditions.get().getDepconSchedule()));
             break;
           default:
             break;
@@ -82,10 +85,22 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
     return resolvedFields;
   }
 
-  public Map<String, String> resolveForTemplate(DocumentSource documentSource) {
+  public Map<String, String> resolveForTemplate(TemplateDocumentSource documentSource) {
     var resolvedFields = new HashMap<String, String>();
     for (var field : getAvailableMailMergeFields(documentSource)) {
-      resolvedFields.put(field.name(), "??" + field.name() + "??");
+      switch (field) {
+        case VARIATION_TERM:
+          resolvedFields.put(VARIATION_TERM.name(), "??" + field.name() + "??");
+          break;
+        case HUOO_TERMS:
+          resolvedFields.put(HUOO_TERMS.name(), "?? X,Y & Z");
+          break;
+        case DEPCON_TERMS:
+          resolvedFields.put(DEPCON_TERMS.name(), "Paragraph X Schedule Y");
+          break;
+        default:
+          break;
+      }
     }
     return resolvedFields;
   }
