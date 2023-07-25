@@ -67,6 +67,9 @@ FROM (
   UNION ALL
   SELECT 'CABLE' type_mnem, 'Cable' type_display, 'SINGLE_CORE' core_type
   FROM dual
+  UNION ALL
+  SELECT 'POLYMER_INJECTION_PIPELINE' type_mnem, 'Polymer Injection Pipeline' type_display, 'SINGLE_CORE' core_type
+  FROM dual
   )
   SELECT
     pd.id pipeline_detail_id
