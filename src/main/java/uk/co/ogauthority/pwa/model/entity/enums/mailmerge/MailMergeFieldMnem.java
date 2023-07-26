@@ -7,6 +7,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 
 public enum MailMergeFieldMnem {
 
+  //TODO: PWA2022-81 - Convert enum to use set of allowed applications, instead of excluded
+  
   // PWA
   PWA_REFERENCE(Set.of(
       PwaApplicationType.INITIAL

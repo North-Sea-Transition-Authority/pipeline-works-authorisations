@@ -20,9 +20,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMergeResolver {
 
   private final PwaApplicationDetailService pwaApplicationDetailService;
-
   private final TermsAndConditionsService termsAndConditionsService;
-  private List<Class> supportedClasses = List.of(PwaApplication.class, TemplateDocumentSource.class);
+  private final List<Class> supportedClasses = List.of(PwaApplication.class, TemplateDocumentSource.class);
+  private final List<MailMergeFieldMnem> termsFields = List.of(VARIATION_TERM, HUOO_TERMS, DEPCON_TERMS);
 
   public TermsAndConditionsMailMergeResolver(PwaApplicationDetailService pwaApplicationDetailService,
                                              TermsAndConditionsService termsAndConditionsService) {
@@ -37,8 +37,7 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
 
   @Override
   public List<MailMergeFieldMnem> getAvailableMailMergeFields(DocumentSource documentSource) {
-    var fields = List.of(VARIATION_TERM, HUOO_TERMS, DEPCON_TERMS);
-    return fields
+    return termsFields
         .stream()
         .filter(field -> field.documentSpecIsSupported(documentSource.getDocumentSpec()))
         .collect(Collectors.toList());
