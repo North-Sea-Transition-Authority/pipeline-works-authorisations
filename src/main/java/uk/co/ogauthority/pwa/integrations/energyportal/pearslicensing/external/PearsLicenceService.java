@@ -26,6 +26,10 @@ public class PearsLicenceService {
         .orElseThrow(() -> new EntityNotFoundException(String.format("No licence with PLM_ID of %s", masterId)));
   }
 
+  public List<PearsLicence> getLicencesById(List<Integer> masterIds) {
+    return pearsLicenceRepository.findByMasterIdIn(masterIds);
+  }
+
   public List<PearsLicence> getAllLicences() {
     return IterableUtils.toList(pearsLicenceRepository.findAll());
   }

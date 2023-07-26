@@ -42,6 +42,10 @@ public class PearsLicence {
     return masterId;
   }
 
+  public String getId() {
+    return String.valueOf(masterId);
+  }
+
   public void setMasterId(Integer masterId) {
     this.masterId = masterId;
   }
@@ -66,6 +70,10 @@ public class PearsLicence {
     return licenceName;
   }
 
+  public String getName() {
+    return licenceName;
+  }
+
   public void setLicenceName(String licenceName) {
     this.licenceName = licenceName;
   }
@@ -76,6 +84,10 @@ public class PearsLicence {
 
   public void setLicenceStatus(LicenceStatus licenceStatus) {
     this.licenceStatus = licenceStatus;
+  }
+
+  public boolean isValid() {
+    return true;
   }
 
   @Override

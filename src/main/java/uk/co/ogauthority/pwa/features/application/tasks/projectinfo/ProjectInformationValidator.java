@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import org.apache.commons.lang3.BooleanUtils;
@@ -95,7 +96,7 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
-      if (Objects.isNull(form.getLicenceList()) || form.getLicenceList().isEmpty()) {
+      if (Objects.isNull(form.getLicenceList())) {
         errors.rejectValue("licenceReferenceSelector",
             "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Specify at least one licence due to be transferred");
@@ -328,11 +329,11 @@ public class ProjectInformationValidator implements SmartValidator {
 
       if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE)
           && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
-        if (Objects.isNull(form.getLicenceList()) || form.getLicenceList().isEmpty()) {
+        if (Objects.isNull(form.getLicenceList())) {
           errors.rejectValue("licenceReferenceSelector",
               "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Specify at least one licence due to be transferred");
-        } else if (form.getLicenceList().stream().anyMatch(Objects::isNull)) {
+        } else if (Arrays.stream(form.getLicenceList()).anyMatch(Objects::isNull)) {
           errors.rejectValue("licenceReferenceSelector",
               "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Specify at least one licence due to be transferred");

@@ -46,7 +46,7 @@
                         pathForList="form.licenceList"
                         pathForSelector="form.licenceReferenceSelector"
                         restUrl=springUrl(licenseReferenceList)
-                        alreadyAdded=[]
+                        alreadyAdded=licenseReferences
                         itemName="Licence references"
                         selectorMinInputLength=3/>
                     </#if>

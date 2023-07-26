@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import java.util.List;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {
@@ -30,7 +28,7 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   private Boolean licenceTransferPlanned;
 
-  private List<PearsLicence> licenceList;
+  private String[] licenceList;
   private String licenceReferenceSelector;
 
   private Integer licenceTransferDay;
@@ -182,11 +180,11 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.usingCampaignApproach = usingCampaignApproach;
   }
 
-  public List<PearsLicence> getLicenceList() {
+  public String[] getLicenceList() {
     return licenceList;
   }
 
-  public void setLicenceList(List<PearsLicence> licenceList) {
+  public void setLicenceList(String[] licenceList) {
     this.licenceList = licenceList;
   }
 

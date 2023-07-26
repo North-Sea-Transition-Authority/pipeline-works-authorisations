@@ -13,4 +13,6 @@ public interface PearsLicenceRepository extends CrudRepository<PearsLicence, Int
 
   Optional<PearsLicence> findByMasterId(Integer masterId);
 
+  List<PearsLicence> findByMasterIdIn(List<Integer> masterId);
+
 }

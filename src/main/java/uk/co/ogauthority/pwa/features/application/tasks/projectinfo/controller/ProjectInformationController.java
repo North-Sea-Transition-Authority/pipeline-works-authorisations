@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller;
 
-import static java.util.Collections.emptyList;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
@@ -62,6 +63,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final PadProjectInformationService padProjectInformationService;
   private final ControllerHelperService controllerHelperService;
   private final PadProjectExtensionService projectExtensionService;
+
   private final PearsLicenceService pearsLicenceService;
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
@@ -137,6 +139,12 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         form
     );
 
+    var pearsLicenses = pearsLicenceService.getLicencesById(
+        Arrays.stream(form.getLicenceList())
+        .map(Integer::valueOf)
+        .collect(Collectors.toList())
+    );
+
     modelAndView.addObject("permanentDepositsMadeOptions", PermanentDepositMade.asList(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
         .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
@@ -144,7 +152,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         .addObject("isPipelineDeploymentQuestionOptional",
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))
-        .addObject("licenseReferences", emptyList())
+        .addObject("licenseReferences", pearsLicenses)
         .addObject("licenseReferenceList",
             ReverseRouter.route(on(ProjectInfoLicenseInfoRestController.class).getLicenses(null)));
 

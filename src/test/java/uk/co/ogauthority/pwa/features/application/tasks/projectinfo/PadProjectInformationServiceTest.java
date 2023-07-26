@@ -76,7 +76,7 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         padFileService,
-        entityCopyingService,
+        padLicensesService, entityCopyingService,
         masterPwaService);
 
     date = LocalDate.now();
