@@ -4,7 +4,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 
 public class TermsAndConditionsManagementViewItem {
@@ -16,12 +15,10 @@ public class TermsAndConditionsManagementViewItem {
   private final int depconParagraph;
   private final int depconSchedule;
 
-  public TermsAndConditionsManagementViewItem(PwaTermsAndConditions pwaTermsAndConditions, MasterPwaService masterPwaService) {
-    var masterPwaDetail = masterPwaService.getCurrentDetailOrThrow(pwaTermsAndConditions.getMasterPwa());
-
-    this.pwaReference = masterPwaDetail.getReference();
-    this.viewPwaUrl = ReverseRouter.route(on(PwaViewController.class)
-        .renderViewPwa(masterPwaDetail.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null));
+  public TermsAndConditionsManagementViewItem(PwaTermsAndConditions pwaTermsAndConditions, String pwaReference) {
+    this.pwaReference = pwaReference;
+    this.viewPwaUrl = ReverseRouter.route(on(PwaViewController.class) // TODO: PWA2020-80: change route to edit page
+        .renderViewPwa(pwaTermsAndConditions.getMasterPwa().getId(), PwaViewTab.PIPELINES, null, null, null));
     this.variationTerm = pwaTermsAndConditions.getVariationTerm();
     this.huooTerms =  pwaTermsAndConditions.getHuooTerms();
     this.depconParagraph = pwaTermsAndConditions.getDepconParagraph();

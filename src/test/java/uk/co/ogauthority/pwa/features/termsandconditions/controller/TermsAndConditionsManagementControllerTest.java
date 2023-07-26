@@ -83,7 +83,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
 
   @Test
   public void submitTermsAndConditionsVariationForm_post() throws Exception {
-    var form = new TermsAndConditionsFilterForm().setSearchFilter("1/W/23");
+    var form = new TermsAndConditionsFilterForm().setPwaReference("1/W/23");
 
     when(termsAndConditionsService.getPwaManagementScreenPageView(0, "1/W/23"))
         .thenReturn(new PageView<>(0, 1, List.of(), null, 2, 10));

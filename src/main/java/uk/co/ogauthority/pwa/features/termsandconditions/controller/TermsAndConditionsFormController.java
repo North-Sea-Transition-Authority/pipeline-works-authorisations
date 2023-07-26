@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditi
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.util.FlashUtils;
-import uk.co.ogauthority.pwa.util.RouteUtils;
 
 @Controller
 @RequestMapping("/terms-and-conditions/new")
@@ -56,7 +55,8 @@ public class TermsAndConditionsFormController {
               redirectAttributes,
               "Added new record for terms and conditions"
           );
-          return RouteUtils.redirectWorkArea();
+          return ReverseRouter.redirect(on(TermsAndConditionsManagementController.class)
+              .renderTermsAndConditionsManagement(null, null, null, null));
         });
   }
 

@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -68,12 +70,18 @@ public class TermsAndConditionsService {
 
   public PageView<TermsAndConditionsManagementViewItem> getPwaManagementScreenPageView(int pageNumber, String filter) {
     var route = ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-        .renderTermsAndConditionsManagement(null, pageNumber, filter, null));
+        .renderTermsAndConditionsManagement(null, pageNumber, null, null));
+
+    var pwaPageViewMap = masterPwaService.searchConsentedDetailsByReference(filter).stream()
+        .collect(Collectors.toMap(MasterPwaDetail::getMasterPwa, MasterPwaDetail::getReference));
 
     return PageView.fromPage(
-        termsAndConditionsRepository.findAllByPwaReferenceContainingIgnoreCase(getTermsAndConditionsRequest(pageNumber), filter),
+        termsAndConditionsRepository.findAllByMasterPwaIn(getTermsAndConditionsRequest(pageNumber), pwaPageViewMap.keySet()),
         route,
-        page -> new TermsAndConditionsManagementViewItem(page, masterPwaService)
+        pwaTermsAndConditions -> new TermsAndConditionsManagementViewItem(
+            pwaTermsAndConditions,
+            pwaPageViewMap.get(pwaTermsAndConditions.getMasterPwa())
+        )
     );
   }
 
@@ -91,8 +99,7 @@ public class TermsAndConditionsService {
         .setDepconParagraph(form.getDepconParagraph())
         .setDepconSchedule(form.getDepconSchedule())
         .setCreatedBy(person.getId())
-        .setCreatedTimestamp(Instant.now())
-        .setPwaReference(masterPwaService.getCurrentDetailOrThrow(masterPwa).getReference());
+        .setCreatedTimestamp(Instant.now());
   }
 
   private String generateHuooTerms(TermsAndConditionsForm form) {

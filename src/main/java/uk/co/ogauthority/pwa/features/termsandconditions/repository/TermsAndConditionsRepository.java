@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.repository;
 
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
@@ -12,6 +13,6 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 public interface TermsAndConditionsRepository extends CrudRepository<PwaTermsAndConditions, Integer> {
   Optional<PwaTermsAndConditions> findPwaTermsAndConditionsByMasterPwa(MasterPwa masterPwa);
 
-  Page<PwaTermsAndConditions> findAllByPwaReferenceContainingIgnoreCase(Pageable pageable, String filter);
+  Page<PwaTermsAndConditions> findAllByMasterPwaIn(Pageable pageable, Set<MasterPwa> masterPwas);
 
 }

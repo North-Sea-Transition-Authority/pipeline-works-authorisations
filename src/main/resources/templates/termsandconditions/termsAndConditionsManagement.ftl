@@ -8,12 +8,12 @@
         <@fdsSearch.searchFilter>
             <@fdsSearch.searchFilterList filterButtonClass="govuk-button govuk-button--secondary">
                 <@fdsSearch.searchFilterItem itemName="PWA reference">
-                    <@fdsSearch.searchTextInput path="form.searchFilter" labelText="PWA reference" labelClass="govuk-visually-hidden"/>
+                    <@fdsSearch.searchTextInput path="form.pwaReference" labelText="PWA reference" labelClass="govuk-visually-hidden"/>
                 </@fdsSearch.searchFilterItem>
             </@fdsSearch.searchFilterList>
         </@fdsSearch.searchFilter>
         <@fdsSearch.searchPageContent>
-            <#if (termsAndConditionsPageView.totalElements > 1)>
+            <#if (termsAndConditionsPageView.totalElements > 0)>
                 <@fdsResultList.resultList resultCount=termsAndConditionsPageView.totalElements>
                     <#list termsAndConditionsPageView.pageContent as term>
                         <@fdsResultList.resultListItem linkHeadingUrl=springUrl(term.viewPwaUrl) linkHeadingText=term.pwaReference>

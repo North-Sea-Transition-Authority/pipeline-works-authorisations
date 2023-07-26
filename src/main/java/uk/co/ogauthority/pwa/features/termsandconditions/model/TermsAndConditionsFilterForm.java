@@ -2,14 +2,14 @@ package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 public class TermsAndConditionsFilterForm {
 
-  private String searchFilter;
+  private String pwaReference;
 
-  public String getSearchFilter() {
-    return searchFilter;
+  public String getPwaReference() {
+    return pwaReference;
   }
 
-  public TermsAndConditionsFilterForm setSearchFilter(String searchFilter) {
-    this.searchFilter = searchFilter;
+  public TermsAndConditionsFilterForm setPwaReference(String pwaReference) {
+    this.pwaReference = pwaReference;
     return this;
   }
 }

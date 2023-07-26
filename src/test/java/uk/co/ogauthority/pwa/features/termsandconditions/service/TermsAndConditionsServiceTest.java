@@ -70,7 +70,7 @@ public class TermsAndConditionsServiceTest {
 
   @Test
   public void saveForm() {
-    when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
+    //when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
 
     var instant = Instant.parse("2023-06-30T15:43:00Z");
     try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
@@ -83,8 +83,7 @@ public class TermsAndConditionsServiceTest {
           .setDepconParagraph(2)
           .setDepconSchedule(8)
           .setCreatedBy(new PersonId(1))
-          .setCreatedTimestamp(instant)
-          .setPwaReference(detail.getReference());
+          .setCreatedTimestamp(instant);
 
       var variationForm = new TermsAndConditionsForm()
           .setPwaId(1)
@@ -119,7 +118,7 @@ public class TermsAndConditionsServiceTest {
 
   @Test
   public void getPwaManagementScreenPageView() {
-    when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
+    //when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
 
     var terms = new PwaTermsAndConditions()
         .setMasterPwa(masterPwa)
@@ -127,7 +126,6 @@ public class TermsAndConditionsServiceTest {
         .setHuooTerms("3, 6 & 9")
         .setDepconSchedule(2)
         .setDepconParagraph(8)
-        .setPwaReference("1/W/23")
         .setCreatedTimestamp(Instant.now());
 
     Page<PwaTermsAndConditions> page = new PageImpl<>(List.of(terms));
@@ -135,14 +133,15 @@ public class TermsAndConditionsServiceTest {
     var expectedPageView = new PageView<>(
         0,
         1,
-        List.of(new TermsAndConditionsManagementViewItem(terms, masterPwaService)),
+        List.of(new TermsAndConditionsManagementViewItem(terms, "1/W/23")),
         null,
         1,
         0);
 
-    when(termsAndConditionsRepository.findAllByPwaReferenceContainingIgnoreCase(any(), any())).thenReturn(page);
+    when(masterPwaService.searchConsentedDetailsByReference("1/W/23")).thenReturn(List.of(detail));
+    when(termsAndConditionsRepository.findAllByMasterPwaIn(any(), any())).thenReturn(page);
 
-    assertThat(termsAndConditionsService.getPwaManagementScreenPageView(0, ""))
+    assertThat(termsAndConditionsService.getPwaManagementScreenPageView(0, "1/W/23"))
         .usingRecursiveComparison().ignoringFields("pageUriFunction").isEqualTo(expectedPageView);
   }
 

@@ -32,8 +32,6 @@ public class PwaTermsAndConditions {
 
   private int depconSchedule;
 
-  private String pwaReference;
-
   @Basic
   @Convert(converter = PersonIdConverter.class)
   private PersonId createdBy;
@@ -105,15 +103,6 @@ public class PwaTermsAndConditions {
 
   public PwaTermsAndConditions setCreatedTimestamp(Instant submittedTimestamp) {
     this.createdTimestamp = submittedTimestamp;
-    return this;
-  }
-
-  public String getPwaReference() {
-    return pwaReference;
-  }
-
-  public PwaTermsAndConditions setPwaReference(String pwaReference) {
-    this.pwaReference = pwaReference;
     return this;
   }
 }
