@@ -51,12 +51,20 @@ public class AutomaticMailMergeHtmlNodeRenderer implements NodeRenderer {
     html.tag("/span");
   }
 
+  /**
+   * Renders the merge field as a manual input field for when the field value can not be resolved.
+   * Using this method, the field will be rendered as a manual field requiring intervention.
+   * This cannot be done in a different method except by changing the enire merge resolver framework.
+   * This is because the field type is determined by the delimter processor, which marks it as automatic.
+   * @param mergeFieldContents the contents to merge in.
+   * @param node the node to merge into.
+   */
   public void renderManual(String mergeFieldContents, Node node) {
     var attributes = context.extendAttributes(node, "span", mailMergeContainer.getManualMailMergeDataHtmlAttributeMap());
     html.tag("span", attributes);
 
     html.tag("span", Map.of("class", "govuk-visually-hidden"));
-    html.text("Manual merge field");
+    html.text("Automatic merge field");
     html.tag("/span");
 
     html.text(mergeFieldContents.split("\\?\\?")[1]);
