@@ -53,7 +53,7 @@ public class TermsAndConditionsFormController {
           termsAndConditionsService.saveForm(form, user.getLinkedPerson());
           FlashUtils.success(
               redirectAttributes,
-              "Added new record for terms and conditions"
+              "Added new terms and conditions record"
           );
           return ReverseRouter.redirect(on(TermsAndConditionsManagementController.class)
               .renderTermsAndConditionsManagement(null, null, null));

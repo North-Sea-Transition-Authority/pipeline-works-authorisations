@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.termsandconditions.service;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -95,17 +94,12 @@ public class TermsAndConditionsService {
     return new PwaTermsAndConditions()
         .setMasterPwa(masterPwa)
         .setVariationTerm(form.getVariationTerm())
-        .setHuooTerms(generateHuooTerms(form))
+        .setHuooTermOne(form.getHuooTermOne())
+        .setHuooTermTwo(form.getHuooTermTwo())
+        .setHuooTermThree(form.getHuooTermThree())
         .setDepconParagraph(form.getDepconParagraph())
         .setDepconSchedule(form.getDepconSchedule())
         .setCreatedBy(person.getId())
         .setCreatedTimestamp(Instant.now());
   }
-
-  private String generateHuooTerms(TermsAndConditionsForm form) {
-    Integer[] terms = {form.getHuooTermOne(), form.getHuooTermTwo(), form.getHuooTermThree()};
-    Arrays.sort(terms);
-    return String.format("%s, %s & %s", terms[0], terms[1], terms[2]);
-  }
-
 }
