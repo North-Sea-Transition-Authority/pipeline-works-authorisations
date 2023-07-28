@@ -92,10 +92,10 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
           resolvedFields.put(VARIATION_TERM.name(), "??" + field.name() + "??");
           break;
         case HUOO_TERMS:
-          resolvedFields.put(HUOO_TERMS.name(), "?? X,Y & Z");
+          resolvedFields.put(HUOO_TERMS.name(), "?? X,Y & Z??");
           break;
         case DEPCON_TERMS:
-          resolvedFields.put(DEPCON_TERMS.name(), "Paragraph X Schedule Y");
+          resolvedFields.put(DEPCON_TERMS.name(), "??Paragraph X Schedule Y??");
           break;
         default:
           break;
