@@ -70,7 +70,7 @@ public class TermsAndConditionsService {
 
   public PageView<TermsAndConditionsManagementViewItem> getPwaManagementScreenPageView(int pageNumber, String filter) {
     var route = ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-        .renderTermsAndConditionsManagement(null, pageNumber, null, null));
+        .renderTermsAndConditionsManagement(null, pageNumber, null));
 
     var pwaPageViewMap = masterPwaService.searchConsentedDetailsByReference(filter).stream()
         .collect(Collectors.toMap(MasterPwaDetail::getMasterPwa, MasterPwaDetail::getReference));

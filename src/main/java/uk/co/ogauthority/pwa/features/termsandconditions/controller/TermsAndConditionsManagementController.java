@@ -33,18 +33,15 @@ public class TermsAndConditionsManagementController {
   @GetMapping
   public ModelAndView renderTermsAndConditionsManagement(@ModelAttribute("form") TermsAndConditionsFilterForm form,
                                                          @RequestParam(defaultValue = "0", name = "page") Integer page,
-                                                         @RequestParam(defaultValue = "") String pwaReference,
                                                          AuthenticatedUserAccount user) {
-    if (pwaReference == null) {
-      pwaReference = "";
-    }
-
     checkUserPrivilege(user);
     return new ModelAndView("termsandconditions/termsAndConditionsManagement")
         .addObject("termsAndConditionsPageView",
-            termsAndConditionsService.getPwaManagementScreenPageView(page, pwaReference))
+            termsAndConditionsService.getPwaManagementScreenPageView(page, form.getPwaReference() != null ? form.getPwaReference() : ""))
         .addObject("termsAndConditionsFormUrl", ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderTermsAndConditionsVariationForm(null, user)))
+        .addObject("clearFilterUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
+            .renderTermsAndConditionsManagement(new TermsAndConditionsFilterForm(), null, null)))
         .addObject("form", form);
   }
 
@@ -58,7 +55,7 @@ public class TermsAndConditionsManagementController {
     paramMap.setAll(FormObjectMapper.toMap(form));
 
     return ReverseRouter.redirectWithQueryParamMap(on(TermsAndConditionsManagementController.class)
-       .renderTermsAndConditionsManagement(form, null, null, null), paramMap);
+       .renderTermsAndConditionsManagement(form, null, null), paramMap);
   }
 
   private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {

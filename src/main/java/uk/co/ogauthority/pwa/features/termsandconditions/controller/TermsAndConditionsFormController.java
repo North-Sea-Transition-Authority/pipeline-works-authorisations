@@ -56,14 +56,14 @@ public class TermsAndConditionsFormController {
               "Added new record for terms and conditions"
           );
           return ReverseRouter.redirect(on(TermsAndConditionsManagementController.class)
-              .renderTermsAndConditionsManagement(null, null, null, null));
+              .renderTermsAndConditionsManagement(null, null, null));
         });
   }
 
   private ModelAndView getTermsAndConditionsVariationModelAndView() {
     return new ModelAndView("termsandconditions/termsAndConditionsForm")
         .addObject("cancelUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-            .renderTermsAndConditionsManagement(null, null, null, null)))
+            .renderTermsAndConditionsManagement(null, null, null)))
         .addObject("pwaSelectorOptions", termsAndConditionsService.getPwasForSelector());
   }
 

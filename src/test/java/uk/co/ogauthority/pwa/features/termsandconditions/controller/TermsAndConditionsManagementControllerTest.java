@@ -62,7 +62,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
         .thenReturn(new PageView<>(0, 1, List.of(), null, 2, 10));
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-            .renderTermsAndConditionsManagement(null, null, null, userAccount)))
+            .renderTermsAndConditionsManagement(null, null, userAccount)))
             .with(authenticatedUserAndSession(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
@@ -76,7 +76,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   @Test
   public void renderTermsAndConditionsVariationForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-            .renderTermsAndConditionsManagement(null, null, null, userAccount)))
+            .renderTermsAndConditionsManagement(null, null, userAccount)))
             .with(authenticatedUserAndSession(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }

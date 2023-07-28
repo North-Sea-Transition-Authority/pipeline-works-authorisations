@@ -71,7 +71,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
         .getModel();
 
     assertThat(mvc.get("cancelUrl")).isEqualTo(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-        .renderTermsAndConditionsManagement(null, null, null, userAccount)));
+        .renderTermsAndConditionsManagement(null, null, userAccount)));
     assertThat(mvc.get("pwaSelectorOptions")).isEqualTo(availablePwas);
   }
 

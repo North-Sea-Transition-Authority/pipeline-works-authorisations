@@ -6,7 +6,7 @@
 
     <@fdsSearch.searchPage>
         <@fdsSearch.searchFilter>
-            <@fdsSearch.searchFilterList filterButtonClass="govuk-button govuk-button--secondary">
+            <@fdsSearch.searchFilterList filterButtonClass="govuk-button govuk-button--secondary" clearFilterUrl=springUrl(clearFilterUrl)>
                 <@fdsSearch.searchFilterItem itemName="PWA reference">
                     <@fdsSearch.searchTextInput path="form.pwaReference" labelText="PWA reference" labelClass="govuk-visually-hidden"/>
                 </@fdsSearch.searchFilterItem>
