@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.termsandconditions.service;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
@@ -12,6 +13,7 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -40,6 +42,10 @@ public class TermsAndConditionsService {
   public BindingResult validateForm(TermsAndConditionsForm form, BindingResult bindingResult) {
     termsAndConditionsValidator.validate(form, bindingResult);
     return bindingResult;
+  }
+
+  public Optional<PwaTermsAndConditions> findByMasterPwa(MasterPwa masterPwa) {
+    return termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa);
   }
 
   public Map<String, String> getPwasForSelector() {
