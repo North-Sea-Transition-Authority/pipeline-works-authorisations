@@ -89,8 +89,8 @@ public class TermsAndConditionsServiceTest {
           .setPwaId(1)
           .setVariationTerm(7)
           .setHuooTermOne(3)
-          .setHuooTermTwo(9)
-          .setHuooTermThree(6)
+          .setHuooTermTwo(6)
+          .setHuooTermThree(9)
           .setDepconParagraph(2)
           .setDepconSchedule(8);
 
