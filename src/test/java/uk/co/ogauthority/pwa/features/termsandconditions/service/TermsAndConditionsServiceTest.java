@@ -70,8 +70,6 @@ public class TermsAndConditionsServiceTest {
 
   @Test
   public void saveForm() {
-    //when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
-
     var instant = Instant.parse("2023-06-30T15:43:00Z");
     try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
       mockedStatic.when(Instant::now).thenReturn(instant);
@@ -118,8 +116,6 @@ public class TermsAndConditionsServiceTest {
 
   @Test
   public void getPwaManagementScreenPageView() {
-    //when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(detail);
-
     var terms = new PwaTermsAndConditions()
         .setMasterPwa(masterPwa)
         .setVariationTerm(7)
