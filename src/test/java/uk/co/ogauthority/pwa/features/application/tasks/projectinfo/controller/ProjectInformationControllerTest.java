@@ -42,7 +42,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicenceService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -67,7 +69,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   private PadProjectExtensionService projectExtensionService;
 
   @MockBean
-  private PearsLicenceService pearsLicenceService;
+  private PearsLicenceApplicationService pearsLicenceApplicationService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -156,6 +158,29 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
       }
     }
+  }
+
+  @Test
+  public void renderProjectInformation_authenticatedUser_licenceApplicationsSmokeTest() throws Exception {
+    var form = new ProjectInformationForm();
+    form.setLicenceList(new String[]{"5555"});
+
+    var licenceApplication = new PearsLicenceApplications(APP_ID, "TEST/REFERENCE");
+    when(pearsLicenceApplicationService.getLicencesByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
+
+    pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    var result = mockMvc.perform(
+        get(ReverseRouter.route(
+            on(ProjectInformationController.class).renderProjectInformation(PwaApplicationType.CAT_1_VARIATION, APP_ID, null, form)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .param("licenceList", "5555"));
+      result
+          .andExpect(status().isOk())
+          .andExpect(model().attribute("selectedLicenceApplications", List.of(licenceApplication)))
+          .andExpect(model().attribute("licenseApplicationList", ReverseRouter.route(on(
+              PearsLicenceApplicationsRestController.class).getApplications(null))));
+
   }
 
   @Test

@@ -56,6 +56,9 @@ public class PadProjectInformationServiceTest {
   private PadFileService padFileService;
 
   @Mock
+  private PadLicenceApplicationService padLicenceApplicationService;
+
+  @Mock
   private EntityCopyingService entityCopyingService;
 
   @Mock
@@ -76,7 +79,8 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         padFileService,
-        padLicensesService, entityCopyingService,
+        padLicenceApplicationService,
+        entityCopyingService,
         masterPwaService);
 
     date = LocalDate.now();
@@ -121,6 +125,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+    verify(padLicenceApplicationService).saveLicencesToApplication(padProjectInformation, form);
 
   }
 
@@ -138,6 +143,10 @@ public class PadProjectInformationServiceTest {
         ApplicationDetailFilePurpose.PROJECT_INFORMATION
     );
 
+    verify(padLicenceApplicationService).mapLicencesToForm(
+        form,
+        padProjectInformation
+    );
   }
 
   @Test

@@ -787,9 +787,15 @@ public class ProjectInformationValidatorTest {
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
-            Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_DATE, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
+            Set.of(
+                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+                ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));
 
     assertThat(errorsMap).contains(
+        entry("licenceReferenceSelector", Set.of("licenceReferenceSelector.required")),
+
         entry("commercialAgreementDay", Set.of("commercialAgreementDay.required")),
         entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.required")),
         entry("commercialAgreementYear", Set.of("commercialAgreementYear.required")),
@@ -881,6 +887,18 @@ public class ProjectInformationValidatorTest {
 
   }
 
+  @Test
+  public void validate_licenceTransferPlanned_validTransferReference() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setLicenceList(new String[]{"5555"});
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));
+
+    assertThat(errorsMap).doesNotContainKey("licenceReferenceSelector");
+  }
 
   public Map<String, Set<String>> getErrorMap(ProjectInformationForm form,
                                               ProjectInformationFormValidationHints projectInformationFormValidationHints) {
