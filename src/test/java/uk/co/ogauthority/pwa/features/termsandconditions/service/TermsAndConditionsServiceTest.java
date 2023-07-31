@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.termsandconditions.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -15,15 +16,20 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
+import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsManagementViewItem;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsPwaView;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsPwaViewRepository;
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
+import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -45,7 +51,7 @@ public class TermsAndConditionsServiceTest {
 
   private MasterPwa masterPwa;
 
-
+  private MasterPwaDetail detail;
 
   @Before
   public void setup() {
@@ -55,7 +61,11 @@ public class TermsAndConditionsServiceTest {
         masterPwaService,
         termsAndConditionsPwaViewRepository
     );
-        masterPwa = MasterPwaTestUtil.create(1);
+
+    masterPwa = MasterPwaTestUtil.create(1);
+    detail = new MasterPwaDetail();
+    detail.setMasterPwa(masterPwa);
+    detail.setReference("1/W/23");
   }
 
   @Test
@@ -102,6 +112,33 @@ public class TermsAndConditionsServiceTest {
     when(termsAndConditionsPwaViewRepository.findAll()).thenReturn(
         List.of(new TermsAndConditionsPwaView(1, "1/W/23")));
     assertThat(termsAndConditionsService.getPwasForSelector()).containsExactly(entry("1","1/W/23"));
+  }
+
+  @Test
+  public void getPwaManagementScreenPageView() {
+    var terms = new PwaTermsAndConditions()
+        .setMasterPwa(masterPwa)
+        .setVariationTerm(7)
+        .setHuooTerms("3, 6 & 9")
+        .setDepconSchedule(2)
+        .setDepconParagraph(8)
+        .setCreatedTimestamp(Instant.now());
+
+    Page<PwaTermsAndConditions> page = new PageImpl<>(List.of(terms));
+
+    var expectedPageView = new PageView<>(
+        0,
+        1,
+        List.of(new TermsAndConditionsManagementViewItem(terms, "1/W/23")),
+        null,
+        1,
+        0);
+
+    when(masterPwaService.searchConsentedDetailsByReference("1/W/23")).thenReturn(List.of(detail));
+    when(termsAndConditionsRepository.findAllByMasterPwaIn(any(), any())).thenReturn(page);
+
+    assertThat(termsAndConditionsService.getPwaManagementScreenPageView(0, "1/W/23"))
+        .usingRecursiveComparison().ignoringFields("pageUriFunction").isEqualTo(expectedPageView);
   }
 
   @Test
