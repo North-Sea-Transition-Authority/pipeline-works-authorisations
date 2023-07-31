@@ -133,7 +133,7 @@ public class TermsAndConditionsServiceTest {
     var expectedPageView = new PageView<>(
         0,
         1,
-        List.of(new TermsAndConditionsManagementViewItem(terms, "1/W/23")),
+        List.of(new TermsAndConditionsManagementViewItem(terms, "1/W/23", "3, 6 & 9")),
         null,
         1,
         0);

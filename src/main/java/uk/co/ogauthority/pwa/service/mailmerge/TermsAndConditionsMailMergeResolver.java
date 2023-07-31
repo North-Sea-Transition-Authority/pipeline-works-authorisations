@@ -4,14 +4,12 @@ import static uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldM
 import static uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem.HUOO_TERMS;
 import static uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem.VARIATION_TERM;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
-import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
@@ -64,7 +62,7 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
             resolvedFields.put(VARIATION_TERM.name(), String.valueOf(termsAndConditions.get().getVariationTerm()));
             break;
           case HUOO_TERMS:
-            resolvedFields.put(HUOO_TERMS.name(), formatHuooTerms(termsAndConditions.get()));
+            resolvedFields.put(HUOO_TERMS.name(), termsAndConditionsService.formatHuooTerms(termsAndConditions.get()));
             break;
           case DEPCON_TERMS:
             resolvedFields.put(DEPCON_TERMS.name(),
@@ -104,11 +102,5 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
       }
     }
     return resolvedFields;
-  }
-
-  private String formatHuooTerms(PwaTermsAndConditions terms) {
-    Integer[] huooTerms = {terms.getHuooTermOne(), terms.getHuooTermTwo(), terms.getHuooTermThree()};
-    Arrays.sort(huooTerms);
-    return String.format("%s, %s & %s", huooTerms[0], huooTerms[1], huooTerms[2]);
   }
 }

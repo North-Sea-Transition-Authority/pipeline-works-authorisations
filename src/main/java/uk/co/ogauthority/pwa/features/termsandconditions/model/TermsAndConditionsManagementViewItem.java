@@ -16,12 +16,12 @@ public class TermsAndConditionsManagementViewItem {
   private final int depconParagraph;
   private final int depconSchedule;
 
-  public TermsAndConditionsManagementViewItem(PwaTermsAndConditions pwaTermsAndConditions, String pwaReference) {
+  public TermsAndConditionsManagementViewItem(PwaTermsAndConditions pwaTermsAndConditions, String pwaReference, String huooTerms) {
     this.pwaReference = pwaReference;
     this.viewPwaUrl = ReverseRouter.route(on(PwaViewController.class) // TODO: PWA2020-80: change route to edit page
         .renderViewPwa(pwaTermsAndConditions.getMasterPwa().getId(), PwaViewTab.PIPELINES, null, null, null));
     this.variationTerm = pwaTermsAndConditions.getVariationTerm();
-    this.huooTerms =  formatHuooTerms(pwaTermsAndConditions);
+    this.huooTerms = huooTerms;
     this.depconParagraph = pwaTermsAndConditions.getDepconParagraph();
     this.depconSchedule = pwaTermsAndConditions.getDepconSchedule();
   }

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.termsandconditions.service;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -79,9 +80,16 @@ public class TermsAndConditionsService {
         route,
         pwaTermsAndConditions -> new TermsAndConditionsManagementViewItem(
             pwaTermsAndConditions,
-            pwaPageViewMap.get(pwaTermsAndConditions.getMasterPwa())
+            pwaPageViewMap.get(pwaTermsAndConditions.getMasterPwa()),
+            formatHuooTerms(pwaTermsAndConditions)
         )
     );
+  }
+
+  public String formatHuooTerms(PwaTermsAndConditions terms) {
+    Integer[] huooTerms = {terms.getHuooTermOne(), terms.getHuooTermTwo(), terms.getHuooTermThree()};
+    Arrays.sort(huooTerms);
+    return String.format("%s, %s & %s", huooTerms[0], huooTerms[1], huooTerms[2]);
   }
 
   private Pageable getTermsAndConditionsRequest(int pageNumber) {
