@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 
 @Entity(name = "PAD_PROJECT_INFORMATION_LICENCE")
 public class PadProjectInformationLicenseReferences {
@@ -23,7 +23,7 @@ public class PadProjectInformationLicenseReferences {
 
   @ManyToOne
   @JoinColumn(name = "PEARS_LICENSE_NUMBER")
-  private PearsLicence pearsLicence;
+  private PearsLicenceApplications pearsLicence;
 
   @CreationTimestamp
   private Instant createdTimestamp;
@@ -40,7 +40,7 @@ public class PadProjectInformationLicenseReferences {
   }
 
   public PadProjectInformationLicenseReferences(PadProjectInformation padProjectInformation,
-                                                PearsLicence pearsLicence) {
+                                                PearsLicenceApplications pearsLicence) {
     this.padProjectInformation = padProjectInformation;
     this.pearsLicence = pearsLicence;
   }
@@ -54,12 +54,12 @@ public class PadProjectInformationLicenseReferences {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PearsLicence getPearsLicence() {
+  public PearsLicenceApplications getPearsLicence() {
     return pearsLicence;
   }
 
   public void setPearsLicence(
-      PearsLicence pearsLicence) {
+      PearsLicenceApplications pearsLicence) {
     this.pearsLicence = pearsLicence;
   }
 

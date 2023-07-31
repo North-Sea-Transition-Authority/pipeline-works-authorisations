@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PadProjectInformationLicenseReferencesRepository  extends CrudRepository<PadProjectInformationLicenseReferences, Integer> {
-  public List<PadProjectInformationLicenseReferences> findAllByPadProjectInformation(PadProjectInformation padProjectInformation);
+  List<PadProjectInformationLicenseReferences> findAllByPadProjectInformation(PadProjectInformation padProjectInformation);
+
+  void deleteAllByPadProjectInformation(PadProjectInformation projectInformation);
 
 }

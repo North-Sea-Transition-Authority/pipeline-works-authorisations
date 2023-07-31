@@ -1,19 +1,21 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicenceService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 
 @Service
 public class PadLicensesService {
 
   private final PadProjectInformationLicenseReferencesRepository padLicenseRepository;
 
-  private final PearsLicenceService pearsLicenceService;
+  private final PearsLicenceApplicationService pearsLicenceService;
 
   public PadLicensesService(PadProjectInformationLicenseReferencesRepository padLicenseRepository,
-                            PearsLicenceService pearsLicenceService) {
+                            PearsLicenceApplicationService pearsLicenceService) {
     this.padLicenseRepository = padLicenseRepository;
     this.pearsLicenceService = pearsLicenceService;
   }
@@ -21,21 +23,30 @@ public class PadLicensesService {
   @Transactional
   public void saveLicensesToApplication(PadProjectInformation padProjectInformation,
                                         ProjectInformationForm form) {
-    var licenses = form.getLicenceList();
-    for (var license : licenses) {
-      padLicenseRepository.save(new PadProjectInformationLicenseReferences(
-          padProjectInformation,
-          pearsLicenceService.getByMasterId(Integer.valueOf(license))));
+
+    padLicenseRepository.deleteAllByPadProjectInformation(padProjectInformation);
+    if (form.getLicenceTransferPlanned()) {
+      var ids = Arrays.stream(form.getLicenceList())
+          .map(Integer::valueOf)
+          .collect(Collectors.toList());
+      var applications = pearsLicenceService.getLicencesByIds(ids);
+      for (var application : applications) {
+        padLicenseRepository.save(new PadProjectInformationLicenseReferences(
+            padProjectInformation,
+            application));
+      }
     }
   }
 
   public void mapLicensesToForm(ProjectInformationForm form, PadProjectInformation projectInformation) {
-    var licenses = padLicenseRepository.findAllByPadProjectInformation(projectInformation)
-        .stream()
-        .map(PadProjectInformationLicenseReferences::getPearsLicence)
-        .map(PearsLicence::getMasterId)
-        .map(String::valueOf)
-        .toArray(String[]::new);
-    form.setLicenceList(licenses);
+    if (projectInformation.getId() != null) {
+      var licenses = padLicenseRepository.findAllByPadProjectInformation(projectInformation)
+          .stream()
+          .map(PadProjectInformationLicenseReferences::getPearsLicence)
+          .map(PearsLicenceApplications::getApplicationId)
+          .map(String::valueOf)
+          .toArray(String[]::new);
+      form.setLicenceList(licenses);
+    }
   }
 }
