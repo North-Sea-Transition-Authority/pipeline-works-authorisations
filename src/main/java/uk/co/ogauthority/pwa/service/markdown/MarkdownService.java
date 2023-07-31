@@ -40,7 +40,6 @@ public class MarkdownService {
         ManualMailMergeExtension.create(mailMergeContainer));
 
     return convertMarkdownWithExtensions(markdown, extensions);
-
   }
 
   private String convertMarkdownWithExtensions(String markdown, List<Extension> extensions) {
