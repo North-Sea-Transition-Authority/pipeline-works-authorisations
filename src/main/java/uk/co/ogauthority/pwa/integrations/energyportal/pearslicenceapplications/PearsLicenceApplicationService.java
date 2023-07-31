@@ -2,17 +2,17 @@ package uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications
 
 import java.util.List;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationLicenseReferencesRepository;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationLicenceApplicationsRepository;
 
 @Service
 public class PearsLicenceApplicationService {
 
   private final PearsLicenceApplicationRepository applicationRepository;
 
-  private final PadProjectInformationLicenseReferencesRepository padLicenseRepository;
+  private final PadProjectInformationLicenceApplicationsRepository padLicenseRepository;
 
   public PearsLicenceApplicationService(PearsLicenceApplicationRepository applicationRepository,
-                                        PadProjectInformationLicenseReferencesRepository padLicenseRepository) {
+                                        PadProjectInformationLicenceApplicationsRepository padLicenseRepository) {
     this.applicationRepository = applicationRepository;
     this.padLicenseRepository = padLicenseRepository;
   }

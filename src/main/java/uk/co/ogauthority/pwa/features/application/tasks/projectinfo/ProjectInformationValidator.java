@@ -95,14 +95,6 @@ public class ProjectInformationValidator implements SmartValidator {
           errors);
     }
 
-    if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
-      if (Objects.isNull(form.getLicenceList())) {
-        errors.rejectValue("licenceReferenceSelector",
-            "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Specify at least one licence due to be transferred");
-      }
-    }
-
     if (requiredQuestions.contains(ProjectInformationQuestion.LATEST_COMPLETION_DATE) && validationType != ValidationType.FULL) {
       ValidatorUtils.validateDateWhenPresent(
           "latestCompletion", "Latest completion",
@@ -197,8 +189,7 @@ public class ProjectInformationValidator implements SmartValidator {
 
       if (dateNotInPast && proposedStartDateValid) {
 
-        var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(),
-            form.getProposedStartDay());
+        var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(), form.getProposedStartDay());
 
         ValidatorUtils.validateDateIsOnOrBeforeComparisonDate(
             "mobilisation",
@@ -225,8 +216,7 @@ public class ProjectInformationValidator implements SmartValidator {
 
       if (earliestCompletionDateValid && proposedStartDateValid) {
 
-        var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(),
-            form.getProposedStartDay());
+        var proposedStartDate = LocalDate.of(form.getProposedStartYear(), form.getProposedStartMonth(), form.getProposedStartDay());
 
         ValidatorUtils.validateDateIsOnOrAfterComparisonDate(
             "earliestCompletion",
@@ -292,8 +282,7 @@ public class ProjectInformationValidator implements SmartValidator {
               proposedStartDate
                   .plusMonths(maxCompletionPeriod.getMaxMonthsCompletion())
                   .minusDays(1),
-              String.format("more than %s months after proposed start date",
-                  maxCompletionPeriod.getMaxMonthsCompletion()),
+              String.format("more than %s months after proposed start date", maxCompletionPeriod.getMaxMonthsCompletion()),
               errors
           );
         }
@@ -303,13 +292,13 @@ public class ProjectInformationValidator implements SmartValidator {
 
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
+      var transferPlanned = BooleanUtils.isTrue(form.getLicenceTransferPlanned());
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "licenceTransferPlanned",
           "licenceTransferPlanned" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select yes if a licence transfer is planned");
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_DATE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_DATE) && transferPlanned) {
         ValidatorUtils.validateDate(
             "licenceTransfer", "licence transfer",
             form.getLicenceTransferDay(),
@@ -319,8 +308,7 @@ public class ProjectInformationValidator implements SmartValidator {
         );
       }
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (requiredQuestions.contains(ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE) && transferPlanned) {
         ValidatorUtils.validateDate(
             "commercialAgreement", "commercial agreement",
             form.getCommercialAgreementDay(),
@@ -330,8 +318,7 @@ public class ProjectInformationValidator implements SmartValidator {
         );
       }
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && transferPlanned) {
         if (Objects.isNull(form.getLicenceList())
             || form.getLicenceList().length == 0
             || Arrays.stream(form.getLicenceList()).anyMatch(Objects::isNull)) {
@@ -340,67 +327,69 @@ public class ProjectInformationValidator implements SmartValidator {
               "Specify at least one licence due to be transferred");
         }
       }
+    }
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.USING_CAMPAIGN_APPROACH)) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "usingCampaignApproach",
-            "usingCampaignApproach" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Select yes if using a campaign approach");
-      }
+    if (requiredQuestions.contains(ProjectInformationQuestion.USING_CAMPAIGN_APPROACH)) {
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "usingCampaignApproach",
+          "usingCampaignApproach" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select yes if using a campaign approach");
+    }
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)) {
-        if (form.getPermanentDepositsMadeType() == null) {
-          errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
-              "Select yes if permanent deposits are being made");
-        } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositMade.LATER_APP)) {
-          List<Object> toDateHints = new ArrayList<>();
-          toDateHints.add(new FormInputLabel("Submission date"));
-          toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
-          ValidatorUtils.invokeNestedValidator(
-              errors,
-              twoFieldDateInputValidator,
-              "futureSubmissionDate",
-              form.getFutureSubmissionDate(),
-              toDateHints.toArray());
-        }
-      }
-
-      if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
-
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepositsMade",
-            "temporaryDepositsMade" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Select yes if temporary deposits are being made");
-
-        if (BooleanUtils.isTrue(form.getTemporaryDepositsMade())) {
-          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepDescription",
-              "temporaryDepDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Enter why temporary deposits are being made");
-        }
-      }
-
-
-      if (requiredQuestions.contains(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN)
-          && projectInfoValidationHints.isFdpQuestionRequired()) {
-        if (form.getFdpOptionSelected() == null) {
-          errors.rejectValue("fdpOptionSelected", "fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Select yes if you have an approved field development plan");
-        } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationFlag(),
-            false)) {
-          errors.rejectValue("fdpConfirmationFlag",
-              "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Confirm the proposed works outlined in this application are consistent with the field development plan");
-        } else if (!form.getFdpOptionSelected()) {
-          ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason",
-              "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Enter a reason for not having an FDP for the fields");
-        }
-
-      }
-
-      if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-        FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class),
-            "Upload a project layout diagram");
-        FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
+    if (requiredQuestions.contains(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE)) {
+      if (form.getPermanentDepositsMadeType() == null) {
+        errors.rejectValue("permanentDepositsMadeType", "permanentDepositsMadeType.notSelected",
+            "Select yes if permanent deposits are being made");
+      } else if (form.getPermanentDepositsMadeType().equals(PermanentDepositMade.LATER_APP)) {
+        List<Object> toDateHints = new ArrayList<>();
+        toDateHints.add(new FormInputLabel("Submission date"));
+        toDateHints.add(new OnOrAfterDateHint(LocalDate.now(), "current date"));
+        ValidatorUtils.invokeNestedValidator(
+            errors,
+            twoFieldDateInputValidator,
+            "futureSubmissionDate",
+            form.getFutureSubmissionDate(),
+            toDateHints.toArray());
       }
     }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)) {
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepositsMade",
+          "temporaryDepositsMade" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Select yes if temporary deposits are being made");
+
+      if (BooleanUtils.isTrue(form.getTemporaryDepositsMade())) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "temporaryDepDescription",
+            "temporaryDepDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter why temporary deposits are being made");
+      }
+    }
+
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN)
+        && projectInfoValidationHints.isFdpQuestionRequired()) {
+      if (form.getFdpOptionSelected() == null) {
+        errors.rejectValue("fdpOptionSelected", "fdpOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Select yes if you have an approved field development plan");
+      } else if (form.getFdpOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getFdpConfirmationFlag(),
+          false)) {
+        errors.rejectValue("fdpConfirmationFlag",
+            "fdpConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Confirm the proposed works outlined in this application are consistent with the field development plan");
+      } else if (!form.getFdpOptionSelected()) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "fdpNotSelectedReason",
+            "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a reason for not having an FDP for the fields");
+      }
+
+    }
+
+    if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
+      FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "Upload a project layout diagram");
+      FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
+    }
+
   }
+
+
 }

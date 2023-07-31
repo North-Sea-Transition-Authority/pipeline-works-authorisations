@@ -68,7 +68,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final ControllerHelperService controllerHelperService;
   private final PadProjectExtensionService projectExtensionService;
 
-  private final PearsLicenceApplicationService pearsLicenceService;
+  private final PearsLicenceApplicationService pearsLicenceApplicationService;
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
@@ -78,14 +78,14 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
                                       PadFileService padFileService,
                                       ControllerHelperService controllerHelperService,
                                       PadProjectExtensionService projectExtensionService,
-                                      PearsLicenceApplicationService pearsLicenceService) {
+                                      PearsLicenceApplicationService pearsLicenceApplicationService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.controllerHelperService = controllerHelperService;
     this.projectExtensionService = projectExtensionService;
-    this.pearsLicenceService = pearsLicenceService;
+    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
   }
 
   @GetMapping
@@ -145,7 +145,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
 
     List<PearsLicenceApplications> licenceApplications = new ArrayList<>();
     if (form.getLicenceList() != null) {
-      licenceApplications = pearsLicenceService.getLicencesByIds(
+      licenceApplications = pearsLicenceApplicationService.getLicencesByIds(
           Arrays.stream(form.getLicenceList())
               .map(Integer::valueOf)
               .collect(Collectors.toList()));
@@ -158,8 +158,8 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         .addObject("isPipelineDeploymentQuestionOptional",
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))
-        .addObject("licenseReferences", licenceApplications)
-        .addObject("licenseReferenceList",
+        .addObject("selectedLicenceApplications", licenceApplications)
+        .addObject("licenseApplicationList",
             ReverseRouter.route(on(PearsLicenceApplicationsRestController.class).getApplications(null)));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,

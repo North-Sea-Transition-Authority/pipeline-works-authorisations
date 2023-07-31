@@ -11,7 +11,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 
 @Entity(name = "PAD_PROJECT_INFORMATION_LICENCE")
-public class PadProjectInformationLicenseReferences {
+public class PadProjectInformationLicenceApplications {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class PadProjectInformationLicenseReferences {
 
   @ManyToOne
   @JoinColumn(name = "PEARS_LICENSE_NUMBER")
-  private PearsLicenceApplications pearsLicence;
+  private PearsLicenceApplications pearsLicenceApplications;
 
   @CreationTimestamp
   private Instant createdTimestamp;
@@ -36,13 +36,13 @@ public class PadProjectInformationLicenseReferences {
     this.id = id;
   }
 
-  public PadProjectInformationLicenseReferences() {
+  public PadProjectInformationLicenceApplications() {
   }
 
-  public PadProjectInformationLicenseReferences(PadProjectInformation padProjectInformation,
-                                                PearsLicenceApplications pearsLicence) {
+  public PadProjectInformationLicenceApplications(PadProjectInformation padProjectInformation,
+                                                  PearsLicenceApplications pearsLicenceApplications) {
     this.padProjectInformation = padProjectInformation;
-    this.pearsLicence = pearsLicence;
+    this.pearsLicenceApplications = pearsLicenceApplications;
   }
 
   public PadProjectInformation getPadProjectInformation() {
@@ -54,13 +54,13 @@ public class PadProjectInformationLicenseReferences {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PearsLicenceApplications getPearsLicence() {
-    return pearsLicence;
+  public PearsLicenceApplications getPearsLicenceApplications() {
+    return pearsLicenceApplications;
   }
 
-  public void setPearsLicence(
-      PearsLicenceApplications pearsLicence) {
-    this.pearsLicence = pearsLicence;
+  public void setPearsLicenceApplications(
+      PearsLicenceApplications pearsLicenceApplications) {
+    this.pearsLicenceApplications = pearsLicenceApplications;
   }
 
   public Instant getCreatedTimestamp() {
