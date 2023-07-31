@@ -8,14 +8,14 @@ import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 
 @Service
-public class PadLicensesService {
+public class PadLicenseApplicationService {
 
   private final PadProjectInformationLicenseReferencesRepository padLicenseRepository;
 
   private final PearsLicenceApplicationService pearsLicenceService;
 
-  public PadLicensesService(PadProjectInformationLicenseReferencesRepository padLicenseRepository,
-                            PearsLicenceApplicationService pearsLicenceService) {
+  public PadLicenseApplicationService(PadProjectInformationLicenseReferencesRepository padLicenseRepository,
+                                      PearsLicenceApplicationService pearsLicenceService) {
     this.padLicenseRepository = padLicenseRepository;
     this.pearsLicenceService = pearsLicenceService;
   }
