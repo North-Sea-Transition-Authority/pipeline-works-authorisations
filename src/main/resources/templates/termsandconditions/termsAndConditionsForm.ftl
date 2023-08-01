@@ -2,19 +2,21 @@
 
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Submit terms and conditions for a PWA" pageHeading="Submit terms and conditions for a PWA" pageHeadingClass="govuk-heading-l" fullWidthColumn=false wrapperWidth=true>
+<@defaultPage htmlTitle=pageTitle pageHeading=pageTitle pageHeadingClass="govuk-heading-l" fullWidthColumn=false wrapperWidth=true>
 
     <#if errorList?has_content>
         <@fdsError.errorSummary errorItems=errorList/>
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsSearchSelector.searchSelectorEnhanced
-        path="form.pwaId"
-        labelText="PWA reference"
-        options=pwaSelectorOptions
-        inputWidth="25"
-        />
+        <#if !existingRecord>
+            <@fdsSearchSelector.searchSelectorEnhanced
+            path="form.pwaId"
+            labelText="PWA reference"
+            options=pwaSelectorOptions
+            inputWidth="25"
+            />
+        </#if>
 
         <@fdsTextInput.textInput path="form.variationTerm" labelText="Variation term" inputClass="govuk-input--width-2" />
 
