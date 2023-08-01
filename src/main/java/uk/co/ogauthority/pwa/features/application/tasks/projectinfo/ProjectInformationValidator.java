@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
@@ -26,8 +28,12 @@ public class ProjectInformationValidator implements SmartValidator {
 
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
 
-  public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator) {
+  private final PearsLicenceApplicationService pearsLicenceApplicationService;
+
+  public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator,
+                                     PearsLicenceApplicationService pearsLicenceApplicationService) {
     this.twoFieldDateInputValidator = twoFieldDateInputValidator;
+    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
   }
 
   @Override
@@ -325,6 +331,15 @@ public class ProjectInformationValidator implements SmartValidator {
           errors.rejectValue("licenceReferenceSelector",
               "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Select at least one application relating to the licence transfer");
+        }
+
+        var applicationIds = Arrays.stream(form.getPearsApplicationList())
+            .map(Integer::valueOf)
+            .collect(Collectors.toList());
+        if (pearsLicenceApplicationService.getApplicationByIds(applicationIds).size() != applicationIds.size()) {
+          errors.rejectValue("licenceReferenceSelector",
+              "licenceReferenceSelector" + FieldValidationErrorCodes.INVALID.getCode(),
+              "Licence Transfer Application Reference is invalid");
         }
       }
     }

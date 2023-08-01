@@ -21,6 +21,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -35,9 +36,11 @@ public class ProjectInformationValidatorTest {
 
   private Set<ProjectInformationQuestion> partialDateValidationQuestions;
 
+  private PearsLicenceApplicationService pearsLicenceApplicationService;
+
   @Before
   public void setUp() {
-    validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
+    validator = new ProjectInformationValidator(new TwoFieldDateInputValidator(), pearsLicenceApplicationService);
 
     partialDateValidationQuestions = Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
         ProjectInformationQuestion.MOBILISATION_DATE,
