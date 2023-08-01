@@ -58,7 +58,8 @@ public class TermsAndConditionsService {
   public TermsAndConditionsForm getTermsAndConditionsForm(Integer masterPwaId) {
     var masterPwa = masterPwaService.getMasterPwaById(masterPwaId);
 
-    return findByMasterPwa(masterPwa).map(this::convertEntityToForm).orElse(new TermsAndConditionsForm());
+    return findByMasterPwa(masterPwa).map(this::convertEntityToForm)
+        .orElse(new TermsAndConditionsForm());
   }
 
   public Optional<PwaTermsAndConditions> findByMasterPwa(MasterPwa masterPwa) {
