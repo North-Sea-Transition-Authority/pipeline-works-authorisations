@@ -2,10 +2,12 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service
 public class PadLicenceApplicationService {
@@ -14,10 +16,18 @@ public class PadLicenceApplicationService {
 
   private final PearsLicenceApplicationService pearsLicenceApplicationService;
 
+  private final PadProjectInformationService projectInformationService;
+
+  private final EntityManager entityManager;
+
   public PadLicenceApplicationService(PadProjectInformationLicenceApplicationsRepository padLicenceApplicationRepository,
-                                      PearsLicenceApplicationService pearsLicenceApplicationService) {
+                                      PearsLicenceApplicationService pearsLicenceApplicationService,
+                                      PadProjectInformationService projectInformationService,
+                                      EntityManager entityManager) {
     this.padLicenceApplicationRepository = padLicenceApplicationRepository;
     this.pearsLicenceApplicationService = pearsLicenceApplicationService;
+    this.projectInformationService = projectInformationService;
+    this.entityManager = entityManager;
   }
 
   @Transactional
@@ -48,4 +58,18 @@ public class PadLicenceApplicationService {
           .toArray(String[]::new));
     }
   }
+
+  public void copyApplicationsToPad(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
+    var fromProjectInformation = projectInformationService.getPadProjectInformationData(fromDetail);
+    var toProjectInformation = projectInformationService.getPadProjectInformationData(toDetail);
+
+    var oldReferences = padLicenceApplicationRepository.findAllByPadProjectInformation(fromProjectInformation);
+    for (var reference : oldReferences) {
+      entityManager.detach(reference);
+      reference.setId(null);
+      reference.setPadProjectInformation(toProjectInformation);
+      entityManager.persist(reference);
+    }
+  }
+
 }

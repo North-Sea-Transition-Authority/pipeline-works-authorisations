@@ -268,6 +268,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         ApplicationFileLinkStatus.FULL
     );
 
+    padLicenceApplicationService.copyApplicationsToPad(
+        fromDetail,
+        toDetail);
   }
 
   public Optional<PermanentDepositMade> getPermanentDepositsMadeAnswer(PwaApplicationDetail pwaApplicationDetail) {
