@@ -79,8 +79,7 @@ public class TermsAndConditionsService {
         route,
         pwaTermsAndConditions -> new TermsAndConditionsManagementViewItem(
             pwaTermsAndConditions,
-            pwaPageViewMap.get(pwaTermsAndConditions.getMasterPwa()),
-            pwaTermsAndConditions.getHuooString()
+            pwaPageViewMap.get(pwaTermsAndConditions.getMasterPwa())
         )
     );
   }
