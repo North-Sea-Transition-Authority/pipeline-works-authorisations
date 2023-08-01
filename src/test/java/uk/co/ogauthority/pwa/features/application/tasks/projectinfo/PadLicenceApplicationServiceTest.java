@@ -16,13 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
-import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadLicenceApplicationServiceTest {
 
   @Mock
-  private PadProjectInformationLicenceApplicationsRepository repository;
+  private PadProjectInformationLicenceApplicationRepository repository;
 
   @Mock
   private PearsLicenceApplicationService applicationService;
@@ -40,8 +39,8 @@ public class PadLicenceApplicationServiceTest {
 
   @Before
   public void setUp() {
-    service = new PadLicenceApplicationService(repository, applicationService, projectInformationService, entityManager);
-    when(applicationService.getApplicationByIds(any())).thenReturn(List.of(generateApplication()));
+    service = new PadLicenceApplicationService(repository, applicationService, entityManager);
+    when(applicationService.getApplicationsByIds(any())).thenReturn(List.of(generateApplication()));
   }
 
   @Test
@@ -51,9 +50,9 @@ public class PadLicenceApplicationServiceTest {
     form.setPearsApplicationList(new String[]{"555", "666"});
 
     var projectInformation = new PadProjectInformation();
-    service.saveApplicationToPad(projectInformation, form);
+    service.saveApplicationsToPad(projectInformation, form);
 
-    verify(applicationService).getApplicationByIds(List.of(555, 666));
+    verify(applicationService).getApplicationsByIds(List.of(555, 666));
     verify(repository).save(any(PadProjectInformationLicenceApplication.class));
   }
 
@@ -79,29 +78,21 @@ public class PadLicenceApplicationServiceTest {
     var newProjectInformation = new PadProjectInformation();
     newProjectInformation.setId(321);
 
-    var oldPad = new PwaApplicationDetail();
-    oldPad.setId(1111);
-    var newPad = new PwaApplicationDetail();
-    newPad.setId(210);
-
     var pearsApplication = new PearsLicenceApplication();
 
     var oldApplicationReference = new PadProjectInformationLicenceApplication();
     oldApplicationReference.setId(500);
     oldApplicationReference.setPadProjectInformation(oldProjectInformation);
     oldApplicationReference.setPearsLicenceApplications(pearsApplication);
-
-    when(projectInformationService.getPadProjectInformationData(oldPad)).thenReturn(oldProjectInformation);
-    when(projectInformationService.getPadProjectInformationData(newPad)).thenReturn(newProjectInformation);
     when(repository.findAllByPadProjectInformation(oldProjectInformation)).thenReturn(List.of(oldApplicationReference));
 
-    service.copyApplicationsToPad(oldPad, newPad);
+    service.copyApplicationsToPad(oldProjectInformation, newProjectInformation);
     verify(entityManager).persist(applicationCaptor.capture());
 
     var capturedEntity = applicationCaptor.getValue();
     assertThat(capturedEntity.getId()).isNull();
     assertThat(capturedEntity.getPadProjectInformation()).isEqualTo(newProjectInformation);
-    assertThat(capturedEntity.getPearsLicenceApplications()).isEqualTo(pearsApplication);
+    assertThat(capturedEntity.getPearsLicenceApplication()).isEqualTo(pearsApplication);
   }
 
 

@@ -145,7 +145,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
 
     List<PearsLicenceApplication> licenceApplications = new ArrayList<>();
     if (form.getPearsApplicationList() != null) {
-      licenceApplications = pearsLicenceApplicationService.getApplicationByIds(
+      licenceApplications = pearsLicenceApplicationService.getApplicationsByIds(
           Arrays.stream(form.getPearsApplicationList())
               .map(Integer::valueOf)
               .collect(Collectors.toList()));

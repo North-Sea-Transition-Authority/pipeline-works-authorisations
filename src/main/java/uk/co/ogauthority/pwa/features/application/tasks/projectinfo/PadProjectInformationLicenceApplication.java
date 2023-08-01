@@ -54,7 +54,7 @@ public class PadProjectInformationLicenceApplication {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PearsLicenceApplication getPearsLicenceApplications() {
+  public PearsLicenceApplication getPearsLicenceApplication() {
     return pearsLicenceApplication;
   }
 

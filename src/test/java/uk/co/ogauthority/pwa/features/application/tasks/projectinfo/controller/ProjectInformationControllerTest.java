@@ -166,7 +166,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     form.setPearsApplicationList(new String[]{"5555"});
 
     var licenceApplication = new PearsLicenceApplication(APP_ID, "TEST/REFERENCE");
-    when(pearsLicenceApplicationService.getApplicationByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
+    when(pearsLicenceApplicationService.getApplicationsByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
 
     pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     var result = mockMvc.perform(
@@ -174,11 +174,11 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
             on(ProjectInformationController.class).renderProjectInformation(PwaApplicationType.CAT_1_VARIATION, APP_ID, null, form)))
             .with(authenticatedUserAndSession(user))
             .with(csrf())
-            .param("licenceList", "5555"));
+            .param("pearsApplicationList", "5555"));
       result
           .andExpect(status().isOk())
           .andExpect(model().attribute("selectedLicenceApplications", List.of(licenceApplication)))
-          .andExpect(model().attribute("licenseApplicationList", ReverseRouter.route(on(
+          .andExpect(model().attribute("licenceApplicationListUrl", ReverseRouter.route(on(
               PearsLicenceApplicationsRestController.class).getApplications(null))));
 
   }

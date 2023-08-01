@@ -49,11 +49,11 @@
                     </#if>
                     <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_REFERENCE")>
                         <@fdsAddToList.addToList
-                        pathForList="form.licenceList"
-                        pathForSelector="form.licenceReferenceSelector"
+                        pathForList="form.pearsApplicationList"
+                        pathForSelector="form.pearsApplicationSelector"
                         restUrl=springUrl(licenceApplicationListUrl)
                         alreadyAdded=selectedLicenceApplications
-                        itemName="Licence Application references"
+                        itemName="Licence application references"
                         selectorMinInputLength=3/>
                     </#if>
                 </@fdsRadio.radioYes>

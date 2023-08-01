@@ -1,18 +1,20 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications;
 
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationLicenceApplicationsRepository;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationLicenceApplicationRepository;
 
 @Service
 public class PearsLicenceApplicationService {
 
   private final PearsLicenceApplicationRepository applicationRepository;
 
-  private final PadProjectInformationLicenceApplicationsRepository padLicenseRepository;
+  private final PadProjectInformationLicenceApplicationRepository padLicenseRepository;
 
+  @Autowired
   public PearsLicenceApplicationService(PearsLicenceApplicationRepository applicationRepository,
-                                        PadProjectInformationLicenceApplicationsRepository padLicenseRepository) {
+                                        PadProjectInformationLicenceApplicationRepository padLicenseRepository) {
     this.applicationRepository = applicationRepository;
     this.padLicenseRepository = padLicenseRepository;
   }
@@ -21,7 +23,7 @@ public class PearsLicenceApplicationService {
     return applicationRepository.findAllByApplicationReferenceContainingIgnoreCase(name);
   }
 
-  public List<PearsLicenceApplication> getApplicationByIds(List<Integer> ids) {
+  public List<PearsLicenceApplication> getApplicationsByIds(List<Integer> ids) {
     return applicationRepository.findAllByApplicationIdIn(ids);
   }
 

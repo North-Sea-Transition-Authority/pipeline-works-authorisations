@@ -125,7 +125,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
-    verify(padLicenceApplicationService).saveApplicationToPad(padProjectInformation, form);
+    verify(padLicenceApplicationService).saveApplicationsToPad(padProjectInformation, form);
 
   }
 
@@ -355,6 +355,15 @@ public class PadProjectInformationServiceTest {
   @Test
   public void copySectionInformation_serviceIteractions(){
     var copyToDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1000, 1001);
+    var oldProjectInformation = new PadProjectInformation();
+    oldProjectInformation.setId(2222);
+    var newProjectInformation = new PadProjectInformation();
+    newProjectInformation.setId(321);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(oldProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(copyToDetail)).thenReturn(
+        Optional.of(newProjectInformation));
 
     service.copySectionInformation(pwaApplicationDetail, copyToDetail);
 
@@ -367,6 +376,9 @@ public class PadProjectInformationServiceTest {
             copyToDetail,
             ApplicationDetailFilePurpose.PROJECT_INFORMATION,
             ApplicationFileLinkStatus.FULL);
+
+    verify(padLicenceApplicationService)
+        .copyApplicationsToPad(oldProjectInformation, newProjectInformation);
 
   }
 

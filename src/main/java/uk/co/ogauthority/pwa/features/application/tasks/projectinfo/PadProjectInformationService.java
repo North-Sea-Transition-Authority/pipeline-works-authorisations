@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -51,7 +52,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       PadFileService padFileService,
-      PadLicenceApplicationService padLicenceApplicationService,
+      @Lazy PadLicenceApplicationService padLicenceApplicationService,
       EntityCopyingService entityCopyingService,
       MasterPwaService masterPwaService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
@@ -109,7 +110,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
-    padLicenceApplicationService.saveApplicationToPad(padProjectInformation, form);
+    padLicenceApplicationService.saveApplicationsToPad(padProjectInformation, form);
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {
@@ -269,8 +270,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     );
 
     padLicenceApplicationService.copyApplicationsToPad(
-        fromDetail,
-        toDetail);
+        getPadProjectInformationData(fromDetail),
+        getPadProjectInformationData(toDetail));
   }
 
   public Optional<PermanentDepositMade> getPermanentDepositsMadeAnswer(PwaApplicationDetail pwaApplicationDetail) {
