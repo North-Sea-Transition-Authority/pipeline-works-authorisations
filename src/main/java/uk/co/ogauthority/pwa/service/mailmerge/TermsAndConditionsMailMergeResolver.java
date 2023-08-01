@@ -62,7 +62,7 @@ public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMe
             resolvedFields.put(VARIATION_TERM.name(), String.valueOf(termsAndConditions.get().getVariationTerm()));
             break;
           case HUOO_TERMS:
-            resolvedFields.put(HUOO_TERMS.name(), termsAndConditionsService.formatHuooTerms(termsAndConditions.get()));
+            resolvedFields.put(HUOO_TERMS.name(), termsAndConditions.get().getHuooString());
             break;
           case DEPCON_TERMS:
             resolvedFields.put(DEPCON_TERMS.name(),

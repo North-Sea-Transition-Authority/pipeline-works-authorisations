@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 import java.time.Instant;
+import java.util.Arrays;
 import javax.persistence.Basic;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -126,5 +127,11 @@ public class PwaTermsAndConditions {
   public PwaTermsAndConditions setCreatedTimestamp(Instant submittedTimestamp) {
     this.createdTimestamp = submittedTimestamp;
     return this;
+  }
+
+  public String getHuooString() {
+    Integer[] huooTerms = {huooTermOne, huooTermTwo, huooTermThree};
+    Arrays.sort(huooTerms);
+    return String.format("%s, %s & %s", huooTerms[0], huooTerms[1], huooTerms[2]);
   }
 }
