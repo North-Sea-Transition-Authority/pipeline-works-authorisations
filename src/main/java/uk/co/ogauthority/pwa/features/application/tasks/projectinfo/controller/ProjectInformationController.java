@@ -36,8 +36,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -143,10 +143,10 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         form
     );
 
-    List<PearsLicenceApplications> licenceApplications = new ArrayList<>();
-    if (form.getLicenceList() != null) {
-      licenceApplications = pearsLicenceApplicationService.getLicencesByIds(
-          Arrays.stream(form.getLicenceList())
+    List<PearsLicenceApplication> licenceApplications = new ArrayList<>();
+    if (form.getPearsApplicationList() != null) {
+      licenceApplications = pearsLicenceApplicationService.getApplicationByIds(
+          Arrays.stream(form.getPearsApplicationList())
               .map(Integer::valueOf)
               .collect(Collectors.toList()));
     }
@@ -159,7 +159,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))
         .addObject("selectedLicenceApplications", licenceApplications)
-        .addObject("licenseApplicationList",
+        .addObject("licenceApplicationListUrl",
             ReverseRouter.route(on(PearsLicenceApplicationsRestController.class).getApplications(null)));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,

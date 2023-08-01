@@ -51,9 +51,9 @@
                         <@fdsAddToList.addToList
                         pathForList="form.licenceList"
                         pathForSelector="form.licenceReferenceSelector"
-                        restUrl=springUrl(licenseApplicationList)
+                        restUrl=springUrl(licenceApplicationListUrl)
                         alreadyAdded=selectedLicenceApplications
-                        itemName="Licence references"
+                        itemName="Licence Application references"
                         selectorMinInputLength=3/>
                     </#if>
                 </@fdsRadio.radioYes>

@@ -319,12 +319,12 @@ public class ProjectInformationValidator implements SmartValidator {
       }
 
       if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && transferPlanned) {
-        if (Objects.isNull(form.getLicenceList())
-            || form.getLicenceList().length == 0
-            || Arrays.stream(form.getLicenceList()).anyMatch(Objects::isNull)) {
+        if (Objects.isNull(form.getPearsApplicationList())
+            || form.getPearsApplicationList().length == 0
+            || Arrays.stream(form.getPearsApplicationList()).anyMatch(Objects::isNull)) {
           errors.rejectValue("licenceReferenceSelector",
               "licenceReferenceSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
-              "Specify at least one licence due to be transferred");
+              "Select at least one application relating to the licence transfer");
         }
       }
     }

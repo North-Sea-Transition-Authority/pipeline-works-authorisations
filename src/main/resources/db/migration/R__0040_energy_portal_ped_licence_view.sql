@@ -55,7 +55,4 @@ CREATE OR REPLACE VIEW ${datasource.user}.ped_licence_applications AS
 SELECT
     xpla.pedpl_id licence_application_id
  ,  xpla.application_ref
-FROM pedmgr.xview_ped_licence_applications xpla
-WHERE
-    xpla.application_ref != 'Not Yet Assigned'
-    AND xpla.status_control = 'C';
+FROM pedmgr.xview_ped_licence_applications xpla;

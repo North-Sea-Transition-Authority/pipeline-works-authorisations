@@ -17,11 +17,11 @@ public class PearsLicenceApplicationService {
     this.padLicenseRepository = padLicenseRepository;
   }
 
-  public List<PearsLicenceApplications> getLicencesByName(String name) {
+  public List<PearsLicenceApplication> getApplicationsByName(String name) {
     return applicationRepository.findAllByApplicationReferenceContainingIgnoreCase(name);
   }
 
-  public List<PearsLicenceApplications> getLicencesByIds(List<Integer> ids) {
+  public List<PearsLicenceApplication> getApplicationByIds(List<Integer> ids) {
     return applicationRepository.findAllByApplicationIdIn(ids);
   }
 

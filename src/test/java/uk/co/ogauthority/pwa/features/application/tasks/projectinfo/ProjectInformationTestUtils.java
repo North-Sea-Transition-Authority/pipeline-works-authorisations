@@ -44,7 +44,7 @@ public class ProjectInformationTestUtils {
 
     var licenceTransferDate = baseDate.plusDays(LICENCE_TRANSFER_DAY_MODIFIER);
     form.setLicenceTransferPlanned(true);
-    form.setLicenceList(new String[]{"5555"});
+    form.setPearsApplicationList(new String[]{"5555"});
     form.setLicenceTransferDay(licenceTransferDate.getDayOfMonth());
     form.setLicenceTransferMonth(licenceTransferDate.getMonthValue());
     form.setLicenceTransferYear(licenceTransferDate.getYear());

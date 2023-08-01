@@ -80,7 +80,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
-    padLicenceApplicationService.mapLicencesToForm(form, padProjectInformation);
+    padLicenceApplicationService.mapApplicationsToForm(form, padProjectInformation);
   }
 
 
@@ -109,7 +109,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
-    padLicenceApplicationService.saveLicencesToApplication(padProjectInformation, form);
+    padLicenceApplicationService.saveApplicationToPad(padProjectInformation, form);
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {

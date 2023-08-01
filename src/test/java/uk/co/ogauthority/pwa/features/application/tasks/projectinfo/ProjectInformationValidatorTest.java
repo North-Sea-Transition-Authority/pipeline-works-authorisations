@@ -892,7 +892,7 @@ public class ProjectInformationValidatorTest {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
-    form.setLicenceList(new String[]{"5555"});
+    form.setPearsApplicationList(new String[]{"5555"});
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
             Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));

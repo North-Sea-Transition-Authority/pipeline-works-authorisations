@@ -4,8 +4,8 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PadProjectInformationLicenceApplicationsRepository
-    extends CrudRepository<PadProjectInformationLicenceApplications, Integer> {
-  List<PadProjectInformationLicenceApplications> findAllByPadProjectInformation(PadProjectInformation padProjectInformation);
+    extends CrudRepository<PadProjectInformationLicenceApplication, Integer> {
+  List<PadProjectInformationLicenceApplication> findAllByPadProjectInformation(PadProjectInformation padProjectInformation);
 
   void deleteAllByPadProjectInformation(PadProjectInformation projectInformation);
 

@@ -21,7 +21,7 @@ public class PearsLicenceApplicationsRestController {
   @GetMapping("/license-applications")
   public RestSearchResult getApplications(
       @RequestParam(value = "term", required = false) String searchTerm) {
-    var applications = pearsLicenceService.getLicencesByName(searchTerm);
+    var applications = pearsLicenceService.getApplicationsByName(searchTerm);
 
     var restSearchItems = applications.stream()
         .map(application -> new RestSearchItem(

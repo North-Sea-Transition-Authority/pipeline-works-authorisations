@@ -42,8 +42,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -163,10 +163,10 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   @Test
   public void renderProjectInformation_authenticatedUser_licenceApplicationsSmokeTest() throws Exception {
     var form = new ProjectInformationForm();
-    form.setLicenceList(new String[]{"5555"});
+    form.setPearsApplicationList(new String[]{"5555"});
 
-    var licenceApplication = new PearsLicenceApplications(APP_ID, "TEST/REFERENCE");
-    when(pearsLicenceApplicationService.getLicencesByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
+    var licenceApplication = new PearsLicenceApplication(APP_ID, "TEST/REFERENCE");
+    when(pearsLicenceApplicationService.getApplicationByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
 
     pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     var result = mockMvc.perform(

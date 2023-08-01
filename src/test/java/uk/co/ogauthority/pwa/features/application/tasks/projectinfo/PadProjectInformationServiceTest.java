@@ -125,7 +125,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
-    verify(padLicenceApplicationService).saveLicencesToApplication(padProjectInformation, form);
+    verify(padLicenceApplicationService).saveApplicationToPad(padProjectInformation, form);
 
   }
 
@@ -143,7 +143,7 @@ public class PadProjectInformationServiceTest {
         ApplicationDetailFilePurpose.PROJECT_INFORMATION
     );
 
-    verify(padLicenceApplicationService).mapLicencesToForm(
+    verify(padLicenceApplicationService).mapApplicationsToForm(
         form,
         padProjectInformation
     );

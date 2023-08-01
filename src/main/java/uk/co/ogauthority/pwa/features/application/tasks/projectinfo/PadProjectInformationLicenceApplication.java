@@ -8,22 +8,22 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplications;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 
-@Entity(name = "PAD_PROJECT_INFORMATION_LICENCE")
-public class PadProjectInformationLicenceApplications {
+@Entity(name = "pad_project_information_licence_applications")
+public class PadProjectInformationLicenceApplication {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(name = "PAD_PROJECT_INFORMATION_ID")
+  @JoinColumn(name = "pad_project_information_id")
   private PadProjectInformation padProjectInformation;
 
   @ManyToOne
-  @JoinColumn(name = "PEARS_LICENSE_NUMBER")
-  private PearsLicenceApplications pearsLicenceApplications;
+  @JoinColumn(name = "pears_licence_application_number")
+  private PearsLicenceApplication pearsLicenceApplication;
 
   @CreationTimestamp
   private Instant createdTimestamp;
@@ -36,13 +36,13 @@ public class PadProjectInformationLicenceApplications {
     this.id = id;
   }
 
-  public PadProjectInformationLicenceApplications() {
+  public PadProjectInformationLicenceApplication() {
   }
 
-  public PadProjectInformationLicenceApplications(PadProjectInformation padProjectInformation,
-                                                  PearsLicenceApplications pearsLicenceApplications) {
+  public PadProjectInformationLicenceApplication(PadProjectInformation padProjectInformation,
+                                                 PearsLicenceApplication pearsLicenceApplication) {
     this.padProjectInformation = padProjectInformation;
-    this.pearsLicenceApplications = pearsLicenceApplications;
+    this.pearsLicenceApplication = pearsLicenceApplication;
   }
 
   public PadProjectInformation getPadProjectInformation() {
@@ -54,13 +54,13 @@ public class PadProjectInformationLicenceApplications {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PearsLicenceApplications getPearsLicenceApplications() {
-    return pearsLicenceApplications;
+  public PearsLicenceApplication getPearsLicenceApplications() {
+    return pearsLicenceApplication;
   }
 
   public void setPearsLicenceApplications(
-      PearsLicenceApplications pearsLicenceApplications) {
-    this.pearsLicenceApplications = pearsLicenceApplications;
+      PearsLicenceApplication pearsLicenceApplication) {
+    this.pearsLicenceApplication = pearsLicenceApplication;
   }
 
   public Instant getCreatedTimestamp() {

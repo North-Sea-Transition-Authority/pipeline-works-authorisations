@@ -28,8 +28,8 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   private Boolean licenceTransferPlanned;
 
-  private String[] licenceList;
-  private String licenceReferenceSelector;
+  private String[] pearsApplicationList;
+  private String pearsApplicationSelector;
 
   private Integer licenceTransferDay;
   private Integer licenceTransferMonth;
@@ -180,20 +180,20 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
     this.usingCampaignApproach = usingCampaignApproach;
   }
 
-  public String[] getLicenceList() {
-    return licenceList;
+  public String[] getPearsApplicationList() {
+    return pearsApplicationList;
   }
 
-  public void setLicenceList(String[] licenceList) {
-    this.licenceList = licenceList;
+  public void setPearsApplicationList(String[] pearsApplicationList) {
+    this.pearsApplicationList = pearsApplicationList;
   }
 
-  public String getLicenceReferenceSelector() {
-    return licenceReferenceSelector;
+  public String getPearsApplicationSelector() {
+    return pearsApplicationSelector;
   }
 
-  public void setLicenceReferenceSelector(String licenceReferenceSelector) {
-    this.licenceReferenceSelector = licenceReferenceSelector;
+  public void setPearsApplicationSelector(String pearsApplicationSelector) {
+    this.pearsApplicationSelector = pearsApplicationSelector;
   }
 
   public Integer getLicenceTransferDay() {
