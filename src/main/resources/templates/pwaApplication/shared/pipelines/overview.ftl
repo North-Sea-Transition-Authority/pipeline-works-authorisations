@@ -8,7 +8,7 @@
 <#-- @ftlvariable name="canImportConsentedPipeline" type="Boolean" -->
 
 <#macro linkButtonBlue text url>
-    <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue govuk" />
+    <@fdsAction.link linkText=text linkUrl=url linkClass="govuk-button govuk-button--blue" />
 </#macro>
 
 <@defaultPage htmlTitle="Pipelines" fullWidthColumn=true breadcrumbs=true>
