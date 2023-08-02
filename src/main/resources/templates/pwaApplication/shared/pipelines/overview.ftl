@@ -22,10 +22,12 @@
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>
 
-    <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
-    <#if canImportConsentedPipeline>
+    <@fdsAction.buttonGroup>
+      <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+      <#if canImportConsentedPipeline>
         <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
-    </#if>
+      </#if>
+    </@fdsAction.buttonGroup>
 
     <#list pipelineTaskListItems as pipeline>
 
@@ -66,10 +68,12 @@
     </#list>
 
     <#if pipelineTaskListItems?size gt 4>
+      <@fdsAction.buttonGroup>
         <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
         <#if canImportConsentedPipeline>
             <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
         </#if>
+      </@fdsAction.buttonGroup>
     </#if>
 
     <#if pipelineTaskListItems?has_content>
