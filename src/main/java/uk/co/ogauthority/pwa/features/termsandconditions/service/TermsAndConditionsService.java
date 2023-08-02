@@ -21,7 +21,6 @@ import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndCond
 import uk.co.ogauthority.pwa.features.termsandconditions.repository.TermsAndConditionsRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
@@ -80,8 +79,9 @@ public class TermsAndConditionsService {
 
     var pwaPageViewMap = masterPwaService.searchConsentedDetailsByReference(filter)
         .stream()
+        .map(pwaDetail -> Map.entry(pwaDetail.getMasterPwa(), pwaDetail.getReference()))
         .distinct()
-        .collect(Collectors.toMap(MasterPwaDetail::getMasterPwa, MasterPwaDetail::getReference));
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
     return PageView.fromPage(
         termsAndConditionsRepository.findAllByMasterPwaIn(getTermsAndConditionsRequest(pageNumber), pwaPageViewMap.keySet()),
