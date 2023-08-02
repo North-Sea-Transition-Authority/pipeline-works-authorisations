@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.termsandconditions.service;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,6 +55,13 @@ public class TermsAndConditionsService {
     return bindingResult;
   }
 
+  public TermsAndConditionsForm getTermsAndConditionsForm(Integer masterPwaId) {
+    var masterPwa = masterPwaService.getMasterPwaById(masterPwaId);
+
+    return findByMasterPwa(masterPwa).map(this::convertEntityToForm)
+        .orElse(new TermsAndConditionsForm());
+  }
+
   public Optional<PwaTermsAndConditions> findByMasterPwa(MasterPwa masterPwa) {
     return termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa);
   }
@@ -91,21 +97,28 @@ public class TermsAndConditionsService {
 
   private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, Person person) {
     var masterPwa = masterPwaService.getMasterPwaById(form.getPwaId());
+    var pwaTermsAndConditions = findByMasterPwa(masterPwa).orElse(new PwaTermsAndConditions());
 
-    return new PwaTermsAndConditions()
+    return pwaTermsAndConditions
         .setMasterPwa(masterPwa)
         .setVariationTerm(form.getVariationTerm())
-        .setHuooTerms(generateHuooTerms(form))
+        .setHuooTermOne(form.getHuooTermOne())
+        .setHuooTermTwo(form.getHuooTermTwo())
+        .setHuooTermThree(form.getHuooTermThree())
         .setDepconParagraph(form.getDepconParagraph())
         .setDepconSchedule(form.getDepconSchedule())
         .setCreatedBy(person.getId())
         .setCreatedTimestamp(Instant.now());
   }
 
-  private String generateHuooTerms(TermsAndConditionsForm form) {
-    Integer[] terms = {form.getHuooTermOne(), form.getHuooTermTwo(), form.getHuooTermThree()};
-    Arrays.sort(terms);
-    return String.format("%s, %s & %s", terms[0], terms[1], terms[2]);
+  private TermsAndConditionsForm convertEntityToForm(PwaTermsAndConditions pwaTermsAndConditions) {
+    return new TermsAndConditionsForm()
+        .setPwaId(pwaTermsAndConditions.getMasterPwa().getId())
+        .setVariationTerm(pwaTermsAndConditions.getVariationTerm())
+        .setHuooTermOne(pwaTermsAndConditions.getHuooTermOne())
+        .setHuooTermTwo(pwaTermsAndConditions.getHuooTermTwo())
+        .setHuooTermThree(pwaTermsAndConditions.getHuooTermThree())
+        .setDepconParagraph(pwaTermsAndConditions.getDepconParagraph())
+        .setDepconSchedule(pwaTermsAndConditions.getDepconSchedule());
   }
-
 }

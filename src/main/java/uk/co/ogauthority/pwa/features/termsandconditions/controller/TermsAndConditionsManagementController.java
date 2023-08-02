@@ -39,7 +39,7 @@ public class TermsAndConditionsManagementController {
         .addObject("termsAndConditionsPageView",
             termsAndConditionsService.getPwaManagementScreenPageView(page, form.getPwaReference() != null ? form.getPwaReference() : ""))
         .addObject("termsAndConditionsFormUrl", ReverseRouter.route(on(TermsAndConditionsFormController.class)
-            .renderTermsAndConditionsVariationForm(null, user)))
+            .renderNewTermsAndConditionsForm(null, user)))
         .addObject("clearFilterUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .renderTermsAndConditionsManagement(new TermsAndConditionsFilterForm(), null, null)))
         .addObject("form", form);

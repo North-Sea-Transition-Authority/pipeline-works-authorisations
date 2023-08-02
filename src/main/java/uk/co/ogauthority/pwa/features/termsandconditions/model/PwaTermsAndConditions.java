@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 import java.time.Instant;
+import java.util.Arrays;
 import javax.persistence.Basic;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -13,7 +14,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 
-@Entity(name = "terms_and_conditions_variations")
+@Entity(name = "terms_and_conditions")
 public class PwaTermsAndConditions {
 
   @Id
@@ -26,7 +27,11 @@ public class PwaTermsAndConditions {
 
   private int variationTerm;
 
-  private String huooTerms;
+  private int huooTermOne;
+
+  private int huooTermTwo;
+
+  private int huooTermThree;
 
   private int depconParagraph;
 
@@ -61,12 +66,30 @@ public class PwaTermsAndConditions {
     return this;
   }
 
-  public String getHuooTerms() {
-    return huooTerms;
+  public int getHuooTermOne() {
+    return huooTermOne;
   }
 
-  public PwaTermsAndConditions setHuooTerms(String huooTerm) {
-    this.huooTerms = huooTerm;
+  public PwaTermsAndConditions setHuooTermOne(int huooTermOne) {
+    this.huooTermOne = huooTermOne;
+    return this;
+  }
+
+  public int getHuooTermTwo() {
+    return huooTermTwo;
+  }
+
+  public PwaTermsAndConditions setHuooTermTwo(int huooTermTwo) {
+    this.huooTermTwo = huooTermTwo;
+    return this;
+  }
+
+  public int getHuooTermThree() {
+    return huooTermThree;
+  }
+
+  public PwaTermsAndConditions setHuooTermThree(int huooTermThree) {
+    this.huooTermThree = huooTermThree;
     return this;
   }
 
@@ -104,5 +127,11 @@ public class PwaTermsAndConditions {
   public PwaTermsAndConditions setCreatedTimestamp(Instant submittedTimestamp) {
     this.createdTimestamp = submittedTimestamp;
     return this;
+  }
+
+  public String getHuooString() {
+    Integer[] huooTerms = {huooTermOne, huooTermTwo, huooTermThree};
+    Arrays.sort(huooTerms);
+    return String.format("%s, %s & %s", huooTerms[0], huooTerms[1], huooTerms[2]);
   }
 }

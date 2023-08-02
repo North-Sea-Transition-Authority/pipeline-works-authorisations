@@ -70,7 +70,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
         .getModel();
 
     assertThat(mvc.get("termsAndConditionsFormUrl")).isEqualTo(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-        .renderTermsAndConditionsVariationForm(null, userAccount)));
+        .renderNewTermsAndConditionsForm(null, userAccount)));
   }
 
   @Test
