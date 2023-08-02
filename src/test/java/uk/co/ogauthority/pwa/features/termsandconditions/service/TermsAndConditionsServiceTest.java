@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -150,6 +151,41 @@ public class TermsAndConditionsServiceTest {
     var masterPwa = new MasterPwa();
     termsAndConditionsService.findByMasterPwa(masterPwa);
     verify(termsAndConditionsRepository).findPwaTermsAndConditionsByMasterPwa(masterPwa);
+  }
+
+  @Test
+  public void getTermsAndConditionsForm_termsDoNotExist() {
+    when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
+    when(termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa)).thenReturn(Optional.empty());
+
+    assertThat(termsAndConditionsService.getTermsAndConditionsForm(1)).usingRecursiveComparison().isEqualTo(new TermsAndConditionsForm());
+  }
+
+  @Test
+  public void getTermsAndConditionsForm_termsAlreadyExist() {
+    var pwaTermsAndConditions = new PwaTermsAndConditions()
+        .setMasterPwa(masterPwa)
+        .setVariationTerm(7)
+        .setHuooTermOne(3)
+        .setHuooTermTwo(6)
+        .setHuooTermThree(9)
+        .setDepconSchedule(2)
+        .setDepconParagraph(8)
+        .setCreatedTimestamp(Instant.now());
+
+    when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
+    when(termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa)).thenReturn(Optional.of(pwaTermsAndConditions));
+
+    var expectedForm = new TermsAndConditionsForm()
+        .setPwaId(1)
+        .setVariationTerm(7)
+        .setHuooTermOne(3)
+        .setHuooTermTwo(6)
+        .setHuooTermThree(9)
+        .setDepconSchedule(2)
+        .setDepconParagraph(8);
+
+    assertThat(termsAndConditionsService.getTermsAndConditionsForm(1)).usingRecursiveComparison().isEqualTo(expectedForm);
   }
 
 }

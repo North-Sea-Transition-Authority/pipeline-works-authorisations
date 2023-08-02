@@ -30,8 +30,12 @@ import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndCondition
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(TermsAndConditionsFormController.class)
@@ -44,8 +48,13 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   @MockBean
   ControllerHelperService controllerHelperService;
 
+  @MockBean
+  MasterPwaService masterPwaService;
+
   private AuthenticatedUserAccount userAccount;
   private AuthenticatedUserAccount userAccountNoAuth;
+  private MasterPwa masterPwa;
+  private MasterPwaDetail masterPwaDetail;
 
   @Before
   public void setup() {
@@ -55,15 +64,21 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
 
     userAccountNoAuth = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
+
+    masterPwa = MasterPwaTestUtil.create(1);
+    masterPwaDetail = new MasterPwaDetail();
+    masterPwaDetail.setMasterPwa(masterPwa);
+    masterPwaDetail.setReference("1/W/23");
   }
 
   @Test
-  public void renderTermsAndConditionsVariationForm() throws Exception {
+  public void renderTermsAndConditionsForm_newRecord() throws Exception {
     var availablePwas = Map.of("1/W/23", "1");
     when(termsAndConditionsService.getPwasForSelector()).thenReturn(availablePwas);
+    when(termsAndConditionsService.getTermsAndConditionsForm(null)).thenReturn(new TermsAndConditionsForm());
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-        .renderTermsAndConditionsVariationForm(null, userAccount)))
+        .renderNewTermsAndConditionsForm(null, userAccount)))
         .with(authenticatedUserAndSession(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
@@ -73,12 +88,44 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
     assertThat(mvc.get("cancelUrl")).isEqualTo(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
         .renderTermsAndConditionsManagement(null, null, userAccount)));
     assertThat(mvc.get("pwaSelectorOptions")).isEqualTo(availablePwas);
+    assertThat(mvc.get("pageTitle")).isEqualTo("Submit terms and conditions for a PWA");
+    assertThat(mvc.get("existingRecord")).isEqualTo(false);
   }
 
   @Test
-  public void renderTermsAndConditionsVariationForm_unauthenticated() throws Exception {
+  public void renderTermsAndConditionsForm_existingRecord() throws Exception {
+    var preFilledForm = new TermsAndConditionsForm().setPwaId(1)
+        .setVariationTerm(7)
+        .setHuooTermOne(3)
+        .setHuooTermTwo(6)
+        .setHuooTermThree(9)
+        .setDepconParagraph(2)
+        .setDepconSchedule(8);
+
+    when(termsAndConditionsService.getPwasForSelector()).thenReturn(Map.of());
+    when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(masterPwaDetail);
+    when(termsAndConditionsService.getTermsAndConditionsForm(1)).thenReturn(preFilledForm);
+
+    var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
+            .renderEditTermsAndConditionsForm(null, 1, userAccount)))
+            .with(authenticatedUserAndSession(userAccount)))
+        .andExpect(status().isOk())
+        .andReturn()
+        .getModelAndView()
+        .getModel();
+
+    assertThat(mvc.get("cancelUrl")).isEqualTo(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
+        .renderTermsAndConditionsManagement(null, null, userAccount)));
+    assertThat(mvc.get("pwaSelectorOptions")).isEqualTo(Map.of());
+    assertThat(mvc.get("pageTitle")).isEqualTo("Update terms and conditions for PWA 1/W/23");
+    assertThat(mvc.get("existingRecord")).isEqualTo(true);
+  }
+
+  @Test
+  public void renderTermsAndConditionsForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-            .renderTermsAndConditionsVariationForm(null, userAccountNoAuth)))
+            .renderNewTermsAndConditionsForm(null, userAccountNoAuth)))
             .with(authenticatedUserAndSession(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
@@ -86,7 +133,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   @Test
   public void submitTermsAndConditionsVariationForm_post() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-            .submitTermsAndConditionsVariationForm(null, null, userAccount, null)))
+            .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
@@ -99,7 +146,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
     when(termsAndConditionsService.validateForm(any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-            .submitTermsAndConditionsVariationForm(null, null, userAccount, null)))
+            .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
@@ -108,7 +155,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   @Test
   public void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
-            .submitTermsAndConditionsVariationForm(null, null , userAccountNoAuth, null)))
+            .submitTermsAndConditionsForm(null, null, null, userAccountNoAuth, null)))
             .with(authenticatedUserAndSession(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }

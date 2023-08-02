@@ -55,6 +55,13 @@ public class TermsAndConditionsService {
     return bindingResult;
   }
 
+  public TermsAndConditionsForm getTermsAndConditionsForm(Integer masterPwaId) {
+    var masterPwa = masterPwaService.getMasterPwaById(masterPwaId);
+
+    return findByMasterPwa(masterPwa).map(this::convertEntityToForm)
+        .orElse(new TermsAndConditionsForm());
+  }
+
   public Optional<PwaTermsAndConditions> findByMasterPwa(MasterPwa masterPwa) {
     return termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa);
   }
@@ -90,8 +97,9 @@ public class TermsAndConditionsService {
 
   private PwaTermsAndConditions convertFormToEntity(TermsAndConditionsForm form, Person person) {
     var masterPwa = masterPwaService.getMasterPwaById(form.getPwaId());
+    var pwaTermsAndConditions = findByMasterPwa(masterPwa).orElse(new PwaTermsAndConditions());
 
-    return new PwaTermsAndConditions()
+    return pwaTermsAndConditions
         .setMasterPwa(masterPwa)
         .setVariationTerm(form.getVariationTerm())
         .setHuooTermOne(form.getHuooTermOne())
@@ -101,5 +109,16 @@ public class TermsAndConditionsService {
         .setDepconSchedule(form.getDepconSchedule())
         .setCreatedBy(person.getId())
         .setCreatedTimestamp(Instant.now());
+  }
+
+  private TermsAndConditionsForm convertEntityToForm(PwaTermsAndConditions pwaTermsAndConditions) {
+    return new TermsAndConditionsForm()
+        .setPwaId(pwaTermsAndConditions.getMasterPwa().getId())
+        .setVariationTerm(pwaTermsAndConditions.getVariationTerm())
+        .setHuooTermOne(pwaTermsAndConditions.getHuooTermOne())
+        .setHuooTermTwo(pwaTermsAndConditions.getHuooTermTwo())
+        .setHuooTermThree(pwaTermsAndConditions.getHuooTermThree())
+        .setDepconParagraph(pwaTermsAndConditions.getDepconParagraph())
+        .setDepconSchedule(pwaTermsAndConditions.getDepconSchedule());
   }
 }
