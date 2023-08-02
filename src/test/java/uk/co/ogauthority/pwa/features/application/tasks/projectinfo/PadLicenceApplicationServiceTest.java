@@ -53,7 +53,7 @@ public class PadLicenceApplicationServiceTest {
     service.saveApplicationsToPad(projectInformation, form);
 
     verify(applicationService).getApplicationsByIds(List.of(555, 666));
-    verify(repository).save(any(PadProjectInformationLicenceApplication.class));
+    verify(repository).saveAll(any(List.class));
   }
 
   @Test
