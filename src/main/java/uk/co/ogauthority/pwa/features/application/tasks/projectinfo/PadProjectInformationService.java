@@ -13,7 +13,6 @@ import java.util.Set;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -52,7 +51,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       PadFileService padFileService,
-      @Lazy PadLicenceApplicationService padLicenceApplicationService,
+      PadLicenceApplicationService padLicenceApplicationService,
       EntityCopyingService entityCopyingService,
       MasterPwaService masterPwaService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
