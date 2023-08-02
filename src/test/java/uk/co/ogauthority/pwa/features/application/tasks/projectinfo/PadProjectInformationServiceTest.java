@@ -56,6 +56,9 @@ public class PadProjectInformationServiceTest {
   private PadFileService padFileService;
 
   @Mock
+  private PadLicenceApplicationService padLicenceApplicationService;
+
+  @Mock
   private EntityCopyingService entityCopyingService;
 
   @Mock
@@ -76,6 +79,7 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         padFileService,
+        padLicenceApplicationService,
         entityCopyingService,
         masterPwaService);
 
@@ -121,6 +125,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+    verify(padLicenceApplicationService).saveApplicationsToPad(padProjectInformation, form);
 
   }
 
@@ -138,6 +143,10 @@ public class PadProjectInformationServiceTest {
         ApplicationDetailFilePurpose.PROJECT_INFORMATION
     );
 
+    verify(padLicenceApplicationService).mapApplicationsToForm(
+        form,
+        padProjectInformation
+    );
   }
 
   @Test
@@ -166,6 +175,7 @@ public class PadProjectInformationServiceTest {
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
         ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+        ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE,
         ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
         ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
@@ -345,6 +355,15 @@ public class PadProjectInformationServiceTest {
   @Test
   public void copySectionInformation_serviceIteractions(){
     var copyToDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1000, 1001);
+    var oldProjectInformation = new PadProjectInformation();
+    oldProjectInformation.setId(2222);
+    var newProjectInformation = new PadProjectInformation();
+    newProjectInformation.setId(321);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(oldProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(copyToDetail)).thenReturn(
+        Optional.of(newProjectInformation));
 
     service.copySectionInformation(pwaApplicationDetail, copyToDetail);
 
@@ -357,6 +376,9 @@ public class PadProjectInformationServiceTest {
             copyToDetail,
             ApplicationDetailFilePurpose.PROJECT_INFORMATION,
             ApplicationFileLinkStatus.FULL);
+
+    verify(padLicenceApplicationService)
+        .copyApplicationsToPad(oldProjectInformation, newProjectInformation);
 
   }
 

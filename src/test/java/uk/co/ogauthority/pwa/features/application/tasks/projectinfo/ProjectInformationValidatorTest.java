@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -16,11 +18,14 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -35,9 +40,12 @@ public class ProjectInformationValidatorTest {
 
   private Set<ProjectInformationQuestion> partialDateValidationQuestions;
 
+  @Mock
+  private PearsLicenceApplicationService pearsLicenceApplicationService;
+
   @Before
   public void setUp() {
-    validator = new ProjectInformationValidator(new TwoFieldDateInputValidator());
+    validator = new ProjectInformationValidator(new TwoFieldDateInputValidator(), pearsLicenceApplicationService);
 
     partialDateValidationQuestions = Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
         ProjectInformationQuestion.MOBILISATION_DATE,
@@ -787,9 +795,15 @@ public class ProjectInformationValidatorTest {
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
-            Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_DATE, ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE), false));
+            Set.of(
+                ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+                ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
+                ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
+                ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));
 
     assertThat(errorsMap).contains(
+        entry("pearsApplicationSelector", Set.of("pearsApplicationSelector.required")),
+
         entry("commercialAgreementDay", Set.of("commercialAgreementDay.required")),
         entry("commercialAgreementMonth", Set.of("commercialAgreementMonth.required")),
         entry("commercialAgreementYear", Set.of("commercialAgreementYear.required")),
@@ -881,6 +895,32 @@ public class ProjectInformationValidatorTest {
 
   }
 
+  @Test
+  public void validate_licenceTransferPlanned_validTransferReference() {
+
+    when(pearsLicenceApplicationService.getApplicationsByIds(any())).thenReturn(List.of(new PearsLicenceApplication()));
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setPearsApplicationList(new String[]{"5555"});
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));
+
+    assertThat(errorsMap).doesNotContainKey("pearsApplicationSelector");
+  }
+
+  @Test
+  public void validate_licenceTransferPlanned_invalidTransferReference() {
+
+    var form = new ProjectInformationForm();
+    form.setLicenceTransferPlanned(true);
+    form.setPearsApplicationList(new String[]{"5555"});
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
+        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, ValidationType.FULL,
+            Set.of(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED, ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE), false));
+
+    assertThat(errorsMap).contains(entry("pearsApplicationSelector", Set.of("pearsApplicationSelector.invalid")));
+  }
 
   public Map<String, Set<String>> getErrorMap(ProjectInformationForm form,
                                               ProjectInformationFormValidationHints projectInformationFormValidationHints) {

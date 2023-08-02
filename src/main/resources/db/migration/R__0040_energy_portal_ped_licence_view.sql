@@ -5,6 +5,7 @@ GRANT SELECT ON pedmgr.ped_current_licence_blocks TO ${datasource.user};
 GRANT SELECT ON pedmgr.ped_licence_master TO ${datasource.user};
 GRANT SELECT ON pedmgr.unlicensed_blocks TO ${datasource.user};
 GRANT SELECT ON pedmgr.xview_ped_ld_current TO ${datasource.user};
+GRANT SELECT ON pedmgr.xview_ped_licence_applications TO ${datasource.user};
 
 CREATE OR REPLACE VIEW ${datasource.user}.ped_licences AS
 SELECT
@@ -49,3 +50,10 @@ FROM (
   , ub.type location
   FROM pedmgr.unlicensed_blocks ub
 ) b;
+
+CREATE OR REPLACE VIEW ${datasource.user}.ped_licence_applications AS
+SELECT
+    xpla.pedpl_id licence_application_id
+ ,  xpla.application_ref
+FROM pedmgr.xview_ped_licence_applications xpla
+WHERE xpla.status_control = 'C';
