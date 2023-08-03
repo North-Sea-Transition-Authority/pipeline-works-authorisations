@@ -5,6 +5,7 @@
 
 <@defaultPage htmlTitle="Select a document template" pageHeading="Select a document template" topNavigation=true twoThirdsColumn=false backLink=false>
 
+  <@fdsAction.link linkText="Terms and Conditions Management" linkUrl=springUrl(tcManagement)/>
   <div class="pwa-category-list">
 
       <#list documentTemplates as template>
