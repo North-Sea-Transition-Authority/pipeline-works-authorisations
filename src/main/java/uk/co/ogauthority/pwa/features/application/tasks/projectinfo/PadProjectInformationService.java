@@ -86,13 +86,17 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
+    var licenceApplications = padLicenceApplicationService.getInformationSummary(projectInformation);
+
     return new ProjectInformationView(
-        getPadProjectInformationData(pwaApplicationDetail),
+        projectInformation,
         isFdpQuestionRequired(pwaApplicationDetail),
-        !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null);
+        !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null,
+        licenceApplications);
   }
 
 

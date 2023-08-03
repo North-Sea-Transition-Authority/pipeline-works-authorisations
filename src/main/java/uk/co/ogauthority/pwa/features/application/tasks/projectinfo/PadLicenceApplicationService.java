@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
@@ -70,4 +71,12 @@ public class PadLicenceApplicationService {
     }
   }
 
+  public List<String> getInformationSummary(PadProjectInformation projectInformation) {
+
+    return padLicenceApplicationRepository.findAllByPadProjectInformation(projectInformation)
+        .stream()
+        .map(PadProjectInformationLicenceApplication::getPearsLicenceApplication)
+        .map(PearsLicenceApplication::getApplicationReference)
+        .collect(Collectors.toList());
+  }
 }

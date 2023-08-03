@@ -79,6 +79,16 @@
       </@fdsCheckAnswers.checkAnswersRow>
     </#if>
 
+    <#if projectInfoView.licenceTransferPlanned?has_content && projectInfoView.licenceTransferPlanned && requiredQuestions?seq_contains("LICENCE_TRANSFER_REFERENCE")>
+        <@fdsCheckAnswers.checkAnswersRow keyText="What are the PEARS licence application references associated with this transfer?" actionUrl="" screenReaderActionText="" actionText="">
+          <ul class="govuk-list">
+              <#list projectInfoView.getLicenceReferences() as references>
+                <li>${references}</li>
+              </#list>
+          </ul>
+        </@fdsCheckAnswers.checkAnswersRow>
+    </#if>
+
     <#if requiredQuestions?seq_contains("USING_CAMPAIGN_APPROACH")>
       <@fdsCheckAnswers.checkAnswersRow keyText="Is the work to be completed using a campaign approach?" actionUrl="" screenReaderActionText="" actionText="">
         <#if projectInfoView.usingCampaignApproach?has_content>
@@ -103,7 +113,7 @@
       </#if>
     </#if>
 
-    <#if requiredQuestions?seq_contains("TEMPORARY_DEPOSITS_BEING_MADE")>   
+    <#if requiredQuestions?seq_contains("TEMPORARY_DEPOSITS_BEING_MADE")>
       <@fdsCheckAnswers.checkAnswersRow keyText="Are temporary deposits being made as part of this application?" actionUrl="" screenReaderActionText="" actionText="">
         <#if projectInfoView.temporaryDepositsMade?has_content>
           ${projectInfoView.temporaryDepositsMade?then('Yes', 'No')}

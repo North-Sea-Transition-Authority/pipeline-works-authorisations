@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +71,8 @@ public class ProjectInformationSummaryServiceTest {
   public void summariseSection_verifyServiceInteractions() {
 
     when(padProjectInformationService.getProjectInformationView(pwaApplicationDetail)).thenReturn(
-        new ProjectInformationView(new PadProjectInformation(), false, null));
+        new ProjectInformationView(new PadProjectInformation(), false, null,
+            Collections.emptyList()));
 
     when(padProjectInformationService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()))
         .thenReturn(Set.of());
