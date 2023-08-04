@@ -1,7 +1,9 @@
 CREATE OR REPLACE PROCEDURE ${datasource.user}.addHistoricalTerms
 ( consent_reference VARCHAR2,
   variation_term NUMBER,
-  huoo_terms VARCHAR2,
+  hterm1 VARCHAR2,
+  hterm2 VARCHAR2,
+  hterm3 VARCHAR2,
   depcon_paragraph NUMBER,
   depcon_schedule NUMBER )
 
@@ -18,8 +20,26 @@ BEGIN
     fetch PWA_CURSOR into PWA_ID;
 
     IF PWA_ID IS NOT NULL THEN
-        INSERT INTO ${datasource.user}.terms_and_conditions_variations (pwa_id, variation_term, huoo_terms, depcon_paragraph, depcon_schedule, created_by, created_timestamp)
-        VALUES (pwa_id, variation_term, huoo_terms, depcon_paragraph, depcon_schedule,1, SYSTIMESTAMP);
+        INSERT INTO ${datasource.user}.terms_and_conditions (
+            pwa_id,
+            variation_term,
+            huoo_term_one,
+            huoo_term_two,
+            huoo_term_three,
+            depcon_paragraph,
+            depcon_schedule,
+            created_by,
+            created_timestamp)
+        VALUES (
+                pwa_id,
+                variation_term,
+                hterm1,
+                hterm2,
+                hterm3,
+                depcon_paragraph,
+                depcon_schedule,
+                1,
+                SYSTIMESTAMP);
         DBMS_OUTPUT.put_line('Record Added');
     ELSE
         DBMS_OUTPUT.put_line('PWA_ID could not be found');
