@@ -135,10 +135,6 @@ public class CaseReassignmentController {
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(caseReassignmentCasesForm));
 
-    if (validatedBindingResult.hasErrors()) {
-      FlashUtils.error(redirectAttributes, "Select a case to reassign");
-    }
-
     return controllerHelperService.checkErrorsAndRedirect(
         validatedBindingResult,
         renderCaseReassignment(httpServletRequest, authenticatedUserAccount, redirectAttributes, caseReassignmentCasesForm,

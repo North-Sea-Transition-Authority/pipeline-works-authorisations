@@ -19,6 +19,6 @@ public class CaseReassignmentOfficerValidator implements Validator {
         errors,
         "assignedCaseOfficerPersonId",
         FieldValidationErrorCodes.REQUIRED.errorCode("assignedCaseOfficerPersonId"),
-        "Select the case officer to reassign cases to.");
+        "Select the case officer to reassign cases to");
   }
 }
