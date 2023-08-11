@@ -11,12 +11,16 @@ public class CaseReassignmentService {
 
   private final CaseReassignmentRepository reassignmentRepository;
 
-  private final CaseReassignmentValidator caseReassignmentValidator;
+  private final CaseReassignmentOfficerValidator caseReassignmentOfficerValidator;
+
+  private final CaseReassignmentCasesValidator caseReassignmentCasesValidator;
 
   public CaseReassignmentService(CaseReassignmentRepository reassignmentRepository,
-                                 CaseReassignmentValidator caseReassignmentValidator) {
+                                 CaseReassignmentOfficerValidator caseReassignmentOfficerValidator,
+                                 CaseReassignmentCasesValidator caseReassignmentCasesValidator) {
     this.reassignmentRepository = reassignmentRepository;
-    this.caseReassignmentValidator = caseReassignmentValidator;
+    this.caseReassignmentOfficerValidator = caseReassignmentOfficerValidator;
+    this.caseReassignmentCasesValidator = caseReassignmentCasesValidator;
   }
 
   public List<CaseReassignmentView> findAllReassignableCases() {
@@ -28,8 +32,13 @@ public class CaseReassignmentService {
     return reassignmentRepository.findAllByApplicationIdIn(applicationIds);
   }
 
-  public BindingResult validateForm(CaseReassignmentSelectorForm form, BindingResult bindingResult) {
-    caseReassignmentValidator.validate(form, bindingResult);
+  public BindingResult validateOfficerForm(CaseReassignmentOfficerForm form, BindingResult bindingResult) {
+    caseReassignmentOfficerValidator.validate(form, bindingResult);
+    return bindingResult;
+  }
+
+  public BindingResult validateCasesForm(CaseReassignmentCasesForm form, BindingResult bindingResult) {
+    caseReassignmentCasesValidator.validate(form, bindingResult);
     return bindingResult;
   }
 }

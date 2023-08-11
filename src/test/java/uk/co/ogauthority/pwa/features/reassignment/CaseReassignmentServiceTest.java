@@ -17,7 +17,10 @@ public class CaseReassignmentServiceTest {
   CaseReassignmentRepository reassignmentRepository;
 
   @Mock
-  CaseReassignmentValidator caseReassignmentValidator;
+  CaseReassignmentOfficerValidator caseReassignmentOfficerValidator;
+
+  @Mock
+  CaseReassignmentCasesValidator caseReassignmentCasesValidator;
 
   @Captor
   ArgumentCaptor<Predicate[]> criteriaCaptor;
@@ -26,7 +29,8 @@ public class CaseReassignmentServiceTest {
 
   @Before
   public void setup() {
-    service = new CaseReassignmentService(reassignmentRepository, caseReassignmentValidator);
+    service = new CaseReassignmentService(reassignmentRepository, caseReassignmentOfficerValidator,
+        caseReassignmentCasesValidator);
   }
 
   @Test

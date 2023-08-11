@@ -64,6 +64,8 @@ public class CaseReassignmentController {
   public ModelAndView renderCaseReassignment(HttpServletRequest httpServletRequest,
                                              AuthenticatedUserAccount authenticatedUserAccount,
                                              RedirectAttributes redirectAttributes,
+                                             @ModelAttribute("form") CaseReassignmentCasesForm caseReassignmentCasesForm,
+                                             BindingResult bindingResult,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
     checkUserPrivilege(authenticatedUserAccount);
     var workItems = caseReassignmentService.findAllReassignableCases();
@@ -85,7 +87,7 @@ public class CaseReassignmentController {
     return new ModelAndView("reassignment/reassignment")
         .addObject("assignableCases", workItems)
         .addObject("filterForm", caseReassignmentFilterForm)
-        .addObject("form", new CaseReassignmentSelectorForm())
+        .addObject("form", caseReassignmentCasesForm)
         .addObject("filterURL",
             ReverseRouter.route(on(CaseReassignmentController.class).filterCaseReassignment(
                 httpServletRequest,
@@ -97,6 +99,8 @@ public class CaseReassignmentController {
                 httpServletRequest,
                 authenticatedUserAccount,
                 redirectAttributes,
+                null,
+                null,
                 new CaseReassignmentFilterForm())))
         .addObject("caseOfficerCandidates", caseOfficerCandidates);
   }
@@ -113,36 +117,52 @@ public class CaseReassignmentController {
         httpServletRequest,
         authenticatedUserAccount,
         redirectAttributes,
+        null,
+        null,
         caseReassignmentFilterForm),paramMap);
   }
 
   @PostMapping
   public ModelAndView submitCaseReassignment(HttpServletRequest httpServletRequest,
                                              AuthenticatedUserAccount authenticatedUserAccount,
-                                             @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+                                             @ModelAttribute("form") CaseReassignmentCasesForm caseReassignmentCasesForm,
+                                             BindingResult bindingResult,
                                              RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    var paramMap = new LinkedMultiValueMap<String, String>();
-    paramMap.setAll(FormObjectMapper.toMap(caseReassignmentSelectorForm));
 
-    return ReverseRouter.redirectWithQueryParamMap(on(CaseReassignmentController.class).renderSelectNewAssignee(
+    var validatedBindingResult = caseReassignmentService.validateCasesForm(caseReassignmentCasesForm, bindingResult);
+
+    var paramMap = new LinkedMultiValueMap<String, String>();
+    paramMap.setAll(FormObjectMapper.toMap(caseReassignmentCasesForm));
+
+    if (validatedBindingResult.hasErrors()) {
+      FlashUtils.error(redirectAttributes, "Select a case to reassign");
+    }
+
+    return controllerHelperService.checkErrorsAndRedirect(
+        validatedBindingResult,
+        renderCaseReassignment(httpServletRequest, authenticatedUserAccount, redirectAttributes, caseReassignmentCasesForm,
+            validatedBindingResult, new CaseReassignmentFilterForm()),
+        () -> ReverseRouter.redirectWithQueryParamMap(on(CaseReassignmentController.class).renderSelectNewAssignee(
         httpServletRequest,
         authenticatedUserAccount,
-        caseReassignmentSelectorForm,
+        caseReassignmentCasesForm,
         null,
-        redirectAttributes), paramMap);
+        validatedBindingResult,
+        redirectAttributes), paramMap)
+    );
   }
-
 
 
   @GetMapping("/select-case-officer")
   public ModelAndView renderSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
-                                              @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+                                              CaseReassignmentCasesForm caseReassignmentCasesForm,
+                                              @ModelAttribute("form") CaseReassignmentOfficerForm caseReassignmentOfficerForm,
                                               BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
     checkUserPrivilege(authenticatedUserAccount);
-    var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
+    var selectedIds = caseReassignmentCasesForm.getSelectedApplicationIds()
         .stream()
         .map(Integer::valueOf)
         .collect(Collectors.toList());
@@ -154,6 +174,7 @@ public class CaseReassignmentController {
                         authenticatedUserAccount,
                         null,
                         null,
+                        null,
                         redirectAttributes)))
         .addObject("selectedPwas", selectedPwas)
         .addObject("caseOfficerCandidates",
@@ -161,20 +182,22 @@ public class CaseReassignmentController {
                 .getAssignmentCandidates(null, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW).stream()
                 .sorted(Comparator.comparing(Person::getFullName))
                 .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-                    Person::getFullName)));
+                    Person::getFullName)))
+        .addObject("selectedCases", caseReassignmentCasesForm);
   }
 
   @PostMapping("/select-case-officer")
   public ModelAndView submitSelectNewAssignee(HttpServletRequest httpServletRequest,
                                               AuthenticatedUserAccount authenticatedUserAccount,
-                                              @ModelAttribute("form") CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+                                              CaseReassignmentCasesForm caseReassignmentCasesForm,
+                                              @ModelAttribute("form") CaseReassignmentOfficerForm caseReassignmentOfficerForm,
                                               RedirectAttributes redirectAttributes,
                                               BindingResult bindingResult) {
     checkUserPrivilege(authenticatedUserAccount);
-    var validatedBindingResult = caseReassignmentService.validateForm(caseReassignmentSelectorForm, bindingResult);
+    var validatedBindingResult = caseReassignmentService.validateOfficerForm(caseReassignmentOfficerForm, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         validatedBindingResult,
-        renderFormError(caseReassignmentSelectorForm, validatedBindingResult, authenticatedUserAccount),
+        renderFormError(caseReassignmentCasesForm, validatedBindingResult, authenticatedUserAccount),
         () -> {
           /**
            * TODO: PWA2022-74 This is required as a result of the PwaStringToCollectionConverter
@@ -182,7 +205,7 @@ public class CaseReassignmentController {
            * This is necessary for free text entry into search selectors that could include commas.
            * But messes with Spring binding of lists of strings
            */
-          var selectedIds = caseReassignmentSelectorForm.getSelectedApplicationIds()
+          var selectedIds = caseReassignmentCasesForm.getSelectedApplicationIds()
               .stream()
               .map(appIds -> appIds.split(","))
               .flatMap(Arrays::stream)
@@ -193,7 +216,7 @@ public class CaseReassignmentController {
 
             assignCaseOfficerService.assignCaseOfficer(
                 applicationDetail,
-                new PersonId(caseReassignmentSelectorForm.getAssignedCaseOfficerPersonId()),
+                new PersonId(caseReassignmentOfficerForm.getAssignedCaseOfficerPersonId()),
                 authenticatedUserAccount);
           }
           FlashUtils.success(
@@ -204,6 +227,8 @@ public class CaseReassignmentController {
               httpServletRequest,
               authenticatedUserAccount,
               redirectAttributes,
+              null,
+              null,
               null));
         });
   }
@@ -214,11 +239,11 @@ public class CaseReassignmentController {
     }
   }
 
-  private ModelAndView renderFormError(CaseReassignmentSelectorForm caseReassignmentSelectorForm,
+  private ModelAndView renderFormError(CaseReassignmentCasesForm caseReassignmentCasesForm,
                                        BindingResult bindingResult,
                                        AuthenticatedUserAccount user) {
-    caseReassignmentSelectorForm.setSelectedApplicationIds(
-        caseReassignmentSelectorForm.getSelectedApplicationIds()
+    caseReassignmentCasesForm.setSelectedApplicationIds(
+        caseReassignmentCasesForm.getSelectedApplicationIds()
             .stream()
             .map(appIds -> appIds.split(","))
             .flatMap(Arrays::stream)
@@ -227,7 +252,8 @@ public class CaseReassignmentController {
     return renderSelectNewAssignee(
         null,
         user,
-        caseReassignmentSelectorForm,
+        caseReassignmentCasesForm,
+        null,
         bindingResult,
         null
     );
