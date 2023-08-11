@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +47,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEvent;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEventType;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
@@ -326,7 +329,6 @@ public class PublicNoticeService implements AppProcessingService {
     String publicationEndTimestamp = null;
     String downloadUrl = null;
 
-
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
       withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
       withdrawnTimestamp = DateUtils.formatDate(publicNotice.getWithdrawalTimestamp());
@@ -352,8 +354,88 @@ public class PublicNoticeService implements AppProcessingService {
         publicationEndTimestamp,
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        downloadUrl
-    );
+        downloadUrl,
+        getEventsForPublicNotice(publicNotice));
+  }
+
+  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice) {
+    var publicNoticeEvents = new ArrayList<PublicNoticeEvent>();
+
+    if (publicNotice.getWithdrawalReason() != null) {
+      publicNoticeEvents.add(new PublicNoticeEvent()
+          .setEventType(PublicNoticeEventType.WITHDRAWN)
+          .setEventTimestamp(publicNotice.getWithdrawalTimestamp())
+          .setPersonName(personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName())
+          .setComment(publicNotice.getWithdrawalReason())
+      );
+    }
+
+    var requests = publicNoticeRequestRepository.findAllByPublicNotice(publicNotice);
+
+    if (!requests.isEmpty()) {
+      requests.forEach(publicNoticeRequest -> {
+        if (publicNoticeRequest.getRequestApproved() != null && !publicNoticeRequest.getRequestApproved()) {
+          publicNoticeEvents.add(new PublicNoticeEvent()
+              .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+              .setComment(publicNoticeRequest.getRejectionReason())
+              .setPersonName(personService.getPersonById(publicNoticeRequest.getResponderPersonId()).getFullName())
+              .setEventType(PublicNoticeEventType.REJECTED)
+          );
+        }
+
+        if (publicNoticeRequest.getRequestApproved() != null && publicNoticeRequest.getRequestApproved()) {
+          publicNoticeEvents.add(new PublicNoticeEvent()
+              .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+              .setComment(publicNoticeRequest.getRejectionReason())
+              .setPersonName(personService.getPersonById(publicNoticeRequest.getResponderPersonId()).getFullName())
+              .setEventType(PublicNoticeEventType.APPROVED)
+          );
+        }
+
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
+            .setComment(publicNoticeRequest.getReasonDescription())
+            .setPersonName(personService.getPersonById(publicNoticeRequest.getCreatedByPersonId()).getFullName())
+            .setEventType(PublicNoticeEventType.REQUEST_CREATED)
+        );
+      });
+    }
+
+    var dates = publicNoticeDatesRepository.getAllByPublicNotice(publicNotice);
+
+    dates.ifPresent(publicNoticeDate -> {
+      publicNoticeEvents.add(new PublicNoticeEvent()
+          .setEventType(PublicNoticeEventType.PUBLISHED)
+          .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
+          .setPersonName(personService.getPersonById(publicNoticeDate.getCreatedByPersonId()).getFullName())
+      );
+
+      if (publicNoticeDate.getEndedTimestamp() != null) {
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventType(PublicNoticeEventType.ENDED)
+            .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
+            .setPersonName(personService.getPersonById(publicNoticeDate.getEndedByPersonId()).getFullName())
+        );
+      }
+    });
+
+    getAllDocumentsForPublicNotice(publicNotice).forEach(publicNoticeDocument -> {
+      if (publicNoticeDocument.getCreatedTimestamp() != null) {
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventType(PublicNoticeEventType.DOCUMENT_CREATED)
+            .setEventTimestamp(publicNoticeDocument.getCreatedTimestamp())
+            .setComment(publicNoticeDocument.getComments())
+        );
+      }
+    });
+
+    return publicNoticeEvents.stream()
+        .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
+        .collect(Collectors.toList());
+  }
+
+  private List<PublicNoticeDocument> getAllDocumentsForPublicNotice(PublicNotice publicNotice) {
+    return publicNoticeDocumentRepository.findAllByPublicNotice(publicNotice);
   }
 
   @VisibleForTesting
@@ -425,7 +507,6 @@ public class PublicNoticeService implements AppProcessingService {
       if (x == 0 && !ENDED_STATUSES.contains(publicNotices.get(x).getStatus())) {
         currentPublicNotice = createViewFromPublicNotice(publicNotices.get(x));
         availableActions = getAvailablePublicNoticeActions(publicNotices.get(x).getStatus(), pwaAppProcessingContext);
-
       } else {
         historicalPublicNotices.add(createViewFromPublicNotice(publicNotices.get(x)));
       }

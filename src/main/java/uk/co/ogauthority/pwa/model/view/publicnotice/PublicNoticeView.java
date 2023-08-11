@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.view.publicnotice;
 
+import java.util.List;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -17,8 +18,8 @@ public class PublicNoticeView {
   private final String publicationStartTimestamp;
   private final String publicationEndTimestamp;
   private final String rejectionReason;
-
   private final String documentDownloadUrl;
+  private final List<PublicNoticeEvent> publicNoticeEvents;
 
 
   //constructor for only the fields that are required as a minimum for a public notice view
@@ -35,6 +36,7 @@ public class PublicNoticeView {
     this.publicNoticeRequestStatus = requestStatus;
     this.rejectionReason = null;
     this.documentDownloadUrl = null;
+    publicNoticeEvents = null;
   }
 
   public PublicNoticeView(PublicNoticeStatus status,
@@ -47,7 +49,8 @@ public class PublicNoticeView {
                           String publicationEndTimestamp,
                           PublicNoticeRequestStatus publicNoticeRequestStatus,
                           String rejectionReason,
-                          String documentDownloadUrl) {
+                          String documentDownloadUrl,
+                          List<PublicNoticeEvent> publicNoticeEvents) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -59,6 +62,7 @@ public class PublicNoticeView {
     this.publicNoticeRequestStatus = publicNoticeRequestStatus;
     this.rejectionReason = rejectionReason;
     this.documentDownloadUrl = documentDownloadUrl;
+    this.publicNoticeEvents = publicNoticeEvents;
   }
 
   public PublicNoticeStatus getStatus() {
@@ -131,5 +135,9 @@ public class PublicNoticeView {
     return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName,
         withdrawnTimestamp, withdrawalReason, publicationStartTimestamp, publicationEndTimestamp, publicNoticeRequestStatus,
         rejectionReason);
+  }
+
+  public List<PublicNoticeEvent> getPublicNoticeEvents() {
+    return publicNoticeEvents;
   }
 }

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.entity.publicnotice;
 
+import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,6 +32,8 @@ public class PublicNoticeDocument {
 
   private String comments;
 
+  private Instant createdTimestamp;
+
   public PublicNoticeDocument() {
   }
 
@@ -39,6 +42,7 @@ public class PublicNoticeDocument {
     this.publicNotice = publicNotice;
     this.version = version;
     this.documentType = documentType;
+    this.createdTimestamp = Instant.now();
   }
 
 
@@ -82,6 +86,14 @@ public class PublicNoticeDocument {
     this.comments = comments;
   }
 
+  public Instant getCreatedTimestamp() {
+    return createdTimestamp;
+  }
+
+  public PublicNoticeDocument setCreatedTimestamp(Instant createdTimestamp) {
+    this.createdTimestamp = createdTimestamp;
+    return this;
+  }
 
   @Override
   public boolean equals(Object o) {

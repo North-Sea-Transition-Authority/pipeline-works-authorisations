@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.repository.publicnotice;
 
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -13,4 +14,6 @@ public interface PublicNoticeDocumentRepository extends CrudRepository<PublicNot
 
   Optional<PublicNoticeDocument> findByPublicNoticeAndDocumentType(PublicNotice publicNotice,
                                                                    PublicNoticeDocumentType publicNoticeDocumentType);
+
+  List<PublicNoticeDocument> findAllByPublicNotice(PublicNotice publicNotice);
 }

@@ -15,6 +15,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationSubmissionController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
@@ -47,7 +48,7 @@ public class AsBuiltNotificationViewServiceTest {
   public void setup() {
     asBuiltNotificationViewService = new AsBuiltNotificationViewService(personService);
 
-    when(personService.getPersonById(any())).thenReturn(person);
+    when(personService.getPersonById((PersonId) any())).thenReturn(person);
   }
 
   @Test

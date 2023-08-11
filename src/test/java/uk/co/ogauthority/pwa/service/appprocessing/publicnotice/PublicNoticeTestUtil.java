@@ -3,11 +3,15 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -21,6 +25,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEvent;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEventType;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -148,7 +154,7 @@ public final class PublicNoticeTestUtil {
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
-        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null);
+        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of());
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -166,13 +172,14 @@ public final class PublicNoticeTestUtil {
         null,
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        null
-    );
+        null,
+        List.of());
   }
 
   static PublicNoticeView createPublishedPublicNoticeView(PublicNotice publicNotice,
                                                           PublicNoticeDate publicNoticeDate,
                                                           PublicNoticeRequest publicNoticeRequest) {
+    var personName = PersonTestUtil.createDefaultPerson().getFullName();
     return new PublicNoticeView(
         publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
@@ -184,7 +191,24 @@ public final class PublicNoticeTestUtil {
         DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp()),
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        null
+        null,
+        Stream.of(
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.REQUEST_CREATED)
+                .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
+                .setPersonName(personName)
+                .setComment(publicNoticeRequest.getReasonDescription()),
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.APPROVED)
+                .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+                .setPersonName(personName),
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.PUBLISHED)
+                .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
+                .setPersonName(personName)
+        )
+            .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
+            .collect(Collectors.toList())
     );
   }
 

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -11,6 +12,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -996,6 +998,37 @@ public class PublicNoticeServiceTest {
         publishedPublicNotice, publicNoticeDate, publishedPublicNoticeRequest);
 
     assertThat(allPublicNoticesView.getCurrentPublicNotice()).isEqualTo(expectedPublicNoticeView);
+  }
+
+  @Test
+  public void getAllPublicNoticeViews_testPublicNoticeEvents() {
+
+    var publishedPublicNotice = PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication);
+    when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
+        List.of(publishedPublicNotice));
+
+    var publishedPublicNoticeRequest = PublicNoticeTestUtil.createApprovedPublicNoticeRequest(publishedPublicNotice);
+    publishedPublicNoticeRequest.setResponseTimestamp(publishedPublicNoticeRequest.getCreatedTimestamp().plus(1, ChronoUnit.HOURS));
+    when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publishedPublicNotice))
+        .thenReturn(Optional.of(publishedPublicNoticeRequest));
+
+    var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publishedPublicNotice);
+    when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
+
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail, Set.of(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE));
+
+    when(publicNoticeRequestRepository.findAllByPublicNotice(publishedPublicNotice)).thenReturn(List.of(publishedPublicNoticeRequest));
+    when(publicNoticeDatesRepository.getAllByPublicNotice(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
+    when(personService.getPersonById(anyInt())).thenReturn(PersonTestUtil.createDefaultPerson());
+
+    var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
+
+    var expectedPublicNoticeView = PublicNoticeTestUtil.createPublishedPublicNoticeView(
+        publishedPublicNotice, publicNoticeDate, publishedPublicNoticeRequest);
+
+    assertThat(allPublicNoticesView.getCurrentPublicNotice().getPublicNoticeEvents()).usingRecursiveComparison()
+        .isEqualTo(expectedPublicNoticeView.getPublicNoticeEvents());
   }
 
 
