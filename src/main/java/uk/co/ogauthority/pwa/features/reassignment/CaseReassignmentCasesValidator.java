@@ -19,6 +19,6 @@ public class CaseReassignmentCasesValidator implements Validator {
         errors,
         "selectedApplicationIds",
         FieldValidationErrorCodes.REQUIRED.errorCode("selectedApplicationIds"),
-        "Select PWAs to reassign.");
+        "Select PWAs to reassign");
   }
 }
