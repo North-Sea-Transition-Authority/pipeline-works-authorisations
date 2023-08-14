@@ -3,7 +3,7 @@
 
 <#include '../../layout.ftl'>
 
-<@defaultPage htmlTitle="Public notice management" pageHeading="Manage template clauses" pageHeadingClass="govuk-heading-l" topNavigation=true twoThirdsColumn=false backLink=false>
+<@defaultPage htmlTitle="Manage template clauses" pageHeading="Manage template clauses" pageHeadingClass="govuk-heading-l" topNavigation=true twoThirdsColumn=false backLink=false>
   <div class="pwa-category-list">
     <div class="pwa-category-list__item">
       <@fdsAction.link linkText="Terms & conditions management" linkClass="govuk-link govuk-link--no-visited-state pwa-category-list__link" linkUrl=springUrl(tcUrl)/>
