@@ -1,9 +1,9 @@
 CREATE OR REPLACE PROCEDURE ${datasource.user}.addHistoricalTerms
 ( consent_reference VARCHAR2,
   variation_term NUMBER,
-  hterm1 VARCHAR2,
-  hterm2 VARCHAR2,
-  hterm3 VARCHAR2,
+  hterm1 NUMBER,
+  hterm2 NUMBER,
+  hterm3 NUMBER,
   depcon_paragraph NUMBER,
   depcon_schedule NUMBER )
 
