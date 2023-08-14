@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Terms and conditions" pageHeading="Terms and conditions" pageHeadingClass="govuk-heading-xl govuk-!-margin-bottom-2" fullWidthColumn=false wrapperWidth=true topNavigation=true>
+<@defaultPage htmlTitle="Terms and conditions" pageHeading="Terms and conditions" pageHeadingClass="govuk-heading-xl govuk-!-margin-bottom-2" fullWidthColumn=true wrapperWidth=true topNavigation=true>
 
     <@fdsAction.link linkText="Add new terms and conditions record" linkUrl=springUrl(termsAndConditionsFormUrl) linkClass="govuk-button" role=true/>
 
