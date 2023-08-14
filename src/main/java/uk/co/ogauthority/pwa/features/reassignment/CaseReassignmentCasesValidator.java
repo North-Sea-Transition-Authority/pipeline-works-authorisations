@@ -10,7 +10,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 public class CaseReassignmentCasesValidator implements Validator {
   @Override
   public boolean supports(Class<?> clazz) {
-    return CaseReassignmentOfficerForm.class.equals(clazz);
+    return CaseReassignmentCasesForm.class.equals(clazz);
   }
 
   @Override
