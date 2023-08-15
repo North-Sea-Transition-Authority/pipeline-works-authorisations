@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.enums.mailmerge;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
@@ -8,66 +9,54 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 public enum MailMergeFieldMnem {
 
   //TODO: PWA2022-81 - Convert enum to use set of allowed applications, instead of excluded
-  
+
   // PWA
-  PWA_REFERENCE(Set.of(
-      PwaApplicationType.INITIAL
-  )),
+  PWA_REFERENCE(PwaApplicationType.excluding(PwaApplicationType.INITIAL)),
 
   // Project information
   PROPOSED_START_OF_WORKS_DATE,
   PROJECT_NAME,
 
   // Pipelines
-  PL_NUMBER_LIST(Set.of(
+  PL_NUMBER_LIST(PwaApplicationType.excluding(
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.DEPOSIT_CONSENT
   )),
 
   // Drawings
-  PL_DRAWING_REF_LIST(Set.of(
+  PL_DRAWING_REF_LIST(PwaApplicationType.excluding(
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.DEPOSIT_CONSENT
   )),
 
-  ADMIRALTY_CHART_REF(Set.of(
-      PwaApplicationType.CAT_2_VARIATION,
-      PwaApplicationType.DECOMMISSIONING,
-      PwaApplicationType.HUOO_VARIATION,
-      PwaApplicationType.DEPOSIT_CONSENT,
-      PwaApplicationType.OPTIONS_VARIATION
+  ADMIRALTY_CHART_REF(List.of(
+      PwaApplicationType.INITIAL,
+      PwaApplicationType.CAT_1_VARIATION
   )),
 
   //Terms and Conditions
   VARIATION_TERM(
-      Set.of(
-          PwaApplicationType.INITIAL,
-          PwaApplicationType.HUOO_VARIATION,
-          PwaApplicationType.DEPOSIT_CONSENT),
+      List.of(
+          PwaApplicationType.CAT_1_VARIATION,
+          PwaApplicationType.CAT_2_VARIATION,
+          PwaApplicationType.OPTIONS_VARIATION
+      ),
       Set.of(
           DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
           DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
           DocumentSpec.HUOO_CONSENT_DOCUMENT)),
   HUOO_TERMS(
-      Set.of(
-        PwaApplicationType.INITIAL,
-        PwaApplicationType.CAT_1_VARIATION,
-        PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.DEPOSIT_CONSENT,
-        PwaApplicationType.OPTIONS_VARIATION),
+      List.of(
+          PwaApplicationType.CAT_1_VARIATION
+      ),
       Set.of(
           DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
           DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
           DocumentSpec.VARIATION_CONSENT_DOCUMENT)),
   DEPCON_TERMS(
-      Set.of(
-        PwaApplicationType.INITIAL,
-        PwaApplicationType.CAT_1_VARIATION,
-        PwaApplicationType.CAT_2_VARIATION,
-        PwaApplicationType.HUOO_VARIATION,
-        PwaApplicationType.DECOMMISSIONING,
-        PwaApplicationType.OPTIONS_VARIATION),
+      List.of(
+          PwaApplicationType.DECOMMISSIONING
+      ),
       Set.of(
         DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
         DocumentSpec.VARIATION_CONSENT_DOCUMENT,
@@ -82,13 +71,13 @@ public enum MailMergeFieldMnem {
     preventedDocumentSpecs = EnumSet.noneOf(DocumentSpec.class);
   }
 
-  MailMergeFieldMnem(Set<PwaApplicationType> preventedAppTypes) {
-    this.preventedAppTypes = preventedAppTypes;
+  MailMergeFieldMnem(List<PwaApplicationType> preventedAppTypes) {
+    this.preventedAppTypes = Set.copyOf(preventedAppTypes);
     preventedDocumentSpecs = EnumSet.noneOf(DocumentSpec.class);
   }
 
-  MailMergeFieldMnem(Set<PwaApplicationType> preventedAppTypes, Set<DocumentSpec> preventedDocumentSpecs) {
-    this.preventedAppTypes = preventedAppTypes;
+  MailMergeFieldMnem(List<PwaApplicationType> preventedAppTypes, Set<DocumentSpec> preventedDocumentSpecs) {
+    this.preventedAppTypes = Set.copyOf(preventedAppTypes);
     this.preventedDocumentSpecs = preventedDocumentSpecs;
   }
 
