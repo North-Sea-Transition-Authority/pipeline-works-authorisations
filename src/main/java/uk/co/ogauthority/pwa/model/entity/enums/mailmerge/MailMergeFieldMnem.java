@@ -62,27 +62,27 @@ public enum MailMergeFieldMnem {
         DocumentSpec.VARIATION_CONSENT_DOCUMENT,
         DocumentSpec.HUOO_CONSENT_DOCUMENT));
 
-  private final Set<PwaApplicationType> preventedAppTypes;
+  private final Set<PwaApplicationType> permittedAppTypes;
 
   private final Set<DocumentSpec> preventedDocumentSpecs;
 
   MailMergeFieldMnem() {
-    preventedAppTypes = EnumSet.noneOf(PwaApplicationType.class);
+    permittedAppTypes = EnumSet.allOf(PwaApplicationType.class);
     preventedDocumentSpecs = EnumSet.noneOf(DocumentSpec.class);
   }
 
-  MailMergeFieldMnem(List<PwaApplicationType> preventedAppTypes) {
-    this.preventedAppTypes = Set.copyOf(preventedAppTypes);
+  MailMergeFieldMnem(List<PwaApplicationType> permittedAppTypes) {
+    this.permittedAppTypes = Set.copyOf(permittedAppTypes);
     preventedDocumentSpecs = EnumSet.noneOf(DocumentSpec.class);
   }
 
-  MailMergeFieldMnem(List<PwaApplicationType> preventedAppTypes, Set<DocumentSpec> preventedDocumentSpecs) {
-    this.preventedAppTypes = Set.copyOf(preventedAppTypes);
+  MailMergeFieldMnem(List<PwaApplicationType> permittedAppTypes, Set<DocumentSpec> preventedDocumentSpecs) {
+    this.permittedAppTypes = Set.copyOf(permittedAppTypes);
     this.preventedDocumentSpecs = preventedDocumentSpecs;
   }
 
-  public Set<PwaApplicationType> getPreventedAppTypes() {
-    return preventedAppTypes;
+  public Set<PwaApplicationType> getPermittedAppTypes() {
+    return permittedAppTypes;
   }
 
   public Set<DocumentSpec> getPreventedDocumentSpecs() {
@@ -90,7 +90,7 @@ public enum MailMergeFieldMnem {
   }
 
   public boolean appTypeIsSupported(PwaApplicationType pwaApplicationType) {
-    return !getPreventedAppTypes().contains(pwaApplicationType);
+    return getPermittedAppTypes().contains(pwaApplicationType);
   }
 
   public boolean documentSpecIsSupported(DocumentSpec documentSpec) {
