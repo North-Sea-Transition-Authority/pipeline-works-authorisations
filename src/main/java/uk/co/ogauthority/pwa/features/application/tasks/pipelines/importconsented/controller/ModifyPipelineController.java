@@ -13,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsente
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.controller.PipelinesTaskListController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -48,15 +50,18 @@ public class ModifyPipelineController {
   private final ModifyPipelineValidator modifyPipelineValidator;
   private final ControllerHelperService controllerHelperService;
 
+  private final PadPipelineTransferService transferService;
+
   public ModifyPipelineController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       ModifyPipelineService modifyPipelineService,
       ModifyPipelineValidator modifyPipelineValidator,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService, PadPipelineTransferService transferService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.modifyPipelineService = modifyPipelineService;
     this.modifyPipelineValidator = modifyPipelineValidator;
     this.controllerHelperService = controllerHelperService;
+    this.transferService = transferService;
   }
 
   private ModelAndView createImportConsentedPipelineModelAndView(PwaApplicationDetail detail) {
@@ -96,7 +101,10 @@ public class ModifyPipelineController {
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         createImportConsentedPipelineModelAndView(detail),
         () -> {
-          modifyPipelineService.importPipeline(detail, form);
+          var importedPipeline = modifyPipelineService.importPipeline(detail, form);
+          if (form.getPipelineStatus().equals(PipelineStatus.TRANSFERRED)) {
+            transferService.transferOut(importedPipeline, importedPipeline.getPwaApplicationDetail());
+          }
           FlashUtils.success(
               redirectAttributes, "Success", "The pipeline to be modified has been added to the pipelines listed below");
           return ReverseRouter.redirect(on(PipelinesTaskListController.class)
