@@ -47,7 +47,7 @@ public enum MailMergeFieldMnem {
           DocumentSpec.HUOO_CONSENT_DOCUMENT)),
   HUOO_TERMS(
       List.of(
-          PwaApplicationType.CAT_1_VARIATION
+          PwaApplicationType.HUOO_VARIATION
       ),
       Set.of(
           DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
