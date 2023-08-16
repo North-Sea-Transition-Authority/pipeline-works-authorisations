@@ -318,6 +318,7 @@ public class PadPipelineService {
 
     } else if (newPadPipeline.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
       newPadPipeline.setPipelineTransferAgreed(form.getTransferAgreed());
+      newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
     }
 
     padPipelineRepository.save(newPadPipeline);

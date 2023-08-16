@@ -20,10 +20,11 @@
 
               <#if option == "OUT_OF_USE_ON_SEABED">
                 <@fdsTextarea.textarea path="form.pipelineStatusReason" labelText="Why is the pipeline not being returned to shore?" nestingPath="form.pipelineStatus" characterCount=true maxCharacterLength=maxCharacterLength?c/>
-              
+
               <#elseif option == "TRANSFERRED">
                 <@fdsCheckbox.checkboxGroup path="form.transferAgreed" nestingPath="form.pipelineStatus">
                     <@fdsCheckbox.checkboxItem path="form.transferAgreed" labelText="The NSTA consents and authorisations manager has agreed that this pipeline can be transferred to another PWA" />
+                    <@fdsTextarea.textarea path="form.pipelineStatusReason" labelText="Why is the pipeline being transferred to another PWA?" nestingPath="form.pipelineStatus" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsCheckbox.checkboxGroup>
               </#if>
 
