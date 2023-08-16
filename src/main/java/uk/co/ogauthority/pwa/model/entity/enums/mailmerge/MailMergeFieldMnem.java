@@ -7,9 +7,6 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 
 public enum MailMergeFieldMnem {
-
-  //TODO: PWA2022-81 - Convert enum to use set of allowed applications, instead of excluded
-
   // PWA
   PWA_REFERENCE(PwaApplicationType.excluding(PwaApplicationType.INITIAL)),
 
@@ -55,7 +52,7 @@ public enum MailMergeFieldMnem {
           DocumentSpec.VARIATION_CONSENT_DOCUMENT)),
   DEPCON_TERMS(
       List.of(
-          PwaApplicationType.DECOMMISSIONING
+          PwaApplicationType.DEPOSIT_CONSENT
       ),
       Set.of(
         DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
