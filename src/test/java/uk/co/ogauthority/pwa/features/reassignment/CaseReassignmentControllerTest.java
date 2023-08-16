@@ -127,6 +127,47 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
+  public void postSubmitCaseReassignment_validationPasses() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      return errors;
+    }).when(caseReassignmentService).validateCasesForm(any(), any());
+
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitCaseReassignment(null, userAccount, null, null, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000"))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void postSubmitCaseReassignment_validationFails() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      errors.reject("fake", "error");
+      return errors;
+    }).when(caseReassignmentService).validateCasesForm(any(), any());
+
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitCaseReassignment(null, userAccount, null, null, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000"))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(view().name("reassignment/reassignment"))
+        .andExpect(model().attributeHasErrors("form"));
+  }
+
+  @Test
   public void renderReassignCaseOfficer() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
             on(CaseReassignmentController.class)

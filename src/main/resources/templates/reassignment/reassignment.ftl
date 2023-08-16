@@ -17,7 +17,7 @@
         <@fdsAction.button buttonText="Reassign cases"/>
         <@spring.bind "form.selectedApplicationIds"/>
 
-<#assign id=spring.status.expression?replace('[','')?replace(']','')>
+        <#assign id=spring.status.expression?replace('[','')?replace(']','')>
         <#assign hasError=(spring.status.errorMessages?size > 0)>
 
         <div class="govuk-form-group <#if hasError> govuk-form-group--error</#if>">
