@@ -47,9 +47,9 @@ public class CaseReassignmentServiceTest {
     form.setAssignedCaseOfficerPersonId(1);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    verify(caseReassignmentOfficerValidator).validate(form, bindingResult);
-
     service.validateOfficerForm(form, bindingResult);
+
+    verify(caseReassignmentOfficerValidator).validate(form, bindingResult);
   }
 
   @Test
@@ -58,8 +58,8 @@ public class CaseReassignmentServiceTest {
     form.setSelectedApplicationIds(List.of("test"));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    verify(caseReassignmentCasesValidator).validate(form, bindingResult);
-
     service.validateCasesForm(form, bindingResult);
+
+    verify(caseReassignmentCasesValidator).validate(form, bindingResult);
   }
 }
