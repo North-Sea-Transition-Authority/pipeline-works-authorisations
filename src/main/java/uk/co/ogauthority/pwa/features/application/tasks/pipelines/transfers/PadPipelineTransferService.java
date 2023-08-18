@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
+import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,9 @@ public class PadPipelineTransferService {
         .setPadPipeline(transferredPipeline)
         .setDonorApplication(applicationDetail);
     transferRepository.save(transfer);
+  }
+
+  public Optional<PadPipelineTransfer> findByDonorApplication(PwaApplicationDetail applicationDetail) {
+    return transferRepository.findByDonorApplication(applicationDetail);
   }
 }

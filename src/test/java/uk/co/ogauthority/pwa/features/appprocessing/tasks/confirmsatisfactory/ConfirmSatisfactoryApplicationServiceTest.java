@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -54,10 +55,13 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Mock
   private NotifyService notifyService;
 
+  @Mock
+  private PadPipelineTransferService pipelineTransferService;
+
   @Before
   public void setUp() {
     confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
-        consultationRequestService, caseLinkService, notifyService);
+        consultationRequestService, caseLinkService, notifyService, pipelineTransferService);
   }
 
   @Test
