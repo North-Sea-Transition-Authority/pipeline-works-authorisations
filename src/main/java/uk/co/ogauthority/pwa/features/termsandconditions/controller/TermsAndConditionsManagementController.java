@@ -41,7 +41,8 @@ public class TermsAndConditionsManagementController {
         .addObject("termsAndConditionsFormUrl", ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderNewTermsAndConditionsForm(null, user)))
         .addObject("clearFilterUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
-            .renderTermsAndConditionsManagement(new TermsAndConditionsFilterForm(), null, null)));
+            .renderTermsAndConditionsManagement(new TermsAndConditionsFilterForm(), null, null)))
+        .addObject("form", form);
   }
 
   @PostMapping
@@ -54,7 +55,7 @@ public class TermsAndConditionsManagementController {
     paramMap.setAll(FormObjectMapper.toMap(form));
 
     return ReverseRouter.redirectWithQueryParamMap(on(TermsAndConditionsManagementController.class)
-       .renderTermsAndConditionsManagement(null, null, null), paramMap);
+       .renderTermsAndConditionsManagement(form, null, null), paramMap);
   }
 
   private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
