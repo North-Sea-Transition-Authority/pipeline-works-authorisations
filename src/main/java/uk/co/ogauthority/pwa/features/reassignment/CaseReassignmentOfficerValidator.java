@@ -7,24 +7,18 @@ import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
 @Service
-public class CaseReassignmentValidator implements Validator {
+public class CaseReassignmentOfficerValidator implements Validator {
   @Override
   public boolean supports(Class<?> clazz) {
-    return CaseReassignmentSelectorForm.class.equals(clazz);
+    return CaseReassignmentOfficerForm.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors) {
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "selectedApplicationIds",
-        FieldValidationErrorCodes.REQUIRED.errorCode("selectedApplicationIds"),
-        "Return to the previous page to add PWAs to reassign.");
-
-    ValidationUtils.rejectIfEmptyOrWhitespace(
-        errors,
         "assignedCaseOfficerPersonId",
         FieldValidationErrorCodes.REQUIRED.errorCode("assignedCaseOfficerPersonId"),
-        "Select the case officer to reassign cases to.");
+        "Select the case officer to reassign cases to");
   }
 }
