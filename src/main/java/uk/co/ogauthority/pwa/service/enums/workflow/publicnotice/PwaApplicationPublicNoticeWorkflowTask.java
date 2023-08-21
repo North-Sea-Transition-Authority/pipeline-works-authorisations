@@ -10,7 +10,6 @@ public enum PwaApplicationPublicNoticeWorkflowTask implements UserWorkflowTask {
   DRAFT("draft", null),
   MANAGER_APPROVAL("managerApproval", null),
   APPLICANT_UPDATE("applicantUpdate", null),
-  AWAITING_TRANSFER_CLAIM("awaitingTransferClaim", null),
   CASE_OFFICER_REVIEW("caseOfficerReview", null),
   WAITING("waiting", null);
 

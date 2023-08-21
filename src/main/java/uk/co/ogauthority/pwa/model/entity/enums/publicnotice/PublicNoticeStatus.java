@@ -7,7 +7,6 @@ public enum PublicNoticeStatus {
   DRAFT("Draft", PwaApplicationPublicNoticeWorkflowTask.DRAFT),
   MANAGER_APPROVAL("Manager approval", PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL),
   APPLICANT_UPDATE("Applicant update", PwaApplicationPublicNoticeWorkflowTask.APPLICANT_UPDATE),
-  AWAITING_TRANSFER_CLAIM("Awaiting pipeline transfer claim", PwaApplicationPublicNoticeWorkflowTask.AWAITING_TRANSFER_CLAIM),
   CASE_OFFICER_REVIEW("Case officer review", PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW),
   WAITING("Waiting", PwaApplicationPublicNoticeWorkflowTask.WAITING),
   WITHDRAWN("Withdrawn", null),
