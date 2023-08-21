@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.Pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.PadPipelineDataCopierService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferClaimForm;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
@@ -625,6 +627,26 @@ public class PadPipelineServiceTest {
     ArgumentCaptor<PadPipeline> argumentCaptor = ArgumentCaptor.forClass(PadPipeline.class);
     verify(padPipelinePersisterService).savePadPipelineAndMaterialiseIdentData(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getOtherPipelineMaterialUsed()).isNull();
+  }
+
+  @Test
+  public void createTransferredPipeline() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPadPipelineId(1)
+        .setAssignNewPipelineNumber(false);
+
+    var recipientPwa = new PwaApplicationDetail();
+    recipientPwa.setId(2);
+
+    var expectedSave = new PadPipeline(recipientPwa);
+    expectedSave.setPipeline(pipe1);
+    expectedSave.setPipelineStatus(PipelineStatus.IN_SERVICE);
+
+    when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipe1));
+
+    padPipelineService.createTransferredPipeline(form, recipientPwa);
+
+    verify(padPipelineRepository).save(expectedSave);
   }
 
 }

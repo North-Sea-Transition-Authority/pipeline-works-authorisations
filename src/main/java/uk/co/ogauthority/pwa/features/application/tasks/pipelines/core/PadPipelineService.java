@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineForm;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferClaimForm;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -291,7 +292,6 @@ public class PadPipelineService {
 
   }
 
-
   public Map<String, String> getPipelineReferenceMap(PwaApplicationDetail pwaApplicationDetail) {
     return padPipelineRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
@@ -367,4 +367,22 @@ public class PadPipelineService {
     return INACTIVE_STATUSES;
   }
 
+  @Transactional
+  public void createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
+    var pipelineDetail = getById(form.getPadPipelineId());
+
+    var newPadPipeline = new PadPipeline(recipientPwa);
+    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
+    pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
+
+    if (form.getAssignNewPipelineNumber()) {
+      Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(recipientPwa);
+
+      newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
+      newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
+    }
+    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
+
+    padPipelineRepository.save(newPadPipeline);
+  }
 }
