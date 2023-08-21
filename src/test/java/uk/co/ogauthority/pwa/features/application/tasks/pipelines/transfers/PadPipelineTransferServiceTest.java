@@ -41,4 +41,11 @@ public class PadPipelineTransferServiceTest {
     assertThat(captor.getValue().getPadPipeline()).isEqualTo(padPipeline);
     assertThat(captor.getValue().getDonorApplication()).isEqualTo(pwaApplicationDetail);
   }
+
+  @Test
+  public void findUnclaimedTransfers() {
+    var pipelineDetail = new PwaApplicationDetail();
+    padPipelineTransferService.findUnclaimedByDonorApplication(pipelineDetail);
+    verify(padPipelineTransferRepository).findByDonorApplicationAndRecipientApplicationIsNull(pipelineDetail);
+  }
 }

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -42,6 +45,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUt
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
@@ -494,13 +498,6 @@ public class TasksTabContentServiceTest {
 
   @Test
   public void getTabContentModelMap_differentTab_empty() {
-
-    var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
-        ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
-    var processingContext = createContextFromInvolvementAndPermissions(
-        involvement,
-        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
-
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.CASE_HISTORY);
 
     verifyNoInteractions(taskListService);
@@ -514,6 +511,36 @@ public class TasksTabContentServiceTest {
             tuple("taskListUrl", "")
         );
 
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelineTransfer_empty() {
+
+    when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
+        .thenReturn(Collections.emptyList());
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).doesNotContainKey("pipelineTransferPageBannerView");
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelineTransfer_uncompletedTransfers() {
+    //Setup Pipeline Transfer
+    var pipelineNumber = "PL111";
+    var pipeline = new PadPipeline();
+    pipeline.setPipelineNumber(pipelineNumber);
+    var pipelineTransfer = new PadPipelineTransfer()
+        .setPadPipeline(pipeline);
+
+    when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
+        .thenReturn(List.of(pipelineTransfer));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).containsKey("pipelineTransferPageBannerView");
+    var bannerView = (NotificationBannerView) modelMap.get("pipelineTransferPageBannerView");
+
+    assertThat(bannerView.getBodyLines()).hasSize(2);
+    assertThat(bannerView.getBodyLines().get(1).getLineText()).isEqualTo(pipelineNumber);
   }
 
   private PwaAppProcessingContext createContextWithPermissions(PwaAppProcessingPermission... permissions) {

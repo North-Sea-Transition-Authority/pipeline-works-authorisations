@@ -148,7 +148,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
 
         for (var unclaimedTransfer : pipelineTransfer) {
           var transferLine = new NotificationBannerBodyLine(
-              "-" + unclaimedTransfer.getPadPipeline().getPipelineNumber(),
+              unclaimedTransfer.getPadPipeline().getPipelineNumber(),
               "govuk-!-font-weight-bold govuk-list--bullet"
           );
           pipelineTransferBannerBuilder.addBodyLine(transferLine);
