@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
-import java.util.Optional;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class PadPipelineTransferService {
     transferRepository.save(transfer);
   }
 
-  public Optional<PadPipelineTransfer> findByDonorApplication(PwaApplicationDetail applicationDetail) {
-    return transferRepository.findByDonorApplication(applicationDetail);
+  public List<PadPipelineTransfer> findUnclaimedByDonorApplication(PwaApplicationDetail applicationDetail) {
+    return transferRepository.findByDonorApplicationAndRecipientApplicationIsNull(applicationDetail);
   }
 }

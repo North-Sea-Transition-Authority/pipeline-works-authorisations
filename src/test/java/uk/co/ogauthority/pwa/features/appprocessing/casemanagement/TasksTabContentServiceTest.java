@@ -26,6 +26,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
@@ -89,6 +90,9 @@ public class TasksTabContentServiceTest {
   @Mock
   private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
 
+  @Mock
+  private PadPipelineTransferService pipelineTransferService;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -114,7 +118,7 @@ public class TasksTabContentServiceTest {
         applicationChargeRequestService,
         pwaConsentService,
         asBuiltViewerService,
-        asBuiltNotificationAuthService);
+        asBuiltNotificationAuthService, pipelineTransferService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 

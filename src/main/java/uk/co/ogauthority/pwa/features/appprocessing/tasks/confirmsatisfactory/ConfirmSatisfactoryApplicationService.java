@@ -89,11 +89,11 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
    * If the latest version also contains a pipeline transfer, that transfer must be claimed.
    */
   public boolean taskAccessible(PwaAppProcessingContext context) {
-    var pipelineTransfer = pipelineTransferService.findByDonorApplication(context.getApplicationDetail());
-    if (pipelineTransfer.isPresent() && pipelineTransfer.get().getRecipientApplication() == null) {
-      return false;
+    var pipelineTransfer = pipelineTransferService.findUnclaimedByDonorApplication(context.getApplicationDetail());
+    if (pipelineTransfer.isEmpty()) {
+      return !isSatisfactory(context.getApplicationDetail());
     }
-    return !isSatisfactory(context.getApplicationDetail());
+    return false;
   }
 
   public boolean isSatisfactory(PwaApplicationDetail applicationDetail) {
@@ -110,8 +110,8 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
   }
 
   public TaskStatus getTaskStatus(PwaAppProcessingContext context) {
-    var pipelineTransfer = pipelineTransferService.findByDonorApplication(context.getApplicationDetail());
-    if (pipelineTransfer.isPresent() && pipelineTransfer.get().getRecipientApplication() == null) {
+    var pipelineTransfer = pipelineTransferService.findUnclaimedByDonorApplication(context.getApplicationDetail());
+    if (!pipelineTransfer.isEmpty()) {
       return TaskStatus.AWAITING_CLAIM;
     } else if (isSatisfactory(context.getApplicationDetail())) {
       return TaskStatus.COMPLETED;
