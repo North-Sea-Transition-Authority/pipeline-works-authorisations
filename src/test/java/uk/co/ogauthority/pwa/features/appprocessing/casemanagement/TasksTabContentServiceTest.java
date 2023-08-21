@@ -498,6 +498,13 @@ public class TasksTabContentServiceTest {
 
   @Test
   public void getTabContentModelMap_differentTab_empty() {
+
+    var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
+        ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
+    var processingContext = createContextFromInvolvementAndPermissions(
+        involvement,
+        PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
+
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.CASE_HISTORY);
 
     verifyNoInteractions(taskListService);
