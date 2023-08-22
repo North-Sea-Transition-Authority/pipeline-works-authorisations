@@ -74,7 +74,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   public void caseReasignmentService_renderTopBarScreen_authenticatedTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
-            .renderCaseReassignment(null, userAccount, null, null)))
+            .renderCaseReassignment(null, userAccount, null, null, null, null)))
         .with(authenticatedUserAndSession(userAccount))).andExpect(status().isOk());
   }
 
@@ -85,7 +85,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
-            .renderCaseReassignment(null, userAccount, null, null)))
+            .renderCaseReassignment(null, userAccount, null, null, null, null)))
         .with(authenticatedUserAndSession(userAccount))).andExpect(status().isForbidden());
   }
 
@@ -93,7 +93,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   public void renderTopBarScreen_SmokeTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
-            .renderCaseReassignment(null, userAccount, null, null)))
+            .renderCaseReassignment(null, userAccount, null, null, null, null)))
         .with(authenticatedUserAndSession(userAccount)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("filterForm"))
@@ -106,6 +106,8 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
                 null))))
         .andExpect(model().attribute("clearURL",
             ReverseRouter.route(on(CaseReassignmentController.class).renderCaseReassignment(
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -125,11 +127,51 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void rendererReassignCaseOfficer() throws Exception {
-    var form = new CaseReassignmentSelectorForm();
+  public void postSubmitCaseReassignment_validationPasses() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      return errors;
+    }).when(caseReassignmentService).validateCasesForm(any(), any());
+
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitCaseReassignment(null, userAccount, null, null, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000"))
+        .andExpect(status().is3xxRedirection());
+  }
+
+  @Test
+  public void postSubmitCaseReassignment_validationFails() throws Exception {
+    var applicationDetail = new PwaApplicationDetail();
+    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+
+    doAnswer(invocationOnMock -> {
+      var errors = (Errors) invocationOnMock.getArgument(1);
+      errors.reject("fake", "error");
+      return errors;
+    }).when(caseReassignmentService).validateCasesForm(any(), any());
+
+    mockMvc.perform(post(ReverseRouter.route(
+            on(CaseReassignmentController.class)
+                .submitCaseReassignment(null, userAccount, null, null, null)))
+            .with(authenticatedUserAndSession(userAccount))
+            .with(csrf())
+            .param("selectedApplicationIds", "5000", "3000"))
+        .andExpect(status().is2xxSuccessful())
+        .andExpect(view().name("reassignment/reassignment"))
+        .andExpect(model().attributeHasErrors("form"));
+  }
+
+  @Test
+  public void renderReassignCaseOfficer() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
             on(CaseReassignmentController.class)
-                .renderSelectNewAssignee(null, userAccount, form, null, null)))
+                .renderSelectNewAssignee(null, userAccount, null, null, null, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000"))
@@ -145,12 +187,11 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
       return errors;
-    }).when(caseReassignmentService).validateForm(any(), any());
+    }).when(caseReassignmentService).validateOfficerForm(any(), any());
 
-    var form = new CaseReassignmentSelectorForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
-                .submitSelectNewAssignee(null, userAccount, form, null, null)))
+                .submitSelectNewAssignee(null, userAccount, null, null, null, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
@@ -169,12 +210,11 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
       var errors = (Errors) invocationOnMock.getArgument(1);
       errors.reject("fake", "error");
       return errors;
-    }).when(caseReassignmentService).validateForm(any(), any());
+    }).when(caseReassignmentService).validateOfficerForm(any(), any());
 
-    var form = new CaseReassignmentSelectorForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
-                .submitSelectNewAssignee(null, userAccount, form, null, null)))
+                .submitSelectNewAssignee(null, userAccount, null,null, null, null)))
             .with(authenticatedUserAndSession(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
