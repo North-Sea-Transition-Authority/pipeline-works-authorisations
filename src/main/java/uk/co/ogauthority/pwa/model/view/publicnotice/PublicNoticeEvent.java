@@ -13,7 +13,7 @@ public class PublicNoticeEvent {
 
   private String eventTimestampString;
 
-  private String personName;
+  private String personId;
 
   public PublicNoticeEventType getEventType() {
     return eventType;
@@ -48,12 +48,12 @@ public class PublicNoticeEvent {
     return eventTimestampString;
   }
 
-  public String getPersonName() {
-    return personName;
+  public String getPersonId() {
+    return personId;
   }
 
-  public PublicNoticeEvent setPersonName(String personName) {
-    this.personName = personName;
+  public PublicNoticeEvent setPersonId(String personId) {
+    this.personId = personId;
     return this;
   }
 }

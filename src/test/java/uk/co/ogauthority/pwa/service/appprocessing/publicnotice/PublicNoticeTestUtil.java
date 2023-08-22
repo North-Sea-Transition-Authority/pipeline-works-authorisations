@@ -5,13 +5,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -154,7 +154,8 @@ public final class PublicNoticeTestUtil {
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
-        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of());
+        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of(),
+        null);
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -173,13 +174,13 @@ public final class PublicNoticeTestUtil {
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
         null,
-        List.of());
+        List.of(),
+        null);
   }
 
   static PublicNoticeView createPublishedPublicNoticeView(PublicNotice publicNotice,
                                                           PublicNoticeDate publicNoticeDate,
                                                           PublicNoticeRequest publicNoticeRequest) {
-    var personName = PersonTestUtil.createDefaultPerson().getFullName();
     return new PublicNoticeView(
         publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
@@ -196,19 +197,23 @@ public final class PublicNoticeTestUtil {
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.REQUEST_CREATED)
                 .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
-                .setPersonName(personName)
+                .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
                 .setComment(publicNoticeRequest.getReasonDescription()),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.APPROVED)
                 .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
-                .setPersonName(personName),
+                .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId())),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.PUBLISHED)
                 .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
-                .setPersonName(personName)
+                .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
         )
             .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
-            .collect(Collectors.toList())
+            .collect(Collectors.toList()),
+        Map.of(
+            String.valueOf(publicNoticeRequest.getCreatedByPersonId()), "Person 1",
+            String.valueOf(publicNoticeRequest.getResponderPersonId()), "Person 2"
+        )
     );
   }
 

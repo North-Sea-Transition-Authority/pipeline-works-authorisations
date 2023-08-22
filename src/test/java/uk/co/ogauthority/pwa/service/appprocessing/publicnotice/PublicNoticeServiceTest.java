@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -1020,7 +1019,6 @@ public class PublicNoticeServiceTest {
 
     when(publicNoticeRequestRepository.findAllByPublicNotice(publishedPublicNotice)).thenReturn(List.of(publishedPublicNoticeRequest));
     when(publicNoticeDatesRepository.getAllByPublicNotice(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
-    when(personService.getPersonById(anyInt())).thenReturn(PersonTestUtil.createDefaultPerson());
 
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 

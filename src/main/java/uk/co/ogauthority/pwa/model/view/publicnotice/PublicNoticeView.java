@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.model.view.publicnotice;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -20,6 +21,7 @@ public class PublicNoticeView {
   private final String rejectionReason;
   private final String documentDownloadUrl;
   private final List<PublicNoticeEvent> publicNoticeEvents;
+  private final Map<String, String> personIdNameMap;
 
 
   //constructor for only the fields that are required as a minimum for a public notice view
@@ -36,7 +38,8 @@ public class PublicNoticeView {
     this.publicNoticeRequestStatus = requestStatus;
     this.rejectionReason = null;
     this.documentDownloadUrl = null;
-    publicNoticeEvents = null;
+    this.publicNoticeEvents = null;
+    this.personIdNameMap = null;
   }
 
   public PublicNoticeView(PublicNoticeStatus status,
@@ -50,7 +53,7 @@ public class PublicNoticeView {
                           PublicNoticeRequestStatus publicNoticeRequestStatus,
                           String rejectionReason,
                           String documentDownloadUrl,
-                          List<PublicNoticeEvent> publicNoticeEvents) {
+                          List<PublicNoticeEvent> publicNoticeEvents, Map<String, String> personIdNameMap) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -63,6 +66,7 @@ public class PublicNoticeView {
     this.rejectionReason = rejectionReason;
     this.documentDownloadUrl = documentDownloadUrl;
     this.publicNoticeEvents = publicNoticeEvents;
+    this.personIdNameMap = personIdNameMap;
   }
 
   public PublicNoticeStatus getStatus() {
@@ -139,5 +143,9 @@ public class PublicNoticeView {
 
   public List<PublicNoticeEvent> getPublicNoticeEvents() {
     return publicNoticeEvents;
+  }
+
+  public Map<String, String> getPersonIdNameMap() {
+    return personIdNameMap;
   }
 }

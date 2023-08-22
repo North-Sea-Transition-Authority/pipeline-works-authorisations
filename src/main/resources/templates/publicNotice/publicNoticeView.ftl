@@ -93,19 +93,19 @@
                     <@fdsTimeline.timelineSection>
                         <#list publicNoticeViewData.publicNoticeEvents as event>
                             <#if event?is_last>
-                                <#assign class=" fds-timeline__time-stamp--no-border"/>
+                                <#assign class="fds-timeline__time-stamp--no-border"/>
                             </#if>
 
                             <@fdsTimeline.timelineTimeStamp
                             timeStampHeading=event.eventType.getDisplayText()
                             timeStampHeadingHint=event.eventTimestampString
-                            nodeNumber=""
+                            nodeNumber=" "
                             timeStampClass=class
                             >
                                 <@fdsTimeline.timelineEvent>
-                                    <#if event.personName?has_content>
+                                    <#if event.personId?has_content>
                                         <@fdsDataItems.dataItem>
-                                            <@fdsDataItems.dataValues key=event.eventType.getActionText() value=event.personName/>
+                                            <@fdsDataItems.dataValues key=event.eventType.getActionText() value=publicNoticeViewData.personIdNameMap[event.personId]/>
                                         </@fdsDataItems.dataItem>
                                     </#if>
 
