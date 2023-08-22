@@ -48,7 +48,7 @@ public class AsBuiltNotificationViewServiceTest {
   public void setup() {
     asBuiltNotificationViewService = new AsBuiltNotificationViewService(personService);
 
-    when(personService.getPersonById((PersonId) any())).thenReturn(person);
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(person);
   }
 
   @Test

@@ -38,11 +38,11 @@ public class PublicNoticeDocument {
   }
 
   public PublicNoticeDocument(PublicNotice publicNotice, Integer version,
-                              PublicNoticeDocumentType documentType) {
+                              PublicNoticeDocumentType documentType, Instant createdTimestamp) {
     this.publicNotice = publicNotice;
     this.version = version;
     this.documentType = documentType;
-    this.createdTimestamp = Instant.now();
+    this.createdTimestamp = createdTimestamp;
   }
 
 

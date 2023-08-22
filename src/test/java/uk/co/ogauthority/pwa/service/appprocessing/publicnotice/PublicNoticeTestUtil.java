@@ -90,11 +90,11 @@ public final class PublicNoticeTestUtil {
   }
 
   public static PublicNoticeDocument createArchivedPublicNoticeDocument(PublicNotice publicNotice) {
-    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.ARCHIVED);
+    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.ARCHIVED, Instant.now());
   }
 
   public static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
-    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
   }
 
   public static PublicNoticeDocument createCommentedPublicNoticeDocument(PublicNotice publicNotice) {
