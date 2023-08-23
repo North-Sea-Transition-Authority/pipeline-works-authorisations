@@ -348,7 +348,7 @@ public class PublicNoticeService implements AppProcessingService {
       publicationEndTimestamp = DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp());
     }
 
-    var eventPersonIds = new HashSet<PersonId>();
+    var eventPersonIds = new HashSet<Integer>();
     var events = getEventsForPublicNotice(publicNotice, eventPersonIds);
 
     return new PublicNoticeView(
@@ -368,17 +368,17 @@ public class PublicNoticeService implements AppProcessingService {
     );
   }
 
-  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice, Set<PersonId> eventPersonIds) {
+  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice, Set<Integer> eventPersonIds) {
     var publicNoticeEvents = new ArrayList<PublicNoticeEvent>();
 
     if (publicNotice.getWithdrawalReason() != null) {
       publicNoticeEvents.add(new PublicNoticeEvent()
           .setEventType(PublicNoticeEventType.WITHDRAWN)
           .setEventTimestamp(publicNotice.getWithdrawalTimestamp())
-          .setPersonId(publicNotice.getWithdrawingPersonId())
+          .setPersonId(String.valueOf(publicNotice.getWithdrawingPersonId().asInt()))
           .setComment(publicNotice.getWithdrawalReason())
       );
-      eventPersonIds.add(publicNotice.getWithdrawingPersonId());
+      eventPersonIds.add(publicNotice.getWithdrawingPersonId().asInt());
     }
 
     var requests = publicNoticeRequestRepository.findAllByPublicNotice(publicNotice);
@@ -389,28 +389,28 @@ public class PublicNoticeService implements AppProcessingService {
           publicNoticeEvents.add(new PublicNoticeEvent()
               .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
               .setComment(publicNoticeRequest.getRejectionReason())
-              .setPersonId(new PersonId(publicNoticeRequest.getResponderPersonId()))
+              .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
               .setEventType(PublicNoticeEventType.REJECTED)
           );
-          eventPersonIds.add(new PersonId(publicNoticeRequest.getResponderPersonId()));
+          eventPersonIds.add(publicNoticeRequest.getResponderPersonId());
         }
 
         if (publicNoticeRequest.getRequestApproved() != null && publicNoticeRequest.getRequestApproved()) {
           publicNoticeEvents.add(new PublicNoticeEvent()
               .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
-              .setPersonId(new PersonId(publicNoticeRequest.getResponderPersonId()))
+              .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
               .setEventType(PublicNoticeEventType.APPROVED)
           );
-          eventPersonIds.add(new PersonId(publicNoticeRequest.getResponderPersonId()));
+          eventPersonIds.add(publicNoticeRequest.getResponderPersonId());
         }
 
         publicNoticeEvents.add(new PublicNoticeEvent()
             .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
             .setComment(publicNoticeRequest.getReasonDescription())
-            .setPersonId(new PersonId(publicNoticeRequest.getCreatedByPersonId()))
+            .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
             .setEventType(PublicNoticeEventType.REQUEST_CREATED)
         );
-        eventPersonIds.add(new PersonId(publicNoticeRequest.getCreatedByPersonId()));
+        eventPersonIds.add(publicNoticeRequest.getCreatedByPersonId());
       });
     }
 
@@ -420,17 +420,17 @@ public class PublicNoticeService implements AppProcessingService {
       publicNoticeEvents.add(new PublicNoticeEvent()
           .setEventType(PublicNoticeEventType.PUBLISHED)
           .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
-          .setPersonId(new PersonId(publicNoticeDate.getCreatedByPersonId()))
+          .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
       );
-      eventPersonIds.add(new PersonId(publicNoticeDate.getCreatedByPersonId()));
+      eventPersonIds.add(publicNoticeDate.getCreatedByPersonId());
 
       if (publicNoticeDate.getEndedTimestamp() != null) {
         publicNoticeEvents.add(new PublicNoticeEvent()
             .setEventType(PublicNoticeEventType.ENDED)
             .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
-            .setPersonId(new PersonId(publicNoticeDate.getEndedByPersonId()))
+            .setPersonId(String.valueOf(publicNoticeDate.getEndedByPersonId()))
         );
-        eventPersonIds.add(new PersonId(publicNoticeDate.getEndedByPersonId()));
+        eventPersonIds.add(publicNoticeDate.getEndedByPersonId());
       }
     });
 
@@ -449,9 +449,12 @@ public class PublicNoticeService implements AppProcessingService {
         .collect(Collectors.toList());
   }
 
-  private Map<PersonId, String> getPersonIdNameMap(Collection<PersonId> personIds) {
-    return personService.findAllByIdIn(personIds).stream()
-        .collect(StreamUtils.toLinkedHashMap(Person::getId, Person::getFullName));
+  private Map<String, String> getPersonIdNameMap(Collection<Integer> personIds) {
+    var ids = personIds.stream().map(PersonId::new)
+        .collect(Collectors.toList());
+
+    return personService.findAllByIdIn(ids).stream()
+        .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName));
   }
 
   private List<PublicNoticeDocument> getAllDocumentsForPublicNotice(PublicNotice publicNotice) {

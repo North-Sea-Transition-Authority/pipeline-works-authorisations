@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.model.view.publicnotice;
 
 import java.time.Instant;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 public class PublicNoticeEvent {
@@ -14,7 +13,7 @@ public class PublicNoticeEvent {
 
   private String eventTimestampString;
 
-  private PersonId personId;
+  private String personId;
 
   public PublicNoticeEventType getEventType() {
     return eventType;
@@ -49,12 +48,11 @@ public class PublicNoticeEvent {
     return eventTimestampString;
   }
 
-  public PersonId getPersonId() {
+  public String getPersonId() {
     return personId;
   }
 
-  public PublicNoticeEvent setPersonId(
-      PersonId personId) {
+  public PublicNoticeEvent setPersonId(String personId) {
     this.personId = personId;
     return this;
   }

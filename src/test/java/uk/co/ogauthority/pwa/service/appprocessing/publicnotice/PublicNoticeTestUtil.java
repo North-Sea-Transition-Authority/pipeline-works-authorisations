@@ -197,22 +197,22 @@ public final class PublicNoticeTestUtil {
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.REQUEST_CREATED)
                 .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
-                .setPersonId(new PersonId(publicNoticeRequest.getCreatedByPersonId()))
+                .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
                 .setComment(publicNoticeRequest.getReasonDescription()),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.APPROVED)
                 .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
-                .setPersonId(new PersonId(publicNoticeRequest.getResponderPersonId())),
+                .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId())),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.PUBLISHED)
                 .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
-                .setPersonId(new PersonId(publicNoticeDate.getCreatedByPersonId()))
+                .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
         )
             .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
             .collect(Collectors.toList()),
         Map.of(
-            new PersonId(publicNoticeRequest.getCreatedByPersonId()), "Person 1",
-            new PersonId(publicNoticeRequest.getResponderPersonId()), "Person 2"
+            String.valueOf(publicNoticeRequest.getCreatedByPersonId()), "Person 1",
+            String.valueOf(publicNoticeRequest.getResponderPersonId()), "Person 2"
         )
     );
   }

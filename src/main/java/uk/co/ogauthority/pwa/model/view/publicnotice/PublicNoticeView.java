@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.model.view.publicnotice;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 
@@ -22,7 +21,7 @@ public class PublicNoticeView {
   private final String rejectionReason;
   private final String documentDownloadUrl;
   private final List<PublicNoticeEvent> publicNoticeEvents;
-  private final Map<PersonId, String> personIdNameMap;
+  private final Map<String, String> personIdNameMap;
 
 
   //constructor for only the fields that are required as a minimum for a public notice view
@@ -54,8 +53,7 @@ public class PublicNoticeView {
                           PublicNoticeRequestStatus publicNoticeRequestStatus,
                           String rejectionReason,
                           String documentDownloadUrl,
-                          List<PublicNoticeEvent> publicNoticeEvents,
-                          Map<PersonId, String> personIdNameMap) {
+                          List<PublicNoticeEvent> publicNoticeEvents, Map<String, String> personIdNameMap) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -147,7 +145,7 @@ public class PublicNoticeView {
     return publicNoticeEvents;
   }
 
-  public Map<PersonId, String> getPersonIdNameMap() {
+  public Map<String, String> getPersonIdNameMap() {
     return personIdNameMap;
   }
 }
