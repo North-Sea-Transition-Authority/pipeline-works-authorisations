@@ -105,7 +105,7 @@
                                 <@fdsTimeline.timelineEvent>
                                     <#if event.personId?has_content>
                                         <@fdsDataItems.dataItem>
-                                            <@fdsDataItems.dataValues key=event.eventType.getActionText() value=publicNoticeViewData.personIdNameMap[event.personId]/>
+                                            <@fdsDataItems.dataValues key=event.eventType.getActionText() value=event.getPersonName()!""/>
                                         </@fdsDataItems.dataItem>
                                     </#if>
 

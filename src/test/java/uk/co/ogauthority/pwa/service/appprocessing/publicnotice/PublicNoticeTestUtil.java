@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -154,8 +153,7 @@ public final class PublicNoticeTestUtil {
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
-        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of(),
-        null);
+        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of());
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -174,8 +172,7 @@ public final class PublicNoticeTestUtil {
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
         null,
-        List.of(),
-        null);
+        List.of());
   }
 
   static PublicNoticeView createPublishedPublicNoticeView(PublicNotice publicNotice,
@@ -198,22 +195,21 @@ public final class PublicNoticeTestUtil {
                 .setEventType(PublicNoticeEventType.REQUEST_CREATED)
                 .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
                 .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
-                .setComment(publicNoticeRequest.getReasonDescription()),
+                .setComment(publicNoticeRequest.getReasonDescription())
+                .setPersonName("Person 1"),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.APPROVED)
                 .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
-                .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId())),
+                .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
+                .setPersonName("Person 2"),
             new PublicNoticeEvent()
                 .setEventType(PublicNoticeEventType.PUBLISHED)
                 .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
                 .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
+                .setPersonName("Person 1")
         )
             .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
-            .collect(Collectors.toList()),
-        Map.of(
-            String.valueOf(publicNoticeRequest.getCreatedByPersonId()), "Person 1",
-            String.valueOf(publicNoticeRequest.getResponderPersonId()), "Person 2"
-        )
+            .collect(Collectors.toList())
     );
   }
 

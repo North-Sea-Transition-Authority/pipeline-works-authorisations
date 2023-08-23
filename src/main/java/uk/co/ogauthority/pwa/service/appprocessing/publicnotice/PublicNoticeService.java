@@ -348,8 +348,17 @@ public class PublicNoticeService implements AppProcessingService {
       publicationEndTimestamp = DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp());
     }
 
-    var eventPersonIds = new HashSet<Integer>();
-    var events = getEventsForPublicNotice(publicNotice, eventPersonIds);
+    var events = getEventsForPublicNotice(publicNotice);
+    var personIds = events
+        .stream()
+        .filter(event -> event.getPersonId() != null)
+        .map(PublicNoticeEvent::getPersonId)
+        .collect(Collectors.toList());
+    var personNames = getPersonIdNameMap(personIds);
+    events.stream()
+        .map(event -> event.setPersonName(personNames.get(event.getPersonId())))
+        .collect(Collectors.toList());
+
 
     return new PublicNoticeView(
         publicNotice.getStatus(),
@@ -363,12 +372,11 @@ public class PublicNoticeService implements AppProcessingService {
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
         downloadUrl,
-        events,
-        getPersonIdNameMap(eventPersonIds)
+        events
     );
   }
 
-  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice, Set<Integer> eventPersonIds) {
+  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice) {
     var publicNoticeEvents = new ArrayList<PublicNoticeEvent>();
 
     if (publicNotice.getWithdrawalReason() != null) {
@@ -378,7 +386,6 @@ public class PublicNoticeService implements AppProcessingService {
           .setPersonId(String.valueOf(publicNotice.getWithdrawingPersonId().asInt()))
           .setComment(publicNotice.getWithdrawalReason())
       );
-      eventPersonIds.add(publicNotice.getWithdrawingPersonId().asInt());
     }
 
     var requests = publicNoticeRequestRepository.findAllByPublicNotice(publicNotice);
@@ -392,7 +399,6 @@ public class PublicNoticeService implements AppProcessingService {
               .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
               .setEventType(PublicNoticeEventType.REJECTED)
           );
-          eventPersonIds.add(publicNoticeRequest.getResponderPersonId());
         }
 
         if (publicNoticeRequest.getRequestApproved() != null && publicNoticeRequest.getRequestApproved()) {
@@ -401,7 +407,6 @@ public class PublicNoticeService implements AppProcessingService {
               .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
               .setEventType(PublicNoticeEventType.APPROVED)
           );
-          eventPersonIds.add(publicNoticeRequest.getResponderPersonId());
         }
 
         publicNoticeEvents.add(new PublicNoticeEvent()
@@ -410,7 +415,6 @@ public class PublicNoticeService implements AppProcessingService {
             .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
             .setEventType(PublicNoticeEventType.REQUEST_CREATED)
         );
-        eventPersonIds.add(publicNoticeRequest.getCreatedByPersonId());
       });
     }
 
@@ -422,7 +426,6 @@ public class PublicNoticeService implements AppProcessingService {
           .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
           .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
       );
-      eventPersonIds.add(publicNoticeDate.getCreatedByPersonId());
 
       if (publicNoticeDate.getEndedTimestamp() != null) {
         publicNoticeEvents.add(new PublicNoticeEvent()
@@ -430,7 +433,6 @@ public class PublicNoticeService implements AppProcessingService {
             .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
             .setPersonId(String.valueOf(publicNoticeDate.getEndedByPersonId()))
         );
-        eventPersonIds.add(publicNoticeDate.getEndedByPersonId());
       }
     });
 
@@ -449,8 +451,10 @@ public class PublicNoticeService implements AppProcessingService {
         .collect(Collectors.toList());
   }
 
-  private Map<String, String> getPersonIdNameMap(Collection<Integer> personIds) {
-    var ids = personIds.stream().map(PersonId::new)
+  private Map<String, String> getPersonIdNameMap(Collection<String> personIds) {
+    var ids = personIds.stream()
+        .map(Integer::valueOf)
+        .map(PersonId::new)
         .collect(Collectors.toList());
 
     return personService.findAllByIdIn(ids).stream()

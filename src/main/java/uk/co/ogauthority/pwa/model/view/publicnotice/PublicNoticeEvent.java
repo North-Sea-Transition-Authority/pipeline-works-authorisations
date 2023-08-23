@@ -15,6 +15,8 @@ public class PublicNoticeEvent {
 
   private String personId;
 
+  private String personName;
+
   public PublicNoticeEventType getEventType() {
     return eventType;
   }
@@ -52,8 +54,17 @@ public class PublicNoticeEvent {
     return personId;
   }
 
+  public String getPersonName() {
+    return personName;
+  }
+
   public PublicNoticeEvent setPersonId(String personId) {
     this.personId = personId;
+    return this;
+  }
+
+  public PublicNoticeEvent setPersonName(String personName) {
+    this.personName = personName;
     return this;
   }
 }
