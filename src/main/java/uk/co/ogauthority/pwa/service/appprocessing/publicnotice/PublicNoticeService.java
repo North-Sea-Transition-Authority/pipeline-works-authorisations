@@ -353,7 +353,7 @@ public class PublicNoticeService implements AppProcessingService {
         .stream()
         .filter(event -> event.getPersonId() != null)
         .map(PublicNoticeEvent::getPersonId)
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
     var personNames = getPersonIdNameMap(personIds);
     events.stream()
         .map(event -> event.setPersonName(personNames.get(event.getPersonId())))

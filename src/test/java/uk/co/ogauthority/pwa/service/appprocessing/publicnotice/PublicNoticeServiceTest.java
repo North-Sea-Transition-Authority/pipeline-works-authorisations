@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -1005,6 +1006,9 @@ public class PublicNoticeServiceTest {
     var publishedPublicNotice = PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication);
     when(publicNoticeRepository.findAllByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         List.of(publishedPublicNotice));
+    var person1 = new Person(1, "Person", "1", null, null);
+    var person2 = new Person(2, "Person", "2", null, null);
+    when(personService.findAllByIdIn(any())).thenReturn(List.of(person1, person2));
 
     var publishedPublicNoticeRequest = PublicNoticeTestUtil.createApprovedPublicNoticeRequest(publishedPublicNotice);
     publishedPublicNoticeRequest.setResponseTimestamp(publishedPublicNoticeRequest.getCreatedTimestamp().plus(1, ChronoUnit.HOURS));
