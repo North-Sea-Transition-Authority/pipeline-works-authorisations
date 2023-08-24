@@ -325,7 +325,7 @@ public class PublicNoticeService implements AppProcessingService {
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
 
     var publicNoticeRequest = getLatestPublicNoticeRequest(publicNotice);
-    var latestDocumentComments = publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(
+    var latestDocumentComments = publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
     String withdrawingPersonName = null;
     String withdrawnTimestamp = null;
@@ -543,7 +543,7 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public PublicNoticeDocument getLatestPublicNoticeDocument(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
@@ -565,7 +565,7 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public Optional<PublicNoticeDocument> getLatestPublicNoticeDocumentIfExists(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
   }
 
   private Optional<UploadedFileView> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(PublicNotice publicNotice,
@@ -590,7 +590,7 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   private PublicNoticeDocument getArchivedPublicNoticeDocument(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.ARCHIVED)
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.ARCHIVED)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
