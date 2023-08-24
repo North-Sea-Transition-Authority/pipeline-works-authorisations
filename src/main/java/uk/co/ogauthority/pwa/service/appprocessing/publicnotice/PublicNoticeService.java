@@ -543,7 +543,8 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public PublicNoticeDocument getLatestPublicNoticeDocument(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
+        publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
@@ -565,7 +566,8 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public Optional<PublicNoticeDocument> getLatestPublicNoticeDocumentIfExists(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
+        publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
   }
 
   private Optional<UploadedFileView> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(PublicNotice publicNotice,
