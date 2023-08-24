@@ -18,8 +18,8 @@ public class PadPipelineTransferService {
   @Transactional
   public void transferOut(PadPipeline transferredPipeline, PwaApplicationDetail applicationDetail) {
     var transfer = new PadPipelineTransfer()
-        .setPadPipeline(transferredPipeline)
-        .setDonorApplication(applicationDetail);
+        .setDonorPipeline(transferredPipeline.getPipeline())
+        .setDonorApplicationDetail(applicationDetail);
     transferRepository.save(transfer);
   }
 }
