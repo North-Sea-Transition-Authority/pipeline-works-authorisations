@@ -58,6 +58,14 @@ public class ModifyPipelineValidator implements SmartValidator {
       ValidationUtils.rejectIfEmpty(errors, "transferAgreed",
           "transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Confirm if it has been agreed that this pipeline can be transferred to another PWA");
+
+      ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
+          "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+          "Enter a reason for transferring the pipeline to another PWA");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, "pipelineStatusReason", form::getPipelineStatusReason,
+          "The reason for transferring the pipeline to another PWA");
     }
   }
 

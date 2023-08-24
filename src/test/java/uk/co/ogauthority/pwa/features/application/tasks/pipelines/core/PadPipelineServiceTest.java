@@ -511,12 +511,13 @@ public class PadPipelineServiceTest {
 
     modifyPipelineForm.setPipelineStatus(PipelineStatus.TRANSFERRED);
     modifyPipelineForm.setTransferAgreed(true);
+    modifyPipelineForm.setPipelineStatusReason("reason");
 
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineTransferAgreed()).isEqualTo(modifyPipelineForm.getTransferAgreed());
-
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
   }
 
 
