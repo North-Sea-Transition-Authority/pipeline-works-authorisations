@@ -496,7 +496,7 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)).thenReturn(Optional.of(publicNoticeRequest));
 
     var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(latestPublicNoticeDocument));
 
     var publicNoticeAppFile = new AppFile();
@@ -530,7 +530,7 @@ public class PublicNoticeServiceTest {
     var publicNoticeRequest = PublicNoticeTestUtil.createInitialPublicNoticeRequest(publicNotice, expectedForm);
     when(publicNoticeRequestRepository.findFirstByPublicNoticeOrderByVersionDesc(publicNotice)).thenReturn(Optional.of(publicNoticeRequest));
 
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenThrow(EntityLatestVersionNotFoundException.class);
 
     var actualForm = new PublicNoticeDraftForm();
@@ -772,7 +772,7 @@ public class PublicNoticeServiceTest {
         Optional.of(publicNotice));
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(document));
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
@@ -798,7 +798,7 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         Optional.of(publicNotice));
 
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.empty());
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -845,15 +845,15 @@ public class PublicNoticeServiceTest {
     when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
 
     var currentDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(currentPublicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(currentDocument));
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice1);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
         .thenReturn(Optional.of(document));
 
     var document2 = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice2);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
         .thenReturn(Optional.of(document2));
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
@@ -914,7 +914,7 @@ public class PublicNoticeServiceTest {
         .thenReturn(Optional.of(currentPublicNoticeRequest));
 
     var currentPublicNoticeDocument = PublicNoticeTestUtil.createCommentedPublicNoticeDocument(currentPublicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(currentPublicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(currentPublicNoticeDocument));
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -946,11 +946,11 @@ public class PublicNoticeServiceTest {
     when(personService.getPersonById(endedPublicNotice2.getWithdrawingPersonId())).thenReturn(withdrawingPerson);
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice1);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(endedPublicNotice1, PublicNoticeDocumentType.ARCHIVED))
         .thenReturn(Optional.of(document));
 
     var document2 = PublicNoticeTestUtil.createInitialPublicNoticeDocument(endedPublicNotice2);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(endedPublicNotice2, PublicNoticeDocumentType.ARCHIVED))
         .thenReturn(Optional.of(document2));
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
@@ -1053,7 +1053,7 @@ public class PublicNoticeServiceTest {
   public void getLatestPublicNoticeDocument_notFound() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
-    verify(publicNoticeDocumentRepository, times(1)).findByPublicNoticeAndDocumentType(
+    verify(publicNoticeDocumentRepository, times(1)).findFirstByPublicNoticeAndDocumentTypeOrderById(
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
   }
 
@@ -1065,7 +1065,7 @@ public class PublicNoticeServiceTest {
         Optional.of(publicNotice));
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(document));
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
@@ -1088,7 +1088,7 @@ public class PublicNoticeServiceTest {
         Optional.of(publicNotice));
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(document));
 
     publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
@@ -1102,7 +1102,7 @@ public class PublicNoticeServiceTest {
         Optional.of(publicNotice));
 
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.of(document));
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
@@ -1124,7 +1124,7 @@ public class PublicNoticeServiceTest {
     when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(
         Optional.of(publicNotice));
 
-    when(publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
+    when(publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT))
         .thenReturn(Optional.empty());
 
     var fileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);

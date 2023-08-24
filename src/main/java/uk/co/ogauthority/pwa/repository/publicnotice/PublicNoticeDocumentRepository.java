@@ -12,8 +12,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 @Repository
 public interface PublicNoticeDocumentRepository extends CrudRepository<PublicNoticeDocument, Integer> {
 
-  Optional<PublicNoticeDocument> findByPublicNoticeAndDocumentType(PublicNotice publicNotice,
-                                                                   PublicNoticeDocumentType publicNoticeDocumentType);
+  Optional<PublicNoticeDocument> findFirstByPublicNoticeAndDocumentTypeOrderById(PublicNotice publicNotice,
+                                                                                 PublicNoticeDocumentType publicNoticeDocumentType);
 
   List<PublicNoticeDocument> findAllByPublicNotice(PublicNotice publicNotice);
 }
