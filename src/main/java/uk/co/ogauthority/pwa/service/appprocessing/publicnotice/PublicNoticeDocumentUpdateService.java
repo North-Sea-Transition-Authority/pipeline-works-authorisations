@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.Instant;
 import java.util.Optional;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,7 +119,7 @@ public class PublicNoticeDocumentUpdateService {
     var latestPublicNoticeDocument = publicNoticeService.getLatestPublicNoticeDocument(publicNotice);
 
     var newPublicNoticeDocument = new PublicNoticeDocument(
-        publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+        publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
     newPublicNoticeDocument = publicNoticeDocumentRepository.save(newPublicNoticeDocument);
     latestPublicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
     publicNoticeDocumentRepository.save(latestPublicNoticeDocument);
