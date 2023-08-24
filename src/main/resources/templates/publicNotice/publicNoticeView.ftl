@@ -21,8 +21,10 @@
                 </@fdsSummaryList.summaryListCardActionList>
             <#else>
                 <@fdsSummaryList.summaryListCardActionList>
-                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
-                </@fdsSummaryList.summaryListCardActionList>
+                    <#if publicNoticeViewData.documentDownloadUrl?has_content>
+                      <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
+                    </#if>
+                    </@fdsSummaryList.summaryListCardActionList>
             </#if>
         </#assign>
 
