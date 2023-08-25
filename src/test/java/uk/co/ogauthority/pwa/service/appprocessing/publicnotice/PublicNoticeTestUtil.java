@@ -3,7 +3,10 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -21,6 +24,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEvent;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEventType;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -84,11 +89,11 @@ public final class PublicNoticeTestUtil {
   }
 
   public static PublicNoticeDocument createArchivedPublicNoticeDocument(PublicNotice publicNotice) {
-    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.ARCHIVED);
+    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.ARCHIVED, Instant.now());
   }
 
   public static PublicNoticeDocument createInitialPublicNoticeDocument(PublicNotice publicNotice) {
-    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+    return new PublicNoticeDocument(publicNotice, VERSION1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
   }
 
   public static PublicNoticeDocument createCommentedPublicNoticeDocument(PublicNotice publicNotice) {
@@ -148,7 +153,7 @@ public final class PublicNoticeTestUtil {
   static PublicNoticeView createCommentedPublicNoticeView(PublicNotice publicNotice, PublicNoticeRequest publicNoticeRequest, PublicNoticeDocument publicNoticeDocument) {
     return new PublicNoticeView(publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()), publicNoticeDocument.getComments(),
-        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null);
+        null, null, null, null, null, publicNoticeRequest.getStatus(), publicNoticeRequest.getRejectionReason(), null, List.of());
   }
 
   static PublicNoticeView createWithdrawnPublicNoticeView(PublicNotice publicNotice,
@@ -166,8 +171,8 @@ public final class PublicNoticeTestUtil {
         null,
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        null
-    );
+        null,
+        List.of());
   }
 
   static PublicNoticeView createPublishedPublicNoticeView(PublicNotice publicNotice,
@@ -184,7 +189,27 @@ public final class PublicNoticeTestUtil {
         DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp()),
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        null
+        null,
+        Stream.of(
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.REQUEST_CREATED)
+                .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
+                .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
+                .setComment(publicNoticeRequest.getReasonDescription())
+                .setPersonName("Person 1"),
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.APPROVED)
+                .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+                .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
+                .setPersonName("Person 2"),
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.PUBLISHED)
+                .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
+                .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
+                .setPersonName("Person 1")
+        )
+            .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
+            .collect(Collectors.toList())
     );
   }
 

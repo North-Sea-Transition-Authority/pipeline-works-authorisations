@@ -9,7 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import org.springframework.data.annotation.CreatedDate;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Entity(name = "pad_pipeline_transfers")
@@ -19,17 +19,21 @@ public class PadPipelineTransfer {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @JoinColumn(name = "PAD_PIPELINE_ID")
+  @JoinColumn(name = "donor_pipeline_id")
   @OneToOne
-  private PadPipeline padPipeline;
+  private Pipeline donorPipeline;
 
-  @JoinColumn(name = "DONOR_PAD_ID")
+  @JoinColumn(name = "recipient_pipeline_id")
   @OneToOne
-  private PwaApplicationDetail donorApplication;
+  private Pipeline recipientPipeline;
 
-  @JoinColumn(name = "RECIPIENT_PAD_ID")
+  @JoinColumn(name = "donor_pad_id")
   @OneToOne
-  private PwaApplicationDetail recipientApplication;
+  private PwaApplicationDetail donorApplicationDetail;
+
+  @JoinColumn(name = "recipient_pad_id")
+  @OneToOne
+  private PwaApplicationDetail recipientApplicationDetail;
 
   @CreatedDate
   private Instant createdTimestamp;
@@ -47,38 +51,40 @@ public class PadPipelineTransfer {
     return id;
   }
 
-  public PadPipelineTransfer setId(Integer id) {
-    this.id = id;
+  public Pipeline getDonorPipeline() {
+    return donorPipeline;
+  }
+
+  public PadPipelineTransfer setDonorPipeline(Pipeline donorPipeline) {
+    this.donorPipeline = donorPipeline;
     return this;
   }
 
-  public PadPipeline getPadPipeline() {
-    return padPipeline;
+  public PwaApplicationDetail getDonorApplicationDetail() {
+    return donorApplicationDetail;
   }
 
-  public PadPipelineTransfer setPadPipeline(
-      PadPipeline padPipeline) {
-    this.padPipeline = padPipeline;
+  public PadPipelineTransfer setDonorApplicationDetail(PwaApplicationDetail donorApplicationDetail) {
+    this.donorApplicationDetail = donorApplicationDetail;
     return this;
   }
 
-  public PwaApplicationDetail getDonorApplication() {
-    return donorApplication;
+  public PwaApplicationDetail getRecipientApplicationDetail() {
+    return recipientApplicationDetail;
   }
 
-  public PadPipelineTransfer setDonorApplication(
-      PwaApplicationDetail donorApplication) {
-    this.donorApplication = donorApplication;
+  public PadPipelineTransfer setRecipientApplicationDetail(PwaApplicationDetail recipientApplicationDetail) {
+    this.recipientApplicationDetail = recipientApplicationDetail;
     return this;
   }
 
-  public PwaApplicationDetail getRecipientApplication() {
-    return recipientApplication;
+  public Pipeline getRecipientPipeline() {
+    return recipientPipeline;
   }
 
-  public PadPipelineTransfer setRecipientApplication(
-      PwaApplicationDetail recipientApplication) {
-    this.recipientApplication = recipientApplication;
+  public PadPipelineTransfer setRecipientPipeline(
+      Pipeline recipientPipeline) {
+    this.recipientPipeline = recipientPipeline;
     return this;
   }
 

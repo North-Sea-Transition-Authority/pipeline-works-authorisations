@@ -6,9 +6,12 @@ import com.google.common.annotations.VisibleForTesting;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +33,8 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
@@ -46,6 +51,8 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.model.view.publicnotice.AllPublicNoticesView;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEvent;
+import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeEventType;
 import uk.co.ogauthority.pwa.model.view.publicnotice.PublicNoticeView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
@@ -57,6 +64,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.util.DateUtils;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDraftValidator;
 
 @Service
@@ -317,7 +325,7 @@ public class PublicNoticeService implements AppProcessingService {
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
 
     var publicNoticeRequest = getLatestPublicNoticeRequest(publicNotice);
-    var latestDocumentComments = publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(
+    var latestDocumentComments = publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
         publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
     String withdrawingPersonName = null;
     String withdrawnTimestamp = null;
@@ -325,7 +333,6 @@ public class PublicNoticeService implements AppProcessingService {
     String publicationStartTimestamp = null;
     String publicationEndTimestamp = null;
     String downloadUrl = null;
-
 
     if (publicNotice.getStatus().equals(PublicNoticeStatus.WITHDRAWN)) {
       withdrawingPersonName = personService.getPersonById(publicNotice.getWithdrawingPersonId()).getFullName();
@@ -341,6 +348,18 @@ public class PublicNoticeService implements AppProcessingService {
       publicationEndTimestamp = DateUtils.formatDate(publicNoticeDate.getPublicationEndTimestamp());
     }
 
+    var events = getEventsForPublicNotice(publicNotice);
+    var personIds = events
+        .stream()
+        .filter(event -> event.getPersonId() != null)
+        .map(PublicNoticeEvent::getPersonId)
+        .collect(Collectors.toSet());
+    var personNames = getPersonIdNameMap(personIds);
+    events = events.stream()
+        .map(event -> event.setPersonName(personNames.get(event.getPersonId())))
+        .collect(Collectors.toList());
+
+
     return new PublicNoticeView(
         publicNotice.getStatus(),
         DateUtils.formatDateTime(publicNoticeRequest.getCreatedTimestamp()),
@@ -352,8 +371,98 @@ public class PublicNoticeService implements AppProcessingService {
         publicationEndTimestamp,
         publicNoticeRequest.getStatus(),
         publicNoticeRequest.getRejectionReason(),
-        downloadUrl
+        downloadUrl,
+        events
     );
+  }
+
+  private List<PublicNoticeEvent> getEventsForPublicNotice(PublicNotice publicNotice) {
+    var publicNoticeEvents = new ArrayList<PublicNoticeEvent>();
+
+    if (publicNotice.getWithdrawalReason() != null) {
+      publicNoticeEvents.add(new PublicNoticeEvent()
+          .setEventType(PublicNoticeEventType.WITHDRAWN)
+          .setEventTimestamp(publicNotice.getWithdrawalTimestamp())
+          .setPersonId(String.valueOf(publicNotice.getWithdrawingPersonId().asInt()))
+          .setComment(publicNotice.getWithdrawalReason())
+      );
+    }
+
+    var requests = publicNoticeRequestRepository.findAllByPublicNotice(publicNotice);
+
+    if (!requests.isEmpty()) {
+      requests.forEach(publicNoticeRequest -> {
+        if (publicNoticeRequest.getRequestApproved() != null && !publicNoticeRequest.getRequestApproved()) {
+          publicNoticeEvents.add(new PublicNoticeEvent()
+              .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+              .setComment(publicNoticeRequest.getRejectionReason())
+              .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
+              .setEventType(PublicNoticeEventType.REJECTED)
+          );
+        }
+
+        if (publicNoticeRequest.getRequestApproved() != null && publicNoticeRequest.getRequestApproved()) {
+          publicNoticeEvents.add(new PublicNoticeEvent()
+              .setEventTimestamp(publicNoticeRequest.getResponseTimestamp())
+              .setPersonId(String.valueOf(publicNoticeRequest.getResponderPersonId()))
+              .setEventType(PublicNoticeEventType.APPROVED)
+          );
+        }
+
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventTimestamp(publicNoticeRequest.getCreatedTimestamp())
+            .setComment(publicNoticeRequest.getReasonDescription())
+            .setPersonId(String.valueOf(publicNoticeRequest.getCreatedByPersonId()))
+            .setEventType(PublicNoticeEventType.REQUEST_CREATED)
+        );
+      });
+    }
+
+    var dates = publicNoticeDatesRepository.getAllByPublicNotice(publicNotice);
+
+    dates.ifPresent(publicNoticeDate -> {
+      publicNoticeEvents.add(new PublicNoticeEvent()
+          .setEventType(PublicNoticeEventType.PUBLISHED)
+          .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
+          .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
+      );
+
+      if (publicNoticeDate.getEndedTimestamp() != null) {
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventType(PublicNoticeEventType.ENDED)
+            .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
+            .setPersonId(String.valueOf(publicNoticeDate.getEndedByPersonId()))
+        );
+      }
+    });
+
+    getAllDocumentsForPublicNotice(publicNotice).forEach(publicNoticeDocument -> {
+      if (publicNoticeDocument.getCreatedTimestamp() != null) {
+        publicNoticeEvents.add(new PublicNoticeEvent()
+            .setEventType(PublicNoticeEventType.DOCUMENT_CREATED)
+            .setEventTimestamp(publicNoticeDocument.getCreatedTimestamp())
+            .setComment(publicNoticeDocument.getComments())
+        );
+      }
+    });
+
+    return publicNoticeEvents.stream()
+        .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
+        .collect(Collectors.toList());
+  }
+
+  private Map<String, String> getPersonIdNameMap(Collection<String> personIds) {
+    var ids = personIds.stream()
+        .map(Integer::valueOf)
+        .map(PersonId::new)
+        .collect(Collectors.toList());
+
+    return personService.findAllByIdIn(ids).stream()
+        .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName));
+  }
+
+  private List<PublicNoticeDocument> getAllDocumentsForPublicNotice(PublicNotice publicNotice) {
+    return publicNoticeDocumentRepository.findAllByPublicNotice(publicNotice);
   }
 
   @VisibleForTesting
@@ -425,7 +534,6 @@ public class PublicNoticeService implements AppProcessingService {
       if (x == 0 && !ENDED_STATUSES.contains(publicNotices.get(x).getStatus())) {
         currentPublicNotice = createViewFromPublicNotice(publicNotices.get(x));
         availableActions = getAvailablePublicNoticeActions(publicNotices.get(x).getStatus(), pwaAppProcessingContext);
-
       } else {
         historicalPublicNotices.add(createViewFromPublicNotice(publicNotices.get(x)));
       }
@@ -435,7 +543,8 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public PublicNoticeDocument getLatestPublicNoticeDocument(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
+        publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
@@ -457,7 +566,8 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public Optional<PublicNoticeDocument> getLatestPublicNoticeDocumentIfExists(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(
+        publicNotice, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
   }
 
   private Optional<UploadedFileView> getPublicNoticeDocumentFileViewForPublicNoticeIfExists(PublicNotice publicNotice,
@@ -482,7 +592,7 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   private PublicNoticeDocument getArchivedPublicNoticeDocument(PublicNotice publicNotice) {
-    return publicNoticeDocumentRepository.findByPublicNoticeAndDocumentType(publicNotice, PublicNoticeDocumentType.ARCHIVED)
+    return publicNoticeDocumentRepository.findFirstByPublicNoticeAndDocumentTypeOrderById(publicNotice, PublicNoticeDocumentType.ARCHIVED)
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document with public notice ID: %s", publicNotice.getId())));
   }
