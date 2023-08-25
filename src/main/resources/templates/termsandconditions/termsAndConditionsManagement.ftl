@@ -5,7 +5,7 @@
     <@fdsAction.link linkText="Add new terms and conditions record" linkUrl=springUrl(termsAndConditionsFormUrl) linkClass="govuk-button" role=true/>
 
     <@fdsSearch.searchPage>
-        <@fdsSearch.searchFilter>
+        <@fdsSearch.searchFilter formActionUrl="${springUrl(clearFilterUrl)}">
             <@fdsSearch.searchFilterList filterButtonClass="govuk-button govuk-button--secondary" clearFilterUrl=springUrl(clearFilterUrl)>
                 <@fdsSearch.searchFilterItem itemName="PWA reference">
                     <@fdsSearch.searchTextInput path="form.pwaReference" labelText="PWA reference" labelClass="govuk-visually-hidden"/>

@@ -4,8 +4,6 @@
 <#-- @ftlvariable name="publicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction>" -->
 <#-- @ftlvariable name="existingPublicNoticeActions" type="java.util.List<uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction>" -->
 
-
-
 <#macro publicNoticeView publicNoticeViewData displayAsHistoricalRequest=false existingPublicNoticeActions=[] publicNoticeActions=[] historicalRequestNumber=0>
 
     <#if displayAsHistoricalRequest>
@@ -23,16 +21,18 @@
                 </@fdsSummaryList.summaryListCardActionList>
             <#else>
                 <@fdsSummaryList.summaryListCardActionList>
-                    <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
-                </@fdsSummaryList.summaryListCardActionList>
+                    <#if publicNoticeViewData.documentDownloadUrl?has_content>
+                      <@fdsSummaryList.summaryListCardActionItem itemUrl=springUrl(publicNoticeViewData.documentDownloadUrl) itemText="Download" itemScreenReaderText="public notice document"/>
+                    </#if>
+                    </@fdsSummaryList.summaryListCardActionList>
             </#if>
         </#assign>
 
-          <#if !displayAsHistoricalRequest>
-            <#assign cardHeading = "Public notice"/>
-          <#else>
-            <#assign cardHeading = "Previous public notice #${historicalRequestNumber}"/>
-          </#if>
+            <#if !displayAsHistoricalRequest>
+                <#assign cardHeading = "Public notice"/>
+            <#else>
+                <#assign cardHeading = "Previous public notice #${historicalRequestNumber}"/>
+            </#if>
 
             <@fdsSummaryList.summaryListCard headingText=cardHeading cardActionsContent=content summaryListId="summary-card-list">
 
@@ -46,7 +46,7 @@
                 ${publicNoticeViewData.status.getDisplayText()}
             </@fdsSummaryList.summaryListRowNoAction>
 
-            <#if publicNoticeViewData.publicNoticeRequestStatus?has_content>
+            <#if publicNoticeViewData.publicNoticeRequestStatus?has_content && !displayAsHistoricalRequest>
                 <@fdsSummaryList.summaryListRowNoAction keyText="Public notice request status">
                     ${publicNoticeViewData.publicNoticeRequestStatus.getDisplayText()}
                 </@fdsSummaryList.summaryListRowNoAction>
@@ -89,6 +89,39 @@
                    ${publicNoticeViewData.publicationEndTimestamp}
                 </@fdsSummaryList.summaryListRowNoAction>
             </#if>
+
+            <@fdsDetails.summaryDetails summaryTitle="Show history" detailsClass="govuk-!-margin-bottom-0 govuk-!-margin-top-4">
+                <@fdsTimeline.timeline>
+                    <@fdsTimeline.timelineSection>
+                        <#list publicNoticeViewData.publicNoticeEvents as event>
+                            <#if event?is_last>
+                                <#assign class="fds-timeline__time-stamp--no-border"/>
+                            </#if>
+
+                            <@fdsTimeline.timelineTimeStamp
+                            timeStampHeading=event.eventType.getDisplayText()
+                            timeStampHeadingHint=event.eventTimestampString
+                            nodeNumber=" "
+                            timeStampClass=class
+                            >
+                                <@fdsTimeline.timelineEvent>
+                                    <#if event.personId?has_content>
+                                        <@fdsDataItems.dataItem>
+                                            <@fdsDataItems.dataValues key=event.eventType.getActionText() value=event.getPersonName()!""/>
+                                        </@fdsDataItems.dataItem>
+                                    </#if>
+
+                                    <#if event.comment?has_content>
+                                        <@fdsDataItems.dataItem>
+                                            <@fdsDataItems.dataValues key="Review comment" value=event.comment/>
+                                        </@fdsDataItems.dataItem>
+                                    </#if>
+                                </@fdsTimeline.timelineEvent>
+                            </@fdsTimeline.timelineTimeStamp>
+                        </#list>
+                    </@fdsTimeline.timelineSection>
+                </@fdsTimeline.timeline>
+            </@fdsDetails.summaryDetails>
 
     </@fdsSummaryList.summaryListCard>
 

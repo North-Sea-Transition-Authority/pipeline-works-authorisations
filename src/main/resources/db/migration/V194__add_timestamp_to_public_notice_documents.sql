@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.public_notice_documents ADD created_timestamp TIMESTAMP;

@@ -56,7 +56,8 @@ public class ModifyPipelineController {
       ApplicationBreadcrumbService applicationBreadcrumbService,
       ModifyPipelineService modifyPipelineService,
       ModifyPipelineValidator modifyPipelineValidator,
-      ControllerHelperService controllerHelperService, PadPipelineTransferService transferService) {
+      ControllerHelperService controllerHelperService,
+      PadPipelineTransferService transferService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.modifyPipelineService = modifyPipelineService;
     this.modifyPipelineValidator = modifyPipelineValidator;

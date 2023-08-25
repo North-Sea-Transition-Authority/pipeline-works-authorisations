@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -26,7 +27,7 @@ public class PadPipelineTransferServiceTest {
   PadPipelineTransferRepository padPipelineTransferRepository;
 
   @Mock
-  PadPipelineService  padPipelineService;
+  PadPipelineService padPipelineService;
 
   @Mock
   PadPipelineTransferClaimValidator padPipelineTransferClaimValidator;
@@ -35,12 +36,17 @@ public class PadPipelineTransferServiceTest {
 
   private PadPipeline padPipeline;
 
+  private Pipeline pipeline;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setup()  {
     padPipelineTransferService = new PadPipelineTransferService(padPipelineTransferRepository, padPipelineService,
         padPipelineTransferClaimValidator);
+
+    pipeline = new Pipeline();
+    pipeline.setId(111);
 
     padPipeline = new PadPipeline();
     padPipeline.setId(1);
@@ -61,8 +67,8 @@ public class PadPipelineTransferServiceTest {
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
     verify(padPipelineTransferRepository).save(captor.capture());
 
-    assertThat(captor.getValue().getPadPipeline()).isEqualTo(padPipeline);
-    assertThat(captor.getValue().getDonorApplication()).isEqualTo(pwaApplicationDetail);
+    assertThat(captor.getValue().getDonorPipeline()).isEqualTo(pipeline);
+    assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
   }
 
   @Test

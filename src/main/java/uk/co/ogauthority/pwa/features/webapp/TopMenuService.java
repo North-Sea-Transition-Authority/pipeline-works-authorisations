@@ -73,7 +73,7 @@ public class TopMenuService {
 
     if (systemAreaAccessService.isManagement(user)) {
       menuItems.add(new TopMenuItem(REASSIGN_APPLICATIONS_TITLE, ReverseRouter.route(on(CaseReassignmentController.class)
-          .renderCaseReassignment(null, null, null, null))));
+          .renderCaseReassignment(null, null, null, null, null, null))));
     }
 
     return menuItems;
