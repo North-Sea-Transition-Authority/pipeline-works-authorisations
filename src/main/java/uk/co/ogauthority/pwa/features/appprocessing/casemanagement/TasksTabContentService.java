@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.controller.asbuilt.ReopenAsBuiltNotificationGroupCo
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
@@ -23,6 +24,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.Appl
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
@@ -48,6 +51,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
   private final PwaConsentService pwaConsentService;
   private final AsBuiltViewerService asBuiltViewerService;
   private final AsBuiltNotificationAuthService asBuiltNotificationAuthService;
+  private final PadPipelineTransferService pipelineTransferService;
 
   @Autowired
   public TasksTabContentService(PwaAppProcessingTaskListService appProcessingTaskListService,
@@ -60,7 +64,8 @@ public class TasksTabContentService implements AppProcessingTabContentService {
                                 ApplicationChargeRequestService applicationChargeRequestService,
                                 PwaConsentService pwaConsentService,
                                 AsBuiltViewerService asBuiltViewerService,
-                                AsBuiltNotificationAuthService asBuiltNotificationAuthService) {
+                                AsBuiltNotificationAuthService asBuiltNotificationAuthService,
+                                PadPipelineTransferService pipelineTransferService) {
     this.appProcessingTaskListService = appProcessingTaskListService;
     this.applicationUpdateRequestViewService = applicationUpdateRequestViewService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
@@ -72,6 +77,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     this.pwaConsentService = pwaConsentService;
     this.asBuiltViewerService = asBuiltViewerService;
     this.asBuiltNotificationAuthService = asBuiltNotificationAuthService;
+    this.pipelineTransferService = pipelineTransferService;
   }
 
   @Override
@@ -81,6 +87,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     Optional<ApplicationUpdateRequestView> updateRequestViewOpt = Optional.empty();
     Optional<PageBannerView> optionsApprovalPageBannerViewOpt = Optional.empty();
     Optional<PageBannerView> publicNoticePageBannerViewOpt = Optional.empty();
+    Optional<NotificationBannerView> pipelineTransferViewOpt = Optional.empty();
     String taskListUrl = "";
 
     Optional<String> payForAppUrl = Optional.empty();
@@ -131,6 +138,24 @@ public class TasksTabContentService implements AppProcessingTabContentService {
             )));
       }
 
+      var unclaimedPipelineTransfers = pipelineTransferService.findUnclaimedByDonorApplication(appProcessingContext.getApplicationDetail());
+      if (!unclaimedPipelineTransfers.isEmpty()) {
+        var bodyLine = new NotificationBannerBodyLine(
+            "Cannot progress application until the following pipeline transfers have been claimed by a different application:", null);
+
+        var pipelineTransferBannerBuilder = new NotificationBannerView.BannerBuilder("Awaiting pipeline transfer claim")
+            .addBodyLine(bodyLine);
+
+        for (var unclaimedTransferReference : pipelineTransferService.getUnclaimedPipelineNumbers(unclaimedPipelineTransfers)) {
+          var transferLine = new NotificationBannerBodyLine(
+              unclaimedTransferReference,
+              "govuk-!-font-weight-bold govuk-list--bullet"
+          );
+          pipelineTransferBannerBuilder.addBodyLine(transferLine);
+        }
+        pipelineTransferViewOpt = Optional.of(pipelineTransferBannerBuilder.build());
+      }
+
       if (consentReviewService.isApplicationConsented(appProcessingContext.getApplicationDetail())
           && (appProcessingContext.getUserTypes().contains(UserType.OGA)
           || appProcessingContext.getApplicationInvolvement().isUserInHolderTeam())) {
@@ -160,6 +185,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     updateRequestViewOpt.ifPresent(view -> modelMap.put("updateRequestView", view));
     optionsApprovalPageBannerViewOpt.ifPresent(view -> modelMap.put("optionsApprovalPageBanner", view));
     publicNoticePageBannerViewOpt.ifPresent(view -> modelMap.put("publicNoticePageBannerView", view));
+    pipelineTransferViewOpt.ifPresent(view -> modelMap.put("pipelineTransferPageBannerView", view));
     payForAppUrl.ifPresent(s -> modelMap.put("payForAppUrl", s));
     manageAppContactsUrl.ifPresent(s -> modelMap.put("manageAppContactsUrl", s));
     viewPublicNoticeUrl.ifPresent(s -> modelMap.put("viewPublicNoticeUrl", s));

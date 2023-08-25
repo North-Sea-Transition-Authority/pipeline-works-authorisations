@@ -19,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -34,6 +36,7 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -54,10 +57,13 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Mock
   private NotifyService notifyService;
 
+  @Mock
+  private PadPipelineTransferService pipelineTransferService;
+
   @Before
   public void setUp() {
     confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
-        consultationRequestService, caseLinkService, notifyService);
+        consultationRequestService, caseLinkService, notifyService, pipelineTransferService);
   }
 
   @Test
@@ -391,7 +397,56 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
   }
 
+  @Test
+  public void getTaskStatus_NotTransferNotStarted() {
+    var detail = new PwaApplicationDetail();
+    var applicationContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
 
+    var taskStatus = confirmSatisfactoryApplicationService.getTaskStatus(applicationContext);
+    assertThat(taskStatus).isEqualTo(TaskStatus.NOT_STARTED);
+  }
+
+  @Test
+  public void getTaskStatus_NotTransferStatisfactory() {
+    var detail = new PwaApplicationDetail();
+    detail.setConfirmedSatisfactoryTimestamp(Instant.now());
+    var applicationContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
+
+    var taskStatus = confirmSatisfactoryApplicationService.getTaskStatus(applicationContext);
+    assertThat(taskStatus).isEqualTo(TaskStatus.COMPLETED);
+  }
+
+  @Test
+  public void getTaskStatus_AwaitingTransfer() {
+    var detail = new PwaApplicationDetail();
+
+    when(pipelineTransferService.findUnclaimedByDonorApplication(detail)).thenReturn(List.of(new PadPipelineTransfer()));
+    var applicationContext = new PwaAppProcessingContext(
+        detail,
+        null,
+        null,
+        null,
+        null,
+        null
+    );
+
+    var taskStatus = confirmSatisfactoryApplicationService.getTaskStatus(applicationContext);
+    assertThat(taskStatus).isEqualTo(TaskStatus.AWAITING_CLAIM);
+  }
 
 
 }
