@@ -80,10 +80,9 @@ public class PadPipelineTransferServiceTest {
         .setPadPipelineId(1)
         .setAssignNewPipelineNumber(false);
 
-    var transfer = new PadPipelineTransfer()
-        .setId(1)
-        .setPadPipeline(padPipeline)
-        .setDonorApplication(pwaApplicationDetail);
+    var transfer = new PadPipelineTransfer(1)
+        .setDonorPipeline(pipeline)
+        .setDonorApplicationDetail(pwaApplicationDetail);
 
     when(padPipelineService.getById(padPipeline.getId())).thenReturn(padPipeline);
     when(padPipelineTransferRepository.findPadPipelineTransferByPadPipelineAndRecipientApplicationIsNull(padPipeline))
@@ -94,7 +93,7 @@ public class PadPipelineTransferServiceTest {
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
     verify(padPipelineTransferRepository).save(captor.capture());
 
-    assertThat(captor.getValue()).isEqualTo(transfer.setRecipientApplication(recipientPwa));
+    assertThat(captor.getValue()).isEqualTo(transfer.setRecipientApplicationDetail(recipientPwa));
     verify(padPipelineService).createTransferredPipeline(claimForm, recipientPwa);
   }
 
@@ -107,16 +106,16 @@ public class PadPipelineTransferServiceTest {
     hydrogenApplicationDetail.setId(2);
     hydrogenApplicationDetail.setPwaApplication(hydrogenApplication);
 
-    var hydrogenPipeline = new PadPipeline();
+    var hydrogenPipeline = new Pipeline();
     hydrogenPipeline.setId(2);
 
     var petroleumTransfer = new PadPipelineTransfer()
-        .setPadPipeline(padPipeline)
-        .setDonorApplication(pwaApplicationDetail);
+        .setDonorPipeline(pipeline)
+        .setDonorApplicationDetail(pwaApplicationDetail);
 
     var hydrogenTransfer = new PadPipelineTransfer()
-        .setPadPipeline(hydrogenPipeline)
-        .setDonorApplication(hydrogenApplicationDetail);
+        .setDonorPipeline(hydrogenPipeline)
+        .setDonorApplicationDetail(hydrogenApplicationDetail);
 
     when(padPipelineTransferRepository.findAllByRecipientApplicationIsNull())
         .thenReturn(List.of(petroleumTransfer, hydrogenTransfer));
