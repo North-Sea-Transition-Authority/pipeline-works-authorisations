@@ -5,5 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public interface PadPipelineTransferRepository extends CrudRepository<PadPipelineTransfer, Integer> {
-  List<PadPipelineTransfer> findByDonorApplicationAndRecipientApplicationIsNull(PwaApplicationDetail donorApplication);
+  List<PadPipelineTransfer> findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(PwaApplicationDetail donorApplication);
 }

@@ -12,6 +12,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTransferServiceTest {
@@ -19,11 +20,14 @@ public class PadPipelineTransferServiceTest {
   @Mock
   PadPipelineTransferRepository padPipelineTransferRepository;
 
+  @Mock
+  PipelineDetailService pipelineDetailService;
+
   PadPipelineTransferService padPipelineTransferService;
 
   @Before
   public void setup()  {
-    padPipelineTransferService = new PadPipelineTransferService(padPipelineTransferRepository);
+    padPipelineTransferService = new PadPipelineTransferService(padPipelineTransferRepository, pipelineDetailService);
   }
 
   @Test
@@ -50,6 +54,6 @@ public class PadPipelineTransferServiceTest {
   public void findUnclaimedTransfers() {
     var pipelineDetail = new PwaApplicationDetail();
     padPipelineTransferService.findUnclaimedByDonorApplication(pipelineDetail);
-    verify(padPipelineTransferRepository).findByDonorApplicationAndRecipientApplicationIsNull(pipelineDetail);
+    verify(padPipelineTransferRepository).findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(pipelineDetail);
   }
 }

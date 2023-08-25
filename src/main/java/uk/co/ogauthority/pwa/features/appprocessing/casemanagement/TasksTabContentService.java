@@ -138,17 +138,17 @@ public class TasksTabContentService implements AppProcessingTabContentService {
             )));
       }
 
-      var pipelineTransfer = pipelineTransferService.findUnclaimedByDonorApplication(appProcessingContext.getApplicationDetail());
-      if (!pipelineTransfer.isEmpty()) {
+      var unclaimedPipelineTransfers = pipelineTransferService.findUnclaimedByDonorApplication(appProcessingContext.getApplicationDetail());
+      if (!unclaimedPipelineTransfers.isEmpty()) {
         var bodyLine = new NotificationBannerBodyLine(
             "Cannot progress application until the following pipeline transfers have been claimed by a different application:", null);
 
         var pipelineTransferBannerBuilder = new NotificationBannerView.BannerBuilder("Awaiting pipeline transfer claim")
             .addBodyLine(bodyLine);
 
-        for (var unclaimedTransfer : pipelineTransfer) {
+        for (var unclaimedTransferReference : pipelineTransferService.getUnclaimedPipelineNumbers(unclaimedPipelineTransfers)) {
           var transferLine = new NotificationBannerBodyLine(
-              unclaimedTransfer.getPadPipeline().getPipelineNumber(),
+              unclaimedTransferReference,
               "govuk-!-font-weight-bold govuk-list--bullet"
           );
           pipelineTransferBannerBuilder.addBodyLine(transferLine);
