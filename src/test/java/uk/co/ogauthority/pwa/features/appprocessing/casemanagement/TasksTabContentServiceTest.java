@@ -27,7 +27,6 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -534,13 +533,10 @@ public class TasksTabContentServiceTest {
   public void getTabContentModelMap_pipelineTransfer_uncompletedTransfers() {
     //Setup Pipeline Transfer
     var pipelineNumber = "PL111";
-    var pipeline = new PadPipeline();
-    pipeline.setPipelineNumber(pipelineNumber);
-    var pipelineTransfer = new PadPipelineTransfer()
-        .setPadPipeline(pipeline);
-
+    var piplineTransfers = List.of(new PadPipelineTransfer());
     when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
-        .thenReturn(List.of(pipelineTransfer));
+        .thenReturn(piplineTransfers);
+    when(pipelineTransferService.getUnclaimedPipelineNumbers(piplineTransfers)).thenReturn(List.of(pipelineNumber));
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
     assertThat(modelMap).containsKey("pipelineTransferPageBannerView");
