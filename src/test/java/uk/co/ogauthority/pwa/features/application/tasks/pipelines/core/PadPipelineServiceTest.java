@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -107,6 +108,9 @@ public class PadPipelineServiceTest {
 
   @Mock
   private PipelineHeaderService pipelineHeaderService;
+
+  @Mock
+  PipelineDetailIdentDataImportService identImportService;
 
   private PadPipeline padPipe1;
   private Pipeline pipe1;
