@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -650,7 +649,6 @@ public class PadPipelineServiceTest {
 
     when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(newPipeline);
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail());
-    when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipe1));
 
     padPipelineService.createTransferredPipeline(form, recipientPwa);
 
