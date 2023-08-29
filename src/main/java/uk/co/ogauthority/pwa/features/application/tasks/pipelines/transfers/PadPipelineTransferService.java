@@ -49,12 +49,13 @@ public class PadPipelineTransferService {
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
     var unclaimedTransfer = findUnclaimedByDonorPipeline(pipelineDetail.getPipeline());
     if (unclaimedTransfer.isPresent()) {
+      var claimedPipeline = padPipelineService.createTransferredPipeline(form, recipientApplicationDetail);
+
       var transfer = unclaimedTransfer.get();
       transfer.setRecipientApplicationDetail(recipientApplicationDetail);
+      transfer.setRecipientPipeline(claimedPipeline.getPipeline());
       transferRepository.save(transfer);
     }
-
-    padPipelineService.createTransferredPipeline(form, recipientApplicationDetail);
   }
 
   public Map<String, String> getClaimablePipelinesForForm(PwaResourceType resourceType) {

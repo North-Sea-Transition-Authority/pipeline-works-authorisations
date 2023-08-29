@@ -137,7 +137,7 @@ public class PadPipelineServiceTest {
         padPipelinePersisterService,
         pipelineHeaderFormValidator,
         pipelineMappingService,
-        pipelineHeaderService);
+        pipelineHeaderService, identImportService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
