@@ -20,8 +20,8 @@ public class PadPipelineTransferClaimValidator implements Validator {
 
     ValidationUtils.rejectIfEmptyOrWhitespace(
         errors,
-        "padPipelineId",
-        FieldValidationErrorCodes.REQUIRED.errorCode("padPipelineId"),
+        "pipelineId",
+        FieldValidationErrorCodes.REQUIRED.errorCode("pipelineId"),
         "Select a pipeline to transfer");
   }
 }

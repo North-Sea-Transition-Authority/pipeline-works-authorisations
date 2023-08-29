@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,7 @@ import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -632,21 +634,39 @@ public class PadPipelineServiceTest {
   @Test
   public void createTransferredPipeline() {
     var form = new PadPipelineTransferClaimForm()
-        .setPadPipelineId(1)
+        .setPipelineId(1)
         .setAssignNewPipelineNumber(false);
+
+    var recipientPwaApplication = new PwaApplication();
 
     var recipientPwa = new PwaApplicationDetail();
     recipientPwa.setId(2);
+    recipientPwa.setPwaApplication(recipientPwaApplication);
 
     var expectedSave = new PadPipeline(recipientPwa);
     expectedSave.setPipeline(pipe1);
     expectedSave.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
+    var oldPipelineDetail = generatePipelineDetail();
+
+    var newPipeline = new Pipeline();
+
+    when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(newPipeline);
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(oldPipelineDetail);
     when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipe1));
 
     padPipelineService.createTransferredPipeline(form, recipientPwa);
 
-    verify(padPipelineRepository).save(expectedSave);
+    verify(padPipelineRepository).save(refEq(expectedSave));
+  }
+
+  private PipelineDetail generatePipelineDetail() {
+    var oldPipelineDetail = new PipelineDetail();
+    oldPipelineDetail.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
+    oldPipelineDetail.setPipelineType(PipelineType.METHANOL_PIPELINE);
+    oldPipelineDetail.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
+
+    return oldPipelineDetail;
   }
 
 }

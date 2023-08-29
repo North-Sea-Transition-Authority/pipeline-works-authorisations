@@ -2,17 +2,16 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 public class PadPipelineTransferClaimForm {
 
-  private Integer padPipelineId;
+  private Integer pipelineId;
 
   private boolean assignNewPipelineNumber;
 
-  public Integer getPadPipelineId() {
-    return padPipelineId;
+  public Integer getPipelineId() {
+    return pipelineId;
   }
 
-  public PadPipelineTransferClaimForm setPadPipelineId(
-      Integer padPipelineId) {
-    this.padPipelineId = padPipelineId;
+  public PadPipelineTransferClaimForm setPipelineId(Integer pipelineId) {
+    this.pipelineId = pipelineId;
     return this;
   }
 

@@ -3,7 +3,7 @@
 <@defaultPage htmlTitle="Transfer a pipeline from another PWA" pageHeading="Transfer a pipeline from another PWA" breadcrumbs=true fullWidthColumn=true>
     <@fdsForm.htmlForm>
         <@fdsSearchSelector.searchSelectorEnhanced
-        path="form.padPipelineId"
+        path="form.pipelineId"
         options=claimablePipelines
         labelText="Select the pipeline to transfer to this PWA"/>
 

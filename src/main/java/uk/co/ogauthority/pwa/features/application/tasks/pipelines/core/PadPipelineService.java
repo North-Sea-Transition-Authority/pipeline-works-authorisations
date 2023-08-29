@@ -369,10 +369,11 @@ public class PadPipelineService {
 
   @Transactional
   public void createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
-    var pipelineDetail = getById(form.getPadPipelineId());
+    var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
 
     var newPadPipeline = new PadPipeline(recipientPwa);
-    newPadPipeline.setPipeline(pipelineDetail.getPipeline());
+    var newPipeline = pipelineService.createApplicationPipeline(recipientPwa.getPwaApplication());
+    newPadPipeline.setPipeline(newPipeline);
     pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
 
     if (form.getAssignNewPipelineNumber()) {
