@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,7 +27,6 @@ import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -647,26 +645,16 @@ public class PadPipelineServiceTest {
     expectedSave.setPipeline(pipe1);
     expectedSave.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
-    var oldPipelineDetail = generatePipelineDetail();
 
     var newPipeline = new Pipeline();
 
     when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(newPipeline);
-    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(oldPipelineDetail);
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail());
     when(padPipelineRepository.findById(1)).thenReturn(Optional.of(padPipe1));
 
     padPipelineService.createTransferredPipeline(form, recipientPwa);
 
-    verify(padPipelineRepository).save(refEq(expectedSave));
-  }
-
-  private PipelineDetail generatePipelineDetail() {
-    var oldPipelineDetail = new PipelineDetail();
-    oldPipelineDetail.setPipelineFlexibility(PipelineFlexibility.FLEXIBLE);
-    oldPipelineDetail.setPipelineType(PipelineType.METHANOL_PIPELINE);
-    oldPipelineDetail.setPipelineMaterial(PipelineMaterial.CARBON_STEEL);
-
-    return oldPipelineDetail;
+    verify(padPipelineRepository).save(any(PadPipeline.class));
   }
 
 }

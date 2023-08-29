@@ -370,10 +370,9 @@ public class PadPipelineService {
   @Transactional
   public void createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
+    var newPipeline = pipelineService.createApplicationPipeline(recipientPwa.getPwaApplication());
 
     var newPadPipeline = new PadPipeline(recipientPwa);
-    var newPipeline = pipelineService.createApplicationPipeline(recipientPwa.getPwaApplication());
-    newPadPipeline.setPipeline(newPipeline);
     pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
 
     if (form.getAssignNewPipelineNumber()) {
@@ -382,8 +381,9 @@ public class PadPipelineService {
       newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
       newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
     }
-    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
+    newPadPipeline.setPipeline(newPipeline);
+    newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipelineRepository.save(newPadPipeline);
   }
 }
