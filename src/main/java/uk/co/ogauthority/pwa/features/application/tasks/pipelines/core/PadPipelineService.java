@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -46,6 +47,8 @@ public class PadPipelineService {
   private final PipelineMappingService pipelineMappingService;
   private final PipelineHeaderService pipelineHeaderService;
 
+  private final PipelineDetailIdentDataImportService identImportService;
+
   private static final Set<PipelineStatus> DATA_REQUIRED_STATUSES = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
   private static final Set<PipelineStatus> INACTIVE_STATUSES = EnumSet.complementOf(EnumSet.copyOf(
       PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED)));
@@ -57,7 +60,8 @@ public class PadPipelineService {
                             PadPipelinePersisterService padPipelinePersisterService,
                             PipelineHeaderFormValidator pipelineHeaderFormValidator,
                             PipelineMappingService pipelineMappingService,
-                            PipelineHeaderService pipelineHeaderService) {
+                            PipelineHeaderService pipelineHeaderService,
+                            PipelineDetailIdentDataImportService identImportService) {
     this.padPipelineRepository = padPipelineRepository;
     this.pipelineService = pipelineService;
     this.pipelineDetailService = pipelineDetailService;
@@ -65,6 +69,7 @@ public class PadPipelineService {
     this.pipelineHeaderFormValidator = pipelineHeaderFormValidator;
     this.pipelineMappingService = pipelineMappingService;
     this.pipelineHeaderService = pipelineHeaderService;
+    this.identImportService = identImportService;
   }
 
   public List<PadPipeline> getPipelines(PwaApplicationDetail detail) {
@@ -368,7 +373,7 @@ public class PadPipelineService {
   }
 
   @Transactional
-  public void createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
+  public PadPipeline createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
     var newPipeline = pipelineService.createApplicationPipeline(recipientPwa.getPwaApplication());
 
@@ -385,5 +390,8 @@ public class PadPipelineService {
     newPadPipeline.setPipeline(newPipeline);
     newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipelineRepository.save(newPadPipeline);
+
+    identImportService.importIdentsAndData(pipelineDetail, newPadPipeline);
+    return newPadPipeline;
   }
 }
