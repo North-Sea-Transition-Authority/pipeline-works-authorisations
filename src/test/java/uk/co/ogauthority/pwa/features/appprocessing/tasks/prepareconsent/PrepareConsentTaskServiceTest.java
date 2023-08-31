@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
@@ -545,5 +547,72 @@ public class PrepareConsentTaskServiceTest {
 
   }
 
+  @Test
+  public void taskAccessible_transferReleaseNotConsented() {
+    var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    donorDetail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(recipientDetail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(recipientDetail.getPwaApplication()), Set.of());
+    var pipelineTransfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorDetail)
+        .setRecipientApplicationDetail(recipientDetail);
+    when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
+
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+    assertThat(taskAccessible).isFalse();
+  }
+
+  @Test
+  public void taskAccessible_transferReleaseConsented() {
+    var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    donorDetail.setStatus(PwaApplicationStatus.COMPLETE);
+
+    var processingContext = new PwaAppProcessingContext(recipientDetail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(recipientDetail.getPwaApplication()), Set.of());
+    var pipelineTransfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorDetail)
+        .setRecipientApplicationDetail(recipientDetail);
+    when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
+
+    var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
+    assertThat(taskAccessible).isTrue();
+  }
+
+  @Test
+  public void taskStatus_transferReleaseNotConsented() {
+    var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    donorDetail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
+
+    var processingContext = new PwaAppProcessingContext(recipientDetail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(recipientDetail.getPwaApplication()), Set.of());
+    var pipelineTransfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorDetail)
+        .setRecipientApplicationDetail(recipientDetail);
+    when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
+
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.AWAITING_PIPELINE_RELEASE));
+  }
+
+  @Test
+  public void taskStatus_transferReleaseConsented() {
+    var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
+    donorDetail.setStatus(PwaApplicationStatus.COMPLETE);
+
+    var processingContext = new PwaAppProcessingContext(recipientDetail, null, Set.of(), null,
+        PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(recipientDetail.getPwaApplication()), Set.of());
+    var pipelineTransfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorDetail)
+        .setRecipientApplicationDetail(recipientDetail);
+    when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
+
+    var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.NOT_STARTED));
+  }
 
 }
