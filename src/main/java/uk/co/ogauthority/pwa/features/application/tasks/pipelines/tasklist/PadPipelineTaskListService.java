@@ -140,8 +140,8 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         .stream()
         .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, Function.identity()));
 
-    var withdrawnClaimedPipelines = padPipelineTransferService.getWithdrawnPipelineClaims().stream()
-        .map(PadPipelineTransfer::getRecipientPipeline)
+    var withdrawnClaimedPipelineIds = padPipelineTransferService.getWithdrawnPipelineClaims().stream()
+        .map(padPipelineTransfer -> padPipelineTransfer.getRecipientPipeline().getPipelineId())
         .collect(Collectors.toList());
 
     return allPadPipelines.stream()
@@ -163,7 +163,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
               identsNo,
               padPipeline.getPipelineStatus(),
               pipelineName,
-              withdrawnClaimedPipelines.contains(padPipeline.getPipeline()));
+              withdrawnClaimedPipelineIds.contains(padPipeline.getPipelineId()));
 
         })
         .collect(Collectors.toList());
@@ -270,9 +270,9 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
       return new SummaryScreenValidationResult(
           invalidPipelines,
           "pipeline",
-          "Has been withdrawn from transfer and must be removed",
+          "can no longer be transferred and must be removed",
           false,
-          "Pipelines that have been withdrawn from transfer must be removed."
+          "Pipelines that can no longer be transferred must be removed."
       );
     }
 

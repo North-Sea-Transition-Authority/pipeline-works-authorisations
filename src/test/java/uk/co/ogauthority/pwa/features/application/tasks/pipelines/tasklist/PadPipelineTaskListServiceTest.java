@@ -311,9 +311,9 @@ public class PadPipelineTaskListServiceTest {
     assertThat(validationResult.isSectionComplete()).isFalse();
     assertThat(validationResult.getErrorItems()) .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
         .containsExactly(
-            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline Has been withdrawn from transfer and must be removed")
+            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline can no longer be transferred and must be removed")
         );
-    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("Pipelines that have been withdrawn from transfer must be removed.");
+    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("Pipelines that can no longer be transferred must be removed.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
