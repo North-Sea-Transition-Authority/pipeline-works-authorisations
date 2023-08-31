@@ -36,6 +36,10 @@ public class PadPipelineTransferService {
     return transferRepository.findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(applicationDetail);
   }
 
+  public List<PadPipelineTransfer> findByRecipientApplication(PwaApplicationDetail applicationDetail) {
+    return transferRepository.findByRecipientApplicationDetail(applicationDetail);
+  }
+
   public List<String> getUnclaimedPipelineNumbers(List<PadPipelineTransfer> unclaimedTransfers) {
     var unclaimedPipelines = unclaimedTransfers.stream()
         .map(PadPipelineTransfer::getDonorPipeline)
