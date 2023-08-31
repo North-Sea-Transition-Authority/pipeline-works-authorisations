@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -45,11 +46,18 @@ public class PrepareConsentTaskServiceTest {
   @Mock
   private ConsentReviewService consentReviewService;
 
+  @Mock
+  PadPipelineTransferService pipelineTransferService;
+
   private PrepareConsentTaskService prepareConsentTaskService;
 
   @Before
   public void setUp() {
-    prepareConsentTaskService = new PrepareConsentTaskService(documentService, approveOptionsService, consentReviewService);
+    prepareConsentTaskService = new PrepareConsentTaskService(
+        documentService,
+        approveOptionsService,
+        consentReviewService,
+        pipelineTransferService);
   }
 
   @Test
