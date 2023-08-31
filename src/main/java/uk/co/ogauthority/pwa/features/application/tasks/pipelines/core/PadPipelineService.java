@@ -120,14 +120,7 @@ public class PadPipelineService {
 
     var newPadPipeline = new PadPipeline(pwaApplicationDetail);
     newPadPipeline.setPipeline(newPipeline);
-
-    // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
-    // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
-    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(
-        pwaApplicationDetail);
-
-    newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
-    newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
+    setTemporaryPipelineNumber(newPadPipeline, pwaApplicationDetail);
     newPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
 
     saveEntityUsingForm(newPadPipeline, form, requiredQuestions);
@@ -373,18 +366,15 @@ public class PadPipelineService {
   }
 
   @Transactional
-  public PadPipeline createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwa) {
+  public PadPipeline createTransferredPipeline(PadPipelineTransferClaimForm form, PwaApplicationDetail recipientPwaApplicationDetail) {
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
-    var newPipeline = pipelineService.createApplicationPipeline(recipientPwa.getPwaApplication());
+    var newPipeline = pipelineService.createApplicationPipeline(recipientPwaApplicationDetail.getPwaApplication());
 
-    var newPadPipeline = new PadPipeline(recipientPwa);
+    var newPadPipeline = new PadPipeline(recipientPwaApplicationDetail);
     pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
 
     if (form.getAssignNewPipelineNumber()) {
-      Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(recipientPwa);
-
-      newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
-      newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
+      setTemporaryPipelineNumber(newPadPipeline, recipientPwaApplicationDetail);
     }
 
     newPadPipeline.setPipeline(newPipeline);
@@ -393,5 +383,14 @@ public class PadPipelineService {
 
     identImportService.importIdentsAndData(pipelineDetail, newPadPipeline);
     return newPadPipeline;
+  }
+
+  private void setTemporaryPipelineNumber(PadPipeline newPadPipeline, PwaApplicationDetail applicationDetail) {
+    // N.B. this temporary reference format is intended. Applicants need a reference for a pipeline that they can use in their
+    // schematic drawings, mention in text etc while filling in the application. PL numbers are only assigned after submission.
+    Integer maxTemporaryNumber = padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(applicationDetail);
+
+    newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
+    newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
   }
 }

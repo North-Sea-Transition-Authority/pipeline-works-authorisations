@@ -67,7 +67,7 @@ public class PadPipelineTransferService {
     return pipelineDetailService.getLatestPipelineDetailsForIds(pipelineIds)
         .stream()
         .collect(StreamUtils.toLinkedHashMap(
-            pipelineDetail -> pipelineDetail.getPipelineId().getDiffableString(),
+            pipelineDetail -> pipelineDetail.getPipelineId().toString(),
             PipelineDetail::getPipelineNumber)
         );
   }

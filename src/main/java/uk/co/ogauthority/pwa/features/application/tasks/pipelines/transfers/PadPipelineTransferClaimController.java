@@ -87,7 +87,7 @@ public class PadPipelineTransferClaimController {
         .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
             .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)));
 
-    applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "transfer from another PWA");
+    applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Transfer from another PWA");
 
     return modelAndView;
   }
