@@ -81,7 +81,11 @@ public class PadPipelineTransferService {
     return transferRepository.findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(applicationDetail);
   }
 
-  public Optional<PadPipelineTransfer> findUnclaimedByDonorPipeline(Pipeline donorPipeline) {
+  public List<PadPipelineTransfer> getWithdrawnPipelineClaims() {
+    return transferRepository.findAllByDonorApplicationDetailIsNullAndRecipientApplicationDetailIsNotNull();
+  }
+
+  private Optional<PadPipelineTransfer> findUnclaimedByDonorPipeline(Pipeline donorPipeline) {
     return transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(donorPipeline);
   }
 
@@ -104,18 +108,34 @@ public class PadPipelineTransferService {
   public void checkAndRemoveFromTransfer(Pipeline pipeline) {
     var recipientToRemove = transferRepository.findByRecipientPipeline(pipeline);
 
-    recipientToRemove.ifPresent(this::removeRecipient);
+    recipientToRemove.ifPresentOrElse(
+        this::removeRecipient,
+        () -> {
+          var donorToRemove = transferRepository.findByDonorPipeline(pipeline);
 
-    // TODO PWA2022-88: if not present check if present as donor and remove it, also check if recipient is there and delete if not.
+          donorToRemove.ifPresent(this::removeDonor);
+        });
   }
 
   private void removeRecipient(PadPipelineTransfer padPipelineTransfer) {
-    // TODO PWA2022-88: check to see if donor pipeline details are there, if not delete the entity.
+    if (padPipelineTransfer.getDonorPipeline() == null) {
+      transferRepository.delete(padPipelineTransfer);
+    } else {
+      padPipelineTransfer
+          .setRecipientPipeline(null)
+          .setRecipientApplicationDetail(null);
+      transferRepository.save(padPipelineTransfer);
+    }
+  }
 
-    padPipelineTransfer
-        .setRecipientPipeline(null)
-        .setRecipientApplicationDetail(null);
-
-    transferRepository.save(padPipelineTransfer);
+  private void removeDonor(PadPipelineTransfer padPipelineTransfer) {
+    if (padPipelineTransfer.getRecipientPipeline() == null) {
+      transferRepository.delete(padPipelineTransfer);
+    } else {
+      padPipelineTransfer
+          .setDonorPipeline(null)
+          .setDonorApplicationDetail(null);
+      transferRepository.save(padPipelineTransfer);
+    }
   }
 }

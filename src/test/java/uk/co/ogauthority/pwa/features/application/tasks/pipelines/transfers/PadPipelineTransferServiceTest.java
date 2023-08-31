@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -115,7 +117,18 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer() {
+  public void checkAndRemoveFromTransfer_nothingToRemove() {
+    when(transferRepository.findByRecipientPipeline(pipeline)).thenReturn(Optional.empty());
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.empty());
+
+    padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
+
+    verify(transferRepository, never()).save(any());
+    verify(transferRepository, never()).delete(any());
+  }
+
+  @Test
+  public void checkAndRemoveFromTransfer_removeRecipient_donorPresent() {
     var transfer = new PadPipelineTransfer()
         .setDonorPipeline(pipeline)
         .setDonorApplicationDetail(pwaApplicationDetail)
@@ -133,5 +146,54 @@ public class PadPipelineTransferServiceTest {
     assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(null);
     assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(null);
+  }
+
+  @Test
+  public void checkAndRemoveFromTransfer_removeRecipient_donorNotPresent() {
+    var transfer = new PadPipelineTransfer()
+        .setRecipientPipeline(pipeline)
+        .setRecipientApplicationDetail(pwaApplicationDetail);
+
+    when(transferRepository.findByRecipientPipeline(pipeline)).thenReturn(Optional.of(transfer));
+
+    padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
+
+    verify(transferRepository).delete(transfer);
+  }
+
+  @Test
+  public void checkAndRemoveFromTransfer_removeDonor_recipientPresent() {
+    var transfer = new PadPipelineTransfer()
+        .setDonorPipeline(pipeline)
+        .setDonorApplicationDetail(pwaApplicationDetail)
+        .setRecipientPipeline(pipeline)
+        .setRecipientApplicationDetail(pwaApplicationDetail);
+
+    when(transferRepository.findByRecipientPipeline(pipeline)).thenReturn(Optional.empty());
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
+
+    padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
+
+    ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
+    verify(transferRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getDonorPipeline()).isEqualTo(null);
+    assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(null);
+    assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(pipeline);
+    assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(pwaApplicationDetail);
+  }
+
+  @Test
+  public void checkAndRemoveFromTransfer_removeDonor_recipientNotPresent() {
+    var transfer = new PadPipelineTransfer()
+        .setDonorPipeline(pipeline)
+        .setDonorApplicationDetail(pwaApplicationDetail);
+
+    when(transferRepository.findByRecipientPipeline(pipeline)).thenReturn(Optional.empty());
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
+
+    padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
+
+    verify(transferRepository).delete(transfer);
   }
 }
