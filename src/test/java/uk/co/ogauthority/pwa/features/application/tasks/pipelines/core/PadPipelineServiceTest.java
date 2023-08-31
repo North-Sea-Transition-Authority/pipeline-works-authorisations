@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.Pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PipelineIdentFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist.PadPipelineDataCopierService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferClaimForm;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
@@ -49,6 +50,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
+import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDataImportService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -107,6 +109,9 @@ public class PadPipelineServiceTest {
   @Mock
   private PipelineHeaderService pipelineHeaderService;
 
+  @Mock
+  PipelineDetailIdentDataImportService identImportService;
+
   private PadPipeline padPipe1;
   private Pipeline pipe1;
   private PadPipelineIdent ident;
@@ -136,7 +141,7 @@ public class PadPipelineServiceTest {
         padPipelinePersisterService,
         pipelineHeaderFormValidator,
         pipelineMappingService,
-        pipelineHeaderService);
+        pipelineHeaderService, identImportService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);
@@ -625,6 +630,33 @@ public class PadPipelineServiceTest {
     ArgumentCaptor<PadPipeline> argumentCaptor = ArgumentCaptor.forClass(PadPipeline.class);
     verify(padPipelinePersisterService).savePadPipelineAndMaterialiseIdentData(argumentCaptor.capture());
     assertThat(argumentCaptor.getValue().getOtherPipelineMaterialUsed()).isNull();
+  }
+
+  @Test
+  public void createTransferredPipeline() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPipelineId(1)
+        .setAssignNewPipelineNumber(false);
+
+    var recipientPwaApplication = new PwaApplication();
+
+    var recipientPwa = new PwaApplicationDetail();
+    recipientPwa.setId(2);
+    recipientPwa.setPwaApplication(recipientPwaApplication);
+
+    var expectedSave = new PadPipeline(recipientPwa);
+    expectedSave.setPipeline(pipe1);
+    expectedSave.setPipelineStatus(PipelineStatus.IN_SERVICE);
+
+
+    var newPipeline = new Pipeline();
+
+    when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(newPipeline);
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail());
+
+    padPipelineService.createTransferredPipeline(form, recipientPwa);
+
+    verify(padPipelineRepository).save(any(PadPipeline.class));
   }
 
 }

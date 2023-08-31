@@ -10,6 +10,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
@@ -18,7 +19,13 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 public class PadPipelineTransferServiceTest {
 
   @Mock
-  PadPipelineTransferRepository padPipelineTransferRepository;
+  PadPipelineTransferRepository transferRepository;
+
+  @Mock
+  PadPipelineService padPipelineService;
+
+  @Mock
+  PadPipelineTransferClaimValidator padPipelineTransferClaimValidator;
 
   @Mock
   PipelineDetailService pipelineDetailService;
@@ -27,7 +34,11 @@ public class PadPipelineTransferServiceTest {
 
   @Before
   public void setup()  {
-    padPipelineTransferService = new PadPipelineTransferService(padPipelineTransferRepository, pipelineDetailService);
+    padPipelineTransferService = new PadPipelineTransferService(
+        transferRepository,
+        padPipelineService,
+        padPipelineTransferClaimValidator,
+        pipelineDetailService);
   }
 
   @Test
@@ -41,10 +52,10 @@ public class PadPipelineTransferServiceTest {
     var pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setId(1);
 
-    padPipelineTransferService.transferOut(padPipeline, pwaApplicationDetail);
+    padPipelineTransferService.releasePipeline(padPipeline, pwaApplicationDetail);
 
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
-    verify(padPipelineTransferRepository).save(captor.capture());
+    verify(transferRepository).save(captor.capture());
 
     assertThat(captor.getValue().getDonorPipeline()).isEqualTo(pipeline);
     assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
@@ -54,6 +65,6 @@ public class PadPipelineTransferServiceTest {
   public void findUnclaimedTransfers() {
     var pipelineDetail = new PwaApplicationDetail();
     padPipelineTransferService.findUnclaimedByDonorApplication(pipelineDetail);
-    verify(padPipelineTransferRepository).findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(pipelineDetail);
+    verify(transferRepository).findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(pipelineDetail);
   }
 }

@@ -27,6 +27,7 @@
       <#if canImportConsentedPipeline>
         <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
       </#if>
+      <@linkButtonBlue text="Transfer pipeline from another PWA" url=springUrl(pipelineUrlFactory.getClaimPipelineUrl()) />
     </@fdsAction.buttonGroup>
 
     <#list pipelineTaskListItems as pipeline>

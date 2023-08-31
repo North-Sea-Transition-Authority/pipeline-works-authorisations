@@ -104,7 +104,7 @@ public class ModifyPipelineController {
         () -> {
           var importedPipeline = modifyPipelineService.importPipeline(detail, form);
           if (form.getPipelineStatus().equals(PipelineStatus.TRANSFERRED)) {
-            transferService.transferOut(importedPipeline, importedPipeline.getPwaApplicationDetail());
+            transferService.releasePipeline(importedPipeline, importedPipeline.getPwaApplicationDetail());
           }
           FlashUtils.success(
               redirectAttributes, "Success", "The pipeline to be modified has been added to the pipelines listed below");
