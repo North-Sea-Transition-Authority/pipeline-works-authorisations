@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDep
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 
 @Service
 public class PipelineRemovalService {
@@ -22,6 +23,7 @@ public class PipelineRemovalService {
   private final PadPipelineIdentService padPipelineIdentService;
   private final PadPipelineRepository padPipelineRepository;
   private final PermanentDepositService permanentDepositService;
+  private final PadPipelineTransferService padPipelineTransferService;
 
   @Autowired
   public PipelineRemovalService(
@@ -31,7 +33,8 @@ public class PipelineRemovalService {
       CampaignWorksService campaignWorksService,
       PadPipelineIdentService padPipelineIdentService,
       PadPipelineRepository padPipelineRepository,
-      PermanentDepositService permanentDepositService) {
+      PermanentDepositService permanentDepositService,
+      PadPipelineTransferService padPipelineTransferService) {
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.padOrganisationRoleService = padOrganisationRoleService;
@@ -39,12 +42,14 @@ public class PipelineRemovalService {
     this.padPipelineIdentService = padPipelineIdentService;
     this.padPipelineRepository = padPipelineRepository;
     this.permanentDepositService = permanentDepositService;
+    this.padPipelineTransferService = padPipelineTransferService;
   }
 
   @Transactional
   public void removePipeline(PadPipeline padPipeline) {
     this.removeIdents(padPipeline);
     this.removeAndClean(padPipeline);
+    padPipelineTransferService.checkAndRemoveFromTransfer(padPipeline.getPipeline());
     padPipelineRepository.delete(padPipeline);
   }
 

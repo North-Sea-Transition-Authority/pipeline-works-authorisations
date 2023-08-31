@@ -81,7 +81,7 @@ public class PadPipelineTransferService {
     return transferRepository.findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(applicationDetail);
   }
 
-  public Optional<PadPipelineTransfer> findUnclaimedByDonorPipeline(Pipeline donorPipeline) {
+  private Optional<PadPipelineTransfer> findUnclaimedByDonorPipeline(Pipeline donorPipeline) {
     return transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(donorPipeline);
   }
 
@@ -94,5 +94,24 @@ public class PadPipelineTransferService {
     return pipelineDetailService.getLatestPipelineDetailsForIds(unclaimedPipelines).stream()
         .map(PipelineDetail::getPipelineNumber)
         .collect(Collectors.toList());
+  }
+
+  @Transactional
+  public void checkAndRemoveFromTransfer(Pipeline pipeline) {
+    var recipientToRemove = transferRepository.findByRecipientPipeline(pipeline);
+
+    recipientToRemove.ifPresent(this::removeRecipient);
+
+    // TODO PWA2022-88: if not present check if present as donor and remove it, also check if recipient is there and delete if not.
+  }
+
+  private void removeRecipient(PadPipelineTransfer padPipelineTransfer) {
+    // TODO PWA2022-88: check to see if donor pipeline details are there, if not delete the entity.
+
+    padPipelineTransfer
+        .setRecipientPipeline(null)
+        .setRecipientApplicationDetail(null);
+
+    transferRepository.save(padPipelineTransfer);
   }
 }
