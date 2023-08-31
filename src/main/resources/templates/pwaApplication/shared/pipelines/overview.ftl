@@ -46,23 +46,27 @@
                 />
             </@fdsCard.cardHeader>
 
-            <#if pipeline.pipelineStatus != "IN_SERVICE">
-              <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
-            </#if>
-            <#if pipeline.hasTasks>
-                <#if pipeline.pipelineStatus == "IN_SERVICE">
-                  <hr class="govuk-section-break govuk-section-break--m"/>
+            <#if pipeline.withdrawnTransfer>
+                <p class="govuk-tag govuk-tag--red">TRANSFER WITHDRAWN</p>
+            <#else>
+                <#if pipeline.pipelineStatus != "IN_SERVICE" || pipeline.withdrawnTransfer>
+                    <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
                 </#if>
-                <@fdsTaskList.taskList>
-                    <#list pipeline.getTaskList() as task>
-                        <@pwaTaskListItem.taskInfoItem
-                            taskName=task.taskName
-                            taskInfoList=task.taskInfoList
-                            route=task.route
-                            isCompleted=task.completed
-                            linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
-                    </#list>
-                </@fdsTaskList.taskList>
+                <#if pipeline.hasTasks>
+                    <#if pipeline.pipelineStatus == "IN_SERVICE">
+                        <hr class="govuk-section-break govuk-section-break--m"/>
+                    </#if>
+                    <@fdsTaskList.taskList>
+                        <#list pipeline.getTaskList() as task>
+                            <@pwaTaskListItem.taskInfoItem
+                                taskName=task.taskName
+                                taskInfoList=task.taskInfoList
+                                route=task.route
+                                isCompleted=task.completed
+                                linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
+                        </#list>
+                    </@fdsTaskList.taskList>
+                </#if>
             </#if>
         </@fdsCard.card>
 

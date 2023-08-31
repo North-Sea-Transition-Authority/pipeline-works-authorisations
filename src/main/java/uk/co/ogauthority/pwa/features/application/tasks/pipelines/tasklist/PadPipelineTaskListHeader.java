@@ -13,17 +13,20 @@ public final class PadPipelineTaskListHeader {
   private long numberOfIdents;
   private PipelineStatus pipelineStatus;
   private String pipelineName;
+  private boolean withdrawnTransfer;
 
   public PadPipelineTaskListHeader(
       PadPipeline padPipeline,
       long numberOfIdents,
       PipelineStatus pipelineStatus,
-      String pipelineName) {
+      String pipelineName,
+      boolean withdrawnTransfer) {
     this.padPipeline = padPipeline;
     this.padPipelineId = padPipeline.getId();
     this.numberOfIdents = numberOfIdents;
     this.pipelineStatus = pipelineStatus;
     this.pipelineName = pipelineName;
+    this.withdrawnTransfer = withdrawnTransfer;
   }
 
 
@@ -45,5 +48,9 @@ public final class PadPipelineTaskListHeader {
 
   public String getPipelineName() {
     return pipelineName;
+  }
+
+  public boolean isWithdrawnTransfer() {
+    return withdrawnTransfer;
   }
 }
