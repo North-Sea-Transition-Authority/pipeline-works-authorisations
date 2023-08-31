@@ -5,12 +5,13 @@
         <@fdsSearchSelector.searchSelectorEnhanced
         path="form.pipelineId"
         options=claimablePipelines
-        labelText="Select the pipeline to transfer to this PWA"/>
+        labelText="Select the pipeline to transfer to this PWA"
+        inputClass="govuk-!-width-one-third"/>
 
-        <@fdsCheckbox.checkbox
-        fieldsetHeadingText="Assign the pipeline a new pipeline number?"
-        path="form.assignNewPipelineNumber"
-        labelText="Assign a new pipeline number"/>
+        <@fdsRadio.radioGroup path="form.assignNewPipelineNumber" labelText="Assign the pipeline a new pipeline number?">
+            <@fdsRadio.radioYes path="form.assignNewPipelineNumber"/>
+            <@fdsRadio.radioNo path="form.assignNewPipelineNumber"/>
+        </@fdsRadio.radioGroup>
 
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
