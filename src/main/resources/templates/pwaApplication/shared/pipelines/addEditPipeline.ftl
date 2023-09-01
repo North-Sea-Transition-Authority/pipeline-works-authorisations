@@ -133,6 +133,8 @@
                 <li> [PLXXXX] can run a reverse flow from [point x] to [point y] </li>
                 <li> [PLXXXX] will be disconnected from [point x] to [point y]. It will be flushed and filled with filtered seawater and the ends protected with wooden covers. It will remain in situ on the seabed. </li>
                 <li> Treaty between United Kingdom and the [named country] for the subject pipeline allows for gas flow in both directions. </li>
+                <li> Pipeline is being transferred to PWA (X/W/XXX). </li>
+                <li> Pipeline was previously part of PWA (X/W/XXX) and is being transferred into PWA (Y/W/YYY). </li>
             </ul>
         </@fdsDetails.summaryDetails>
 
