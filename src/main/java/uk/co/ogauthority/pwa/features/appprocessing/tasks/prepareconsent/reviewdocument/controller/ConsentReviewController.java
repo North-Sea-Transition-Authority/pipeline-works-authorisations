@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.review
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,6 +19,7 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.appprocessing.ConsentReviewException;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -36,6 +38,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -62,6 +66,8 @@ public class ConsentReviewController {
   private final AppProcessingTaskWarningService appProcessingTaskWarningService;
   private final ConsentFileViewerService consentFileViewerService;
 
+  private final PadPipelineTransferService pipelineTransferService;
+
   @Autowired
   public ConsentReviewController(AppProcessingBreadcrumbService breadcrumbService,
                                  ControllerHelperService controllerHelperService,
@@ -71,7 +77,8 @@ public class ConsentReviewController {
                                  ConsentReviewReturnFormValidator consentReviewReturnFormValidator,
                                  PersonService personService,
                                  AppProcessingTaskWarningService appProcessingTaskWarningService,
-                                 ConsentFileViewerService consentFileViewerService) {
+                                 ConsentFileViewerService consentFileViewerService,
+                                 PadPipelineTransferService pipelineTransferService) {
     this.breadcrumbService = breadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.consentReviewService = consentReviewService;
@@ -81,6 +88,7 @@ public class ConsentReviewController {
     this.personService = personService;
     this.appProcessingTaskWarningService = appProcessingTaskWarningService;
     this.consentFileViewerService = consentFileViewerService;
+    this.pipelineTransferService = pipelineTransferService;
   }
 
   @GetMapping("/return")
@@ -179,12 +187,35 @@ public class ConsentReviewController {
     var modelAndView = new ModelAndView("pwaApplication/appProcessing/prepareConsent/issueConsent")
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("cancelUrl", cancelUrl)
+        .addObject("consentTransferBlock", false)
         .addObject("nonBlockingTasksWarning",
             appProcessingTaskWarningService.getNonBlockingTasksWarning(processingContext.getPwaApplication(),
                 NonBlockingWarningPage.ISSUE_CONSENT))
         .addObject("sosdConsultationRequestView", sosdConsultationRequestView);
 
     breadcrumbService.fromPrepareConsent(processingContext.getPwaApplication(), modelAndView, "Issue consent");
+
+    // locked for transfers not yet completed
+    var transfers = pipelineTransferService.findByRecipientApplication(processingContext.getApplicationDetail())
+        .stream()
+        .filter( transfer -> !transfer.getDonorApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE))
+        .collect(Collectors.toList());
+    if (!transfers.isEmpty()) {
+      var bodyLine = new NotificationBannerBodyLine(
+          "Cannot issue consent until the following applications have been consented first", null);
+      var pipelineTransferBannerBuilder = new NotificationBannerView.BannerBuilder("Awaiting transfer completion")
+          .addBodyLine(bodyLine);
+
+      for (var transfer : transfers) {
+        var transferLine = new NotificationBannerBodyLine(
+            transfer.getDonorApplicationDetail().getPwaApplicationRef(),
+            "govuk-!-font-weight-bold govuk-list--bullet"
+        );
+        pipelineTransferBannerBuilder.addBodyLine(transferLine);
+        modelAndView.addObject("pipelineTransferPageBannerView", pipelineTransferBannerBuilder.build());
+        modelAndView.addObject("consentTransferBlock", true);
+      }
+    }
 
     return modelAndView;
 

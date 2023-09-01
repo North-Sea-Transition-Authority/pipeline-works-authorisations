@@ -561,7 +561,7 @@ public class PrepareConsentTaskServiceTest {
     when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
 
     var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
-    assertThat(taskAccessible).isFalse();
+    assertThat(taskAccessible).isTrue();
   }
 
   @Test
@@ -595,7 +595,7 @@ public class PrepareConsentTaskServiceTest {
     when(pipelineTransferService.findByRecipientApplication(recipientDetail)).thenReturn(List.of(pipelineTransfer));
 
     var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
-    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.AWAITING_PIPELINE_RELEASE));
+    assertThat(taskListEntry.getTaskTag()).isEqualTo(TaskTag.from(TaskStatus.AWAITING_TRANSFER_COMPLETION));
   }
 
   @Test

@@ -68,15 +68,6 @@ public class PrepareConsentTaskService implements AppProcessingService {
       return TaskState.LOCK;
     }
 
-    // locked for transfers not yet completed
-    var transfers = pipelineTransferService.findByRecipientApplication(processingContext.getApplicationDetail());
-    for (var transfer : transfers) {
-      var transferStatus = transfer.getDonorApplicationDetail().getStatus();
-      if (transferStatus != PwaApplicationStatus.COMPLETE) {
-        return TaskState.LOCK;
-      }
-    }
-
     /* assigned case officer only has access  to task at case officer review stage if there is at least one
     satisfactory version of the application*/
     if (appInvolvement.isUserAssignedCaseOfficer()
@@ -117,7 +108,7 @@ public class PrepareConsentTaskService implements AppProcessingService {
     for (var transfer : transfers) {
       var transferStatus = transfer.getDonorApplicationDetail().getStatus();
       if (transferStatus != PwaApplicationStatus.COMPLETE) {
-        return TaskStatus.AWAITING_PIPELINE_RELEASE;
+        return TaskStatus.AWAITING_TRANSFER_COMPLETION;
       }
     }
 
