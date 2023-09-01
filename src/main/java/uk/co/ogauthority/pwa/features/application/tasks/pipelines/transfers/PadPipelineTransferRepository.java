@@ -11,6 +11,8 @@ public interface PadPipelineTransferRepository extends CrudRepository<PadPipelin
 
   List<PadPipelineTransfer> findByRecipientApplicationDetail(PwaApplicationDetail recipientApplicationDetail);
 
+  List<PadPipelineTransfer> findByRecipientApplicationDetail(PwaApplicationDetail recipientApplicationDetail);
+
   List<PadPipelineTransfer> findAllByRecipientApplicationDetailIsNull();
 
   Optional<PadPipelineTransfer> findByDonorPipelineAndRecipientApplicationDetailIsNull(Pipeline donorPipeline);
