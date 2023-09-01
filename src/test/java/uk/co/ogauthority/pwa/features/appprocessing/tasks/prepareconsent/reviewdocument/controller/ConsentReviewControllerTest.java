@@ -294,7 +294,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     donorApplicationDetail.setPwaApplication(donorApplication);
 
     var transfer = new PadPipelineTransfer()
-        .setDonorApplicationDetail(new PwaApplicationDetail());
+        .setDonorApplicationDetail(donorApplicationDetail);
     when(pipelineTransferService.findByRecipientApplication(pwaApplicationDetail)).thenReturn(List.of(transfer));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentReviewController.class).renderIssueConsent(
