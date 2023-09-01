@@ -15,8 +15,8 @@ public class PadPipelineTaskListItem {
   private final PipelineStatus pipelineStatus;
   private final String pipelineName;
   private final boolean hasTasks;
-
   private final List<TaskListEntry> tasks;
+  private final boolean withdrawnTransfer;
 
   public PadPipelineTaskListItem(PadPipelineTaskListHeader padPipelineTaskListHeader,
                                  List<TaskListEntry> tasks) {
@@ -26,6 +26,7 @@ public class PadPipelineTaskListItem {
     this.pipelineName = padPipelineTaskListHeader.getPipelineName();
     this.hasTasks = !tasks.isEmpty();
     this.tasks = tasks;
+    this.withdrawnTransfer = padPipelineTaskListHeader.isWithdrawnTransfer();
   }
 
   public int getPadPipelineId() {
@@ -50,5 +51,9 @@ public class PadPipelineTaskListItem {
 
   public Boolean getHasTasks() {
     return hasTasks;
+  }
+
+  public boolean isWithdrawnTransfer() {
+    return withdrawnTransfer;
   }
 }

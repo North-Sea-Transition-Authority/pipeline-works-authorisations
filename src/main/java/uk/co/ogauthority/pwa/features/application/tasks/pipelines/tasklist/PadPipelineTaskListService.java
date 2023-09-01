@@ -32,6 +32,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.controller.PipelineIdentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.controller.ModifyPipelineController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.setnumber.RegulatorPipelineNumberTaskService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
@@ -39,6 +41,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
+import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service
@@ -52,6 +55,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
   private final PadPipelineRepository padPipelineRepository;
   private final RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService;
   private final PadPipelineDataCopierService padPipelineDataCopierService;
+  private final PadPipelineTransferService padPipelineTransferService;
 
   @Autowired
   public PadPipelineTaskListService(PadPipelineService padPipelineService,
@@ -59,13 +63,15 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
                                     PadOptionConfirmedService padOptionConfirmedService,
                                     PadPipelineRepository padPipelineRepository,
                                     RegulatorPipelineNumberTaskService regulatorPipelineNumberTaskService,
-                                    PadPipelineDataCopierService padPipelineDataCopierService) {
+                                    PadPipelineDataCopierService padPipelineDataCopierService,
+                                    PadPipelineTransferService padPipelineTransferService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.padOptionConfirmedService = padOptionConfirmedService;
     this.padPipelineRepository = padPipelineRepository;
     this.regulatorPipelineNumberTaskService = regulatorPipelineNumberTaskService;
     this.padPipelineDataCopierService = padPipelineDataCopierService;
+    this.padPipelineTransferService = padPipelineTransferService;
   }
 
   @Override
@@ -134,6 +140,10 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
         .stream()
         .collect(Collectors.toMap(PipelineOverview::getPadPipelineId, Function.identity()));
 
+    var withdrawnClaimedPipelineIds = padPipelineTransferService.getWithdrawnPipelineClaims().stream()
+        .map(padPipelineTransfer -> padPipelineTransfer.getRecipientPipeline().getPipelineId())
+        .collect(Collectors.toList());
+
     return allPadPipelines.stream()
         .map(padPipeline -> {
           var overviewOpt = Optional.ofNullable(padPipelineIdToOverviewMap.get(padPipeline.getId()));
@@ -152,8 +162,8 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
               padPipeline,
               identsNo,
               padPipeline.getPipelineStatus(),
-              pipelineName
-          );
+              pipelineName,
+              withdrawnClaimedPipelineIds.contains(padPipeline.getPipelineId()));
 
         })
         .collect(Collectors.toList());
@@ -239,6 +249,32 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
     // get sorted pipeline overviews so we can use the pipe name in the error messages
     var overviews = padPipelineService.getApplicationPipelineOverviews(detail);
     var padPipelineMap = padPipelineService.getPadPipelineMapForOverviews(detail, overviews);
+
+    var withdrawnClaimedPipelines = padPipelineTransferService.getWithdrawnPipelineClaims().stream()
+        .map(PadPipelineTransfer::getRecipientPipeline)
+        .collect(Collectors.toList());
+
+    var invalidClaimedPipelines = padPipelineMap.values().stream()
+        .filter(padPipeline -> withdrawnClaimedPipelines.contains(padPipeline.getPipeline()))
+        .collect(Collectors.toList());
+
+    if (!invalidClaimedPipelines.isEmpty()) {
+      var padPipelineIdNameMap = overviews.stream()
+          .collect(StreamUtils.toLinkedHashMap(PipelineOverview::getPadPipelineId, PipelineOverview::getPipelineName));
+
+      invalidClaimedPipelines.forEach(padPipeline ->  invalidPipelines.put(
+          String.valueOf(padPipeline.getPadPipelineId().asInt()),
+          padPipelineIdNameMap.get(padPipeline.getPadPipelineId().asInt())
+      ));
+
+      return new SummaryScreenValidationResult(
+          invalidPipelines,
+          "pipeline",
+          "can no longer be transferred and must be removed",
+          false,
+          "Pipelines that can no longer be transferred must be removed."
+      );
+    }
 
     overviews.forEach(pipelineOverview -> {
 
