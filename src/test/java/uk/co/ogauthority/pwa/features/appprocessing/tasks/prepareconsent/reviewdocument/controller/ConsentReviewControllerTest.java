@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -336,6 +337,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void scheduleConsentIssue_success() throws Exception {
 
+
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -343,6 +345,26 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
     verify(consentReviewService, times(1)).scheduleConsentIssue(pwaApplicationDetail, user);
 
+  }
+
+  @Test
+  public void scheduleConsentIssue_blockedByTransfer() throws Exception {
+    var donorApplication = new PwaApplication();
+    donorApplication.setAppReference("TEST");
+
+    var donorApplicationDetail = new PwaApplicationDetail();
+    donorApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
+    donorApplicationDetail.setPwaApplication(donorApplication);
+
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorApplicationDetail);
+    when(pipelineTransferService.findByRecipientApplication(pwaApplicationDetail)).thenReturn(List.of(transfer));
+
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/pwa-application/initial/1/case-management/consent-review/issue"));
   }
 
 }

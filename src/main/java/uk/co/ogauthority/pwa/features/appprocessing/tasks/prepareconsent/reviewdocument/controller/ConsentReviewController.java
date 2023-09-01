@@ -202,7 +202,7 @@ public class ConsentReviewController {
         .collect(Collectors.toList());
     if (!transfers.isEmpty()) {
       var bodyLine = new NotificationBannerBodyLine(
-          "Cannot issue consent until the following applications have been consented first", null);
+          "The consent cannot be issued until the following applications have been consented first", null);
       var pipelineTransferBannerBuilder = new NotificationBannerView.BannerBuilder("Awaiting transfer completion")
           .addBodyLine(bodyLine);
 
@@ -228,6 +228,19 @@ public class ConsentReviewController {
                                            PwaAppProcessingContext processingContext,
                                            AuthenticatedUserAccount authenticatedUserAccount,
                                            RedirectAttributes redirectAttributes) {
+    // locked for transfers not yet completed
+    var transfers = pipelineTransferService.findByRecipientApplication(processingContext.getApplicationDetail())
+        .stream()
+        .filter(transfer -> !transfer.getDonorApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE))
+        .collect(Collectors.toList());
+    if (!transfers.isEmpty()) {
+      return ReverseRouter.redirect(on(ConsentReviewController.class).renderIssueConsent(
+          applicationId,
+          pwaApplicationType,
+          processingContext,
+          authenticatedUserAccount
+      ));
+    }
 
     try {
 
