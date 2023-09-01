@@ -198,7 +198,7 @@ public class ConsentReviewController {
     // locked for transfers not yet completed
     var transfers = pipelineTransferService.findByRecipientApplication(processingContext.getApplicationDetail())
         .stream()
-        .filter( transfer -> !transfer.getDonorApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE))
+        .filter(transfer -> !transfer.getDonorApplicationDetail().getStatus().equals(PwaApplicationStatus.COMPLETE))
         .collect(Collectors.toList());
     if (!transfers.isEmpty()) {
       var bodyLine = new NotificationBannerBodyLine(
