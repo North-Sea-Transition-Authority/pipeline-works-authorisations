@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
@@ -25,13 +26,17 @@ public class PrepareConsentTaskService implements AppProcessingService {
   private final ApproveOptionsService approveOptionsService;
   private final ConsentReviewService consentReviewService;
 
+  private final PadPipelineTransferService pipelineTransferService;
+
   @Autowired
   public PrepareConsentTaskService(DocumentService documentService,
                                    ApproveOptionsService approveOptionsService,
-                                   ConsentReviewService consentReviewService) {
+                                   ConsentReviewService consentReviewService,
+                                   PadPipelineTransferService pipelineTransferService) {
     this.documentService = documentService;
     this.approveOptionsService = approveOptionsService;
     this.consentReviewService = consentReviewService;
+    this.pipelineTransferService = pipelineTransferService;
   }
 
   @Override
@@ -97,6 +102,14 @@ public class PrepareConsentTaskService implements AppProcessingService {
 
     if (!atLeastOneSatisfactoryVersion) {
       return TaskStatus.CANNOT_START_YET;
+    }
+
+    var transfers = pipelineTransferService.findByRecipientApplication(processingContext.getApplicationDetail());
+    for (var transfer : transfers) {
+      var transferStatus = transfer.getDonorApplicationDetail().getStatus();
+      if (transferStatus != PwaApplicationStatus.COMPLETE) {
+        return TaskStatus.AWAITING_TRANSFER_COMPLETION;
+      }
     }
 
     if (!optionsConfirmedIfApplicableCheck) {
