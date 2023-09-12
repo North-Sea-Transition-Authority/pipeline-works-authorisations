@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,7 +9,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -53,9 +53,11 @@ public class ModifyPipelineService {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
+  public List<NamedPipelineDto> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
-        .filter(o -> PhysicalPipelineState.ON_SEABED.equals(o.getPipelineStatus().getPhysicalPipelineState()))
+        .filter(o -> PhysicalPipelineState.ON_SEABED.equals(o.getPipelineStatus().getPhysicalPipelineState())
+            || PhysicalPipelineState.ONSHORE.equals(o.getPipelineStatus().getPhysicalPipelineState()))
+        .sorted(Comparator.comparingInt(o -> o.getPipelineStatus().getPhysicalPipelineState().ordinal()))
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }

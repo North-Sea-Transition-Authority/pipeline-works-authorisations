@@ -13,30 +13,33 @@ public class NamedPipelineDto implements NamedPipeline {
   private String bundleName;
   private BigDecimal maxExternalDiameter;
   private String pipelineNumber;
+  private PipelineStatus pipelineStatus;
 
   @VisibleForTesting
   public NamedPipelineDto(Integer pipelineId, PipelineType pipelineType, Boolean pipelineInBundle,
-                          String bundleName, BigDecimal maxExternalDiameter, String pipelineNumber) {
+                          String bundleName, BigDecimal maxExternalDiameter, String pipelineNumber,
+                          PipelineStatus pipelineStatus) {
     this.pipelineId = pipelineId;
     this.pipelineType = pipelineType;
     this.pipelineInBundle = pipelineInBundle;
     this.bundleName = bundleName;
     this.maxExternalDiameter = maxExternalDiameter;
     this.pipelineNumber = pipelineNumber;
+    this.pipelineStatus = pipelineStatus;
   }
 
   public static NamedPipelineDto fromPipelineDetail(PipelineDetail detail) {
     return new NamedPipelineDto(
         detail.getPipelineId().asInt(), detail.getPipelineType(), detail.getPipelineInBundle(),
-        detail.getBundleName(), detail.getMaxExternalDiameter(), detail.getPipelineNumber()
-    );
+        detail.getBundleName(), detail.getMaxExternalDiameter(), detail.getPipelineNumber(),
+        detail.getPipelineStatus());
   }
 
   public static NamedPipelineDto fromPadPipeline(PadPipeline padPipeline) {
     return new NamedPipelineDto(
         padPipeline.getPipelineId().asInt(), padPipeline.getPipelineType(), padPipeline.getPipelineInBundle(),
-        padPipeline.getBundleName(), padPipeline.getMaxExternalDiameter(), padPipeline.getPipelineRef()
-    );
+        padPipeline.getBundleName(), padPipeline.getMaxExternalDiameter(), padPipeline.getPipelineRef(),
+        padPipeline.getPipelineStatus());
   }
 
   @Override
@@ -67,5 +70,12 @@ public class NamedPipelineDto implements NamedPipeline {
   @Override
   public String getPipelineNumber() {
     return pipelineNumber;
+  }
+
+  @Override
+  public String getPipelineName() {
+    return pipelineStatus.hasPhysicalPipelineState(PhysicalPipelineState.ONSHORE)
+        ? NamedPipeline.super.getPipelineName() + " - (RTS)"
+        : NamedPipeline.super.getPipelineName();
   }
 }
