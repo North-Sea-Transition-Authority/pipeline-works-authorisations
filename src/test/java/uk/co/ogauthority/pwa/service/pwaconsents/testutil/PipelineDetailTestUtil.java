@@ -57,14 +57,14 @@ public class PipelineDetailTestUtil {
   public static PipelineOverview createPipelineOverview(String referenceId) {
     PadPipeline padPipeline = createPadPipeline();
     var pipelineDetail = createPipelineDetail(padPipeline, referenceId);
-    return new PipelineHeaderView(pipelineDetail);
+    return new PipelineHeaderView(pipelineDetail, null, null);
   }
 
   public static PipelineOverview createPipelineOverview(String referenceId, PipelineStatus pipelineStatus) {
     PadPipeline padPipeline = createPadPipeline();
     var pipelineDetail = createPipelineDetail(padPipeline, referenceId);
     pipelineDetail.setPipelineStatus(pipelineStatus);
-    return new PipelineHeaderView(pipelineDetail);
+    return new PipelineHeaderView(pipelineDetail, null, null);
   }
 
   public static PipelineOverview createPipelineOverviewWithAsBuiltStatus(String referenceId, PipelineStatus pipelineStatus,

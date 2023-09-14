@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -31,6 +32,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.TransferHistoryView;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView;
 import uk.co.ogauthority.pwa.service.search.consents.testutil.PwaContextTestUtil;
@@ -47,6 +49,9 @@ public class PwaViewTabServiceTest {
   @Mock
   private AsBuiltViewerService asBuiltViewerService;
 
+  @Mock
+  private PadPipelineTransferService padPipelineTransferService;
+
   private PwaViewTabService pwaViewTabService;
 
   private PwaContext pwaContext;
@@ -61,7 +66,8 @@ public class PwaViewTabServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService, clock);
+    pwaViewTabService = new PwaViewTabService(pipelineDetailService, pwaConsentDtoRepository, asBuiltViewerService, clock,
+        padPipelineTransferService);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -84,9 +90,9 @@ public class PwaViewTabServiceTest {
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
     assertThat(actualPwaPipelineViews).containsExactly(
-        new PwaPipelineView(unOrderedPipelineOverviews.get(2)),
-        new PwaPipelineView(unOrderedPipelineOverviews.get(0)),
-        new PwaPipelineView(unOrderedPipelineOverviews.get(1)));
+        new PwaPipelineView(unOrderedPipelineOverviews.get(2), null),
+        new PwaPipelineView(unOrderedPipelineOverviews.get(0), null),
+        new PwaPipelineView(unOrderedPipelineOverviews.get(1), null));
 
   }
 
@@ -110,7 +116,7 @@ public class PwaViewTabServiceTest {
 
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
-    assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(pipelineOverviewWithAsBuiltStatus));
+    assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(pipelineOverviewWithAsBuiltStatus, null));
   }
 
   @Test
@@ -126,6 +132,27 @@ public class PwaViewTabServiceTest {
     var pwaConsentHistoryViews = (List<PwaConsentApplicationDto>) modelMap.get("pwaConsentHistoryViews");
     assertThat(pwaConsentHistoryViews).containsExactly(
         unOrderedConsentAppDtos.get(1), unOrderedConsentAppDtos.get(0));
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineView_withTransferHistoryView() {
+    var unOrderedPipelineOverviews = List.of(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
+
+    var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
+    when(pipelineDetailService.getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(pwaContext.getMasterPwa(), pipelineStatusFilter, clock.instant()))
+        .thenReturn(unOrderedPipelineOverviews);
+    when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews)).thenReturn(unOrderedPipelineOverviews);
+
+    var transferHistoryView = new TransferHistoryView()
+        .setOriginalPipelineId(1)
+        .setTransfereeConsentReference("2/W/23")
+        .setViewUrl("test");
+
+    when(padPipelineTransferService.getTransferHistoryViews(List.of(1))).thenReturn(List.of(transferHistoryView));
+
+    var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
+    var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
+    assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(unOrderedPipelineOverviews.get(0), transferHistoryView));
   }
 
   @Test

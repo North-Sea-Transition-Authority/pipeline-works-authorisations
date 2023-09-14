@@ -7,6 +7,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
+import uk.co.ogauthority.pwa.service.search.consents.TransferHistoryView;
 
 public class PwaPipelineView {
 
@@ -19,9 +20,9 @@ public class PwaPipelineView {
   private final String toLocation;
   private final CoordinatePair toCoordinates;
   private final String length;
+  private final TransferHistoryView transferHistoryView;
 
-
-  public PwaPipelineView(PipelineOverview pipelineOverview) {
+  public PwaPipelineView(PipelineOverview pipelineOverview, TransferHistoryView transferHistoryView) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineNumber = pipelineOverview.getPipelineNumber();
     this.status = pipelineOverview.getPipelineStatus();
@@ -31,6 +32,7 @@ public class PwaPipelineView {
     this.toCoordinates = pipelineOverview.getToCoordinates();
     this.length = createLengthDisplayString(pipelineOverview.getLength());
     this.asBuiltNotificationStatus = pipelineOverview.getAsBuiltNotificationStatus();
+    this.transferHistoryView = transferHistoryView;
   }
 
   public Integer getPipelineId() {
@@ -69,7 +71,9 @@ public class PwaPipelineView {
     return length;
   }
 
-
+  public TransferHistoryView getTransferHistoryView() {
+    return transferHistoryView;
+  }
 
   private static String createLengthDisplayString(BigDecimal length) {
     return length != null ? length.setScale(2, RoundingMode.HALF_UP).toPlainString() : null;
@@ -97,6 +101,5 @@ public class PwaPipelineView {
   public int hashCode() {
     return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length);
   }
-
 
 }

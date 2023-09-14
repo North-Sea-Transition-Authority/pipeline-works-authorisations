@@ -202,4 +202,23 @@ public class PipelineDetailService {
             "Could not find PipelineDetail with Pipeline ID: " + pipelineId.getPipelineIdAsInt()));
   }
 
+  public void updateTransferredPipelineDetails(PipelineDetail donor, PipelineDetail recipient) {
+    var donorMasterPwa = donor.getPipeline().getMasterPwa();
+    var recipientMasterPwa = recipient.getPipeline().getMasterPwa();
+
+    donor.setTransferredTo(recipientMasterPwa);
+    recipient.setTransferredFrom(donorMasterPwa);
+    pipelineDetailRepository.saveAll(List.of(donor, recipient));
+  }
+
+  public void clearTransferredPipelineDetails(Integer pipelineId, boolean donor) {
+    var pipelineDetail = getLatestByPipelineId(pipelineId);
+
+    if (donor) {
+      pipelineDetail.setTransferredTo(null);
+    } else {
+      pipelineDetail.setTransferredFrom(null);
+    }
+    pipelineDetailRepository.save(pipelineDetail);
+  }
 }

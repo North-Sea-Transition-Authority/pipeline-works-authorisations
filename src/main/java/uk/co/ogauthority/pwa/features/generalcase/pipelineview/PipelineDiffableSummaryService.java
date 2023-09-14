@@ -12,6 +12,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
@@ -23,22 +24,24 @@ public class PipelineDiffableSummaryService {
 
   private final PadPipelineService padPipelineService;
   private final PadPipelineIdentService padPipelineIdentService;
-
   private final PipelineDetailIdentViewService pipelineDetailIdentViewService;
   private final PipelineDetailService pipelineDetailService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
+  private final MasterPwaService masterPwaService;
 
   @Autowired
   public PipelineDiffableSummaryService(PadPipelineService padPipelineService,
                                         PadPipelineIdentService padPipelineIdentService,
                                         PipelineDetailIdentViewService pipelineDetailIdentViewService,
                                         PipelineDetailService pipelineDetailService,
-                                        PadTechnicalDrawingService padTechnicalDrawingService) {
+                                        PadTechnicalDrawingService padTechnicalDrawingService,
+                                        MasterPwaService masterPwaService) {
     this.padPipelineService = padPipelineService;
     this.padPipelineIdentService = padPipelineIdentService;
     this.pipelineDetailIdentViewService = pipelineDetailIdentViewService;
     this.pipelineDetailService = pipelineDetailService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
+    this.masterPwaService = masterPwaService;
   }
 
   public List<PipelineDiffableSummary> getApplicationDetailPipelines(PwaApplicationDetail pwaApplicationDetail) {
@@ -49,13 +52,27 @@ public class PipelineDiffableSummaryService {
     var pipelineIdDrawingViewMap = padTechnicalDrawingService.getPipelineDrawingViewsMap(pwaApplicationDetail);
 
     return pipelineOverviews.stream()
-        .map(pipelineOverview -> PipelineDiffableSummary.from(
-                new PipelineHeaderView(pipelineOverview),
-                padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview),
-                pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId())))
+        .map(pipelineOverview -> {
+          var pipelineId = padPipelineService.getById(pipelineOverview.getPadPipelineId()).getPipeline().getId();
+          var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
+
+              return PipelineDiffableSummary.from(
+                  new PipelineHeaderView(
+                      pipelineOverview,
+
+                      pipelineDetail.getTransferredFrom() != null
+                          ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredFrom()).getReference()
+                          : null,
+
+                      pipelineDetail.getTransferredTo() != null
+                          ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredTo()).getReference()
+                          : null
+                  ),
+                  padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview),
+                  pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId())));
+            }
         )
         .collect(Collectors.toList());
-
   }
 
   public List<PipelineDiffableSummary> getConsentedPipelines(PwaApplication pwaApplication,
@@ -70,7 +87,15 @@ public class PipelineDiffableSummaryService {
 
           var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipeline(pipelineDetail.getPipelineId());
 
-          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+          var transferredFromRef = pipelineDetail.getTransferredFrom() != null
+              ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredFrom()).getReference()
+              : null;
+
+          var transferredToRef = pipelineDetail.getTransferredTo() != null
+              ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredTo()).getReference()
+              : null;
+
+          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, transferredFromRef, transferredToRef);
 
           return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
 
@@ -85,7 +110,15 @@ public class PipelineDiffableSummaryService {
     var identViews = pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(
         pipelineDetail.getPipelineId(), pipelineDetailId);
 
-    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail);
+    var transferredFromRef = pipelineDetail.getTransferredFrom() != null
+        ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredFrom()).getReference()
+        : null;
+
+    var transferredToRef = pipelineDetail.getTransferredTo() != null
+        ? masterPwaService.getCurrentDetailOrThrow(pipelineDetail.getTransferredTo()).getReference()
+        : null;
+
+    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, transferredFromRef, transferredToRef);
 
     return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
 

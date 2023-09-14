@@ -25,11 +25,13 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
@@ -56,6 +58,9 @@ public class PipelineDetailServiceTest {
 
   @Mock
   private PipelineMappingService pipelineMappingService;
+
+  @Mock
+  MasterPwaService masterPwaService;
 
   private PipelineDetailService pipelineDetailService;
   private PwaApplicationDetail detail;
@@ -216,6 +221,63 @@ public class PipelineDetailServiceTest {
 
     assertThat(pipelineDetailService.getPipelineDetailsBeforePwaConsentCreated(pipelineDetail.getPipeline().getPipelineId(), consentCreationTs))
         .containsExactly(pipelineDetail);
+  }
+
+  @Test
+  public void updateTransferredPipelineDetails() {
+    var donorMasterPwa = new MasterPwa();
+    var donorPipeline = new Pipeline();
+    donorPipeline.setMasterPwa(donorMasterPwa);
+    var donorPipelineDetail = new PipelineDetail();
+    donorPipelineDetail.setPipeline(donorPipeline);
+
+    var recipientMasterPwa = new MasterPwa();
+    var recipientPipeline = new Pipeline();
+    recipientPipeline.setMasterPwa(recipientMasterPwa);
+    var recipientPipelineDetail = new PipelineDetail();
+    recipientPipelineDetail.setPipeline(recipientPipeline);
+
+    pipelineDetailService.updateTransferredPipelineDetails(donorPipelineDetail, recipientPipelineDetail);
+
+    ArgumentCaptor<List<PipelineDetail>> captor = ArgumentCaptor.forClass((Class) List.class);
+    verify(pipelineDetailRepository).saveAll(captor.capture());
+
+    assertThat(captor.getValue().get(0).getTransferredTo()).isEqualTo(recipientMasterPwa);
+    assertThat(captor.getValue().get(0).getTransferredFrom()).isEqualTo(null);
+    assertThat(captor.getValue().get(1).getTransferredTo()).isEqualTo(null);
+    assertThat(captor.getValue().get(1).getTransferredFrom()).isEqualTo(donorMasterPwa);
+  }
+
+  @Test
+  public void clearTransferredPipelineDetails_donor() {
+    var transferredToMasterPwa = new MasterPwa();
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setTransferredTo(transferredToMasterPwa);
+
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(1)).thenReturn(Optional.of(pipelineDetail));
+
+    pipelineDetailService.clearTransferredPipelineDetails(1, true);
+
+    ArgumentCaptor<PipelineDetail> captor = ArgumentCaptor.forClass(PipelineDetail.class);
+    verify(pipelineDetailRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getTransferredTo()).isEqualTo(null);
+  }
+
+  @Test
+  public void clearTransferredPipelineDetails_recipient() {
+    var transferredFromMasterPwa = new MasterPwa();
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setTransferredFrom(transferredFromMasterPwa);
+
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(1)).thenReturn(Optional.of(pipelineDetail));
+
+    pipelineDetailService.clearTransferredPipelineDetails(1, false);
+
+    ArgumentCaptor<PipelineDetail> captor = ArgumentCaptor.forClass(PipelineDetail.class);
+    verify(pipelineDetailRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getTransferredFrom()).isEqualTo(null);
   }
 
 }

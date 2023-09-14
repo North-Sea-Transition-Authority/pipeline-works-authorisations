@@ -100,6 +100,10 @@ public class MasterPwaService {
         MasterPwaDetailStatus.CONSENTED);
   }
 
+  public List<MasterPwaDetail> findAllDetailsIn(List<MasterPwa> masterPwas) {
+    return masterPwaDetailRepository.findAllByMasterPwaIn(masterPwas);
+  }
+
   private MasterPwaDetail getAndEndCurrentDetail(MasterPwa masterPwa) {
     var currentDetail = getCurrentDetailOrThrow(masterPwa);
     currentDetail.setEndInstant(clock.instant());

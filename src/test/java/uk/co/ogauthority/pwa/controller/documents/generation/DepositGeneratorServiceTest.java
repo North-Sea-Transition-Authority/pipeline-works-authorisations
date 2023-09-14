@@ -90,7 +90,7 @@ public class DepositGeneratorServiceTest {
     pipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipelineDetail.setPipeline(pipeline);
     pipelineDetail.setPipelineNumber(pipelineNumber);
-    return new PipelineHeaderView(pipelineDetail);
+    return new PipelineHeaderView(pipelineDetail, null, null);
   }
 
 

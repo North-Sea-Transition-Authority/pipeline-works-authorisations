@@ -12,7 +12,7 @@
         <th class="govuk-table__header" scope="col">Pipeline status/As-built status</th>
         <th class="govuk-table__header" scope="col">Start location (WGS 84)</th>
         <th class="govuk-table__header" scope="col">End location (WGS 84)</th>
-        <th class="govuk-table__header" scope="col">Length (metres)</th>        
+        <th class="govuk-table__header" scope="col">Length (metres)</th>
       </tr>
     </thead>
 
@@ -20,11 +20,25 @@
     <#list pwaPipelineViews as pwaPipelineView>
       <tr class="govuk-table__row">
         <td class="govuk-table__cell">
-          <@fdsAction.link linkText=pwaPipelineView.pipelineNumber linkUrl=springUrl(urlFactory.getPwaPipelineViewUrl(pwaPipelineView.pipelineId)) 
-              linkClass="govuk-link" linkScreenReaderText="Go to pipeline ${pwaPipelineView.pipelineNumber} view screen"/> 
+          <@fdsAction.link linkText=pwaPipelineView.pipelineNumber linkUrl=springUrl(urlFactory.getPwaPipelineViewUrl(pwaPipelineView.pipelineId))
+              linkClass="govuk-link" linkScreenReaderText="Go to pipeline ${pwaPipelineView.pipelineNumber} view screen"/>
         </td>
         <td class="govuk-table__cell">
           ${pwaPipelineView.status.getDisplayText()}
+
+          <#if pwaPipelineView.transferHistoryView?hasContent>
+              <#if transferLinksVisible>
+                <#assign transferee> <@fdsAction.link linkText=pwaPipelineView.transferHistoryView.transfereeConsentReference linkUrl=springUrl(pwaPipelineView.transferHistoryView.viewUrl) openInNewTab=true/></#assign>
+              <#else>
+                <#assign transferee> ${pwaPipelineView.transferHistoryView.transfereeConsentReference} </#assign>
+              </#if>
+
+              <#if pwaPipelineView.status == "TRANSFERRED">
+                to ${transferee}
+                  <#else>
+                - transferred from ${transferee}
+              </#if>
+          </#if>
           <br>
           <#if pwaPipelineView.asBuiltNotificationStatus?hasContent>
             ${pwaPipelineView.asBuiltNotificationStatus.getDisplayName()}
@@ -48,11 +62,11 @@
           ${pwaPipelineView.length!}
         </td>
       </tr>
-    </#list>    
+    </#list>
     </tbody>
 
   </table>
 
-  
+
 
 </#macro>

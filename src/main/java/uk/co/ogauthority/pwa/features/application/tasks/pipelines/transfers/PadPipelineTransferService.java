@@ -1,21 +1,29 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
+import uk.co.ogauthority.pwa.service.search.consents.TransferHistoryView;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -24,16 +32,18 @@ public class PadPipelineTransferService {
   private final PadPipelineService padPipelineService;
   private final PadPipelineTransferClaimValidator padPipelineTransferClaimValidator;
   private final PipelineDetailService pipelineDetailService;
+  private final MasterPwaService masterPwaService;
 
   @Autowired
   public PadPipelineTransferService(PadPipelineTransferRepository transferRepository,
                                     PadPipelineService padPipelineService,
                                     PadPipelineTransferClaimValidator padPipelineTransferClaimValidator,
-                                    PipelineDetailService pipelineDetailService) {
+                                    PipelineDetailService pipelineDetailService, MasterPwaService masterPwaService) {
     this.transferRepository = transferRepository;
     this.padPipelineService = padPipelineService;
     this.padPipelineTransferClaimValidator = padPipelineTransferClaimValidator;
     this.pipelineDetailService = pipelineDetailService;
+    this.masterPwaService = masterPwaService;
   }
 
   @Transactional
@@ -55,6 +65,9 @@ public class PadPipelineTransferService {
       transfer.setRecipientApplicationDetail(recipientApplicationDetail);
       transfer.setRecipientPipeline(claimedPipeline.getPipeline());
       transferRepository.save(transfer);
+
+      var claimedDetail = pipelineDetailService.getLatestByPipelineId(claimedPipeline.getPipeline().getId());
+      pipelineDetailService.updateTransferredPipelineDetails(pipelineDetail, claimedDetail);
     }
   }
 
@@ -117,7 +130,61 @@ public class PadPipelineTransferService {
         });
   }
 
+  public List<TransferHistoryView> getTransferHistoryViews(List<Integer> pipelineIds) {
+    var transfers = findAllByPipelineIds(pipelineIds).stream()
+        .collect(Collectors.toMap(
+            Function.identity(),
+            padPipelineTransfer -> isTransfereeDonor(padPipelineTransfer, pipelineIds))
+        );
+
+    //    var refMap = transfers.keySet().stream()
+    //        .collect(StreamUtils.toLinkedHashMap(
+    //            Function.identity(),
+    //            padPipelineTransfer -> getTransfereeDetail(padPipelineTransfer, pipelineIds).getMasterPwa()
+    //        ));
+
+    //var masterPwaDetails = masterPwaService.findAllDetailsIn((List<MasterPwa>) refMap.values());
+
+    return transfers.entrySet().stream()
+        .map(entry -> new TransferHistoryView()
+            .setOriginalPipelineId(getOriginalPipelineId(entry.getKey(), entry.getValue()))
+            .setTransfereeConsentReference(masterPwaService.getCurrentDetailOrThrow(
+                getTransfereeDetail(entry.getKey(), pipelineIds).getMasterPwa()).getReference())
+            .setViewUrl(getViewConsentUrl(getTransfereeDetail(entry.getKey(), pipelineIds).getMasterPwa().getId())))
+        .collect(Collectors.toList());
+  }
+
+  private Integer getOriginalPipelineId(PadPipelineTransfer padPipelineTransfer, boolean isTransfereeDonor) {
+    return isTransfereeDonor
+        ? padPipelineTransfer.getRecipientPipeline().getId()
+        : padPipelineTransfer.getDonorPipeline().getId();
+  }
+
+  private PwaApplicationDetail getTransfereeDetail(PadPipelineTransfer padPipelineTransfer, List<Integer> pipelineIds) {
+    return isTransfereeDonor(padPipelineTransfer, pipelineIds)
+        ? padPipelineTransfer.getDonorApplicationDetail()
+        : padPipelineTransfer.getRecipientApplicationDetail();
+  }
+
+  private boolean isTransfereeDonor(PadPipelineTransfer padPipelineTransfer, List<Integer> pipelineIds) {
+    return pipelineIds.contains(padPipelineTransfer.getRecipientPipeline().getId());
+  }
+
+  private String getViewConsentUrl(int id) {
+    return ReverseRouter.route(on(PwaViewController.class).renderViewPwa(id, PwaViewTab.PIPELINES, null, null, false));
+  }
+
+  private List<PadPipelineTransfer> findAllByPipelineIds(List<Integer> pipelineIds) {
+    return transferRepository.findAllByDonorPipeline_IdInOrRecipientPipeline_IdIn(pipelineIds, pipelineIds);
+  }
+
+  private Optional<PadPipelineTransfer> findByPipelineId(Integer pipelineId) {
+    return transferRepository.findByDonorPipeline_IdOrRecipientPipeline_Id(pipelineId, pipelineId);
+  }
+
   private void removeRecipient(PadPipelineTransfer padPipelineTransfer) {
+    pipelineDetailService.clearTransferredPipelineDetails(padPipelineTransfer.getRecipientPipeline().getId(), false);
+
     if (padPipelineTransfer.getDonorPipeline() == null) {
       transferRepository.delete(padPipelineTransfer);
     } else {
@@ -129,6 +196,8 @@ public class PadPipelineTransferService {
   }
 
   private void removeDonor(PadPipelineTransfer padPipelineTransfer) {
+    pipelineDetailService.clearTransferredPipelineDetails(padPipelineTransfer.getDonorPipeline().getId(), true);
+
     if (padPipelineTransfer.getRecipientPipeline() == null) {
       transferRepository.delete(padPipelineTransfer);
     } else {

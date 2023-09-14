@@ -17,7 +17,7 @@
     <@diffChanges.toggler analyticsEventCategory="SHOW_DIFFS_PIPE"/>
 
     <#if diffedPipelineSummaryModel.pipelineHeader?has_content>
-        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0 consentedModel=isConsented/>
+        <@diffedPipelineViews.pipelineHeaderDetails pipelineHeader=diffedPipelineSummaryModel.pipelineHeader pipelineIdentsSize=diffedPipelineSummaryModel.pipelineIdents?size!0 consentedModel=isConsented transferView=transferView/>
     </#if>
 
     <#if diffedPipelineSummaryModel.pipelineIdents?has_content>

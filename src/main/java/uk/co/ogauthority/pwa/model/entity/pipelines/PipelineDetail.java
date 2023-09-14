@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 
 
@@ -144,6 +145,14 @@ public class PipelineDetail implements PipelineEntity {
 
   @Transient
   private CoordinatePair toCoordinates;
+
+  @ManyToOne
+  @JoinColumn(name = "transferred_from")
+  private MasterPwa transferredFrom;
+
+  @ManyToOne
+  @JoinColumn(name = "transferred_to")
+  private MasterPwa transferredTo;
 
   public PipelineDetail() {
     // default for hibernate
@@ -326,7 +335,21 @@ public class PipelineDetail implements PipelineEntity {
     return toLongitudeDirection;
   }
 
+  public MasterPwa getTransferredFrom() {
+    return transferredFrom;
+  }
 
+  public void setTransferredFrom(MasterPwa transferredFrom) {
+    this.transferredFrom = transferredFrom;
+  }
+
+  public MasterPwa getTransferredTo() {
+    return transferredTo;
+  }
+
+  public void setTransferredTo(MasterPwa transferredTo) {
+    this.transferredTo = transferredTo;
+  }
 
   @Override
   public String getComponentPartsDescription() {

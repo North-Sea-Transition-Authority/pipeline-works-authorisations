@@ -19,10 +19,13 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -72,6 +75,9 @@ public class PipelineDiffableSummaryServiceTest {
   @Mock
   private PadTechnicalDrawingService padTechnicalDrawingService;
 
+  @Mock
+  MasterPwaService masterPwaService;
+
   @Before
   public void setup() {
 
@@ -90,7 +96,8 @@ public class PipelineDiffableSummaryServiceTest {
         padPipelineIdentService,
         pipelineDetailIdentViewService,
         pipelineDetailService,
-        padTechnicalDrawingService);
+        padTechnicalDrawingService,
+        masterPwaService);
   }
 
 
@@ -154,6 +161,22 @@ public class PipelineDiffableSummaryServiceTest {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
+    var fromMasterPwa = new MasterPwa();
+    var fromMasterPwaDetail = new MasterPwaDetail();
+    fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
+    fromMasterPwaDetail.setReference("1/W/23");
+
+    var toMasterPwa = new MasterPwa();
+    var toMasterPwaDetail = new MasterPwaDetail();
+    toMasterPwaDetail.setMasterPwa(toMasterPwa);
+    fromMasterPwaDetail.setReference("2/W/23");
+
+    pipelineDetail.setTransferredFrom(fromMasterPwa);
+    pipelineDetail.setTransferredTo(toMasterPwa);
+
+    when(masterPwaService.getCurrentDetailOrThrow(fromMasterPwa)).thenReturn(fromMasterPwaDetail);
+    when(masterPwaService.getCurrentDetailOrThrow(toMasterPwa)).thenReturn(toMasterPwaDetail);
+
     when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwaById(
         pwaApplicationDetail.getPwaApplication(),
         Set.of(pipelineId)
@@ -165,6 +188,9 @@ public class PipelineDiffableSummaryServiceTest {
     var summaryList = pipelineDiffableSummaryService.getConsentedPipelines(pwaApplicationDetail.getPwaApplication(), Set.of(pipelineId));
 
     var summary = summaryList.get(0);
+
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo("2/W/23");
 
     assertThat(summary.getIdentViews()).hasSize(3);
     assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
@@ -191,12 +217,31 @@ public class PipelineDiffableSummaryServiceTest {
     var pipelineDetailId = PIPELINE_ID;
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
+    var fromMasterPwa = new MasterPwa();
+    var fromMasterPwaDetail = new MasterPwaDetail();
+    fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
+    fromMasterPwaDetail.setReference("1/W/23");
+
+    var toMasterPwa = new MasterPwa();
+    var toMasterPwaDetail = new MasterPwaDetail();
+    toMasterPwaDetail.setMasterPwa(toMasterPwa);
+    fromMasterPwaDetail.setReference("2/W/23");
+
+    pipelineDetail.setTransferredFrom(fromMasterPwa);
+    pipelineDetail.setTransferredTo(toMasterPwa);
+
+    when(masterPwaService.getCurrentDetailOrThrow(fromMasterPwa)).thenReturn(fromMasterPwaDetail);
+    when(masterPwaService.getCurrentDetailOrThrow(toMasterPwa)).thenReturn(toMasterPwaDetail);
+
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
 
     when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
         .thenReturn(List.of(identStart, identMid, identEnd));
 
     var summary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineId.asInt());
+
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo("2/W/23");
 
     assertThat(summary.getIdentViews()).hasSize(3);
     assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
