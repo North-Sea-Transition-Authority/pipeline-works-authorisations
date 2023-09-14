@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -418,7 +419,7 @@ public class PublicNoticeService implements AppProcessingService {
       });
     }
 
-    var dates = publicNoticeDatesRepository.getAllByPublicNotice(publicNotice);
+    var dates = publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
 
     dates.ifPresent(publicNoticeDate -> {
       publicNoticeEvents.add(new PublicNoticeEvent()
@@ -427,11 +428,10 @@ public class PublicNoticeService implements AppProcessingService {
           .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
       );
 
-      if (publicNoticeDate.getEndedTimestamp() != null) {
+      if (publicNoticeDate.getPublicationEndTimestamp() != null && publicNoticeDate.getPublicationEndTimestamp().isBefore(Instant.now())) {
         publicNoticeEvents.add(new PublicNoticeEvent()
             .setEventType(PublicNoticeEventType.ENDED)
             .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
-            .setPersonId(String.valueOf(publicNoticeDate.getEndedByPersonId()))
         );
       }
     });
