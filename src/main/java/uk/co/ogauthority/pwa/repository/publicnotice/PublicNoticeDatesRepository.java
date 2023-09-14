@@ -14,8 +14,6 @@ public interface PublicNoticeDatesRepository extends CrudRepository<PublicNotice
 
   Optional<PublicNoticeDate> getByPublicNoticeAndEndedByPersonIdIsNull(PublicNotice publicNotice);
 
-  Optional<PublicNoticeDate> getAllByPublicNotice(PublicNotice publicNotice);
-
   List<PublicNoticeDate> getAllByPublicNoticeInAndPublicationStartTimestampBeforeAndEndedByPersonIdIsNull(List<PublicNotice> publicNotices,
                                                                                                         Instant publicationStartTimestamp);
 
