@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -74,6 +75,9 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   @MockBean
   protected UserTypeService userTypeService;
+
+  @MockBean
+  protected PadPipelineTransferService padPipelineTransferService;
 
   private static int PIPELINE_ID = 1;
 

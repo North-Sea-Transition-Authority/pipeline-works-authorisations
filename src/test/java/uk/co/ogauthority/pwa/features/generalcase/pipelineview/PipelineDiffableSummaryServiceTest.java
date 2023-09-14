@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -85,6 +87,7 @@ public class PipelineDiffableSummaryServiceTest {
 
     when(padPipelineOverview.getPipelineName()).thenReturn(PAD_PIPELINE_NAME);
     when(padPipelineOverview.getPipelineId()).thenReturn(PIPELINE_ID);
+    when(padPipelineOverview.getPadPipelineId()).thenReturn(PIPELINE_ID);
     when(padPipelineOverview.getPipelineStatus()).thenReturn(PipelineStatus.IN_SERVICE);
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(identStart, PIPELINE_POINT_1, PIPELINE_POINT_2, 1);
@@ -110,7 +113,14 @@ public class PipelineDiffableSummaryServiceTest {
 
   @Test
   public void getApplicationDetailPipelines_whenOnePipeline_andZeroIdents() {
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
 
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipeline(pipeline);
+
+    when(padPipelineService.getById(1)).thenReturn(padPipeline);
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail(pipeline));
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
 
@@ -128,7 +138,14 @@ public class PipelineDiffableSummaryServiceTest {
 
   @Test
   public void getApplicationDetailPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
+    var pipeline = new Pipeline();
+    pipeline.setId(1);
 
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipeline(pipeline);
+
+    when(padPipelineService.getById(1)).thenReturn(padPipeline);
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail(pipeline));
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
     when(padPipelineIdentService.getIdentViewsFromOverview(padPipelineOverview))
@@ -161,15 +178,19 @@ public class PipelineDiffableSummaryServiceTest {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
-    var fromMasterPwa = new MasterPwa();
+    Instant instant = Instant.now();
+
+    var fromMasterPwa = new MasterPwa(instant);
+    fromMasterPwa.setId(1);
     var fromMasterPwaDetail = new MasterPwaDetail();
     fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
     fromMasterPwaDetail.setReference("1/W/23");
 
-    var toMasterPwa = new MasterPwa();
+    var toMasterPwa = new MasterPwa(instant);
+    toMasterPwa.setId(2);
     var toMasterPwaDetail = new MasterPwaDetail();
     toMasterPwaDetail.setMasterPwa(toMasterPwa);
-    fromMasterPwaDetail.setReference("2/W/23");
+    toMasterPwaDetail.setReference("2/W/23");
 
     pipelineDetail.setTransferredFrom(fromMasterPwa);
     pipelineDetail.setTransferredTo(toMasterPwa);
@@ -217,15 +238,19 @@ public class PipelineDiffableSummaryServiceTest {
     var pipelineDetailId = PIPELINE_ID;
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
-    var fromMasterPwa = new MasterPwa();
+    Instant instant = Instant.now();
+
+    var fromMasterPwa = new MasterPwa(instant);
+    fromMasterPwa.setId(1);
     var fromMasterPwaDetail = new MasterPwaDetail();
     fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
     fromMasterPwaDetail.setReference("1/W/23");
 
-    var toMasterPwa = new MasterPwa();
+    var toMasterPwa = new MasterPwa(instant);
+    toMasterPwa.setId(2);
     var toMasterPwaDetail = new MasterPwaDetail();
     toMasterPwaDetail.setMasterPwa(toMasterPwa);
-    fromMasterPwaDetail.setReference("2/W/23");
+    toMasterPwaDetail.setReference("2/W/23");
 
     pipelineDetail.setTransferredFrom(fromMasterPwa);
     pipelineDetail.setTransferredTo(toMasterPwa);
