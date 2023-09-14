@@ -35,7 +35,7 @@ public class PadLicenceApplicationService {
 
     padLicenceApplicationRepository.deleteAllByPadProjectInformation(padProjectInformation);
     var padApplications = new ArrayList<PadProjectInformationLicenceApplication>();
-    if (form.getLicenceTransferPlanned()) {
+    if (form.getLicenceTransferPlanned() != null && form.getLicenceTransferPlanned()) {
       var ids = Arrays.stream(form.getPearsApplicationList())
           .map(Integer::valueOf)
           .collect(Collectors.toList());
