@@ -206,7 +206,10 @@ public final class PublicNoticeTestUtil {
                 .setEventType(PublicNoticeEventType.PUBLISHED)
                 .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
                 .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
-                .setPersonName("Person 1")
+                .setPersonName("Person 1"),
+            new PublicNoticeEvent()
+                .setEventType(PublicNoticeEventType.ENDED)
+                .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
         )
             .sorted(Comparator.comparing(PublicNoticeEvent::getEventTimestamp).reversed())
             .collect(Collectors.toList())
