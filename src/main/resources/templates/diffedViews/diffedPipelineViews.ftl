@@ -46,7 +46,7 @@
         </#if>
 
         <#if pipelineHeader.headerQuestions?seq_contains("OUT_OF_USE_ON_SEABED_REASON")>
-            <#if pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr.currentvalue == "Transferred">
+            <#if pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr == "Transferred">
               <#assign questionText>being transferred?</#assign>
             <#else>
               <#assign questionText>not being returned to shore?</#assign>
