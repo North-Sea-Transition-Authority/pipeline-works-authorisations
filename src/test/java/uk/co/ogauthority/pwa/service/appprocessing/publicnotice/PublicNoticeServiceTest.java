@@ -1022,7 +1022,7 @@ public class PublicNoticeServiceTest {
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE));
 
     when(publicNoticeRequestRepository.findAllByPublicNotice(publishedPublicNotice)).thenReturn(List.of(publishedPublicNoticeRequest));
-    when(publicNoticeDatesRepository.getAllByPublicNotice(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
+    when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
 
     var allPublicNoticesView = publicNoticeService.getAllPublicNoticeViews(context);
 
