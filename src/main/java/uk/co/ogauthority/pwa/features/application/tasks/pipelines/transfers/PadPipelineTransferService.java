@@ -16,6 +16,8 @@ import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -131,26 +133,35 @@ public class PadPipelineTransferService {
   }
 
   public List<TransferHistoryView> getTransferHistoryViews(List<Integer> pipelineIds) {
-    var transfers = findAllByPipelineIds(pipelineIds).stream()
+    Map<PadPipelineTransfer, Boolean> transfers = findAllByPipelineIds(pipelineIds).stream()
         .collect(Collectors.toMap(
             Function.identity(),
             padPipelineTransfer -> isTransfereeDonor(padPipelineTransfer, pipelineIds))
         );
 
-    //    var refMap = transfers.keySet().stream()
-    //        .collect(StreamUtils.toLinkedHashMap(
-    //            Function.identity(),
-    //            padPipelineTransfer -> getTransfereeDetail(padPipelineTransfer, pipelineIds).getMasterPwa()
-    //        ));
+    Map<PadPipelineTransfer, MasterPwa> refMap = transfers.keySet().stream()
+            .collect(StreamUtils.toLinkedHashMap(
+                Function.identity(),
+                padPipelineTransfer -> getTransfereeDetail(padPipelineTransfer, pipelineIds).getMasterPwa()
+            ));
 
-    //var masterPwaDetails = masterPwaService.findAllDetailsIn((List<MasterPwa>) refMap.values());
+    var masterPwaDetails = masterPwaService.findAllCurrentDetailsIn(refMap.values()).stream()
+        .collect(Collectors.toMap(MasterPwaDetail::getMasterPwa, Function.identity()));
 
     return transfers.entrySet().stream()
-        .map(entry -> new TransferHistoryView()
-            .setOriginalPipelineId(getOriginalPipelineId(entry.getKey(), entry.getValue()))
-            .setTransfereeConsentReference(masterPwaService.getCurrentDetailOrThrow(
-                getTransfereeDetail(entry.getKey(), pipelineIds).getMasterPwa()).getReference())
-            .setViewUrl(getViewConsentUrl(getTransfereeDetail(entry.getKey(), pipelineIds).getMasterPwa().getId())))
+        .map(entry -> {
+          var originalId = getOriginalPipelineId(entry.getKey(), entry.getValue());
+
+          var transfereeConsentRef = masterPwaDetails.get(getTransfereeDetail(entry.getKey(), pipelineIds)
+                  .getMasterPwa()).getReference();
+
+          var viewUrl = getViewConsentUrl(getTransfereeDetail(entry.getKey(), pipelineIds).getMasterPwa().getId());
+
+          return new TransferHistoryView()
+              .setOriginalPipelineId(originalId)
+              .setTransfereeConsentReference(transfereeConsentRef)
+              .setViewUrl(viewUrl);
+        })
         .collect(Collectors.toList());
   }
 

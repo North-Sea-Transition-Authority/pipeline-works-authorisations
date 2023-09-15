@@ -26,5 +26,5 @@ public interface MasterPwaDetailRepository extends CrudRepository<MasterPwaDetai
   List<MasterPwaDetail> findAllByReferenceContainingIgnoreCaseAndMasterPwaDetailStatus(String filter,
                                                                                        MasterPwaDetailStatus masterPwaDetailStatus);
 
-  List<MasterPwaDetail> findAllByMasterPwaIn(List<MasterPwa> masterPwas);
+  List<MasterPwaDetail> findAllByMasterPwaInAndEndInstantIsNull(Collection<MasterPwa> masterPwas);
 }
