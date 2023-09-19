@@ -20,10 +20,10 @@ public class PwaViewUrlFactory {
     this.pwaId = pwaId;
   }
 
-  public String getTabUrl(String tabValue) {
+  public String getTabUrl(String tabValue, Boolean showBreadcrumbs) {
     var tab = PwaViewTab.resolveByValue(tabValue);
     return ReverseRouter.route(on(PwaViewController.class)
-        .renderViewPwa(pwaId, tab, null, null, null));
+        .renderViewPwa(pwaId, tab, null, null, showBreadcrumbs));
   }
 
   public String getConsentDocumentUrl(Integer pwaConsentId, Long docgenRunId) {
