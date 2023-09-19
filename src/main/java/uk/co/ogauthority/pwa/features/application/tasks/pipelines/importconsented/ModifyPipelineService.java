@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsent
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +31,8 @@ public class ModifyPipelineService {
   private final PipelineDetailService pipelineDetailService;
   private final PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
 
+  private static final EnumSet<PhysicalPipelineState> ON_SEABED_AND_ONSHORE = EnumSet.of(PhysicalPipelineState.ON_SEABED, PhysicalPipelineState.ONSHORE);
+
   @Autowired
   public ModifyPipelineService(
       PadPipelineService padPipelineService,
@@ -55,9 +58,8 @@ public class ModifyPipelineService {
 
   public List<NamedPipelineDto> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
-        .filter(o -> PhysicalPipelineState.ON_SEABED.equals(o.getPipelineStatus().getPhysicalPipelineState())
-            || PhysicalPipelineState.ONSHORE.equals(o.getPipelineStatus().getPhysicalPipelineState()))
-        .sorted(Comparator.comparingInt(o -> o.getPipelineStatus().getPhysicalPipelineState().ordinal()))
+        .filter(pipelineDetail -> ON_SEABED_AND_ONSHORE.contains(pipelineDetail.getPipelineStatus().getPhysicalPipelineState()))
+        .sorted(Comparator.comparingInt(pipelineDetail -> pipelineDetail.getPipelineStatus().getPhysicalPipelineState().getDisplayOrder()))
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }
