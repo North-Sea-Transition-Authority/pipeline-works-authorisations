@@ -2,6 +2,7 @@
 
 <#-- @ftlvariable name="pwaPipelineViews" type="java.util.List<uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView>" -->
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory" -->
+<#-- @ftlvariable name="transferLinksVisible" type="Boolean" -->
 
 <#macro tab urlFactory pwaPipelineViews=[]>
 
@@ -25,18 +26,20 @@
         </td>
         <td class="govuk-table__cell">
           ${pwaPipelineView.status.getDisplayText()}
-
-          <#if pwaPipelineView.transferHistoryView?hasContent>
-              <#if transferLinksVisible>
-                <#assign transferee> <@fdsAction.link linkText=pwaPipelineView.transferHistoryView.transfereeConsentReference linkUrl=springUrl(pwaPipelineView.transferHistoryView.viewUrl) openInNewTab=true/></#assign>
+          <#if pwaPipelineView.transferredFromPwaRef?hasContent>
+            - transferred from
+            <#if transferLinksVisible>
+              <@fdsAction.link linkText=pwaPipelineView.transferredFromPwaRef linkUrl=springUrl(pwaPipelineView.transferredFromPwaUrl) openInNewTab=true/>
               <#else>
-                <#assign transferee> ${pwaPipelineView.transferHistoryView.transfereeConsentReference} </#assign>
-              </#if>
-
-              <#if pwaPipelineView.status == "TRANSFERRED">
-                to ${transferee}
-                  <#else>
-                - transferred from ${transferee}
+                  ${pwaPipelineView.transferredFromPwaRef}
+            </#if>
+          </#if>
+          <#if pwaPipelineView.transferredToPwaRef?hasContent>
+            to
+              <#if transferLinksVisible>
+                  <@fdsAction.link linkText=pwaPipelineView.transferredToPwaRef linkUrl=springUrl(pwaPipelineView.transferredToPwaUrl) openInNewTab=true/>
+              <#else>
+                  ${pwaPipelineView.transferredToPwaRef}
               </#if>
           </#if>
           <br>

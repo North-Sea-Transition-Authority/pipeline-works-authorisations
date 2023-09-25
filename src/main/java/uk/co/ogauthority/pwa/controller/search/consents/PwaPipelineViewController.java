@@ -13,10 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwa.PwaPipelineHistoryForm;
@@ -28,7 +26,6 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.PwaPipelineViewTab;
-import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.PwaPipelineHistoryViewService;
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePipelineHuooVersionService;
@@ -46,7 +43,6 @@ public class PwaPipelineViewController {
   private final AsBuiltViewerService asBuiltViewerService;
   private final SearchPwaBreadcrumbService searchPwaBreadcrumbService;
   private final UserTypeService userTypeService;
-  private final PadPipelineTransferService padPipelineTransferService;
 
   @Autowired
   public PwaPipelineViewController(PipelineDetailService pipelineDetailService,
@@ -54,15 +50,13 @@ public class PwaPipelineViewController {
                                    ViewablePipelineHuooVersionService viewablePipelineHuooVersionService,
                                    AsBuiltViewerService asBuiltViewerService,
                                    SearchPwaBreadcrumbService searchPwaBreadcrumbService,
-                                   UserTypeService userTypeService,
-                                   PadPipelineTransferService padPipelineTransferService) {
+                                   UserTypeService userTypeService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaPipelineHistoryViewService = pwaPipelineHistoryViewService;
     this.viewablePipelineHuooVersionService = viewablePipelineHuooVersionService;
     this.asBuiltViewerService = asBuiltViewerService;
     this.searchPwaBreadcrumbService = searchPwaBreadcrumbService;
     this.userTypeService = userTypeService;
-    this.padPipelineTransferService = padPipelineTransferService;
   }
 
 
@@ -123,21 +117,6 @@ public class PwaPipelineViewController {
         selectedPipelineDetailId = latestPipelineDetail.getId();
         form.setPipelineDetailId(latestPipelineDetail.getId());
       }
-
-      modelAndView.addObject("transferView", new DiffedTransferView(
-          userAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_REGULATOR),
-
-          latestPipelineDetail.getTransferredFrom() != null
-              ? ReverseRouter.route(on(PwaViewController.class).renderViewPwa(latestPipelineDetail.getTransferredFrom().getId(),
-              PwaViewTab.PIPELINES, null, null, null))
-              : null,
-
-          latestPipelineDetail.getTransferredTo() != null
-              ? ReverseRouter.route(on(PwaViewController.class).renderViewPwa(latestPipelineDetail.getTransferredTo().getId(),
-              PwaViewTab.PIPELINES, null, null, null))
-              : null
-          )
-      );
 
       setPipelineHistoryDataOnModelAndView(modelAndView, pwaContext, pipelineId, selectedPipelineDetailId);
 

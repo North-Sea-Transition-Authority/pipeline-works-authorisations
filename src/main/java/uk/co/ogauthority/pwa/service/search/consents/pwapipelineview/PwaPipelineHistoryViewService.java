@@ -86,9 +86,9 @@ public class PwaPipelineHistoryViewService {
       }
     }
 
-    var selectedDetailDiffableSummary = pipelineDiffableSummaryService.getConsentedPipeline(selectedPipelineDetailId);
+    var selectedDetailDiffableSummary = pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(selectedPipelineDetailId);
     var previousDetailDiffableSummary = previousVersionPipelineDetail != null
-        ? pipelineDiffableSummaryService.getConsentedPipeline(previousVersionPipelineDetail.getId()) : selectedDetailDiffableSummary;
+        ? pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(previousVersionPipelineDetail.getId()) : selectedDetailDiffableSummary;
     return pipelinesSummaryService.produceDiffedPipelineModel(selectedDetailDiffableSummary, previousDetailDiffableSummary);
 
   }

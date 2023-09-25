@@ -165,6 +165,10 @@ public class PipelineDetailService {
 
     pipelineMappingService.mapPipelineEntities(detail, padPipelineDto.getPadPipeline());
 
+    // if available, set the transfer from link so we know where this pipeline came from
+    Optional.ofNullable(padPipelineDto.getTransferredFromPipeline())
+        .ifPresent(detail::setTransferredFromPipeline);
+
     return detail;
 
   }
@@ -202,23 +206,14 @@ public class PipelineDetailService {
             "Could not find PipelineDetail with Pipeline ID: " + pipelineId.getPipelineIdAsInt()));
   }
 
-  public void updateTransferredPipelineDetails(PipelineDetail donor, PipelineDetail recipient) {
-    var donorMasterPwa = donor.getPipeline().getMasterPwa();
-    var recipientMasterPwa = recipient.getPipeline().getMasterPwa();
+  public void setTransferredToPipeline(Pipeline pipeline, Pipeline transferredToPipeline) {
 
-    donor.setTransferredTo(recipientMasterPwa);
-    recipient.setTransferredFrom(donorMasterPwa);
-    pipelineDetailRepository.saveAll(List.of(donor, recipient));
+    pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId())
+        .ifPresent(detail -> {
+          detail.setTransferredToPipeline(transferredToPipeline);
+          pipelineDetailRepository.save(detail);
+        });
+
   }
 
-  public void clearTransferredPipelineDetails(Integer pipelineId, boolean donor) {
-    var pipelineDetail = getLatestByPipelineId(pipelineId);
-
-    if (donor) {
-      pipelineDetail.setTransferredTo(null);
-    } else {
-      pipelineDetail.setTransferredFrom(null);
-    }
-    pipelineDetailRepository.save(pipelineDetail);
-  }
 }

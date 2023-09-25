@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.repository.CrudRepository;
@@ -24,5 +25,6 @@ public interface PadPipelineTransferRepository extends CrudRepository<PadPipelin
   List<PadPipelineTransfer> findAllByDonorPipeline_IdInOrRecipientPipeline_IdIn(
       List<Integer> donorPipelineIds, List<Integer> recipientPipelineIds);
 
-  Optional<PadPipelineTransfer> findByDonorPipeline_IdOrRecipientPipeline_Id(Integer donorPipelineId, Integer recipientPipelineId);
+  Collection<PadPipelineTransfer> findAllByDonorApplicationDetailEqualsOrRecipientApplicationDetailEquals(
+      PwaApplicationDetail donorDetail, PwaApplicationDetail recipientDetail);
 }

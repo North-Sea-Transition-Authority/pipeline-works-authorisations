@@ -7,7 +7,6 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
-import uk.co.ogauthority.pwa.service.search.consents.TransferHistoryView;
 
 public class PwaPipelineView {
 
@@ -20,9 +19,16 @@ public class PwaPipelineView {
   private final String toLocation;
   private final CoordinatePair toCoordinates;
   private final String length;
-  private final TransferHistoryView transferHistoryView;
+  private final String transferredFromPwaRef;
+  private final String transferredFromPwaUrl;
+  private final String transferredToPwaRef;
+  private final String transferredToPwaUrl;
 
-  public PwaPipelineView(PipelineOverview pipelineOverview, TransferHistoryView transferHistoryView) {
+  public PwaPipelineView(PipelineOverview pipelineOverview,
+                         String transferredFromPwaRef,
+                         String transferredFromPwaUrl,
+                         String transferredToPwaRef,
+                         String transferredToPwaUrl) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineNumber = pipelineOverview.getPipelineNumber();
     this.status = pipelineOverview.getPipelineStatus();
@@ -32,7 +38,10 @@ public class PwaPipelineView {
     this.toCoordinates = pipelineOverview.getToCoordinates();
     this.length = createLengthDisplayString(pipelineOverview.getLength());
     this.asBuiltNotificationStatus = pipelineOverview.getAsBuiltNotificationStatus();
-    this.transferHistoryView = transferHistoryView;
+    this.transferredFromPwaRef = transferredFromPwaRef;
+    this.transferredFromPwaUrl = transferredFromPwaUrl;
+    this.transferredToPwaRef = transferredToPwaRef;
+    this.transferredToPwaUrl = transferredToPwaUrl;
   }
 
   public Integer getPipelineId() {
@@ -71,8 +80,20 @@ public class PwaPipelineView {
     return length;
   }
 
-  public TransferHistoryView getTransferHistoryView() {
-    return transferHistoryView;
+  public String getTransferredFromPwaRef() {
+    return transferredFromPwaRef;
+  }
+
+  public String getTransferredToPwaRef() {
+    return transferredToPwaRef;
+  }
+
+  public String getTransferredFromPwaUrl() {
+    return transferredFromPwaUrl;
+  }
+
+  public String getTransferredToPwaUrl() {
+    return transferredToPwaUrl;
   }
 
   private static String createLengthDisplayString(BigDecimal length) {
@@ -94,12 +115,17 @@ public class PwaPipelineView {
         && Objects.equals(fromCoordinates, that.fromCoordinates)
         && Objects.equals(toLocation, that.toLocation)
         && Objects.equals(toCoordinates, that.toCoordinates)
-        && Objects.equals(length, that.length);
+        && Objects.equals(length, that.length)
+        && Objects.equals(transferredFromPwaRef, that.transferredFromPwaRef)
+        && Objects.equals(transferredFromPwaUrl, that.transferredFromPwaUrl)
+        && Objects.equals(transferredToPwaRef, that.transferredToPwaRef)
+        && Objects.equals(transferredToPwaUrl, that.transferredToPwaUrl);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length);
+    return Objects.hash(pipelineNumber, status, fromLocation, fromCoordinates, toLocation, toCoordinates, length,
+        transferredFromPwaRef, transferredFromPwaUrl, transferredToPwaRef, transferredToPwaUrl);
   }
 
 }

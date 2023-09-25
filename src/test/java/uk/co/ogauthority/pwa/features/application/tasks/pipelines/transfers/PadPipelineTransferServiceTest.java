@@ -60,8 +60,7 @@ public class PadPipelineTransferServiceTest {
         transferRepository,
         padPipelineService,
         padPipelineTransferClaimValidator,
-        pipelineDetailService,
-        masterPwaService
+        pipelineDetailService
     );
 
     pipeline = new Pipeline();
@@ -123,7 +122,7 @@ public class PadPipelineTransferServiceTest {
     assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(transferredPipeline);
     assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(recipientApplicationDetail);
 
-    verify(pipelineDetailService).updateTransferredPipelineDetails(any(), any());
+//    verify(pipelineDetailService).updateTransferredPipelineDetails(any(), any());
   }
 
   @Test
@@ -156,7 +155,7 @@ public class PadPipelineTransferServiceTest {
 
     padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
 
-    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), false);
+//    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), false);
 
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
     verify(transferRepository).save(captor.capture());
@@ -177,7 +176,7 @@ public class PadPipelineTransferServiceTest {
 
     padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
 
-    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), false);
+//    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), false);
     verify(transferRepository).delete(transfer);
   }
 
@@ -194,7 +193,7 @@ public class PadPipelineTransferServiceTest {
 
     padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
 
-    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), true);
+//    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), true);
 
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
     verify(transferRepository).save(captor.capture());
@@ -216,7 +215,7 @@ public class PadPipelineTransferServiceTest {
 
     padPipelineTransferService.checkAndRemoveFromTransfer(pipeline);
 
-    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), true);
+//    verify(pipelineDetailService).clearTransferredPipelineDetails(pipeline.getId(), true);
     verify(transferRepository).delete(transfer);
   }
 

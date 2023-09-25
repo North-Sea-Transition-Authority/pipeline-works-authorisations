@@ -61,9 +61,7 @@ public class PipelinesSummaryService implements ApplicationSectionSummariser {
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(
-        pwaApplicationDetail);
-
+    var applicationPipelineSummaryList = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail);
 
     var consentedPipelineSummaryList = pipelineDiffableSummaryService.getConsentedPipelines(
         pwaApplicationDetail.getPwaApplication(),
