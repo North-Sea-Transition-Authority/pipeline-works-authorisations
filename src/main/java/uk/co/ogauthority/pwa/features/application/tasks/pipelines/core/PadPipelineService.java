@@ -375,6 +375,9 @@ public class PadPipelineService {
 
     if (form.getAssignNewPipelineNumber()) {
       setTemporaryPipelineNumber(newPadPipeline, recipientPwaApplicationDetail);
+    } else {
+      newPadPipeline.setTemporaryRef(newPadPipeline.getPipelineRef());
+      newPadPipeline.setTemporaryNumber(0);
     }
 
     newPadPipeline.setPipeline(newPipeline);
