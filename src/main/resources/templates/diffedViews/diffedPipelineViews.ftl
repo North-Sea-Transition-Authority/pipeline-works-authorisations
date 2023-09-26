@@ -1,6 +1,6 @@
 <#include '../pwaLayoutImports.ftl'>
 
-<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[] consentedModel=false transferView=[]>
+<#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[] consentedModel=false>
 
     <@fdsCheckAnswers.checkAnswers>
 
@@ -20,29 +20,16 @@
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>
 
-        <#if  transferView?has_content>
-            <#if transferView.transferLinksVisible>
-                <#if transferView.transferFromUrl?has_content>
-                    <#assign fromUrl>${springUrl(transferView.transferFromUrl)}</#assign>
-                </#if>
+        <#if pipelineHeader.PipelineHeaderView_transferredFromRef.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Transferred from" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredFromRef />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
 
-                <#if transferView.transferToUrl?has_content>
-                    <#assign toUrl>${springUrl(transferView.transferToUrl)}</#assign>
-                </#if>
-                <#assign actionText>View</#assign>
-            </#if>
-
-            <#if pipelineHeader.PipelineHeaderView_transferredFromRef.currentValue?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Transferred from" actionUrl=fromUrl!"" screenReaderActionText="" actionText=actionText!"">
-                    <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredFromRef />
-                </@fdsCheckAnswers.checkAnswersRow>
-            </#if>
-
-            <#if pipelineHeader.PipelineHeaderView_transferredToRef.currentValue?has_content>
-                <@fdsCheckAnswers.checkAnswersRow keyText="Transferred to" actionUrl=toUrl!"" screenReaderActionText="" actionText=actionText!"">
-                    <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredToRef />
-                </@fdsCheckAnswers.checkAnswersRow>
-            </#if>
+        <#if pipelineHeader.PipelineHeaderView_transferredToRef.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Transferred to" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredToRef />
+            </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
         <#if pipelineHeader.headerQuestions?seq_contains("OUT_OF_USE_ON_SEABED_REASON")>

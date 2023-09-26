@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -61,6 +62,12 @@ public class PipelineDiffableSummaryServiceTest {
   @Mock
   private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
+  @Mock
+  private PadPipelineTransferService padPipelineTransferService;
+
+  @Mock
+  private MasterPwaService masterPwaService;
+
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -76,9 +83,6 @@ public class PipelineDiffableSummaryServiceTest {
 
   @Mock
   private PadTechnicalDrawingService padTechnicalDrawingService;
-
-  @Mock
-  MasterPwaService masterPwaService;
 
   @Before
   public void setup() {
@@ -100,6 +104,7 @@ public class PipelineDiffableSummaryServiceTest {
         pipelineDetailIdentViewService,
         pipelineDetailService,
         padTechnicalDrawingService,
+        padPipelineTransferService,
         masterPwaService);
   }
 
@@ -119,8 +124,6 @@ public class PipelineDiffableSummaryServiceTest {
     var padPipeline = new PadPipeline();
     padPipeline.setPipeline(pipeline);
 
-    when(padPipelineService.getById(1)).thenReturn(padPipeline);
-    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail(pipeline));
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
 
@@ -144,8 +147,6 @@ public class PipelineDiffableSummaryServiceTest {
     var padPipeline = new PadPipeline();
     padPipeline.setPipeline(pipeline);
 
-    when(padPipelineService.getById(1)).thenReturn(padPipeline);
-    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail(pipeline));
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
         .thenReturn(List.of(padPipelineOverview));
     when(padPipelineIdentService.getIdentViewsFromOverview(padPipelineOverview))
@@ -180,23 +181,19 @@ public class PipelineDiffableSummaryServiceTest {
 
     Instant instant = Instant.now();
 
-    var fromMasterPwa = new MasterPwa(instant);
-    fromMasterPwa.setId(1);
-    var fromMasterPwaDetail = new MasterPwaDetail();
-    fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
-    fromMasterPwaDetail.setReference("1/W/23");
-
     var toMasterPwa = new MasterPwa(instant);
     toMasterPwa.setId(2);
     var toMasterPwaDetail = new MasterPwaDetail();
     toMasterPwaDetail.setMasterPwa(toMasterPwa);
     toMasterPwaDetail.setReference("2/W/23");
 
-    pipelineDetail.setTransferredFrom(fromMasterPwa);
-    pipelineDetail.setTransferredTo(toMasterPwa);
+    var toPipeline = new Pipeline();
+    toPipeline.setMasterPwa(toMasterPwa);
+    pipelineDetail.setTransferredToPipeline(toPipeline);
 
-    when(masterPwaService.getCurrentDetailOrThrow(fromMasterPwa)).thenReturn(fromMasterPwaDetail);
-    when(masterPwaService.getCurrentDetailOrThrow(toMasterPwa)).thenReturn(toMasterPwaDetail);
+    var pwaList = Set.of(toMasterPwa);
+    var detailList = List.of(toMasterPwaDetail);
+    when(masterPwaService.findAllCurrentDetailsIn(pwaList)).thenReturn(detailList);
 
     when(pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwaById(
         pwaApplicationDetail.getPwaApplication(),
@@ -210,7 +207,7 @@ public class PipelineDiffableSummaryServiceTest {
 
     var summary = summaryList.get(0);
 
-    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isNull();
     assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo("2/W/23");
 
     assertThat(summary.getIdentViews()).hasSize(3);
@@ -246,27 +243,22 @@ public class PipelineDiffableSummaryServiceTest {
     fromMasterPwaDetail.setMasterPwa(fromMasterPwa);
     fromMasterPwaDetail.setReference("1/W/23");
 
-    var toMasterPwa = new MasterPwa(instant);
-    toMasterPwa.setId(2);
-    var toMasterPwaDetail = new MasterPwaDetail();
-    toMasterPwaDetail.setMasterPwa(toMasterPwa);
-    toMasterPwaDetail.setReference("2/W/23");
+    var fromPipeline = new Pipeline();
+    fromPipeline.setMasterPwa(fromMasterPwa);
 
-    pipelineDetail.setTransferredFrom(fromMasterPwa);
-    pipelineDetail.setTransferredTo(toMasterPwa);
+    pipelineDetail.setTransferredFromPipeline(fromPipeline);
 
     when(masterPwaService.getCurrentDetailOrThrow(fromMasterPwa)).thenReturn(fromMasterPwaDetail);
-    when(masterPwaService.getCurrentDetailOrThrow(toMasterPwa)).thenReturn(toMasterPwaDetail);
 
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
 
     when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
         .thenReturn(List.of(identStart, identMid, identEnd));
 
-    var summary = pipelineDiffableSummaryService.getConsentedPipeline(pipelineId.asInt());
+    var summary = pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(pipelineId.asInt());
 
     assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
-    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo("2/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isNull();
 
     assertThat(summary.getIdentViews()).hasSize(3);
     assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);

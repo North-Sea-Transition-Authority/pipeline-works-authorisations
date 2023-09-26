@@ -43,7 +43,7 @@ public class PipelineMappingServiceTest {
     pipelineMappingService.mapPipelineEntities(sourcePipelineDetail, padPipeline);
 
     ObjectTestUtils.assertAllExpectedFieldsHaveValue(sourcePipelineDetail,
-        List.of("id", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "transferredFrom", "transferredTo"));
+        List.of("id", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "transferredFromPipeline", "transferredToPipeline"));
 
     // assert the mapper does not modify the pipeline of the entity where data being copied to.
     assertThat(padPipeline.getPipeline()).isNotEqualTo(sourcePipeline);
@@ -113,7 +113,7 @@ public class PipelineMappingServiceTest {
     pipelineMappingService.mapPipelineEntities(detail, padPipeline);
 
     ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
-        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "transferredFrom", "transferredTo"));
+        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "transferredFromPipeline", "transferredToPipeline"));
 
     assertThat(detail.getPipelineType()).isEqualTo((PipelineType.UNKNOWN));
 

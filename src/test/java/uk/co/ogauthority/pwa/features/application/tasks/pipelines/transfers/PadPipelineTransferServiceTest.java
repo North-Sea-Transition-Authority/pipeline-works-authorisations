@@ -5,9 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,20 +13,12 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
-import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
-import uk.co.ogauthority.pwa.service.search.consents.TransferHistoryView;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTransferServiceTest {
@@ -44,9 +34,6 @@ public class PadPipelineTransferServiceTest {
 
   @Mock
   PipelineDetailService pipelineDetailService;
-
-  @Mock
-  MasterPwaService masterPwaService;
 
   PadPipelineTransferService padPipelineTransferService;
 
@@ -219,42 +206,4 @@ public class PadPipelineTransferServiceTest {
     verify(transferRepository).delete(transfer);
   }
 
-  @Test
-  public void getTransferHistoryViews() {
-    var recipientMasterPwa = new MasterPwa();
-    recipientMasterPwa.setId(2);
-
-    var recipientPwaApplication = new PwaApplication();
-    recipientPwaApplication.setId(2);
-    recipientPwaApplication.setMasterPwa(recipientMasterPwa);
-
-    var recipientApplicationDetail = new PwaApplicationDetail();
-    recipientApplicationDetail.setId(2);
-    recipientApplicationDetail.setPwaApplication(recipientPwaApplication);
-
-    var recipientPipeline = new Pipeline();
-    recipientPipeline.setId(2);
-
-    var transfer = new PadPipelineTransfer()
-        .setDonorPipeline(pipeline)
-        .setDonorApplicationDetail(pwaApplicationDetail)
-        .setRecipientPipeline(recipientPipeline)
-        .setRecipientApplicationDetail(recipientApplicationDetail);
-
-    var recipientMasterPwaDetail = new MasterPwaDetail();
-    recipientMasterPwaDetail.setMasterPwa(recipientMasterPwa);
-    recipientMasterPwaDetail.setReference("2/W/23");
-
-    when(transferRepository.findAllByDonorPipeline_IdInOrRecipientPipeline_IdIn(List.of(1), List.of(1))).thenReturn(List.of(transfer));
-    when(masterPwaService.getCurrentDetailOrThrow(recipientMasterPwa)).thenReturn(recipientMasterPwaDetail);
-
-    assertThat(padPipelineTransferService.getTransferHistoryViews(List.of(1))).usingRecursiveComparison().isEqualTo(
-        List.of(
-            new TransferHistoryView()
-                .setOriginalPipelineId(1)
-                .setViewUrl(ReverseRouter.route(on(PwaViewController.class).renderViewPwa(2, PwaViewTab.PIPELINES, null, null, false)))
-                .setTransfereeConsentReference("2/W/23")
-        )
-    );
-  }
 }

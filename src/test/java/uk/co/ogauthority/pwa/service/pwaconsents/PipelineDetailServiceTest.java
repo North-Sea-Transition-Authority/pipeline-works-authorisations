@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -55,6 +54,9 @@ public class PipelineDetailServiceTest {
 
   @Captor
   private ArgumentCaptor<List<PipelineDetail>> pipelineDetailsArgCaptor;
+
+  @Captor
+  private ArgumentCaptor<PipelineDetail> pipeDetailArgCaptor;
 
   @Mock
   private PipelineMappingService pipelineMappingService;
@@ -187,6 +189,43 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
+  public void createNewPipelineDetails_transferOut() {
+
+    // set up a current detail that we can check has been ended
+    var pipelineDtoMap = PipelineWriterTestUtils.createPipelineToPadPipelineDtoMap();
+    var pipelineToEndDetailFor = pipelineDtoMap.keySet().iterator().next();
+    var currentDetail = new PipelineDetail();
+    currentDetail.setPipeline(pipelineToEndDetailFor);
+    currentDetail.setTipFlag(true);
+
+    var donorPipe = new Pipeline();
+    donorPipe.setId(1);
+    pipelineDtoMap.get(pipelineToEndDetailFor).setTransferredFromPipeline(donorPipe);
+
+    var consent = new PwaConsent();
+
+    var consentWriterDto = new ConsentWriterDto();
+
+    when(pipelineDetailRepository.findAllByPipelineInAndEndTimestampIsNull(any())).thenReturn(List.of(currentDetail));
+
+    pipelineDetailService.createNewPipelineDetails(pipelineDtoMap, consent, consentWriterDto);
+
+    verify(pipelineDetailRepository, times(2)).saveAll(pipelineDetailsArgCaptor.capture());
+
+    assertThat(pipelineDetailsArgCaptor.getAllValues().size()).isEqualTo(2);
+
+    // check that the ended detail has no transfer info
+    var endedDetailsList = pipelineDetailsArgCaptor.getAllValues().get(0);
+    assertThat(endedDetailsList).singleElement().satisfies(endedDetail -> assertThat(endedDetail.getTransferredFromPipeline()).isNull());
+
+    var newDetailsList = new ArrayList<>(pipelineDetailsArgCaptor.getAllValues().get(1));
+
+    // check that new detail has transfer info
+    assertThat(newDetailsList).anySatisfy(newDetail -> assertThat(newDetail.getTransferredFromPipeline()).isEqualTo(donorPipe));
+
+  }
+
+  @Test
   public void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     var overview = PipelineDetailTestUtil
@@ -224,60 +263,38 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void updateTransferredPipelineDetails() {
-    var donorMasterPwa = new MasterPwa();
-    var donorPipeline = new Pipeline();
-    donorPipeline.setMasterPwa(donorMasterPwa);
-    var donorPipelineDetail = new PipelineDetail();
-    donorPipelineDetail.setPipeline(donorPipeline);
+  public void setTransferredToPipeline_exists() {
 
-    var recipientMasterPwa = new MasterPwa();
-    var recipientPipeline = new Pipeline();
-    recipientPipeline.setMasterPwa(recipientMasterPwa);
-    var recipientPipelineDetail = new PipelineDetail();
-    recipientPipelineDetail.setPipeline(recipientPipeline);
+    var pipeDetail = new PipelineDetail();
+    var pipe = new Pipeline();
+    pipe.setId(1);
+    pipeDetail.setPipeline(pipe);
 
-    pipelineDetailService.updateTransferredPipelineDetails(donorPipelineDetail, recipientPipelineDetail);
+    var transferredToPipe = new Pipeline();
+    transferredToPipe.setId(2);
 
-    ArgumentCaptor<List<PipelineDetail>> captor = ArgumentCaptor.forClass((Class) List.class);
-    verify(pipelineDetailRepository).saveAll(captor.capture());
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipe.getId())).thenReturn(Optional.of(pipeDetail));
 
-    assertThat(captor.getValue().get(0).getTransferredTo()).isEqualTo(recipientMasterPwa);
-    assertThat(captor.getValue().get(0).getTransferredFrom()).isEqualTo(null);
-    assertThat(captor.getValue().get(1).getTransferredTo()).isEqualTo(null);
-    assertThat(captor.getValue().get(1).getTransferredFrom()).isEqualTo(donorMasterPwa);
+    pipelineDetailService.setTransferredToPipeline(pipe, transferredToPipe);
+
+    verify(pipelineDetailRepository, times(1)).save(pipeDetailArgCaptor.capture());
+
+    assertThat(pipeDetailArgCaptor.getValue().getTransferredToPipeline()).isEqualTo(transferredToPipe);
+
   }
 
   @Test
-  public void clearTransferredPipelineDetails_donor() {
-    var transferredToMasterPwa = new MasterPwa();
-    var pipelineDetail = new PipelineDetail();
-    pipelineDetail.setTransferredTo(transferredToMasterPwa);
+  public void setTransferredToPipeline_doesntExist() {
 
-    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(1)).thenReturn(Optional.of(pipelineDetail));
+    var pipe = new Pipeline();
+    var pipe2 = new Pipeline();
 
-    pipelineDetailService.clearTransferredPipelineDetails(1, true);
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(any())).thenReturn(Optional.empty());
 
-    ArgumentCaptor<PipelineDetail> captor = ArgumentCaptor.forClass(PipelineDetail.class);
-    verify(pipelineDetailRepository).save(captor.capture());
+    pipelineDetailService.setTransferredToPipeline(pipe, pipe2);
 
-    assertThat(captor.getValue().getTransferredTo()).isEqualTo(null);
-  }
+    verify(pipelineDetailRepository, times(0)).save(any());
 
-  @Test
-  public void clearTransferredPipelineDetails_recipient() {
-    var transferredFromMasterPwa = new MasterPwa();
-    var pipelineDetail = new PipelineDetail();
-    pipelineDetail.setTransferredFrom(transferredFromMasterPwa);
-
-    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(1)).thenReturn(Optional.of(pipelineDetail));
-
-    pipelineDetailService.clearTransferredPipelineDetails(1, false);
-
-    ArgumentCaptor<PipelineDetail> captor = ArgumentCaptor.forClass(PipelineDetail.class);
-    verify(pipelineDetailRepository).save(captor.capture());
-
-    assertThat(captor.getValue().getTransferredFrom()).isEqualTo(null);
   }
 
 }
