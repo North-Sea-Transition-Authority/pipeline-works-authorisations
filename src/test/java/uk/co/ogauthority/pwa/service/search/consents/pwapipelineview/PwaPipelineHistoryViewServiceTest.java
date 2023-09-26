@@ -120,10 +120,10 @@ public class PwaPipelineHistoryViewServiceTest {
         List.of(pipelineDetailForSelectedVersion, pipelineDetailForPreviousVersion));
 
     var summaryForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
-    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
+    when(pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
 
     var summaryForPreviousVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
-    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID2)).thenReturn(summaryForPreviousVersion);
+    when(pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(PIPELINE_DETAIL_ID2)).thenReturn(summaryForPreviousVersion);
 
     pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_DETAIL_ID1, PIPELINE_ID.asInt());
     verify(pipelinesSummaryService, times(1)).produceDiffedPipelineModel(summaryForSelectedVersion, summaryForPreviousVersion);
@@ -138,7 +138,7 @@ public class PwaPipelineHistoryViewServiceTest {
         List.of(pipelineDetailForSelectedVersion));
 
     var summaryForSelectedVersion = PwaPipelineViewTestUtil.createPipelineDiffableSummary(PIPELINE_ID.asInt());
-    when(pipelineDiffableSummaryService.getConsentedPipeline(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
+    when(pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(PIPELINE_DETAIL_ID1)).thenReturn(summaryForSelectedVersion);
 
     pwaPipelineHistoryViewService.getDiffedPipelineSummaryModel(PIPELINE_DETAIL_ID1, PIPELINE_ID.asInt());
     verify(pipelinesSummaryService, times(1)).produceDiffedPipelineModel(summaryForSelectedVersion, summaryForSelectedVersion);

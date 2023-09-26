@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
@@ -50,6 +51,7 @@ public class PwaViewController {
         .addObject("currentProcessingTab", tab)
         .addObject("pwaViewUrlFactory", new PwaViewUrlFactory(pwaId))
         .addObject("showBreadcrumbs", BooleanUtils.isTrue(showBreadcrumbs))
+        .addObject("transferLinksVisible", authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_REGULATOR))
         .addAllObjects(tabContentModelMap);
 
     searchPwaBreadcrumbService.fromPwaView(modelAndView, pwaContext.getConsentSearchResultView().getPwaReference());

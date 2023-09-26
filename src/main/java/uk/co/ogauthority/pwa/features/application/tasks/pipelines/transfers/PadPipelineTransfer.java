@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.time.Instant;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -96,4 +97,38 @@ public class PadPipelineTransfer {
     this.createdTimestamp = createdTimestamp;
     return this;
   }
+
+  public TransferParticipantType getTransferParticipantType(Pipeline pipeline) {
+    if (Objects.equals(this.donorPipeline, pipeline)) {
+      return TransferParticipantType.DONOR;
+    } else if (Objects.equals(this.recipientPipeline, pipeline)) {
+      return TransferParticipantType.RECIPIENT;
+    } else {
+      throw new RuntimeException(String.format(
+          "Pipeline with ID: %s not associated with PadPipelineTransfer with ID: %s", pipeline.getId(), this.id));
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    PadPipelineTransfer that = (PadPipelineTransfer) o;
+    return Objects.equals(id, that.id) && Objects.equals(donorPipeline,
+        that.donorPipeline) && Objects.equals(recipientPipeline,
+        that.recipientPipeline) && Objects.equals(donorApplicationDetail,
+        that.donorApplicationDetail) && Objects.equals(recipientApplicationDetail,
+        that.recipientApplicationDetail) && Objects.equals(createdTimestamp, that.createdTimestamp);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, donorPipeline, recipientPipeline, donorApplicationDetail, recipientApplicationDetail,
+        createdTimestamp);
+  }
+
 }
