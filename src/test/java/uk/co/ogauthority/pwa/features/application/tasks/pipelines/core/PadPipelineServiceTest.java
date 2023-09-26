@@ -633,30 +633,54 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void createTransferredPipeline() {
+  public void createTransferredPipeline_newPipelineNumber() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPipelineId(1)
+        .setAssignNewPipelineNumber(true);
+
+    var recipientPwaApplication = new PwaApplication();
+    var recipientPwa = new PwaApplicationDetail();
+    recipientPwa.setId(2);
+    recipientPwa.setPwaApplication(recipientPwaApplication);
+
+    when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(new Pipeline());
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail());
+    when(pipelineMappingService.mapPipelineEntities(any(PadPipeline.class), any(PipelineDetail.class))).thenReturn(new PadPipeline());
+    when(padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(any(PwaApplicationDetail.class))).thenReturn(5);
+
+    padPipelineService.createTransferredPipeline(form, recipientPwa);
+
+    verify(padPipelineRepository).save(padPipelineArgumentCaptor.capture());
+    var savedPipeline = padPipelineArgumentCaptor.getValue();
+
+    assertThat(savedPipeline.getPipelineRef()).isEqualTo("TEMPORARY 6");
+  }
+
+  @Test
+  public void createTransferredPipeline_retainedPipelineNumber() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false);
 
     var recipientPwaApplication = new PwaApplication();
-
     var recipientPwa = new PwaApplicationDetail();
     recipientPwa.setId(2);
     recipientPwa.setPwaApplication(recipientPwaApplication);
 
-    var expectedSave = new PadPipeline(recipientPwa);
-    expectedSave.setPipeline(pipe1);
-    expectedSave.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    var newPipeline = new PadPipeline();
+    newPipeline.setPipelineNumber("PL56");
 
 
-    var newPipeline = new Pipeline();
-
-    when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(newPipeline);
+    when(pipelineService.createApplicationPipeline(recipientPwaApplication)).thenReturn(new Pipeline());
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(new PipelineDetail());
+    when(pipelineMappingService.mapPipelineEntities(any(PadPipeline.class), any(PipelineDetail.class))).thenReturn(newPipeline);
 
     padPipelineService.createTransferredPipeline(form, recipientPwa);
 
-    verify(padPipelineRepository).save(any(PadPipeline.class));
+    verify(padPipelineRepository).save(padPipelineArgumentCaptor.capture());
+    var savedPipeline = padPipelineArgumentCaptor.getValue();
+
+    assertThat(savedPipeline.getPipelineRef()).isEqualTo("PL56");
   }
 
 }

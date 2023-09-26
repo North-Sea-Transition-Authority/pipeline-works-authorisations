@@ -370,11 +370,15 @@ public class PadPipelineService {
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(form.getPipelineId());
     var newPipeline = pipelineService.createApplicationPipeline(recipientPwaApplicationDetail.getPwaApplication());
 
-    var newPadPipeline = new PadPipeline(recipientPwaApplicationDetail);
-    pipelineMappingService.mapPipelineEntities(newPadPipeline, pipelineDetail);
+    var newPadPipeline = (PadPipeline) pipelineMappingService.mapPipelineEntities(
+        new PadPipeline(recipientPwaApplicationDetail),
+        pipelineDetail
+    );
 
     if (form.getAssignNewPipelineNumber()) {
       setTemporaryPipelineNumber(newPadPipeline, recipientPwaApplicationDetail);
+    } else {
+      retainTransferredPipelineNumber(newPadPipeline);
     }
 
     newPadPipeline.setPipeline(newPipeline);
@@ -392,5 +396,11 @@ public class PadPipelineService {
 
     newPadPipeline.setTemporaryNumber(maxTemporaryNumber + 1);
     newPadPipeline.setPipelineRef("TEMPORARY " + newPadPipeline.getTemporaryNumber());
+  }
+
+  private void retainTransferredPipelineNumber(PadPipeline newPadPipeline) {
+    // N.B. these Temporary Refs are required to be set in order to stop the Pipeline Number being overwritten upon submission.
+    newPadPipeline.setTemporaryRef(newPadPipeline.getPipelineRef());
+    newPadPipeline.setTemporaryNumber(0);
   }
 }
