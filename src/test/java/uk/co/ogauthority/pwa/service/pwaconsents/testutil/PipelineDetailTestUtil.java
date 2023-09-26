@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.testutil;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -68,15 +69,20 @@ public class PipelineDetailTestUtil {
   }
 
   public static PipelineOverview createPipelineOverviewWithAsBuiltStatus(String referenceId, PipelineStatus pipelineStatus,
-                                                                         AsBuiltNotificationStatus asBuiltNotificationStatus) {
+                                                                          AsBuiltNotificationStatus asBuiltNotificationStatus) {
     PadPipeline padPipeline = createPadPipeline();
     var padPipelineOverView = new PadPipelineOverview(padPipeline, 1L);
     return PadPipelineOverview.from(padPipelineOverView, asBuiltNotificationStatus);
   }
 
+  public static PipelineOverview createPipelineOverviewWithAsBuiltStatus(PipelineOverview pipelineOverview,
+                                                                         AsBuiltNotificationStatus asBuiltNotificationStatus) {
+    return PadPipelineOverview.from(pipelineOverview, asBuiltNotificationStatus);
+  }
+
   private static PadPipeline createPadPipeline() {
     var pipeline = new Pipeline();
-    pipeline.setId(1);
+    pipeline.setId(Math.abs(new Random().nextInt()));
     PadPipeline padPipeline = new PadPipeline();
 
     try {

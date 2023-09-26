@@ -97,6 +97,24 @@ public class PwaViewTabServiceTest {
         .thenReturn(unOrderedPipelineOverviews);
     when(asBuiltViewerService.getOverviewsWithAsBuiltStatus(unOrderedPipelineOverviews)).thenReturn(unOrderedPipelineOverviews);
 
+    var detail1 = new PipelineDetail();
+    detail1.setId(1);
+    var pipe1 = new Pipeline();
+    pipe1.setId(unOrderedPipelineOverviews.get(0).getPipelineId());
+    detail1.setPipeline(pipe1);
+    var detail2 = new PipelineDetail();
+    detail2.setId(2);
+    var pipe2 = new Pipeline();
+    pipe2.setId(unOrderedPipelineOverviews.get(1).getPipelineId());
+    detail2.setPipeline(pipe2);
+    var detail3 = new PipelineDetail();
+    detail3.setId(3);
+    var pipe3 = new Pipeline();
+    pipe3.setId(unOrderedPipelineOverviews.get(2).getPipelineId());
+    detail3.setPipeline(pipe3);
+    when(pipelineDetailService.getLatestPipelineDetailsForIds(List.of(pipe1.getId(), pipe2.getId(), pipe3.getId())))
+        .thenReturn(List.of(detail1, detail2, detail3));
+
     var modelMap = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
     var actualPwaPipelineViews = (List<PwaPipelineView>) modelMap.get("pwaPipelineViews");
     assertThat(actualPwaPipelineViews).containsExactly(
@@ -115,15 +133,18 @@ public class PwaViewTabServiceTest {
     var unOrderedPipelineOverviews = List.of(overview);
 
     var pipelineOverviewWithAsBuiltStatus = PipelineDetailTestUtil
-        .createPipelineOverviewWithAsBuiltStatus(PIPELINE_REF_ID1, overview.getPipelineStatus(),
-            overview.getAsBuiltNotificationStatus());
+        .createPipelineOverviewWithAsBuiltStatus(overview, overview.getAsBuiltNotificationStatus());
 
     var detail = new PipelineDetail();
     var pipe = new Pipeline();
     pipe.setId(overview.getPipelineId());
+    var pwa = new MasterPwa();
+    pipe.setMasterPwa(pwa);
+
     var transferredPipe = new Pipeline();
     var transferredPwa = new MasterPwa();
     transferredPwa.setId(1);
+    transferredPipe.setId(3);
     transferredPipe.setMasterPwa(transferredPwa);
     var transferredPwaDetail = new MasterPwaDetail();
     transferredPwaDetail.setMasterPwa(transferredPwa);
@@ -131,7 +152,7 @@ public class PwaViewTabServiceTest {
     detail.setPipeline(pipe);
     detail.setTransferredFromPipeline(transferredPipe);
 
-    when(pipelineDetailService.getLatestPipelineDetailsForIds(List.of(overview.getPipelineId()))).thenReturn(List.of(detail));
+    when(pipelineDetailService.getLatestPipelineDetailsForIds(any())).thenReturn(List.of(detail));
     when(masterPwaService.findAllCurrentDetailsIn(List.of(transferredPwa))).thenReturn(List.of(transferredPwaDetail));
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
