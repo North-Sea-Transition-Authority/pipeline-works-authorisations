@@ -11,7 +11,7 @@ public class PipelineMappingService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PipelineMappingService.class);
 
-  public void mapPipelineEntities(PipelineEntity pipelineEntityTo, PipelineEntity pipelineEntityFrom) {
+  public PipelineEntity mapPipelineEntities(PipelineEntity pipelineEntityTo, PipelineEntity pipelineEntityFrom) {
 
     pipelineEntityTo.setPipelineStatus(pipelineEntityFrom.getPipelineStatus());
     pipelineEntityTo.setPipelineStatusReason(pipelineEntityFrom.getPipelineStatusReason());
@@ -48,7 +48,7 @@ public class PipelineMappingService {
     pipelineEntityTo.setBundleName(pipelineEntityFrom.getBundleName());
 
     pipelineEntityTo.setFootnote(pipelineEntityFrom.getFootnote());
-
+    return pipelineEntityTo;
   }
 
 }
