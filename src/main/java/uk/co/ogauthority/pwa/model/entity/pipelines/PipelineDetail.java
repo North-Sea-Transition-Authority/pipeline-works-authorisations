@@ -165,6 +165,7 @@ public class PipelineDetail implements PipelineEntity {
     // worry about caching this if it ever becomes a problem.
     return new PipelineDetailId(this.id);
   }
+
   @Override
   public Integer getId() {
     return id;

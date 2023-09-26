@@ -118,13 +118,15 @@ public class PwaViewTabService {
           if (detail.getTransferredFromPipeline() != null) {
             var pwaDetail = pwaToReferenceMap.get(detail.getTransferredFromPipeline().getMasterPwa());
             transferredFromPwaRef = pwaDetail.getReference();
-            transferredFromPwaUrl = ReverseRouter.route(on(PwaViewController.class).renderViewPwa(pwaDetail.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, false));
+            transferredFromPwaUrl = ReverseRouter.route(on(PwaViewController.class)
+                .renderViewPwa(pwaDetail.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, false));
           }
 
           if (detail.getTransferredToPipeline() != null) {
             var pwaDetail = pwaToReferenceMap.get(detail.getTransferredToPipeline().getMasterPwa());
             transferredToPwaRef = pwaDetail.getReference();
-            transferredToPwaUrl = ReverseRouter.route(on(PwaViewController.class).renderViewPwa(pwaDetail.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, false));
+            transferredToPwaUrl = ReverseRouter.route(on(PwaViewController.class)
+                  .renderViewPwa(pwaDetail.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, false));
           }
 
           return new PwaPipelineView(
