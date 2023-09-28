@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.reassignment;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -182,7 +183,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @Test
   public void postReassignCaseOfficer_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
-    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(applicationDetail);
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
