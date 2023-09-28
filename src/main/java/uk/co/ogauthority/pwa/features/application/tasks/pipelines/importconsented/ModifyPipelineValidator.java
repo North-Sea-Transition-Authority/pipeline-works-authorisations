@@ -46,12 +46,12 @@ public class ModifyPipelineValidator implements SmartValidator {
     }
 
     if (form.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
-      ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
-          "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+      ValidationUtils.rejectIfEmpty(errors, "outOfUseStatusReason",
+          "outOfUseStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for leaving the pipeline on the seabed");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "pipelineStatusReason", form::getPipelineStatusReason,
+          errors, "outOfUseStatusReason", form::getOutOfUseStatusReason,
           "The reason for leaving the pipeline on the seabed");
 
     } else if (form.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
@@ -59,12 +59,12 @@ public class ModifyPipelineValidator implements SmartValidator {
           "transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Confirm if it has been agreed that this pipeline can be transferred to another PWA");
 
-      ValidationUtils.rejectIfEmpty(errors, "pipelineStatusReason",
-          "pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+      ValidationUtils.rejectIfEmpty(errors, "transferStatusReason",
+          "transferStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a reason for transferring the pipeline to another PWA");
 
       ValidatorUtils.validateDefaultStringLength(
-          errors, "pipelineStatusReason", form::getPipelineStatusReason,
+          errors, "transferStatusReason", form::getTransferStatusReason,
           "The reason for transferring the pipeline to another PWA");
     }
   }

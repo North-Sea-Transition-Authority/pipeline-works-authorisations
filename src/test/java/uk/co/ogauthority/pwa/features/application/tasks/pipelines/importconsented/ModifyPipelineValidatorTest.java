@@ -108,7 +108,7 @@ public class ModifyPipelineValidatorTest {
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).contains(
-        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("outOfUseStatusReason", Set.of("outOfUseStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 
@@ -117,10 +117,10 @@ public class ModifyPipelineValidatorTest {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-    form.setPipelineStatusReason("a".repeat(4001));
+    form.setOutOfUseStatusReason("a".repeat(4001));
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).contains(
-        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+        entry("outOfUseStatusReason", Set.of("outOfUseStatusReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 
@@ -129,7 +129,7 @@ public class ModifyPipelineValidatorTest {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-    form.setPipelineStatusReason("reason");
+    form.setOutOfUseStatusReason("reason");
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).doesNotContain(
         entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
@@ -144,7 +144,7 @@ public class ModifyPipelineValidatorTest {
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).contains(
         entry("transferAgreed", Set.of("transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode())),
-        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("transferStatusReason", Set.of("transferStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 
