@@ -5,7 +5,7 @@
 <#-- @ftlvariable name="applicationTypes" type="java.util.Map<java.lang.String,java.lang.String>" -->
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 
-<@defaultPage htmlTitle="Start PWA application" errorItems=errorList>
+<@defaultPage htmlTitle="Select application type" errorItems=errorList backLink=true>
 
     <@fdsForm.htmlForm>
 
@@ -22,7 +22,7 @@
             <@fdsRadio.radioItem path="form.applicationType" itemMap={appTypeName: displayName}>
 
               <#if appTypeName == "INITIAL">
-                <p class="govuk-body">All new fields irrespective of pipeline lengths. This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.</p>
+                <p class="govuk-body">${initialGuideText}This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.</p>
               <#elseif appTypeName == "DEPOSIT_CONSENT">
                 <p class="govuk-body">For any deposits being laid to support or protect a pipeline which has been authorised under a PWA</p>
               <#elseif appTypeName == "CAT_1_VARIATION">
@@ -40,7 +40,7 @@
               <#elseif appTypeName == "OPTIONS_VARIATION">
                 <p class="govuk-body">Where the problem with a pipeline(s) may not be clearly identified and there may be various points of possible failure, NSTA may consider an Options case. To apply under the above circumstances, the Holder should provide details to why they would like NSTA to consider the case to be handled as an Options.</p>
               <#elseif appTypeName == "DECOMMISSIONING">
-                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning. This is only to be used on the condition that NSTA has agreed Cessation of Production and the operator has confirmed the last day of production in writing to NSTA Operations.</p>
+                <p class="govuk-body">For proposed subsea pipeline works associated with Decommissioning. This is only to be used on the condition that the operator has confirmed the last day of production in writing to NSTA Operations.</p>
               </#if>
             </@fdsRadio.radioItem>
 

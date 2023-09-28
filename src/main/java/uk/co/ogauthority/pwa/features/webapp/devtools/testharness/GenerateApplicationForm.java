@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.webapp.devtools.testharness;
 
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 public class GenerateApplicationForm {
@@ -11,6 +12,7 @@ public class GenerateApplicationForm {
   private Integer assignedCaseOfficerId;
   private Integer applicantPersonId;
 
+  private PwaResourceType resourceType;
 
   public PwaApplicationType getApplicationType() {
     return applicationType;
@@ -50,5 +52,13 @@ public class GenerateApplicationForm {
 
   public void setApplicantPersonId(Integer applicantPersonId) {
     this.applicantPersonId = applicantPersonId;
+  }
+
+  public PwaResourceType getResourceType() {
+    return resourceType;
+  }
+
+  public void setResourceType(PwaResourceType resourceType) {
+    this.resourceType = resourceType;
   }
 }

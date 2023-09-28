@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.HYDROGEN;
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -62,7 +64,7 @@ public class MasterPwaServiceTest {
 
     var user = new WebUserAccount();
 
-    masterPwaService.createMasterPwa(MasterPwaDetailStatus.APPLICATION, "REFERENCE");
+    masterPwaService.createMasterPwa(MasterPwaDetailStatus.APPLICATION, "REFERENCE", PETROLEUM);
 
     verify(masterPwaRepository, times(1)).save(pwaArgumentCaptor.capture());
     verify(masterPwaDetailRepository, times(1)).save(pwaDetailArgumentCaptor.capture());
@@ -75,6 +77,7 @@ public class MasterPwaServiceTest {
 
     assertThat(masterPwaDetail.getStartInstant()).isEqualTo(clock.instant());
     assertThat(masterPwaDetail.getReference()).isEqualTo("REFERENCE");
+    assertThat(masterPwaDetail.getResourceType()).isEqualTo(PETROLEUM);
     assertThat(masterPwaDetail.getMasterPwaDetailStatus()).isEqualTo(MasterPwaDetailStatus.APPLICATION);
 
   }
@@ -103,7 +106,7 @@ public class MasterPwaServiceTest {
   @Test
   public void updateDetailFieldInfo_setsValuesAsExpected() {
     var masterPwa = new MasterPwa();
-    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100));
+    var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100), HYDROGEN);
     detail.setLinkedToFields(false);
     detail.setPwaLinkedToDescription("some description");
 
@@ -114,6 +117,7 @@ public class MasterPwaServiceTest {
     assertThat(pwaDetailArgumentCaptor.getValue()).satisfies(saved -> {
       assertThat(saved.getLinkedToFields()).isTrue();
       assertThat(saved.getPwaLinkedToDescription()).isNull();
+      assertThat(saved.getResourceType()).isEqualTo(HYDROGEN);
     });
 
   }
@@ -126,6 +130,7 @@ public class MasterPwaServiceTest {
     detail.setMasterPwa(masterPwa);
     detail.setReference("ref");
     detail.setLinkedToFields(false);
+    detail.setResourceType(HYDROGEN);
     detail.setPwaLinkedToDescription("some description");
     detail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
 
@@ -142,6 +147,7 @@ public class MasterPwaServiceTest {
     assertThat(pwaDetailArgumentCaptor.getAllValues().get(1)).satisfies(second -> {
       assertThat(second.getMasterPwa()).isEqualTo(masterPwa);
       assertThat(second.getStartInstant()).isEqualTo(clock.instant());
+      assertThat(second.getResourceType()).isEqualTo(HYDROGEN);
       assertThat(second.getReference()).isEqualTo(detail.getReference());
       assertThat(second.getLinkedToFields()).isEqualTo(detail.getLinkedToFields());
       assertThat(second.getPwaLinkedToDescription()).isEqualTo(detail.getPwaLinkedToDescription());

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,6 +27,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
@@ -41,6 +44,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUt
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
+import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocumentUpdateService;
@@ -89,6 +93,9 @@ public class TasksTabContentServiceTest {
   @Mock
   private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
 
+  @Mock
+  private PadPipelineTransferService pipelineTransferService;
+
   private TasksTabContentService taskTabContentService;
 
   private WebUserAccount wua;
@@ -114,7 +121,7 @@ public class TasksTabContentServiceTest {
         applicationChargeRequestService,
         pwaConsentService,
         asBuiltViewerService,
-        asBuiltNotificationAuthService);
+        asBuiltNotificationAuthService, pipelineTransferService);
 
     when(pwaApplicationRedirectService.getTaskListRoute(any())).thenReturn("#");
 
@@ -359,7 +366,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             )))
         );
     assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
@@ -386,7 +393,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             )))
         );
 
@@ -416,7 +423,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             ))));
 
     assertThat(modelMap).doesNotContainKeys("reopenAsBuiltGroupUrl");
@@ -448,7 +455,7 @@ public class TasksTabContentServiceTest {
         .extractingFromEntries(Map.Entry::getKey, Map.Entry::getValue)
         .contains(
             tuple("consentHistoryUrl", ReverseRouter.route(on(PwaViewController.class).renderViewPwa(
-                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null
+                processingContext.getPwaApplication().getMasterPwa().getId(), PwaViewTab.CONSENT_HISTORY,  null, null, null
             ))),
             tuple("reopenAsBuiltGroupUrl", ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
                 .renderReopenAsBuiltNotificationForm(asBuiltNotificationGroup.getId(), null)))
@@ -510,6 +517,33 @@ public class TasksTabContentServiceTest {
             tuple("taskListUrl", "")
         );
 
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelineTransfer_empty() {
+
+    when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
+        .thenReturn(Collections.emptyList());
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).doesNotContainKey("pipelineTransferPageBannerView");
+  }
+
+  @Test
+  public void getTabContentModelMap_pipelineTransfer_uncompletedTransfers() {
+    //Setup Pipeline Transfer
+    var pipelineNumber = "PL111";
+    var piplineTransfers = List.of(new PadPipelineTransfer());
+    when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
+        .thenReturn(piplineTransfers);
+    when(pipelineTransferService.getUnclaimedPipelineNumbers(piplineTransfers)).thenReturn(List.of(pipelineNumber));
+    var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
+
+    assertThat(modelMap).containsKey("pipelineTransferPageBannerView");
+    var bannerView = (NotificationBannerView) modelMap.get("pipelineTransferPageBannerView");
+
+    assertThat(bannerView.getBodyLines()).hasSize(2);
+    assertThat(bannerView.getBodyLines().get(1).getLineText()).isEqualTo(pipelineNumber);
   }
 
   private PwaAppProcessingContext createContextWithPermissions(PwaAppProcessingPermission... permissions) {

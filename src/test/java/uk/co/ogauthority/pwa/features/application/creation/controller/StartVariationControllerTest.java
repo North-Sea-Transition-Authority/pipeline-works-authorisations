@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -36,7 +37,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       Collections.emptyList());
 
   @Test
-  public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus() throws Exception {
+  public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_petroleum() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -50,9 +51,30 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().isOk() : status().isForbidden();
       try {
         mockMvc.perform(
-            get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType)))
+            get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf()))
+            .andExpect(expectedStatus);
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
+      }
+    }
+
+  }
+
+  @Test
+  public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_hydrogen() throws Exception {
+    var expectOkAppTypes = EnumSet.of(
+        PwaApplicationType.CAT_1_VARIATION
+    );
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+      ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().isOk() : status().isForbidden();
+      try {
+        mockMvc.perform(
+                get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.HYDROGEN)))
+                    .with(authenticatedUserAndSession(user))
+                    .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
         throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
@@ -67,7 +89,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
     for (PwaApplicationType appType : PwaApplicationType.values()) {
 
       mockMvc.perform(
-          get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType)))
+          get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
               .with(authenticatedUserAndSession(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
@@ -77,7 +99,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void startVariation_onlySupportedTypesGetRedirectedStatus() throws Exception {
+  public void startVariation_onlySupportedTypesGetRedirectedStatus_petroleum() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -91,9 +113,28 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
       try {
         mockMvc.perform(
-            post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType)))
+            post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.PETROLEUM)))
                 .with(authenticatedUserAndSession(user))
                 .with(csrf()))
+            .andExpect(expectedStatus);
+      } catch (AssertionError e) {
+        throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
+      }
+    }
+
+  }
+
+  @Test
+  public void startVariation_onlySupportedTypesGetRedirectedStatus_hydrogen() throws Exception {
+    var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION);
+
+    for (PwaApplicationType appType : PwaApplicationType.values()) {
+      ResultMatcher expectedStatus = expectOkAppTypes.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
+      try {
+        mockMvc.perform(
+                post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
+                    .with(authenticatedUserAndSession(user))
+                    .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
         throw new AssertionError("Failed! appType:" + appType + " Message:" + e.getMessage(), e);
@@ -108,7 +149,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
     for (PwaApplicationType appType : PwaApplicationType.values()) {
 
       mockMvc.perform(
-          post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType)))
+          post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
               .with(authenticatedUserAndSession(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());

@@ -165,6 +165,10 @@ public class PipelineDetailService {
 
     pipelineMappingService.mapPipelineEntities(detail, padPipelineDto.getPadPipeline());
 
+    // if available, set the transfer from link so we know where this pipeline came from
+    Optional.ofNullable(padPipelineDto.getTransferredFromPipeline())
+        .ifPresent(detail::setTransferredFromPipeline);
+
     return detail;
 
   }
@@ -200,6 +204,16 @@ public class PipelineDetailService {
     return pipelineDetailRepository.findFirstByPipeline_IdOrderByStartTimestampAsc(pipelineId.getPipelineIdAsInt())
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Could not find PipelineDetail with Pipeline ID: " + pipelineId.getPipelineIdAsInt()));
+  }
+
+  public void setTransferredToPipeline(Pipeline pipeline, Pipeline transferredToPipeline) {
+
+    pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId())
+        .ifPresent(detail -> {
+          detail.setTransferredToPipeline(transferredToPipeline);
+          pipelineDetailRepository.save(detail);
+        });
+
   }
 
 }

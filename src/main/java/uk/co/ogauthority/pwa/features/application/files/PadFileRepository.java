@@ -10,6 +10,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 @Repository
 public interface PadFileRepository extends CrudRepository<PadFile, Integer>, PadFileDtoRepository {
 
+  List<PadFile> findAllByFileId(String fileId);
+
   List<PadFile> findAllByPwaApplicationDetailAndPurpose(PwaApplicationDetail detail, ApplicationDetailFilePurpose purpose);
 
   Optional<PadFile> findByPwaApplicationDetailAndFileId(PwaApplicationDetail detail, String fileId);

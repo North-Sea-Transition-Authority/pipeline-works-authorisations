@@ -38,6 +38,8 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
   private final ProjectInformationValidator projectInformationValidator;
   private final PadFileService padFileService;
+
+  private final PadLicenceApplicationService padLicenceApplicationService;
   private final EntityCopyingService entityCopyingService;
   private final MasterPwaService masterPwaService;
 
@@ -49,12 +51,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       PadFileService padFileService,
+      PadLicenceApplicationService padLicenceApplicationService,
       EntityCopyingService entityCopyingService,
       MasterPwaService masterPwaService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
     this.padFileService = padFileService;
+    this.padLicenceApplicationService = padLicenceApplicationService;
     this.entityCopyingService = entityCopyingService;
     this.masterPwaService = masterPwaService;
   }
@@ -76,18 +80,23 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
+    padLicenceApplicationService.mapApplicationsToForm(form, padProjectInformation);
   }
 
 
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
+    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
     var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
+    var licenceApplications = padLicenceApplicationService.getInformationSummary(projectInformation);
+
     return new ProjectInformationView(
-        getPadProjectInformationData(pwaApplicationDetail),
+        projectInformation,
         isFdpQuestionRequired(pwaApplicationDetail),
-        !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null);
+        !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null,
+        licenceApplications);
   }
 
 
@@ -104,6 +113,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
+    if (getRequiredQuestions(padProjectInformation.getPwaApplicationDetail().getPwaApplicationType())
+        .contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
+      padLicenceApplicationService.saveApplicationsToPad(padProjectInformation, form);
+    }
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {
@@ -167,6 +180,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
       hiddenQuestions =  EnumSet.of(
           ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
+          ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE,
           ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
           ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE,
           ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
@@ -261,6 +275,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         ApplicationFileLinkStatus.FULL
     );
 
+    padLicenceApplicationService.copyApplicationsToPad(
+        getPadProjectInformationData(fromDetail),
+        getPadProjectInformationData(toDetail));
   }
 
   public Optional<PermanentDepositMade> getPermanentDepositsMadeAnswer(PwaApplicationDetail pwaApplicationDetail) {

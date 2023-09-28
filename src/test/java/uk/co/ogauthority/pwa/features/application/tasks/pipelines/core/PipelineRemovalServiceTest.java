@@ -17,6 +17,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDep
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -43,6 +44,9 @@ public class PipelineRemovalServiceTest {
   @Mock
   private PermanentDepositService permanentDepositService;
 
+  @Mock
+  private PadPipelineTransferService padPipelineTransferService;
+
   private PipelineRemovalService pipelineRemovalService;
   private PwaApplicationDetail pwaApplicationDetail;
   private PadPipeline padPipeline;
@@ -51,7 +55,7 @@ public class PipelineRemovalServiceTest {
   public void setUp() {
     pipelineRemovalService = new PipelineRemovalService(padTechnicalDrawingService, padTechnicalDrawingLinkService,
         padOrganisationRoleService, campaignWorksService, padPipelineIdentService, padPipelineRepository,
-        permanentDepositService);
+        permanentDepositService, padPipelineTransferService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     padPipeline = new PadPipeline();

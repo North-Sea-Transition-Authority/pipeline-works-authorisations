@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.controller.PipelinesController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.controller.ModifyPipelineController;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferClaimController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -31,5 +32,10 @@ public class PipelineUrlFactory {
   public String getRemovePipelineUrl(Integer pipelineId) {
     return ReverseRouter.route(on(PipelinesController.class)
         .renderRemovePipeline(applicationId, applicationType, pipelineId, null));
+  }
+
+  public String getClaimPipelineUrl() {
+    return ReverseRouter.route(on(PadPipelineTransferClaimController.class)
+        .renderClaimPipelineForm(applicationId, applicationType, null, null));
   }
 }

@@ -38,6 +38,9 @@ public class SystemAreaAccessService {
   public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = EnumSet.of(
       PwaUserPrivilege.PWA_REG_ORG_MANAGE);
 
+  public final Set<PwaUserPrivilege> validManagerPrivileges = EnumSet.of(
+      PWA_MANAGER);
+
   @Autowired
   public SystemAreaAccessService(@Value("${pwa.features.start-application}") Boolean allowStartApplication) {
     if (!BooleanUtils.isTrue(allowStartApplication)) {
@@ -66,6 +69,11 @@ public class SystemAreaAccessService {
   public boolean canAccessTeamManagement(AuthenticatedUserAccount user) {
     return user.getUserPrivileges().stream()
         .anyMatch(validTeamManagementPrivileges::contains);
+  }
+
+  public boolean isManagement(AuthenticatedUserAccount user) {
+    return user.getUserPrivileges().stream()
+        .anyMatch(validManagerPrivileges::contains);
   }
 
   /**

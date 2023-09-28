@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.masterpwas;
 
+import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
+
 import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -12,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 
 @Entity
@@ -32,6 +35,9 @@ public class MasterPwaDetail {
 
   private String reference;
 
+  @Enumerated(EnumType.STRING)
+  private PwaResourceType resourceType;
+
   private Boolean isLinkedToFields;
 
   private String pwaLinkedToDescription;
@@ -48,10 +54,24 @@ public class MasterPwaDetail {
   public MasterPwaDetail(MasterPwa masterPwa,
                          MasterPwaDetailStatus status,
                          String reference,
+                         Instant startInstant,
+                         PwaResourceType resourceType) {
+    this.masterPwa = masterPwa;
+    this.masterPwaDetailStatus = status;
+    this.resourceType = resourceType;
+    this.reference = reference;
+    this.startInstant = startInstant;
+  }
+
+  public MasterPwaDetail(MasterPwa masterPwa,
+                         MasterPwaDetailStatus status,
+                         String reference,
+                         PwaResourceType resourceType,
                          Instant startInstant) {
     this.masterPwa = masterPwa;
     this.masterPwaDetailStatus = status;
     this.reference = reference;
+    this.resourceType = resourceType;
     this.startInstant = startInstant;
   }
 
@@ -77,6 +97,14 @@ public class MasterPwaDetail {
 
   public void setMasterPwaDetailStatus(MasterPwaDetailStatus masterPwaDetailStatus) {
     this.masterPwaDetailStatus = masterPwaDetailStatus;
+  }
+
+  public PwaResourceType getResourceType() {
+    return resourceType;
+  }
+
+  public void setResourceType(PwaResourceType resourceType) {
+    this.resourceType = resourceType;
   }
 
   public String getReference() {

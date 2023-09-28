@@ -40,6 +40,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.controller.ModifyPipelineController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.setnumber.RegulatorPipelineNumberTaskService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PadPipelineSummaryDtoTestUtils;
@@ -77,6 +79,9 @@ public class PadPipelineTaskListServiceTest {
   @Mock
   private DecimalInputValidator decimalInputValidator;
 
+  @Mock
+  private PadPipelineTransferService padPipelineTransferService;
+
   @Captor
   private ArgumentCaptor<List<PadPipeline>> padPipelineListArgCaptor;
 
@@ -100,7 +105,8 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         regulatorPipelineNumberTaskService,
-        padPipelineDataCopierService);
+        padPipelineDataCopierService,
+        padPipelineTransferService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(PAD_PIPELINE_1_ID);
@@ -131,7 +137,8 @@ public class PadPipelineTaskListServiceTest {
         padOptionConfirmedService,
         padPipelineRepository,
         regulatorPipelineNumberTaskService,
-        padPipelineDataCopierService);
+        padPipelineDataCopierService,
+        padPipelineTransferService);
   }
 
   @Test
@@ -288,6 +295,27 @@ public class PadPipelineTaskListServiceTest {
         "At least one pipeline must be added with valid header information. Each pipeline must have at least one valid ident.");
     assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
     assertThat(validationResult.getInvalidObjectIds()).isEmpty();
+
+  }
+
+  @Test
+  public void getValidationResult_errors_pipelineTransferWithdrawn() {
+    mockPipeline();
+
+    var claimedWithdrawnTransfer = new PadPipelineTransfer().setRecipientPipeline(pipe1);
+
+    when(padPipelineTransferService.getWithdrawnPipelineClaims()).thenReturn(List.of(claimedWithdrawnTransfer));
+
+    var validationResult = padPipelineTaskListService.getValidationResult(detail);
+
+    assertThat(validationResult.isSectionComplete()).isFalse();
+    assertThat(validationResult.getErrorItems()) .extracting(ErrorItem::getDisplayOrder, ErrorItem::getFieldName, ErrorItem::getErrorMessage)
+        .containsExactly(
+            tuple(1, "pipeline-1", "TEMPORARY 1 - Production Flowline can no longer be transferred and must be removed")
+        );
+    assertThat(validationResult.getSectionIncompleteError()).isEqualTo("Pipelines that can no longer be transferred must be removed.");
+    assertThat(validationResult.getIdPrefix()).isEqualTo("pipeline-");
+    assertThat(validationResult.getInvalidObjectIds()).containsExactly("1");
 
   }
 

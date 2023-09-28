@@ -308,6 +308,10 @@ public class PadFileService {
     });
   }
 
+  public List<PadFile> getAllByFileId(String fileId) {
+    return padFileRepository.findAllByFileId(fileId);
+  }
+
   public PadFile getPadFileByPwaApplicationDetailAndFileId(PwaApplicationDetail detail,
                                                            String fileId) {
     return padFileRepository.findByPwaApplicationDetailAndFileId(detail, fileId)

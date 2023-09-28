@@ -82,11 +82,13 @@ public class ModifyPipelineService {
   }
 
   @Transactional
-  public void importPipeline(PwaApplicationDetail detail, ModifyPipelineForm form) {
+  public PadPipeline importPipeline(PwaApplicationDetail detail, ModifyPipelineForm form) {
     var pipelineId = Integer.parseInt(form.getPipelineId());
     var pipelineDetail = pipelineDetailService.getLatestByPipelineId(pipelineId);
     errorIfModifyingTransferredPipeline(pipelineDetail, detail);
     var padPipeline = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, form);
     pipelineDetailIdentDataImportService.importIdentsAndData(pipelineDetail, padPipeline);
+
+    return padPipeline;
   }
 }

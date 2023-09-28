@@ -8,6 +8,7 @@
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="publicNoticePageBannerView" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
+<#-- @ftlvariable name="pipelineTransferPageBannerView" type="uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView" -->
 <#-- @ftlvariable name="payForAppUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="manageAppContactsUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="viewAppPaymentUrl" type="java.lang.String" -->
@@ -35,6 +36,10 @@
 
   <#if publicNoticePageBannerView?has_content>
       <@pageBanner.banner view=publicNoticePageBannerView showBannerLinks=processingPermissions?seq_contains("UPDATE_PUBLIC_NOTICE_DOC") />
+  </#if>
+
+  <#if pipelineTransferPageBannerView?has_content>
+      <@notificationBanner.infoNotificationBanner notificationBannerView=pipelineTransferPageBannerView />
   </#if>
 
   <#if payForAppUrl?has_content>

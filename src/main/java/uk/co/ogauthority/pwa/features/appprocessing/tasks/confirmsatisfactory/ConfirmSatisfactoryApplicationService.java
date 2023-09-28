@@ -5,6 +5,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
@@ -31,15 +32,19 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
   private final CaseLinkService caseLinkService;
   private final NotifyService notifyService;
 
+  private final PadPipelineTransferService pipelineTransferService;
+
   @Autowired
   public ConfirmSatisfactoryApplicationService(PwaApplicationDetailService pwaApplicationDetailService,
                                                ConsultationRequestService consultationRequestService,
                                                CaseLinkService caseLinkService,
-                                               NotifyService notifyService) {
+                                               NotifyService notifyService,
+                                               PadPipelineTransferService pipelineTransferService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.consultationRequestService = consultationRequestService;
     this.caseLinkService = caseLinkService;
     this.notifyService = notifyService;
+    this.pipelineTransferService = pipelineTransferService;
   }
 
   @Override
@@ -66,11 +71,14 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
         && !processingContext.getAppProcessingPermissions().contains(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)) {
       taskState = !isSatisfactory ? TaskState.EDIT : TaskState.LOCK;
     }
+    if (getTaskStatus(processingContext) == TaskStatus.AWAITING_CLAIM) {
+      taskState = TaskState.LOCK;
+    }
 
     return new TaskListEntry(
         task.getTaskName(),
         task.getRoute(processingContext),
-        !isSatisfactory ? TaskTag.from(TaskStatus.NOT_STARTED) : TaskTag.from(TaskStatus.COMPLETED),
+        TaskTag.from(getTaskStatus(processingContext)),
         taskState,
         task.getDisplayOrder());
 
@@ -78,9 +86,14 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
   /**
    * Task is accessible if the latest version of the application hasn't been confirmed satisfactory.
+   * If the latest version also contains a pipeline transfer, that transfer must be claimed.
    */
   public boolean taskAccessible(PwaAppProcessingContext context) {
-    return !isSatisfactory(context.getApplicationDetail());
+    var pipelineTransfer = pipelineTransferService.findUnclaimedByDonorApplication(context.getApplicationDetail());
+    if (pipelineTransfer.isEmpty()) {
+      return !isSatisfactory(context.getApplicationDetail());
+    }
+    return false;
   }
 
   public boolean isSatisfactory(PwaApplicationDetail applicationDetail) {
@@ -94,6 +107,16 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
   public boolean confirmSatisfactoryTaskRequired(PwaApplicationDetail tipDetail) {
     return !tipDetail.isFirstVersion() && !isSatisfactory(tipDetail);
+  }
+
+  public TaskStatus getTaskStatus(PwaAppProcessingContext context) {
+    var pipelineTransfer = pipelineTransferService.findUnclaimedByDonorApplication(context.getApplicationDetail());
+    if (!pipelineTransfer.isEmpty()) {
+      return TaskStatus.AWAITING_CLAIM;
+    } else if (isSatisfactory(context.getApplicationDetail())) {
+      return TaskStatus.COMPLETED;
+    }
+    return TaskStatus.NOT_STARTED;
   }
 
   @Transactional

@@ -51,4 +51,13 @@ public class PersonService {
 
   }
 
+  public Person getPersonById(Integer personId) {
+
+    return personRepository.findById(personId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Person with Id:%s not found", personId))
+        );
+
+  }
+
 }

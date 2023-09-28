@@ -37,12 +37,14 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -65,6 +67,9 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
 
   @MockBean
   private PadProjectExtensionService projectExtensionService;
+
+  @MockBean
+  private PearsLicenceApplicationService pearsLicenceApplicationService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -153,6 +158,29 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         throw new AssertionError("Failed at type:" + appType + "\n" + e.getMessage(), e);
       }
     }
+  }
+
+  @Test
+  public void renderProjectInformation_authenticatedUser_licenceApplicationsSmokeTest() throws Exception {
+    var form = new ProjectInformationForm();
+    form.setPearsApplicationList(new String[]{"5555"});
+
+    var licenceApplication = new PearsLicenceApplication(APP_ID, "TEST/REFERENCE");
+    when(pearsLicenceApplicationService.getApplicationsByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
+
+    pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    var result = mockMvc.perform(
+        get(ReverseRouter.route(
+            on(ProjectInformationController.class).renderProjectInformation(PwaApplicationType.CAT_1_VARIATION, APP_ID, null, form)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf())
+            .param("pearsApplicationList", "5555"));
+      result
+          .andExpect(status().isOk())
+          .andExpect(model().attribute("selectedLicenceApplications", List.of(licenceApplication)))
+          .andExpect(model().attribute("licenceApplicationListUrl", ReverseRouter.route(on(
+              PearsLicenceApplicationsRestController.class).getApplications(null))));
+
   }
 
   @Test

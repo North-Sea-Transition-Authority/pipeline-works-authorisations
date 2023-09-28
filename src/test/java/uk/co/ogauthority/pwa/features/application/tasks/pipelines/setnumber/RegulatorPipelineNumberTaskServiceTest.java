@@ -95,7 +95,8 @@ public class RegulatorPipelineNumberTaskServiceTest {
   public void getTaskListEntry_whenValidPipelineAndUser_andFullReferenceDefined() {
     var context = new PwaApplicationContext(pwaApplicationDetail, null,
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE));
-    var taskListHeader = new PadPipelineTaskListHeader(padPipeline, 0, PipelineStatus.IN_SERVICE, "Some name");
+    var taskListHeader = new PadPipelineTaskListHeader(padPipeline, 0, PipelineStatus.IN_SERVICE, "Some name",
+        false);
 
     when(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(any())).thenReturn(false);
 
@@ -113,7 +114,8 @@ public class RegulatorPipelineNumberTaskServiceTest {
 
     var context = new PwaApplicationContext(pwaApplicationDetail, null,
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE));
-    var taskListHeader = new PadPipelineTaskListHeader(padPipeline, 0, PipelineStatus.IN_SERVICE, "Some name");
+    var taskListHeader = new PadPipelineTaskListHeader(padPipeline, 0, PipelineStatus.IN_SERVICE, "Some name",
+        false);
 
     when(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(any())).thenReturn(true);
 

@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
@@ -54,8 +55,14 @@ public class PipelineDetailServiceTest {
   @Captor
   private ArgumentCaptor<List<PipelineDetail>> pipelineDetailsArgCaptor;
 
+  @Captor
+  private ArgumentCaptor<PipelineDetail> pipeDetailArgCaptor;
+
   @Mock
   private PipelineMappingService pipelineMappingService;
+
+  @Mock
+  MasterPwaService masterPwaService;
 
   private PipelineDetailService pipelineDetailService;
   private PwaApplicationDetail detail;
@@ -182,6 +189,43 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
+  public void createNewPipelineDetails_transferOut() {
+
+    // set up a current detail that we can check has been ended
+    var pipelineDtoMap = PipelineWriterTestUtils.createPipelineToPadPipelineDtoMap();
+    var pipelineToEndDetailFor = pipelineDtoMap.keySet().iterator().next();
+    var currentDetail = new PipelineDetail();
+    currentDetail.setPipeline(pipelineToEndDetailFor);
+    currentDetail.setTipFlag(true);
+
+    var donorPipe = new Pipeline();
+    donorPipe.setId(1);
+    pipelineDtoMap.get(pipelineToEndDetailFor).setTransferredFromPipeline(donorPipe);
+
+    var consent = new PwaConsent();
+
+    var consentWriterDto = new ConsentWriterDto();
+
+    when(pipelineDetailRepository.findAllByPipelineInAndEndTimestampIsNull(any())).thenReturn(List.of(currentDetail));
+
+    pipelineDetailService.createNewPipelineDetails(pipelineDtoMap, consent, consentWriterDto);
+
+    verify(pipelineDetailRepository, times(2)).saveAll(pipelineDetailsArgCaptor.capture());
+
+    assertThat(pipelineDetailsArgCaptor.getAllValues().size()).isEqualTo(2);
+
+    // check that the ended detail has no transfer info
+    var endedDetailsList = pipelineDetailsArgCaptor.getAllValues().get(0);
+    assertThat(endedDetailsList).singleElement().satisfies(endedDetail -> assertThat(endedDetail.getTransferredFromPipeline()).isNull());
+
+    var newDetailsList = new ArrayList<>(pipelineDetailsArgCaptor.getAllValues().get(1));
+
+    // check that new detail has transfer info
+    assertThat(newDetailsList).anySatisfy(newDetail -> assertThat(newDetail.getTransferredFromPipeline()).isEqualTo(donorPipe));
+
+  }
+
+  @Test
   public void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     var overview = PipelineDetailTestUtil
@@ -216,6 +260,41 @@ public class PipelineDetailServiceTest {
 
     assertThat(pipelineDetailService.getPipelineDetailsBeforePwaConsentCreated(pipelineDetail.getPipeline().getPipelineId(), consentCreationTs))
         .containsExactly(pipelineDetail);
+  }
+
+  @Test
+  public void setTransferredToPipeline_exists() {
+
+    var pipeDetail = new PipelineDetail();
+    var pipe = new Pipeline();
+    pipe.setId(1);
+    pipeDetail.setPipeline(pipe);
+
+    var transferredToPipe = new Pipeline();
+    transferredToPipe.setId(2);
+
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipe.getId())).thenReturn(Optional.of(pipeDetail));
+
+    pipelineDetailService.setTransferredToPipeline(pipe, transferredToPipe);
+
+    verify(pipelineDetailRepository, times(1)).save(pipeDetailArgCaptor.capture());
+
+    assertThat(pipeDetailArgCaptor.getValue().getTransferredToPipeline()).isEqualTo(transferredToPipe);
+
+  }
+
+  @Test
+  public void setTransferredToPipeline_doesntExist() {
+
+    var pipe = new Pipeline();
+    var pipe2 = new Pipeline();
+
+    when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(any())).thenReturn(Optional.empty());
+
+    pipelineDetailService.setTransferredToPipeline(pipe, pipe2);
+
+    verify(pipelineDetailRepository, times(0)).save(any());
+
   }
 
 }

@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 public class PipelineHeaderView implements PipelineOverview {
 
   private final Integer padPipelineId;
-
   private final String pipelineName;
   private final Integer pipelineId;
   private final String fromLocation;
@@ -44,6 +43,8 @@ public class PipelineHeaderView implements PipelineOverview {
   private final Boolean pipelineInUse;
   private final String footnote;
   private final Set<PipelineHeaderQuestion> headerQuestions;
+  private final String transferredFromRef;
+  private final String transferredToRef;
 
   public PipelineHeaderView() {
     this.padPipelineId = null;
@@ -75,9 +76,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInUse = null;
     this.footnote = null;
     this.headerQuestions = Set.of();
+    this.transferredFromRef = null;
+    this.transferredToRef = null;
   }
 
-  public PipelineHeaderView(PipelineOverview pipelineOverview) {
+  public PipelineHeaderView(PipelineOverview pipelineOverview, String transferredFromRef, String transferredToRef) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineName = pipelineOverview.getPipelineName();
     this.padPipelineId = pipelineOverview.getPadPipelineId();
@@ -108,9 +111,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInUse = pipelineOverview.getPipelineInUse();
     this.footnote = pipelineOverview.getFootnote();
     this.headerQuestions = getRelevantQuestions();
+    this.transferredFromRef = transferredFromRef;
+    this.transferredToRef = transferredToRef;
   }
 
-  public PipelineHeaderView(PipelineDetail pipelineDetail) {
+  public PipelineHeaderView(PipelineDetail pipelineDetail, String transferredFromRef, String transferredToRef) {
     this.padPipelineId = null;
     this.pipelineName = null;
     this.pipelineId = pipelineDetail.getPipelineId().asInt();
@@ -141,6 +146,8 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInUse = null;
     this.footnote = pipelineDetail.getFootnote();
     this.headerQuestions = getRelevantQuestions();
+    this.transferredFromRef = transferredFromRef;
+    this.transferredToRef = transferredToRef;
   }
 
   @Override
@@ -284,6 +291,14 @@ public class PipelineHeaderView implements PipelineOverview {
 
   public Set<PipelineHeaderQuestion> getHeaderQuestions() {
     return headerQuestions;
+  }
+
+  public String getTransferredFromRef() {
+    return transferredFromRef;
+  }
+
+  public String getTransferredToRef() {
+    return transferredToRef;
   }
 
   @Override

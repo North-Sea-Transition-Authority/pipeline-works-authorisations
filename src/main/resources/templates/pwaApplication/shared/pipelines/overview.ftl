@@ -22,10 +22,13 @@
         <@fdsInsetText.insetText>No pipelines have been added yet.</@fdsInsetText.insetText>
     </#if>
 
-    <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
-    <#if canImportConsentedPipeline>
+    <@fdsAction.buttonGroup>
+      <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
+      <#if canImportConsentedPipeline>
         <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
-    </#if>
+      </#if>
+      <@linkButtonBlue text="Transfer pipeline from another PWA" url=springUrl(pipelineUrlFactory.getClaimPipelineUrl()) />
+    </@fdsAction.buttonGroup>
 
     <#list pipelineTaskListItems as pipeline>
 
@@ -43,33 +46,39 @@
                 />
             </@fdsCard.cardHeader>
 
-            <#if pipeline.pipelineStatus != "IN_SERVICE">
-              <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
-            </#if>
-            <#if pipeline.hasTasks>
-                <#if pipeline.pipelineStatus == "IN_SERVICE">
-                  <hr class="govuk-section-break govuk-section-break--m"/>
+            <#if pipeline.withdrawnTransfer>
+                <p class="govuk-tag govuk-tag--red">TRANSFER WITHDRAWN</p>
+            <#else>
+                <#if pipeline.pipelineStatus != "IN_SERVICE" || pipeline.withdrawnTransfer>
+                    <p class="govuk-tag">${pipeline.pipelineStatus.displayText}</p>
                 </#if>
-                <@fdsTaskList.taskList>
-                    <#list pipeline.getTaskList() as task>
-                        <@pwaTaskListItem.taskInfoItem
-                            taskName=task.taskName
-                            taskInfoList=task.taskInfoList
-                            route=task.route
-                            isCompleted=task.completed
-                            linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
-                    </#list>
-                </@fdsTaskList.taskList>
+                <#if pipeline.hasTasks>
+                    <#if pipeline.pipelineStatus == "IN_SERVICE">
+                        <hr class="govuk-section-break govuk-section-break--m"/>
+                    </#if>
+                    <@fdsTaskList.taskList>
+                        <#list pipeline.getTaskList() as task>
+                            <@pwaTaskListItem.taskInfoItem
+                                taskName=task.taskName
+                                taskInfoList=task.taskInfoList
+                                route=task.route
+                                isCompleted=task.completed
+                                linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
+                        </#list>
+                    </@fdsTaskList.taskList>
+                </#if>
             </#if>
         </@fdsCard.card>
 
     </#list>
 
     <#if pipelineTaskListItems?size gt 4>
+      <@fdsAction.buttonGroup>
         <@linkButtonBlue text="Add pipeline" url=springUrl(pipelineUrlFactory.getAddPipelineUrl()) />
         <#if canImportConsentedPipeline>
             <@linkButtonBlue text="Modify consented pipeline" url=springUrl(pipelineUrlFactory.getModifyPipelineUrl()) />
         </#if>
+      </@fdsAction.buttonGroup>
     </#if>
 
     <#if pipelineTaskListItems?has_content>

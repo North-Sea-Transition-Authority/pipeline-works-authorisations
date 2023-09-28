@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
@@ -55,10 +56,14 @@ public class GenerateApplicationService {
   }
 
 
-  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser) {
+  PwaApplicationDetail generateInitialPwaApplication(Integer pipelineQuantity, WebUserAccount applicantUser, PwaResourceType resourceType) {
     var applicantOrgUnit = testHarnessOrganisationUnitService
         .getFirstOrgUnitUserCanAccessOrThrow(applicantUser);
-    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrgUnit, applicantUser);
+    var pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrgUnit,
+        applicantUser,
+        resourceType
+    );
     setupAndRunAppTasks(pwaApplicationDetail, applicantUser, pipelineQuantity);
     return pwaApplicationDetail;
   }
@@ -68,7 +73,8 @@ public class GenerateApplicationService {
                                                        Integer consentedMasterPwaId,
                                                        Integer nonConsentedMasterPwaId,
                                                        Integer pipelineQuantity,
-                                                       WebUserAccount applicantUser) {
+                                                       WebUserAccount applicantUser,
+                                                       PwaResourceType resourceType) {
 
     MasterPwa pickedPwa;
     if (consentedMasterPwaId != null) {
@@ -83,6 +89,7 @@ public class GenerateApplicationService {
     var pwaApplicationDetail = pwaApplicationCreationService.createVariationPwaApplication(
         pickedPwa,
         pwaApplicationType,
+        resourceType,
         applicantOrgUnit,
         applicantUser);
 

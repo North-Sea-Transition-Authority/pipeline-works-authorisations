@@ -3,15 +3,17 @@
 
 <#-- @ftlvariable name="applicationTaskGroups" type="java.util.List<uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListGroup>" -->
 <#-- @ftlvariable name="submissionTask" type="uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry" -->
-<#-- @ftlvariable name="applicationType" type="java.lang.String" -->
+<#-- @ftlvariable name="applicationDisplay" type="java.lang.String" -->
+<#-- @ftlvariable name="resourceType" type="java.lang.String" -->
 <#-- @ftlvariable name="masterPwaReference" type="java.lang.String" -->
 <#-- @ftlvariable name="updateRequestView" type="uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView" -->
 <#-- @ftlvariable name="optionsApprovalPageBanner" type="uk.co.ogauthority.pwa.model.view.banner.PageBannerView" -->
 <#-- @ftlvariable name="canShowDeleteAppButton" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="deleteAppUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="viewPwaUrl" type="java.lang.String" -->
 
 
-<#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationType} application", "${applicationType} application")  />
+<#assign pageCaption=masterPwaReference?has_content?then("${masterPwaReference} ${applicationDisplay}", "${applicationDisplay}")  />
 
 <@defaultPage htmlTitle="Pipeline Works Authorisation Submission" breadcrumbs=true>
 
@@ -20,7 +22,16 @@
     </#if>
 
     <span class="govuk-caption-xl">${pageCaption}</span>
-    <h1 class="govuk-heading-xl">Submit a Pipeline Works Authorisation</h1>
+    <h1 class="govuk-heading-xl">Submit a Pipeline Works Authorisation
+    <#if masterPwaReference?has_content>
+        <br/>
+        <@fdsAction.link linkText="View PWA (in new tab)"
+        linkUrl=springUrl(viewPwaUrl) linkClass="govuk-link
+        govuk-!-font-size-19 govuk-link--no-visited-state govuk-link--case-management-heading"
+        openInNewTab=true
+        />
+    </#if>
+    </h1>
 
     <#if updateRequestView?has_content>
         <@pwaUpdateRequestView.banner view=updateRequestView />

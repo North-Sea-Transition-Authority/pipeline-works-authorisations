@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.service.masterpwas;
 
 import java.time.Clock;
+import java.util.Collection;
+import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -31,13 +34,13 @@ public class MasterPwaService {
   }
 
   @Transactional
-  public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference) {
+  public MasterPwaDetail createMasterPwa(MasterPwaDetailStatus masterPwaDetailStatus, String reference, PwaResourceType resourceType) {
 
     // Changing this code? have you changed the migration script?
     var creationInstant = clock.instant();
 
     var masterPwa = new MasterPwa(creationInstant);
-    var masterPwaDetail = new MasterPwaDetail(masterPwa, masterPwaDetailStatus, reference, creationInstant);
+    var masterPwaDetail = new MasterPwaDetail(masterPwa, masterPwaDetailStatus, reference, creationInstant, resourceType);
 
     masterPwaRepository.save(masterPwa);
     masterPwaDetailRepository.save(masterPwaDetail);
@@ -93,6 +96,15 @@ public class MasterPwaService {
 
   }
 
+  public List<MasterPwaDetail> searchConsentedDetailsByReference(String filter) {
+    return masterPwaDetailRepository.findAllByReferenceContainingIgnoreCaseAndMasterPwaDetailStatus(filter,
+        MasterPwaDetailStatus.CONSENTED);
+  }
+
+  public List<MasterPwaDetail> findAllCurrentDetailsIn(Collection<MasterPwa> masterPwas) {
+    return masterPwaDetailRepository.findAllByMasterPwaInAndEndInstantIsNull(masterPwas);
+  }
+
   private MasterPwaDetail getAndEndCurrentDetail(MasterPwa masterPwa) {
     var currentDetail = getCurrentDetailOrThrow(masterPwa);
     currentDetail.setEndInstant(clock.instant());
@@ -105,6 +117,7 @@ public class MasterPwaService {
         masterPwaDetail.getMasterPwa(),
         masterPwaDetailStatus,
         masterPwaDetail.getReference(),
+        masterPwaDetail.getResourceType(),
         clock.instant());
 
     newDetail.setLinkedToFields(masterPwaDetail.getLinkedToFields());

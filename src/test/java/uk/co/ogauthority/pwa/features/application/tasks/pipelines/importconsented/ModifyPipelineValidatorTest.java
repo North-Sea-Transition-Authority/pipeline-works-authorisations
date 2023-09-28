@@ -143,7 +143,8 @@ public class ModifyPipelineValidatorTest {
     form.setPipelineStatus(PipelineStatus.TRANSFERRED);
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
     assertThat(errors).contains(
-        entry("transferAgreed", Set.of("transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("transferAgreed", Set.of("transferAgreed" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("pipelineStatusReason", Set.of("pipelineStatusReason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 

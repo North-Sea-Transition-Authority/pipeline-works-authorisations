@@ -19,10 +19,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented.ModifyPipelineValidator;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -42,6 +44,9 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
 
   @MockBean
   private ModifyPipelineValidator modifyPipelineValidator;
+
+  @MockBean
+  private PadPipelineTransferService padPipelineTransferService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
   private static final int APP_ID = 1;
@@ -109,7 +114,8 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)))
+        .addRequestParam("pipelineStatus", PipelineStatus.IN_SERVICE.name());
 
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -121,7 +127,8 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)))
+        .addRequestParam("pipelineStatus", PipelineStatus.IN_SERVICE.name());
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -133,7 +140,8 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ModifyPipelineController.class)
-                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)));
+                .postImportConsentedPipeline(applicationDetail.getMasterPwaApplicationId(), type, null, null, null, null)))
+        .addRequestParam("pipelineStatus", PipelineStatus.IN_SERVICE.name());
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 

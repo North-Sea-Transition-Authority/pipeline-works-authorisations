@@ -80,7 +80,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateMinFileLimit_aboveLimit_noError() {
+  public void validateFileUploaded_multipleUploaded_noError() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -90,35 +90,35 @@ public class FileUploadUtilsTest {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateMinFileLimit(form, bindingResult, 1, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
   }
 
   @Test
-  public void validateMinFileLimit_onLimit_noError() {
+  public void validateFileUploaded_fileUploaded_noError() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "d", Instant.now())));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateMinFileLimit(form, bindingResult, 1, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isFalse();
 
   }
 
   @Test
-  public void validateMinFileLimit_belowLimit_error() {
+  public void validateFileUploaded_noneUploaded_error() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of());
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
-    FileUploadUtils.validateMinFileLimit(form, bindingResult, 1, "Error message");
+    FileUploadUtils.validateFileUploaded(form, bindingResult, "Error message");
 
     assertThat(bindingResult.hasErrors()).isTrue();
 

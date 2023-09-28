@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -53,6 +55,8 @@ public class PwaApplicationCreationServiceTest {
       PwaApplicationType.HUOO_VARIATION,
       PwaApplicationType.OPTIONS_VARIATION
   );
+
+  private ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
   @Mock
   private MasterPwaService masterPwaService;
@@ -127,42 +131,100 @@ public class PwaApplicationCreationServiceTest {
 
 
   @Test
-  public void createInitialPwa() {
-
+  public void createInitialPwa_Petroleum() {
     WebUserAccount user = new WebUserAccount(123);
-
     when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
-    when(masterPwaService.createMasterPwa(any(), any())).thenReturn(masterPwaDetail);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
 
-    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, user);
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.PETROLEUM
+    );
+
+    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.PETROLEUM,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
+
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+  }
+
+  @Test
+  public void createInitialPwa_Hydrogen() {
+    WebUserAccount user = new WebUserAccount(123);
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
+
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.HYDROGEN);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-
     PwaApplication application = applicationArgumentCaptor.getValue();
 
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
-
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-
-
-    // check application set up correctly
-    assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(application.getApplicationType()).isEqualTo(PwaApplicationType.INITIAL);
-    assertThat(application.getAppReference()).isEqualTo("PA/1");
-    assertThat(application.getConsentReference()).isNull();
-    assertThat(application.getVariationNo()).isEqualTo(0);
-    assertThat(application.getDecision()).isEmpty();
-    assertThat(application.getDecisionTimestamp()).isEmpty();
-    assertThat(application.getApplicationCreatedTimestamp()).isEqualTo(clock.instant());
-    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.HYDROGEN,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
 
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
-
   }
 
 
@@ -207,7 +269,7 @@ public class PwaApplicationCreationServiceTest {
   public void createVariationPwaApplication_createsApplicationsAsExpected_noHuooOrgRolesExpectedToBeCreated() {
 
     for(PwaApplicationType appType : EnumSet.complementOf(EXPECTED_HUOO_ROLE_CREATION_TYPES)){
-      pwaApplicationCreationService.createVariationPwaApplication(masterPwa, appType, applicantOrganisationUnit, user);
+      pwaApplicationCreationService.createVariationPwaApplication(masterPwa, appType, PwaResourceType.PETROLEUM, applicantOrganisationUnit, user);
     }
 
     verifyNoInteractions(padOrganisationRoleService);
@@ -228,37 +290,46 @@ public class PwaApplicationCreationServiceTest {
     PwaApplicationDetail createdApplication = pwaApplicationCreationService.createVariationPwaApplication(
         masterPwa,
         pwaApplicationType,
+        PwaResourceType.PETROLEUM,
         applicantOrganisationUnit,
         user);
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
     verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
-
     PwaApplication application = applicationArgumentCaptor.getValue();
 
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
-
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-
     verify(padFieldService, times(1)).createAndSavePadFieldsFromMasterPwa(
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
-    // check application set up correctly
-    assertThat(application.getMasterPwa()).isEqualTo(masterPwa);
-    assertThat(application.getApplicationType()).isEqualTo(pwaApplicationType);
-    assertThat(application.getAppReference()).isEqualTo("PA/1");
-    assertThat(application.getConsentReference()).isNull();
-    assertThat(application.getVariationNo()).isEqualTo(0);
-    assertThat(application.getDecision()).isEmpty();
-    assertThat(application.getDecisionTimestamp()).isEmpty();
-    assertThat(application.getApplicantOrganisationUnitId()).isEqualTo(OrganisationUnitId.from(applicantOrganisationUnit));
-
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            pwaApplicationType,
+            PwaResourceType.PETROLEUM,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
-
   }
-
-
 }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailViewTestUtil;
@@ -44,7 +45,7 @@ public class CaseSummaryViewServiceTest {
   }
 
   @Test
-  public void getCaseSummaryViewForAppDetail_present() {
+  public void getCaseSummaryViewForAppDetail_variationApplication_present() {
 
     var caseSummaryViewOpt = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail);
 
@@ -59,14 +60,41 @@ public class CaseSummaryViewServiceTest {
         .collect(Collectors.toList());
 
     assertThat(caseSummaryView.getPwaApplicationRef()).isEqualTo(applicationDetailView.getPadReference());
-    assertThat(caseSummaryView.getPwaApplicationTypeDisplay()).isEqualTo(applicationDetailView.getApplicationType().getDisplayName());
+    assertThat(caseSummaryView.getPwaApplicationTypeDisplay()).isEqualTo(applicationDetailView.getApplicationType().getDisplayName() + " - " + applicationDetailView.getResourceType().getDisplayName());
     assertThat(holderNameStringList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadHolderNameList());
     assertThat(fieldNameList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadFields());
     assertThat(caseSummaryView.getCaseOfficerName()).isEqualTo(applicationDetailView.getCaseOfficerName());
     assertThat(caseSummaryView.getProposedStartDateDisplay()).isEqualTo(DateUtils.formatDate(applicationDetailView.getPadProposedStart()));
     assertThat(caseSummaryView.isFastTrackFlag()).isEqualTo(applicationDetailView.isSubmittedAsFastTrackFlag());
     assertThat(caseSummaryView.getVersionNo()).isEqualTo(applicationDetailView.getVersionNo());
+    assertThat(caseSummaryView.getViewMasterPwaUrlIfVariation()).isNotNull();
+  }
 
+  @Test
+  public void getCaseSummaryViewForAppDetail_initialApplication_present() {
+    applicationDetailView.setApplicationType(PwaApplicationType.INITIAL);
+
+    var caseSummaryViewOpt = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail);
+
+    assertThat(caseSummaryViewOpt).isPresent();
+
+    var caseSummaryView = caseSummaryViewOpt.get();
+
+    var holderNameStringList = Arrays.stream(caseSummaryView.getHolderNames().split(", "))
+        .collect(Collectors.toList());
+
+    var fieldNameList = Arrays.stream(caseSummaryView.getFieldNames().split(", "))
+        .collect(Collectors.toList());
+
+    assertThat(caseSummaryView.getPwaApplicationRef()).isEqualTo(applicationDetailView.getPadReference());
+    assertThat(caseSummaryView.getPwaApplicationTypeDisplay()).isEqualTo(applicationDetailView.getApplicationType().getDisplayName() + " - " + applicationDetailView.getResourceType().getDisplayName());
+    assertThat(holderNameStringList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadHolderNameList());
+    assertThat(fieldNameList).containsExactlyInAnyOrderElementsOf(applicationDetailView.getPadFields());
+    assertThat(caseSummaryView.getCaseOfficerName()).isEqualTo(applicationDetailView.getCaseOfficerName());
+    assertThat(caseSummaryView.getProposedStartDateDisplay()).isEqualTo(DateUtils.formatDate(applicationDetailView.getPadProposedStart()));
+    assertThat(caseSummaryView.isFastTrackFlag()).isEqualTo(applicationDetailView.isSubmittedAsFastTrackFlag());
+    assertThat(caseSummaryView.getVersionNo()).isEqualTo(applicationDetailView.getVersionNo());
+    assertThat(caseSummaryView.getViewMasterPwaUrlIfVariation()).isNull();
   }
 
   @Test

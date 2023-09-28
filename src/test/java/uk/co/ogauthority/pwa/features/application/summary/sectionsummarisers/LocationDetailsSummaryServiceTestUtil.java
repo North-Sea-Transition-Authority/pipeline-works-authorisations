@@ -25,6 +25,8 @@ public class LocationDetailsSummaryServiceTestUtil {
         List.of(),
         false,
         false,
+        false,
+        "method",
         "method",
         "details",
         true,

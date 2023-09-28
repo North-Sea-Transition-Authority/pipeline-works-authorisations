@@ -8,7 +8,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Function;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -89,6 +91,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.DRAFT);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setPadReference("PAD REFERENCE");
     applicationDetailSearchItem.setPwaReference("PAD REFERENCE");
 
@@ -96,7 +99,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.INITIAL.getDisplayName())
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM))
     );
 
   }
@@ -107,6 +110,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     applicationDetailSearchItem.setPadStatus(PwaApplicationStatus.COMPLETE);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setPadReference("PAD REFERENCE");
     applicationDetailSearchItem.setPwaReference("PWA REFERENCE");
 
@@ -114,7 +118,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM)),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE")
     );
 
@@ -124,6 +128,7 @@ public class ApplicationWorkAreaItemTestUtil {
                                                                              Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
     applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now().plus(5, ChronoUnit.DAYS));
 
@@ -134,7 +139,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM)),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT,
             "UPDATE DUE IN 5 DAYS")
@@ -146,6 +151,7 @@ public class ApplicationWorkAreaItemTestUtil {
                                                                        Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
     applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now());
 
@@ -156,7 +162,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM)),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE DUE TODAY")
     );
@@ -167,6 +173,7 @@ public class ApplicationWorkAreaItemTestUtil {
                                                                       Function<ApplicationDetailItemView, ApplicationWorkAreaItem> workAreaItemFunction) {
 
     applicationDetailSearchItem.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
+    applicationDetailSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     applicationDetailSearchItem.setOpenUpdateRequestFlag(true);
     applicationDetailSearchItem.setOpenUpdateDeadlineTimestamp(Instant.now().minus(1, ChronoUnit.DAYS));
 
@@ -177,7 +184,7 @@ public class ApplicationWorkAreaItemTestUtil {
 
     assertThat(applicationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem("PAD REFERENCE", applicationWorkAreaItem.getAccessUrl()),
-        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationType.CAT_1_VARIATION.getDisplayName()),
+        WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, PwaApplicationDisplayUtils.getApplicationTypeDisplay(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM)),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "PWA REFERENCE"),
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "UPDATE OVERDUE")
     );

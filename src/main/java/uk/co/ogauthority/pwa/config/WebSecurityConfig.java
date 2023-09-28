@@ -63,7 +63,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .antMatchers(
             "/start-application/**",
             "/pwa-application/**/pick-pwa-for-application",
-            "/pwa-application/create-initial-pwa/**")
+            "/pwa-application/create-initial-pwa/**",
+            "/pwa-application/**/new/**")
           .hasAnyAuthority(systemAreaAccessService.getStartApplicationGrantedAuthorities())
 
         //all application types

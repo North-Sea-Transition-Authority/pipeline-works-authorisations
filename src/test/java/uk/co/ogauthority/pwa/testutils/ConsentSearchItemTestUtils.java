@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.testutils;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.search.consents.ConsentSearchItem;
 
 public class ConsentSearchItemTestUtils {
@@ -18,6 +19,7 @@ public class ConsentSearchItemTestUtils {
     item.setPwaId(pwaId);
     item.setPwaReference("PWA/" + item.getPwaId());
     item.setFieldNameOrOtherReference(fieldNameOrOtherReference);
+    item.setResourceType(PwaResourceType.PETROLEUM);
     item.setHolderNamesCsv(holders);
     item.setFirstConsentTimestamp(firstConsentTimestamp);
     item.setLatestConsentTimestamp(firstConsentTimestamp.plus(400, ChronoUnit.DAYS));

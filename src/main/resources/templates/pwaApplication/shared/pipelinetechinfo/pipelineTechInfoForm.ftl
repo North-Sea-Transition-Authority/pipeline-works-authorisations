@@ -2,13 +2,15 @@
 <#include 'minMaxInput.ftl'>
 
 <#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>"-->
+<#-- @ftlvariable name="showFieldLife" type="java.lang.Boolean"-->
 <#-- @ftlvariable name="backUrl" type=" java.lang.String"-->
 
 <@defaultPage htmlTitle="General technical details" pageHeading="General technical details" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
-        <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
-
+        <#if showFieldLife>
+          <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
+        </#if>
         <@fdsRadio.radioGroup path="form.pipelineDesignedToStandards" labelText="Has the pipeline or pipeline system been designed in accordance with industry recognised codes and standards?"
             hintText="For example, PD 8010 n2004 Part 2 Subsea Pipelines" hiddenContent=true>
             <@fdsRadio.radioYes path="form.pipelineDesignedToStandards">

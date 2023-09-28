@@ -47,10 +47,6 @@ FROM (
   SELECT 'SERVICES_UMBILICAL' type_mnem, 'Services Umbilical' type_display, 'MULTI_CORE' core_type
   FROM dual
   UNION ALL
-  -- TODO EDU-6575 remove unused pipeline type
-  SELECT 'HYDRAULIC_JUMPER' type_mnem, 'Hydraulic Jumper' type_display, 'MULTI_CORE' core_type
-  FROM dual
-  UNION ALL
   SELECT 'HYDRAULIC_JUMPER_MULTI_CORE' type_mnem, 'Hydraulic Jumper (multi-core)' type_display, 'MULTI_CORE' core_type
   FROM dual
   UNION ALL
@@ -58,10 +54,6 @@ FROM (
   FROM dual
   UNION ALL
   SELECT 'CHEMICAL_JUMPER' type_mnem, 'Chemical Jumper' type_display, 'SINGLE_CORE' core_type
-  FROM dual
-  UNION ALL
-  -- TODO EDU-6575 remove unused pipeline type
-  SELECT 'CONTROL_JUMPER' type_mnem, 'Control Jumper' type_display, 'SINGLE_CORE' core_type
   FROM dual
   UNION ALL
   SELECT 'CONTROL_JUMPER_SINGLE_CORE' type_mnem, 'Control Jumper (single-core)' type_display, 'SINGLE_CORE' core_type
@@ -74,6 +66,12 @@ FROM (
   FROM dual
   UNION ALL
   SELECT 'CABLE' type_mnem, 'Cable' type_display, 'SINGLE_CORE' core_type
+  FROM dual
+  UNION ALL
+  SELECT 'HYDROGEN_TRANSPORT' type_mnem, 'Hydrogen Transportation Pipeline' type_display, 'SINGLE_CORE' core_type
+  FROM dual
+  UNION ALL
+  SELECT 'POLYMER_INJECTION_PIPELINE' type_mnem, 'Polymer Injection Pipeline' type_display, 'SINGLE_CORE' core_type
   FROM dual
   )
   SELECT

@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -59,6 +60,7 @@ public class PwaContextServiceTest {
     var consentSearchItem = new ConsentSearchItem();
     consentSearchItem.setFirstConsentTimestamp(Instant.now());
     consentSearchItem.setLatestConsentTimestamp(Instant.now());
+    consentSearchItem.setResourceType(PwaResourceType.PETROLEUM);
     consentSearchResultView = ConsentSearchResultView.fromSearchItem(consentSearchItem);
 
     contextService = new PwaContextService(pwaPermissionService, masterPwaService, consentSearchService, pipelineService);

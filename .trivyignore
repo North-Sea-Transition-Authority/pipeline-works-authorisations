@@ -1,0 +1,22 @@
+# Transitive dependency from Camunda
+CVE-2022-25647
+CVE-2020-26945
+
+#Transitive dependency of unknown netty project
+CVE-2022-24823
+
+#Transitive dependency from gov notify
+CVE-2021-29425
+
+#Vunerability from most up to date version of Spring Boot Packages
+CVE-2021-29425
+CVE-2016-1000027
+
+#Transitive dependency from SnakeYaml (used in latest non-major version of spring)
+CVE-2022-1471
+CVE-2022-25857
+CVE-2022-38749
+CVE-2022-38750
+CVE-2022-38751
+CVE-2022-38752
+CVE-2022-41854

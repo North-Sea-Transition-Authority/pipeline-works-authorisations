@@ -11,6 +11,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -171,13 +172,20 @@ public class PwaApplicationContextService {
    */
   private void getAndSetPadFile(PwaApplicationContext context, String fileId) {
 
-    var padFile = padFileService.getPadFileByPwaApplicationDetailAndFileId(context.getApplicationDetail(), fileId);
-    if (!Objects.equals(padFile.getPwaApplicationDetail(), context.getApplicationDetail())) {
-      throw new AccessDeniedException(
-          String.format("PadFile app detail (%s) didn't match the app context's app detail (%s)",
-              padFile.getPwaApplicationDetail().getId(),
-              context.getApplicationDetail().getId()));
+    var padFiles = padFileService.getAllByFileId(fileId);
+    if (padFiles.isEmpty()) {
+      throw new PwaEntityNotFoundException(String.format("Could not find a file with ID: %s", fileId));
     }
+    var padFile = padFiles
+        .stream()
+        .filter(file -> file.getPwaApplicationDetail().getMasterPwaApplicationId().equals(context.getMasterPwaApplicationId()))
+        .findFirst()
+        .orElseThrow(() ->
+            new AccessDeniedException(
+                String.format("Could not find associated PadFile for FILE_ID: %s that belonged to PWA_APPLICATION.ID: %s",
+                    fileId,
+                    context.getMasterPwaApplicationId()))
+        );
     context.setPadFile(padFile);
 
   }

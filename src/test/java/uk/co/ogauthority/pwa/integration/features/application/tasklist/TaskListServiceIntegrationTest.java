@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationReferencingService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
@@ -119,7 +120,7 @@ public class TaskListServiceIntegrationTest {
     portalOrganisationUnitRepository.save(applicantOrganisationUnit);
 
     // by default, conditional app tasks not shown
-    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, systemWua);
+    pwaApplicationDetail = pwaApplicationCreationService.createInitialPwaApplication(applicantOrganisationUnit, systemWua, PwaResourceType.PETROLEUM);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     taskListService = new TaskListService(
         taskListEntryFactory,

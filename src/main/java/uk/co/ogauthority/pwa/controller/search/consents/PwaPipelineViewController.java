@@ -111,7 +111,6 @@ public class PwaPipelineViewController {
         .addObject("showPwaNavigation", pwaContext.getPwaPermissions().contains(PwaPermission.SHOW_PWA_NAVIGATION))
         .addObject("isConsented", true);
 
-
     if (tab.equals(PwaPipelineViewTab.PIPELINE_HISTORY)) {
       var selectedPipelineDetailId = pipelineDetailId;
       if (pipelineDetailId == null) {

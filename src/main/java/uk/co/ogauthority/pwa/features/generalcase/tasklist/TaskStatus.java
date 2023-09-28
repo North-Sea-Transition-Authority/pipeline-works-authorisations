@@ -5,6 +5,8 @@ public enum TaskStatus {
   NOT_STARTED("Not started", "govuk-tag--grey"),
   IN_PROGRESS("In progress"),
   ACTION_REQUIRED("Action required"),
+  AWAITING_CLAIM("Awaiting transfer claim", "govuk-tag--red"),
+  AWAITING_TRANSFER_COMPLETION("Awaiting transfer completion", "govuk-tag--red"),
   NOT_REQUIRED("Not required", null, true),
   CANNOT_START_YET("Cannot start yet", "govuk-tag--grey", true),
   COMPLETED("Completed", "fds-task-list__task-completed");

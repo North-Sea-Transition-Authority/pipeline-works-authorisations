@@ -7,6 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.controller.StartInitialPwaController;
 import uk.co.ogauthority.pwa.features.application.creation.controller.StartPwaApplicationController;
 import uk.co.ogauthority.pwa.features.application.creation.controller.StartVariationController;
@@ -22,25 +23,34 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 @Service
 public class PwaApplicationRedirectService {
 
+  public ModelAndView getStartApplicationRedirect(PwaResourceType pwaResourceType) {
+    return ReverseRouter.redirect(on(StartPwaApplicationController.class)
+        .renderStartApplication(null, pwaResourceType));
+  }
+
   /**
    * Return a redirect to the right start page for the passed-in application type.
    */
-  public ModelAndView getStartApplicationRedirect(PwaApplicationType applicationType) {
+  public ModelAndView getStartApplicationRedirect(PwaApplicationType applicationType, PwaResourceType resourceType) {
 
     switch (applicationType) {
       case INITIAL:
-        return ReverseRouter.redirect(on(StartInitialPwaController.class).renderStartPage());
-      case HUOO_VARIATION:
+        return ReverseRouter.redirect(on(StartInitialPwaController.class)
+            .renderStartPage(resourceType));
       case CAT_1_VARIATION:
+        return ReverseRouter.redirect(on(StartVariationController.class)
+            .renderVariationTypeStartPage(applicationType, resourceType));
+      case HUOO_VARIATION:
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
-        return ReverseRouter.redirect(on(StartVariationController.class).renderVariationTypeStartPage(applicationType));
+        return ReverseRouter.redirect(on(StartVariationController.class)
+            .renderVariationTypeStartPage(applicationType, PwaResourceType.PETROLEUM));
       default:
-        return ReverseRouter.redirect(on(StartPwaApplicationController.class).renderStartApplication(null));
+        return ReverseRouter.redirect(on(StartPwaApplicationController.class)
+            .renderStartApplication(null, resourceType));
     }
-
   }
 
   /**

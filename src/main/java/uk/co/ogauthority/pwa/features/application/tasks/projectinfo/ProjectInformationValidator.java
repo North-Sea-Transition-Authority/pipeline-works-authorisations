@@ -2,13 +2,18 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
@@ -24,8 +29,13 @@ public class ProjectInformationValidator implements SmartValidator {
 
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
 
-  public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator) {
+  private final PearsLicenceApplicationService pearsLicenceApplicationService;
+
+  @Autowired
+  public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator,
+                                     PearsLicenceApplicationService pearsLicenceApplicationService) {
     this.twoFieldDateInputValidator = twoFieldDateInputValidator;
+    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
   }
 
   @Override
@@ -290,13 +300,13 @@ public class ProjectInformationValidator implements SmartValidator {
 
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
+      var transferPlanned = BooleanUtils.isTrue(form.getLicenceTransferPlanned());
 
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "licenceTransferPlanned",
           "licenceTransferPlanned" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Select yes if a licence transfer is planned");
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_DATE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_DATE) && transferPlanned) {
         ValidatorUtils.validateDate(
             "licenceTransfer", "licence transfer",
             form.getLicenceTransferDay(),
@@ -306,8 +316,7 @@ public class ProjectInformationValidator implements SmartValidator {
         );
       }
 
-      if (requiredQuestions.contains(ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE)
-          && BooleanUtils.isTrue(form.getLicenceTransferPlanned())) {
+      if (requiredQuestions.contains(ProjectInformationQuestion.COMMERCIAL_AGREEMENT_DATE) && transferPlanned) {
         ValidatorUtils.validateDate(
             "commercialAgreement", "commercial agreement",
             form.getCommercialAgreementDay(),
@@ -315,6 +324,25 @@ public class ProjectInformationValidator implements SmartValidator {
             form.getCommercialAgreementYear(),
             errors
         );
+      }
+
+      if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE) && transferPlanned) {
+        if (Objects.isNull(form.getPearsApplicationList())
+            || form.getPearsApplicationList().length == 0
+            || Arrays.stream(form.getPearsApplicationList()).anyMatch(Objects::isNull)) {
+          errors.rejectValue("pearsApplicationSelector",
+              "pearsApplicationSelector" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Select at least one application relating to the licence transfer");
+        } else {
+          var applicationIds = Arrays.stream(form.getPearsApplicationList())
+              .map(Integer::valueOf)
+              .collect(Collectors.toList());
+          if (pearsLicenceApplicationService.getApplicationsByIds(applicationIds).size() != applicationIds.size()) {
+            errors.rejectValue("pearsApplicationSelector",
+                "pearsApplicationSelector" + FieldValidationErrorCodes.INVALID.getCode(),
+                "Licence transfer application reference is invalid");
+          }
+        }
       }
     }
 

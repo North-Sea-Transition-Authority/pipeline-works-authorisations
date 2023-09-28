@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
+import java.util.List;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -9,7 +10,7 @@ public class ProjectInformationView {
   private final String projectName;
 
   private final String projectOverview;
-  
+
   private final String methodOfPipelineDeployment;
 
   private final String proposedStartDate;
@@ -19,6 +20,7 @@ public class ProjectInformationView {
 
   private final Boolean licenceTransferPlanned;
 
+  private final List<String> licenceReferences;
   private final String licenceTransferDate;
   private final String commercialAgreementDate;
 
@@ -40,7 +42,8 @@ public class ProjectInformationView {
 
   public ProjectInformationView(PadProjectInformation padProjectInformation,
                                 boolean isFdpQuestionRequiredBasedOnField,
-                                UploadedFileView layoutDiagramFileView) {
+                                UploadedFileView layoutDiagramFileView,
+                                List<String> licenceApplications) {
 
     this.projectName = padProjectInformation.getProjectName();
     this.projectOverview = padProjectInformation.getProjectOverview();
@@ -60,6 +63,7 @@ public class ProjectInformationView {
 
     this.licenceTransferPlanned = padProjectInformation.getLicenceTransferPlanned();
 
+    this.licenceReferences = licenceApplications;
     this.licenceTransferDate = padProjectInformation.getLicenceTransferTimestamp() != null
         ? DateUtils.formatDate(padProjectInformation.getLicenceTransferTimestamp()) : null;
 
@@ -126,6 +130,10 @@ public class ProjectInformationView {
 
   public Boolean getLicenceTransferPlanned() {
     return licenceTransferPlanned;
+  }
+
+  public List<String> getLicenceReferences() {
+    return licenceReferences;
   }
 
   public String getLicenceTransferDate() {

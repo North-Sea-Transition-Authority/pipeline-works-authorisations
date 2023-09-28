@@ -12,7 +12,7 @@
 
 
 
-<@defaultPage htmlTitle=consentSearchResultView.pwaReference! fullWidthColumn=true topNavigation=true breadcrumbs=true wrapperWidth=true caption="View PWA">
+<@defaultPage htmlTitle=consentSearchResultView.pwaReference! fullWidthColumn=true topNavigation=true breadcrumbs=showBreadcrumbs wrapperWidth=true caption="View PWA">
 
     <h1 class="govuk-heading-xl">${consentSearchResultView.pwaReference!}</h1>
 
@@ -20,7 +20,7 @@
 
     <@fdsBackendTabs.tabList>
         <#list availableTabs as tab>
-            <@fdsBackendTabs.tab tabLabel=tab.getLabel() tabUrl=pwaViewUrlFactory.getTabUrl(tab.value) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
+            <@fdsBackendTabs.tab tabLabel=tab.getLabel() tabUrl=pwaViewUrlFactory.getTabUrl(tab.value, showBreadcrumbs) tabAnchor=tab.anchor currentTab=currentProcessingTab.value tabValue=tab.value />
         </#list>
     </@fdsBackendTabs.tabList>
 
@@ -34,7 +34,7 @@
         <#elseif tab == "CONSENT_HISTORY">
             <@consentHistoryTa.tab  urlFactory=pwaViewUrlFactory pwaConsentHistoryViews=pwaConsentHistoryViews/>
         </#if>
-    
+
       </@fdsBackendTabs.tabContent>
 
     </#list>

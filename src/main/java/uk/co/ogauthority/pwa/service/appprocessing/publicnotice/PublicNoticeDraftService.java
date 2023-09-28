@@ -105,10 +105,10 @@ public class PublicNoticeDraftService {
         latestPublicNoticeDocument.setDocumentType(PublicNoticeDocumentType.ARCHIVED);
         publicNoticeService.savePublicNoticeDocument(latestPublicNoticeDocument);
         publicNoticeDocument = new PublicNoticeDocument(
-            publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+            publicNotice, latestPublicNoticeDocument.getVersion() + 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
       } catch (EntityLatestVersionNotFoundException e) {
         // if no previous document, just create a new one
-        publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+        publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
       }
 
     } else {
@@ -116,7 +116,7 @@ public class PublicNoticeDraftService {
       var version = latestPublicNoticeOpt.map(notice -> notice.getVersion() + 1).orElse(1);
       publicNotice = new PublicNotice(pwaApplication, PublicNoticeStatus.MANAGER_APPROVAL, version);
       publicNoticeRequest = createPublicNoticeRequestFromForm(form, publicNotice, 1, userAccount.getLinkedPerson());
-      publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT);
+      publicNoticeDocument = new PublicNoticeDocument(publicNotice, 1, PublicNoticeDocumentType.IN_PROGRESS_DOCUMENT, Instant.now());
     }
 
     publicNoticeService.savePublicNotice(publicNotice);

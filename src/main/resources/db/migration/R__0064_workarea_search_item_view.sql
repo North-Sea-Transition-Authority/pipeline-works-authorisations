@@ -7,6 +7,7 @@ SELECT
 , adv.pwa_reference
 , adv.pad_reference
 , adv.application_type
+, adv.resource_type
 , adv.pad_status
 , adv.pad_created_timestamp
 , adv.pad_submitted_timestamp

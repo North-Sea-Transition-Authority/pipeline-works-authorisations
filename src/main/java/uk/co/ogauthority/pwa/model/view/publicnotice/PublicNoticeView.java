@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.view.publicnotice;
 
+import java.util.List;
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -17,9 +18,12 @@ public class PublicNoticeView {
   private final String publicationStartTimestamp;
   private final String publicationEndTimestamp;
   private final String rejectionReason;
+  private final String documentDownloadUrl;
+  private final List<PublicNoticeEvent> publicNoticeEvents;
 
 
   //constructor for only the fields that are required as a minimum for a public notice view
+
   public PublicNoticeView(PublicNoticeStatus status, String submittedTimestamp, PublicNoticeRequestStatus requestStatus) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
@@ -31,6 +35,8 @@ public class PublicNoticeView {
     this.publicationEndTimestamp = null;
     this.publicNoticeRequestStatus = requestStatus;
     this.rejectionReason = null;
+    this.documentDownloadUrl = null;
+    this.publicNoticeEvents = null;
   }
 
   public PublicNoticeView(PublicNoticeStatus status,
@@ -42,7 +48,9 @@ public class PublicNoticeView {
                           String publicationStartTimestamp,
                           String publicationEndTimestamp,
                           PublicNoticeRequestStatus publicNoticeRequestStatus,
-                          String rejectionReason) {
+                          String rejectionReason,
+                          String documentDownloadUrl,
+                          List<PublicNoticeEvent> publicNoticeEvents) {
     this.status = status;
     this.submittedTimestamp = submittedTimestamp;
     this.latestDocumentComments = latestDocumentComments;
@@ -53,8 +61,9 @@ public class PublicNoticeView {
     this.publicationEndTimestamp = publicationEndTimestamp;
     this.publicNoticeRequestStatus = publicNoticeRequestStatus;
     this.rejectionReason = rejectionReason;
+    this.documentDownloadUrl = documentDownloadUrl;
+    this.publicNoticeEvents = publicNoticeEvents;
   }
-
 
   public PublicNoticeStatus getStatus() {
     return status;
@@ -96,6 +105,10 @@ public class PublicNoticeView {
     return rejectionReason;
   }
 
+  public String getDocumentDownloadUrl() {
+    return documentDownloadUrl;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -122,5 +135,9 @@ public class PublicNoticeView {
     return Objects.hash(status, submittedTimestamp, latestDocumentComments, withdrawnByPersonName,
         withdrawnTimestamp, withdrawalReason, publicationStartTimestamp, publicationEndTimestamp, publicNoticeRequestStatus,
         rejectionReason);
+  }
+
+  public List<PublicNoticeEvent> getPublicNoticeEvents() {
+    return publicNoticeEvents;
   }
 }

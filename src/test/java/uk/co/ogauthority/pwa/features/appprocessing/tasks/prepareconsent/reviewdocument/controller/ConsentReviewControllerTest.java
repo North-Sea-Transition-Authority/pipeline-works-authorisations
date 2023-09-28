@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
 
@@ -31,13 +32,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
 import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningService;
-import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.controller.ConsentReviewController;
+import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewReturnFormValidator;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
@@ -53,7 +57,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.features.appprocessing.processingwarnings.AppProcessingTaskWarningTestUtil;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
@@ -88,6 +91,9 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
   @MockBean
   private ConsentFileViewerService consentFileViewerService;
+
+  @MockBean
+  private PadPipelineTransferService pipelineTransferService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -280,6 +286,31 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
+  public void renderIssueConsent_consentBlockedByPipelineTransfer() throws Exception {
+    var donorApplication = new PwaApplication();
+    donorApplication.setAppReference("TEST");
+
+    var donorApplicationDetail = new PwaApplicationDetail();
+    donorApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
+    donorApplicationDetail.setPwaApplication(donorApplication);
+
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorApplicationDetail);
+    when(pipelineTransferService.findByRecipientApplication(pwaApplicationDetail)).thenReturn(List.of(transfer));
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentReviewController.class).renderIssueConsent(
+        pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getPwaApplicationType(),
+            null,
+            user)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("consentTransferBlock",true))
+        .andExpect(model().attributeExists("pipelineTransferPageBannerView"));
+  }
+
+  @Test
   public void scheduleConsentIssue_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -306,6 +337,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   @Test
   public void scheduleConsentIssue_success() throws Exception {
 
+
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -315,4 +347,25 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
   }
 
+  @Test
+  public void scheduleConsentIssue_blockedByTransfer() throws Exception {
+    var donorApplication = new PwaApplication();
+    donorApplication.setAppReference("TEST");
+
+    var donorApplicationDetail = new PwaApplicationDetail();
+    donorApplicationDetail.setStatus(PwaApplicationStatus.DRAFT);
+    donorApplicationDetail.setPwaApplication(donorApplication);
+
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(donorApplicationDetail);
+    when(pipelineTransferService.findByRecipientApplication(pwaApplicationDetail)).thenReturn(List.of(transfer));
+
+    mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
+            .with(authenticatedUserAndSession(user))
+            .with(csrf()))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(view().name("redirect:/pwa-application/initial/1/case-management/consent-review/issue"));
+  }
+
 }
+

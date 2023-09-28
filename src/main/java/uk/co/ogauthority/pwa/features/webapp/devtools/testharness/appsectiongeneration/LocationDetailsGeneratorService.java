@@ -45,7 +45,7 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
 
     var form = new LocationDetailsForm();
 
-    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType());
+    var requiredQuestions = padLocationDetailsService.getRequiredQuestions(pwaApplicationDetail);
 
     if (requiredQuestions.contains(LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE)) {
       form.setApproximateProjectLocationFromShore("50m");
@@ -60,13 +60,17 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
       form.setPsrNotificationNotRequiredReason("My reason for why a PSR notification is not required");
     }
 
-
     if (requiredQuestions.contains(LocationDetailsQuestion.DIVERS_USED)) {
       form.setDiversUsed(false);
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_TO_SHORE)) {
       form.setTransportsMaterialsToShore(false);
+    }
+
+    if (requiredQuestions.contains(LocationDetailsQuestion.TRANSPORTS_MATERIALS_FROM_SHORE)) {
+      form.setTransportsMaterialsFromShore(true);
+      form.setTransportationMethodFromShore("My transportation method from shore");
     }
 
     if (requiredQuestions.contains(LocationDetailsQuestion.FACILITIES_OFFSHORE)) {

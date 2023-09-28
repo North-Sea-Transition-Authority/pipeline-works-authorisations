@@ -62,7 +62,7 @@
 
             <@fdsTextInput.textInput path="form.length" labelText="Length (m)" inputClass="govuk-input--width-5"/>
 
-            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper within a Wellhead Bundle, 6\" flexible gas lift flowline, control umbilical etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+            <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper, Control Jumper etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
             <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
@@ -133,6 +133,8 @@
                 <li> [PLXXXX] can run a reverse flow from [point x] to [point y] </li>
                 <li> [PLXXXX] will be disconnected from [point x] to [point y]. It will be flushed and filled with filtered seawater and the ends protected with wooden covers. It will remain in situ on the seabed. </li>
                 <li> Treaty between United Kingdom and the [named country] for the subject pipeline allows for gas flow in both directions. </li>
+                <li> Pipeline is being transferred to PWA (X/W/XXX). </li>
+                <li> Pipeline was previously part of PWA (X/W/XXX) and is being transferred into PWA (Y/W/YYY). </li>
             </ul>
         </@fdsDetails.summaryDetails>
 

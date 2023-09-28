@@ -4,9 +4,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListEntryFactory;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
@@ -18,7 +22,9 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaViewService;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaAppNotificationBannerService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.tasklist.DeleteApplicationController;
+import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 
 
 /**
@@ -37,6 +43,7 @@ public class TaskListControllerModelAndViewCreator {
   private final ApproveOptionsService approveOptionsService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaAppNotificationBannerService pwaAppNotificationBannerService;
+  private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
   public TaskListControllerModelAndViewCreator(ApplicationBreadcrumbService breadcrumbService,
@@ -45,7 +52,8 @@ public class TaskListControllerModelAndViewCreator {
                                                ApplicationUpdateRequestViewService applicationUpdateRequestViewService,
                                                ApproveOptionsService approveOptionsService,
                                                PwaApplicationDetailService pwaApplicationDetailService,
-                                               PwaAppNotificationBannerService pwaAppNotificationBannerService) {
+                                               PwaAppNotificationBannerService pwaAppNotificationBannerService,
+                                               PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.breadcrumbService = breadcrumbService;
     this.taskListEntryFactory = taskListEntryFactory;
     this.masterPwaViewService = masterPwaViewService;
@@ -53,19 +61,33 @@ public class TaskListControllerModelAndViewCreator {
     this.approveOptionsService = approveOptionsService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaAppNotificationBannerService = pwaAppNotificationBannerService;
+    this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
 
 
   public ModelAndView getTaskListModelAndView(PwaApplicationDetail pwaApplicationDetail, List<TaskListGroup> applicationTaskGroups) {
 
     var modelAndView = new ModelAndView(TASK_LIST_TEMPLATE_PATH)
-        .addObject("applicationType", pwaApplicationDetail.getPwaApplicationType().getDisplayName())
-        .addObject("applicationTaskGroups", applicationTaskGroups)
-        .addObject("submissionTask", taskListEntryFactory.createReviewAndSubmitTask(pwaApplicationDetail));
+        .addObject("applicationDisplay",
+            PwaApplicationDisplayUtils.getApplicationTypeDisplay(
+                pwaApplicationDetail.getPwaApplicationType(),
+                pwaApplicationDetail.getResourceType()
+            ))
+        .addObject("applicationTaskGroups",
+            applicationTaskGroups)
+        .addObject("submissionTask",
+            taskListEntryFactory
+                .createReviewAndSubmitTask(pwaApplicationDetail));
 
     if (pwaApplicationDetail.getPwaApplicationType() != PwaApplicationType.INITIAL) {
-      modelAndView.addObject("masterPwaReference",
-          masterPwaViewService.getCurrentMasterPwaView(pwaApplicationDetail.getPwaApplication()).getReference());
+      var application = pwaApplicationDetail.getPwaApplication();
+      var masterPwaView = masterPwaViewService.getCurrentMasterPwaView(application);
+
+      modelAndView.addObject("masterPwaReference", masterPwaView.getReference());
+      modelAndView.addObject("viewPwaUrl", ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
+              .renderViewPwa(masterPwaView.getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null),
+              new LinkedMultiValueMap<>(Map.of(
+                  "showBreadcrumbs", List.of("false")))));
     }
 
     pwaAppNotificationBannerService.addParallelPwaApplicationsWarningBannerIfRequired(pwaApplicationDetail.getPwaApplication(),

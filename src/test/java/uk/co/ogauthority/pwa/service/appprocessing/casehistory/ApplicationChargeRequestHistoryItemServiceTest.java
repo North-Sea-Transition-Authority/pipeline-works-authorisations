@@ -78,7 +78,7 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
 
     fakePerson = PersonTestUtil.createDefaultPerson();
-    when(personService.getPersonById(any())).thenReturn(fakePerson);
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(fakePerson);
   }
 
   @Test
@@ -182,7 +182,7 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
               s -> assertThat(s).isEqualTo(applicationChargeRequestReport.getWaivedReason()));
     });
 
-    verify(personService, times(0)).getPersonById(any());
+    verify(personService, times(0)).getPersonById(any(PersonId.class));
   }
 
   @Test

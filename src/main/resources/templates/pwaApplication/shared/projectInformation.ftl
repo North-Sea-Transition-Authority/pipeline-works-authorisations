@@ -47,6 +47,15 @@
                     <#if requiredQuestions?seq_contains("COMMERCIAL_AGREEMENT_DATE")>
                         <@fdsDateInput.dateInput dayPath="form.commercialAgreementDay" monthPath="form.commercialAgreementMonth" yearPath="form.commercialAgreementYear" labelText="Commercial agreement date" formId="form.commercialAgreement" nestingPath="form.licenceTransferPlanned"/>
                     </#if>
+                    <#if requiredQuestions?seq_contains("LICENCE_TRANSFER_REFERENCE")>
+                        <@fdsAddToList.addToList
+                        pathForList="form.pearsApplicationList"
+                        pathForSelector="form.pearsApplicationSelector"
+                        restUrl=springUrl(licenceApplicationListUrl)
+                        alreadyAdded=selectedLicenceApplications
+                        itemName="Licence application references"
+                        selectorMinInputLength=3/>
+                    </#if>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.licenceTransferPlanned"/>
             </@fdsRadio.radioGroup>

@@ -12,7 +12,9 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import uk.co.ogauthority.pwa.controller.ApplicationLandingPageRouterController;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationDisplayUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -42,6 +44,8 @@ public abstract class ApplicationWorkAreaItem {
   private final PwaApplicationType applicationType;
 
   private final PwaApplicationStatus applicationStatus;
+
+  private final PwaResourceType resourceType;
 
   private final Instant padStatusSetInstant;
 
@@ -80,6 +84,7 @@ public abstract class ApplicationWorkAreaItem {
     this.pwaApplicationReference = applicationDetailItemView.getPadReference();
     this.masterPwaReference = applicationDetailItemView.getPwaReference();
     this.applicationType = applicationDetailItemView.getApplicationType();
+    this.resourceType = applicationDetailItemView.getResourceType();
     this.applicationStatus = applicationDetailItemView.getPadStatus();
     this.padStatusSetInstant = applicationDetailItemView.getPadStatusTimestamp();
     this.tipFlag = applicationDetailItemView.isTipFlag();
@@ -218,7 +223,7 @@ public abstract class ApplicationWorkAreaItem {
     columnItemList.add(
         WorkAreaColumnItemView.createTagItem(
             WorkAreaColumnItemView.TagType.NONE,
-            this.applicationType.getDisplayName()
+            PwaApplicationDisplayUtils.getApplicationTypeDisplay(applicationType, resourceType)
         ));
 
     if (this.applicationType != PwaApplicationType.INITIAL || this.applicationStatus == PwaApplicationStatus.COMPLETE) {

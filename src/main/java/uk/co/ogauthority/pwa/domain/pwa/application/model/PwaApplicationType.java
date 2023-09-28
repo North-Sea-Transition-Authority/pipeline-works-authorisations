@@ -1,7 +1,10 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.model;
 
 import java.time.Period;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.features.application.creation.MedianLineImplication;
@@ -72,7 +75,6 @@ public enum PwaApplicationType {
       ConsentIssueEmail.DEPCON,
       PwaConsentType.DEPOSIT_CONSENT,
       50,
-
       ParallelApplicationsWarning.NO_WARNING),
 
   OPTIONS_VARIATION(
@@ -99,17 +101,13 @@ public enum PwaApplicationType {
 
   private final String displayName;
   private final String urlPathString;
-
   private final Period minProcessingPeriod;
   private final Period maxProcessingPeriod;
   private final MedianLineImplication medianLineImplication;
-
   private final DocumentSpec consentDocumentSpec;
   private final ConsentIssueEmail consentIssueEmail;
-
   private final PwaConsentType pwaConsentType;
   private final int displayOrder;
-
   private final ParallelApplicationsWarning parallelApplicationsWarning;
 
   PwaApplicationType(String displayName,
@@ -170,6 +168,13 @@ public enum PwaApplicationType {
         .findFirst()
         .orElseThrow(() -> new ValueNotFoundException(
             String.format("Couldn't find PwaApplicationType value for display string: %s", applicationTypeDisplay)));
+  }
+
+  public static List<PwaApplicationType> excluding(PwaApplicationType... excludedTypes) {
+    var types = Arrays.stream(values())
+        .collect(Collectors.toList());
+    types.removeAll(Arrays.asList(excludedTypes));
+    return types;
   }
 
   public String getDisplayName() {

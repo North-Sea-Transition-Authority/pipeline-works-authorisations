@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
+import java.util.Arrays;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
@@ -27,15 +29,22 @@ public class PipelineTechInfoValidator implements SmartValidator {
   public void validate(Object target, Errors errors, Object... validationHints) {
 
     var form = (PipelineTechInfoForm) target;
-    var validationType = (ValidationType) validationHints[0];
 
-    if (validationType == ValidationType.FULL) {
+    var validationType = Arrays.stream(validationHints)
+        .filter(hint -> hint instanceof ValidationType)
+        .findFirst();
+    if (validationType.orElse(ValidationType.FULL) == ValidationType.FULL) {
 
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedFieldLife", "estimatedFieldLife.required",
-          "Enter a valid year for the estimated field life");
+      var resourceType = Arrays.stream(validationHints)
+          .filter(hint -> hint instanceof PwaResourceType)
+          .findFirst();
+      if (resourceType.orElse(PwaResourceType.PETROLEUM).equals(PwaResourceType.PETROLEUM)) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedFieldLife", "estimatedFieldLife.required",
+            "Enter a valid year for the estimated field life");
 
-      if (form.getEstimatedFieldLife() != null && form.getEstimatedFieldLife() <= 0) {
-        errors.rejectValue("estimatedFieldLife", "estimatedFieldLife.valueOutOfRange", "Enter a value greater than 0");
+        if (form.getEstimatedFieldLife() != null && form.getEstimatedFieldLife() <= 0) {
+          errors.rejectValue("estimatedFieldLife", "estimatedFieldLife.valueOutOfRange", "Enter a value greater than 0");
+        }
       }
 
       if (BooleanUtils.isTrue(form.getPipelineDesignedToStandards())) {
@@ -51,7 +60,7 @@ public class PipelineTechInfoValidator implements SmartValidator {
     ValidatorUtils.validateDefaultStringLength(errors, "pipelineStandardsDescription", form::getPipelineStandardsDescription,
         "Design codes/standards");
 
-    if (validationType == ValidationType.FULL) {
+    if (validationType.orElse(ValidationType.FULL) == ValidationType.FULL) {
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, "corrosionDescription", "corrosionDescription.required",
           "Enter a description of the corrosion management strategy");
     }
@@ -59,7 +68,7 @@ public class PipelineTechInfoValidator implements SmartValidator {
     ValidatorUtils.validateDefaultStringLength(errors, "corrosionDescription", form::getCorrosionDescription,
         "Corrosion management strategy");
 
-    if (validationType == ValidationType.FULL) {
+    if (validationType.orElse(ValidationType.FULL) == ValidationType.FULL) {
 
       if (BooleanUtils.isTrue(form.getPlannedPipelineTieInPoints())) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "tieInPointsDescription", "tieInPointsDescription.required",

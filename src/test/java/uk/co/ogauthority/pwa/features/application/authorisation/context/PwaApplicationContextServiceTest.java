@@ -7,6 +7,7 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,7 +90,7 @@ public class PwaApplicationContextServiceTest {
 
     var padFile = new PadFile();
     padFile.setPwaApplicationDetail(detail);
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "valid-file")).thenReturn(padFile);
+    when(padFileService.getAllByFileId("valid-file")).thenReturn(List.of(padFile));
 
     timer = TimerMetricTestUtils.setupTimerMetric(
         PwaApplicationContextService.class, "pwa.appContextTimer", appender);
@@ -296,9 +297,6 @@ public class PwaApplicationContextServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void validateAndCreate_withFileId_fileNotFound() {
-
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "bad-file")).thenThrow(PwaEntityNotFoundException.class);
-
     var builder = new PwaApplicationContextParams(1, user)
         .withFileId("bad-file");
 
@@ -310,9 +308,13 @@ public class PwaApplicationContextServiceTest {
   public void validateAndCreate_withFileId_appDetailMismatch() {
 
     var otherAppFile = new PadFile();
-    otherAppFile.setPwaApplicationDetail(new PwaApplicationDetail());
+    var applicationDetail = new PwaApplicationDetail();
+    var application = new PwaApplication();
+    application.setId(1000);
+    applicationDetail.setPwaApplication(application);
+    otherAppFile.setPwaApplicationDetail(applicationDetail);
 
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(detail, "other-file")).thenReturn(otherAppFile);
+    when(padFileService.getAllByFileId("other-file")).thenReturn(List.of(otherAppFile));
 
     var builder = new PwaApplicationContextParams(1, user)
         .withFileId("other-file");

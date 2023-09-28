@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -102,6 +103,12 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PsrNotification::getDisplayText));
 
     var facilities = devukFacilityService.getFacilities("");
+
+    var toShoreGuidanceText = detail.getResourceType() == PwaResourceType.PETROLEUM
+        ? "Processed oil is stored on the FPSO before being exported onshore by tanker. Gas is either exported via a 16\" " +
+        "flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."
+        : "";
+
     modelAndView.addObject("safetyZoneOptions", safetyZoneOptions)
         .addObject("psrNotificationOptions", psrNotificationOptions)
         .addObject("facilityOptions", facilities.stream()
@@ -109,7 +116,8 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
                 StreamUtils.toLinkedHashMap(facility -> facility.getId().toString(), DevukFacility::getFacilityName)))
         .addObject("facilityRestUrl",
             SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)))
-        .addObject("requiredQuestions", padLocationDetailsService.getRequiredQuestions(detail.getPwaApplicationType()));
+        .addObject("requiredQuestions", padLocationDetailsService.getRequiredQuestions(detail))
+        .addObject("toShoreGuidanceText", toShoreGuidanceText);
 
     // Add preselection options in case validation fails
     if (form.getWithinSafetyZone() == HseSafetyZone.YES) {

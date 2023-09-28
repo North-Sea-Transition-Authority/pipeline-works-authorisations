@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicantOrganisationService;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
@@ -37,9 +38,10 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
+import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationTypePathUrl}")
+@RequestMapping("/pwa-application/{applicationType}/{resourceType}/pick-pwa-for-application")
 public class PickExistingPwaController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PickExistingPwaController.class);
@@ -74,18 +76,19 @@ public class PickExistingPwaController {
     this.applicantOrganisationService = applicantOrganisationService;
   }
 
-
-  @GetMapping("/pick-pwa-for-application")
-  public ModelAndView renderPickPwaToStartApplication(@PathVariable("applicationTypePathUrl")
-                                                      @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+  @GetMapping
+  public ModelAndView renderPickPwaToStartApplication(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+                                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
                                                       @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
-    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
-    return getPickPwaModelAndView(user, pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(applicationType);
+    return getPickPwaModelAndView(user, applicationType, resourceType);
   }
 
-  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user, PwaApplicationType pwaApplicationType) {
-    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user);
+  private ModelAndView getPickPwaModelAndView(AuthenticatedUserAccount user,
+                                              PwaApplicationType pwaApplicationType,
+                                              PwaResourceType resourceType) {
+    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, resourceType);
 
     List<String> ogList = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.APPLICATION_CREATOR)
         .stream()
@@ -98,26 +101,26 @@ public class PickExistingPwaController {
     return new ModelAndView("pwaApplication/shared/pickPwaForApplication")
         .addObject("consentedPwaMap", pickableOptions.getConsentedPickablePwas())
         .addObject("nonConsentedPwaMap", pickableOptions.getNonconsentedPickablePwas())
-        .addObject("backUrl", ReverseRouter.route(on(StartPwaApplicationController.class).renderStartApplication(null)))
+        .addObject("backUrl", ReverseRouter.route(on(PwaResourceTypeController.class).renderResourceTypeForm(null, null)))
         .addObject("ogList", ogList)
         .addObject("errorList", List.of())
         .addObject("pwaApplicationType", pwaApplicationType)
         .addObject("showNonConsentedOptions", showNonConsentedOptions);
   }
 
-  @PostMapping("/pick-pwa-for-application")
-  public ModelAndView pickPwaAndStartApplication(@PathVariable("applicationTypePathUrl")
-                                                 @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+  @PostMapping
+  public ModelAndView pickPwaAndStartApplication(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+                                                 @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
                                                  @ModelAttribute("form") @Valid PickPwaForm form,
                                                  BindingResult bindingResult,
                                                  AuthenticatedUserAccount user) {
 
     var stopwatch = Stopwatch.createStarted();
-    ControllerUtils.startVariationControllerCheckAppType(pwaApplicationType);
+    ControllerUtils.startVariationControllerCheckAppType(applicationType);
 
-    pickPwaFormValidator.validate(form, bindingResult, pwaApplicationType);
+    pickPwaFormValidator.validate(form, bindingResult, applicationType);
     var modelAndView = controllerHelperService.checkErrorsAndRedirect(bindingResult,
-        getPickPwaModelAndView(user, pwaApplicationType), () -> {
+        getPickPwaModelAndView(user, applicationType, resourceType), () -> {
 
           MasterPwa pickedPwa;
           if (form.getConsentedMasterPwaId() != null) {
@@ -132,7 +135,13 @@ public class PickExistingPwaController {
           if (applicantOrganisations.size() == 1) {
 
             var newAppDetail = pwaApplicationCreationService
-                .createVariationPwaApplication(pickedPwa, pwaApplicationType, applicantOrganisations.iterator().next(), user);
+                .createVariationPwaApplication(
+                    pickedPwa,
+                    applicationType,
+                    resourceType,
+                    applicantOrganisations.iterator().next(),
+                    user
+                );
 
             return pwaApplicationRedirectService.getTaskListRedirect(newAppDetail.getPwaApplication());
 
@@ -140,7 +149,7 @@ public class PickExistingPwaController {
 
           // otherwise make the user pick one
           return ReverseRouter.redirect(on(ApplicantOrganisationController.class)
-              .renderSelectOrganisation(pickedPwa.getId(), pwaApplicationType, null, null));
+              .renderSelectOrganisation(pickedPwa.getId(), applicationType, resourceType, null, null));
 
         });
 

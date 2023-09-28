@@ -16,13 +16,30 @@
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 
-
         <@fdsCheckAnswers.checkAnswersRow keyText="Pipeline status" actionUrl="" screenReaderActionText="" actionText="">
             <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr />
         </@fdsCheckAnswers.checkAnswersRow>
 
+        <#if pipelineHeader.PipelineHeaderView_transferredFromRef.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Transferred from" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredFromRef />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
+        <#if pipelineHeader.PipelineHeaderView_transferredToRef.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Transferred to" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredToRef />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
         <#if pipelineHeader.headerQuestions?seq_contains("OUT_OF_USE_ON_SEABED_REASON")>
-            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline not being returned to shore?" actionUrl="" screenReaderActionText="" actionText="">
+            <#if pipelineHeader.PipelineHeaderView_pipelineStatusDisplayStr == "Transferred">
+              <#assign questionText>being transferred?</#assign>
+            <#else>
+              <#assign questionText>not being returned to shore?</#assign>
+            </#if>
+
+            <@fdsCheckAnswers.checkAnswersRow keyText="Why is the pipeline ${questionText}" actionUrl="" screenReaderActionText="" actionText="">
                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineStatusReason />
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
@@ -44,7 +61,7 @@
         </@fdsCheckAnswers.checkAnswersRow>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="To location" actionUrl="" screenReaderActionText="" actionText="">
-            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_toLocation />          
+            <@diffChanges.renderDiff pipelineHeader.PipelineHeaderView_toLocation />
         </@fdsCheckAnswers.checkAnswersRow>
 
         <@fdsCheckAnswers.checkAnswersRow keyText="To (WGS 84)" actionUrl="" screenReaderActionText="" actionText="">
@@ -116,7 +133,7 @@
             <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Special features">
                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_footnote multiLineTextBlockClass="govuk-summary-list"/>
             </@fdsCheckAnswers.checkAnswersRowNoAction>
-        </#if>  
+        </#if>
 
     </@fdsCheckAnswers.checkAnswers>
 

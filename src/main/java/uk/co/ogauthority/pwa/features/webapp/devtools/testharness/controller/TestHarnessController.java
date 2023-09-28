@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.testharness.controller;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.GenerateApplicationForm;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.GenerateVariationApplicationForm;
@@ -89,7 +91,9 @@ public class TestHarnessController {
                 form.getPipelineQuantity(),
                 form.getApplicationStatus().name(),
                 form.getAssignedCaseOfficerId(),
-                form.getApplicantPersonId(), null));
+                form.getApplicantPersonId(),
+                form.getResourceType().name(),
+                null));
           }
         });
 
@@ -101,6 +105,10 @@ public class TestHarnessController {
     var applicationTypeMap = PwaApplicationType.stream()
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationType::getDisplayName));
+
+    var resourceTypeMap = Arrays.stream(PwaResourceType.values())
+        .sorted(Comparator.comparing(PwaResourceType::getDisplayOrder))
+        .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaResourceType::getDisplayName));
 
     var applicationStatusMap = TestHarnessService.getTestHarnessAppStatuses().stream()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationStatus::getDisplayName));
@@ -120,6 +128,7 @@ public class TestHarnessController {
     return new ModelAndView("testHarness/generateApplication")
         .addObject("cancelUrl", RouteUtils.routeWorkArea())
         .addObject("applicationTypeMap", applicationTypeMap)
+        .addObject("resourceTypeMap", resourceTypeMap)
         .addObject("applicationStatusMap", applicationStatusMap)
         .addObject("caseOfficerCandidates", caseOfficerCandidates)
         .addObject("applicantUsersMap", testHarnessService.getApplicantsSelectorMap())
@@ -136,6 +145,7 @@ public class TestHarnessController {
                                       @RequestParam String applicationStatus,
                                       @RequestParam Integer assignedCaseOfficerId,
                                       @RequestParam Integer applicantPersonId,
+                                      @RequestParam String resourceType,
                                       @ModelAttribute("form") GenerateVariationApplicationForm form) {
     return getSelectPwaModelAndView(form);
   }
@@ -159,7 +169,7 @@ public class TestHarnessController {
   private ModelAndView getSelectPwaModelAndView(GenerateVariationApplicationForm form) {
 
     var user = testHarnessUserRetrievalService.getWebUserAccount(form.getApplicantPersonId());
-    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user);
+    var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, PwaResourceType.PETROLEUM);
     var showNonConsentedOptions = !pickableOptions.getNonconsentedPickablePwas().isEmpty()
         && PwaApplicationType.DEPOSIT_CONSENT.equals(form.getApplicationType());
 

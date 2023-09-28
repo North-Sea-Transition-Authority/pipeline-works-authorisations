@@ -1,11 +1,13 @@
 package uk.co.ogauthority.pwa.config;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -27,6 +29,9 @@ import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
+import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterEnumToString;
+import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterStringToEnum;
+import uk.co.ogauthority.pwa.util.converters.PwaStringToCollectionConverter;
 
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
@@ -37,6 +42,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final UserSessionService userSessionService;
   private final Optional<RequestLogger> requestLoggerOpt;
   private final AnalyticsService analyticsService;
+  private final ConfigurableEnvironment configurableEnvironment;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
@@ -44,13 +50,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
                       PwaContextArgumentResolver pwaContextArgumentResolver,
                       UserSessionService userSessionService,
                       Optional<RequestLogger> requestLoggerOpt,
-                      AnalyticsService analyticsService) {
+                      AnalyticsService analyticsService,
+                      ConfigurableEnvironment configurableEnvironment) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
     this.userSessionService = userSessionService;
     this.requestLoggerOpt = requestLoggerOpt;
     this.analyticsService = analyticsService;
+    this.configurableEnvironment = configurableEnvironment;
   }
 
   @Override
@@ -97,6 +105,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void addFormatters(FormatterRegistry registry) {
     registry.addConverter(new PwaApplicationTypePathVariableConverterStringToEnum());
     registry.addConverter(new PwaApplicationTypePathVariableConverterEnumToString());
+    registry.addConverter(new PwaResourceTypePathVariableConverterStringToEnum());
+    registry.addConverter(new PwaResourceTypePathVariableConverterEnumToString());
+
+    // Replace the default StringToCollectionConverter to stop Spring splitting strings containing commas
+    // into multiple values.
+    registry.removeConvertible(String.class, Collection.class);
+    registry.addConverter(new PwaStringToCollectionConverter(configurableEnvironment.getConversionService()));
   }
 
 }

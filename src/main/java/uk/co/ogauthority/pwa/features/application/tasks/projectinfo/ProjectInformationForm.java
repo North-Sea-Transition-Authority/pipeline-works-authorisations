@@ -28,6 +28,9 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   private Boolean licenceTransferPlanned;
 
+  private String[] pearsApplicationList;
+  private String pearsApplicationSelector;
+
   private Integer licenceTransferDay;
   private Integer licenceTransferMonth;
   private Integer licenceTransferYear;
@@ -175,6 +178,22 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   public void setUsingCampaignApproach(Boolean usingCampaignApproach) {
     this.usingCampaignApproach = usingCampaignApproach;
+  }
+
+  public String[] getPearsApplicationList() {
+    return pearsApplicationList;
+  }
+
+  public void setPearsApplicationList(String[] pearsApplicationList) {
+    this.pearsApplicationList = pearsApplicationList;
+  }
+
+  public String getPearsApplicationSelector() {
+    return pearsApplicationSelector;
+  }
+
+  public void setPearsApplicationSelector(String pearsApplicationSelector) {
+    this.pearsApplicationSelector = pearsApplicationSelector;
   }
 
   public Integer getLicenceTransferDay() {
