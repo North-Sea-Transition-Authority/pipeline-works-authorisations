@@ -1,10 +1,14 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,6 +59,7 @@ public class PadPipelineTransferService {
       transfer.setRecipientApplicationDetail(recipientApplicationDetail);
       transfer.setRecipientPipeline(claimedPipeline.getPipeline());
       transferRepository.save(transfer);
+
     }
   }
 
@@ -117,7 +122,13 @@ public class PadPipelineTransferService {
         });
   }
 
+  public Collection<PadPipelineTransfer> getTransfersByApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return transferRepository
+        .findAllByDonorApplicationDetailEqualsOrRecipientApplicationDetailEquals(pwaApplicationDetail, pwaApplicationDetail);
+  }
+
   private void removeRecipient(PadPipelineTransfer padPipelineTransfer) {
+
     if (padPipelineTransfer.getDonorPipeline() == null) {
       transferRepository.delete(padPipelineTransfer);
     } else {
@@ -129,6 +140,7 @@ public class PadPipelineTransferService {
   }
 
   private void removeDonor(PadPipelineTransfer padPipelineTransfer) {
+
     if (padPipelineTransfer.getRecipientPipeline() == null) {
       transferRepository.delete(padPipelineTransfer);
     } else {
@@ -138,4 +150,25 @@ public class PadPipelineTransferService {
       transferRepository.save(padPipelineTransfer);
     }
   }
+
+  public Map<Pipeline, PadPipelineTransfer> getPipelineToTransferMap(PwaApplicationDetail pwaApplicationDetail) {
+
+    var transfers = getTransfersByApplicationDetail(pwaApplicationDetail);
+    var pipelinesTransferredOut = new HashMap<Pipeline, PadPipelineTransfer>();
+    var pipelinesTransferredIn = new HashMap<Pipeline, PadPipelineTransfer>();
+
+    transfers.forEach(transfer -> {
+      if (Objects.equals(transfer.getDonorApplicationDetail(), pwaApplicationDetail)) {
+        pipelinesTransferredOut.put(transfer.getDonorPipeline(), transfer);
+      } else if (Objects.equals(transfer.getRecipientApplicationDetail(), pwaApplicationDetail)) {
+        pipelinesTransferredIn.put(transfer.getRecipientPipeline(), transfer);
+      }
+    });
+
+    return Stream.of(pipelinesTransferredOut, pipelinesTransferredIn)
+        .flatMap(map -> map.entrySet().stream())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+  }
+
 }

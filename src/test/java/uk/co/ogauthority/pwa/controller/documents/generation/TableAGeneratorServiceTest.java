@@ -125,7 +125,7 @@ public class TableAGeneratorServiceTest {
 
   private PipelineHeaderView createHeaderView(PadPipeline padPipeline) {
     var padPipelineOverview = new PadPipelineOverview(padPipeline, 1L);
-    return new PipelineHeaderView(padPipelineOverview);
+    return new PipelineHeaderView(padPipelineOverview, null, null);
   }
 
   private IdentView createIdentView(int identNumber, PadPipeline padPipeline) {

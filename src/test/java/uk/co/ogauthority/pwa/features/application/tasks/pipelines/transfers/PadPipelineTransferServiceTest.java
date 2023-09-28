@@ -47,7 +47,8 @@ public class PadPipelineTransferServiceTest {
         transferRepository,
         padPipelineService,
         padPipelineTransferClaimValidator,
-        pipelineDetailService);
+        pipelineDetailService
+    );
 
     pipeline = new Pipeline();
     pipeline.setId(1);
@@ -107,6 +108,7 @@ public class PadPipelineTransferServiceTest {
     assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(transferredPipeline);
     assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(recipientApplicationDetail);
+
   }
 
   @Test
@@ -196,4 +198,5 @@ public class PadPipelineTransferServiceTest {
 
     verify(transferRepository).delete(transfer);
   }
+
 }

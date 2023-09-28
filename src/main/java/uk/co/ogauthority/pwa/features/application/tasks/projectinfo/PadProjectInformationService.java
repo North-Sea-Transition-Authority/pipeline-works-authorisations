@@ -113,7 +113,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
-    padLicenceApplicationService.saveApplicationsToPad(padProjectInformation, form);
+    if (getRequiredQuestions(padProjectInformation.getPwaApplicationDetail().getPwaApplicationType())
+        .contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
+      padLicenceApplicationService.saveApplicationsToPad(padProjectInformation, form);
+    }
   }
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {

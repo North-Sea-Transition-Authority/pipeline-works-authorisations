@@ -145,6 +145,14 @@ public class PipelineDetail implements PipelineEntity {
   @Transient
   private CoordinatePair toCoordinates;
 
+  @ManyToOne
+  @JoinColumn(name = "transferred_from_pipeline_id")
+  private Pipeline transferredFromPipeline;
+
+  @ManyToOne
+  @JoinColumn(name = "transferred_to_pipeline_id")
+  private Pipeline transferredToPipeline;
+
   public PipelineDetail() {
     // default for hibernate
   }
@@ -153,12 +161,10 @@ public class PipelineDetail implements PipelineEntity {
     this.setPipeline(pipeline);
   }
 
-
   public PipelineDetailId getPipelineDetailId() {
     // worry about caching this if it ever becomes a problem.
     return new PipelineDetailId(this.id);
   }
-
 
   @Override
   public Integer getId() {
@@ -325,8 +331,6 @@ public class PipelineDetail implements PipelineEntity {
   public LongitudeDirection getToLongitudeDirection() {
     return toLongitudeDirection;
   }
-
-
 
   @Override
   public String getComponentPartsDescription() {
@@ -520,6 +524,22 @@ public class PipelineDetail implements PipelineEntity {
     this.pipelineDesignLife = pipelineDesignLife;
   }
 
+  public Pipeline getTransferredFromPipeline() {
+    return transferredFromPipeline;
+  }
+
+  public void setTransferredFromPipeline(Pipeline transferredFromPipeline) {
+    this.transferredFromPipeline = transferredFromPipeline;
+  }
+
+  public Pipeline getTransferredToPipeline() {
+    return transferredToPipeline;
+  }
+
+  public void setTransferredToPipeline(Pipeline transferredToPipeline) {
+    this.transferredToPipeline = transferredToPipeline;
+  }
+
   @PostLoad
   public void postLoad() {
     // this method needs to be able to handle nulls given we could be dealing with migrated data
@@ -605,7 +625,9 @@ public class PipelineDetail implements PipelineEntity {
         && Objects.equals(otherPipelineMaterialUsed, that.otherPipelineMaterialUsed) && Objects.equals(pipelineDesignLife,
         that.pipelineDesignLife) && Objects.equals(fromCoordinates,
         that.fromCoordinates) && Objects.equals(toCoordinates, that.toCoordinates)
-        && Objects.equals(footnote, that.footnote);
+        && Objects.equals(footnote, that.footnote)
+        && Objects.equals(transferredFromPipeline, that.transferredFromPipeline)
+        && Objects.equals(transferredToPipeline, that.transferredToPipeline);
   }
 
   @Override
@@ -618,6 +640,6 @@ public class PipelineDetail implements PipelineEntity {
         toLongitudeSeconds, toLongitudeDirection, componentPartsDesc, length, productsToBeConveyed,
         trenchedBuriedFilledFlag, trenchingMethodsDesc, pipelineFlexibility, pipelineMaterial,
         otherPipelineMaterialUsed,
-        pipelineDesignLife, fromCoordinates, toCoordinates, footnote);
+        pipelineDesignLife, fromCoordinates, toCoordinates, footnote, transferredFromPipeline, transferredToPipeline);
   }
 }

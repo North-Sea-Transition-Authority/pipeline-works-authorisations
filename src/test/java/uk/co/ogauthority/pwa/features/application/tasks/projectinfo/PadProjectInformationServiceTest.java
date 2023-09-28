@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -112,7 +113,7 @@ public class PadProjectInformationServiceTest {
 
 
   @Test
-  public void saveEntityUsingForm_verifyServiceInteractions() {
+  public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeContainsLicence() {
 
     service.saveEntityUsingForm(padProjectInformation, form, user);
 
@@ -126,6 +127,31 @@ public class PadProjectInformationServiceTest {
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
     verify(padLicenceApplicationService).saveApplicationsToPad(padProjectInformation, form);
+
+  }
+
+  @Test
+  public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeDoesNotContainLicence() {
+
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
+    var pwaApplicationDetail = new PwaApplicationDetail();
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
+
+    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
+
+    service.saveEntityUsingForm(padProjectInformation, form, user);
+
+    verify(projectInformationEntityMappingService, times(1)).setEntityValuesUsingForm(padProjectInformation, form);
+    verify(padFileService, times(1)).updateFiles(
+        form,
+        this.padProjectInformation.getPwaApplicationDetail(),
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+        FileUpdateMode.DELETE_UNLINKED_FILES,
+        user
+    );
+    verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
+    verify(padLicenceApplicationService, never()).saveApplicationsToPad(padProjectInformation, form);
 
   }
 

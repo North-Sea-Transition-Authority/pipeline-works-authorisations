@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.masterpwas;
 
 import java.time.Clock;
+import java.util.Collection;
 import java.util.List;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,6 +99,10 @@ public class MasterPwaService {
   public List<MasterPwaDetail> searchConsentedDetailsByReference(String filter) {
     return masterPwaDetailRepository.findAllByReferenceContainingIgnoreCaseAndMasterPwaDetailStatus(filter,
         MasterPwaDetailStatus.CONSENTED);
+  }
+
+  public List<MasterPwaDetail> findAllCurrentDetailsIn(Collection<MasterPwa> masterPwas) {
+    return masterPwaDetailRepository.findAllByMasterPwaInAndEndInstantIsNull(masterPwas);
   }
 
   private MasterPwaDetail getAndEndCurrentDetail(MasterPwa masterPwa) {
