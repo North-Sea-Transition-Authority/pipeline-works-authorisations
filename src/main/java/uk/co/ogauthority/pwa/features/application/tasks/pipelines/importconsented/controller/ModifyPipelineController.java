@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
@@ -69,7 +69,7 @@ public class ModifyPipelineController {
     var selectablePipelines = modifyPipelineService.getSelectableConsentedPipelines(detail);
     var pipelineSelection = selectablePipelines.stream()
         .collect(StreamUtils.toLinkedHashMap(named -> String.valueOf(named.getPipelineId()),
-            NamedPipeline::getPipelineName));
+            NamedPipelineDto::getPipelineName));
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/importConsented")
         .addObject("consentedPipelines", pipelineSelection)
         .addObject("cancelUrl", ReverseRouter.route(on(PipelinesTaskListController.class)

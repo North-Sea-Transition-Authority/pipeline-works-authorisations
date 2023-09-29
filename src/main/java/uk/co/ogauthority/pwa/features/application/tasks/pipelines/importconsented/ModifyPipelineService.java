@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,7 +10,6 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -29,6 +30,11 @@ public class ModifyPipelineService {
   private final PadPipelineService padPipelineService;
   private final PipelineDetailService pipelineDetailService;
   private final PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
+
+  private static final EnumSet<PhysicalPipelineState> ON_SEABED_AND_ONSHORE = EnumSet.of(
+      PhysicalPipelineState.ON_SEABED,
+      PhysicalPipelineState.ONSHORE
+  );
 
   @Autowired
   public ModifyPipelineService(
@@ -53,9 +59,11 @@ public class ModifyPipelineService {
         .collect(Collectors.toUnmodifiableList());
   }
 
-  public List<NamedPipeline> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
+  public List<NamedPipelineDto> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
-        .filter(o -> PhysicalPipelineState.ON_SEABED.equals(o.getPipelineStatus().getPhysicalPipelineState()))
+        .filter(pipelineDetail -> ON_SEABED_AND_ONSHORE.contains(pipelineDetail.getPipelineStatus().getPhysicalPipelineState()))
+        .sorted(Comparator.comparingInt(pipelineDetail ->
+            pipelineDetail.getPipelineStatus().getPhysicalPipelineState().getDisplayOrder()))
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }
