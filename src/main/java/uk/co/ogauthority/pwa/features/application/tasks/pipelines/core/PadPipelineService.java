@@ -312,11 +312,11 @@ public class PadPipelineService {
 
     newPadPipeline.setPipelineStatus(form.getPipelineStatus());
     if (newPadPipeline.getPipelineStatus() == PipelineStatus.OUT_OF_USE_ON_SEABED) {
-      newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+      newPadPipeline.setPipelineStatusReason(form.getOutOfUseStatusReason());
 
     } else if (newPadPipeline.getPipelineStatus() == PipelineStatus.TRANSFERRED) {
       newPadPipeline.setPipelineTransferAgreed(form.getTransferAgreed());
-      newPadPipeline.setPipelineStatusReason(form.getPipelineStatusReason());
+      newPadPipeline.setPipelineStatusReason(form.getTransferStatusReason());
     }
 
     padPipelineRepository.save(newPadPipeline);

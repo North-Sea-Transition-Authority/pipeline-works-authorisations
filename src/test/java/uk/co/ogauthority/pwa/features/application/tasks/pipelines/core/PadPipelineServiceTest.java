@@ -484,13 +484,13 @@ public class PadPipelineServiceTest {
     pipelineDetail.setMaxExternalDiameter(BigDecimal.TEN);
 
     modifyPipelineForm.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
-    modifyPipelineForm.setPipelineStatusReason("reason");
+    modifyPipelineForm.setOutOfUseStatusReason("reason");
 
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
     verify(pipelineMappingService, times(1)).mapPipelineEntities(any(PadPipeline.class), any(PipelineDetail.class));
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(
-        modifyPipelineForm.getPipelineStatusReason());
+        modifyPipelineForm.getOutOfUseStatusReason());
 
   }
 
@@ -516,13 +516,13 @@ public class PadPipelineServiceTest {
 
     modifyPipelineForm.setPipelineStatus(PipelineStatus.TRANSFERRED);
     modifyPipelineForm.setTransferAgreed(true);
-    modifyPipelineForm.setPipelineStatusReason("reason");
+    modifyPipelineForm.setTransferStatusReason("reason");
 
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail, modifyPipelineForm);
 
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
     assertThat(pipelineWithCopiedData.getPipelineTransferAgreed()).isEqualTo(modifyPipelineForm.getTransferAgreed());
-    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getPipelineStatusReason());
+    assertThat(pipelineWithCopiedData.getPipelineStatusReason()).isEqualTo(modifyPipelineForm.getTransferStatusReason());
   }
 
 
@@ -530,7 +530,6 @@ public class PadPipelineServiceTest {
   public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
     var pipelineDetail = new PipelineDetail();
     modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    modifyPipelineForm.setPipelineStatusReason("reason");
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail,
         modifyPipelineForm);
     assertThat(pipelineWithCopiedData.getPipelineStatus()).isEqualTo(modifyPipelineForm.getPipelineStatus());
