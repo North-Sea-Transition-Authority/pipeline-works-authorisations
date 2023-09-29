@@ -31,7 +31,10 @@ public class ModifyPipelineService {
   private final PipelineDetailService pipelineDetailService;
   private final PipelineDetailIdentDataImportService pipelineDetailIdentDataImportService;
 
-  private static final EnumSet<PhysicalPipelineState> ON_SEABED_AND_ONSHORE = EnumSet.of(PhysicalPipelineState.ON_SEABED, PhysicalPipelineState.ONSHORE);
+  private static final EnumSet<PhysicalPipelineState> ON_SEABED_AND_ONSHORE = EnumSet.of(
+      PhysicalPipelineState.ON_SEABED,
+      PhysicalPipelineState.ONSHORE
+  );
 
   @Autowired
   public ModifyPipelineService(
@@ -59,7 +62,8 @@ public class ModifyPipelineService {
   public List<NamedPipelineDto> getSelectableConsentedPipelines(PwaApplicationDetail pwaApplicationDetail) {
     return getConsentedPipelinesNotOnApplication(pwaApplicationDetail).stream()
         .filter(pipelineDetail -> ON_SEABED_AND_ONSHORE.contains(pipelineDetail.getPipelineStatus().getPhysicalPipelineState()))
-        .sorted(Comparator.comparingInt(pipelineDetail -> pipelineDetail.getPipelineStatus().getPhysicalPipelineState().getDisplayOrder()))
+        .sorted(Comparator.comparingInt(pipelineDetail ->
+            pipelineDetail.getPipelineStatus().getPhysicalPipelineState().getDisplayOrder()))
         .map(NamedPipelineDto::fromPipelineDetail)
         .collect(Collectors.toUnmodifiableList());
   }
