@@ -145,7 +145,7 @@ public class ApplicationChargeRequestServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
 
-    when(pwaApplicationDetailService.getTipDetail(pwaApplication)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByApplication(pwaApplication)).thenReturn(pwaApplicationDetail);
     when(pwaApplicationDetailService.getLatestSubmittedDetail(pwaApplication)).thenReturn(Optional.of(pwaApplicationDetail));
 
     chargeRequestDetail = PwaAppChargeRequestTestUtil.createDefaultChargeRequest(
@@ -635,7 +635,7 @@ public class ApplicationChargeRequestServiceTest {
         pwaApplicationDetailService, camundaWorkflowService, assignCaseOfficerService, pwaAppChargeRequestDetailRepository
     );
 
-    verifyOrder.verify(pwaApplicationDetailService, times(1)).getTipDetail(pwaApplication);
+    verifyOrder.verify(pwaApplicationDetailService, times(1)).getTipDetailByApplication(pwaApplication);
     verifyOrder.verify(pwaAppChargeRequestDetailRepository, times(2)).save(requestDetailArgumentCaptor.capture());
     verifyOrder.verify(camundaWorkflowService, times(1)).setWorkflowProperty(
         pwaApplication,

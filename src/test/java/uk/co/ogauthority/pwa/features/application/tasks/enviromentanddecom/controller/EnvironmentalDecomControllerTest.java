@@ -86,7 +86,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
     var holderOrg = PortalOrganisationTestUtils.generateOrganisationUnit(1, "HOLDER");
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(appDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(appDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
   }

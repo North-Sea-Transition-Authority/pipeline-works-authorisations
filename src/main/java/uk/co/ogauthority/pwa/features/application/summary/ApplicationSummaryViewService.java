@@ -55,7 +55,7 @@ public class ApplicationSummaryViewService {
 
 
   public ApplicationSummaryView getApplicationSummaryViewForAppDetailId(Integer appDetailId) {
-    var pwaApplicationDetail = pwaApplicationDetailService.getDetailById(appDetailId);
+    var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(appDetailId);
     return getApplicationSummaryView(pwaApplicationDetail);
   }
 

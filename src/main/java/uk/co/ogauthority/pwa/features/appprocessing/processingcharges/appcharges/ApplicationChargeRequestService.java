@@ -446,7 +446,7 @@ public class ApplicationChargeRequestService {
     var tipChargeRequestDetail = getTipOpenRequestDetailForApplication(
         pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
 
-    var tipAppDetail = pwaApplicationDetailService.getTipDetail(
+    var tipAppDetail = pwaApplicationDetailService.getTipDetailByApplication(
         pwaAppChargePaymentAttempt.getPwaAppChargeRequest().getPwaApplication());
 
     updatePaymentAttemptFromRequest(pwaAppChargePaymentAttempt, webUserAccount.getLinkedPerson().getId());
@@ -566,7 +566,7 @@ public class ApplicationChargeRequestService {
         PwaAwaitPaymentResult.CANCELLED
     );
 
-    var pwaApplicationDetail = pwaApplicationDetailService.getTipDetail(
+    var pwaApplicationDetail = pwaApplicationDetailService.getTipDetailByApplication(
         paymentRequestTipDetail.getPwaAppChargeRequest().getPwaApplication()
     );
 

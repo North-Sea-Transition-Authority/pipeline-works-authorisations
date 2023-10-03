@@ -693,13 +693,13 @@ public class PwaApplicationDetailServiceTest {
   @Test
   public void getDetailById_verifyRepoInteraction() {
     when(applicationDetailRepository.findById(1)).thenReturn(Optional.of(pwaApplicationDetail));
-    pwaApplicationDetailService.getDetailById(1);
+    pwaApplicationDetailService.getDetailByDetailId(1);
     verify(applicationDetailRepository).findById(1);
   }
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getDetailById_entityNotFound() {
-    pwaApplicationDetailService.getDetailById(1);
+    pwaApplicationDetailService.getDetailByDetailId(1);
   }
 
   @Test

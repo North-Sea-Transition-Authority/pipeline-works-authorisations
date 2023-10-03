@@ -208,7 +208,7 @@ public class CaseReassignmentController {
               .map(Integer::valueOf)
               .collect(Collectors.toList());
           for (var appId : selectedIds) {
-            var applicationDetail = pwaApplicationDetailService.getTipDetail(appId);
+            var applicationDetail = pwaApplicationDetailService.getTipDetailByAppId(appId);
 
             assignCaseOfficerService.assignCaseOfficer(
                 applicationDetail,

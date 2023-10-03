@@ -105,7 +105,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
 
     //support app context code
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     // by default has all roles
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 

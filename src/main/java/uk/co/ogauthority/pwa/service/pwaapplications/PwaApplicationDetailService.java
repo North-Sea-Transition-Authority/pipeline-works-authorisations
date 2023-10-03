@@ -56,11 +56,11 @@ public class PwaApplicationDetailService {
     this.userTypeService = userTypeService;
   }
 
-  public PwaApplicationDetail getTipDetail(PwaApplication pwaApplication) {
-    return getTipDetail(pwaApplication.getId());
+  public PwaApplicationDetail getTipDetailByApplication(PwaApplication pwaApplication) {
+    return getTipDetailByAppId(pwaApplication.getId());
   }
 
-  public PwaApplicationDetail getTipDetail(Integer pwaApplicationId) {
+  public PwaApplicationDetail getTipDetailByAppId(Integer pwaApplicationId) {
     return pwaApplicationDetailRepository.findByPwaApplicationIdAndTipFlagIsTrue(pwaApplicationId)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find tip PwaApplicationDetail for PwaApplication ID: %s",
@@ -356,7 +356,7 @@ public class PwaApplicationDetailService {
     return pwaApplicationDetailRepository.findByPwaApplication(pwaApplication);
   }
 
-  public PwaApplicationDetail getDetailById(Integer appDetailId) {
+  public PwaApplicationDetail getDetailByDetailId(Integer appDetailId) {
     return pwaApplicationDetailRepository.findById(appDetailId).orElseThrow(() ->
         new PwaEntityNotFoundException(String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
     );
@@ -393,7 +393,7 @@ public class PwaApplicationDetailService {
   }
 
   private Optional<PwaApplicationDetail> getCurrentTipUpdateRequest(PwaApplication pwaApplication) {
-    var tipDetail = getTipDetail(pwaApplication);
+    var tipDetail = getTipDetailByApplication(pwaApplication);
     if (tipDetail.getStatus().equals(PwaApplicationStatus.UPDATE_REQUESTED)) {
       return Optional.of(tipDetail);
     }

@@ -66,7 +66,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
 
     // support application context service
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     when(crossingAgreementsService.getValidationResult(pwaApplicationDetail)).thenReturn(new CrossingAgreementsValidationResult(Set.of()));
   }
 

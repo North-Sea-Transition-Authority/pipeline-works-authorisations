@@ -102,7 +102,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
+    when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(
         pwaApplicationDetail);
 
     var portalOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(ORG_UNIT_ID, "Organisation Unit");

@@ -81,7 +81,7 @@ public class PwaApplicationContextServiceTest {
     contextService = new PwaApplicationContextService(detailService, padPipelineService, padFileService, pwaApplicationPermissionService,
         metricsProvider);
 
-    when(detailService.getTipDetail(1)).thenReturn(detail);
+    when(detailService.getTipDetailByAppId(1)).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     var padPipeline = new PadPipeline();

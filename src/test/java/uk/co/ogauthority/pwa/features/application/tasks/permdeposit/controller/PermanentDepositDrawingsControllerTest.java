@@ -98,7 +98,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
   }

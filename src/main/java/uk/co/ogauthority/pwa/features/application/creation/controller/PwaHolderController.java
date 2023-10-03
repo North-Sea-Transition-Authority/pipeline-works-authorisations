@@ -133,7 +133,7 @@ public class PwaHolderController {
           PwaApplication pwaApplication = pwaApplicationCreationService
               .createInitialPwaApplication(organisationUnit, user, resourceType).getPwaApplication();
 
-          var applicationDetail = pwaApplicationDetailService.getTipDetail(pwaApplication.getId());
+          var applicationDetail = pwaApplicationDetailService.getTipDetailByAppId(pwaApplication.getId());
 
           padOrganisationRoleService.addHolder(applicationDetail, organisationUnit);
 

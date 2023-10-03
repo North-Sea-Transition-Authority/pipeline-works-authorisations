@@ -110,7 +110,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     doAnswer(invocation -> invocation.getArgument(1)).when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
