@@ -110,6 +110,9 @@ public class PadPipelineServiceTest {
   private PipelineHeaderService pipelineHeaderService;
 
   @Mock
+  private PipelineRemovalService pipelineRemovalService;
+
+  @Mock
   PipelineDetailIdentDataImportService identImportService;
 
   private PadPipeline padPipe1;
@@ -141,7 +144,8 @@ public class PadPipelineServiceTest {
         padPipelinePersisterService,
         pipelineHeaderFormValidator,
         pipelineMappingService,
-        pipelineHeaderService, identImportService);
+        pipelineHeaderService,
+        identImportService);
 
     padPipe1 = new PadPipeline();
     padPipe1.setId(1);

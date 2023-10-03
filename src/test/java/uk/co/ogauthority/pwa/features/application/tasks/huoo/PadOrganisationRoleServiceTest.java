@@ -57,6 +57,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -1222,5 +1223,15 @@ public class PadOrganisationRoleServiceTest {
     assertThat(padOrganisationRoleService.organisationExistsAndActive(1)).isTrue();
   }
 
+  @Test
+  public void removePipelineLinksForRetiredPipelines() {
+    var pipeline = new Pipeline();
+    var pipelineorglink = new PadPipelineOrganisationRoleLink();
 
+    when(padPipelineOrganisationRoleLinkRepository.findAllDraftLinksForRetiredPipelines(
+        Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED), List.of(pipeline)))
+        .thenReturn(List.of(pipelineorglink));
+    padOrganisationRoleService.removePipelineLinksForRetiredPipelines(List.of(pipeline));
+    verify(padPipelineOrganisationRoleLinkRepository).deleteAll(List.of(pipelineorglink));
+  }
 }

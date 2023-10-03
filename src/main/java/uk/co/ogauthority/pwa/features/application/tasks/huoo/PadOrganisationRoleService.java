@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
 /**
  * Holds the core business logic around application based huoo operations.
@@ -281,11 +282,18 @@ public class PadOrganisationRoleService {
     padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinksToRemove);
   }
 
-
   @Transactional
   public void removeRoleOfTreatyAgreement(PadOrganisationRole organisationRole) {
     removePipelineLinksForOrgsWithRoles(organisationRole.getPwaApplicationDetail(), List.of(organisationRole));
     padOrganisationRolesRepository.delete(organisationRole);
+  }
+
+  public void removePipelineLinksForRetiredPipelines(List<Pipeline> retiredPipelines) {
+    var pipelineLinksToRemove = padPipelineOrganisationRoleLinkRepository.findAllDraftLinksForRetiredPipelines(
+        PwaApplicationStatus.updatableStatuses(),
+        retiredPipelines
+    );
+    padPipelineOrganisationRoleLinkRepository.deleteAll(pipelineLinksToRemove);
   }
 
   public void mapPortalOrgUnitRoleToForm(PwaApplicationDetail detail, PortalOrganisationUnit orgUnit, HuooForm form) {
