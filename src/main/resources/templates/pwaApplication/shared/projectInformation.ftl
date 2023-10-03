@@ -53,8 +53,8 @@
                         pathForSelector="form.pearsApplicationSelector"
                         restUrl=springUrl(licenceApplicationListUrl)
                         alreadyAdded=selectedLicenceApplications
-                        itemName="Licence application references"
-                        selectorMinInputLength=3/>
+                        itemName="Licence transaction references"
+                        selectorMinInputLength=7/>
                     </#if>
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.licenceTransferPlanned"/>

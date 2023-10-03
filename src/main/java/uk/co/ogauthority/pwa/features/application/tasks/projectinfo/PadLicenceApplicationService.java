@@ -54,7 +54,7 @@ public class PadLicenceApplicationService {
       form.setPearsApplicationList(padLicenceApplicationRepository.findAllByPadProjectInformation(projectInformation)
           .stream()
           .map(PadProjectInformationLicenceApplication::getPearsLicenceApplication)
-          .map(PearsLicenceApplication::getApplicationId)
+          .map(PearsLicenceApplication::getTransactionId)
           .map(String::valueOf)
           .toArray(String[]::new));
     }
@@ -76,7 +76,7 @@ public class PadLicenceApplicationService {
     return padLicenceApplicationRepository.findAllByPadProjectInformation(projectInformation)
         .stream()
         .map(PadProjectInformationLicenceApplication::getPearsLicenceApplication)
-        .map(PearsLicenceApplication::getApplicationReference)
+        .map(PearsLicenceApplication::getTransactionReference)
         .collect(Collectors.toList());
   }
 }

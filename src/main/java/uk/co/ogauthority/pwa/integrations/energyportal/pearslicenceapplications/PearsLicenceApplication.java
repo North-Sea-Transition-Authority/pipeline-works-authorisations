@@ -14,45 +14,47 @@ import uk.co.ogauthority.pwa.component.AddToListComponent;
 public class PearsLicenceApplication implements AddToListComponent {
 
   @Id
-  @Column(name = "licence_application_id", insertable = false, updatable = false)
-  private Integer applicationId;
+  @Column(name = "transaction_id", insertable = false, updatable = false)
+  private Integer transactionId;
 
-  @Column(name = "application_ref")
-  private String applicationReference;
+  @Column(name = "transaction_id_full")
+  private String transactionReference;
 
   public PearsLicenceApplication() {
   }
 
   @VisibleForTesting
   public PearsLicenceApplication(Integer applicationId, String applicationReference) {
-    this.applicationId = applicationId;
-    this.applicationReference = applicationReference;
+    this.transactionId = applicationId;
+    this.transactionReference = applicationReference;
   }
 
-  public Integer getApplicationId() {
-    return applicationId;
+  public Integer getTransactionId() {
+    return transactionId;
   }
 
-  public void setApplicationId(Integer applicationId) {
-    this.applicationId = applicationId;
+  public PearsLicenceApplication setTransactionId(Integer transactionId) {
+    this.transactionId = transactionId;
+    return this;
   }
 
-  public String getApplicationReference() {
-    return applicationReference;
+  public String getTransactionReference() {
+    return transactionReference;
   }
 
-  public void setApplicationReference(String applicationReference) {
-    this.applicationReference = applicationReference;
+  public PearsLicenceApplication setTransactionReference(String transactionReference) {
+    this.transactionReference = transactionReference;
+    return this;
   }
 
   @Override
   public String getId() {
-    return String.valueOf(applicationId);
+    return String.valueOf(transactionId);
   }
 
   @Override
   public String getName() {
-    return applicationReference;
+    return transactionReference;
   }
 
   @Override

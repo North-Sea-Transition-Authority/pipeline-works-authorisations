@@ -6,6 +6,7 @@ GRANT SELECT ON pedmgr.ped_licence_master TO ${datasource.user};
 GRANT SELECT ON pedmgr.unlicensed_blocks TO ${datasource.user};
 GRANT SELECT ON pedmgr.xview_ped_ld_current TO ${datasource.user};
 GRANT SELECT ON pedmgr.xview_ped_licence_applications TO ${datasource.user};
+GRANT SELECT ON pedmgr.xview_ped_transactions TO ${datasource.user};
 
 CREATE OR REPLACE VIEW ${datasource.user}.ped_licences AS
 SELECT
@@ -53,7 +54,6 @@ FROM (
 
 CREATE OR REPLACE VIEW ${datasource.user}.ped_licence_applications AS
 SELECT
-    xpla.pedpl_id licence_application_id
- ,  xpla.application_ref
-FROM pedmgr.xview_ped_licence_applications xpla
-WHERE xpla.status_control = 'C';
+    xpla.ped_tran_id transaction_id
+ ,  xpla.regulator_reference_full transaction_id_full
+FROM pedmgr.xview_ped_transactions xpla;
