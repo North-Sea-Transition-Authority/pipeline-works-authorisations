@@ -57,7 +57,7 @@ public class PadProjectInformationServiceTest {
   private PadFileService padFileService;
 
   @Mock
-  private PadLicenceApplicationService padLicenceApplicationService;
+  private PadLicenceTransactionService padLicenceTransactionService;
 
   @Mock
   private EntityCopyingService entityCopyingService;
@@ -80,7 +80,7 @@ public class PadProjectInformationServiceTest {
         projectInformationEntityMappingService,
         validator,
         padFileService,
-        padLicenceApplicationService,
+        padLicenceTransactionService,
         entityCopyingService,
         masterPwaService);
 
@@ -126,7 +126,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
-    verify(padLicenceApplicationService).saveApplicationsToPad(padProjectInformation, form);
+    verify(padLicenceTransactionService).saveApplicationsToPad(padProjectInformation, form);
 
   }
 
@@ -151,7 +151,7 @@ public class PadProjectInformationServiceTest {
         user
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
-    verify(padLicenceApplicationService, never()).saveApplicationsToPad(padProjectInformation, form);
+    verify(padLicenceTransactionService, never()).saveApplicationsToPad(padProjectInformation, form);
 
   }
 
@@ -169,7 +169,7 @@ public class PadProjectInformationServiceTest {
         ApplicationDetailFilePurpose.PROJECT_INFORMATION
     );
 
-    verify(padLicenceApplicationService).mapApplicationsToForm(
+    verify(padLicenceTransactionService).mapApplicationsToForm(
         form,
         padProjectInformation
     );
@@ -403,7 +403,7 @@ public class PadProjectInformationServiceTest {
             ApplicationDetailFilePurpose.PROJECT_INFORMATION,
             ApplicationFileLinkStatus.FULL);
 
-    verify(padLicenceApplicationService)
+    verify(padLicenceTransactionService)
         .copyApplicationsToPad(oldProjectInformation, newProjectInformation);
 
   }

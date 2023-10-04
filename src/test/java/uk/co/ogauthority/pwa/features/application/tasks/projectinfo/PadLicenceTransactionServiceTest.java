@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadLicenceApplicationServiceTest {
+public class PadLicenceTransactionServiceTest {
 
   @Mock
   private PadProjectInformationLicenceApplicationRepository repository;
@@ -35,11 +35,11 @@ public class PadLicenceApplicationServiceTest {
   @Captor
   ArgumentCaptor<PadProjectInformationLicenceApplication> applicationCaptor;
 
-  private PadLicenceApplicationService service;
+  private PadLicenceTransactionService service;
 
   @Before
   public void setUp() {
-    service = new PadLicenceApplicationService(repository, applicationService, entityManager);
+    service = new PadLicenceTransactionService(repository, applicationService, entityManager);
     when(applicationService.getApplicationsByIds(any())).thenReturn(List.of(generateApplication()));
   }
 

@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 
 @Service
-public class PadLicenceApplicationService {
+public class PadLicenceTransactionService {
 
   private final PadProjectInformationLicenceApplicationRepository padLicenceApplicationRepository;
 
@@ -21,7 +21,7 @@ public class PadLicenceApplicationService {
   private final EntityManager entityManager;
 
   @Autowired
-  public PadLicenceApplicationService(PadProjectInformationLicenceApplicationRepository padLicenceApplicationRepository,
+  public PadLicenceTransactionService(PadProjectInformationLicenceApplicationRepository padLicenceApplicationRepository,
                                       PearsLicenceTransactionService pearsLicenceTransactionService,
                                       EntityManager entityManager) {
     this.padLicenceApplicationRepository = padLicenceApplicationRepository;

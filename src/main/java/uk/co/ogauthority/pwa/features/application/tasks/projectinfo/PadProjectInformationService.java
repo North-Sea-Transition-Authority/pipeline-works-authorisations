@@ -39,7 +39,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final ProjectInformationValidator projectInformationValidator;
   private final PadFileService padFileService;
 
-  private final PadLicenceApplicationService padLicenceApplicationService;
+  private final PadLicenceTransactionService padLicenceTransactionService;
   private final EntityCopyingService entityCopyingService;
   private final MasterPwaService masterPwaService;
 
@@ -51,14 +51,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
       PadFileService padFileService,
-      PadLicenceApplicationService padLicenceApplicationService,
+      PadLicenceTransactionService padLicenceTransactionService,
       EntityCopyingService entityCopyingService,
       MasterPwaService masterPwaService) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
     this.padFileService = padFileService;
-    this.padLicenceApplicationService = padLicenceApplicationService;
+    this.padLicenceTransactionService = padLicenceTransactionService;
     this.entityCopyingService = entityCopyingService;
     this.masterPwaService = masterPwaService;
   }
@@ -80,7 +80,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
     padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
-    padLicenceApplicationService.mapApplicationsToForm(form, padProjectInformation);
+    padLicenceTransactionService.mapApplicationsToForm(form, padProjectInformation);
   }
 
 
@@ -90,7 +90,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
-    var licenceApplications = padLicenceApplicationService.getInformationSummary(projectInformation);
+    var licenceApplications = padLicenceTransactionService.getInformationSummary(projectInformation);
 
     return new ProjectInformationView(
         projectInformation,
@@ -115,7 +115,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
     if (getRequiredQuestions(padProjectInformation.getPwaApplicationDetail().getPwaApplicationType())
         .contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
-      padLicenceApplicationService.saveApplicationsToPad(padProjectInformation, form);
+      padLicenceTransactionService.saveApplicationsToPad(padProjectInformation, form);
     }
   }
 
@@ -275,7 +275,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         ApplicationFileLinkStatus.FULL
     );
 
-    padLicenceApplicationService.copyApplicationsToPad(
+    padLicenceTransactionService.copyApplicationsToPad(
         getPadProjectInformationData(fromDetail),
         getPadProjectInformationData(toDetail));
   }
