@@ -52,8 +52,8 @@ FROM (
   FROM pedmgr.unlicensed_blocks ub
 ) b;
 
-CREATE OR REPLACE VIEW ${datasource.user}.ped_licence_applications AS
+CREATE OR REPLACE VIEW ${datasource.user}.ped_licence_transactions AS
 SELECT
     xpla.ped_tran_id transaction_id
- ,  xpla.regulator_reference_full transaction_id_full
+ ,  xpla.regulator_reference_full transaction_reference
 FROM pedmgr.xview_ped_transactions xpla;

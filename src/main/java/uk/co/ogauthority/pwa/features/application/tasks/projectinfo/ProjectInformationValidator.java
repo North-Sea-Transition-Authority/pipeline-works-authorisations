@@ -13,7 +13,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
@@ -29,13 +29,13 @@ public class ProjectInformationValidator implements SmartValidator {
 
   private final TwoFieldDateInputValidator twoFieldDateInputValidator;
 
-  private final PearsLicenceApplicationService pearsLicenceApplicationService;
+  private final PearsLicenceTransactionService pearsLicenceTransactionService;
 
   @Autowired
   public ProjectInformationValidator(TwoFieldDateInputValidator twoFieldDateInputValidator,
-                                     PearsLicenceApplicationService pearsLicenceApplicationService) {
+                                     PearsLicenceTransactionService pearsLicenceTransactionService) {
     this.twoFieldDateInputValidator = twoFieldDateInputValidator;
-    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
+    this.pearsLicenceTransactionService = pearsLicenceTransactionService;
   }
 
   @Override
@@ -337,7 +337,7 @@ public class ProjectInformationValidator implements SmartValidator {
           var applicationIds = Arrays.stream(form.getPearsApplicationList())
               .map(Integer::valueOf)
               .collect(Collectors.toList());
-          if (pearsLicenceApplicationService.getApplicationsByIds(applicationIds).size() != applicationIds.size()) {
+          if (pearsLicenceTransactionService.getApplicationsByIds(applicationIds).size() != applicationIds.size()) {
             errors.rejectValue("pearsApplicationSelector",
                 "pearsApplicationSelector" + FieldValidationErrorCodes.INVALID.getCode(),
                 "Licence transfer application reference is invalid");

@@ -9,23 +9,23 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 
 @Service
 public class PadLicenceApplicationService {
 
   private final PadProjectInformationLicenceApplicationRepository padLicenceApplicationRepository;
 
-  private final PearsLicenceApplicationService pearsLicenceApplicationService;
+  private final PearsLicenceTransactionService pearsLicenceTransactionService;
 
   private final EntityManager entityManager;
 
   @Autowired
   public PadLicenceApplicationService(PadProjectInformationLicenceApplicationRepository padLicenceApplicationRepository,
-                                      PearsLicenceApplicationService pearsLicenceApplicationService,
+                                      PearsLicenceTransactionService pearsLicenceTransactionService,
                                       EntityManager entityManager) {
     this.padLicenceApplicationRepository = padLicenceApplicationRepository;
-    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
+    this.pearsLicenceTransactionService = pearsLicenceTransactionService;
     this.entityManager = entityManager;
   }
 
@@ -39,7 +39,7 @@ public class PadLicenceApplicationService {
       var ids = Arrays.stream(form.getPearsApplicationList())
           .map(Integer::valueOf)
           .collect(Collectors.toList());
-      var applications = pearsLicenceApplicationService.getApplicationsByIds(ids);
+      var applications = pearsLicenceTransactionService.getApplicationsByIds(ids);
       for (var application : applications) {
         padApplications.add(new PadProjectInformationLicenceApplication(
             padProjectInformation,

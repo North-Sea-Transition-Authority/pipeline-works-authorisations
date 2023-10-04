@@ -15,7 +15,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadLicenceApplicationServiceTest {
@@ -24,7 +24,7 @@ public class PadLicenceApplicationServiceTest {
   private PadProjectInformationLicenceApplicationRepository repository;
 
   @Mock
-  private PearsLicenceApplicationService applicationService;
+  private PearsLicenceTransactionService applicationService;
 
   @Mock
   private PadProjectInformationService projectInformationService;

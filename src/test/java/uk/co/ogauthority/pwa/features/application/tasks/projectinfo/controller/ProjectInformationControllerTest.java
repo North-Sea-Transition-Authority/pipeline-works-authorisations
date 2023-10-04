@@ -43,8 +43,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -69,7 +69,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   private PadProjectExtensionService projectExtensionService;
 
   @MockBean
-  private PearsLicenceApplicationService pearsLicenceApplicationService;
+  private PearsLicenceTransactionService pearsLicenceTransactionService;
 
   private EnumSet<PwaApplicationType> allowedApplicationTypes = EnumSet.of(
       PwaApplicationType.INITIAL,
@@ -166,7 +166,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     form.setPearsApplicationList(new String[]{"5555"});
 
     var licenceApplication = new PearsLicenceApplication(APP_ID, "TEST/REFERENCE");
-    when(pearsLicenceApplicationService.getApplicationsByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
+    when(pearsLicenceTransactionService.getApplicationsByIds(List.of(5555))).thenReturn(List.of(licenceApplication));
 
     pwaApplication.setApplicationType(PwaApplicationType.CAT_1_VARIATION);
     var result = mockMvc.perform(

@@ -17,7 +17,7 @@ public class PearsLicenceApplication implements AddToListComponent {
   @Column(name = "transaction_id", insertable = false, updatable = false)
   private Integer transactionId;
 
-  @Column(name = "transaction_id_full")
+  @Column(name = "transaction_reference")
   private String transactionReference;
 
   public PearsLicenceApplication() {

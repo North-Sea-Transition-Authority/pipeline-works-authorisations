@@ -5,7 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PearsLicenceApplicationRepository extends CrudRepository<PearsLicenceApplication, Integer> {
+public interface PearsLicenceTransactionRepository extends CrudRepository<PearsLicenceApplication, Integer> {
 
   List<PearsLicenceApplication> findAllByTransactionIdIn(List<Integer> ids);
 

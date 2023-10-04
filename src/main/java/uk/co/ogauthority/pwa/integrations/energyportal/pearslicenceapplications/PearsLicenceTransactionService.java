@@ -5,12 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PearsLicenceApplicationService {
+public class PearsLicenceTransactionService {
 
-  private final PearsLicenceApplicationRepository applicationRepository;
+  private final PearsLicenceTransactionRepository applicationRepository;
 
   @Autowired
-  public PearsLicenceApplicationService(PearsLicenceApplicationRepository applicationRepository) {
+  public PearsLicenceTransactionService(PearsLicenceTransactionRepository applicationRepository) {
     this.applicationRepository = applicationRepository;
   }
 
