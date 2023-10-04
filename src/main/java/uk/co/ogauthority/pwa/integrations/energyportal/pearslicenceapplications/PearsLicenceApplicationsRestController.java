@@ -13,10 +13,10 @@ import uk.co.ogauthority.pwa.model.form.fds.RestSearchResult;
 @RequestMapping("/pwa-application/pears")
 public class PearsLicenceApplicationsRestController {
 
-  private final PearsLicenceApplicationService pearsLicenceService;
+  private final PearsLicenceTransactionService pearsLicenceService;
 
   @Autowired
-  public PearsLicenceApplicationsRestController(PearsLicenceApplicationService pearsLicenceService) {
+  public PearsLicenceApplicationsRestController(PearsLicenceTransactionService pearsLicenceService) {
     this.pearsLicenceService = pearsLicenceService;
   }
 
