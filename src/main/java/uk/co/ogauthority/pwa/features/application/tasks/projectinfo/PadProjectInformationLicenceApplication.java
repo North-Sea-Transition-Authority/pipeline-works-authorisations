@@ -8,7 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import org.hibernate.annotations.CreationTimestamp;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 
 @Entity(name = "pad_project_information_licence_applications")
 public class PadProjectInformationLicenceApplication {
@@ -23,7 +23,7 @@ public class PadProjectInformationLicenceApplication {
 
   @ManyToOne
   @JoinColumn(name = "pears_licence_application_number")
-  private PearsLicenceApplication pearsLicenceApplication;
+  private PearsLicenceTransactions pearsLicenceTransactions;
 
   @CreationTimestamp
   private Instant createdTimestamp;
@@ -40,9 +40,9 @@ public class PadProjectInformationLicenceApplication {
   }
 
   public PadProjectInformationLicenceApplication(PadProjectInformation padProjectInformation,
-                                                 PearsLicenceApplication pearsLicenceApplication) {
+                                                 PearsLicenceTransactions pearsLicenceTransactions) {
     this.padProjectInformation = padProjectInformation;
-    this.pearsLicenceApplication = pearsLicenceApplication;
+    this.pearsLicenceTransactions = pearsLicenceTransactions;
   }
 
   public PadProjectInformation getPadProjectInformation() {
@@ -54,13 +54,13 @@ public class PadProjectInformationLicenceApplication {
     this.padProjectInformation = padProjectInformation;
   }
 
-  public PearsLicenceApplication getPearsLicenceApplication() {
-    return pearsLicenceApplication;
+  public PearsLicenceTransactions getPearsLicenceApplication() {
+    return pearsLicenceTransactions;
   }
 
   public void setPearsLicenceApplications(
-      PearsLicenceApplication pearsLicenceApplication) {
-    this.pearsLicenceApplication = pearsLicenceApplication;
+      PearsLicenceTransactions pearsLicenceTransactions) {
+    this.pearsLicenceTransactions = pearsLicenceTransactions;
   }
 
   public Instant getCreatedTimestamp() {

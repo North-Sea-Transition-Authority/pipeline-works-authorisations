@@ -14,11 +14,11 @@ public class PearsLicenceTransactionService {
     this.applicationRepository = applicationRepository;
   }
 
-  public List<PearsLicenceApplication> getApplicationsByName(String name) {
+  public List<PearsLicenceTransactions> getApplicationsByName(String name) {
     return applicationRepository.findAllByTransactionReferenceContainingIgnoreCase(name);
   }
 
-  public List<PearsLicenceApplication> getApplicationsByIds(List<Integer> ids) {
+  public List<PearsLicenceTransactions> getApplicationsByIds(List<Integer> ids) {
     return applicationRepository.findAllByTransactionIdIn(ids);
   }
 

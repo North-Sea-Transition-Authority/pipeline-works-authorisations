@@ -14,8 +14,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadLicenceApplicationServiceTest {
@@ -63,7 +63,7 @@ public class PadLicenceApplicationServiceTest {
 
     var form = new ProjectInformationForm();
     var projectInfoLicenceApplication = new PadProjectInformationLicenceApplication();
-    projectInfoLicenceApplication.setPearsLicenceApplications(new PearsLicenceApplication(555, "PL47/401"));
+    projectInfoLicenceApplication.setPearsLicenceApplications(new PearsLicenceTransactions(555, "PL47/401"));
 
     when(repository.findAllByPadProjectInformation(projectInformation)).thenReturn(List.of(projectInfoLicenceApplication));
     service.mapApplicationsToForm(form, projectInformation);
@@ -78,7 +78,7 @@ public class PadLicenceApplicationServiceTest {
     var newProjectInformation = new PadProjectInformation();
     newProjectInformation.setId(321);
 
-    var pearsApplication = new PearsLicenceApplication();
+    var pearsApplication = new PearsLicenceTransactions();
 
     var oldApplicationReference = new PadProjectInformationLicenceApplication();
     oldApplicationReference.setId(500);
@@ -96,7 +96,7 @@ public class PadLicenceApplicationServiceTest {
   }
 
 
-  private PearsLicenceApplication generateApplication() {
-    return new PearsLicenceApplication(555, "111");
+  private PearsLicenceTransactions generateApplication() {
+    return new PearsLicenceTransactions(555, "111");
   }
 }
