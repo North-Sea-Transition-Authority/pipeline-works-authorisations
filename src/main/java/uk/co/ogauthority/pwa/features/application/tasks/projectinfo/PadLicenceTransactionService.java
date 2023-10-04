@@ -8,8 +8,8 @@ import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 
 @Service
 public class PadLicenceTransactionService {
@@ -54,7 +54,7 @@ public class PadLicenceTransactionService {
       form.setPearsApplicationList(padLicenceApplicationRepository.findAllByPadProjectInformation(projectInformation)
           .stream()
           .map(PadProjectInformationLicenceApplication::getPearsLicenceApplication)
-          .map(PearsLicenceTransactions::getTransactionId)
+          .map(PearsLicenceTransaction::getTransactionId)
           .map(String::valueOf)
           .toArray(String[]::new));
     }
@@ -76,7 +76,7 @@ public class PadLicenceTransactionService {
     return padLicenceApplicationRepository.findAllByPadProjectInformation(projectInformation)
         .stream()
         .map(PadProjectInformationLicenceApplication::getPearsLicenceApplication)
-        .map(PearsLicenceTransactions::getTransactionReference)
+        .map(PearsLicenceTransaction::getTransactionReference)
         .collect(Collectors.toList());
   }
 }

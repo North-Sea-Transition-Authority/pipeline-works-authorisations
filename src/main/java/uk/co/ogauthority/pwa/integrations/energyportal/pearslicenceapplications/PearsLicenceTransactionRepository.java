@@ -5,10 +5,10 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PearsLicenceTransactionRepository extends CrudRepository<PearsLicenceTransactions, Integer> {
+public interface PearsLicenceTransactionRepository extends CrudRepository<PearsLicenceTransaction, Integer> {
 
-  List<PearsLicenceTransactions> findAllByTransactionIdIn(List<Integer> ids);
+  List<PearsLicenceTransaction> findAllByTransactionIdIn(List<Integer> ids);
 
-  List<PearsLicenceTransactions> findAllByTransactionReferenceContainingIgnoreCase(String applicationReference);
+  List<PearsLicenceTransaction> findAllByTransactionReferenceContainingIgnoreCase(String applicationReference);
 
 }

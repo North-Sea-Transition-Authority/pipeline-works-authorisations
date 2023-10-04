@@ -37,8 +37,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDep
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -143,7 +143,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         form
     );
 
-    List<PearsLicenceTransactions> licenceApplications = new ArrayList<>();
+    List<PearsLicenceTransaction> licenceApplications = new ArrayList<>();
     if (form.getPearsApplicationList() != null) {
       licenceApplications = pearsLicenceTransactionService.getApplicationsByIds(
           Arrays.stream(form.getPearsApplicationList())

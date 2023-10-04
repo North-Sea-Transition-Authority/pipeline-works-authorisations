@@ -24,8 +24,8 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactions;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -898,7 +898,7 @@ public class ProjectInformationValidatorTest {
   @Test
   public void validate_licenceTransferPlanned_validTransferReference() {
 
-    when(pearsLicenceTransactionService.getApplicationsByIds(any())).thenReturn(List.of(new PearsLicenceTransactions()));
+    when(pearsLicenceTransactionService.getApplicationsByIds(any())).thenReturn(List.of(new PearsLicenceTransaction()));
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
     form.setPearsApplicationList(new String[]{"5555"});

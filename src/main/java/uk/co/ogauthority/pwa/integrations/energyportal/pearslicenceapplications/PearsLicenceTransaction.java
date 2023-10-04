@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.component.AddToListComponent;
 @Immutable
 @Entity
 @Table(name = "ped_licence_transactions")
-public class PearsLicenceTransactions implements AddToListComponent {
+public class PearsLicenceTransaction implements AddToListComponent {
 
   @Id
   @Column(name = "transaction_id", insertable = false, updatable = false)
@@ -20,11 +20,11 @@ public class PearsLicenceTransactions implements AddToListComponent {
   @Column(name = "transaction_reference")
   private String transactionReference;
 
-  public PearsLicenceTransactions() {
+  public PearsLicenceTransaction() {
   }
 
   @VisibleForTesting
-  public PearsLicenceTransactions(Integer applicationId, String applicationReference) {
+  public PearsLicenceTransaction(Integer applicationId, String applicationReference) {
     this.transactionId = applicationId;
     this.transactionReference = applicationReference;
   }
@@ -33,7 +33,7 @@ public class PearsLicenceTransactions implements AddToListComponent {
     return transactionId;
   }
 
-  public PearsLicenceTransactions setTransactionId(Integer transactionId) {
+  public PearsLicenceTransaction setTransactionId(Integer transactionId) {
     this.transactionId = transactionId;
     return this;
   }
@@ -42,7 +42,7 @@ public class PearsLicenceTransactions implements AddToListComponent {
     return transactionReference;
   }
 
-  public PearsLicenceTransactions setTransactionReference(String transactionReference) {
+  public PearsLicenceTransaction setTransactionReference(String transactionReference) {
     this.transactionReference = transactionReference;
     return this;
   }
