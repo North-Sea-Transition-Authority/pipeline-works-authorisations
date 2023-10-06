@@ -162,7 +162,7 @@ errorItems=[]>
         </#list>
       </@fdsFooter.footerMeta>
     </#local>
-    <@fdsFooter.footer wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>
+    <@fdsNstaFooter.nstaFooter wrapperWidth=wrapperWidth metaLinks=true footerMetaContent=footerMetaContent/>
 
     <#--Custom scripts go here-->
     <@pwaCustomScripts />
