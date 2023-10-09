@@ -148,7 +148,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
 
   @Test
   public void confirmSubmission_hasSubmissionSummaryObject() throws Exception {
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(get(ReverseRouter.route(on(SubmitConfirmationController.class)
             .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))

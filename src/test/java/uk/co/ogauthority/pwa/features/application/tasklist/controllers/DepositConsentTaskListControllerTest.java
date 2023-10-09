@@ -49,7 +49,7 @@ public class DepositConsentTaskListControllerTest extends TaskListControllerTest
     when(taskListControllerModelAndViewCreator.getTaskListModelAndView(detail, taskListGroupList))
         .thenCallRealMethod();
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)

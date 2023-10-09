@@ -14,17 +14,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PadLicenceApplicationServiceTest {
+public class PadLicenceTransactionServiceTest {
 
   @Mock
   private PadProjectInformationLicenceApplicationRepository repository;
 
   @Mock
-  private PearsLicenceApplicationService applicationService;
+  private PearsLicenceTransactionService applicationService;
 
   @Mock
   private PadProjectInformationService projectInformationService;
@@ -35,11 +35,11 @@ public class PadLicenceApplicationServiceTest {
   @Captor
   ArgumentCaptor<PadProjectInformationLicenceApplication> applicationCaptor;
 
-  private PadLicenceApplicationService service;
+  private PadLicenceTransactionService service;
 
   @Before
   public void setUp() {
-    service = new PadLicenceApplicationService(repository, applicationService, entityManager);
+    service = new PadLicenceTransactionService(repository, applicationService, entityManager);
     when(applicationService.getApplicationsByIds(any())).thenReturn(List.of(generateApplication()));
   }
 
@@ -63,7 +63,7 @@ public class PadLicenceApplicationServiceTest {
 
     var form = new ProjectInformationForm();
     var projectInfoLicenceApplication = new PadProjectInformationLicenceApplication();
-    projectInfoLicenceApplication.setPearsLicenceApplications(new PearsLicenceApplication(555, "PL47/401"));
+    projectInfoLicenceApplication.setPearsLicenceApplications(new PearsLicenceTransaction(555, "PL47/401"));
 
     when(repository.findAllByPadProjectInformation(projectInformation)).thenReturn(List.of(projectInfoLicenceApplication));
     service.mapApplicationsToForm(form, projectInformation);
@@ -78,7 +78,7 @@ public class PadLicenceApplicationServiceTest {
     var newProjectInformation = new PadProjectInformation();
     newProjectInformation.setId(321);
 
-    var pearsApplication = new PearsLicenceApplication();
+    var pearsApplication = new PearsLicenceTransaction();
 
     var oldApplicationReference = new PadProjectInformationLicenceApplication();
     oldApplicationReference.setId(500);
@@ -96,7 +96,7 @@ public class PadLicenceApplicationServiceTest {
   }
 
 
-  private PearsLicenceApplication generateApplication() {
-    return new PearsLicenceApplication(555, "111");
+  private PearsLicenceTransaction generateApplication() {
+    return new PearsLicenceTransaction(555, "111");
   }
 }

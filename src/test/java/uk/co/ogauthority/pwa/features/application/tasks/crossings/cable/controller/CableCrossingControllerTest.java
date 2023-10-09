@@ -84,7 +84,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
         PwaApplicationType.CAT_2_VARIATION,
         PwaApplicationType.DECOMMISSIONING);
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));

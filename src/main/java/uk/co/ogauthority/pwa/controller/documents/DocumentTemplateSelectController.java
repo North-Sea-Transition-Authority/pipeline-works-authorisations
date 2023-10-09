@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.termsandconditions.controller.TermsAndConditionsManagementController;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -26,6 +27,7 @@ public class DocumentTemplateSelectController {
     return new ModelAndView("documents/templates/documentTemplateSelect")
         .addObject("documentTemplates", templateOptions)
         .addObject("urlProvider", new DocumentTemplateSelectUrlProvider())
+        .addObject("tcManagementAllowed", checkTcPrivilege(authenticatedUserAccount))
         .addObject("tcUrl", ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .renderTermsAndConditionsManagement(null,
                 0,
@@ -33,4 +35,7 @@ public class DocumentTemplateSelectController {
 
   }
 
+  private boolean checkTcPrivilege(AuthenticatedUserAccount authenticatedUser) {
+    return authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER);
+  }
 }

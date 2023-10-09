@@ -354,7 +354,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
@@ -377,7 +377,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
         detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
         detail.setStatus(status);
 
-        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
         when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
             Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
@@ -404,7 +404,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
         Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
@@ -427,7 +427,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
     when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
         Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
 
@@ -451,7 +451,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
         detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
         detail.setStatus(status);
 
-        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
         when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
             Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
 
@@ -482,7 +482,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
         detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
         detail.setStatus(status);
 
-        when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(detail);
+        when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
         when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
             Set.of(PwaApplicationPermission.EDIT));
 

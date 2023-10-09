@@ -84,7 +84,7 @@ public class PwaApplicationContextService {
   private PwaApplicationContext getApplicationContext(Integer applicationId,
                                                       AuthenticatedUserAccount authenticatedUser) {
 
-    var detail = detailService.getTipDetail(applicationId);
+    var detail = detailService.getTipDetailByAppId(applicationId);
 
     var permissions = pwaApplicationPermissionService.getPermissions(detail, authenticatedUser.getLinkedPerson());
 

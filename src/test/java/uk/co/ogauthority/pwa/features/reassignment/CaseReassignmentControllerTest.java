@@ -130,7 +130,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @Test
   public void postSubmitCaseReassignment_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
-    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
@@ -149,7 +149,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @Test
   public void postSubmitCaseReassignment_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
-    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
@@ -183,7 +183,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @Test
   public void postReassignCaseOfficer_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
-    when(pwaApplicationDetailService.getTipDetail(anyInt())).thenReturn(applicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(applicationDetail);
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);
@@ -205,7 +205,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @Test
   public void postReassignCaseOfficer_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
-    when(pwaApplicationDetailService.getDetailById(any())).thenReturn(applicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
     doAnswer(invocationOnMock -> {
       var errors = (Errors) invocationOnMock.getArgument(1);

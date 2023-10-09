@@ -87,7 +87,7 @@ class ApproveOptionsGeneratorService implements TestHarnessAppProcessingService 
 
   private void updateAndSubmitAppForm(TestHarnessAppProcessingProperties appProcessingProps) {
 
-    var tipDetail = pwaApplicationDetailService.getTipDetail(appProcessingProps.getPwaApplication().getId());
+    var tipDetail = pwaApplicationDetailService.getTipDetailByAppId(appProcessingProps.getPwaApplication().getId());
 
     var appFormServiceParams = new TestHarnessAppFormServiceParams(
         appProcessingProps.getApplicantAua(), tipDetail, appProcessingProps.getPipelineQuantity());

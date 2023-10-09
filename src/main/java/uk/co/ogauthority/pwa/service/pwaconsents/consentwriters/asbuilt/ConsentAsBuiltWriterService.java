@@ -76,7 +76,7 @@ public class ConsentAsBuiltWriterService implements ConsentWriter {
     var asBuiltPipelineNotificationSpecs = extractAsBuiltPipelineNotificationSpecs(consentWriterDto);
 
     if (!asBuiltPipelineNotificationSpecs.isEmpty()) {
-      var appDetail = pwaApplicationDetailService.getTipDetail(pwaConsent.getSourcePwaApplication());
+      var appDetail = pwaApplicationDetailService.getTipDetailByApplication(pwaConsent.getSourcePwaApplication());
 
       // At time of writing this question is hidden for HUOO apps, but they do not ever add pipeline changes to applications.
       // Therefore the possible null value should not be an issue as the asBuilt notification spec list will be empty.

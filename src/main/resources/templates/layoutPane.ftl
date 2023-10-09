@@ -45,7 +45,7 @@ backToTopLink=true>
         </div>
 
         <#--Footer goes below me-->
-        <@fdsFooter.footer wrapperWidth=wrapperWidth/>
+        <@fdsNstaFooter.nstaFooter wrapperWidth=wrapperWidth/>
 
         <@pwaCustomScripts />
 

@@ -83,7 +83,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
     padField.setId(1);
     padField.setDevukField(devukField);
 
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     when(padFieldService.getActiveFieldsForApplicationDetail(any())).thenReturn(List.of(padField));

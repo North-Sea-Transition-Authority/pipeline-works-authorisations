@@ -80,7 +80,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(true);
 
     //support app context code
-    when(pwaApplicationDetailService.getTipDetail(1)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(1)).thenReturn(pwaApplicationDetail);
     // by default has all roles
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
   }

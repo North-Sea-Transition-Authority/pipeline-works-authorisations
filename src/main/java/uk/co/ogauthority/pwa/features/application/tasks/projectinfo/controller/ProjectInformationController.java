@@ -36,9 +36,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplication;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
+import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -68,7 +68,7 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final ControllerHelperService controllerHelperService;
   private final PadProjectExtensionService projectExtensionService;
 
-  private final PearsLicenceApplicationService pearsLicenceApplicationService;
+  private final PearsLicenceTransactionService pearsLicenceTransactionService;
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
   @Autowired
@@ -78,14 +78,14 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
                                       PadFileService padFileService,
                                       ControllerHelperService controllerHelperService,
                                       PadProjectExtensionService projectExtensionService,
-                                      PearsLicenceApplicationService pearsLicenceApplicationService) {
+                                      PearsLicenceTransactionService pearsLicenceTransactionService) {
     super(padFileService);
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.controllerHelperService = controllerHelperService;
     this.projectExtensionService = projectExtensionService;
-    this.pearsLicenceApplicationService = pearsLicenceApplicationService;
+    this.pearsLicenceTransactionService = pearsLicenceTransactionService;
   }
 
   @GetMapping
@@ -143,9 +143,9 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         form
     );
 
-    List<PearsLicenceApplication> licenceApplications = new ArrayList<>();
+    List<PearsLicenceTransaction> licenceApplications = new ArrayList<>();
     if (form.getPearsApplicationList() != null) {
-      licenceApplications = pearsLicenceApplicationService.getApplicationsByIds(
+      licenceApplications = pearsLicenceTransactionService.getApplicationsByIds(
           Arrays.stream(form.getPearsApplicationList())
               .map(Integer::valueOf)
               .collect(Collectors.toList()));

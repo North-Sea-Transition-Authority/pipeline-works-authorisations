@@ -94,9 +94,9 @@ public class ApplicationSummaryViewServiceTest {
 
   @Test
   public void getApplicationSummaryViewForId_verifyServiceInteractions() {
-    when(pwaApplicationDetailService.getDetailById(APP_DETAIL_ID3)).thenReturn(detail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APP_DETAIL_ID3)).thenReturn(detail);
     applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(APP_DETAIL_ID3);
-    verify(pwaApplicationDetailService).getDetailById(APP_DETAIL_ID3);
+    verify(pwaApplicationDetailService).getDetailByDetailId(APP_DETAIL_ID3);
     verify(applicationSummaryService).summarise(detail);
   }
 

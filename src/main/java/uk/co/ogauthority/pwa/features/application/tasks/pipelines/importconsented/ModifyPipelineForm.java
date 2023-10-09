@@ -6,7 +6,9 @@ public class ModifyPipelineForm {
 
   private String pipelineId;
   private PipelineStatus pipelineStatus;
-  private String pipelineStatusReason;
+  private String outOfUseStatusReason;
+
+  private String transferStatusReason;
   private Boolean transferAgreed;
 
   public String getPipelineId() {
@@ -25,12 +27,22 @@ public class ModifyPipelineForm {
     this.pipelineStatus = pipelineStatus;
   }
 
-  public String getPipelineStatusReason() {
-    return pipelineStatusReason;
+  public String getOutOfUseStatusReason() {
+    return outOfUseStatusReason;
   }
 
-  public void setPipelineStatusReason(String pipelineStatusReason) {
-    this.pipelineStatusReason = pipelineStatusReason;
+  public ModifyPipelineForm setOutOfUseStatusReason(String outOfUseStatusReason) {
+    this.outOfUseStatusReason = outOfUseStatusReason;
+    return this;
+  }
+
+  public String getTransferStatusReason() {
+    return transferStatusReason;
+  }
+
+  public ModifyPipelineForm setTransferStatusReason(String transferStatusReason) {
+    this.transferStatusReason = transferStatusReason;
+    return this;
   }
 
   public Boolean getTransferAgreed() {

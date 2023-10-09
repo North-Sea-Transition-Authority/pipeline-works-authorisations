@@ -103,7 +103,7 @@ public class ConsentAsBuiltWriterServiceTest {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     pwaApplicationDetail.getPwaApplication().setAppReference("APP/REFERENCE");
 
-    when(pwaApplicationDetailService.getTipDetail(pwaApplicationDetail.getPwaApplication())).thenReturn(
+    when(pwaApplicationDetailService.getTipDetailByApplication(pwaApplicationDetail.getPwaApplication())).thenReturn(
         pwaApplicationDetail);
 
     pwaConsent = PwaConsentTestUtil.createPwaConsent(1, "CONSENT/REFERENCE", CONSENT_INSTANT_AM);

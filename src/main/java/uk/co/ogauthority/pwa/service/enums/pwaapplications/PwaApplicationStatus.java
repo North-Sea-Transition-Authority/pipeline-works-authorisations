@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -31,6 +32,10 @@ public enum PwaApplicationStatus {
 
   public static Stream<PwaApplicationStatus> stream() {
     return Stream.of(PwaApplicationStatus.values());
+  }
+
+  public static Set<PwaApplicationStatus> updatableStatuses() {
+    return Set.of(PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED);
   }
 
 }

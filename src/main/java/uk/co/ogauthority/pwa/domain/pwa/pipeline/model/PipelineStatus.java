@@ -96,4 +96,10 @@ public enum PipelineStatus implements DiffableAsString {
         .collect(Collectors.toSet());
   }
 
+  public static Set<PipelineStatus> getStatusesWithoutState(PhysicalPipelineState state) {
+    return stream()
+        .filter(s -> s.getPhysicalPipelineState() != state)
+        .collect(Collectors.toSet());
+  }
+
 }

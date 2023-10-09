@@ -219,7 +219,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void submit_noValidationErrors_redirectsToConfirmation() throws Exception {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
@@ -239,7 +239,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void submit_failsValidation_backToReviewScreen() throws Exception {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("madeOnlyRequestedChanges", "madeOnlyRequestedChanges.required", "message");
@@ -261,7 +261,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void submit_validationPass_applicationTasksNotComplete() throws Exception {
     when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
@@ -280,7 +280,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     var description = "OTHER DESC";
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
@@ -304,7 +304,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     var description = "OTHER DESC";
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
@@ -361,7 +361,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_noUpdateTextProvided() throws Exception {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
@@ -379,7 +379,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_updateTextProvided() throws Exception {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
@@ -399,7 +399,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void sendToSubmitter_applicationTasksNotComplete() throws Exception {
     when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
@@ -416,7 +416,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void sendToSubmitter_failsValidation_backToReviewScreen() throws Exception {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("madeOnlyRequestedChanges", "madeOnlyRequestedChanges.required", "message");
@@ -454,7 +454,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   @Test
   public void submit_timerMetricStarted_timeRecordedAndLogged() {
 
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     var controller = new ReviewAndSubmitController(Mockito.mock(ControllerHelperService.class), pwaApplicationRedirectService,
         pwaApplicationSubmissionService, applicationSummaryViewService, applicationUpdateRequestViewService, validator,

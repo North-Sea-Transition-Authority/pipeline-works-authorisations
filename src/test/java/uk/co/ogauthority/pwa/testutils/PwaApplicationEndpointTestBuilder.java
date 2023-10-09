@@ -315,7 +315,7 @@ public class PwaApplicationEndpointTestBuilder {
 
     detail.setStatus(defaultStatus);
     detail.getPwaApplication().setApplicationType(defaultType);
-    when(pwaApplicationDetailService.getTipDetail(detail.getMasterPwaApplicationId())).thenReturn(detail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
     when(pwaApplicationDetailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
         .thenReturn(Optional.of(detail));
 

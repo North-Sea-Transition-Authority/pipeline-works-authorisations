@@ -46,7 +46,7 @@ public class ConsentIssueSchedulerBean extends QuartzJobBean {
 
       String jobKeyName = context.getJobDetail().getKey().getName();
       String pwaApplicationDetailIdString = StringUtils.substringBefore(jobKeyName, "-");
-      var detail = pwaApplicationDetailService.getDetailById(Integer.valueOf(pwaApplicationDetailIdString));
+      var detail = pwaApplicationDetailService.getDetailByDetailId(Integer.valueOf(pwaApplicationDetailIdString));
 
       int issuingWuaId = context.getJobDetail().getJobDataMap().getInt("issuingWuaId");
       var approvalTime = (Instant) context.getJobDetail().getJobDataMap().get("approvalTime");

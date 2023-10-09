@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.assertj.core.groups.Tuple;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,11 +17,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
+import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
@@ -45,6 +46,12 @@ public class ModifyPipelineServiceTest {
 
   private PwaApplicationDetail detail;
 
+  private Pipeline consentedPipeline;
+
+  private PipelineDetail consentedPipelineDetail;
+
+  private PadPipeline consentedPadPipeline;
+
   @Before
   public void setUp() {
     modifyPipelineService = new ModifyPipelineService(
@@ -52,50 +59,35 @@ public class ModifyPipelineServiceTest {
         pipelineDetailService,
         pipelineDetailIdentDataImportService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+
+    consentedPipeline = new Pipeline(detail.getPwaApplication());
+    consentedPipeline.setId(3);
+
+    consentedPipelineDetail = new PipelineDetail();
+    consentedPipelineDetail.setPipeline(consentedPipeline);
+    consentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
+    consentedPipelineDetail.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+
+    consentedPadPipeline = new PadPipeline();
+    consentedPadPipeline.setPipeline(consentedPipeline);
   }
 
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAvailable() {
-
-    // TODO PWA-1047 rename these variables to "consentedPipeline" or "consentedPipelineNotOnApp".
-    //  (if a pipelineDetail exists it is already assumed to be consented)
-    // Also, extract this setup code as this entire test is called a setup step for other tests. which is bad.
-    var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
-    nonConsentedPipeline.setId(3);
-
-    var nonConsentedPadPipeline = new PadPipeline();
-    nonConsentedPadPipeline.setPipeline(nonConsentedPipeline);
-    nonConsentedPadPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    nonConsentedPadPipeline.setPipelineRef("Pipeline ref");
-
-    var nonConsentedPipelineDetail = new PipelineDetail();
-    nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
-
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
-        .thenReturn(List.of(nonConsentedPipelineDetail));
+        .thenReturn(List.of(consentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
-    assertThat(result).containsExactly(nonConsentedPipelineDetail);
+    assertThat(result).containsExactly(consentedPipelineDetail);
   }
 
   @Test
   public void getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked() {
-
-    var consentedPipeline = new Pipeline(detail.getPwaApplication());
-    consentedPipeline.setId(3);
-
-    var consentedPipelineDetail = new PipelineDetail();
-    consentedPipelineDetail.setPipeline(consentedPipeline);
-
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
-    var padPipeline = new PadPipeline();
-
-    padPipeline.setPipeline(consentedPipeline);
-    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(padPipeline));
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(consentedPadPipeline));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
@@ -111,79 +103,62 @@ public class ModifyPipelineServiceTest {
 
   @Test
   public void getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail() {
-
-    // TODO PWA-1047 rename this variable to "consentedPipeline" or "consentedPipelineNotOnApp"
-    // Also, extract this setup code as this entire test is called a setup step for other tests. which is bad.
-    var nonConsentedPipeline = new Pipeline(detail.getPwaApplication());
-    nonConsentedPipeline.setId(3);
-
-    var nonConsentedPipelineDetail = new PipelineDetail();
-    nonConsentedPipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    nonConsentedPipelineDetail.setPipeline(nonConsentedPipeline);
-
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
-        .thenReturn(List.of(nonConsentedPipelineDetail));
+        .thenReturn(List.of(consentedPipelineDetail));
 
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
-    assertThat(result).containsExactly(nonConsentedPipelineDetail);
+    assertThat(result).containsExactly(consentedPipelineDetail);
   }
 
   @Test
   public void getSelectableConsentedPipelines_consentedPipelineAvailable() {
-    // Perform setup from previous test as underlying calls rely on this method.
-    getConsentedPipelinesNotOnApplication_consentedPipelineAvailable();
-
-    var padPipeline = new PadPipeline();
-    var pipeline = new Pipeline();
-    pipeline.setId(3);
-    padPipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
-    padPipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
-
-    var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
+        .thenReturn(List.of(consentedPipelineDetail));
 
     when(padPipelineService.getPipelines(detail)).thenReturn(List.of());
 
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).extracting(NamedPipeline::getPipelineId)
-        .containsExactly(3);
+    assertThat(result).extracting(NamedPipeline::getPipelineId, NamedPipelineDto::getPipelineType)
+        .containsExactly(Tuple.tuple(3, PipelineType.GAS_LIFT_PIPELINE));
   }
 
   @Test
-  public void getSelectableConsentedPipelines_noPipelinesOnAppDetail() {
-    // Perform setup from previous test as underlying calls rely on this method.
-    getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail();
+  public void getSelectableConsentedPipelines_consentedReturnedToShorePipelineAvailable() {
+    var rtsPipeline = new Pipeline(detail.getPwaApplication());
+    rtsPipeline.setId(1);
 
-    var padPipeline = new PadPipeline();
-    var pipeline = new Pipeline();
-    pipeline.setId(3);
-    padPipeline.setId(1);
-    padPipeline.setPipeline(pipeline);
-    padPipeline.setPipelineType(PipelineType.GAS_LIFT_PIPELINE);
+    var rtsPipelineDetail = new PipelineDetail();
+    rtsPipelineDetail.setPipeline(rtsPipeline);
+    rtsPipelineDetail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
+    rtsPipelineDetail.setPipelineType(PipelineType.METHANOL_PIPELINE);
 
-    var pipelineOverview = new PadPipelineOverview(padPipeline, 1L);
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
+        .thenReturn(List.of(rtsPipelineDetail, consentedPipelineDetail));
+
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of());
 
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
-    assertThat(result).extracting(NamedPipeline::getPipelineId)
-        .containsExactly(3);
+    assertThat(result).extracting(NamedPipeline::getPipelineId, NamedPipelineDto::getPipelineType)
+        .containsExactly(
+            Tuple.tuple(3, PipelineType.GAS_LIFT_PIPELINE),
+            Tuple.tuple(1, PipelineType.METHANOL_PIPELINE)
+        );
   }
-
-
 
   @Test
   public void getSelectableConsentedPipelines_noConsentedPipelines() {
-    // Perform setup from previous test as underlying calls rely on this method.
-    getConsentedPipelinesNotOnApplication_noConsentedPipelines();
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
     assertThat(result).isEmpty();
   }
 
   @Test
   public void getSelectableConsentedPipelines_consentedPipelineAlreadyLinked() {
-    // Perform setup from previous test as underlying calls rely on this method.
-    getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked();
+    when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
+        .thenReturn(List.of(consentedPipelineDetail));
+
+    when(padPipelineService.getPipelines(detail)).thenReturn(List.of(consentedPadPipeline));
+
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
     assertThat(result).isEmpty();
   }

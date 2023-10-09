@@ -79,7 +79,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
-    when(pwaApplicationDetailService.getTipDetail(APP_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
   }
 
   @Test
