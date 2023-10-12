@@ -39,6 +39,14 @@ public class PwaStringToCollectionConverter implements ConditionalGenericConvert
     if (source == null) {
       return null;
     }
+    var intCollection = convertToInt(source, targetType);
+    if (intCollection != null) {
+      return intCollection;
+    }
+    return convertToSingleString(source, sourceType, targetType);
+  }
+
+  private Object convertToSingleString(Object source, TypeDescriptor sourceType, TypeDescriptor targetType) {
     String string = (String) source;
 
     TypeDescriptor elementDesc = targetType.getElementTypeDescriptor();
@@ -50,12 +58,27 @@ public class PwaStringToCollectionConverter implements ConditionalGenericConvert
     if (string.isEmpty()) {
       return target;
     }
-
     if (elementDesc == null) {
       target.add(string.trim());
     } else {
       Object targetElement = this.conversionService.convert(string.trim(), sourceType, elementDesc);
       target.add(targetElement);
+    }
+    return target;
+  }
+
+  private Object convertToInt(Object source, TypeDescriptor targetType) {
+    String sourceString = (String) source;
+    var splitSource = sourceString.split(",");
+    var elementDesc = targetType.getElementTypeDescriptor();
+    var target = CollectionFactory.createCollection(targetType.getType(),
+        (elementDesc != null ? elementDesc.getType() : null), 1);
+    for (var split : splitSource) {
+      try {
+        target.add(Integer.parseInt(split));
+      } catch (NumberFormatException e) {
+        return null;
+      }
     }
     return target;
   }
