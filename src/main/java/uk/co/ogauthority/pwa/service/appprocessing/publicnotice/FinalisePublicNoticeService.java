@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Set;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -27,6 +28,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticeCaseOfficerReviewResult;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticePublicationState;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.FinalisePublicNoticeValidator;
@@ -77,11 +79,21 @@ public class FinalisePublicNoticeService {
   }
 
   public boolean publicNoticeDatesCanBeUpdated(PwaApplication pwaApplication) {
-    return publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.WAITING)
-        .stream()
-        .anyMatch(publicNotice -> publicNotice.getPwaApplication().equals(pwaApplication));
+    var applicableStatuses = Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED);
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    return publicNotice != null && applicableStatuses.contains(publicNotice.getStatus());
   }
 
+
+  public BindingResult validate(FinalisePublicNoticeForm form, BindingResult bindingResult, PwaApplication pwaApplication) {
+    var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
+    var activePublicNoticeDate = getActivePublicNoticeDate(publicNotice);
+    finalisePublicNoticeValidator.validate(
+        form,
+        bindingResult,
+        activePublicNoticeDate.getPublicationStartTimestamp().isBefore(clock.instant()));
+    return bindingResult;
+  }
 
   public BindingResult validate(FinalisePublicNoticeForm form, BindingResult bindingResult) {
     finalisePublicNoticeValidator.validate(form, bindingResult);
@@ -109,18 +121,16 @@ public class FinalisePublicNoticeService {
 
 
   public void publishPublicNotice(PublicNotice publicNotice) {
-
     var existingStatus = publicNotice.getStatus();
     publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
-    camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
     completeTaskAndSavePublicNotice(publicNotice, existingStatus);
   }
 
   private void completeTaskAndSavePublicNotice(PublicNotice publicNotice,
                                                PublicNoticeStatus existingStatus) {
 
-    camundaWorkflowService.completeTask(new WorkflowTaskInstance(
-        publicNotice, existingStatus.getWorkflowTask()));
+    camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.WAIT_FOR_START_DATE);
+    camundaWorkflowService.completeTask(new WorkflowTaskInstance(publicNotice, existingStatus.getWorkflowTask()));
     publicNoticeService.savePublicNotice(publicNotice);
   }
 
@@ -139,16 +149,12 @@ public class FinalisePublicNoticeService {
         authenticatedUserAccount.getLinkedPerson().getId().asInt(),
         clock.instant());
     publicNoticeDatesRepository.save(publicNoticeDate);
+    publicNotice.setStatus(PublicNoticeStatus.WAITING);
+    completeTaskAndSavePublicNotice(publicNotice, PublicNoticeStatus.CASE_OFFICER_REVIEW);
 
     if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
       publishPublicNotice(publicNotice);
-
-    } else {
-      publicNotice.setStatus(PublicNoticeStatus.WAITING);
-      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.WAIT_FOR_START_DATE);
-      completeTaskAndSavePublicNotice(publicNotice, PublicNoticeStatus.CASE_OFFICER_REVIEW);
     }
-
     sendPublicationEmails(publicNotice.getPwaApplication(), startDate);
   }
 
@@ -184,7 +190,6 @@ public class FinalisePublicNoticeService {
   public void updatePublicNoticeDate(PwaApplication pwaApplication,
                                      FinalisePublicNoticeForm form,
                                      AuthenticatedUserAccount authenticatedUserAccount) {
-
     var time = clock.instant();
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     var activePublicNoticeDate = getActivePublicNoticeDate(publicNotice);
@@ -200,17 +205,28 @@ public class FinalisePublicNoticeService {
         createPublicationEndDateInstant(startDate, form.getDaysToBePublishedFor()),
         authenticatedUserAccount.getLinkedPerson().getId().asInt(),
         time);
+    newPublicNoticeDate.setDateChangeReason(form.getDateChangeReason());
     publicNoticeDatesRepository.save(newPublicNoticeDate);
-
-    if (startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now())) {
-      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
-      camundaWorkflowService.completeTask(new WorkflowTaskInstance(
-          publicNotice, PwaApplicationPublicNoticeWorkflowTask.WAITING));
+    boolean currentPublishDateInFuture = activePublicNoticeDate.getPublicationStartTimestamp().isAfter(Instant.now());
+    boolean newPublishDateInPast = startDate.isBefore(LocalDate.now()) || startDate.isEqual(LocalDate.now());
+    if (newPublishDateInPast && currentPublishDateInFuture) {
+      camundaWorkflowService.completeTask(new WorkflowTaskInstance(publicNotice, PwaApplicationPublicNoticeWorkflowTask.WAITING));
       publicNotice.setStatus(PublicNoticeStatus.PUBLISHED);
       publicNoticeService.savePublicNotice(publicNotice);
+      sendPublicationUpdateEmails(pwaApplication, startDate);
+      return;
     }
 
-    sendPublicationUpdateEmails(pwaApplication, startDate);
+    boolean currentPublishDateInPast = activePublicNoticeDate.getPublicationStartTimestamp().isBefore(Instant.now());
+    boolean newPublishDateInFuture = startDate.isAfter(LocalDate.now());
+    if (currentPublishDateInPast && newPublishDateInFuture) {
+      camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticePublicationState.WAIT_FOR_START_DATE);
+      camundaWorkflowService.completeTask(
+          new WorkflowTaskInstance(publicNotice, PwaApplicationPublicNoticeWorkflowTask.PUBLISHED));
+      publicNotice.setStatus(PublicNoticeStatus.WAITING);
+      publicNoticeService.savePublicNotice(publicNotice);
+      sendPublicationUpdateEmails(pwaApplication, startDate);
+    }
   }
 
 

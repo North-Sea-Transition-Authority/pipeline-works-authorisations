@@ -8,7 +8,6 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowProperty;
 public enum PublicNoticeCaseOfficerReviewResult implements WorkflowProperty {
 
   UPDATE_REQUESTED("caseOfficerReviewDecision", "UPDATE_REQUESTED"),
-  PUBLICATION_STARTED("caseOfficerReviewDecision", "PUBLICATION_STARTED"),
   WAIT_FOR_START_DATE("caseOfficerReviewDecision", "WAIT_FOR_START_DATE");
 
   private final String propertyName;

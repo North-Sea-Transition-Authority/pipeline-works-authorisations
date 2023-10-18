@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -82,7 +83,7 @@ public class FinalisePublicNoticeServiceTest {
 
   @Captor
   private ArgumentCaptor<PublicNoticeDate> publicNoticeDateArgumentCaptor;
-  
+
 
   private PwaApplication pwaApplication;
   private AuthenticatedUserAccount user;
@@ -128,23 +129,15 @@ public class FinalisePublicNoticeServiceTest {
 
   @Test
   public void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesExistsWithApp() {
+    var pwaApplication = new PwaApplication();
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
-    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.WAITING)).thenReturn(List.of(publicNotice));
+    when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(pwaApplication);
     assertThat(publicNoticeExists).isTrue();
   }
 
   @Test
-  public void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesExistsWithDifferentApp() {
-    var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(new PwaApplication());
-    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.WAITING)).thenReturn(List.of(publicNotice));
-    var publicNoticeExists = finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(pwaApplication);
-    assertThat(publicNoticeExists).isFalse();
-  }
-
-  @Test
   public void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesDoesNotExist() {
-    when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.WAITING)).thenReturn(List.of());
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
   }
@@ -188,7 +181,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void finalisePublicNotice_startDateBeforeToday_workflowTransitionsToEndStage() {
+  public void finalisePublicNotice_startDateBeforeToday_workflowTransitionsToPublishStage() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -197,14 +190,15 @@ public class FinalisePublicNoticeServiceTest {
     var form = PublicNoticeTestUtil.createStartBeforeTodayFinalisePublicNoticeForm();
     finalisePublicNoticeService.finalisePublicNotice(pwaApplication, form, user);
 
-    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    //Expected twice, once to set to waiting, once to set to published
+    verify(publicNoticeService, times(2)).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
     assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.PUBLISHED);
 
-    verify(camundaWorkflowService, times(1)).setWorkflowProperty(
-        publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
         PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW));
+    verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
+        PwaApplicationPublicNoticeWorkflowTask.WAITING));
   }
 
   @Test
@@ -297,6 +291,7 @@ public class FinalisePublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
     var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
+    publicNoticeDate.setPublicationStartTimestamp(publicNoticeDate.getPublicationStartTimestamp().plus(60, ChronoUnit.DAYS));
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -314,6 +309,7 @@ public class FinalisePublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
     var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
+    publicNoticeDate.setPublicationStartTimestamp(publicNoticeDate.getPublicationStartTimestamp().plus(60, ChronoUnit.DAYS));
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -324,8 +320,6 @@ public class FinalisePublicNoticeServiceTest {
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
     assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.PUBLISHED);
 
-    verify(camundaWorkflowService, times(1)).setWorkflowProperty(
-        publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
         PwaApplicationPublicNoticeWorkflowTask.WAITING));
   }
@@ -337,6 +331,7 @@ public class FinalisePublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
 
     var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publicNotice);
+    publicNoticeDate.setPublicationStartTimestamp(publicNoticeDate.getPublicationStartTimestamp().plus(60, ChronoUnit.DAYS));
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
         .thenReturn(Optional.of(publicNoticeDate));
 
@@ -366,8 +361,6 @@ public class FinalisePublicNoticeServiceTest {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     finalisePublicNoticeService.publishPublicNotice(publicNotice);
 
-    verify(camundaWorkflowService, times(1)).setWorkflowProperty(
-        publicNotice, PublicNoticeCaseOfficerReviewResult.PUBLICATION_STARTED);
     verify(camundaWorkflowService, times(1)).completeTask(new WorkflowTaskInstance(publicNotice,
         PwaApplicationPublicNoticeWorkflowTask.WAITING));
 

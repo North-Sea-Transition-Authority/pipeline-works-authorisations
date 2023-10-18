@@ -34,6 +34,8 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -62,6 +64,8 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentReposit
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PublicNoticePublicationState;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -81,6 +85,7 @@ public class PublicNoticeService implements AppProcessingService {
   private final PublicNoticeDatesRepository publicNoticeDatesRepository;
   private final PersonService personService;
 
+  private final CamundaWorkflowService camundaWorkflowService;
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
   private static final Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES = Set.of(
@@ -99,7 +104,7 @@ public class PublicNoticeService implements AppProcessingService {
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
-      PersonService personService) {
+      PersonService personService, CamundaWorkflowService camundaWorkflowService) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -109,6 +114,7 @@ public class PublicNoticeService implements AppProcessingService {
     this.publicNoticeDocumentLinkRepository = publicNoticeDocumentLinkRepository;
     this.publicNoticeDatesRepository = publicNoticeDatesRepository;
     this.personService = personService;
+    this.camundaWorkflowService = camundaWorkflowService;
   }
 
   @Override
@@ -264,7 +270,15 @@ public class PublicNoticeService implements AppProcessingService {
   }
 
   public void endPublicNotices(List<PublicNotice> publicNotices) {
-    publicNotices.forEach(publicNotice -> publicNotice.setStatus(PublicNoticeStatus.ENDED));
+    publicNotices.forEach(publicNotice -> {
+      publicNotice.setStatus(PublicNoticeStatus.ENDED);
+
+      //If statement to account for non-migrated workflows on public notices.
+      if (!camundaWorkflowService.getAllActiveWorkflowTasks(publicNotice).isEmpty()) {
+        camundaWorkflowService.setWorkflowProperty(publicNotice, PublicNoticePublicationState.FINISHED);
+        camundaWorkflowService.completeTask(new WorkflowTaskInstance(publicNotice, PwaApplicationPublicNoticeWorkflowTask.PUBLISHED));
+      }
+    });
     publicNoticeRepository.saveAll(publicNotices);
   }
 
@@ -419,22 +433,23 @@ public class PublicNoticeService implements AppProcessingService {
       });
     }
 
-    var dates = publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice);
-
-    dates.ifPresent(publicNoticeDate -> {
+    var dates = publicNoticeDatesRepository.getAllByPublicNotice(publicNotice);
+    for (var date : dates) {
       publicNoticeEvents.add(new PublicNoticeEvent()
-          .setEventType(PublicNoticeEventType.PUBLISHED)
-          .setEventTimestamp(publicNoticeDate.getPublicationStartTimestamp())
-          .setPersonId(String.valueOf(publicNoticeDate.getCreatedByPersonId()))
+          .setEventType(PublicNoticeEventType.PUBLICATION_DATES_SET)
+          .setEventTimestamp(date.getCreatedTimestamp())
+          .setPersonId(String.valueOf(date.getCreatedByPersonId()))
+          .setComment(date.getDateChangeReason())
+          .setPublicationStartDate(date.getPublicationStartTimestamp())
+          .setPublicationEndDate(date.getPublicationEndTimestamp())
       );
-
-      if (publicNoticeDate.getPublicationEndTimestamp() != null && publicNoticeDate.getPublicationEndTimestamp().isBefore(Instant.now())) {
+      if (date.getPublicationEndTimestamp() != null && date.getPublicationEndTimestamp().isBefore(Instant.now())) {
         publicNoticeEvents.add(new PublicNoticeEvent()
             .setEventType(PublicNoticeEventType.ENDED)
-            .setEventTimestamp(publicNoticeDate.getPublicationEndTimestamp())
+            .setEventTimestamp(date.getPublicationEndTimestamp())
         );
       }
-    });
+    }
 
     getAllDocumentsForPublicNotice(publicNotice).forEach(publicNoticeDocument -> {
       if (publicNoticeDocument.getCreatedTimestamp() != null) {
@@ -508,8 +523,11 @@ public class PublicNoticeService implements AppProcessingService {
       publicNoticeActions.add(PublicNoticeAction.FINALISE);
     }
 
+    var publicNoticeOpt = getLatestPublicNoticeOpt(pwaAppProcessingContext.getPwaApplication());
     if (processingPermissions.contains(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE)
-        && Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED).contains(publicNoticeStatus)) {
+        && Set.of(PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED).contains(publicNoticeStatus)
+        && publicNoticeOpt.isPresent()
+        && !camundaWorkflowService.getAllActiveWorkflowTasks(publicNoticeOpt.get()).isEmpty()) {
       publicNoticeActions.add(PublicNoticeAction.UPDATE_DATES);
     }
 
