@@ -70,16 +70,16 @@
     <bpmn:endEvent id="ended" name="Ended">
       <bpmn:incoming>Flow_1f1xbbh</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:task id="waiting" name="Waiting">
+    <bpmn:userTask id="waiting" name="Waiting">
       <bpmn:incoming>Flow_0q3e6zf</bpmn:incoming>
       <bpmn:incoming>Flow_1soev7e</bpmn:incoming>
       <bpmn:outgoing>Flow_17yk6ws</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="publish" name="Publish">
+    </bpmn:userTask>
+    <bpmn:userTask id="publish" name="Publish">
       <bpmn:incoming>Flow_17yk6ws</bpmn:incoming>
       <bpmn:outgoing>Flow_1f1xbbh</bpmn:outgoing>
       <bpmn:outgoing>Flow_1soev7e</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1ypistw">
