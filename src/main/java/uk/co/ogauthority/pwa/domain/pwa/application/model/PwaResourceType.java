@@ -25,6 +25,14 @@ public enum PwaResourceType {
           PwaApplicationType.INITIAL,
           PwaApplicationType.CAT_1_VARIATION
       )
+  ),
+  CCUS(
+      "Carbon dioxide",
+      30,
+      List.of(
+          PwaApplicationType.INITIAL,
+          PwaApplicationType.CAT_1_VARIATION
+      )
   );
 
   private final String displayName;

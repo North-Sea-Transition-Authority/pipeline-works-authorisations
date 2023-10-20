@@ -227,6 +227,55 @@ public class PwaApplicationCreationServiceTest {
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
   }
 
+  @Test
+  public void createInitialPwa_CCUS() {
+    WebUserAccount user = new WebUserAccount(123);
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
+
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.CCUS);
+
+    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+
+    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.CCUS,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
+
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+  }
+
 
   // The below tests could be much better with a parameterised, repeated test and only defined once. Would be good to figure out how to do this.
   @Test
