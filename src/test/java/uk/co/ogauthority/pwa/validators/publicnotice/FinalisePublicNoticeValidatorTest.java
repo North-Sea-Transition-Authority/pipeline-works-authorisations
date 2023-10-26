@@ -49,5 +49,31 @@ public class FinalisePublicNoticeValidatorTest {
     assertThat(errorsMap).isEmpty();
   }
 
+  @Test
+  public void validate_changeFromPublish_reasonMissing() {
+    var form = new FinalisePublicNoticeForm();
+    form.setStartDay(1);
+    form.setStartMonth(1);
+    form.setStartYear(2020);
+    form.setDaysToBePublishedFor(28);
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, true);
+    assertThat(errorsMap).hasSize(1);
+    assertThat(errorsMap).containsOnly(entry("dateChangeReason", Set.of("dateChangeReason" + FieldValidationErrorCodes.REQUIRED.getCode())));
+  }
+
+  @Test
+  public void validate_changeFromPublish_valid() {
+    var form = new FinalisePublicNoticeForm();
+    form.setStartDay(1);
+    form.setStartMonth(1);
+    form.setStartYear(2020);
+    form.setDaysToBePublishedFor(28);
+    form.setDateChangeReason("Test");
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, true);
+    assertThat(errorsMap).isEmpty();
+  }
+
 
 }

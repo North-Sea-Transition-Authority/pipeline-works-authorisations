@@ -17,6 +17,10 @@ public class PublicNoticeEvent {
 
   private String personName;
 
+  private String publicationStartDate;
+
+  private String publicationEndDate;
+
   public PublicNoticeEventType getEventType() {
     return eventType;
   }
@@ -65,6 +69,24 @@ public class PublicNoticeEvent {
 
   public PublicNoticeEvent setPersonName(String personName) {
     this.personName = personName;
+    return this;
+  }
+
+  public String getPublicationStartDate() {
+    return publicationStartDate;
+  }
+
+  public PublicNoticeEvent setPublicationStartDate(Instant publicationStartDate) {
+    this.publicationStartDate = DateUtils.formatDateTime(publicationStartDate);
+    return this;
+  }
+
+  public String getPublicationEndDate() {
+    return publicationEndDate;
+  }
+
+  public PublicNoticeEvent setPublicationEndDate(Instant publicationEndDate) {
+    this.publicationEndDate = DateUtils.formatDateTime(publicationEndDate);
     return this;
   }
 }

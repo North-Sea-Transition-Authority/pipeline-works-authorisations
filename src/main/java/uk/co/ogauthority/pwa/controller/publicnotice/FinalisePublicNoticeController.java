@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.time.LocalDate;
 import java.util.function.Supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -134,7 +135,13 @@ public class FinalisePublicNoticeController {
 
     return publicNoticeInValidStateForUpdate(processingContext, () -> {
       finalisePublicNoticeService.mapUnpublishedPublicNoticeDateToForm(processingContext.getPwaApplication(), form);
-      return getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.UPDATE_DATES);
+
+      var modelAndView = getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.UPDATE_DATES);
+      var startDate = form.getLocalDate();
+      if (startDate.isPresent() && startDate.get().isBefore(LocalDate.now())) {
+        modelAndView.addObject("requireReason", true);
+      }
+      return modelAndView;
     });
   }
 
@@ -149,7 +156,8 @@ public class FinalisePublicNoticeController {
                                                              BindingResult bindingResult) {
 
     return publicNoticeInValidStateForUpdate(processingContext, () -> {
-      var validatedBindingResult = finalisePublicNoticeService.validate(form, bindingResult);
+
+      var validatedBindingResult = finalisePublicNoticeService.validate(form, bindingResult, processingContext.getPwaApplication());
 
       return controllerHelperService.checkErrorsAndRedirect(validatedBindingResult,
           getFinalisePublicNoticeModelAndView(processingContext, PublicNoticeAction.UPDATE_DATES), () -> {
@@ -174,7 +182,9 @@ public class FinalisePublicNoticeController {
         .addObject("appRef", pwaApplication.getAppReference())
         .addObject("cancelUrl", cancelUrl)
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
-        .addObject("publicNoticeAction", publicNoticeAction);
+        .addObject("publicNoticeAction", publicNoticeAction)
+        .addObject("requireReason", false);
+
 
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Finalise public notice");
     return modelAndView;

@@ -111,6 +111,18 @@
                                         </@fdsDataItems.dataItem>
                                     </#if>
 
+                                    <#if event.publicationStartDate?has_content>
+                                        <@fdsDataItems.dataItem>
+                                            <@fdsDataItems.dataValues key="Publication start date" value=event.publicationStartDate/>
+                                        </@fdsDataItems.dataItem>
+                                    </#if>
+
+                                    <#if event.publicationEndDate?has_content>
+                                        <@fdsDataItems.dataItem>
+                                            <@fdsDataItems.dataValues key="Publication end date" value=event.publicationEndDate/>
+                                        </@fdsDataItems.dataItem>
+                                    </#if>
+
                                     <#if event.comment?has_content>
                                         <@fdsDataItems.dataItem>
                                             <@fdsDataItems.dataValues key="Review comment" value=event.comment/>

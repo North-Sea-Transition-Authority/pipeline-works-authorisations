@@ -1,6 +1,7 @@
 <#-- @ftlvariable name="errorList" type="java.util.Map<java.lang.String,java.util.List<java.lang.String,java.lang.String>>" -->
 <#-- @ftlvariable name="appRef" type="java.lang.String" -->
 <#-- @ftlvariable name="cancelUrl" type="java.lang.String" -->
+<#-- @ftlvariable name="requireReason" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="publicNoticeAction" type="uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction" -->
 
 
@@ -35,13 +36,22 @@
         </#if>
 
         <@fdsDateInput.dateInput dayPath="form.startDay" monthPath="form.startMonth" yearPath="form.startYear" labelText="Public notice start date" formId="form.start"/>
-        
+
         <@grid.gridRow>
             <@grid.twoThirdsColumn>
                 <@fdsTextInput.textInput path="form.daysToBePublishedFor" labelText="How many calendar days will the public notice be published for?" inputClass="govuk-input--width-4"
                     hintText="The calendar days entered must account for public holidays that occur during the period for which the public notice will be published." />
             </@grid.twoThirdsColumn>
         </@grid.gridRow>
+
+        <#if requireReason>
+          <@grid.gridRow>
+              <@grid.twoThirdsColumn>
+                  <@fdsTextarea.textarea path="form.dateChangeReason" labelText="Why are the dates of an already published notice being changed?"/>
+              </@grid.twoThirdsColumn>
+          </@grid.gridRow>
+        </#if>
+
 
         <@fdsAction.submitButtons primaryButtonText=submitText linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
 

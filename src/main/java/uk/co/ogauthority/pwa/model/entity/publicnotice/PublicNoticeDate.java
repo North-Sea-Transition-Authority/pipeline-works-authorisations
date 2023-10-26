@@ -32,6 +32,7 @@ public class PublicNoticeDate {
 
   private Instant createdTimestamp;
   private Instant endedTimestamp;
+  private String dateChangeReason;
 
   public PublicNoticeDate() {
     //default
@@ -114,5 +115,14 @@ public class PublicNoticeDate {
 
   public void setEndedTimestamp(Instant endedTimestamp) {
     this.endedTimestamp = endedTimestamp;
+  }
+
+  public String getDateChangeReason() {
+    return dateChangeReason;
+  }
+
+  public PublicNoticeDate setDateChangeReason(String dateChangeReason) {
+    this.dateChangeReason = dateChangeReason;
+    return this;
   }
 }

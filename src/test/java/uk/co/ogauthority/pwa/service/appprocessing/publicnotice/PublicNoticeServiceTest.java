@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +38,8 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
+import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -59,6 +62,7 @@ import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentReposit
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeRequestRepository;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -99,6 +103,9 @@ public class PublicNoticeServiceTest {
   @Mock
   private PersonService personService;
 
+  @Mock
+  private CamundaWorkflowService camundaWorkflowService;
+
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
   private static AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
@@ -108,6 +115,9 @@ public class PublicNoticeServiceTest {
 
   @Captor
   private ArgumentCaptor<PublicNoticeDocument> publicNoticeDocumentArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<WorkflowTaskInstance> workflowCaptor;
 
   private static Set<PublicNoticeStatus> ENDED_STATUSES;
   private static Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES;
@@ -127,7 +137,9 @@ public class PublicNoticeServiceTest {
         publicNoticeDocumentRepository,
         publicNoticeDocumentLinkRepository,
         publicNoticeDatesRepository,
-        personService);
+        personService,
+        camundaWorkflowService
+    );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -472,6 +484,19 @@ public class PublicNoticeServiceTest {
   }
 
   @Test
+  public void endPublicNotices_verifyCamunda() {
+    var publicNotices = List.of(PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication),
+        PublicNoticeTestUtil.createPublishedPublicNotice(new PwaApplication()));
+
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(publicNotices.get(0))).thenReturn(Set.of(new WorkflowTaskInstance(new PublicNotice(), PwaApplicationPublicNoticeWorkflowTask.PUBLISHED)));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(publicNotices.get(1))).thenReturn(Collections.emptySet());
+
+    publicNoticeService.endPublicNotices(publicNotices);
+    verify(camundaWorkflowService, times(1)).completeTask(workflowCaptor.capture());
+    assertThat(workflowCaptor.getValue().getBusinessKey()).isEqualTo(publicNotices.get(0).getBusinessKey());
+  }
+
+  @Test
   public void archivePublicNoticeDocument() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     var publicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
@@ -746,8 +771,11 @@ public class PublicNoticeServiceTest {
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE, PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
-    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(any())).thenReturn(Optional.of(new PublicNotice()));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(any())).thenReturn(Collections.singleton(
+        new WorkflowTaskInstance(new PublicNotice(), PwaApplicationPublicNoticeWorkflowTask.PUBLISHED)));
 
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.UPDATE_DATES);
   }
 
@@ -762,6 +790,40 @@ public class PublicNoticeServiceTest {
     var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.CASE_OFFICER_REVIEW, context);
 
     assertThat(publicNoticeActions).containsOnly(PublicNoticeAction.REQUEST_DOCUMENT_UPDATE, PublicNoticeAction.FINALISE);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_Workflow_containsUpdateTask() {
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE,
+            PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE,
+            PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
+
+    var publicNotice = new PublicNotice();
+
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    when(camundaWorkflowService.getAllActiveWorkflowTasks(publicNotice)).thenReturn(Collections.singleton(
+        new WorkflowTaskInstance(new PublicNotice(), PwaApplicationPublicNoticeWorkflowTask.PUBLISHED)));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+
+    assertThat(publicNoticeActions).contains(PublicNoticeAction.UPDATE_DATES);
+  }
+
+  @Test
+  public void getAvailablePublicNoticeActions_noWorkflow_noUpdateTask() {
+    var context = PwaAppProcessingContextTestUtil.withPermissions(
+        pwaApplicationDetail,
+        Set.of(PwaAppProcessingPermission.REQUEST_PUBLIC_NOTICE_UPDATE,
+            PwaAppProcessingPermission.FINALISE_PUBLIC_NOTICE,
+            PwaAppProcessingPermission.OGA_EDIT_PUBLIC_NOTICE));
+
+    var publicNotice = new PublicNotice();
+
+    when(publicNoticeRepository.findFirstByPwaApplicationOrderByVersionDesc(pwaApplication)).thenReturn(Optional.of(publicNotice));
+    var publicNoticeActions = publicNoticeService.getAvailablePublicNoticeActions(PublicNoticeStatus.WAITING, context);
+
+    assertThat(publicNoticeActions).doesNotContain(PublicNoticeAction.UPDATE_DATES);
   }
 
   @Test
@@ -1016,7 +1078,9 @@ public class PublicNoticeServiceTest {
         .thenReturn(Optional.of(publishedPublicNoticeRequest));
 
     var publicNoticeDate = PublicNoticeTestUtil.createLatestPublicNoticeDate(publishedPublicNotice);
+    publicNoticeDate.setPublicationStartTimestamp(publicNoticeDate.getPublicationStartTimestamp().plus(60, ChronoUnit.DAYS));
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publishedPublicNotice)).thenReturn(Optional.of(publicNoticeDate));
+
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail, Set.of(PwaAppProcessingPermission.WITHDRAW_PUBLIC_NOTICE));
