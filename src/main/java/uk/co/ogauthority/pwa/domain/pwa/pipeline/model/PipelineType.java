@@ -32,22 +32,22 @@ public enum PipelineType implements DiffableAsString {
       "Gas Lift Pipeline",
       3,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   GAS_LIFT_JUMPER(
       "Gas Lift Jumper",
       4,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   WATER_INJECTION_PIPELINE(
       "Water Injection Pipeline",
       5,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   WATER_INJECTION_JUMPER(
       "Water Injection Jumper",
       6,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   METHANOL_PIPELINE(
       "Methanol Pipeline",
       7,
@@ -56,7 +56,7 @@ public enum PipelineType implements DiffableAsString {
       "Services Umbilical",
       8,
       PipelineCoreType.MULTI_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   HYDRAULIC_JUMPER_SINGLE_CORE(
       "Hydraulic Jumper (single-core)",
       9,
@@ -65,7 +65,7 @@ public enum PipelineType implements DiffableAsString {
       "Hydraulic Jumper (multi-core)",
       10,
       PipelineCoreType.MULTI_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   CHEMICAL_JUMPER(
       "Chemical Jumper",
       11,
@@ -78,12 +78,12 @@ public enum PipelineType implements DiffableAsString {
       "Control Jumper (multi-core)",
       13,
       PipelineCoreType.MULTI_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   UMBILICAL_JUMPER(
       "Umbilical Jumper",
       14,
       PipelineCoreType.MULTI_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   CABLE(
       "Cable",
       15,
@@ -97,8 +97,13 @@ public enum PipelineType implements DiffableAsString {
       "Polymer Injection Pipeline",
       17,
       PipelineCoreType.SINGLE_CORE,
-      List.of(PwaResourceType.PETROLEUM)),
-  ;
+      List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
+  CARBON_DIOXIDE_PIPELINE(
+      "Carbon Dioxide Pipeline",
+      18,
+      PipelineCoreType.SINGLE_CORE,
+      List.of(PwaResourceType.CCUS)
+  );
 
   private final String displayName;
   private final int displayOrder;
