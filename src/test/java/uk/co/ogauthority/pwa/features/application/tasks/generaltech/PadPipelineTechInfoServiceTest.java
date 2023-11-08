@@ -56,7 +56,7 @@ public class PadPipelineTechInfoServiceTest {
 
   private PipelineTechInfoForm createValidForm() {
     var form = new PipelineTechInfoForm();
-    form.setEstimatedFieldLife(5);
+    form.setEstimatedAssetLife(5);
     form.setPipelineDesignedToStandards(true);
     form.setPipelineStandardsDescription("description");
     form.setCorrosionDescription("description");
@@ -67,7 +67,7 @@ public class PadPipelineTechInfoServiceTest {
 
   private PadPipelineTechInfo createValidEntity() {
     var entity = new PadPipelineTechInfo();
-    entity.setEstimatedFieldLife(5);
+    entity.setEstimatedAssetLife(5);
     entity.setPipelineDesignedToStandards(true);
     entity.setPipelineStandardsDescription("description");
     entity.setCorrosionDescription("description");
@@ -96,7 +96,7 @@ public class PadPipelineTechInfoServiceTest {
     when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
     var view = padPipelineTechInfoService.getGeneralTechInfoView(pwaApplicationDetail);
 
-    assertThat(view.getEstimatedFieldLife()).isEqualTo(entity.getEstimatedFieldLife());
+    assertThat(view.getEstimatedAssetLife()).isEqualTo(entity.getEstimatedAssetLife());
     assertThat(view.getPipelineDesignedToStandards()).isEqualTo(entity.getPipelineDesignedToStandards());
     assertThat(view.getPipelineStandardsDescription()).isEqualTo(entity.getPipelineStandardsDescription());
     assertThat(view.getCorrosionDescription()).isEqualTo(entity.getCorrosionDescription());
@@ -117,7 +117,7 @@ public class PadPipelineTechInfoServiceTest {
 
     var bindingResult = new BeanPropertyBindingResult(new PipelineTechInfoForm(), "form");
 
-    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("estimatedFieldLife"));
+    ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("estimatedAssetLife"));
 
     Arrays.stream(ValidationType.values()).forEach(validationType -> {
       padPipelineTechInfoService.validate(createValidForm(), bindingResult, validationType, pwaApplicationDetail);

@@ -51,7 +51,7 @@ public class PadPipelineTechInfoService implements ApplicationFormSectionService
 
   public GeneralTechInfoView getGeneralTechInfoView(PwaApplicationDetail pwaApplicationDetail) {
     var entity = getPipelineTechInfoEntity(pwaApplicationDetail);
-    return new GeneralTechInfoView(entity.getEstimatedFieldLife(),
+    return new GeneralTechInfoView(entity.getEstimatedAssetLife(),
         entity.getPipelineDesignedToStandards(),
         entity.getPipelineStandardsDescription(),
         entity.getCorrosionDescription(),

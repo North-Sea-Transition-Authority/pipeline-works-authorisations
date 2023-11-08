@@ -20,7 +20,7 @@ public class PipelineTechInfoMappingServiceTest {
 
   private PipelineTechInfoForm createFullForm() {
     var form = new PipelineTechInfoForm();
-    form.setEstimatedFieldLife(5);
+    form.setEstimatedAssetLife(5);
     form.setPipelineDesignedToStandards(true);
     form.setPipelineStandardsDescription("description");
     form.setCorrosionDescription("description");
@@ -31,7 +31,7 @@ public class PipelineTechInfoMappingServiceTest {
 
   private PadPipelineTechInfo createFullEntity() {
     var entity = new PadPipelineTechInfo();
-    entity.setEstimatedFieldLife(5);
+    entity.setEstimatedAssetLife(5);
     entity.setPipelineDesignedToStandards(true);
     entity.setPipelineStandardsDescription("description");
     entity.setCorrosionDescription("description");

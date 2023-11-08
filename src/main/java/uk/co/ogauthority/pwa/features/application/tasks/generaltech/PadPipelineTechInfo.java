@@ -24,7 +24,7 @@ public class PadPipelineTechInfo implements ChildEntity<Integer, PwaApplicationD
   @OneToOne
   private PwaApplicationDetail pwaApplicationDetail;
 
-  private Integer estimatedFieldLife;
+  private Integer estimatedAssetLife;
   private Boolean pipelineDesignedToStandards;
   private String pipelineStandardsDescription;
   private String corrosionDescription;
@@ -64,12 +64,12 @@ public class PadPipelineTechInfo implements ChildEntity<Integer, PwaApplicationD
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
-  public Integer getEstimatedFieldLife() {
-    return estimatedFieldLife;
+  public Integer getEstimatedAssetLife() {
+    return estimatedAssetLife;
   }
 
-  public void setEstimatedFieldLife(Integer estimatedFieldLife) {
-    this.estimatedFieldLife = estimatedFieldLife;
+  public void setEstimatedAssetLife(Integer estimatedAssetLife) {
+    this.estimatedAssetLife = estimatedAssetLife;
   }
 
   public Boolean getPipelineDesignedToStandards() {
@@ -124,7 +124,7 @@ public class PadPipelineTechInfo implements ChildEntity<Integer, PwaApplicationD
     PadPipelineTechInfo that = (PadPipelineTechInfo) o;
     return Objects.equals(id, that.id)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
-        && Objects.equals(estimatedFieldLife, that.estimatedFieldLife)
+        && Objects.equals(estimatedAssetLife, that.estimatedAssetLife)
         && Objects.equals(pipelineDesignedToStandards, that.pipelineDesignedToStandards)
         && Objects.equals(pipelineStandardsDescription, that.pipelineStandardsDescription)
         && Objects.equals(corrosionDescription, that.corrosionDescription)
@@ -134,7 +134,7 @@ public class PadPipelineTechInfo implements ChildEntity<Integer, PwaApplicationD
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, estimatedFieldLife, pipelineDesignedToStandards,
+    return Objects.hash(id, pwaApplicationDetail, estimatedAssetLife, pipelineDesignedToStandards,
         pipelineStandardsDescription, corrosionDescription, plannedPipelineTieInPoints, tieInPointsDescription);
   }
 }

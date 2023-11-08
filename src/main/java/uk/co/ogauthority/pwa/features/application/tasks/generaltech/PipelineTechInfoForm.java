@@ -5,7 +5,7 @@ import java.util.Objects;
 
 public class PipelineTechInfoForm  {
 
-  private Integer estimatedFieldLife;
+  private Integer estimatedAssetLife;
   private Boolean pipelineDesignedToStandards;
   private String pipelineStandardsDescription;
   private String corrosionDescription;
@@ -15,12 +15,12 @@ public class PipelineTechInfoForm  {
   public PipelineTechInfoForm() {
   }
 
-  public Integer getEstimatedFieldLife() {
-    return estimatedFieldLife;
+  public Integer getEstimatedAssetLife() {
+    return estimatedAssetLife;
   }
 
-  public void setEstimatedFieldLife(Integer estimatedFieldLife) {
-    this.estimatedFieldLife = estimatedFieldLife;
+  public void setEstimatedAssetLife(Integer estimatedAssetLife) {
+    this.estimatedAssetLife = estimatedAssetLife;
   }
 
   public Boolean getPipelineDesignedToStandards() {
@@ -72,7 +72,7 @@ public class PipelineTechInfoForm  {
       return false;
     }
     PipelineTechInfoForm that = (PipelineTechInfoForm) o;
-    return Objects.equals(estimatedFieldLife, that.estimatedFieldLife)
+    return Objects.equals(estimatedAssetLife, that.estimatedAssetLife)
         && Objects.equals(pipelineDesignedToStandards, that.pipelineDesignedToStandards)
         && Objects.equals(pipelineStandardsDescription, that.pipelineStandardsDescription)
         && Objects.equals(corrosionDescription, that.corrosionDescription)
@@ -82,7 +82,7 @@ public class PipelineTechInfoForm  {
 
   @Override
   public int hashCode() {
-    return Objects.hash(estimatedFieldLife, pipelineDesignedToStandards, pipelineStandardsDescription,
+    return Objects.hash(estimatedAssetLife, pipelineDesignedToStandards, pipelineStandardsDescription,
         corrosionDescription, plannedPipelineTieInPoints, tieInPointsDescription);
   }
 }

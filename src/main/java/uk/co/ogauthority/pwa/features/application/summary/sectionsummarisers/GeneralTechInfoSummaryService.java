@@ -48,6 +48,7 @@ public class GeneralTechInfoSummaryService implements ApplicationSectionSummaris
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("generalTechInfoView", padPipelineTechInfoService.getGeneralTechInfoView(pwaApplicationDetail));
+    summaryModel.put("resourceType", pwaApplicationDetail.getResourceType().name());
 
     return new ApplicationSectionSummary(
         templateName,

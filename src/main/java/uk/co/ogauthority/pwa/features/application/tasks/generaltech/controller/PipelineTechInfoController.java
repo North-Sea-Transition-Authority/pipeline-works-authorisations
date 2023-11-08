@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -96,7 +95,7 @@ public class PipelineTechInfoController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/pipelineTechInfoForm");
     modelAndView
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
-        .addObject("showFieldLife", pwaApplicationDetail.getResourceType().equals(PwaResourceType.PETROLEUM));
+        .addObject("resourceType", pwaApplicationDetail.getResourceType().name());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "General technical details");

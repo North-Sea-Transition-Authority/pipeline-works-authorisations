@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 public class GeneralTechInfoView {
 
 
-  private final Integer estimatedFieldLife;
+  private final Integer estimatedAssetLife;
   private final Boolean pipelineDesignedToStandards;
   private final String pipelineStandardsDescription;
   private final String corrosionDescription;
@@ -11,10 +11,10 @@ public class GeneralTechInfoView {
   private final String tieInPointsDescription;
 
 
-  public GeneralTechInfoView(Integer estimatedFieldLife, Boolean pipelineDesignedToStandards,
+  public GeneralTechInfoView(Integer estimatedAssetLife, Boolean pipelineDesignedToStandards,
                              String pipelineStandardsDescription, String corrosionDescription,
                              Boolean plannedPipelineTieInPoints, String tieInPointsDescription) {
-    this.estimatedFieldLife = estimatedFieldLife;
+    this.estimatedAssetLife = estimatedAssetLife;
     this.pipelineDesignedToStandards = pipelineDesignedToStandards;
     this.pipelineStandardsDescription = pipelineStandardsDescription;
     this.corrosionDescription = corrosionDescription;
@@ -23,8 +23,8 @@ public class GeneralTechInfoView {
   }
 
 
-  public Integer getEstimatedFieldLife() {
-    return estimatedFieldLife;
+  public Integer getEstimatedAssetLife() {
+    return estimatedAssetLife;
   }
 
   public Boolean getPipelineDesignedToStandards() {

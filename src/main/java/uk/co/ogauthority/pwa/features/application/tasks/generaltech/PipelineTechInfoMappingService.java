@@ -11,7 +11,7 @@ public class PipelineTechInfoMappingService {
 
 
   public void mapEntityToForm(PipelineTechInfoForm form, PadPipelineTechInfo entity) {
-    form.setEstimatedFieldLife(entity.getEstimatedFieldLife());
+    form.setEstimatedAssetLife(entity.getEstimatedAssetLife());
     form.setPipelineDesignedToStandards(entity.getPipelineDesignedToStandards());
     if (BooleanUtils.isTrue(entity.getPipelineDesignedToStandards())) {
       form.setPipelineStandardsDescription(entity.getPipelineStandardsDescription());
@@ -27,7 +27,7 @@ public class PipelineTechInfoMappingService {
 
   public void mapFormToEntity(PipelineTechInfoForm form, PadPipelineTechInfo entity) {
 
-    entity.setEstimatedFieldLife(form.getEstimatedFieldLife());
+    entity.setEstimatedAssetLife(form.getEstimatedAssetLife());
     entity.setPipelineDesignedToStandards(form.getPipelineDesignedToStandards());
 
     entity.setPipelineStandardsDescription(form.getPipelineStandardsDescription());

@@ -8,8 +8,10 @@
 <@defaultPage htmlTitle="General technical details" pageHeading="General technical details" breadcrumbs=true errorItems=errorList>
 
     <@fdsForm.htmlForm>
-        <#if showFieldLife>
-          <@fdsTextInput.textInput path="form.estimatedFieldLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
+        <#if resourceType == "PETROLEUM">
+          <@fdsTextInput.textInput path="form.estimatedAssetLife" labelText="What is the estimated life of the field?" suffix="years" inputClass="govuk-input--width-5"/>
+        <#elseif resourceType == "CCUS">
+          <@fdsTextInput.textInput path="form.estimatedAssetLife" labelText="What is the estimated life of the storage site?" suffix="years" inputClass="govuk-input--width-5"/>
         </#if>
         <@fdsRadio.radioGroup path="form.pipelineDesignedToStandards" labelText="Has the pipeline or pipeline system been designed in accordance with industry recognised codes and standards?"
             hintText="For example, PD 8010 n2004 Part 2 Subsea Pipelines" hiddenContent=true>
