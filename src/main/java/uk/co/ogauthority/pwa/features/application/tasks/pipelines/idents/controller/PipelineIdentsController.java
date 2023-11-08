@@ -126,7 +126,8 @@ public class PipelineIdentsController {
                 padPipeline.getId(), null, null)))
         .addObject("screenActionType", screenActionType)
         .addObject("form", identForm)
-        .addObject("coreType", padPipeline.getCoreType());
+        .addObject("coreType", padPipeline.getCoreType())
+        .addObject("resourceType", detail.getResourceType().name());
 
     breadcrumbService.fromPipelineIdentOverview(detail.getPwaApplication(), padPipeline, modelAndView,
         screenActionType.getActionText() + " ident");
