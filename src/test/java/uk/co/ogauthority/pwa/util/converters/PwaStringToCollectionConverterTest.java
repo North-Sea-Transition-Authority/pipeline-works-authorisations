@@ -40,7 +40,7 @@ public class PwaStringToCollectionConverterTest {
   public void converter_convertTextArea_ToInts() {
     var testString = "1,2,3,4";
     var sourceType = TypeDescriptor.forObject(testString);
-    var destinationType = TypeDescriptor.collection(List.class, TypeDescriptor.forObject(testString));
+    var destinationType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Integer.class));
 
     var convertedString = pwaStringToCollectionConverter.convert(testString, sourceType, destinationType);
     assertTrue(convertedString instanceof List);

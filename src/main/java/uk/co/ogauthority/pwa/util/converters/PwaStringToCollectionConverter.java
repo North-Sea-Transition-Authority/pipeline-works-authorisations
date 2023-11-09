@@ -40,7 +40,7 @@ public class PwaStringToCollectionConverter implements ConditionalGenericConvert
       return null;
     }
     var intCollection = convertToInt(source, targetType);
-    if (intCollection != null) {
+    if (intCollection != null && targetType.getElementTypeDescriptor().getType().equals(Integer.class)) {
       return intCollection;
     }
     return convertToSingleString(source, sourceType, targetType);
