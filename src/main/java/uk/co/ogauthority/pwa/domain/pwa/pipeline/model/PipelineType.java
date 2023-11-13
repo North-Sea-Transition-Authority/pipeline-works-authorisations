@@ -99,7 +99,7 @@ public enum PipelineType implements DiffableAsString {
       PipelineCoreType.SINGLE_CORE,
       List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)),
   CARBON_DIOXIDE_PIPELINE(
-      "Carbon Dioxide Pipeline",
+      "Carbon dioxide Pipeline",
       18,
       PipelineCoreType.SINGLE_CORE,
       List.of(PwaResourceType.CCUS)

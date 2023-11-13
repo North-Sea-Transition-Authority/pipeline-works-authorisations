@@ -71,7 +71,7 @@
             <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component part" nestingPath="form.definingStructure"
              hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper, Control Jumper etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
             <#if resourceType == "CCUS">
-              <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products and phase to be conveyed" hintText="Example: carbon dioxide dense phase" nestingPath="form.definingStructure"/>
+              <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products and phase to be conveyed" hintText="Example: Carbon dioxide dense phase" nestingPath="form.definingStructure"/>
             <#else>
               <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
             </#if>
