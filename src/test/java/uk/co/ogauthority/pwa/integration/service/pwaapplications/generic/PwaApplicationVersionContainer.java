@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDe
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility;

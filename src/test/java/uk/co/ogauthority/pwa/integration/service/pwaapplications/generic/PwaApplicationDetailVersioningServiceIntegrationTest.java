@@ -47,9 +47,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTe
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo_;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleTestUtil;

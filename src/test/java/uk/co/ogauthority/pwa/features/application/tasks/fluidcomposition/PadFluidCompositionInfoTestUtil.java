@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
@@ -15,7 +17,7 @@ public class PadFluidCompositionInfoTestUtil {
 
   public static PadFluidCompositionInfo createTraceFluid(PwaApplicationDetail pwaApplicationDetail, Chemical chemical){
     var fluid = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
-    fluid.setFluidCompositionOption(FluidCompositionOption.TRACE);
+    fluid.setChemicalMeasurementType(ChemicalMeasurementType.TRACE);
 
     ObjectTestUtils.assertAllFieldsNotNull(
         fluid,
@@ -27,7 +29,7 @@ public class PadFluidCompositionInfoTestUtil {
 
   public static PadFluidCompositionInfo createNotPresentFluid(PwaApplicationDetail pwaApplicationDetail, Chemical chemical){
     var fluid = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
-    fluid.setFluidCompositionOption(FluidCompositionOption.NONE);
+    fluid.setChemicalMeasurementType(ChemicalMeasurementType.NONE);
 
     ObjectTestUtils.assertAllFieldsNotNull(
         fluid,
@@ -39,7 +41,7 @@ public class PadFluidCompositionInfoTestUtil {
 
   public static PadFluidCompositionInfo createSignificantFluid(PwaApplicationDetail pwaApplicationDetail, Chemical chemical){
     var fluid = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
-    fluid.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
+    fluid.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     fluid.setMoleValue(BigDecimal.valueOf(RandomUtils.nextDouble(0, 100)).setScale(2, RoundingMode.HALF_UP));
 
     ObjectTestUtils.assertAllFieldsNotNull(

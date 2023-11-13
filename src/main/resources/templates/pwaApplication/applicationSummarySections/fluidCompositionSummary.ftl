@@ -19,17 +19,17 @@
     <#list fluidCompositionView.chemicalDataFormMap as chemical, fluidCompositionDataForm>
       <@fdsCheckAnswers.checkAnswersRow keyText=chemical.getDisplayText() actionUrl="" screenReaderActionText="" actionText="">
 
-        <#if fluidCompositionDataForm.fluidCompositionOption?has_content>        
-          <#if fluidCompositionDataForm.fluidCompositionOption == "HIGHER_AMOUNT">
+        <#if fluidCompositionDataForm.chemicalMeasurementType?has_content>
+          <#if fluidCompositionDataForm.chemicalMeasurementType == "HIGHER_AMOUNT">
             ${fluidCompositionDataForm.moleValue.value}%
           <#else>
-            ${fluidCompositionDataForm.fluidCompositionOption.getDisplayTextSimple()}
+            ${fluidCompositionDataForm.chemicalMeasurementType.getDisplayTextSimple()}
           </#if>
         </#if>
 
       </@fdsCheckAnswers.checkAnswersRow>
     </#list>
-      
+
   </@fdsCheckAnswers.checkAnswers>
 
 

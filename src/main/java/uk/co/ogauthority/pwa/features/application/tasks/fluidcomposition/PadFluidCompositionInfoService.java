@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -51,22 +53,25 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   public void mapEntitiesToForm(FluidCompositionForm form, List<PadFluidCompositionInfo> entities) {
     for (PadFluidCompositionInfo entity : entities) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
-      fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
-      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
-          FluidCompositionOption.HIGHER_AMOUNT)) {
-        fluidCompositionDataForm.setMoleValue(new DecimalInput(entity.getMoleValue()));
+      fluidCompositionDataForm.setChemicalMeasurementType(entity.getChemicalMeasurementType());
+      if (entity.getChemicalMeasurementType() != null && entity.getChemicalMeasurementType().equals(
+          ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+        fluidCompositionDataForm.setMeasurementValue(new DecimalInput(entity.getMoleValue()));
       }
       form.addChemicalData(entity.getChemicalName(), fluidCompositionDataForm);
     }
   }
 
   public void saveEntitiesUsingForm(FluidCompositionForm form, List<PadFluidCompositionInfo> entities) {
-    for (PadFluidCompositionInfo entity : entities) {
-      var fluidCompositionDataForm = form.getChemicalDataFormMap().get(entity.getChemicalName());
-      entity.setFluidCompositionOption(fluidCompositionDataForm.getFluidCompositionOption());
-      if (fluidCompositionDataForm.getFluidCompositionOption() != null
-          && fluidCompositionDataForm.getFluidCompositionOption().equals(FluidCompositionOption.HIGHER_AMOUNT)) {
-        entity.setMoleValue(fluidCompositionDataForm.getMoleValue().createBigDecimalOrNull());
+    var chemicals = entities.stream()
+        .filter(entity -> form.getChemicalDataFormMap().get(entity.getChemicalName()) != null)
+        .collect(Collectors.toList());
+    for (var chemical : chemicals) {
+      var fluidCompositionDataForm = form.getChemicalDataFormMap().get(chemical.getChemicalName());
+      chemical.setChemicalMeasurementType(fluidCompositionDataForm.getChemicalMeasurementType());
+      if (fluidCompositionDataForm.getChemicalMeasurementType() != null
+          && fluidCompositionDataForm.getChemicalMeasurementType().equals(ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+        chemical.setMoleValue(fluidCompositionDataForm.getMeasurementValue().createBigDecimalOrNull());
       }
     }
     padFluidCompositionInfoRepository.saveAll(entities);
@@ -79,17 +84,16 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
 
     for (PadFluidCompositionInfo entity : getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
-      fluidCompositionDataForm.setFluidCompositionOption(entity.getFluidCompositionOption());
-      if (entity.getFluidCompositionOption() != null && entity.getFluidCompositionOption().equals(
-          FluidCompositionOption.HIGHER_AMOUNT)) {
-        fluidCompositionDataForm.setMoleValue(new DecimalInput(entity.getMoleValue()));
+      fluidCompositionDataForm.setChemicalMeasurementType(entity.getChemicalMeasurementType());
+      if (entity.getChemicalMeasurementType() != null && entity.getChemicalMeasurementType().equals(
+          ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+        fluidCompositionDataForm.setMeasurementValue(new DecimalInput(entity.getMoleValue()));
       }
       chemicalDataMap.put(entity.getChemicalName(), fluidCompositionDataForm);
     }
 
     return fluidCompositionView;
   }
-
 
   // Validation / Checking
   @Override
@@ -107,7 +111,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    fluidCompositionValidator.validate(form, bindingResult, validationType);
+    fluidCompositionValidator.validate(form, bindingResult, validationType, pwaApplicationDetail.getResourceType());
     return bindingResult;
   }
 
@@ -117,7 +121,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     // null out mole value for all non-higher amount entries
     var fluidCompositionEntitiesToClear = getPadFluidCompositionInfoEntities(detail).stream()
         .filter(fluidCompositionInfo ->
-            !Objects.equals(fluidCompositionInfo.getFluidCompositionOption(), FluidCompositionOption.HIGHER_AMOUNT))
+            !Objects.equals(fluidCompositionInfo.getChemicalMeasurementType(), ChemicalMeasurementType.MOLE_PERCENTAGE))
         .collect(Collectors.toList());
 
     fluidCompositionEntitiesToClear.forEach(fluidCompositionInfo -> fluidCompositionInfo.setMoleValue(null));

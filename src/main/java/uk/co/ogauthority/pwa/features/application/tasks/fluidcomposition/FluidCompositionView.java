@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.util.Map;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 
 public class FluidCompositionView {
 

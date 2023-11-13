@@ -2,29 +2,30 @@ package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 
 import java.util.Objects;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 public class FluidCompositionDataForm {
 
-  private FluidCompositionOption fluidCompositionOption;
-  private DecimalInput moleValue;
+  private ChemicalMeasurementType chemicalMeasurementType;
+  private DecimalInput measurementValue;
 
 
-  public FluidCompositionOption getFluidCompositionOption() {
-    return fluidCompositionOption;
+  public ChemicalMeasurementType getChemicalMeasurementType() {
+    return chemicalMeasurementType;
   }
 
-  public void setFluidCompositionOption(
-      FluidCompositionOption fluidCompositionOption) {
-    this.fluidCompositionOption = fluidCompositionOption;
+  public void setChemicalMeasurementType(
+      ChemicalMeasurementType chemicalMeasurementType) {
+    this.chemicalMeasurementType = chemicalMeasurementType;
   }
 
-  public DecimalInput getMoleValue() {
-    return moleValue;
+  public DecimalInput getMeasurementValue() {
+    return measurementValue;
   }
 
-  public void setMoleValue(DecimalInput moleValue) {
-    this.moleValue = moleValue;
+  public void setMeasurementValue(DecimalInput measurementValue) {
+    this.measurementValue = measurementValue;
   }
 
 
@@ -38,12 +39,12 @@ public class FluidCompositionDataForm {
       return false;
     }
     FluidCompositionDataForm that = (FluidCompositionDataForm) o;
-    return fluidCompositionOption == that.fluidCompositionOption
-        && Objects.equals(moleValue, that.moleValue);
+    return chemicalMeasurementType == that.chemicalMeasurementType
+        && Objects.equals(measurementValue, that.measurementValue);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(fluidCompositionOption, moleValue);
+    return Objects.hash(chemicalMeasurementType, measurementValue);
   }
 }

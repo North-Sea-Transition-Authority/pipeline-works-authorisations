@@ -15,10 +15,10 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionForm;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -94,7 +94,8 @@ public class FluidCompositionInfoController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/fluidCompositionForm");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("chemicals", Chemical.getAllByResourceType(pwaApplicationDetail.getPwaApplication().getResourceType()))
-        .addObject("fluidCompositionOptions", FluidCompositionOption.asList());
+        .addObject("fluidCompositionOptions", ChemicalMeasurementType.asList())
+        .addObject("resourceType", pwaApplicationDetail.getResourceType());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Fluid composition");

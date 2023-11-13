@@ -87,6 +87,11 @@ public class DecimalInputValidator implements SmartValidator {
         .map(hint -> ((LessThanEqualToHint) hint))
         .findFirst();
 
+    Optional<GreaterThanEqualToHint> greaterThanEqualToHint = Arrays.stream(objects)
+        .filter(hint -> hint.getClass().equals(GreaterThanEqualToHint.class))
+        .map(hint -> ((GreaterThanEqualToHint) hint))
+        .findFirst();
+
     Optional<PartialValidateHint> partialValidateHint = Arrays.stream(objects)
         .filter(hint -> hint instanceof PartialValidateHint)
         .map(hint -> ((PartialValidateHint) hint))
@@ -118,6 +123,7 @@ public class DecimalInputValidator implements SmartValidator {
       nonNegativeNumberHint.ifPresent(hint -> validateNonNegative(errors, decimalInput, inputLabel));
       lessThanFieldHint.ifPresent(hint -> validateLessThanField(errors, decimalInput, inputLabel, hint));
       lessThanEqualToHint.ifPresent(hint -> validateLessThanEqualToNumber(errors, decimalInput, inputLabel, hint));
+      greaterThanEqualToHint.ifPresent(hint -> validateMoreThanEqualToNumber(errors, decimalInput, inputLabel, hint));
       validateInputLength(errors, decimalInput, inputLabel, maxLength);
     }
 
@@ -176,6 +182,17 @@ public class DecimalInputValidator implements SmartValidator {
 
   }
 
+  private void validateMoreThanEqualToNumber(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel,
+                                             GreaterThanEqualToHint hint) {
+    var value = decimalInput.createBigDecimalOrNull();
+    if (value != null && hint.getSmallerNumber().compareTo(value) > 0) {
+      errors.rejectValue(VALUE,
+          FieldValidationErrorCodes.INVALID.errorCode(VALUE),
+          String.format("The %s must have a value of %s or less", inputLabel.getLabel(), hint.getSmallerNumber().toPlainString()));
+    }
+
+  }
+
   public void validateInputLength(Errors errors, DecimalInput decimalInput, FormInputLabel inputLabel, int maxLength) {
     if (decimalInput.getValue().length() > maxLength) {
       errors.rejectValue(
@@ -217,6 +234,11 @@ public class DecimalInputValidator implements SmartValidator {
 
     public DecimalInputValidatorInvocationBuilder canBeOptional() {
       this.hints.add(new FieldIsOptionalHint());
+      return this;
+    }
+
+    public DecimalInputValidatorInvocationBuilder mustBeGreaterThanOrEqualTo(BigDecimal greaterThan) {
+      this.hints.add(new GreaterThanEqualToHint(greaterThan));
       return this;
     }
 

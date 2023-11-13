@@ -1,23 +1,26 @@
 <#include '../../../layout.ftl'>
 <#import '../../../components/utils/string.ftl' as string>
 
-<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" --> 
+<#-- @ftlvariable name="errorList" type="java.util.List<uk.co.ogauthority.pwa.model.form.fds.ErrorItem>" -->
 <#-- @ftlvariable name="chemicals" type="java.util.List<Chemicals>" -->
-<#-- @ftlvariable name="fluidCompositionOptions" type="java.util.List<FluidCompositionOptions>" -->
+<#-- @ftlvariable name="resourceType" type="uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType" -->
 
 
-<#macro fluidCompositionQuestion chemical fluidCompositionOptions>
-    <@fdsRadio.radioGroup path="form.chemicalDataFormMap[${chemical}].fluidCompositionOption" labelText=string.subscriptConverter(chemical.getDisplayText()) hiddenContent=true>
+<#macro fluidCompositionQuestion chemical resourceType>
+    <@fdsRadio.radioGroup path="form.chemicalDataFormMap[${chemical}].chemicalMeasurementType" labelText=string.subscriptConverter(chemical.getDisplayText()) hiddenContent=true>
         <#assign firstItem=true/>
-        <#list fluidCompositionOptions as  fluidCompositionOption>
-            <@fdsRadio.radioItem path="form.chemicalDataFormMap[${chemical}].fluidCompositionOption" itemMap={fluidCompositionOption : fluidCompositionOption.getDisplayText()} isFirstItem=firstItem>
-                <#if fluidCompositionOption == "HIGHER_AMOUNT">
-                    <@fdsTextInput.textInput path="form.chemicalDataFormMap[${chemical}].moleValue.value" nestingPath="form.chemicalDataFormMap[${chemical}].fluidCompositionOption"
-                   labelText="" suffixScreenReaderPrompt="Provide mole %" suffix="mole %"  inputClass="govuk-input--width-5"/>
+        <#list chemical.getApplicableMeasurementTypes(resourceType) as chemicalMeasurementType>
+            <@fdsRadio.radioItem path="form.chemicalDataFormMap[${chemical}].chemicalMeasurementType" itemMap={chemicalMeasurementType : chemicalMeasurementType.getDisplayText()} isFirstItem=firstItem>
+                <#if chemicalMeasurementType == "MOLE_PERCENTAGE">
+                  <@fdsTextInput.textInput path="form.chemicalDataFormMap[${chemical}].measurementValue.value" nestingPath="form.chemicalDataFormMap[${chemical}].chemicalMeasurementType"
+                  labelText="" suffixScreenReaderPrompt="Provide mole %" suffix="mole %"  inputClass="govuk-input--width-5"/>
+                <#elseif chemicalMeasurementType.name()?contains("PPMV")>
+                    <@fdsTextInput.textInput path="form.chemicalDataFormMap[${chemical}].measurementValue.value" nestingPath="form.chemicalDataFormMap[${chemical}].chemicalMeasurementType"
+                    labelText="" suffixScreenReaderPrompt="Provide ppmv" suffix="ppmv"  inputClass="govuk-input--width-5"/>
                 </#if>
             </@fdsRadio.radioItem>
         <#assign firstItem=false/>
-        </#list>    
+        </#list>
     </@fdsRadio.radioGroup>
 
 </#macro>

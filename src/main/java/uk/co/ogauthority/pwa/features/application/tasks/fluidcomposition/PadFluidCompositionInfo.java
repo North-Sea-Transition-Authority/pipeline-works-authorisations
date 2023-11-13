@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import java.math.BigDecimal;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,6 +12,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
@@ -30,7 +33,8 @@ public class PadFluidCompositionInfo implements ChildEntity<Integer, PwaApplicat
   @Enumerated(EnumType.STRING)
   private Chemical chemicalName;
   @Enumerated(EnumType.STRING)
-  private FluidCompositionOption fluidCompositionOption;
+  @Column(name = "fluid_composition_option")
+  private ChemicalMeasurementType chemicalMeasurementType;
   private BigDecimal moleValue;
 
 
@@ -86,13 +90,13 @@ public class PadFluidCompositionInfo implements ChildEntity<Integer, PwaApplicat
     this.chemicalName = chemicalName;
   }
 
-  public FluidCompositionOption getFluidCompositionOption() {
-    return fluidCompositionOption;
+  public ChemicalMeasurementType getChemicalMeasurementType() {
+    return chemicalMeasurementType;
   }
 
-  public void setFluidCompositionOption(
-      FluidCompositionOption fluidCompositionOption) {
-    this.fluidCompositionOption = fluidCompositionOption;
+  public void setChemicalMeasurementType(
+      ChemicalMeasurementType chemicalMeasurementType) {
+    this.chemicalMeasurementType = chemicalMeasurementType;
   }
 
   public BigDecimal getMoleValue() {
@@ -119,12 +123,12 @@ public class PadFluidCompositionInfo implements ChildEntity<Integer, PwaApplicat
         && Objects.equals(id, that.id)
         && Objects.equals(pwaApplicationDetail, that.pwaApplicationDetail)
         && chemicalName == that.chemicalName
-        && fluidCompositionOption == that.fluidCompositionOption;
+        && chemicalMeasurementType == that.chemicalMeasurementType;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, pwaApplicationDetail, chemicalName, fluidCompositionOption, moleValue);
+    return Objects.hash(id, pwaApplicationDetail, chemicalName, chemicalMeasurementType, moleValue);
   }
 
 

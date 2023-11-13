@@ -8,11 +8,11 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionDataForm;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionForm;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.FluidCompositionOption;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
 @Service
@@ -50,15 +50,15 @@ class FluidCompositionGeneratorService implements TestHarnessAppFormService {
     Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new EnumMap<>(Chemical.class);
     Chemical.getAll().forEach(chemical -> {
       var dataForm = new FluidCompositionDataForm();
-      dataForm.setFluidCompositionOption(FluidCompositionOption.NONE);
+      dataForm.setChemicalMeasurementType(ChemicalMeasurementType.NONE);
       chemicalDataFormMap.put(chemical, dataForm);
     });
 
     //required to meet validation rule
     var firstFluidComposition = chemicalDataFormMap.values().stream().findFirst()
         .orElseThrow(() -> new ValueNotFoundException("No FluidCompositionDataForm found"));
-    firstFluidComposition.setFluidCompositionOption(FluidCompositionOption.HIGHER_AMOUNT);
-    firstFluidComposition.setMoleValue(new DecimalInput(BigDecimal.valueOf(99)));
+    firstFluidComposition.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
+    firstFluidComposition.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(99)));
 
     var form = new FluidCompositionForm();
     form.setChemicalDataFormMap(chemicalDataFormMap);
