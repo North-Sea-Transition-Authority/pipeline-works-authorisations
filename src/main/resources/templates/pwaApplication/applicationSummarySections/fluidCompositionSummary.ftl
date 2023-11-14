@@ -13,26 +13,21 @@
 
 
 <#macro fluidCompositionDetails fluidCompositionView>
-
   <@fdsCheckAnswers.checkAnswers>
-
     <#list fluidCompositionView.chemicalDataFormMap as chemical, fluidCompositionDataForm>
       <@fdsCheckAnswers.checkAnswersRow keyText=chemical.getDisplayText() actionUrl="" screenReaderActionText="" actionText="">
-
         <#if fluidCompositionDataForm.chemicalMeasurementType?has_content>
-          <#if fluidCompositionDataForm.chemicalMeasurementType == "HIGHER_AMOUNT">
-            ${fluidCompositionDataForm.moleValue.value}%
+          <#if fluidCompositionDataForm.chemicalMeasurementType == "MOLE_PERCENTAGE">
+            ${fluidCompositionDataForm.measurementValue.value}%
+          <#elseif fluidCompositionDataForm.chemicalMeasurementType?contains("PPMV")>
+              ${fluidCompositionDataForm.measurementValue.value} ppmv
           <#else>
             ${fluidCompositionDataForm.chemicalMeasurementType.getDisplayTextSimple()}
           </#if>
         </#if>
-
       </@fdsCheckAnswers.checkAnswersRow>
     </#list>
-
   </@fdsCheckAnswers.checkAnswers>
-
-
 </#macro>
 
 

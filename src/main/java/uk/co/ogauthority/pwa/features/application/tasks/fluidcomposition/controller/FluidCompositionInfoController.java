@@ -24,6 +24,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
+import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -41,16 +42,20 @@ public class FluidCompositionInfoController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final PadFluidCompositionInfoService padFluidCompositionInfoService;
+
+  private final PwaApplicationDetailService applicationDetailService;
   private final ControllerHelperService controllerHelperService;
 
   @Autowired
   public FluidCompositionInfoController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                         PwaApplicationRedirectService pwaApplicationRedirectService,
                                         PadFluidCompositionInfoService padFluidCompositionInfoService,
+                                        PwaApplicationDetailService applicationDetailService,
                                         ControllerHelperService controllerHelperService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padFluidCompositionInfoService = padFluidCompositionInfoService;
+    this.applicationDetailService = applicationDetailService;
     this.controllerHelperService = controllerHelperService;
   }
 
@@ -63,6 +68,7 @@ public class FluidCompositionInfoController {
                                                       @ModelAttribute("form") FluidCompositionForm form) {
     var entities = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(applicationContext.getApplicationDetail());
     padFluidCompositionInfoService.mapEntitiesToForm(form, entities);
+    form.setOtherInformation(applicationContext.getApplicationDetail().getOtherFluidDescription());
     return getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail());
   }
 
@@ -82,9 +88,9 @@ public class FluidCompositionInfoController {
         getAddFluidCompositionInfoModelAndView(applicationContext.getApplicationDetail()), () -> {
           var entities = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(applicationContext.getApplicationDetail());
           padFluidCompositionInfoService.saveEntitiesUsingForm(form, entities);
+          applicationDetailService.setOtherFluidDescription(applicationContext.getApplicationDetail(), form.getOtherInformation());
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
         });
-
   }
 
 

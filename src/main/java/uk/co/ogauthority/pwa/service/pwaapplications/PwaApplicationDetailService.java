@@ -178,6 +178,7 @@ public class PwaApplicationDetailService {
     toDetail.setNumOfHolders(fromDetail.getNumOfHolders());
     toDetail.setPipelinePhaseProperties(fromDetail.getPipelinePhaseProperties());
     toDetail.setOtherPhaseDescription(fromDetail.getOtherPhaseDescription());
+    toDetail.setOtherFluidDescription(fromDetail.getOtherFluidDescription());
     toDetail.setPartnerLettersRequired(fromDetail.getPartnerLettersRequired());
     toDetail.setPartnerLettersConfirmed(fromDetail.getPartnerLettersConfirmed());
     toDetail.setSupplementaryDocumentsFlag(fromDetail.getSupplementaryDocumentsFlag());
@@ -249,6 +250,12 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
     pwaApplicationDetail.setDeletedTimestamp(Instant.now(clock));
     pwaApplicationDetail.setDeletingPersonId(deletingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+  @Transactional
+  public void setOtherFluidDescription(PwaApplicationDetail pwaApplicationDetail, String fluidDescription) {
+    pwaApplicationDetail.setOtherFluidDescription(fluidDescription);
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 

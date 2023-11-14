@@ -54,8 +54,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     for (PadFluidCompositionInfo entity : entities) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
       fluidCompositionDataForm.setChemicalMeasurementType(entity.getChemicalMeasurementType());
-      if (entity.getChemicalMeasurementType() != null && entity.getChemicalMeasurementType().equals(
-          ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+      if (entity.getChemicalMeasurementType() != null && entity.getMoleValue() != null) {
         fluidCompositionDataForm.setMeasurementValue(new DecimalInput(entity.getMoleValue()));
       }
       form.addChemicalData(entity.getChemicalName(), fluidCompositionDataForm);
@@ -69,8 +68,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     for (var chemical : chemicals) {
       var fluidCompositionDataForm = form.getChemicalDataFormMap().get(chemical.getChemicalName());
       chemical.setChemicalMeasurementType(fluidCompositionDataForm.getChemicalMeasurementType());
-      if (fluidCompositionDataForm.getChemicalMeasurementType() != null
-          && fluidCompositionDataForm.getChemicalMeasurementType().equals(ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+      if (fluidCompositionDataForm.getChemicalMeasurementType() != null && fluidCompositionDataForm.getMeasurementValue() != null) {
         chemical.setMoleValue(fluidCompositionDataForm.getMeasurementValue().createBigDecimalOrNull());
       }
     }
@@ -85,8 +83,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
     for (PadFluidCompositionInfo entity : getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
       fluidCompositionDataForm.setChemicalMeasurementType(entity.getChemicalMeasurementType());
-      if (entity.getChemicalMeasurementType() != null && entity.getChemicalMeasurementType().equals(
-          ChemicalMeasurementType.MOLE_PERCENTAGE)) {
+      if (entity.getChemicalMeasurementType() != null && entity.getMoleValue() != null) {
         fluidCompositionDataForm.setMeasurementValue(new DecimalInput(entity.getMoleValue()));
       }
       chemicalDataMap.put(entity.getChemicalName(), fluidCompositionDataForm);

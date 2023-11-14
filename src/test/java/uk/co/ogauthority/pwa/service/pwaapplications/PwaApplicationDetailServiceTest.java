@@ -391,6 +391,7 @@ public class PwaApplicationDetailServiceTest {
     detail.setNumOfHolders(1);
     detail.setPipelinePhaseProperties(Set.of(PropertyPhase.OTHER));
     detail.setOtherPhaseDescription("OTHER PHASE DESC");
+    detail.setOtherFluidDescription("OTHER FLUID DESC");
     detail.setPartnerLettersRequired(true);
     detail.setPartnerLettersConfirmed(true);
     detail.setCreatedByWuaId(wua.getWuaId());

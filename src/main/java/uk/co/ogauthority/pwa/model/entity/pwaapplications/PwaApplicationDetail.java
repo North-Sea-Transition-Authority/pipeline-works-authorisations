@@ -89,6 +89,8 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   private String otherPhaseDescription;
 
+  private String otherFluidDescription;
+
   private Boolean partnerLettersRequired;
 
   private Boolean partnerLettersConfirmed;
@@ -339,6 +341,15 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setOtherPhaseDescription(String otherPhaseDescription) {
     this.otherPhaseDescription = otherPhaseDescription;
+  }
+
+  public String getOtherFluidDescription() {
+    return otherFluidDescription;
+  }
+
+  public PwaApplicationDetail setOtherFluidDescription(String otherFluidDescription) {
+    this.otherFluidDescription = otherFluidDescription;
+    return this;
   }
 
   public Boolean getPartnerLettersRequired() {
