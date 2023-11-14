@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSec
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineTransferView;
 import uk.co.ogauthority.pwa.service.documents.generation.ConsentDocumentImageService;
 import uk.co.ogauthority.pwa.service.documents.generation.TableAGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.views.tablea.DrawingForTableAView;
@@ -125,7 +126,7 @@ public class TableAGeneratorServiceTest {
 
   private PipelineHeaderView createHeaderView(PadPipeline padPipeline) {
     var padPipelineOverview = new PadPipelineOverview(padPipeline, 1L);
-    return new PipelineHeaderView(padPipelineOverview, null, null);
+    return new PipelineHeaderView(padPipelineOverview, new PipelineTransferView());
   }
 
   private IdentView createIdentView(int identNumber, PadPipeline padPipeline) {

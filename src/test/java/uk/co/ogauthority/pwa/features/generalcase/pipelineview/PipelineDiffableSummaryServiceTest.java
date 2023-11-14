@@ -1,17 +1,23 @@
 package uk.co.ogauthority.pwa.features.generalcase.pipelineview;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
@@ -21,6 +27,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -32,6 +39,7 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PipelineDiffableSummaryServiceTest {
@@ -43,6 +51,8 @@ public class PipelineDiffableSummaryServiceTest {
   private static final String PIPELINE_POINT_2 = "POINT_2";
   private static final String PIPELINE_POINT_3 = "POINT_3";
   private static final String PIPELINE_POINT_4 = "POINT_4";
+  private final MasterPwa FROM_MASTER_PWA = getMasterPwa();
+  private final MasterPwa TO_MASTER_PWA = getMasterPwa();
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -84,6 +94,8 @@ public class PipelineDiffableSummaryServiceTest {
   @Mock
   private PadTechnicalDrawingService padTechnicalDrawingService;
 
+  private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+
   @Before
   public void setup() {
 
@@ -117,6 +129,59 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
+  public void getApplicationDetailPipelines_pipelineTransfer_mapsAsExpected() {
+    var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
+    var time = Instant.now();
+
+    var fromMasterPwaDetail = getMasterPwaDetail(FROM_MASTER_PWA, "1/W/23");
+
+    var toPipeline = new Pipeline();
+    toPipeline.setId(PIPELINE_ID);
+    toPipeline.setMasterPwa(TO_MASTER_PWA);
+    pipelineDetail.setTransferredToPipeline(toPipeline);
+
+    var fromPipeline = new Pipeline();
+    fromPipeline.setMasterPwa(FROM_MASTER_PWA);
+    pipelineDetail.setTransferredFromPipeline(fromPipeline);
+
+    var toApplication = new PwaApplication();
+    toApplication.setMasterPwa(TO_MASTER_PWA);
+    var toApplicationDetail = new PwaApplicationDetail();
+    toApplicationDetail.setPwaApplication(toApplication);
+
+    var fromApplication = new PwaApplication();
+    fromApplication.setMasterPwa(FROM_MASTER_PWA);
+    var fromApplicationDetail = new PwaApplicationDetail();
+    fromApplicationDetail.setPwaApplication(fromApplication);
+
+
+    var padPipelineTransfer = new PadPipelineTransfer();
+    padPipelineTransfer.setDonorPipeline(fromPipeline);
+    padPipelineTransfer.setDonorApplicationDetail(fromApplicationDetail);
+    padPipelineTransfer.setRecipientApplicationDetail(toApplicationDetail);
+    padPipelineTransfer.setRecipientPipeline(toPipeline);
+    padPipelineTransfer.setCompatibleWithTarget(true);
+    padPipelineTransfer.setLastIntelligentlyPigged(time);
+
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipeline(fromPipeline);
+
+    when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
+        .thenReturn(List.of(padPipelineOverview));
+    when(padPipelineTransferService.getPipelineToTransferMap(pwaApplicationDetail)).thenReturn(
+        Map.of(toPipeline, padPipelineTransfer)
+    );
+    when(masterPwaService.findAllCurrentDetailsIn(any())).thenReturn(List.of(fromMasterPwaDetail));
+
+    var summary = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail).get(0);
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo(null);
+    assertThat(summary.getPipelineHeaderView().getPipelineIntelligentlyPigged()).isEqualTo(DateUtils.formatDate(clock.instant()));
+    assertThat(summary.getPipelineHeaderView().getPipelineCompatible()).isTrue();
+  }
+
+  @Test
   public void getApplicationDetailPipelines_whenOnePipeline_andZeroIdents() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
@@ -135,8 +200,6 @@ public class PipelineDiffableSummaryServiceTest {
     assertThat(summary.getPipelineId().asInt()).isEqualTo(PIPELINE_ID);
     assertThat(summary.getPipelineHeaderView().getPipelineName()).isEqualTo(PAD_PIPELINE_NAME);
     assertThat(summary.getIdentViews()).hasSize(0);
-
-
   }
 
   @Test
@@ -207,8 +270,8 @@ public class PipelineDiffableSummaryServiceTest {
 
     var summary = summaryList.get(0);
 
-    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isNull();
     assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo("2/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isNull();
 
     assertThat(summary.getIdentViews()).hasSize(3);
     assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
@@ -249,7 +312,6 @@ public class PipelineDiffableSummaryServiceTest {
     pipelineDetail.setTransferredFromPipeline(fromPipeline);
 
     when(masterPwaService.getCurrentDetailOrThrow(fromMasterPwa)).thenReturn(fromMasterPwaDetail);
-
     when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
 
     when(pipelineDetailIdentViewService.getSortedPipelineIdentViewsForPipelineDetail(pipelineId, pipelineDetailId))
@@ -257,8 +319,8 @@ public class PipelineDiffableSummaryServiceTest {
 
     var summary = pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(pipelineId.asInt());
 
-    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
     assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isNull();
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
 
     assertThat(summary.getIdentViews()).hasSize(3);
     assertThat(summary.getIdentViews().get(0).getFromLocation()).isEqualTo(PIPELINE_POINT_1);
@@ -278,6 +340,35 @@ public class PipelineDiffableSummaryServiceTest {
 
   }
 
+  @Test
+  public void getConsentedPipeline_pipelineTransfer_mapsAsExpected() {
+    var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetailId = PIPELINE_ID;
+    var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
+
+    var fromMasterPwaDetail = getMasterPwaDetail(FROM_MASTER_PWA, "1/W/23");
+    var toMasterPwaDetail = getMasterPwaDetail(TO_MASTER_PWA, "2/W/23");
+
+    var toPipeline = new Pipeline();
+    toPipeline.setMasterPwa(TO_MASTER_PWA);
+    pipelineDetail.setTransferredToPipeline(toPipeline);
+
+    var fromPipeline = new Pipeline();
+    fromPipeline.setMasterPwa(FROM_MASTER_PWA);
+    pipelineDetail.setTransferredFromPipeline(fromPipeline);
+
+    when(masterPwaService.getCurrentDetailOrThrow(FROM_MASTER_PWA)).thenReturn(fromMasterPwaDetail);
+    when(masterPwaService.getCurrentDetailOrThrow(TO_MASTER_PWA)).thenReturn(toMasterPwaDetail);
+
+    when(pipelineDetailService.getByPipelineDetailId(pipelineDetailId)).thenReturn(pipelineDetail);
+
+    var summary = pipelineDiffableSummaryService.getConsentedPipelineDetailSummary(pipelineId.asInt());
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo(fromMasterPwaDetail.getReference());
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo(toMasterPwaDetail.getReference());
+    assertThat(summary.getPipelineHeaderView().getPipelineIntelligentlyPigged()).isEqualTo(null);
+    assertThat(summary.getPipelineHeaderView().getPipelineCompatible()).isEqualTo(null);
+  }
+
   private PipelineDetail getPipelineDetail(PipelineId pipelineId,
                                            BigDecimal maxExternalDiameter,
                                            PipelineType pipelineType){
@@ -292,5 +383,16 @@ public class PipelineDiffableSummaryServiceTest {
     return pipelineDetail;
   }
 
+  private MasterPwa getMasterPwa() {
+    var masterPwa = new MasterPwa(Instant.now());
+    masterPwa.setId(ThreadLocalRandom.current().nextInt());
+    return masterPwa;
+  }
 
+  private MasterPwaDetail getMasterPwaDetail(MasterPwa masterPwa, String reference) {
+    var masterPwaDetail = new MasterPwaDetail();
+    masterPwaDetail.setMasterPwa(masterPwa);
+    masterPwaDetail.setReference(reference);
+    return masterPwaDetail;
+  }
 }

@@ -13,6 +13,14 @@
             <@fdsRadio.radioNo path="form.assignNewPipelineNumber"/>
         </@fdsRadio.radioGroup>
 
+        <#if isCO2Pipeline>
+          <@fdsDatePicker.datePicker path="form.lastIntelligentlyPigged" labelText="When was the pipeline last intelligently pigged?"/>
+          <@fdsRadio.radioGroup path="form.compatibleWithTarget" labelText="Are the pipeline materials compatible with Carbon dioxide?">
+            <@fdsRadio.radioYes path="form.compatibleWithTarget"/>
+            <@fdsRadio.radioNo path="form.compatibleWithTarget"/>
+          </@fdsRadio.radioGroup>
+        </#if>
+
         <@fdsAction.submitButtons primaryButtonText="Complete" linkSecondaryAction=true secondaryLinkText="Back to pipelines" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>

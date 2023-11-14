@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineTransferView;
 import uk.co.ogauthority.pwa.service.documents.generation.DepositsGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -90,7 +91,7 @@ public class DepositGeneratorServiceTest {
     pipelineDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipelineDetail.setPipeline(pipeline);
     pipelineDetail.setPipelineNumber(pipelineNumber);
-    return new PipelineHeaderView(pipelineDetail, null, null);
+    return new PipelineHeaderView(pipelineDetail, new PipelineTransferView());
   }
 
 

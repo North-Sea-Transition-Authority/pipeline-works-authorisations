@@ -1,4 +1,5 @@
 <#include '../pwaLayoutImports.ftl'>
+<#include '../pwaApplication/applicationSummarySections/appSummaryUtils.ftl'>
 
 <#macro pipelineHeaderDetails pipelineHeader pipelineIdentsSize drawingSummaryView=[] urlFactory=[] consentedModel=false>
 
@@ -29,6 +30,18 @@
         <#if pipelineHeader.PipelineHeaderView_transferredToRef.currentValue?has_content>
             <@fdsCheckAnswers.checkAnswersRow keyText="Transferred to" actionUrl="" screenReaderActionText="" actionText="">
                 <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_transferredToRef />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
+        <#if pipelineHeader.PipelineHeaderView_pipelineIntelligentlyPigged.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Last intelligently pigged" actionUrl="" screenReaderActionText="" actionText="">
+                <@diffChanges.renderDiff diffedField=pipelineHeader.PipelineHeaderView_pipelineIntelligentlyPigged />
+            </@fdsCheckAnswers.checkAnswersRow>
+        </#if>
+
+        <#if pipelineHeader.PipelineHeaderView_pipelineCompatible.currentValue?has_content>
+            <@fdsCheckAnswers.checkAnswersRow keyText="Compatible with CO2" actionUrl="" screenReaderActionText="" actionText="">
+              ${pipelineHeader.PipelineHeaderView_pipelineCompatible.currentValue}
             </@fdsCheckAnswers.checkAnswersRow>
         </#if>
 

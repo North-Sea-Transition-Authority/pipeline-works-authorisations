@@ -21,9 +21,11 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineTransferView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 /**
  * Service to create diff friendly summaries of pipelines for an application or from a Master PWA.
@@ -81,18 +83,21 @@ public class PipelineDiffableSummaryService {
 
     return pipelineOverviews.stream()
         .map(pipelineOverview -> {
-
+          PipelineTransferView transferView = new PipelineTransferView();
           var transferOpt = Optional.ofNullable(pipelineIdToTransferMap.get(pipelineOverview.getPipelineId()));
-          String transferredFromPwaRef = null;
           if (transferOpt.isPresent()) {
             Pipeline pipeline = pipelineIdToPipelineMap.get(pipelineOverview.getPipelineId());
             if (transferOpt.get().getTransferParticipantType(pipeline) == TransferParticipantType.RECIPIENT) {
               var pwa = transferOpt.get().getDonorApplicationDetail().getMasterPwa();
-              transferredFromPwaRef = donorPwaToReferenceMap.get(pwa);
+              transferView = new PipelineTransferView(
+                  donorPwaToReferenceMap.get(pwa),
+                  null,
+                  DateUtils.formatDate(transferOpt.get().getLastIntelligentlyPigged()),
+                  transferOpt.get().getCompatibleWithTarget());
             }
           }
 
-          var pipelineHeaderView = new PipelineHeaderView(pipelineOverview, transferredFromPwaRef, null);
+          var pipelineHeaderView = new PipelineHeaderView(pipelineOverview, transferView);
           var identViews = padPipelineIdentService.getIdentViewsFromOverview(pipelineOverview);
           var pipeDrawingSummaryView = pipelineIdDrawingViewMap.get(new PipelineId(pipelineOverview.getPipelineId()));
 
@@ -139,7 +144,11 @@ public class PipelineDiffableSummaryService {
               .map(pipe -> transferPwaToReferenceMap.get(pipe.getMasterPwa()))
               .orElse(null);
 
-          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, transferredFromRef, transferredToRef);
+          PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, new PipelineTransferView(
+              transferredFromRef,
+              transferredToRef,
+              null,
+              null));
 
           return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
 
@@ -167,7 +176,11 @@ public class PipelineDiffableSummaryService {
       transferredToPwaRef = toPwaDetail.getReference();
     }
 
-    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, transferredFromPwaRef, transferredToPwaRef);
+    PipelineHeaderView pipelineHeaderView = new PipelineHeaderView(pipelineDetail, new PipelineTransferView(
+        transferredFromPwaRef,
+        transferredToPwaRef,
+        null,
+        null));
 
     return PipelineDiffableSummary.from(pipelineHeaderView, identViews, null);
 

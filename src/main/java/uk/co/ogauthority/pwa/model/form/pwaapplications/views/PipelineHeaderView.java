@@ -44,7 +44,12 @@ public class PipelineHeaderView implements PipelineOverview {
   private final String footnote;
   private final Set<PipelineHeaderQuestion> headerQuestions;
   private final String transferredFromRef;
+
   private final String transferredToRef;
+
+  private final String pipelineIntelligentlyPigged;
+
+  private final Boolean pipelineCompatible;
 
   public PipelineHeaderView() {
     this.padPipelineId = null;
@@ -78,9 +83,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.headerQuestions = Set.of();
     this.transferredFromRef = null;
     this.transferredToRef = null;
+    this.pipelineIntelligentlyPigged = null;
+    this.pipelineCompatible = null;
   }
 
-  public PipelineHeaderView(PipelineOverview pipelineOverview, String transferredFromRef, String transferredToRef) {
+  public PipelineHeaderView(PipelineOverview pipelineOverview, PipelineTransferView pipelineTransferView) {
     this.pipelineId = pipelineOverview.getPipelineId();
     this.pipelineName = pipelineOverview.getPipelineName();
     this.padPipelineId = pipelineOverview.getPadPipelineId();
@@ -111,11 +118,14 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInUse = pipelineOverview.getPipelineInUse();
     this.footnote = pipelineOverview.getFootnote();
     this.headerQuestions = getRelevantQuestions();
-    this.transferredFromRef = transferredFromRef;
-    this.transferredToRef = transferredToRef;
+
+    this.transferredFromRef = pipelineTransferView.getTransferredFromRef();
+    this.transferredToRef = pipelineTransferView.getTransferredToRef();
+    this.pipelineIntelligentlyPigged = pipelineTransferView.getIntelligentlyPigged();
+    this.pipelineCompatible = pipelineTransferView.getCompatibleWithCo2();
   }
 
-  public PipelineHeaderView(PipelineDetail pipelineDetail, String transferredFromRef, String transferredToRef) {
+  public PipelineHeaderView(PipelineDetail pipelineDetail, PipelineTransferView pipelineTransferView) {
     this.padPipelineId = null;
     this.pipelineName = null;
     this.pipelineId = pipelineDetail.getPipelineId().asInt();
@@ -146,8 +156,11 @@ public class PipelineHeaderView implements PipelineOverview {
     this.pipelineInUse = null;
     this.footnote = pipelineDetail.getFootnote();
     this.headerQuestions = getRelevantQuestions();
-    this.transferredFromRef = transferredFromRef;
-    this.transferredToRef = transferredToRef;
+
+    this.transferredFromRef = pipelineTransferView.getTransferredFromRef();
+    this.transferredToRef = pipelineTransferView.getTransferredToRef();
+    this.pipelineIntelligentlyPigged = pipelineTransferView.getIntelligentlyPigged();
+    this.pipelineCompatible = pipelineTransferView.getCompatibleWithCo2();
   }
 
   @Override
@@ -299,6 +312,14 @@ public class PipelineHeaderView implements PipelineOverview {
 
   public String getTransferredToRef() {
     return transferredToRef;
+  }
+
+  public String getPipelineIntelligentlyPigged() {
+    return pipelineIntelligentlyPigged;
+  }
+
+  public Boolean getPipelineCompatible() {
+    return pipelineCompatible;
   }
 
   @Override

@@ -36,6 +36,10 @@ public class PadPipelineTransfer {
   @OneToOne
   private PwaApplicationDetail recipientApplicationDetail;
 
+  private Instant lastIntelligentlyPigged;
+
+  private Boolean compatibleWithTarget;
+
   @CreatedDate
   private Instant createdTimestamp;
 
@@ -107,6 +111,24 @@ public class PadPipelineTransfer {
       throw new RuntimeException(String.format(
           "Pipeline with ID: %s not associated with PadPipelineTransfer with ID: %s", pipeline.getId(), this.id));
     }
+  }
+
+  public Instant getLastIntelligentlyPigged() {
+    return lastIntelligentlyPigged;
+  }
+
+  public PadPipelineTransfer setLastIntelligentlyPigged(Instant lastIntelligentlyPigged) {
+    this.lastIntelligentlyPigged = lastIntelligentlyPigged;
+    return this;
+  }
+
+  public Boolean getCompatibleWithTarget() {
+    return compatibleWithTarget;
+  }
+
+  public PadPipelineTransfer setCompatibleWithTarget(Boolean compatibleWithTarget) {
+    this.compatibleWithTarget = compatibleWithTarget;
+    return this;
   }
 
   @Override
