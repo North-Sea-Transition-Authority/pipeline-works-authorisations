@@ -209,6 +209,7 @@ public class PwaApplicationDetailService {
     detail.setCablesCrossed(form.getCablesCrossed());
     detail.setPipelinesCrossed(form.getPipelinesCrossed());
     detail.setMedianLineCrossed(form.getMedianLineCrossed());
+    detail.setCsaCrossed(form.getCsaCrossed());
     pwaApplicationDetailRepository.save(detail);
   }
 

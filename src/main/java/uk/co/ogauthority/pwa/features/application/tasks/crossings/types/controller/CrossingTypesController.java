@@ -65,7 +65,8 @@ public class CrossingTypesController {
   }
 
   private ModelAndView createModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/crossingTypes");
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/crossingTypes")
+        .addObject("resourceType", pwaApplicationDetail.getResourceType().name());
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         CrossingAgreementTask.CROSSING_TYPES.getDisplayText());
     return modelAndView;

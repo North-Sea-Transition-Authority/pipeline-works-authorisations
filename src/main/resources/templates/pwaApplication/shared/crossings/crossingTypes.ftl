@@ -17,6 +17,12 @@
                 <@fdsRadio.radioYes path="form.medianLineCrossed"/>
                 <@fdsRadio.radioNo path="form.medianLineCrossed"/>
             </@fdsRadio.radioGroup>
+            <#if resourceType != "CCUS">
+              <@fdsRadio.radioGroup path="form.csaCrossed" labelText="Are any carbon storage areas crossed?">
+                  <@fdsRadio.radioYes path="form.csaCrossed"/>
+                  <@fdsRadio.radioNo path="form.csaCrossed"/>
+              </@fdsRadio.radioGroup>
+            </#if>
         </@fdsFieldset.fieldset>
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
     </@fdsForm.htmlForm>

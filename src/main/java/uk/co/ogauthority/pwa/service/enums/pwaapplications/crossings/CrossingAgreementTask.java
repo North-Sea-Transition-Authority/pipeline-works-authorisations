@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.PadMedianLineAgreementService;
@@ -17,6 +18,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.controll
 public enum CrossingAgreementTask {
 
   LICENCE_AND_BLOCKS("Licence and blocks", BlockCrossingService.class, BlockCrossingController.class, 10),
+
+  CARBON_STORAGE_AREAS("Carbon storage areas", CarbonStorageAreaCrossingService.class, BlockCrossingController.class, 15),
   CROSSING_TYPES("Types of crossing", CrossingTypesService.class, CrossingTypesController.class, 20),
   PIPELINE_CROSSINGS("Pipeline crossings", PadPipelineCrossingService.class, PipelineCrossingController.class, 30),
   CABLE_CROSSINGS("Cable crossings", PadCableCrossingService.class, CableCrossingController.class, 40),
