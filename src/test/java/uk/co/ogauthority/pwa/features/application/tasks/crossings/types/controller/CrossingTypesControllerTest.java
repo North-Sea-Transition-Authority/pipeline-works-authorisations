@@ -66,7 +66,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderForm_appStatusSmokeTest() {
+  public void renderForm_appStatusSmokeTest() throws Exception {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -74,10 +74,11 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
                 .renderForm(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
+    endpointTester.performModelGeneration().containsKey("resourceType");
   }
 
   @Test
-  public void renderForm_appContactRoleSmokeTest() {
+  public void renderForm_appContactRoleSmokeTest() throws Exception {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -85,6 +86,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
                 .renderForm(type, applicationDetail.getMasterPwaApplicationId(), null, null)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
+    endpointTester.performModelGeneration().containsKey("resourceType");
   }
 
   @Test
