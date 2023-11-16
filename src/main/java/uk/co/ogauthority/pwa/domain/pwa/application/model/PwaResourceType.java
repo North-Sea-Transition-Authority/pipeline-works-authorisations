@@ -31,7 +31,10 @@ public enum PwaResourceType {
       30,
       List.of(
           PwaApplicationType.INITIAL,
-          PwaApplicationType.CAT_1_VARIATION
+          PwaApplicationType.CAT_1_VARIATION,
+          PwaApplicationType.OPTIONS_VARIATION,
+          PwaApplicationType.HUOO_VARIATION,
+          PwaApplicationType.DEPOSIT_CONSENT
       )
   );
 
