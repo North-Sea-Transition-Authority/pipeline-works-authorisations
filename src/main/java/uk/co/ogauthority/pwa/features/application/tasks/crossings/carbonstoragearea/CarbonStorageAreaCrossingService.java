@@ -12,7 +12,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 public class CarbonStorageAreaCrossingService implements ApplicationFormSectionService {
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return  pwaApplicationDetail.getResourceType().equals(PwaResourceType.CCUS) || BooleanUtils.isTrue(pwaApplicationDetail.getCsaCrossed());
+    return  pwaApplicationDetail.getResourceType().equals(PwaResourceType.CCUS)
+        || BooleanUtils.isTrue(pwaApplicationDetail.getCsaCrossed());
   }
 
   @Override
