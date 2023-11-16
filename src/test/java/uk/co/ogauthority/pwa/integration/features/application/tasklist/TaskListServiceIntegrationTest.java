@@ -145,6 +145,7 @@ public class TaskListServiceIntegrationTest {
           case CAT_1_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -164,6 +165,7 @@ public class TaskListServiceIntegrationTest {
           case DEPOSIT_CONSENT:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -174,6 +176,7 @@ public class TaskListServiceIntegrationTest {
           case DECOMMISSIONING:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -189,6 +192,7 @@ public class TaskListServiceIntegrationTest {
           case OPTIONS_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.OPTIONS_TEMPLATE.getDisplayName(),
@@ -198,6 +202,7 @@ public class TaskListServiceIntegrationTest {
           case CAT_2_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING.getDisplayName(),
@@ -213,6 +218,7 @@ public class TaskListServiceIntegrationTest {
           case HUOO_VARIATION:
             assertThat(taskNamesList).containsOnly(
                 ApplicationTask.FIELD_INFORMATION.getDisplayName(),
+                ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName(),
                 ApplicationTask.APPLICATION_USERS.getDisplayName(),
                 ApplicationTask.PROJECT_INFORMATION.getDisplayName(),
                 ApplicationTask.HUOO.getDisplayName(),

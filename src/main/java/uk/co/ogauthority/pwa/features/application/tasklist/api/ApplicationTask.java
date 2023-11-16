@@ -69,6 +69,13 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
       1, 1
   ),
 
+  CARBON_STORAGE_INFORMATION(
+      "Carbon storage information",
+      PadPwaFieldsController.class,
+      PadFieldService.class,
+      1, 1
+  ),
+
   APPLICATION_USERS(
       "Application users",
       PwaContactController.class,
@@ -286,6 +293,9 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
     uriVariables.put("applicationId", applicationId);
     switch (this) {
       case FIELD_INFORMATION:
+        return ReverseRouter.route(on(PadPwaFieldsController.class)
+            .renderFields(applicationType, applicationId, null, null, null));
+      case CARBON_STORAGE_INFORMATION:
         return ReverseRouter.route(on(PadPwaFieldsController.class)
             .renderFields(applicationType, applicationId, null, null, null));
       case APPLICATION_USERS:
