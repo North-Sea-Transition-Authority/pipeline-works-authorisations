@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -11,7 +12,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 public class CarbonStorageAreaCrossingService implements ApplicationFormSectionService {
   @Override
   public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
-    return  pwaApplicationDetail.getResourceType().equals(PwaResourceType.CCUS) || pwaApplicationDetail.getCsaCrossed();
+    return  pwaApplicationDetail.getResourceType().equals(PwaResourceType.CCUS) || BooleanUtils.isTrue(pwaApplicationDetail.getCsaCrossed());
   }
 
   @Override

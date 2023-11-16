@@ -388,6 +388,7 @@ public class PwaApplicationDetailServiceTest {
     detail.setPipelinesCrossed(true);
     detail.setCablesCrossed(true);
     detail.setMedianLineCrossed(true);
+    detail.setCsaCrossed(true);
     detail.setNumOfHolders(1);
     detail.setPipelinePhaseProperties(Set.of(PropertyPhase.OTHER));
     detail.setOtherPhaseDescription("OTHER PHASE DESC");

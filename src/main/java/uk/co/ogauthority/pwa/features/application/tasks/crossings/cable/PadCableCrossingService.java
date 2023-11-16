@@ -99,7 +99,7 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
   }
 
   @Override
-  public boolean        canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
+  public boolean canShowInTaskList(PwaApplicationDetail pwaApplicationDetail) {
     return BooleanUtils.isTrue(pwaApplicationDetail.getCablesCrossed());
   }
 

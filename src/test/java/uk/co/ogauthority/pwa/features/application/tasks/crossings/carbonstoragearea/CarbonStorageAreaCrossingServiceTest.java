@@ -34,6 +34,18 @@ public class CarbonStorageAreaCrossingServiceTest {
   }
 
   @Test
+  public void canShowInTaskList_nonCCUS_crossingsNull() {
+    var application = new PwaApplication();
+    application.setResourceType(PwaResourceType.PETROLEUM);
+
+    var applicationDetail = new PwaApplicationDetail();
+    applicationDetail.setPwaApplication(application);
+    applicationDetail.setCsaCrossed(null);
+
+    assertFalse(carbonStorageAreaCrossingService.canShowInTaskList(applicationDetail));
+  }
+
+  @Test
   public void canShowInTaskList_CCUS_noCrossings() {
     var application = new PwaApplication();
     application.setResourceType(PwaResourceType.CCUS);

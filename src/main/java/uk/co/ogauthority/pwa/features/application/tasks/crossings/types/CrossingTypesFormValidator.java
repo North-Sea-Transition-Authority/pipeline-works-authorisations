@@ -25,5 +25,8 @@ public class CrossingTypesFormValidator implements Validator {
     ValidationUtils.rejectIfEmpty(errors, "medianLineCrossed",
         "medianLineCrossed" + FieldValidationErrorCodes.REQUIRED.getCode(),
         "Select yes if any median line has been crossed");
+    ValidationUtils.rejectIfEmpty(errors, "csaCrossed",
+        "csaCrossed" + FieldValidationErrorCodes.REQUIRED.getCode(),
+        "Select yes if any carbon storage areas have been crossed");
   }
 }
