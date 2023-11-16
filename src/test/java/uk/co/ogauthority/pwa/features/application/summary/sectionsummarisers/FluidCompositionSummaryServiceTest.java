@@ -68,7 +68,7 @@ public class FluidCompositionSummaryServiceTest {
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    var fluidCompositionView = new FluidCompositionView(new LinkedHashMap<>());
+    var fluidCompositionView = new FluidCompositionView(new LinkedHashMap<>(), new PwaApplicationDetail());
     when(padFluidCompositionInfoService.getFluidCompositionView(pwaApplicationDetail)).thenReturn(fluidCompositionView);
 
     var appSummary = fluidCompositionSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);

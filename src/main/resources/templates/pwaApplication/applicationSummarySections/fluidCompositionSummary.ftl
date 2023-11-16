@@ -27,6 +27,11 @@
         </#if>
       </@fdsCheckAnswers.checkAnswersRow>
     </#list>
+    <#if fluidCompositionView.otherDescription?has_content>
+      <@fdsCheckAnswers.checkAnswersRow keyText="Other" actionUrl="" screenReaderActionText="" actionText="">
+        ${fluidCompositionView.getOtherDescription()}
+      </@fdsCheckAnswers.checkAnswersRow>
+    </#if>
   </@fdsCheckAnswers.checkAnswers>
 </#macro>
 

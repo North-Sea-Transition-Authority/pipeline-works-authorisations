@@ -78,7 +78,7 @@ public class PadFluidCompositionInfoService implements ApplicationFormSectionSer
   public FluidCompositionView getFluidCompositionView(PwaApplicationDetail pwaApplicationDetail) {
 
     Map<Chemical, FluidCompositionDataForm> chemicalDataMap = new LinkedHashMap<>();
-    var fluidCompositionView = new FluidCompositionView(chemicalDataMap);
+    var fluidCompositionView = new FluidCompositionView(chemicalDataMap, pwaApplicationDetail);
 
     for (PadFluidCompositionInfo entity : getPadFluidCompositionInfoEntities(pwaApplicationDetail)) {
       var fluidCompositionDataForm = new FluidCompositionDataForm();
