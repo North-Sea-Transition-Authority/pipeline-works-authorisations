@@ -51,6 +51,10 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Boolean fdpConfirmationFlag;
   private String fdpNotSelectedReason;
 
+  private Boolean cspOptionSelected;
+  private Boolean cspConfirmationFlag;
+  private String cspNotSelectedReason;
+
 
   public String getProjectName() {
     return projectName;
@@ -306,5 +310,32 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
 
   public void setFdpNotSelectedReason(String fdpNotSelectedReason) {
     this.fdpNotSelectedReason = fdpNotSelectedReason;
+  }
+
+  public Boolean getCspOptionSelected() {
+    return cspOptionSelected;
+  }
+
+  public ProjectInformationForm setCspOptionSelected(Boolean cspOptionSelected) {
+    this.cspOptionSelected = cspOptionSelected;
+    return this;
+  }
+
+  public String getCspNotSelectedReason() {
+    return cspNotSelectedReason;
+  }
+
+  public ProjectInformationForm setCspNotSelectedReason(String cspNotSelectedReason) {
+    this.cspNotSelectedReason = cspNotSelectedReason;
+    return this;
+  }
+
+  public Boolean getCspConfirmationFlag() {
+    return cspConfirmationFlag;
+  }
+
+  public ProjectInformationForm setCspConfirmationFlag(Boolean cspConfirmationFlag) {
+    this.cspConfirmationFlag = cspConfirmationFlag;
+    return this;
   }
 }

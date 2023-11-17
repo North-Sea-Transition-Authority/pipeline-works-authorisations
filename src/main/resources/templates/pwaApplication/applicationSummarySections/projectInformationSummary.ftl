@@ -141,6 +141,20 @@
       </@fdsCheckAnswers.checkAnswersRow>
     </#if>
 
+      <#if requiredQuestions?seq_contains("CARBON_STORAGE_PERMIT")>
+          <@fdsCheckAnswers.checkAnswersRow keyText="Do you have an approved carbon storage permit for the project?" actionUrl="" screenReaderActionText="" actionText="">
+              <#if projectInfoView.cspOptionSelected?has_content>
+                  <@summaryUtils.showYesNoForBool projectInfoView.cspOptionSelected/>
+              </#if>
+          </@fdsCheckAnswers.checkAnswersRow>
+      </#if>
+
+      <#if projectInfoView.cspNotSelectedReason?has_content>
+          <@fdsCheckAnswers.checkAnswersRow keyText="Reason for not having carbon storage permit" actionUrl="" screenReaderActionText="" actionText="">
+              <@multiLineText.multiLineText blockClass=multiLineTextBlockClass>${projectInfoView.cspNotSelectedReason!}</@multiLineText.multiLineText>
+          </@fdsCheckAnswers.checkAnswersRow>
+      </#if>
+
     <#if requiredQuestions?seq_contains("PROJECT_LAYOUT_DIAGRAM")>
       <@fdsCheckAnswers.checkAnswersRow keyText="Project layout diagram" actionUrl="" screenReaderActionText="" actionText="">
         <#if projectInfoView.layoutDiagramFileView?has_content>

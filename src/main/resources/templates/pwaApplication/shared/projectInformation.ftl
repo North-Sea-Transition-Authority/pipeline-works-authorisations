@@ -109,6 +109,17 @@
             </@fdsRadio.radioGroup>
         </#if>
 
+        <#if requiredQuestions?seq_contains("CARBON_STORAGE_PERMIT")>
+            <@fdsRadio.radioGroup path="form.cspOptionSelected" labelText="Has a Carbon storage permit been granted for the project?" hiddenContent=true>
+                <@fdsRadio.radioYes path="form.cspOptionSelected">
+                    <@fdsCheckbox.checkboxItem path="form.cspConfirmationFlag" labelText="The proposed works outlined in this application are consistent with the project as described in the permit and associated application." />
+                </@fdsRadio.radioYes>
+                <@fdsRadio.radioNo path="form.cspOptionSelected">
+                    <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+                </@fdsRadio.radioNo>
+            </@fdsRadio.radioGroup>
+        </#if>
+
         <#if requiredQuestions?seq_contains("PROJECT_LAYOUT_DIAGRAM")>
             <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project layout diagram" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
                 <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>

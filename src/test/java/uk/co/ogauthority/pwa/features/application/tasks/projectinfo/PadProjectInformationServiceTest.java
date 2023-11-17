@@ -27,6 +27,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -180,7 +181,12 @@ public class PadProjectInformationServiceTest {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     verify(validator, times(1)).validate(form, bindingResult,
-        new ProjectInformationFormValidationHints(pwaApplicationDetail.getPwaApplicationType(), ValidationType.FULL, EnumSet.allOf(ProjectInformationQuestion.class), false));
+        new ProjectInformationFormValidationHints(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getResourceType(),
+            ValidationType.FULL,
+            EnumSet.complementOf(EnumSet.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT))
+            , false));
   }
 
   @Test
@@ -197,7 +203,7 @@ public class PadProjectInformationServiceTest {
 
   @Test
   public void getAvailableQuestions_depositConsentAppType() {
-    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT);
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
         ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
@@ -207,13 +213,14 @@ public class PadProjectInformationServiceTest {
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
         ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
         ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
-        ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
+        ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE,
+        ProjectInformationQuestion.CARBON_STORAGE_PERMIT
     )));
   }
 
   @Test
   public void getAvailableQuestions_huooVariationAppType() {
-    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.HUOO_VARIATION);
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.HUOO_VARIATION, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.PROJECT_OVERVIEW,
         ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
@@ -224,23 +231,26 @@ public class PadProjectInformationServiceTest {
         ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
         ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
         ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE,
-        ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
+        ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE,
+        ProjectInformationQuestion.CARBON_STORAGE_PERMIT
     )));
   }
 
   @Test
   public void getAvailableQuestions_decomAppType() {
-    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING);
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(
-        EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT)));
+        EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
+            ProjectInformationQuestion.CARBON_STORAGE_PERMIT)));
   }
 
   @Test
   public void getAvailableQuestions_optionsVariationAppType() {
-    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION);
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
-        ProjectInformationQuestion.USING_CAMPAIGN_APPROACH
+        ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
+        ProjectInformationQuestion.CARBON_STORAGE_PERMIT
     )));
   }
 
@@ -253,8 +263,10 @@ public class PadProjectInformationServiceTest {
             && appType != PwaApplicationType.OPTIONS_VARIATION
         )
         .forEach(appType -> {
-          var requiredQuestions = service.getRequiredQuestions(appType);
-          assertThat(requiredQuestions).isEqualTo(EnumSet.allOf(ProjectInformationQuestion.class));
+          var requiredQuestions = service.getRequiredQuestions(appType, PwaResourceType.PETROLEUM);
+          var expectedQuestions = EnumSet.allOf(ProjectInformationQuestion.class);
+          expectedQuestions.remove(ProjectInformationQuestion.CARBON_STORAGE_PERMIT);
+          assertThat(requiredQuestions).isEqualTo(expectedQuestions);
         });
   }
 

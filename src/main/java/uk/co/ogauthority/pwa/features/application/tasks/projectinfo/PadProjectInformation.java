@@ -51,6 +51,10 @@ public class PadProjectInformation implements ChildEntity<Integer, PwaApplicatio
   private Boolean fdpConfirmationFlag;
   private String fdpNotSelectedReason;
 
+  private Boolean cspOptionSelected;
+  private Boolean cspConfirmationFlag;
+  private String cspNotSelectedReason;
+
 
   @Override
   public void clearId() {
@@ -242,5 +246,32 @@ public class PadProjectInformation implements ChildEntity<Integer, PwaApplicatio
 
   public void setFdpNotSelectedReason(String fdpNotSelectedReason) {
     this.fdpNotSelectedReason = fdpNotSelectedReason;
+  }
+
+  public Boolean getCspOptionSelected() {
+    return cspOptionSelected;
+  }
+
+  public PadProjectInformation setCspOptionSelected(Boolean cspOptionSelected) {
+    this.cspOptionSelected = cspOptionSelected;
+    return this;
+  }
+
+  public Boolean getCspConfirmationFlag() {
+    return cspConfirmationFlag;
+  }
+
+  public PadProjectInformation setCspConfirmationFlag(Boolean cspConfirmationFlag) {
+    this.cspConfirmationFlag = cspConfirmationFlag;
+    return this;
+  }
+
+  public String getCspNotSelectedReason() {
+    return cspNotSelectedReason;
+  }
+
+  public PadProjectInformation setCspNotSelectedReason(String cspNotSelectedReason) {
+    this.cspNotSelectedReason = cspNotSelectedReason;
+    return this;
   }
 }

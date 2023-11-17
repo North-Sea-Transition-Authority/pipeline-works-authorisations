@@ -31,6 +31,7 @@
 <#import 'components/markdown/markdownInsetText.ftl' as pwaMarkdownInsetText>
 <#import 'components/minMaxSummary/minMaxSummary.ftl' as minMaxSummary>
 <#import 'components/multiNumberInput/threeNumberInputs.ftl' as threeNumberInput>
+<#import 'pwaApplication/applicationSummarySections/appSummaryUtils.ftl' as summaryUtils>
 
 <#function springUrl url>
     <#local springUrl>

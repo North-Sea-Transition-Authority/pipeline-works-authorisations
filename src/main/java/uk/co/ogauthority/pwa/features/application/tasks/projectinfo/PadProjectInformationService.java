@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
@@ -113,7 +114,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padProjectInformationRepository.save(padProjectInformation);
     padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
         FileUpdateMode.DELETE_UNLINKED_FILES, user);
-    if (getRequiredQuestions(padProjectInformation.getPwaApplicationDetail().getPwaApplicationType())
+    if (getRequiredQuestions(
+        padProjectInformation.getPwaApplicationDetail().getPwaApplicationType(),
+        padProjectInformation.getPwaApplicationDetail().getResourceType())
         .contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)) {
       padLicenceTransactionService.saveApplicationsToPad(padProjectInformation, form);
     }
@@ -145,8 +148,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                 PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInfoValidationHints = new ProjectInformationFormValidationHints(
-        pwaApplicationDetail.getPwaApplicationType(), validationType,
-        getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()),
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getResourceType(),
+        validationType,
+        getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getResourceType()),
         isFdpQuestionRequired(pwaApplicationDetail));
     projectInformationValidator.validate(form, bindingResult, projectInfoValidationHints);
 
@@ -173,12 +178,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return Optional.ofNullable(projectInformation.getLatestCompletionTimestamp());
   }
 
-  public Set<ProjectInformationQuestion> getRequiredQuestions(PwaApplicationType pwaApplicationType) {
-
-    EnumSet<ProjectInformationQuestion> hiddenQuestions;
+  public Set<ProjectInformationQuestion> getRequiredQuestions(
+      PwaApplicationType pwaApplicationType,
+      PwaResourceType resourceType
+  ) {
+    var questions = EnumSet.allOf(ProjectInformationQuestion.class);
 
     if (pwaApplicationType == PwaApplicationType.DEPOSIT_CONSENT) {
-      hiddenQuestions =  EnumSet.of(
+      questions.removeAll(List.of(
           ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
           ProjectInformationQuestion.LICENCE_TRANSFER_REFERENCE,
           ProjectInformationQuestion.LICENCE_TRANSFER_DATE,
@@ -188,10 +195,9 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
           ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN,
           ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
           ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE
-      );
-
+      ));
     } else if (pwaApplicationType == PwaApplicationType.HUOO_VARIATION) {
-      hiddenQuestions =  EnumSet.of(
+      questions.removeAll(List.of(
           ProjectInformationQuestion.PROJECT_OVERVIEW,
           ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
           ProjectInformationQuestion.MOBILISATION_DATE,
@@ -202,29 +208,28 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
           ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM,
           ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE,
           ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE
-      );
-
+      ));
     } else if (pwaApplicationType == PwaApplicationType.DECOMMISSIONING) {
-      hiddenQuestions = EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT);
-
+      questions.remove(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT);
     } else if (pwaApplicationType == PwaApplicationType.OPTIONS_VARIATION) {
-      hiddenQuestions = EnumSet.of(
+      questions.removeAll(List.of(
           ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
           ProjectInformationQuestion.USING_CAMPAIGN_APPROACH
-      );
-
-    } else {
-      hiddenQuestions = EnumSet.noneOf(ProjectInformationQuestion.class);
+      ));
     }
-
-    return EnumSet.complementOf(hiddenQuestions);
+    if (resourceType != null && resourceType.equals(PwaResourceType.CCUS)) {
+      questions.remove(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN);
+    } else {
+      questions.remove(ProjectInformationQuestion.CARBON_STORAGE_PERMIT);
+    }
+    return questions;
   }
 
   @Override
   public void cleanupData(PwaApplicationDetail detail) {
 
     var projectInformation = getPadProjectInformationData(detail);
-    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType());
+    var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType(), detail.getResourceType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)
         && !projectInformation.getLicenceTransferPlanned()) {
@@ -288,7 +293,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   @Override
   public List<MailMergeFieldMnem> getAvailableMailMergeFields(PwaApplicationType pwaApplicationType) {
 
-    var questions = getRequiredQuestions(pwaApplicationType);
+    var questions = getRequiredQuestions(pwaApplicationType, null);
     var mailMergeFieldList = new ArrayList<MailMergeFieldMnem>();
 
     if (MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.appTypeIsSupported(pwaApplicationType)

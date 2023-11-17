@@ -52,7 +52,8 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
     var form = new ProjectInformationForm();
 
     var requiredQuestions = padProjectInformationService.getRequiredQuestions(
-        pwaApplicationDetail.getPwaApplicationType());
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getResourceType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_NAME)) {
       form.setProjectName("My test project name");

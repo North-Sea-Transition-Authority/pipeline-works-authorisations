@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -398,7 +399,23 @@ public class ProjectInformationValidator implements SmartValidator {
             "fdpNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
             "Enter a reason for not having an FDP for the fields");
       }
+    }
 
+    if (requiredQuestions.contains(ProjectInformationQuestion.CARBON_STORAGE_PERMIT)
+        && projectInfoValidationHints.getPwaResourceType().equals(PwaResourceType.CCUS)) {
+      if (form.getCspOptionSelected() == null) {
+        errors.rejectValue("cspOptionSelected", "cspOptionSelected" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Select yes if you have an approved carbon storage plan");
+      } else if (form.getCspOptionSelected() && !BooleanUtils.toBooleanDefaultIfNull(form.getCspConfirmationFlag(),
+          false)) {
+        errors.rejectValue("cspConfirmationFlag",
+            "cspConfirmationFlag" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Confirm the proposed works outlined in this application are consistent with the carbon storage permit");
+      } else if (!form.getCspOptionSelected()) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "cspNotSelectedReason",
+            "cspNotSelectedReason" + FieldValidationErrorCodes.REQUIRED.getCode(),
+            "Enter a reason for not having a storage permit for the project");
+      }
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
@@ -407,6 +424,4 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
   }
-
-
 }
