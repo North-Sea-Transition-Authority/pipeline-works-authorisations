@@ -5,6 +5,7 @@ public class CrossingTypesForm {
   private Boolean pipelinesCrossed;
   private Boolean cablesCrossed;
   private Boolean medianLineCrossed;
+  private Boolean csaCrossed;
 
   public Boolean getPipelinesCrossed() {
     return pipelinesCrossed;
@@ -28,5 +29,14 @@ public class CrossingTypesForm {
 
   public void setMedianLineCrossed(Boolean medianLineCrossed) {
     this.medianLineCrossed = medianLineCrossed;
+  }
+
+  public Boolean getCsaCrossed() {
+    return csaCrossed;
+  }
+
+  public CrossingTypesForm setCsaCrossed(Boolean csaCrossed) {
+    this.csaCrossed = csaCrossed;
+    return this;
   }
 }

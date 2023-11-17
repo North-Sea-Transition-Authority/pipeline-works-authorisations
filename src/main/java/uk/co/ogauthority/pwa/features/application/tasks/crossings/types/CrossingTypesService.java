@@ -14,6 +14,7 @@ public class CrossingTypesService implements ApplicationFormSectionService {
     form.setMedianLineCrossed(detail.getMedianLineCrossed());
     form.setPipelinesCrossed(detail.getPipelinesCrossed());
     form.setCablesCrossed(detail.getCablesCrossed());
+    form.setCsaCrossed(detail.getCsaCrossed());
   }
 
   public CrossingTypesView getCrossingTypesView(PwaApplicationDetail detail) {

@@ -80,6 +80,8 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   private Boolean medianLineCrossed;
 
+  private Boolean csaCrossed;
+
   private Boolean submittedAsFastTrackFlag;
 
   private Integer numOfHolders;
@@ -308,6 +310,15 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setMedianLineCrossed(Boolean medianLineCrossed) {
     this.medianLineCrossed = medianLineCrossed;
+  }
+
+  public Boolean getCsaCrossed() {
+    return csaCrossed;
+  }
+
+  public PwaApplicationDetail setCsaCrossed(Boolean csaCrossed) {
+    this.csaCrossed = csaCrossed;
+    return this;
   }
 
   public Boolean getSubmittedAsFastTrackFlag() {

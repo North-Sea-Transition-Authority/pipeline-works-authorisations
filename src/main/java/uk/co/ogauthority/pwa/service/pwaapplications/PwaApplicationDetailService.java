@@ -175,6 +175,7 @@ public class PwaApplicationDetailService {
     toDetail.setPipelinesCrossed(fromDetail.getPipelinesCrossed());
     toDetail.setCablesCrossed(fromDetail.getCablesCrossed());
     toDetail.setMedianLineCrossed(fromDetail.getMedianLineCrossed());
+    toDetail.setCsaCrossed(fromDetail.getCsaCrossed());
     toDetail.setNumOfHolders(fromDetail.getNumOfHolders());
     toDetail.setPipelinePhaseProperties(fromDetail.getPipelinePhaseProperties());
     toDetail.setOtherPhaseDescription(fromDetail.getOtherPhaseDescription());
@@ -209,6 +210,7 @@ public class PwaApplicationDetailService {
     detail.setCablesCrossed(form.getCablesCrossed());
     detail.setPipelinesCrossed(form.getPipelinesCrossed());
     detail.setMedianLineCrossed(form.getMedianLineCrossed());
+    detail.setCsaCrossed(form.getCsaCrossed());
     pwaApplicationDetailRepository.save(detail);
   }
 
