@@ -115,7 +115,7 @@
                     <@fdsCheckbox.checkboxItem path="form.cspConfirmationFlag" labelText="The proposed works outlined in this application are consistent with the project as described in the permit and associated application." />
                 </@fdsRadio.radioYes>
                 <@fdsRadio.radioNo path="form.cspOptionSelected">
-                    <@fdsTextarea.textarea path="form.fdpNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+                    <@fdsTextarea.textarea path="form.cspNotSelectedReason" labelText="Explain why" characterCount=true maxCharacterLength=maxCharacterLength?c/>
                 </@fdsRadio.radioNo>
             </@fdsRadio.radioGroup>
         </#if>
