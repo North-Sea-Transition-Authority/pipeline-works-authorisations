@@ -30,7 +30,13 @@ public enum Chemical {
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
           CCUS, List.of(PPMV_100K, NONE)
       )),
-  O2(
+  HYDROCARBONS(
+      "Hydrocarbons",
+      25,
+      Map.of(
+          CCUS, List.of(PPMV_100K, NONE)
+      )),
+      O2(
       "O₂",
       30,
       Map.of(
@@ -175,14 +181,7 @@ public enum Chemical {
       230,
       Map.of(
           CCUS, List.of(PPMV_100K, NONE)
-      )),
-  HYDROCARBONS(
-      "Hydrocarbons",
-      240,
-      Map.of(
-          CCUS, List.of(PPMV_100K, NONE)
-      )
-  );
+      ));
 
   private final String displayText;
   private final int displayOrder;
