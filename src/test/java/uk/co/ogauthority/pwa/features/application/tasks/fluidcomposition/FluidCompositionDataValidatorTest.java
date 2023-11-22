@@ -109,7 +109,7 @@ public class FluidCompositionDataValidatorTest {
   @Test
   public void validateForm_ppmvRequired_invalid() {
     var form = new FluidCompositionDataForm();
-    form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_50K);
+    form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
         ValidationType.FULL);
     assertThat(errorsMap).contains(
@@ -120,8 +120,8 @@ public class FluidCompositionDataValidatorTest {
   @Test
   public void validateForm_ppmvValue_aboveLimit() {
     var form = new FluidCompositionDataForm();
-    form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_50K);
-    form.setMeasurementValue(new DecimalInput(new BigDecimal(60000)));
+    form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);
+    form.setMeasurementValue(new DecimalInput(new BigDecimal(600000000)));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
         ValidationType.FULL);
     assertThat(errorsMap).contains(

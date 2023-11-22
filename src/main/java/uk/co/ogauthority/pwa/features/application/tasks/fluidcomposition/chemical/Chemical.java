@@ -5,13 +5,7 @@ import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType
 import static uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType.PETROLEUM;
 import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.MOLE_PERCENTAGE;
 import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.NONE;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_100;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_10K;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_20K;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_40K;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_5;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_50;
-import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_50K;
+import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_100K;
 import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.TRACE;
 
 import java.util.Arrays;
@@ -34,14 +28,14 @@ public enum Chemical {
       20,
       Map.of(
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
-          CCUS, List.of(PPMV_10K, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   O2(
       "O₂",
       30,
       Map.of(
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
-          CCUS, List.of(PPMV_100, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   H2S(
       "H₂S",
@@ -49,7 +43,7 @@ public enum Chemical {
       Map.of(
           PETROLEUM, List.of(MOLE_PERCENTAGE, TRACE, NONE),
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
-          CCUS, List.of(PPMV_50, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
 
   H2O(
@@ -58,7 +52,7 @@ public enum Chemical {
       Map.of(
           PETROLEUM, List.of(MOLE_PERCENTAGE, TRACE, NONE),
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
-          CCUS, List.of(PPMV_100, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   N2(
       "N₂",
@@ -66,7 +60,7 @@ public enum Chemical {
       Map.of(
           PETROLEUM, List.of(MOLE_PERCENTAGE, TRACE, NONE),
           HYDROGEN, List.of(MOLE_PERCENTAGE, TRACE, NONE),
-          CCUS, List.of(PPMV_40K, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   C1(
       "C1",
@@ -156,37 +150,37 @@ public enum Chemical {
       "Ar",
       190,
       Map.of(
-          CCUS, List.of(PPMV_40K, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   CO(
       "CO",
       200,
       Map.of(
-          CCUS, List.of(PPMV_20K, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   SOX(
       "SOx",
       210,
       Map.of(
-          CCUS, List.of(PPMV_100, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   NOX(
       "NOx",
       220,
       Map.of(
-          CCUS, List.of(PPMV_100, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   HG(
       "Hg",
       230,
       Map.of(
-          CCUS, List.of(PPMV_5, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )),
   HYDROCARBONS(
       "Hydrocarbons",
       240,
       Map.of(
-          CCUS, List.of(PPMV_50K, NONE)
+          CCUS, List.of(PPMV_100K, NONE)
       )
   );
 

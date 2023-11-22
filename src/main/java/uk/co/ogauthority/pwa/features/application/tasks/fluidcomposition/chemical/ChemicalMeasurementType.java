@@ -7,13 +7,7 @@ public enum ChemicalMeasurementType {
 
   NONE("Not present", "Not present", false),
   TRACE("Trace (less than 0.01 mole %)", "Trace", false),
-  PPMV_50K("Present", "ppmv", true, 50000, 0),
-  PPMV_40K("Present", "ppmv", true, 40000, 0),
-  PPMV_20K("Present", "ppmv", true, 20000, 0),
-  PPMV_10K("Present", "ppmv", true, 10000, 0),
-  PPMV_100("Present", "ppmv", true, 100, 0),
-  PPMV_50("Present", "ppmv", true, 50, 0),
-  PPMV_5("Present", "ppmv", true, 5, 0),
+  PPMV_100K("Present", "ppmv", true, 100000, 0),
 
   MOLE_PERCENTAGE("Present", "More than trace", true, 100, 0);
 

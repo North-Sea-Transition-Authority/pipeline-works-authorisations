@@ -97,7 +97,7 @@ public class PadFluidCompositionInfoServiceTest {
   public void getPadFluidCompositionInfoEntities_existingEntitiesReturned() {
     var expectedEntityList = List.of(
         createValidEntity(Chemical.H2O, ChemicalMeasurementType.NONE),
-        createValidEntity(Chemical.AR, ChemicalMeasurementType.PPMV_20K),
+        createValidEntity(Chemical.AR, ChemicalMeasurementType.PPMV_100K),
         createValidEntity(Chemical.HYDROCARBONS, ChemicalMeasurementType.TRACE));
     when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(expectedEntityList);
     var actualEntityList = padFluidCompositionInfoService.getPadFluidCompositionInfoEntities(pwaApplicationDetail);
@@ -166,7 +166,7 @@ public class PadFluidCompositionInfoServiceTest {
 
     var entities = List.of(createValidEntity(Chemical.H2O, ChemicalMeasurementType.NONE),
         createValidEntity(Chemical.C1, ChemicalMeasurementType.TRACE),
-        createValidEntity(Chemical.HG, ChemicalMeasurementType.PPMV_5),
+        createValidEntity(Chemical.HG, ChemicalMeasurementType.PPMV_100K),
         higherAmountFluidComp);
     when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(entities);
 
@@ -174,7 +174,7 @@ public class PadFluidCompositionInfoServiceTest {
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.H2O).getChemicalMeasurementType()).isEqualTo(ChemicalMeasurementType.NONE);
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C1).getChemicalMeasurementType()).isEqualTo(ChemicalMeasurementType.TRACE);
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getChemicalMeasurementType()).isEqualTo(ChemicalMeasurementType.MOLE_PERCENTAGE);
-    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.HG).getChemicalMeasurementType()).isEqualTo(ChemicalMeasurementType.PPMV_5);
+    assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.HG).getChemicalMeasurementType()).isEqualTo(ChemicalMeasurementType.PPMV_100K);
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.C2).getMeasurementValue().createBigDecimalOrNull()).isEqualTo(BigDecimal.valueOf(0.1));
 
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.N2)).isNull();
