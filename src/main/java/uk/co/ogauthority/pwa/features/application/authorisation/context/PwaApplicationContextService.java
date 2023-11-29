@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -55,7 +56,8 @@ public class PwaApplicationContextService {
     var context = getApplicationContext(applicationId, contextParams.getAuthenticatedUserAccount());
 
     ApplicationContextUtils.performAppStatusCheck(contextParams.getStatuses(), context.getApplicationDetail());
-    performApplicationTypeCheck(contextParams.getTypes(), context.getApplicationType(), applicationId);
+    performApplicationTypeCheck(contextParams.getApplicationTypes(), context.getApplicationType(), applicationId);
+    performResourceTypeCheck(contextParams.getResourceTypes(), context.getApplicationDetail().getResourceType(), applicationId);
     performPermissionCheck(
         contextParams,
         context,
@@ -99,10 +101,24 @@ public class PwaApplicationContextService {
                                            int applicationId) {
     if (!applicationTypes.isEmpty() && !applicationTypes.contains(applicationType)) {
       throw new AccessDeniedException(
-          String.format("PWA application with ID: %s and type: %s cannot access route defined for app types: %s",
+          String.format("PWA application with ID: %s and application type: %s cannot access route defined for app types: %s",
               applicationId,
               applicationType,
               applicationTypes
+          )
+      );
+    }
+  }
+
+  private void performResourceTypeCheck(Set<PwaResourceType> resourceTypes,
+                                           PwaResourceType resourceType,
+                                           int applicationId) {
+    if (!resourceTypes.isEmpty() && !resourceTypes.contains(resourceType)) {
+      throw new AccessDeniedException(
+          String.format("PWA application with ID: %s and resource type: %s cannot access route defined for resource types: %s",
+              applicationId,
+              resourceType,
+              resourceTypes
           )
       );
     }

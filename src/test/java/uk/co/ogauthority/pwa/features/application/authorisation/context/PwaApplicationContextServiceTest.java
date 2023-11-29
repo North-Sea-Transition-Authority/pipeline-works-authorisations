@@ -7,6 +7,7 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -72,6 +74,7 @@ public class PwaApplicationContextServiceTest {
     application = new PwaApplication();
     application.setId(1);
     application.setApplicationType(PwaApplicationType.INITIAL);
+    application.setResourceType(PwaResourceType.PETROLEUM);
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
 
@@ -202,6 +205,35 @@ public class PwaApplicationContextServiceTest {
 
     contextService.validateAndCreate(builder);
 
+  }
+
+  @Test
+  public void validateAndCreate_resourceTypesCheck_valid() {
+
+    var allowedTypes = EnumSet.allOf(PwaResourceType.class);
+
+    allowedTypes.forEach(type -> {
+
+      detail.getPwaApplication().setResourceType(type);
+      var builder = new PwaApplicationContextParams(1, user)
+          .requiredResourceTypes(allowedTypes);
+
+      var appContext = contextService.validateAndCreate(builder);
+
+      assertThat(appContext.getApplicationDetail()).isEqualTo(detail);
+      assertThat(appContext.getUser()).isEqualTo(user);
+      assertThat(appContext.getPermissions()).containsExactly(PwaApplicationPermission.EDIT);
+    });
+
+  }
+
+  @Test(expected = AccessDeniedException.class)
+  public void validateAndCreate_resourceTypesCheck_invalid() {
+    var invalidType = PwaResourceType.CCUS;
+    detail.getPwaApplication().setResourceType(invalidType);
+    var builder = new PwaApplicationContextParams(1, user)
+        .requiredResourceTypes(EnumSet.complementOf(EnumSet.of(PwaResourceType.CCUS)));
+    contextService.validateAndCreate(builder);
   }
 
   @Test

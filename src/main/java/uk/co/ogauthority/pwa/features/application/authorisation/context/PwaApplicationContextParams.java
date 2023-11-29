@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.authorisation.context;
 import java.util.Set;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
@@ -16,7 +17,9 @@ public class PwaApplicationContextParams {
   private final AuthenticatedUserAccount authenticatedUserAccount;
 
   private Set<PwaApplicationStatus> statuses;
-  private Set<PwaApplicationType> types;
+  private Set<PwaApplicationType> applicationTypes;
+
+  private Set<PwaResourceType> resourceTypes;
   private Set<PwaApplicationPermission> permissions;
 
   private Integer padPipelineId;
@@ -26,8 +29,9 @@ public class PwaApplicationContextParams {
     this.applicationId = applicationId;
     this.authenticatedUserAccount = authenticatedUserAccount;
     statuses = Set.of();
-    types = Set.of();
+    applicationTypes = Set.of();
     permissions = Set.of();
+    resourceTypes = Set.of();
   }
 
   public PwaApplicationContextParams requiredAppStatuses(Set<PwaApplicationStatus> statuses) {
@@ -36,7 +40,12 @@ public class PwaApplicationContextParams {
   }
 
   public PwaApplicationContextParams requiredAppTypes(Set<PwaApplicationType> types) {
-    this.types = types;
+    this.applicationTypes = types;
+    return this;
+  }
+
+  public PwaApplicationContextParams requiredResourceTypes(Set<PwaResourceType> resourceTypes) {
+    this.resourceTypes = resourceTypes;
     return this;
   }
 
@@ -67,8 +76,12 @@ public class PwaApplicationContextParams {
     return statuses;
   }
 
-  Set<PwaApplicationType> getTypes() {
-    return types;
+  Set<PwaApplicationType> getApplicationTypes() {
+    return applicationTypes;
+  }
+
+  public Set<PwaResourceType> getResourceTypes() {
+    return resourceTypes;
   }
 
   public Set<PwaApplicationPermission> getPermissions() {

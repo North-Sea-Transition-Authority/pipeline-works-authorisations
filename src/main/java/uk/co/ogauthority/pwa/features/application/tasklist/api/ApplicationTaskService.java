@@ -9,7 +9,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaResourceTypeCheck;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
@@ -48,6 +50,7 @@ public class ApplicationTaskService {
 
     // Is the task valid for app type and does the specific app detail qualify for task?
     return appTypeSupportsTask(pwaApplicationDetail.getPwaApplicationType(), applicationTask)
+        && resourceTypeSupportsTask(pwaApplicationDetail.getResourceType(), applicationTask)
         && taskService.canShowInTaskList(pwaApplicationDetail);
   }
 
@@ -56,6 +59,14 @@ public class ApplicationTaskService {
     var taskAppTypes = getValidApplicationTypesForTask(applicationTask);
 
     return taskAppTypes.contains(pwaApplicationType);
+
+  }
+
+  public boolean resourceTypeSupportsTask(PwaResourceType pwaResourceType, GeneralPurposeApplicationTask applicationTask) {
+
+    var taskResourceTypes = getValidResourceTypesForTask(applicationTask);
+
+    return taskResourceTypes.contains(pwaResourceType);
 
   }
 
@@ -109,6 +120,16 @@ public class ApplicationTaskService {
         .map(typeCheck -> Set.of(typeCheck.types()))
         // task has valid app type if controller has no type restriction
         .orElse(EnumSet.allOf(PwaApplicationType.class));
+  }
+
+  private Set<PwaResourceType> getValidResourceTypesForTask(GeneralPurposeApplicationTask applicationTask) {
+    return Optional.ofNullable(applicationTask.getControllerClass())
+        // this allows us to test method logic by returning an arbitrary class from the applicationContext in tests
+        .map(controllerClass -> applicationContext.getBean(controllerClass).getClass())
+        .map(clazz -> clazz.getAnnotation(PwaResourceTypeCheck.class))
+        .map(typeCheck -> Set.of(typeCheck.types()))
+        // task has valid resource type if controller has no type restriction
+        .orElse(EnumSet.allOf(PwaResourceType.class));
   }
 
 }
