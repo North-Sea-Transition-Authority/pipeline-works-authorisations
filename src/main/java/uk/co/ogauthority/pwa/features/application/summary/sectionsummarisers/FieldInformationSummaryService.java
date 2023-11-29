@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSumm
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
@@ -25,17 +25,17 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
 public class FieldInformationSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
-  private final PadFieldService padFieldService;
+  private final PadAreaService padAreaService;
   private final MasterPwaDetailFieldService masterPwaDetailFieldService;
   private final DiffService diffService;
 
   @Autowired
   public FieldInformationSummaryService(TaskListService taskListService,
-                                        PadFieldService padFieldService,
+                                        PadAreaService padAreaService,
                                         MasterPwaDetailFieldService masterPwaDetailFieldService,
                                         DiffService diffService) {
     this.taskListService = taskListService;
-    this.padFieldService = padFieldService;
+    this.padAreaService = padAreaService;
     this.masterPwaDetailFieldService = masterPwaDetailFieldService;
     this.diffService = diffService;
   }
@@ -53,7 +53,7 @@ public class FieldInformationSummaryService implements ApplicationSectionSummari
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var appDetailFieldLinks = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var appDetailFieldLinks = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
     var consentedFieldLinks = masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(
         pwaApplicationDetail.getPwaApplication()
     );

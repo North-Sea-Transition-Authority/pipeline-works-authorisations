@@ -34,8 +34,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -49,8 +49,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(controllers = PadPwaFieldsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractControllerTest {
+@WebMvcTest(controllers = PadPwaAreaController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static int APP_ID = 10;
   private static int APP_DETAIL_ID = 100;
@@ -59,11 +59,11 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private PadField padField;
+  private PadLinkedArea padLinkedArea;
   private DevukField devukField;
 
   private AuthenticatedUserAccount user;
@@ -79,14 +79,14 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
         PwaApplicationType.INITIAL, APP_ID, APP_DETAIL_ID
     );
     devukField = new DevukField(1, "abc", 500);
-    padField = new PadField();
-    padField.setId(1);
-    padField.setDevukField(devukField);
+    padLinkedArea = new PadLinkedArea();
+    padLinkedArea.setId(1);
+    padLinkedArea.setDevukField(devukField);
 
     when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-    when(padFieldService.getActiveFieldsForApplicationDetail(any())).thenReturn(List.of(padField));
+    when(padAreaService.getActiveFieldsForApplicationDetail(any())).thenReturn(List.of(padLinkedArea));
 
     when(devukFieldService.getAllFields()).thenReturn(List.of(devukField));
 
@@ -104,7 +104,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
@@ -116,7 +116,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
@@ -128,7 +128,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .renderFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null)));
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
@@ -139,7 +139,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   @Test
   public void renderFields() throws Exception {
 
-    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(PadPwaFieldsController.class)
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(PadPwaAreaController.class)
         .renderFields(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
         .with(authenticatedUserAndSession(user))
         .with(csrf()))
@@ -148,20 +148,20 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
         .andExpect(view().name("pwaApplication/shared/fieldInformation/fieldInformation"))
         .andReturn()
         .getModelAndView();
-    var fields = (List<PadField>) modelAndView.getModel().get("fields");
+    var fields = (List<PadLinkedArea>) modelAndView.getModel().get("fields");
     var fieldMap = (Map<String, String>) modelAndView.getModel().get("fieldMap");
-    assertThat(fields).containsExactly(padField);
+    assertThat(fields).containsExactly(padLinkedArea);
     assertThat(fieldMap).containsExactly(
-        Map.entry(padField.getDevukField().getFieldId().toString(), padField.getDevukField().getFieldName()));
+        Map.entry(padLinkedArea.getDevukField().getFieldId().toString(), padLinkedArea.getDevukField().getFieldName()));
   }
 
   @Test
   public void postFields_permissionSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padAreaService, new PwaFieldForm(), ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
 
@@ -171,11 +171,11 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
   @Test
   public void postFields_appTypeSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padAreaService, new PwaFieldForm(), ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
 
@@ -185,11 +185,11 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
 
   @Test
   public void postFields_appStatusSmokeTest() {
-    ControllerTestUtils.passValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.FULL);
+    ControllerTestUtils.passValidationWhenPost(padAreaService, new PwaFieldForm(), ValidationType.FULL);
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
-            ReverseRouter.route(on(PadPwaFieldsController.class)
+            ReverseRouter.route(on(PadPwaAreaController.class)
                 .postFields(type, applicationDetail.getMasterPwaApplicationId(), null, null, null, null, null)))
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
 
@@ -200,9 +200,9 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   @Test
   public void postFields_validationFailed() throws Exception {
 
-    ControllerTestUtils.failValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.FULL);
+    ControllerTestUtils.failValidationWhenPost(padAreaService, new PwaFieldForm(), ValidationType.FULL);
 
-    mockMvc.perform(post(ReverseRouter.route(on(PadPwaFieldsController.class)
+    mockMvc.perform(post(ReverseRouter.route(on(PadPwaAreaController.class)
         .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
             null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -213,7 +213,7 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
     .andReturn().getModelAndView();
 
 
-    verify(padFieldService, times(0)).updateFieldInformation(any(), any());
+    verify(padAreaService, times(0)).updateFieldInformation(any(), any());
 
   }
 
@@ -221,9 +221,9 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
   @Test
   public void postFields_valid() throws Exception {
 
-    ControllerTestUtils.passValidationWhenPost(padFieldService, new PwaFieldForm(), ValidationType.PARTIAL);
+    ControllerTestUtils.passValidationWhenPost(padAreaService, new PwaFieldForm(), ValidationType.PARTIAL);
 
-    mockMvc.perform(post(ReverseRouter.route(on(PadPwaFieldsController.class)
+    mockMvc.perform(post(ReverseRouter.route(on(PadPwaAreaController.class)
         .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
             null, null, null, null, null)))
         .with(authenticatedUserAndSession(user))
@@ -231,8 +231,8 @@ public class PadPwaFieldsControllerTest extends PwaApplicationContextAbstractCon
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(padFieldService, times(1)).getActiveFieldsForApplicationDetail(any());
-    verify(padFieldService, times(1)).updateFieldInformation(any(), any());
+    verify(padAreaService, times(1)).getActiveFieldsForApplicationDetail(any());
+    verify(padAreaService, times(1)).updateFieldInformation(any(), any());
 
   }
 

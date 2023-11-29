@@ -20,18 +20,18 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PwaFieldFormValidatorTest {
+public class PwaAreaFormValidatorTest {
 
   @Mock
   private DevukFieldService devukFieldService;
 
-  private PwaFieldFormValidator validator;
+  private PwaAreaFormValidator validator;
   private PwaFieldForm form;
 
   @Before
   public void setUp() {
     var serviceNameAcronym = "PWA";
-    validator = new PwaFieldFormValidator(devukFieldService, serviceNameAcronym);
+    validator = new PwaAreaFormValidator(devukFieldService, serviceNameAcronym);
     form = new PwaFieldForm();
   }
 

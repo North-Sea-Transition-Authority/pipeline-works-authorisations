@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEn
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.controller.EnvironmentalDecomController;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackService;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.controller.FastTrackController;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.controller.PadPwaFieldsController;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.controller.PadPwaAreaController;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoService;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.controller.FluidCompositionInfoController;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoService;
@@ -64,15 +64,15 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
 
   FIELD_INFORMATION(
       "Field information",
-      PadPwaFieldsController.class,
-      PadFieldService.class,
+      PadPwaAreaController.class,
+      PadAreaService.class,
       1, 1
   ),
 
   CARBON_STORAGE_INFORMATION(
       "Carbon storage information",
-      PadPwaFieldsController.class,
-      PadFieldService.class,
+      PadPwaAreaController.class,
+      PadAreaService.class,
       1, 1
   ),
 
@@ -293,10 +293,10 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
     uriVariables.put("applicationId", applicationId);
     switch (this) {
       case FIELD_INFORMATION:
-        return ReverseRouter.route(on(PadPwaFieldsController.class)
+        return ReverseRouter.route(on(PadPwaAreaController.class)
             .renderFields(applicationType, applicationId, null, null, null));
       case CARBON_STORAGE_INFORMATION:
-        return ReverseRouter.route(on(PadPwaFieldsController.class)
+        return ReverseRouter.route(on(PadPwaAreaController.class)
             .renderFields(applicationType, applicationId, null, null, null));
       case APPLICATION_USERS:
         return ReverseRouter.route(on(PwaContactController.class)

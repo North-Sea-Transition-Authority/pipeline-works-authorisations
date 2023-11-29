@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.controller.FieldRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
@@ -36,26 +36,26 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
 @Controller
-@RequestMapping("/pwa-application/{applicationType}/{applicationId}/fields")
+@RequestMapping("/pwa-application/{applicationType}/{applicationId}/areas")
 @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-public class PadPwaFieldsController {
+public class PadPwaAreaController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
   private final DevukFieldService devukFieldService;
-  private final PadFieldService padFieldService;
+  private final PadAreaService padAreaService;
   private final ControllerHelperService controllerHelperService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
 
   @Autowired
-  public PadPwaFieldsController(ApplicationBreadcrumbService breadcrumbService,
-                                DevukFieldService devukFieldService,
-                                PadFieldService padFieldService,
-                                ControllerHelperService controllerHelperService,
-                                PwaApplicationRedirectService pwaApplicationRedirectService) {
+  public PadPwaAreaController(ApplicationBreadcrumbService breadcrumbService,
+                              DevukFieldService devukFieldService,
+                              PadAreaService padAreaService,
+                              ControllerHelperService controllerHelperService,
+                              PwaApplicationRedirectService pwaApplicationRedirectService) {
     this.breadcrumbService = breadcrumbService;
     this.devukFieldService = devukFieldService;
-    this.padFieldService = padFieldService;
+    this.padAreaService = padAreaService;
     this.controllerHelperService = controllerHelperService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
   }
@@ -65,10 +65,10 @@ public class PadPwaFieldsController {
         .addObject("backUrl",
             pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
 
-    modelAndView.addObject("fields", padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
+    modelAndView.addObject("fields", padAreaService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
     modelAndView.addObject("fieldMap", getDevukFieldMap());
     modelAndView.addObject("errorList", List.of());
-    modelAndView.addObject("preSelectedItems", padFieldService.getPreSelectedApplicationFields(pwaApplicationDetail));
+    modelAndView.addObject("preSelectedItems", padAreaService.getPreSelectedApplicationFields(pwaApplicationDetail));
     modelAndView.addObject("fieldNameRestUrl", SearchSelectorService.route(on(FieldRestController.class)
             .searchFields(pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
 
@@ -87,7 +87,7 @@ public class PadPwaFieldsController {
   ) {
 
     var modelAndView = getFieldsModelAndView(applicationContext.getApplicationDetail());
-    padFieldService.mapEntityToForm(applicationContext.getApplicationDetail(), form);
+    padAreaService.mapEntityToForm(applicationContext.getApplicationDetail(), form);
     return modelAndView;
 
   }
@@ -102,12 +102,12 @@ public class PadPwaFieldsController {
       PwaApplicationContext applicationContext,
       ValidationType validationType) {
 
-    bindingResult = padFieldService.validate(form, bindingResult, validationType, applicationContext.getApplicationDetail());
+    bindingResult = padAreaService.validate(form, bindingResult, validationType, applicationContext.getApplicationDetail());
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getFieldsModelAndView(applicationContext.getApplicationDetail()), () -> {
 
-          padFieldService.updateFieldInformation(applicationContext.getApplicationDetail(), form);
+          padAreaService.updateFieldInformation(applicationContext.getApplicationDetail(), form);
 
           return pwaApplicationRedirectService.getTaskListRedirect(applicationContext.getPwaApplication());
 

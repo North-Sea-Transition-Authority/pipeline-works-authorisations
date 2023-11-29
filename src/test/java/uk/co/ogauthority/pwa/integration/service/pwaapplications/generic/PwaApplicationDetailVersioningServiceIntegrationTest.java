@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEn
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea_;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
@@ -795,10 +795,10 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
 
     ObjectTestUtils.assertValuesEqual(v1ManualField, v2ManualField,
-        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+        Set.of(PadLinkedArea_.ID, PadLinkedArea_.PWA_APPLICATION_DETAIL));
 
     ObjectTestUtils.assertValuesEqual(v1DevukField, v2DevukField,
-        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+        Set.of(PadLinkedArea_.ID, PadLinkedArea_.PWA_APPLICATION_DETAIL));
 
   }
 

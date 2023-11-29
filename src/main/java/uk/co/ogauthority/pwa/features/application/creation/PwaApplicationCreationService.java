@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -44,7 +44,7 @@ public class PwaApplicationCreationService {
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
   private final PadOrganisationRoleService padOrganisationRoleService;
   private final MasterPwaDetailFieldService masterPwaDetailFieldService;
-  private final PadFieldService padFieldService;
+  private final PadAreaService padAreaService;
   private final Clock clock;
 
 
@@ -58,7 +58,7 @@ public class PwaApplicationCreationService {
                                        PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                        PadOrganisationRoleService padOrganisationRoleService,
                                        MasterPwaDetailFieldService masterPwaDetailFieldService,
-                                       PadFieldService padFieldService,
+                                       PadAreaService padAreaService,
                                        @Qualifier("utcClock") Clock clock) {
     this.masterPwaService = masterPwaService;
     this.pwaApplicationRepository = pwaApplicationRepository;
@@ -69,7 +69,7 @@ public class PwaApplicationCreationService {
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
     this.padOrganisationRoleService = padOrganisationRoleService;
     this.masterPwaDetailFieldService = masterPwaDetailFieldService;
-    this.padFieldService = padFieldService;
+    this.padAreaService = padAreaService;
     this.clock = clock;
   }
 
@@ -157,7 +157,7 @@ public class PwaApplicationCreationService {
 
     var masterPwaDetailFields = masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa);
 
-    padFieldService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
+    padAreaService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
         masterPwaService.getCurrentDetailOrThrow(masterPwa), masterPwaDetailFields);
 
     return applicationDetail;

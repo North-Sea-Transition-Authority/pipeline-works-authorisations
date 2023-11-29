@@ -5,7 +5,7 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
@@ -17,15 +17,15 @@ public class FieldWriter implements ConsentWriter {
 
   private final MasterPwaService masterPwaService;
   private final MasterPwaDetailFieldService masterPwaDetailFieldService;
-  private final PadFieldService padFieldService;
+  private final PadAreaService padAreaService;
 
   @Autowired
   public FieldWriter(MasterPwaService masterPwaService,
                      MasterPwaDetailFieldService masterPwaDetailFieldService,
-                     PadFieldService padFieldService) {
+                     PadAreaService padAreaService) {
     this.masterPwaService = masterPwaService;
     this.masterPwaDetailFieldService = masterPwaDetailFieldService;
-    this.padFieldService = padFieldService;
+    this.padAreaService = padAreaService;
   }
 
   @Override
@@ -63,7 +63,7 @@ public class FieldWriter implements ConsentWriter {
       var masterPwaFieldView = masterPwaDetailFieldService
           .getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication());
 
-      var padFieldView = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+      var padFieldView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
 
       if (!Objects.equals(masterPwaFieldView, padFieldView)) {
 
@@ -81,7 +81,7 @@ public class FieldWriter implements ConsentWriter {
 
     if (writeNewFieldDetails) {
 
-      var padFields = padFieldService.getActiveFieldsForApplicationDetail(pwaApplicationDetail);
+      var padFields = padAreaService.getActiveFieldsForApplicationDetail(pwaApplicationDetail);
 
       masterPwaDetailFieldService.createMasterPwaFieldsFromPadFields(currentPwaDetail, padFields);
 

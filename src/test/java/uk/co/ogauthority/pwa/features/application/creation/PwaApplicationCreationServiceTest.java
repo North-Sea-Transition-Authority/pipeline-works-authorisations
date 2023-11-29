@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
@@ -92,7 +92,7 @@ public class PwaApplicationCreationServiceTest {
   private MasterPwaDetailFieldService masterPwaDetailFieldService;
 
   @Mock
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   private PwaApplicationCreationService pwaApplicationCreationService;
 
@@ -124,7 +124,7 @@ public class PwaApplicationCreationServiceTest {
         pwaConsentOrganisationRoleService,
         padOrganisationRoleService,
         masterPwaDetailFieldService,
-        padFieldService,
+        padAreaService,
         clock
     );
   }
@@ -352,7 +352,7 @@ public class PwaApplicationCreationServiceTest {
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(padFieldService, times(1)).createAndSavePadFieldsFromMasterPwa(
+    verify(padAreaService, times(1)).createAndSavePadFieldsFromMasterPwa(
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
     assertThat(application)

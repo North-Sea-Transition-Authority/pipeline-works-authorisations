@@ -19,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
@@ -138,10 +138,10 @@ public class MasterPwaDetailFieldServiceTest {
   @Test
   public void createMasterPwaFieldsFromPadFields() {
 
-    var devukField = new PadField();
+    var devukField = new PadLinkedArea();
     devukField.setDevukField(new DevukField(1, "FNAME", 400));
 
-    var manualField = new PadField();
+    var manualField = new PadLinkedArea();
     manualField.setFieldName("MANUAL");
 
     var detail = new MasterPwaDetail();

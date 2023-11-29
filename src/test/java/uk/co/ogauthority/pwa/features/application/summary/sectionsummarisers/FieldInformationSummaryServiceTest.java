@@ -19,7 +19,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
@@ -43,7 +43,7 @@ public class FieldInformationSummaryServiceTest {
   private DiffService diffService;
 
   @Mock
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   @Mock
   private MasterPwaDetailFieldService masterPwaDetailFieldService;
@@ -64,7 +64,7 @@ public class FieldInformationSummaryServiceTest {
 
     fieldInformationSummaryService = new FieldInformationSummaryService(
         taskListService,
-        padFieldService,
+        padAreaService,
         masterPwaDetailFieldService,
         diffService
     );
@@ -89,7 +89,7 @@ public class FieldInformationSummaryServiceTest {
 
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
-    when(padFieldService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
+    when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
     var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -122,7 +122,7 @@ public class FieldInformationSummaryServiceTest {
 
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
-    when(padFieldService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
+    when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
     var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -138,7 +138,7 @@ public class FieldInformationSummaryServiceTest {
 
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
-    when(padFieldService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
+    when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
 
     var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -154,7 +154,7 @@ public class FieldInformationSummaryServiceTest {
 
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);
-    when(padFieldService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
+    when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
 
     var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -170,7 +170,7 @@ public class FieldInformationSummaryServiceTest {
 
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);
-    when(padFieldService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
+    when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
     var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 

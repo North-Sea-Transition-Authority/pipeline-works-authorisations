@@ -8,7 +8,7 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
@@ -69,9 +69,9 @@ public class MasterPwaDetailFieldService {
   }
 
   @Transactional
-  public void createMasterPwaFieldsFromPadFields(MasterPwaDetail detail, List<PadField> padFields) {
+  public void createMasterPwaFieldsFromPadFields(MasterPwaDetail detail, List<PadLinkedArea> padLinkedAreas) {
 
-    var pwaFields = padFields.stream()
+    var pwaFields = padLinkedAreas.stream()
         .map(padField -> createPwaFieldFromPadField(detail, padField))
         .collect(Collectors.toList());
 
@@ -79,13 +79,13 @@ public class MasterPwaDetailFieldService {
 
   }
 
-  private MasterPwaDetailField createPwaFieldFromPadField(MasterPwaDetail detail, PadField padField) {
+  private MasterPwaDetailField createPwaFieldFromPadField(MasterPwaDetail detail, PadLinkedArea padLinkedArea) {
 
-    var devukFieldId = Optional.ofNullable(padField.getDevukField())
+    var devukFieldId = Optional.ofNullable(padLinkedArea.getDevukField())
         .map(DevukField::getDevukFieldId)
         .orElse(null);
 
-    return new MasterPwaDetailField(detail, devukFieldId, padField.getFieldName());
+    return new MasterPwaDetailField(detail, devukFieldId, padLinkedArea.getFieldName());
 
   }
 

@@ -15,14 +15,14 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
-public class PwaFieldFormValidator implements SmartValidator {
+public class PwaAreaFormValidator implements SmartValidator {
 
   private final DevukFieldService devukFieldService;
   private final String serviceNameAcronym;
 
   @Autowired
-  public PwaFieldFormValidator(DevukFieldService devukFieldService,
-                               @Value("${service.name.acronym}") String serviceNameAcronym) {
+  public PwaAreaFormValidator(DevukFieldService devukFieldService,
+                              @Value("${service.name.acronym}") String serviceNameAcronym) {
     this.devukFieldService = devukFieldService;
     this.serviceNameAcronym = serviceNameAcronym;
   }

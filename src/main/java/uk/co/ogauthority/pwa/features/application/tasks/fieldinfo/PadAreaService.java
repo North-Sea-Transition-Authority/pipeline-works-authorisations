@@ -30,37 +30,37 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
 @Service
-public class PadFieldService implements ApplicationFormSectionService {
+public class PadAreaService implements ApplicationFormSectionService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(PadFieldService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PadAreaService.class);
 
-  private final PadFieldRepository padFieldRepository;
+  private final PadAreaRepository padAreaRepository;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PadProjectInformationService projectInformationService;
   private final DevukFieldService devukFieldService;
   private final SearchSelectorService searchSelectorService;
-  private final PwaFieldFormValidator pwaFieldFormValidator;
+  private final PwaAreaFormValidator pwaAreaFormValidator;
   private final EntityCopyingService entityCopyingService;
 
   @Autowired
-  public PadFieldService(PadFieldRepository padFieldRepository,
-                         PwaApplicationDetailService pwaApplicationDetailService,
-                         PadProjectInformationService projectInformationService,
-                         DevukFieldService devukFieldService,
-                         SearchSelectorService searchSelectorService,
-                         PwaFieldFormValidator pwaFieldFormValidator,
-                         EntityCopyingService entityCopyingService) {
-    this.padFieldRepository = padFieldRepository;
+  public PadAreaService(PadAreaRepository padAreaRepository,
+                        PwaApplicationDetailService pwaApplicationDetailService,
+                        PadProjectInformationService projectInformationService,
+                        DevukFieldService devukFieldService,
+                        SearchSelectorService searchSelectorService,
+                        PwaAreaFormValidator pwaAreaFormValidator,
+                        EntityCopyingService entityCopyingService) {
+    this.padAreaRepository = padAreaRepository;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.projectInformationService = projectInformationService;
     this.devukFieldService = devukFieldService;
     this.searchSelectorService = searchSelectorService;
-    this.pwaFieldFormValidator = pwaFieldFormValidator;
+    this.pwaAreaFormValidator = pwaAreaFormValidator;
     this.entityCopyingService = entityCopyingService;
   }
 
-  public List<PadField> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
-    return padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
+  public List<PadLinkedArea> getActiveFieldsForApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
+    return padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
   }
 
   /**
@@ -71,16 +71,16 @@ public class PadFieldService implements ApplicationFormSectionService {
    */
   private void addFields(PwaApplicationDetail pwaApplicationDetail, List<DevukField> fields) {
 
-    List<PadField> newPadFields = fields.stream()
+    List<PadLinkedArea> newPadLinkedAreas = fields.stream()
         .map(devukField -> {
-          var padField = new PadField();
+          var padField = new PadLinkedArea();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
           padField.setDevukField(devukField);
           return padField;
         })
         .collect(Collectors.toList());
 
-    padFieldRepository.saveAll(newPadFields);
+    padAreaRepository.saveAll(newPadLinkedAreas);
 
   }
 
@@ -92,16 +92,16 @@ public class PadFieldService implements ApplicationFormSectionService {
    */
   private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames, boolean removePrefix) {
 
-    List<PadField> newPadFields = fieldNames.stream()
+    List<PadLinkedArea> newPadLinkedAreas = fieldNames.stream()
         .map(fieldName -> {
-          var padField = new PadField();
+          var padField = new PadLinkedArea();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
           padField.setFieldName(removePrefix ? searchSelectorService.removePrefix(fieldName) : fieldName);
           return padField;
         })
         .collect(Collectors.toList());
 
-    padFieldRepository.saveAll(newPadFields);
+    padAreaRepository.saveAll(newPadLinkedAreas);
 
   }
 
@@ -114,7 +114,7 @@ public class PadFieldService implements ApplicationFormSectionService {
 
     var fieldsToEnd = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
 
-    padFieldRepository.deleteAll(fieldsToEnd);
+    padAreaRepository.deleteAll(fieldsToEnd);
 
   }
 
@@ -232,22 +232,22 @@ public class PadFieldService implements ApplicationFormSectionService {
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    pwaFieldFormValidator.validate(form, bindingResult, validationType);
+    pwaAreaFormValidator.validate(form, bindingResult, validationType);
     return bindingResult;
   }
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
     entityCopyingService.duplicateEntitiesAndSetParent(
-        () -> padFieldRepository.getAllByPwaApplicationDetail(fromDetail),
+        () -> padAreaRepository.getAllByPwaApplicationDetail(fromDetail),
         toDetail,
-        PadField.class
+        PadLinkedArea.class
     );
   }
 
   public PwaFieldLinksView getApplicationFieldLinksView(PwaApplicationDetail pwaApplicationDetail) {
 
-    var linkedFieldNames = padFieldRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
+    var linkedFieldNames = padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .map(pf -> pf.getDevukField() != null
             ? new StringWithTag(pf.getDevukField().getFieldName())

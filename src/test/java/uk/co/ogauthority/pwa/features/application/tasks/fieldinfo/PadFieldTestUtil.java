@@ -10,20 +10,20 @@ public class PadFieldTestUtil {
   private PadFieldTestUtil() {
   }
 
-  private static PadField createPadField(PwaApplicationDetail pwaApplicationDetail){
-    var f = new PadField();
+  private static PadLinkedArea createPadField(PwaApplicationDetail pwaApplicationDetail){
+    var f = new PadLinkedArea();
     f.setPwaApplicationDetail(pwaApplicationDetail);
     return f;
   }
 
-  public static PadField createManualPadField(PwaApplicationDetail pwaApplicationDetail){
+  public static PadLinkedArea createManualPadField(PwaApplicationDetail pwaApplicationDetail){
     var f = createPadField(pwaApplicationDetail);
     // dont care about the name
     f.setFieldName(String.valueOf(RandomUtils.nextBytes(10)));
     return f;
   }
 
-  public static PadField createDevukPadField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField){
+  public static PadLinkedArea createDevukPadField(PwaApplicationDetail pwaApplicationDetail, DevukField devukField){
     var f = createPadField(pwaApplicationDetail);
     f.setDevukField(devukField);
     return f;

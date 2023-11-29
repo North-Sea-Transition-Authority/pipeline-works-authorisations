@@ -7,12 +7,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Repository
-public interface PadFieldRepository extends CrudRepository<PadField, Integer> {
+public interface PadAreaRepository extends CrudRepository<PadLinkedArea, Integer> {
 
-  List<PadField> getAllByPwaApplicationDetail(
+  List<PadLinkedArea> getAllByPwaApplicationDetail(
       PwaApplicationDetail pwaApplicationDetail);
 
-  PadField findByPwaApplicationDetailAndDevukField(
+  PadLinkedArea findByPwaApplicationDetailAndDevukField(
       PwaApplicationDetail pwaApplicationDetail, DevukField devukField);
 
 }

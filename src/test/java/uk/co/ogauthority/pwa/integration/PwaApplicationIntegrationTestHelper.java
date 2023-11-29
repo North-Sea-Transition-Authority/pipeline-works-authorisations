@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEn
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning_;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea_;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo;
@@ -226,14 +226,14 @@ public class PwaApplicationIntegrationTestHelper {
     );
   }
 
-  public List<PadField> getPadFields(PwaApplicationDetail pwaApplicationDetail) {
+  public List<PadLinkedArea> getPadFields(PwaApplicationDetail pwaApplicationDetail) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-    CriteriaQuery<PadField> criteriaQuery = cb.createQuery(PadField.class);
-    Root<PadField> padFieldRoot = criteriaQuery.from(PadField.class);
+    CriteriaQuery<PadLinkedArea> criteriaQuery = cb.createQuery(PadLinkedArea.class);
+    Root<PadLinkedArea> padFieldRoot = criteriaQuery.from(PadLinkedArea.class);
 
     return entityManager.createQuery(
         criteriaQuery
-            .where(cb.equal(padFieldRoot.get(PadField_.pwaApplicationDetail), pwaApplicationDetail))
+            .where(cb.equal(padFieldRoot.get(PadLinkedArea_.pwaApplicationDetail), pwaApplicationDetail))
     ).getResultList();
   }
 

@@ -14,8 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -38,7 +38,7 @@ public class FieldWriterTest {
   private MasterPwaDetailFieldService masterPwaDetailFieldService;
 
   @Mock
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   private FieldWriter fieldWriter;
 
@@ -47,7 +47,7 @@ public class FieldWriterTest {
   private MasterPwa masterPwa;
   private MasterPwaDetail masterPwaDetail;
 
-  private List<PadField> fields;
+  private List<PadLinkedArea> fields;
 
   private ConsentWriterDto consentWriterDto;
 
@@ -62,13 +62,13 @@ public class FieldWriterTest {
 
     masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
 
-    fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padFieldService);
+    fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padAreaService);
 
     when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
     when(masterPwaService.createDuplicateNewDetail(any())).thenReturn(masterPwaDetail);
 
-    fields = List.of(new PadField());
-    when(padFieldService.getActiveFieldsForApplicationDetail(detail)).thenReturn(fields);
+    fields = List.of(new PadLinkedArea());
+    when(padAreaService.getActiveFieldsForApplicationDetail(detail)).thenReturn(fields);
 
     consentWriterDto = new ConsentWriterDto();
 
@@ -103,7 +103,7 @@ public class FieldWriterTest {
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
     fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -125,7 +125,7 @@ public class FieldWriterTest {
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
     fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -147,7 +147,7 @@ public class FieldWriterTest {
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
     fieldWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -169,7 +169,7 @@ public class FieldWriterTest {
     when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
     fieldWriter.write(detail, pwaConsent, consentWriterDto);
 

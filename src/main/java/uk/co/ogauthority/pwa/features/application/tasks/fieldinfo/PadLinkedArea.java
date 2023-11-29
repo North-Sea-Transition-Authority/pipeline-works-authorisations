@@ -12,7 +12,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
 @Entity(name = "pad_fields")
-public class PadField implements ChildEntity<Integer, PwaApplicationDetail> {
+public class PadLinkedArea implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +29,7 @@ public class PadField implements ChildEntity<Integer, PwaApplicationDetail> {
   @JoinColumn(name = "application_detail_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
-  public PadField() {
+  public PadLinkedArea() {
   }
 
   //ChildEntity methods
