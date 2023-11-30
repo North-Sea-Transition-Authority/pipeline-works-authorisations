@@ -70,7 +70,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   ),
 
   CARBON_STORAGE_INFORMATION(
-      "Carbon storage information",
+      "Storage site information",
       PadPwaAreaController.class,
       PadAreaService.class,
       1, 1
