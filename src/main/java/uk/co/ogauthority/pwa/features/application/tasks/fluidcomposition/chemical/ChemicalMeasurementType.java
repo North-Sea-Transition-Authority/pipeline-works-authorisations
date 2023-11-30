@@ -8,7 +8,6 @@ public enum ChemicalMeasurementType {
   NONE("Not present", "Not present", false),
   TRACE("Trace (less than 0.01 mole %)", "Trace", false),
   PPMV_100K("Present", "ppmv", true, 100000, 0),
-
   MOLE_PERCENTAGE("Present", "More than trace", true, 100, 0);
 
   private final String displayText;
