@@ -159,7 +159,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   }
 
   public boolean isFdpQuestionRequired(PwaApplicationDetail pwaApplicationDetail) {
-    return BooleanUtils.toBooleanDefaultIfNull(pwaApplicationDetail.getLinkedToField(), false);
+    return BooleanUtils.toBooleanDefaultIfNull(pwaApplicationDetail.getLinkedToArea(), false);
   }
 
   public String getFormattedProposedStartDate(PwaApplicationDetail pwaApplicationDetail) {

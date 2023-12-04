@@ -198,7 +198,7 @@ public class PadAreaService implements ApplicationFormSectionService {
 
   public void mapEntityToForm(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form) {
     var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
-    form.setLinkedToField(pwaApplicationDetail.getLinkedToField());
+    form.setLinkedToField(pwaApplicationDetail.getLinkedToArea());
 
     if (!fields.isEmpty()) {
       form.setFieldIds(fields.stream()
@@ -255,7 +255,7 @@ public class PadAreaService implements ApplicationFormSectionService {
         .collect(Collectors.toList());
 
     return new PwaFieldLinksView(
-        pwaApplicationDetail.getLinkedToField(),
+        pwaApplicationDetail.getLinkedToArea(),
         pwaApplicationDetail.getNotLinkedDescription(),
         linkedFieldNames
     );

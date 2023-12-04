@@ -293,7 +293,7 @@ public class PadAreaServiceTest {
     var form = new PwaFieldForm();
     var desc = "DESC";
     when(padAreaRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
-    pwaApplicationDetail.setLinkedToField(false);
+    pwaApplicationDetail.setLinkedToArea(false);
     pwaApplicationDetail.setNotLinkedDescription(desc);
 
     padAreaService.mapEntityToForm(pwaApplicationDetail, form);
@@ -306,7 +306,7 @@ public class PadAreaServiceTest {
   @Test
   public void mapEntityToForm_whenLinkedToField() {
     var form = new PwaFieldForm();
-    pwaApplicationDetail.setLinkedToField(true);
+    pwaApplicationDetail.setLinkedToArea(true);
 
     var padFieldManaullyEntered = new PadLinkedArea();
     padFieldManaullyEntered.setFieldName(manuallyEnteredFieldName);
@@ -362,7 +362,7 @@ public class PadAreaServiceTest {
 
   @Test
   public void getApplicationFieldLinksView_whenNoLinkData() {
-    pwaApplicationDetail.setLinkedToField(null);
+    pwaApplicationDetail.setLinkedToArea(null);
     pwaApplicationDetail.setNotLinkedDescription(null);
     var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
 
@@ -374,7 +374,7 @@ public class PadAreaServiceTest {
 
   @Test
   public void getApplicationFieldLinksView_whenIsNotLinkedToField() {
-    pwaApplicationDetail.setLinkedToField(false);
+    pwaApplicationDetail.setLinkedToArea(false);
     pwaApplicationDetail.setNotLinkedDescription("NOT_LINKED");
     var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
 
@@ -392,7 +392,7 @@ public class PadAreaServiceTest {
     when(padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padManualFieldLink, existingField));
 
-    pwaApplicationDetail.setLinkedToField(true);
+    pwaApplicationDetail.setLinkedToArea(true);
 
     var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
 
@@ -409,3 +409,4 @@ public class PadAreaServiceTest {
 
 
 }
+

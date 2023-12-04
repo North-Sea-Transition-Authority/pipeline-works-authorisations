@@ -51,7 +51,7 @@ public class FieldWriter implements ConsentWriter {
 
       masterPwaService.updateDetailFieldInfo(
           currentPwaDetail,
-          pwaApplicationDetail.getLinkedToField(),
+          pwaApplicationDetail.getLinkedToArea(),
           pwaApplicationDetail.getNotLinkedDescription());
 
       writeNewFieldDetails = true;

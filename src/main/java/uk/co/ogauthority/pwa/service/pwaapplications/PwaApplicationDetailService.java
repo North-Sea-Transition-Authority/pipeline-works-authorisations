@@ -85,7 +85,7 @@ public class PwaApplicationDetailService {
    */
   @Transactional
   public PwaApplicationDetail setLinkedToFields(PwaApplicationDetail pwaApplicationDetail, Boolean linked) {
-    pwaApplicationDetail.setLinkedToField(linked);
+    pwaApplicationDetail.setLinkedToArea(linked);
     if (linked) {
       pwaApplicationDetail.setNotLinkedDescription(null);
     }
@@ -170,7 +170,7 @@ public class PwaApplicationDetailService {
 
   private void copyApplicationDetailData(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
 
-    toDetail.setLinkedToField(fromDetail.getLinkedToField());
+    toDetail.setLinkedToArea(fromDetail.getLinkedToArea());
     toDetail.setNotLinkedDescription(fromDetail.getNotLinkedDescription());
     toDetail.setPipelinesCrossed(fromDetail.getPipelinesCrossed());
     toDetail.setCablesCrossed(fromDetail.getCablesCrossed());

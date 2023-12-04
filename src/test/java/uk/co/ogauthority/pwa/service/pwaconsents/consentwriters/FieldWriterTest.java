@@ -85,7 +85,7 @@ public class FieldWriterTest {
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(1)).updateDetailFieldInfo(
         masterPwaDetail,
-        detail.getLinkedToField(),
+        detail.getLinkedToArea(),
         detail.getNotLinkedDescription());
 
     verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);

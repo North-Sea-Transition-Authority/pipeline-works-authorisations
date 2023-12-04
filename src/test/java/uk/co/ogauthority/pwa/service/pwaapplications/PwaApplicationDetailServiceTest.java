@@ -122,7 +122,7 @@ public class PwaApplicationDetailServiceTest {
 
     var detail = pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, true);
     assertThat(detail).isEqualTo(pwaApplicationDetail);
-    assertThat(detail.getLinkedToField()).isTrue();
+    assertThat(detail.getLinkedToArea()).isTrue();
     assertNull(detail.getNotLinkedDescription());
   }
 
@@ -133,7 +133,7 @@ public class PwaApplicationDetailServiceTest {
 
     var detail = pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, false);
     assertThat(detail).isEqualTo(pwaApplicationDetail);
-    assertThat(detail.getLinkedToField()).isFalse();
+    assertThat(detail.getLinkedToArea()).isFalse();
     assertEquals("test description", detail.getNotLinkedDescription());
   }
 
@@ -383,7 +383,7 @@ public class PwaApplicationDetailServiceTest {
         LocalDateTime.of(2000, 12, 31, 0, 59).toEpochSecond(ZoneOffset.UTC)
     );
     detail.setStatus(status);
-    detail.setLinkedToField(true);
+    detail.setLinkedToArea(true);
     detail.setNotLinkedDescription("NOT LINKED DESC");
     detail.setPipelinesCrossed(true);
     detail.setCablesCrossed(true);
