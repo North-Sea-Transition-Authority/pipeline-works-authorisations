@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -46,7 +46,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
         padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
 
     if (pipelineOtherPropertiesList.isEmpty()) {
-      for (OtherPipelineProperty property: OtherPipelineProperty.asList()) {
+      for (OtherPipelineProperty property: OtherPipelineProperty.asList(pwaApplicationDetail.getResourceType())) {
         var padPipelineOtherProperty = new PadPipelineOtherProperties(pwaApplicationDetail, property);
         pipelineOtherPropertiesList.add(padPipelineOtherProperty);
       }
@@ -58,13 +58,15 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void mapEntitiesToForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                 PwaApplicationDetail pwaApplicationDetail) {
     var phasesPresent = pwaApplicationDetail.getPipelinePhaseProperties();
-    phasesPresent =  phasesPresent != null ? phasesPresent : new HashSet<>();
-    for (var phase: phasesPresent) {
-      form.getPhasesSelection().put(phase, "true");
-    }
+    if (phasesPresent != null) {
+      for (var phase: phasesPresent) {
+        form.getPhasesSelection().put(phase, "true");
+      }
+      form.setPhase(phasesPresent.iterator().next());
 
-    if (phasesPresent.contains(PropertyPhase.OTHER)) {
-      form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
+      if (phasesPresent.contains(PropertyPhase.OTHER)) {
+        form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
+      }
     }
 
     for (PadPipelineOtherProperties entity: entities) {
@@ -82,10 +84,10 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   public void saveEntitiesUsingForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                     PwaApplicationDetail pwaApplicationDetail) {
-    var otherPhaseDescription = form.getPhasesSelection().containsKey(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
-    Set<PropertyPhase> propertyPhases = form.getPhasesSelection().entrySet().stream()
-        .map(Map.Entry::getKey)
+    Set<PropertyPhase> propertyPhases = Stream.of(form.getPhasesSelection().keySet(), Set.of(form.getPhase()))
+        .flatMap(Set::stream)
         .collect(Collectors.toSet());
+    var otherPhaseDescription = propertyPhases.contains(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
 
     pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, propertyPhases, otherPhaseDescription);
 
@@ -141,7 +143,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    pipelineOtherPropertiesValidator.validate(form, bindingResult, validationType);
+    pipelineOtherPropertiesValidator.validate(form, bindingResult, validationType, pwaApplicationDetail.getResourceType());
     if (bindingResult.hasErrors()) {
       var otherPropertiesForm = (PipelineOtherPropertiesForm) form;
       for (var phaseEntry: otherPropertiesForm.getPhasesSelection().entrySet()) {

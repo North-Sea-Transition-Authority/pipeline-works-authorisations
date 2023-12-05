@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -38,12 +39,21 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
     var pipelineOtherPropertiesForm = (PipelineOtherPropertiesForm) target;
     var propertyDataFormMap = pipelineOtherPropertiesForm.getPropertyDataFormMap();
     var validationType = (ValidationType) validationHints[0];
+    var resourceType = (PwaResourceType) validationHints[1];
 
     if (validationType.equals(ValidationType.FULL)) {
-      if (pipelineOtherPropertiesForm.getPhasesSelection().isEmpty()) {
-        errors.rejectValue("phasesSelection[OIL]", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
-            "Select at least one phase");
+      if (resourceType.equals(PwaResourceType.CCUS)) {
+        if (pipelineOtherPropertiesForm.getPhase() == null && pipelineOtherPropertiesForm.getOtherPhaseDescription() == null) {
+          errors.rejectValue("phase", "phase" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Select at least one phase");
+        }
+      } else {
+        if (pipelineOtherPropertiesForm.getPhasesSelection().isEmpty()) {
+          errors.rejectValue("phasesSelection", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
+              "Select at least one phase");
+        }
       }
+
       if (pipelineOtherPropertiesForm.getPhasesSelection().containsKey(PropertyPhase.OTHER)) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPhaseDescription", "otherPhaseDescription.required",
             "Enter the other phase present");

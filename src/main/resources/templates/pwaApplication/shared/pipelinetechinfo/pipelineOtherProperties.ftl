@@ -13,19 +13,33 @@
         <#list properties as property>
             <@propertyQuestion property=property propertyAvailabilityOptions=propertyAvailabilityOptions />
         </#list>
-
-
-        <@fdsFieldset.fieldset legendHeading="Phases present" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
+        <#if resourceType == "CCUS">
+          <@fdsRadio.radioGroup path="form.phase" labelText="Phases present" hiddenContent=true>
+              <#assign firstItem=true/>
+              <#list propertyPhases as propertyPhase>
+                  <@fdsRadio.radioItem path="form.phase" itemMap={propertyPhase : propertyPhase.getDisplayText()} isFirstItem=firstItem>
+                      <#if propertyPhase == "OTHER">
+                          <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.phase" />
+                      </#if>
+                  </@fdsRadio.radioItem>
+                  <#assign firstItem=false/>
+              </#list>
+          </@fdsRadio.radioGroup>
+        <#else>
+          <@fdsFieldset.fieldset legendHeading="Phases present" legendHeadingSize="h3" legendHeadingClass="govuk-fieldset__legend--m">
             <@fdsCheckbox.checkboxGroup path="form.phasesSelection" hiddenContent=true>
-                <#list propertyPhases as  propertyPhase>
-                    <@fdsCheckbox.checkboxItem path="form.phasesSelection[${propertyPhase}]" labelText=propertyPhase.getDisplayText() >
-                        <#if propertyPhase == "OTHER">
-                            <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.phasesSelection[${propertyPhase}]" />
-                        </#if>
-                    </@fdsCheckbox.checkboxItem>
-                </#list>
+              <#list propertyPhases as  propertyPhase>
+                <@fdsCheckbox.checkboxItem path="form.phasesSelection[${propertyPhase}]" labelText=propertyPhase.getDisplayText() >
+                  <#if propertyPhase == "OTHER">
+                    <@fdsTextInput.textInput path="form.otherPhaseDescription" labelText="Provide other phase present" nestingPath="form.phasesSelection[${propertyPhase}]" />
+                  </#if>
+                </@fdsCheckbox.checkboxItem>
+              </#list>
             </@fdsCheckbox.checkboxGroup>
-        </@fdsFieldset.fieldset>
+          </@fdsFieldset.fieldset>
+        </#if>
+
+
 
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
 

@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.OtherPipelineProperty;
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PadPipelineOtherPropertiesService;
@@ -38,23 +39,23 @@ class OtherPropertiesGeneratorService implements TestHarnessAppFormService {
   @Override
   public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    var form = createOtherPropertiesForm();
+    var form = createOtherPropertiesForm(appFormServiceParams.getApplicationDetail().getResourceType());
     var entities = otherPropertiesService.getPipelineOtherPropertyEntities(appFormServiceParams.getApplicationDetail());
     otherPropertiesService.saveEntitiesUsingForm(form, entities, appFormServiceParams.getApplicationDetail());
   }
 
 
-  private PipelineOtherPropertiesForm createOtherPropertiesForm() {
+  private PipelineOtherPropertiesForm createOtherPropertiesForm(PwaResourceType resourceType) {
 
     Map<OtherPipelineProperty, PipelineOtherPropertiesDataForm> propertyDataFormMap = new HashMap<>();
-    OtherPipelineProperty.asList().forEach(property -> {
+    OtherPipelineProperty.asList(resourceType).forEach(property -> {
       var dataForm = new PipelineOtherPropertiesDataForm();
       dataForm.setPropertyAvailabilityOption(PropertyAvailabilityOption.NOT_PRESENT);
       propertyDataFormMap.put(property, dataForm);
     });
 
     Map<PropertyPhase, String> phasesSelectionMap = new HashMap<>();
-    PropertyPhase.asList().forEach(phase -> phasesSelectionMap.put(phase, ""));
+    PropertyPhase.asList(resourceType).forEach(phase -> phasesSelectionMap.put(phase, ""));
 
     var pipelineOtherPropertiesForm = new PipelineOtherPropertiesForm();
     pipelineOtherPropertiesForm.setPropertyDataFormMap(propertyDataFormMap);

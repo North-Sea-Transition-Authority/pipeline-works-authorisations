@@ -21,6 +21,7 @@ public class OtherPropertiesFormBuilder {
     for (var phase: PropertyPhase.asList()) {
       form.getPhasesSelection().put(phase, "true");
     }
+    form.setPhase(PropertyPhase.LIQUID);
     form.setOtherPhaseDescription("my description");
   }
 

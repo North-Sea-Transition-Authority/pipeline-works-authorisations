@@ -39,6 +39,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
     );
   }
 
+
   private PipelineOtherPropertiesDataForm createForm(double min, double max) {
     var form = new PipelineOtherPropertiesDataForm();
     form.setPropertyAvailabilityOption(PropertyAvailabilityOption.AVAILABLE);
