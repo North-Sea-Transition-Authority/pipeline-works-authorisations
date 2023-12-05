@@ -58,7 +58,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void mapEntitiesToForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                 PwaApplicationDetail pwaApplicationDetail) {
     var phasesPresent = pwaApplicationDetail.getPipelinePhaseProperties();
-    if (phasesPresent != null) {
+    if (phasesPresent != null && !phasesPresent.isEmpty()) {
       for (var phase: phasesPresent) {
         form.getPhasesSelection().put(phase, "true");
       }
