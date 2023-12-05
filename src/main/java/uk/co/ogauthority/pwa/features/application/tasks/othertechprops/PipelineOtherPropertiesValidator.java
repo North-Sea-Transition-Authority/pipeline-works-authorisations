@@ -36,25 +36,26 @@ public class PipelineOtherPropertiesValidator implements SmartValidator {
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
-    var pipelineOtherPropertiesForm = (PipelineOtherPropertiesForm) target;
-    var propertyDataFormMap = pipelineOtherPropertiesForm.getPropertyDataFormMap();
+    var form = (PipelineOtherPropertiesForm) target;
+    var propertyDataFormMap = form.getPropertyDataFormMap();
     var validationType = (ValidationType) validationHints[0];
     var resourceType = (PwaResourceType) validationHints[1];
 
     if (validationType.equals(ValidationType.FULL)) {
       if (resourceType.equals(PwaResourceType.CCUS)) {
-        if (pipelineOtherPropertiesForm.getPhase() == null && pipelineOtherPropertiesForm.getOtherPhaseDescription() == null) {
+        if (form.getPhase() == null && form.getOtherPhaseDescription() == null) {
           errors.rejectValue("phase", "phase" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Select at least one phase");
         }
       } else {
-        if (pipelineOtherPropertiesForm.getPhasesSelection().isEmpty()) {
+        if (form.getPhasesSelection().isEmpty()) {
           errors.rejectValue("phasesSelection", "phasesSelection" + FieldValidationErrorCodes.REQUIRED.getCode(),
               "Select at least one phase");
         }
       }
 
-      if (pipelineOtherPropertiesForm.getPhasesSelection().containsKey(PropertyPhase.OTHER)) {
+      if (form.getPhasesSelection().containsKey(PropertyPhase.OTHER)
+          || (form.getPhase() != null && form.getPhase().equals(PropertyPhase.OTHER))) {
         ValidationUtils.rejectIfEmptyOrWhitespace(errors, "otherPhaseDescription", "otherPhaseDescription.required",
             "Enter the other phase present");
       }
