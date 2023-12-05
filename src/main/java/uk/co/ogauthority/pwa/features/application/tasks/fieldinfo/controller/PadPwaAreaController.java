@@ -16,11 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
-import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaResourceTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
@@ -41,7 +39,6 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/areas")
 @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-@PwaResourceTypeCheck(types = {PwaResourceType.PETROLEUM, PwaResourceType.HYDROGEN})
 public class PadPwaAreaController {
 
   private final ApplicationBreadcrumbService breadcrumbService;
