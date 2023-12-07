@@ -16,6 +16,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.MinMaxView;
@@ -35,7 +37,7 @@ public class PadDesignOpConditionsServiceTest {
   private PadDesignOpConditionsRepository padDesignOpConditionsRepository;
 
   private PadDesignOpConditionsValidator validator;
-  
+
   @Mock
   private EntityCopyingService entityCopyingService;
 
@@ -52,7 +54,10 @@ public class PadDesignOpConditionsServiceTest {
         validator,
         entityCopyingService
     );
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     pwaApplicationDetail = new PwaApplicationDetail();
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
 
   }
 
@@ -74,16 +79,53 @@ public class PadDesignOpConditionsServiceTest {
 
   @Test
   public void mapFormToEntity_full() {
+    var application = new PwaApplication();
+    application.setResourceType(PwaResourceType.PETROLEUM);
+    var applicationDetail = new PwaApplicationDetail();
+    applicationDetail.setPwaApplication(application);
     var actualEntity = new PadDesignOpConditions();
+    actualEntity.setParent(applicationDetail);
     var form = PadDesignOpConditionsTestUtil.createValidForm();
     padDesignOpConditionsService.saveEntityUsingForm(form, actualEntity);
-    assertThat(actualEntity).isEqualTo(PadDesignOpConditionsTestUtil.createValidEntity());
+
+    var expectedEntity = PadDesignOpConditionsTestUtil.createValidEntity();
+    assertThat(actualEntity)
+        .extracting(
+            PadDesignOpConditions::getCo2DensityMaxValue,
+            PadDesignOpConditions::getCo2DensityMinValue,
+            PadDesignOpConditions::getFlowrateDesignMaxValue,
+            PadDesignOpConditions::getFlowrateDesignMinValue,
+            PadDesignOpConditions::getFlowrateMeasurement,
+            PadDesignOpConditions::getFlowrateOpMaxValue,
+            PadDesignOpConditions::getFlowrateOpMinValue,
+            PadDesignOpConditions::getPressureDesignMaxValue,
+            PadDesignOpConditions::getTemperatureDesignMaxValue,
+            PadDesignOpConditions::getTemperatureDesignMinValue,
+            PadDesignOpConditions::getTemperatureOpMaxValue,
+            PadDesignOpConditions::getTemperatureOpMinValue,
+            PadDesignOpConditions::getUvalueDesign)
+        .containsExactly(
+            expectedEntity.getCo2DensityMaxValue(),
+            expectedEntity.getCo2DensityMinValue(),
+            expectedEntity.getFlowrateDesignMaxValue(),
+            expectedEntity.getFlowrateDesignMinValue(),
+            expectedEntity.getFlowrateMeasurement(),
+            expectedEntity.getFlowrateOpMaxValue(),
+            expectedEntity.getFlowrateOpMinValue(),
+            expectedEntity.getPressureDesignMaxValue(),
+            expectedEntity.getTemperatureDesignMaxValue(),
+            expectedEntity.getTemperatureDesignMinValue(),
+            expectedEntity.getTemperatureOpMaxValue(),
+            expectedEntity.getTemperatureOpMinValue(),
+            expectedEntity.getUvalueDesign()
+        );
     verify(padDesignOpConditionsRepository, times(1)).save(any(PadDesignOpConditions.class));
   }
 
   @Test
   public void getDesignOpConditionsView() {
     var entity = PadDesignOpConditionsTestUtil.createValidEntity();
+    entity.setParent(pwaApplicationDetail);
     when(padDesignOpConditionsRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
     var actualView = padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail);
 

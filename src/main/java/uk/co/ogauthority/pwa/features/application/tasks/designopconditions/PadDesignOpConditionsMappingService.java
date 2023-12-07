@@ -15,20 +15,31 @@ public class PadDesignOpConditionsMappingService {
       PadDesignOpConditionsMappingService.class);
 
   public void mapEntityToForm(DesignOpConditionsForm form, PadDesignOpConditions entity) {
-    form.setTemperatureOpMinMax(new MinMaxInput(
-        getStringValue(entity.getTemperatureOpMinValue()), getStringValue(entity.getTemperatureOpMaxValue())));
-    form.setTemperatureDesignMinMax(new MinMaxInput(
-        getStringValue(entity.getTemperatureDesignMinValue()), getStringValue(entity.getTemperatureDesignMaxValue())));
-
-    form.setPressureOpMinMax(new MinMaxInput(
-        getStringValue(entity.getPressureOpMinValue()), getStringValue(entity.getPressureOpMaxValue())));
+    form.setPressureOpMinMax(
+        new MinMaxInput(
+            getStringValue(entity.getPressureOpMinValue()),
+            getStringValue(entity.getPressureOpMaxValue())));
     form.setPressureDesignMax(getStringValue(entity.getPressureDesignMaxValue()));
-
-    form.setFlowrateOpMinMax(new MinMaxInput(
-        getStringValue(entity.getFlowrateOpMinValue()), getStringValue(entity.getFlowrateOpMaxValue())));
-    form.setFlowrateDesignMinMax(new MinMaxInput(
-        getStringValue(entity.getFlowrateDesignMinValue()), getStringValue(entity.getFlowrateDesignMaxValue())));
-
+    form.setTemperatureOpMinMax(
+        new MinMaxInput(
+            getStringValue(entity.getTemperatureOpMinValue()),
+            getStringValue(entity.getTemperatureOpMaxValue())));
+    form.setTemperatureDesignMinMax(
+        new MinMaxInput(
+            getStringValue(entity.getTemperatureDesignMinValue()),
+            getStringValue(entity.getTemperatureDesignMaxValue())));
+    form.setFlowrateOpMinMax(
+        new MinMaxInput(
+            getStringValue(entity.getFlowrateOpMinValue()),
+            getStringValue(entity.getFlowrateOpMaxValue())));
+    form.setFlowrateDesignMinMax(
+        new MinMaxInput(
+            getStringValue(entity.getFlowrateDesignMinValue()),
+            getStringValue(entity.getFlowrateDesignMaxValue())));
+    form.setCo2Density(
+        new MinMaxInput(
+            getStringValue(entity.getCo2DensityMinValue()),
+            getStringValue(entity.getCo2DensityMaxValue())));
     form.setUvalueDesign(getStringValue(entity.getUvalueDesign()));
   }
 
@@ -48,6 +59,9 @@ public class PadDesignOpConditionsMappingService {
     entity.setFlowrateOpMaxValue(form.getFlowrateOpMinMax().createMaxOrNull());
     entity.setFlowrateDesignMinValue(form.getFlowrateDesignMinMax().createMinOrNull());
     entity.setFlowrateDesignMaxValue(form.getFlowrateDesignMinMax().createMaxOrNull());
+
+    entity.setCo2DensityMaxValue(form.getCo2Density().createMaxOrNull());
+    entity.setCo2DensityMinValue(form.getCo2Density().createMinOrNull());
 
     entity.setUvalueDesign(createBigDecimal(form.getUvalueDesign()).orElse(null));
   }

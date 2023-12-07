@@ -12,6 +12,8 @@ public class DesignOpConditionsForm {
   private String pressureDesignMax;
   private MinMaxInput flowrateOpMinMax;
   private MinMaxInput flowrateDesignMinMax;
+
+  private MinMaxInput co2Density;
   private String uvalueDesign;
 
   public DesignOpConditionsForm() {
@@ -20,6 +22,7 @@ public class DesignOpConditionsForm {
     this.pressureOpMinMax = new MinMaxInput();
     this.flowrateOpMinMax = new MinMaxInput();
     this.flowrateDesignMinMax = new MinMaxInput();
+    this.co2Density = new MinMaxInput();
   }
 
   public MinMaxInput getTemperatureOpMinMax() {
@@ -68,6 +71,15 @@ public class DesignOpConditionsForm {
 
   public void setFlowrateDesignMinMax(MinMaxInput flowrateDesignMinMax) {
     this.flowrateDesignMinMax = flowrateDesignMinMax;
+  }
+
+  public MinMaxInput getCo2Density() {
+    return co2Density;
+  }
+
+  public DesignOpConditionsForm setCo2Density(MinMaxInput co2Density) {
+    this.co2Density = co2Density;
+    return this;
   }
 
   public String getUvalueDesign() {

@@ -68,8 +68,9 @@ public class DesignOpConditionsSummaryServiceTest {
 
   @Test
   public void summariseSection_verifyServiceInteractions() {
-
-    var designOpConditionsView = new DesignOpConditionsView(new PadDesignOpConditions());
+    var designOpsConditions = new PadDesignOpConditions();
+    designOpsConditions.setParent(pwaApplicationDetail);
+    var designOpConditionsView = new DesignOpConditionsView(designOpsConditions);
     when(padDesignOpConditionsService.getDesignOpConditionsView(pwaApplicationDetail)).thenReturn(designOpConditionsView);
 
     var appSummary = designOpConditionsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);

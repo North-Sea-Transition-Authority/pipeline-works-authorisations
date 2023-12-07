@@ -21,7 +21,9 @@ public enum UnitMeasurement {
   BAR_G("barg", "in gauge pressure"),
   MULTIPLICATION_SYMBOL("×", "times"),
   ROCK_GRADE("grade", "grade"),
-  CENTIPOISE("cP", "in centipoise");
+  CENTIPOISE("cP", "in centipoise"),
+
+  MTONNE_YEAR("MT/yr", "Megatonnes per year");
 
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
