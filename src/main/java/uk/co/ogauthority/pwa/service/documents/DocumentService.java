@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
 
@@ -35,8 +36,7 @@ public class DocumentService {
   public void createDocumentInstance(PwaApplication application,
                                      Person creatingUser) {
 
-    var documentSpec = application.getApplicationType().getConsentDocumentSpec();
-
+    var documentSpec = DocumentSpec.getSpecForApplication(application);
     var templateMnem = DocumentTemplateMnem.getMnemFromDocumentSpec(documentSpec);
 
     var documentDto = documentTemplateService

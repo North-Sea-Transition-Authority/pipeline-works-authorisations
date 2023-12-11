@@ -120,8 +120,9 @@ public class PrepareConsentTaskService implements AppProcessingService {
       return TaskStatus.COMPLETED;
     }
 
+    var docMnem = DocumentTemplateMnem.getMnemFromResourceType(processingContext.getApplicationDetail().getResourceType());
     boolean documentInProgress = documentService
-        .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
+        .getDocumentInstance(processingContext.getPwaApplication(), docMnem)
         .isPresent();
 
     return documentInProgress ? TaskStatus.IN_PROGRESS : TaskStatus.NOT_STARTED;

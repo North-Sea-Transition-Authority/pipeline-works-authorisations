@@ -215,7 +215,6 @@ public class PwaApplication implements WorkflowSubject, DocumentSource {
 
   @Override
   public DocumentSpec getDocumentSpec() {
-    return applicationType.getConsentDocumentSpec();
+    return DocumentSpec.getSpecForApplication(this);
   }
-
 }

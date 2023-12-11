@@ -55,9 +55,10 @@ public class DocumentViewServiceTest {
   public void getDocumentView_multipleSections_withMaxNestingLevels_FromInstance() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var docSpec = DocumentSpec.getSpecForApplication(detail.getPwaApplicationType(), detail.getResourceType());
 
     var clauseDtos = SectionClauseVersionDtoTestUtils
-        .getInstanceSectionClauseVersionDtoList(1, detail.getPwaApplicationType().getConsentDocumentSpec(), clock, person, 2, 3, 3)
+        .getInstanceSectionClauseVersionDtoList(1, docSpec, clock, person, 2, 3, 3)
         .stream()
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
@@ -72,14 +73,15 @@ public class DocumentViewServiceTest {
   public void getDocumentView_multipleSections_withMaxNestingLevels_FromTemplate() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var docSpec = DocumentSpec.getSpecForApplication(detail.getPwaApplicationType(), detail.getResourceType());
 
     var clauseDtos = SectionClauseVersionDtoTestUtils
-        .getTemplateSectionClauseVersionDtoList(1, detail.getPwaApplicationType().getConsentDocumentSpec(), clock, person, 2, 3, 3)
+        .getTemplateSectionClauseVersionDtoList(1, docSpec, clock, person, 2, 3, 3)
         .stream()
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var docView = documentViewService.createDocumentView(PwaDocumentType.TEMPLATE, docSource, clauseDtos);
 
@@ -123,7 +125,7 @@ public class DocumentViewServiceTest {
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var docView = documentViewService.createDocumentView(PwaDocumentType.TEMPLATE, docSource, clauseDtos);
 
@@ -277,7 +279,7 @@ public class DocumentViewServiceTest {
   @Test
   public void documentViewHasClauses_noDocumentClauses() {
 
-    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     emptyDocView.setSections(List.of(new SectionView()));
 
     boolean hasClauses = documentViewService.documentViewHasClauses(emptyDocView);
@@ -289,7 +291,7 @@ public class DocumentViewServiceTest {
   @Test
   public void documentViewHasClauses_hasDocumentClauses() {
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
     sectionView.setClauses(List.of(new SectionClauseVersionView()));
     docView.setSections(List.of(sectionView));
@@ -303,7 +305,7 @@ public class DocumentViewServiceTest {
   @Test
   public void documentViewContainsManualMergeData_hasManualMergeData() {
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
 
     var clauseView1 = new SectionClauseVersionView();
@@ -324,7 +326,7 @@ public class DocumentViewServiceTest {
   @Test
   public void documentViewContainsManualMergeData_noManualMergeData() {
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
 
     var clauseView1 = new SectionClauseVersionView();

@@ -203,7 +203,7 @@ public class PrepareConsentTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()), Set.of());
 
-    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
+    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
 
     var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
@@ -223,7 +223,7 @@ public class PrepareConsentTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()), Set.of());
 
-    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
+    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT))).thenReturn(Optional.empty());
 
     var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);
 
@@ -303,7 +303,7 @@ public class PrepareConsentTaskServiceTest {
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
         PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(detail.getPwaApplication()), Set.of());
 
-    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)))
+    when(documentService.getDocumentInstance(any(), eq(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT)))
         .thenReturn(Optional.of(new DocumentInstance()));
 
     var taskListEntry = prepareConsentTaskService.getTaskListEntry(PwaAppProcessingTask.PREPARE_CONSENT, processingContext);

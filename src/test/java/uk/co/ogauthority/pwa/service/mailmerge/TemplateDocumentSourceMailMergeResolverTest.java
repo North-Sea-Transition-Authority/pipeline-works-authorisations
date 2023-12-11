@@ -51,7 +51,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
   @Test
   public void supportsDocumentSource_templateDocSource_true() {
 
-    var source = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var source = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     boolean supported = templateDocumentSourceMailMergeResolver.supportsDocumentSource(source);
 
@@ -62,7 +62,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
   @Test
   public void getAvailableMailMergeFields() {
 
-    var source = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var source = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     when(taskListService.getApplicationTasksForAppType(any()))
         .thenReturn(List.of(ApplicationTask.PROJECT_INFORMATION));
@@ -87,7 +87,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
 
     when(mockResolver.resolveMergeFields(any())).thenCallRealMethod();
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var result = mockResolver.resolveMergeFields(docSource);
 

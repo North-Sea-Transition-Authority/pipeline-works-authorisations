@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSe
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplateSectionClause;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
@@ -108,7 +109,7 @@ public class DocumentInstanceServiceTest {
   public void setUp() {
 
     documentTemplate = new DocumentTemplate();
-    documentTemplate.setMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentTemplate.setMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     person = new Person(1, null, null, null, null);
 
@@ -238,7 +239,7 @@ public class DocumentInstanceServiceTest {
 
     var instance = new DocumentInstance(documentTemplate, applicationDetail.getPwaApplication(), fixedInstant);
 
-    when(documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT))
+    when(documentInstanceRepository.findByPwaApplicationAndDocumentTemplate_Mnem(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT))
         .thenReturn(Optional.of(instance));
 
     var clause1 = new DocumentInstanceSectionClause();
@@ -261,7 +262,7 @@ public class DocumentInstanceServiceTest {
 
     when(instanceSectionClauseVersionRepository.findAllByDocumentInstanceSectionClauseIn(clauseList)).thenReturn(versionList);
 
-    documentInstanceService.clearClauses(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentInstanceService.clearClauses(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     verify(instanceSectionClauseVersionRepository, times(1)).deleteAll(versionList);
 
@@ -272,10 +273,10 @@ public class DocumentInstanceServiceTest {
   @Test
   public void getDocumentInstance() {
 
-    documentInstanceService.getDocumentInstance(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentInstanceService.getDocumentInstance(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     verify(documentInstanceRepository, times(1))
-        .findByPwaApplicationAndDocumentTemplate_Mnem(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+        .findByPwaApplicationAndDocumentTemplate_Mnem(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
   }
 
@@ -286,9 +287,10 @@ public class DocumentInstanceServiceTest {
     docInstance.setPwaApplication(applicationDetail.getPwaApplication());
     docInstance.setDocumentTemplate(documentTemplate);
     docInstance.setId(1);
+    var docSpec = DocumentSpec.getSpecForApplication(applicationDetail.getPwaApplication());
 
     var list = SectionClauseVersionDtoTestUtils
-        .getInstanceSectionClauseVersionDtoList(1, applicationDetail.getPwaApplicationType().getConsentDocumentSpec() , clock, person, 2, 3, 3);
+        .getInstanceSectionClauseVersionDtoList(1, docSpec , clock, person, 2, 3, 3);
 
     when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId(any())).thenReturn(list);
 
@@ -310,9 +312,10 @@ public class DocumentInstanceServiceTest {
     docInstance.setPwaApplication(applicationDetail.getPwaApplication());
     docInstance.setDocumentTemplate(documentTemplate);
     docInstance.setId(1);
+    var docSpec = DocumentSpec.getSpecForApplication(applicationDetail.getPwaApplication());
 
     var list = SectionClauseVersionDtoTestUtils
-        .getInstanceSectionClauseVersionDtoList(1, applicationDetail.getPwaApplicationType().getConsentDocumentSpec() , clock, person, 1, 3, 3);
+        .getInstanceSectionClauseVersionDtoList(1, docSpec , clock, person, 1, 3, 3);
 
     when(documentInstanceSectionClauseVersionDtoRepository.findAllByDiId_AndSectionNameEquals(docInstance.getId(), DocumentSection.INITIAL_TERMS_AND_CONDITIONS.name()))
         .thenReturn(list);

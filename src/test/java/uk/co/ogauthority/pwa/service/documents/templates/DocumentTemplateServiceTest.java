@@ -102,7 +102,7 @@ public class DocumentTemplateServiceTest {
 
     var template = new DocumentTemplate();
 
-    var docSpec = DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT;
+    var docSpec = DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT;
 
     var sectionNames = docSpec.getSectionNames();
 
@@ -110,7 +110,7 @@ public class DocumentTemplateServiceTest {
 
     var sections = new ArrayList<>(sectionToClauseListMap.keySet());
 
-    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, sectionNames, DocumentTemplateSectionStatus.ACTIVE))
+    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, sectionNames, DocumentTemplateSectionStatus.ACTIVE))
         .thenReturn(sections);
 
     var clauseVersions = sectionToClauseListMap.values().stream()
@@ -121,7 +121,7 @@ public class DocumentTemplateServiceTest {
         .getAllByDocumentTemplateSectionClause_DocumentTemplateSectionInAndTipFlagIsTrueAndStatusIs(sections, SectionClauseVersionStatus.ACTIVE))
         .thenReturn(clauseVersions);
 
-    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
+    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec);
 
     verify(documentDtoFactory, times(1)).create(sectionToClauseListMap);
 
@@ -130,12 +130,12 @@ public class DocumentTemplateServiceTest {
   @Test(expected = DocumentTemplateException.class)
   public void populateDocumentDtoFromTemplateMnem_noSections() {
 
-    var docSpec = DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT;
+    var docSpec = DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT;
 
-    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec.getSectionNames(), DocumentTemplateSectionStatus.ACTIVE))
+    when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec.getSectionNames(), DocumentTemplateSectionStatus.ACTIVE))
         .thenReturn(List.of());
 
-    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, docSpec);
+    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec);
 
   }
 
@@ -143,15 +143,15 @@ public class DocumentTemplateServiceTest {
   public void getDocumentView() {
 
     var list = SectionClauseVersionDtoTestUtils
-        .getTemplateSectionClauseVersionDtoList(1, DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, clock, person, 1, 3, 3);
+        .getTemplateSectionClauseVersionDtoList(1, DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, clock, person, 1, 3, 3);
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     when(documentTemplateSectionClauseVersionDtoRepository
-        .findAllByDocumentTemplateMnemAndSectionIn(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT.getDocumentSectionDisplayOrderMap().keySet()))
+        .findAllByDocumentTemplateMnemAndSectionIn(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT.getDocumentSectionDisplayOrderMap().keySet()))
         .thenReturn(list);
 
-    documentTemplateService.getDocumentView(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    documentTemplateService.getDocumentView(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var castList = list.stream()
         .map(SectionClauseVersionDto.class::cast)

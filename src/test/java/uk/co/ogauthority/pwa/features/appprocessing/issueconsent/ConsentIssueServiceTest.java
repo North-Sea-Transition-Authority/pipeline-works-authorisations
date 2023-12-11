@@ -13,6 +13,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReview;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.ConsentIssueStatus;
@@ -83,6 +84,7 @@ public class ConsentIssueServiceTest {
 
     pwaApplicationDetail = new PwaApplicationDetail();
     var app = new PwaApplication();
+    app.setResourceType(PwaResourceType.PETROLEUM);
     pwaApplicationDetail.setPwaApplication(app);
     issuingPerson = PersonTestUtil.createDefaultPerson();
     issuingUser = new WebUserAccount(1, issuingPerson);

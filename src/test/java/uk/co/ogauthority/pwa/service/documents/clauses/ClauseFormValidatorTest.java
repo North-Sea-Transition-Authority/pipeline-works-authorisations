@@ -121,7 +121,7 @@ public class ClauseFormValidatorTest {
     var form = getClauseForm(String.format("text %soptional thing here%s",
         MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, docSource);
 

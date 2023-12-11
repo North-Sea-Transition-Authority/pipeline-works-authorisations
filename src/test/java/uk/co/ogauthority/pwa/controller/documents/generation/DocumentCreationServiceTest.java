@@ -35,6 +35,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -113,7 +114,7 @@ public class DocumentCreationServiceTest {
 
     documentInstance = new DocumentInstance();
     documentInstance.setPwaApplication(pwaApplicationDetail.getPwaApplication());
-    documentView = new DocumentView(PwaDocumentType.INSTANCE, pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    documentView = new DocumentView(PwaDocumentType.INSTANCE, pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     when(documentInstanceService.getDocumentView(any(), any())).thenReturn(documentView);
 
@@ -172,7 +173,7 @@ public class DocumentCreationServiceTest {
 
     documentCreationService.createConsentDocument(docgenRun);
 
-    var docSpec = pwaApplicationDetail.getPwaApplicationType().getConsentDocumentSpec();
+    var docSpec = DocumentSpec.getSpecForApplication(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getResourceType());
 
     Map<SectionType, Long> sectionTypeToCountMap = docSpec.getDocumentSectionDisplayOrderMap().keySet().stream()
         .map(DocumentSection::getSectionType)

@@ -128,7 +128,7 @@ public class MailMergeServiceTest {
   @Test
   public void mailMerge_preview() {
 
-    var docView = setupDocView();
+    var docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
 
     var resolvedMergeFields = Map.of(
         MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
@@ -144,7 +144,7 @@ public class MailMergeServiceTest {
 
     mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
 
-    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView());
+    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT));
     var mergedFlattenedClauseList = getFlattenedClauseList(docView);
 
     verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
@@ -161,9 +161,79 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void mailMerge_full() {
+  public void mailMerge_preview_petroleum() {
 
-    var docView = setupDocView();
+    var docView = setupDocView(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
+
+    var resolvedMergeFields = Map.of(
+        MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
+        MailMergeFieldMnem.PROJECT_NAME.name(), "project name"
+    );
+
+    when(pwaApplicationMailMergeResolver.resolveMergeFields(detail.getPwaApplication())).thenReturn(resolvedMergeFields);
+
+    var container = new MailMergeContainer();
+    container.setMailMergeFields(resolvedMergeFields);
+    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", AUTOMATIC_MAIL_MERGE_CLASSES));
+    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", MANUAL_MAIL_MERGE_CLASSES));
+
+    mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
+
+    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT));
+    var mergedFlattenedClauseList = getFlattenedClauseList(docView);
+
+    verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
+
+    for (int i = 0; i < originalFlattenedClauseList.size(); i++) {
+
+      var originalClause = originalFlattenedClauseList.get(i);
+      var mergedClause = mergedFlattenedClauseList.get(i);
+
+      assertThat(mergedClause.getText()).isEqualTo(originalClause.getText() + APPENDED_BY_MERGE);
+
+    }
+
+  }
+
+  @Test
+  public void mailMerge_preview_hydrogen() {
+
+    var docView = setupDocView(DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT);
+
+    var resolvedMergeFields = Map.of(
+        MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
+        MailMergeFieldMnem.PROJECT_NAME.name(), "project name"
+    );
+
+    when(pwaApplicationMailMergeResolver.resolveMergeFields(detail.getPwaApplication())).thenReturn(resolvedMergeFields);
+
+    var container = new MailMergeContainer();
+    container.setMailMergeFields(resolvedMergeFields);
+    container.setAutomaticMailMergeDataHtmlAttributeMap(Map.of("class", AUTOMATIC_MAIL_MERGE_CLASSES));
+    container.setManualMailMergeDataHtmlAttributeMap(Map.of("class", MANUAL_MAIL_MERGE_CLASSES));
+
+    mailMergeService.mailMerge(docView, DocGenType.PREVIEW);
+
+    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView(DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT));
+    var mergedFlattenedClauseList = getFlattenedClauseList(docView);
+
+    verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
+
+    for (int i = 0; i < originalFlattenedClauseList.size(); i++) {
+
+      var originalClause = originalFlattenedClauseList.get(i);
+      var mergedClause = mergedFlattenedClauseList.get(i);
+
+      assertThat(mergedClause.getText()).isEqualTo(originalClause.getText() + APPENDED_BY_MERGE);
+
+    }
+
+  }
+
+  @Test
+  public void mailMerge_full_Ccus() {
+
+    var docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
 
     var resolvedMergeFields = Map.of(
         MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
@@ -177,7 +247,7 @@ public class MailMergeServiceTest {
 
     mailMergeService.mailMerge(docView, DocGenType.FULL);
 
-    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView());
+    var originalFlattenedClauseList = getFlattenedClauseList(setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT));
     var mergedFlattenedClauseList = getFlattenedClauseList(docView);
 
     verify(markdownService, times(originalFlattenedClauseList.size())).convertMarkdownToHtml(any(), eq(container));
@@ -245,9 +315,9 @@ public class MailMergeServiceTest {
 
   }
 
-  private DocumentView setupDocView() {
+  private DocumentView setupDocView(DocumentTemplateMnem templateMnem) {
 
-    var docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    var docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     var dto1 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.INITIAL_TERMS_AND_CONDITIONS.name(), "init1", 1, 1);
@@ -284,7 +354,7 @@ public class MailMergeServiceTest {
     schedule2SectionViewClauseList.add(SectionClauseVersionView.from(dto4));
     schedule2SectionView.setClauses(schedule2SectionViewClauseList);
 
-    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), templateMnem);
     docView.setSections(List.of(initSectionView, schedule2SectionView));
 
     return docView;

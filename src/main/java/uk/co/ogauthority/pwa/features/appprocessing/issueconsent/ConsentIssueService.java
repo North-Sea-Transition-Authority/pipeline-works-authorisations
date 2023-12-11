@@ -77,8 +77,9 @@ public class ConsentIssueService {
 
     pwaApplicationDetailService.updateStatus(pwaApplicationDetail, PwaApplicationStatus.COMPLETE, issuingUser);
 
+    var docMnem = DocumentTemplateMnem.getMnemFromResourceType(pwaApplicationDetail.getResourceType());
     var docInstance = documentInstanceService
-        .getDocumentInstanceOrError(pwaApplicationDetail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+        .getDocumentInstanceOrError(pwaApplicationDetail.getPwaApplication(), docMnem);
 
     var docgenRun = docgenService.createDocgenRun(docInstance, DOC_GEN_TYPE, issuingUser.getLinkedPerson());
     pwaConsentService.setDocgenRunId(consent, docgenRun);
