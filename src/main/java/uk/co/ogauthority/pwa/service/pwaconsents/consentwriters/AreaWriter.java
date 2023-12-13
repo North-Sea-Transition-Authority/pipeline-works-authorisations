@@ -2,29 +2,30 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 
 @Service
-public class FieldWriter implements ConsentWriter {
+public class AreaWriter implements ConsentWriter {
 
   private final MasterPwaService masterPwaService;
-  private final MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private final MasterPwaDetailAreaService masterPwaDetailAreaService;
   private final PadAreaService padAreaService;
 
   @Autowired
-  public FieldWriter(MasterPwaService masterPwaService,
-                     MasterPwaDetailFieldService masterPwaDetailFieldService,
-                     PadAreaService padAreaService) {
+  public AreaWriter(MasterPwaService masterPwaService,
+                    MasterPwaDetailAreaService masterPwaDetailAreaService,
+                    PadAreaService padAreaService) {
     this.masterPwaService = masterPwaService;
-    this.masterPwaDetailFieldService = masterPwaDetailFieldService;
+    this.masterPwaDetailAreaService = masterPwaDetailAreaService;
     this.padAreaService = padAreaService;
   }
 
@@ -35,7 +36,9 @@ public class FieldWriter implements ConsentWriter {
 
   @Override
   public boolean writerIsApplicable(Collection<ApplicationTask> applicationTaskSet, PwaConsent pwaConsent) {
-    return applicationTaskSet.contains(ApplicationTask.FIELD_INFORMATION);
+    var applicableTasks = Set.of(ApplicationTask.FIELD_INFORMATION, ApplicationTask.CARBON_STORAGE_INFORMATION);
+    return applicationTaskSet.stream()
+        .anyMatch(applicableTasks::contains);
   }
 
   @Override
@@ -60,7 +63,7 @@ public class FieldWriter implements ConsentWriter {
 
       // otherwise we need to see if there are differences between the application and
       // the current master PWA info before deciding to write new fields
-      var masterPwaFieldView = masterPwaDetailFieldService
+      var masterPwaFieldView = masterPwaDetailAreaService
           .getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication());
 
       var padFieldView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
@@ -83,7 +86,7 @@ public class FieldWriter implements ConsentWriter {
 
       var padFields = padAreaService.getActiveFieldsForApplicationDetail(pwaApplicationDetail);
 
-      masterPwaDetailFieldService.createMasterPwaFieldsFromPadFields(currentPwaDetail, padFields);
+      masterPwaDetailAreaService.createMasterPwaFieldsFromPadFields(currentPwaDetail, padFields);
 
     }
 

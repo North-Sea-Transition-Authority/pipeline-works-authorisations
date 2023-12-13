@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.ApplicationContactsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.ApplicationUpdateSummaryService;
+import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.AreaInformationSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CampaignWorkScheduleSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CrossingTypesSummaryService;
@@ -13,7 +14,6 @@ import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.Dep
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.DesignOpConditionsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.EnvironmentalDecomSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.FastTrackSummaryService;
-import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.FieldInformationSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.FluidCompositionSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.GeneralTechInfoSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.HuooSummaryService;
@@ -58,7 +58,7 @@ public enum ApplicationSectionSummaryType {
   FIELD_INFORMATION(
       20,
       "pwaApplication/applicationSummarySections/fieldInformationSummary.ftl",
-      FieldInformationSummaryService.class),
+      AreaInformationSummaryService.class),
 
   PROJECT_INFORMATION(
       30,

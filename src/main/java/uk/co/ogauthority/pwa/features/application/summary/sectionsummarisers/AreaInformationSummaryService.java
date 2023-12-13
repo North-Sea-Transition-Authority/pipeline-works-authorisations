@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
@@ -16,35 +17,34 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 
 /**
  * Construct summary of field links for a given application and associated PWA.
  */
 @Service
-public class FieldInformationSummaryService implements ApplicationSectionSummariser {
+public class AreaInformationSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
   private final PadAreaService padAreaService;
-  private final MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private final MasterPwaDetailAreaService masterPwaDetailAreaService;
   private final DiffService diffService;
 
   @Autowired
-  public FieldInformationSummaryService(TaskListService taskListService,
-                                        PadAreaService padAreaService,
-                                        MasterPwaDetailFieldService masterPwaDetailFieldService,
-                                        DiffService diffService) {
+  public AreaInformationSummaryService(TaskListService taskListService,
+                                       PadAreaService padAreaService,
+                                       MasterPwaDetailAreaService masterPwaDetailAreaService,
+                                       DiffService diffService) {
     this.taskListService = taskListService;
     this.padAreaService = padAreaService;
-    this.masterPwaDetailFieldService = masterPwaDetailFieldService;
+    this.masterPwaDetailAreaService = masterPwaDetailAreaService;
     this.diffService = diffService;
   }
 
   @Override
   public boolean canSummarise(PwaApplicationDetail pwaApplicationDetail) {
 
-    var taskFilter = Set.of(
-        ApplicationTask.FIELD_INFORMATION);
+    var taskFilter = Set.of(ApplicationTask.FIELD_INFORMATION, ApplicationTask.CARBON_STORAGE_INFORMATION);
 
     return taskListService.anyTaskShownForApplication(taskFilter, pwaApplicationDetail);
   }
@@ -54,7 +54,7 @@ public class FieldInformationSummaryService implements ApplicationSectionSummari
                                                     String templateName) {
 
     var appDetailFieldLinks = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
-    var consentedFieldLinks = masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(
+    var consentedFieldLinks = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(
         pwaApplicationDetail.getPwaApplication()
     );
 
@@ -67,7 +67,7 @@ public class FieldInformationSummaryService implements ApplicationSectionSummari
         StringWithTagItem::getStringWithTagHashcode
     );
 
-    var sectionDisplayText = ApplicationTask.FIELD_INFORMATION.getDisplayName();
+    var sectionDisplayText = getSummaryDisplayName(pwaApplicationDetail.getResourceType());
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
 
@@ -95,7 +95,13 @@ public class FieldInformationSummaryService implements ApplicationSectionSummari
     );
   }
 
-
+  private String getSummaryDisplayName(PwaResourceType pwaResourceType) {
+    if (pwaResourceType.equals(PwaResourceType.CCUS)) {
+      return ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName();
+    } else {
+      return ApplicationTask.FIELD_INFORMATION.getDisplayName();
+    }
+  }
 
 
 }

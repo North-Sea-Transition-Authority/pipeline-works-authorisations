@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
-import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailAreaRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(SpringRunner.class)
@@ -32,13 +32,13 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class MasterPwaDetailFieldIntegrationtest {
+public class MasterPwaDetailAreaIntegrationtest {
 
   private MasterPwa masterPwa;
   private MasterPwaDetail masterPwaDetail;
 
   @Autowired
-  private MasterPwaDetailFieldRepository masterPwaDetailFieldRepository;
+  private MasterPwaDetailAreaRepository masterPwaDetailAreaRepository;
 
   @Autowired
   private EntityManager entityManager;
@@ -65,12 +65,12 @@ public class MasterPwaDetailFieldIntegrationtest {
   public void testMappingAndRepositoryQuery_whenManualField(){
     setup();
 
-    var manualField = new MasterPwaDetailField();
+    var manualField = new MasterPwaDetailArea();
     manualField.setManualFieldName("test");
     manualField.setMasterPwaDetail(masterPwaDetail);
     entityManager.persist(manualField);
 
-    var fields = masterPwaDetailFieldRepository.findByMasterPwaDetail(masterPwaDetail);
+    var fields = masterPwaDetailAreaRepository.findByMasterPwaDetail(masterPwaDetail);
 
     assertThat(fields).contains(manualField);
     assertThat(fields.get(0).getDevukFieldId()).isNull();
@@ -82,12 +82,12 @@ public class MasterPwaDetailFieldIntegrationtest {
   public void testMappingAndRepositoryQuery_whenDevukField(){
     setup();
 
-    var manualField = new MasterPwaDetailField();
+    var manualField = new MasterPwaDetailArea();
     manualField.setDevukFieldId(new DevukFieldId(1));
     manualField.setMasterPwaDetail(masterPwaDetail);
     entityManager.persist(manualField);
 
-    var fields = masterPwaDetailFieldRepository.findByMasterPwaDetail(masterPwaDetail);
+    var fields = masterPwaDetailAreaRepository.findByMasterPwaDetail(masterPwaDetail);
 
     assertThat(fields).contains(manualField);
     assertThat(fields.get(0).getDevukFieldId().asInt()).isEqualTo(1);

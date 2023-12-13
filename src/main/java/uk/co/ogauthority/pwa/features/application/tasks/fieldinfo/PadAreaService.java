@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
@@ -158,7 +158,7 @@ public class PadAreaService implements ApplicationFormSectionService {
 
   public void createAndSavePadFieldsFromMasterPwa(PwaApplicationDetail pwaApplicationDetail,
                                                   MasterPwaDetail masterPwaDetail,
-                                                  List<MasterPwaDetailField> masterPwaDetailFields) {
+                                                  List<MasterPwaDetailArea> masterPwaDetailAreas) {
 
     if (masterPwaDetail.getLinkedToFields() != null) {
       pwaApplicationDetailService.setLinkedToFields(pwaApplicationDetail, masterPwaDetail.getLinkedToFields());
@@ -167,7 +167,7 @@ public class PadAreaService implements ApplicationFormSectionService {
 
         var devUkFieldIds = new ArrayList<DevukFieldId>();
         var manuallyEnteredFields = new ArrayList<String>();
-        masterPwaDetailFields.forEach(pwaDetailField -> {
+        masterPwaDetailAreas.forEach(pwaDetailField -> {
           if (pwaDetailField.getDevukFieldId() != null) {
             devUkFieldIds.add(pwaDetailField.getDevukFieldId());
           } else {

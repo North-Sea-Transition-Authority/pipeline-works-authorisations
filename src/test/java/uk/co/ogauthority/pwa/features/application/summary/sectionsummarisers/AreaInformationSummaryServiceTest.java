@@ -25,11 +25,11 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FieldInformationSummaryServiceTest {
+public class AreaInformationSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
   private final String FIELD_NAME = "FIELD";
@@ -46,9 +46,9 @@ public class FieldInformationSummaryServiceTest {
   private PadAreaService padAreaService;
 
   @Mock
-  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
 
-  private FieldInformationSummaryService fieldInformationSummaryService;
+  private AreaInformationSummaryService areaInformationSummaryService;
 
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -62,10 +62,10 @@ public class FieldInformationSummaryServiceTest {
     linkedFieldView = createFieldLinksView(true, FIELD_NAME);
     notLinkedFieldView = createFieldLinksView(false, LINK_DESC);
 
-    fieldInformationSummaryService = new FieldInformationSummaryService(
+    areaInformationSummaryService = new AreaInformationSummaryService(
         taskListService,
         padAreaService,
-        masterPwaDetailFieldService,
+        masterPwaDetailAreaService,
         diffService
     );
 
@@ -74,24 +74,26 @@ public class FieldInformationSummaryServiceTest {
 
   @Test
   public void canSummarise_whenHasTaskShown() {
-    when(taskListService.anyTaskShownForApplication(Set.of(ApplicationTask.FIELD_INFORMATION), pwaApplicationDetail))
+    when(taskListService.anyTaskShownForApplication(Set.of(
+        ApplicationTask.FIELD_INFORMATION,
+        ApplicationTask.CARBON_STORAGE_INFORMATION), pwaApplicationDetail))
         .thenReturn(true);
-    assertThat(fieldInformationSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
+    assertThat(areaInformationSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
   public void canSummarise_whenTaskNotShown() {
-    assertThat(fieldInformationSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
+    assertThat(areaInformationSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
   public void summariseSection_verifyServiceInteractions() {
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
     when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
-    var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
+    var appSummary = areaInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
     assertThat(appSummary.getTemplateModel()).hasSize(7);
@@ -120,11 +122,11 @@ public class FieldInformationSummaryServiceTest {
   @Test
   public void summariseSection_whenAppIsNotLinkedToFields_andConsentIsNotLinkedToFields() {
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
     when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
-    var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
+    var appSummary = areaInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplateModel()).contains(entry("showFieldNames", false));
     assertThat(appSummary.getTemplateModel()).contains(entry("hideFieldNamesOnLoad", true));
@@ -136,11 +138,11 @@ public class FieldInformationSummaryServiceTest {
   @Test
   public void summariseSection_whenAppIsLinkedToFields_andConsentIsNotLinkedToFields() {
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
     when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
 
-    var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
+    var appSummary = areaInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplateModel()).contains(entry("showFieldNames", true));
     assertThat(appSummary.getTemplateModel()).contains(entry("hideFieldNamesOnLoad", false));
@@ -152,11 +154,11 @@ public class FieldInformationSummaryServiceTest {
   @Test
   public void summariseSection_whenAppIsLinkedToFields_andConsentIsLinkedToFields() {
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);
     when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(linkedFieldView);
 
-    var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
+    var appSummary = areaInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplateModel()).contains(entry("showFieldNames", true));
     assertThat(appSummary.getTemplateModel()).contains(entry("hideFieldNamesOnLoad", false));
@@ -168,11 +170,11 @@ public class FieldInformationSummaryServiceTest {
   @Test
   public void summariseSection_whenAppIsNotLinkedToFields_andConsentIsLinkedToFields() {
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);
     when(padAreaService.getApplicationFieldLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
 
-    var appSummary = fieldInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
+    var appSummary = areaInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplateModel()).contains(entry("showFieldNames", true));
     assertThat(appSummary.getTemplateModel()).contains(entry("hideFieldNamesOnLoad", true));

@@ -23,24 +23,24 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class FieldWriterTest {
+public class AreaWriterTest {
 
   @Mock
   private MasterPwaService masterPwaService;
 
   @Mock
-  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
 
   @Mock
   private PadAreaService padAreaService;
 
-  private FieldWriter fieldWriter;
+  private AreaWriter areaWriter;
 
   private PwaApplicationDetail detail;
   private PwaConsent pwaConsent;
@@ -62,7 +62,7 @@ public class FieldWriterTest {
 
     masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
 
-    fieldWriter = new FieldWriter(masterPwaService, masterPwaDetailFieldService, padAreaService);
+    areaWriter = new AreaWriter(masterPwaService, masterPwaDetailAreaService, padAreaService);
 
     when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
     when(masterPwaService.createDuplicateNewDetail(any())).thenReturn(masterPwaDetail);
@@ -80,7 +80,7 @@ public class FieldWriterTest {
     pwaConsent.setVariationNumber(0);
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
 
-    fieldWriter.write(detail, pwaConsent, consentWriterDto);
+    areaWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(1)).updateDetailFieldInfo(
@@ -88,7 +88,7 @@ public class FieldWriterTest {
         detail.getLinkedToArea(),
         detail.getNotLinkedDescription());
 
-    verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
+    verify(masterPwaDetailAreaService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
 
   }
 
@@ -100,17 +100,17 @@ public class FieldWriterTest {
     var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
     var pwaFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
     when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent, consentWriterDto);
+    areaWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());
 
-    verify(masterPwaDetailFieldService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
+    verify(masterPwaDetailAreaService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
 
   }
 
@@ -122,17 +122,17 @@ public class FieldWriterTest {
     var pwaFieldLinksView = new PwaFieldLinksView(false, "desc", List.of());
     var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
     when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent, consentWriterDto);
+    areaWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
     verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
 
-    verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
+    verify(masterPwaDetailAreaService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
 
   }
 
@@ -144,17 +144,17 @@ public class FieldWriterTest {
     var pwaFieldLinksView = new PwaFieldLinksView(false, "desc", List.of());
     var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
     when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent, consentWriterDto);
+    areaWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(1)).createDuplicateNewDetail(masterPwa);
     verify(masterPwaService, times(1)).updateDetailFieldInfo(masterPwaDetail, true, null);
 
-    verify(masterPwaDetailFieldService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
+    verify(masterPwaDetailAreaService, times(1)).createMasterPwaFieldsFromPadFields(masterPwaDetail, fields);
 
   }
 
@@ -166,17 +166,17 @@ public class FieldWriterTest {
     var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
     var pwaFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
     when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
 
-    fieldWriter.write(detail, pwaConsent, consentWriterDto);
+    areaWriter.write(detail, pwaConsent, consentWriterDto);
 
     verify(masterPwaService, times(0)).createDuplicateNewDetail(any());
     verify(masterPwaService, times(0)).updateDetailFieldInfo(any(), any(), any());
 
-    verify(masterPwaDetailFieldService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
+    verify(masterPwaDetailAreaService, times(0)).createMasterPwaFieldsFromPadFields(any(), any());
 
   }
 

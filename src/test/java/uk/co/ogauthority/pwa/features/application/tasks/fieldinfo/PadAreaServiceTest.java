@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
@@ -237,8 +237,8 @@ public class PadAreaServiceTest {
     pwaDetail.setLinkedToFields(true);
 
     var devUkFieldId = new DevukFieldId(DEVUK_FIELD_ID);
-    var pwaDetailField = new MasterPwaDetailField(pwaDetail, devUkFieldId, null);
-    var pwaDetailFieldManual = new MasterPwaDetailField(pwaDetail, null, manuallyEnteredFieldName);
+    var pwaDetailField = new MasterPwaDetailArea(pwaDetail, devUkFieldId, null);
+    var pwaDetailFieldManual = new MasterPwaDetailArea(pwaDetail, null, manuallyEnteredFieldName);
     when(devukFieldService.findByDevukFieldIds(List.of(devUkFieldId))).thenReturn(List.of(devukField));
 
     padAreaService.createAndSavePadFieldsFromMasterPwa(pwaApplicationDetail, pwaDetail, List.of(pwaDetailField, pwaDetailFieldManual));

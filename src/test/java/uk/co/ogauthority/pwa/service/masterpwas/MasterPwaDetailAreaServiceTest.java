@@ -25,15 +25,15 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 import uk.co.ogauthority.pwa.model.view.Tag;
-import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailAreaRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MasterPwaDetailFieldServiceTest {
+public class MasterPwaDetailAreaServiceTest {
 
   private static final int FIELD_ID = 1;
   private static final String DEVUK_FIELD_NAME = "DEVUK FIELD";
@@ -44,15 +44,15 @@ public class MasterPwaDetailFieldServiceTest {
   private DevukFieldService devukFieldService;
 
   @Mock
-  private MasterPwaDetailFieldRepository masterPwaDetailFieldRepository;
+  private MasterPwaDetailAreaRepository masterPwaDetailAreaRepository;
 
   @Mock
   private MasterPwaService masterPwaService;
 
-  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
 
   @Captor
-  private ArgumentCaptor<List<MasterPwaDetailField>> fieldsCaptor;
+  private ArgumentCaptor<List<MasterPwaDetailArea>> fieldsCaptor;
 
   private PwaApplication pwaApplication;
 
@@ -65,9 +65,9 @@ public class MasterPwaDetailFieldServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    masterPwaDetailFieldService = new MasterPwaDetailFieldService(
+    masterPwaDetailAreaService = new MasterPwaDetailAreaService(
         devukFieldService,
-        masterPwaDetailFieldRepository,
+        masterPwaDetailAreaRepository,
         masterPwaService
     );
 
@@ -85,7 +85,7 @@ public class MasterPwaDetailFieldServiceTest {
   @Test
   public void getCurrentMasterPwaDetailFieldLinksView_whenNoFieldInfoSet() {
 
-    var fieldLinkView = masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isNull();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
@@ -98,7 +98,7 @@ public class MasterPwaDetailFieldServiceTest {
 
     masterPwaDetail.setLinkedToFields(false);
     masterPwaDetail.setPwaLinkedToDescription("DESC");
-    var fieldLinkView = masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isFalse();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(masterPwaDetail.getPwaLinkedToDescription());
@@ -109,10 +109,10 @@ public class MasterPwaDetailFieldServiceTest {
   @Test
   public void getCurrentMasterPwaDetailFieldLinksView_whenIsLinkedToFields() {
 
-    var manualFieldLink = new MasterPwaDetailField();
+    var manualFieldLink = new MasterPwaDetailArea();
     manualFieldLink.setManualFieldName(MANUAL_FIELD_NAME);
 
-    var devukFieldLink = new MasterPwaDetailField();
+    var devukFieldLink = new MasterPwaDetailArea();
     devukFieldLink.setDevukFieldId(devukField.getDevukFieldId());
 
     when(devukFieldService.findByDevukFieldIds(Set.of(devukFieldLink.getDevukFieldId())))
@@ -120,11 +120,11 @@ public class MasterPwaDetailFieldServiceTest {
 
     masterPwaDetail.setLinkedToFields(true);
 
-    when(masterPwaDetailFieldRepository.findByMasterPwaDetail(masterPwaDetail)).thenReturn(
+    when(masterPwaDetailAreaRepository.findByMasterPwaDetail(masterPwaDetail)).thenReturn(
         List.of(manualFieldLink, devukFieldLink)
     );
 
-    var fieldLinkView = masterPwaDetailFieldService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isTrue();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(masterPwaDetail.getPwaLinkedToDescription());
@@ -145,9 +145,9 @@ public class MasterPwaDetailFieldServiceTest {
     manualField.setFieldName("MANUAL");
 
     var detail = new MasterPwaDetail();
-    masterPwaDetailFieldService.createMasterPwaFieldsFromPadFields(detail, List.of(devukField, manualField));
+    masterPwaDetailAreaService.createMasterPwaFieldsFromPadFields(detail, List.of(devukField, manualField));
 
-    verify(masterPwaDetailFieldRepository, times(1)).saveAll(fieldsCaptor.capture());
+    verify(masterPwaDetailAreaRepository, times(1)).saveAll(fieldsCaptor.capture());
 
     assertThat(fieldsCaptor.getValue().get(0)).satisfies(field -> {
       assertThat(field.getDevukFieldId()).isEqualTo(devukField.getDevukField().getDevukFieldId());

@@ -37,9 +37,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
@@ -89,7 +89,7 @@ public class PwaApplicationCreationServiceTest {
   private PadOrganisationRoleService padOrganisationRoleService;
 
   @Mock
-  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
 
   @Mock
   private PadAreaService padAreaService;
@@ -123,7 +123,7 @@ public class PwaApplicationCreationServiceTest {
         pwaApplicationReferencingService,
         pwaConsentOrganisationRoleService,
         padOrganisationRoleService,
-        masterPwaDetailFieldService,
+        masterPwaDetailAreaService,
         padAreaService,
         clock
     );
@@ -331,8 +331,8 @@ public class PwaApplicationCreationServiceTest {
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);
 
-    var masterPwaDetailField = new MasterPwaDetailField();
-    when(masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa)).thenReturn(List.of(masterPwaDetailField));
+    var masterPwaDetailField = new MasterPwaDetailArea();
+    when(masterPwaDetailAreaService.getMasterPwaDetailFields(masterPwa)).thenReturn(List.of(masterPwaDetailField));
     var masterPwaDetail = new MasterPwaDetail();
     when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(masterPwaDetail);
 

@@ -15,24 +15,24 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 import uk.co.ogauthority.pwa.model.view.Tag;
-import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailFieldRepository;
+import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailAreaRepository;
 
 @Service
-public class MasterPwaDetailFieldService {
+public class MasterPwaDetailAreaService {
 
   private final DevukFieldService devukFieldService;
-  private final MasterPwaDetailFieldRepository masterPwaDetailFieldRepository;
+  private final MasterPwaDetailAreaRepository masterPwaDetailAreaRepository;
   private final MasterPwaService masterPwaService;
 
   @Autowired
-  public MasterPwaDetailFieldService(DevukFieldService devukFieldService,
-                                     MasterPwaDetailFieldRepository masterPwaDetailFieldRepository,
-                                     MasterPwaService masterPwaService) {
+  public MasterPwaDetailAreaService(DevukFieldService devukFieldService,
+                                    MasterPwaDetailAreaRepository masterPwaDetailAreaRepository,
+                                    MasterPwaService masterPwaService) {
     this.devukFieldService = devukFieldService;
-    this.masterPwaDetailFieldRepository = masterPwaDetailFieldRepository;
+    this.masterPwaDetailAreaRepository = masterPwaDetailAreaRepository;
     this.masterPwaService = masterPwaService;
   }
 
@@ -40,11 +40,11 @@ public class MasterPwaDetailFieldService {
 
     var currentMasterPwaDetail = masterPwaService.getCurrentDetailOrThrow(pwaApplication.getMasterPwa());
 
-    var masterPwaDetailFields = masterPwaDetailFieldRepository.findByMasterPwaDetail(currentMasterPwaDetail);
+    var masterPwaDetailFields = masterPwaDetailAreaRepository.findByMasterPwaDetail(currentMasterPwaDetail);
 
     var fieldIds = masterPwaDetailFields.stream()
         .filter(o -> o.getDevukFieldId() != null)
-        .map(MasterPwaDetailField::getDevukFieldId)
+        .map(MasterPwaDetailArea::getDevukFieldId)
         .collect(Collectors.toSet());
 
     Map<DevukFieldId, DevukField> devukFieldLookup = devukFieldService.findByDevukFieldIds(fieldIds).stream()
@@ -63,9 +63,9 @@ public class MasterPwaDetailFieldService {
 
   }
 
-  public List<MasterPwaDetailField> getMasterPwaDetailFields(MasterPwa masterPwa) {
+  public List<MasterPwaDetailArea> getMasterPwaDetailFields(MasterPwa masterPwa) {
     var currentMasterPwaDetail = masterPwaService.getCurrentDetailOrThrow(masterPwa);
-    return masterPwaDetailFieldRepository.findByMasterPwaDetail(currentMasterPwaDetail);
+    return masterPwaDetailAreaRepository.findByMasterPwaDetail(currentMasterPwaDetail);
   }
 
   @Transactional
@@ -75,17 +75,17 @@ public class MasterPwaDetailFieldService {
         .map(padField -> createPwaFieldFromPadField(detail, padField))
         .collect(Collectors.toList());
 
-    masterPwaDetailFieldRepository.saveAll(pwaFields);
+    masterPwaDetailAreaRepository.saveAll(pwaFields);
 
   }
 
-  private MasterPwaDetailField createPwaFieldFromPadField(MasterPwaDetail detail, PadLinkedArea padLinkedArea) {
+  private MasterPwaDetailArea createPwaFieldFromPadField(MasterPwaDetail detail, PadLinkedArea padLinkedArea) {
 
     var devukFieldId = Optional.ofNullable(padLinkedArea.getDevukField())
         .map(DevukField::getDevukFieldId)
         .orElse(null);
 
-    return new MasterPwaDetailField(detail, devukFieldId, padLinkedArea.getFieldName());
+    return new MasterPwaDetailArea(detail, devukFieldId, padLinkedArea.getFieldName());
 
   }
 

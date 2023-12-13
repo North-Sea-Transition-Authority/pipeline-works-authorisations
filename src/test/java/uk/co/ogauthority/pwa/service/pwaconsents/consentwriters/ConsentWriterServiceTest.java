@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -41,7 +42,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 public class ConsentWriterServiceTest {
 
   @MockBean
-  private FieldWriter fieldWriter;
+  private AreaWriter areaWriter;
 
   @MockBean
   private HuooWriter huooWriter;
@@ -84,7 +85,7 @@ public class ConsentWriterServiceTest {
     consentWriterDto.setConsentRolesAdded(List.of(new PwaConsentOrganisationRole()));
     consentWriterDto.setConsentRolesEnded(List.of(new PwaConsentOrganisationRole()));
 
-    configureDefaultMockWriterBehaviour(fieldWriter);
+    configureDefaultMockWriterBehaviour(areaWriter);
     configureDefaultMockWriterBehaviour(huooWriter);
     configureDefaultMockWriterBehaviour(initialPwaMasterDetailWriter);
     configureDefaultMockWriterBehaviour(pipelineWriter);
@@ -105,10 +106,10 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
+    var inOrder = Mockito.inOrder(areaWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
 
     inOrder.verify(initialPwaMasterDetailWriter, times(1)).write(eq(detail), eq(consent), any());
-    inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(areaWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());
 
@@ -123,9 +124,9 @@ public class ConsentWriterServiceTest {
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    var inOrder = Mockito.inOrder(fieldWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
+    var inOrder = Mockito.inOrder(areaWriter, huooWriter, initialPwaMasterDetailWriter, pipelineWriter, pipelineHuooWriter);
 
-    inOrder.verify(fieldWriter, times(1)).write(eq(detail), eq(consent), any());
+    inOrder.verify(areaWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(huooWriter, times(1)).write(eq(detail), eq(consent), any());
     inOrder.verify(pipelineWriter, times(1)).write(eq(detail), eq(consent), any());
 
@@ -155,13 +156,36 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noFieldTask_noFieldWrite() {
+  public void updateConsentedData_noFieldTask_areaWriteForCarbonStorage() {
 
     applicationTasks.remove(ApplicationTask.FIELD_INFORMATION);
 
     consentWriterService.updateConsentedData(detail, consent);
 
-    verify(fieldWriter, times(0)).write(detail, consent, consentWriterDto);
+    verify(areaWriter).write(detail, consent, consentWriterDto);
+
+  }
+
+  @Test
+  public void updateConsentedData_noFieldTask_areaWriteForField() {
+
+    applicationTasks.remove(ApplicationTask.CARBON_STORAGE_INFORMATION);
+
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(areaWriter).write(detail, consent, consentWriterDto);
+
+  }
+
+  @Test
+  public void updateConsentedData_noAreaTask_noWrite() {
+
+    applicationTasks.remove(ApplicationTask.CARBON_STORAGE_INFORMATION);
+    applicationTasks.remove(ApplicationTask.FIELD_INFORMATION);
+
+    consentWriterService.updateConsentedData(detail, consent);
+
+    verify(areaWriter, never()).write(detail, consent, consentWriterDto);
 
   }
 

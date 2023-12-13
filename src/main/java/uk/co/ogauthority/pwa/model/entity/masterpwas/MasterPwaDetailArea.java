@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.Devu
 
 @Entity
 @Table(name = "pwa_detail_fields")
-public class MasterPwaDetailField {
+public class MasterPwaDetailArea {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,12 +32,12 @@ public class MasterPwaDetailField {
 
   private String manualFieldName;
 
-  public MasterPwaDetailField() {
+  public MasterPwaDetailArea() {
   }
 
-  public MasterPwaDetailField(MasterPwaDetail masterPwaDetail,
-                              DevukFieldId devukFieldId,
-                              String manualFieldName) {
+  public MasterPwaDetailArea(MasterPwaDetail masterPwaDetail,
+                             DevukFieldId devukFieldId,
+                             String manualFieldName) {
     this.masterPwaDetail = masterPwaDetail;
     this.devukFieldId = devukFieldId;
     this.manualFieldName = manualFieldName;
