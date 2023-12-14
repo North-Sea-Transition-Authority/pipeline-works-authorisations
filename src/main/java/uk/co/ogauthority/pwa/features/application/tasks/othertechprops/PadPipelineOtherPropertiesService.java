@@ -1,12 +1,11 @@
 package uk.co.ogauthority.pwa.features.application.tasks.othertechprops;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -84,18 +83,21 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   public void saveEntitiesUsingForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                     PwaApplicationDetail pwaApplicationDetail) {
-    Set<PropertyPhase> propertyPhases = Stream.of(form.getPhasesSelection().keySet(), Set.of(form.getPhase()))
-        .flatMap(Set::stream)
-        .collect(Collectors.toSet());
+    var propertyPhases = new HashSet<PropertyPhase>();
+    propertyPhases.addAll(form.getPhasesSelection().keySet());
+    propertyPhases.add(form.getPhase());
+
     var otherPhaseDescription = propertyPhases.contains(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
 
     pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, propertyPhases, otherPhaseDescription);
 
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = form.getPropertyDataFormMap().get(entity.getPropertyName());
-      entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
-      if (pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null
+
+      if (pipelineOtherPropertiesDataForm != null
+          && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null
           && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+        entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
         entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
         entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
       }

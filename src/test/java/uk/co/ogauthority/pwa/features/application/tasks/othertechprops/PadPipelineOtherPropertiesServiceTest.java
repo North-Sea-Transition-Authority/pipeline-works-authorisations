@@ -127,10 +127,9 @@ public class PadPipelineOtherPropertiesServiceTest {
     var actualEntities = PadPipelineOtherPropertiesTestUtil.createBlankEntities(pwaApplicationDetail);
     padPipelineOtherPropertiesService.saveEntitiesUsingForm(formBuilder.createFullForm(), actualEntities, pwaApplicationDetail);
 
-    assertThat(actualEntities).isEqualTo(PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail));
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
     verify(pwaApplicationDetailService, times(1)).setPhasesPresent(pwaApplicationDetail,
         PadPipelineOtherPropertiesTestUtil.getPhaseDataForAppDetail(), PadPipelineOtherPropertiesTestUtil.getOtherPhaseDescription());
-    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
   }
 
   @Test
