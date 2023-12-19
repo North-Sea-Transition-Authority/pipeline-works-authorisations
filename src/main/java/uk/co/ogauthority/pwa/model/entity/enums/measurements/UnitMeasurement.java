@@ -23,7 +23,7 @@ public enum UnitMeasurement {
   ROCK_GRADE("grade", "grade"),
   CENTIPOISE("cP", "in centipoise"),
 
-  MTONNE_YEAR("MT/yr", "Megatonnes per year");
+  MTONNE_YEAR("Mtpa", "Million tonnes per annum");
 
   private final String suffixDisplay;
   private final String suffixScreenReaderDisplay;
