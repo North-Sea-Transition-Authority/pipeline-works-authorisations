@@ -37,10 +37,10 @@ public class InitialIntroductionGeneratorService implements DocumentSectionGener
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
 
-    var fieldLinksView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var fieldLinksView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
     String fieldOrOther = Optional.ofNullable(fieldLinksView.getPwaLinkedToDescription())
-        .orElse(fieldLinksView.getLinkedFieldNames().stream()
+        .orElse(fieldLinksView.getLinkedAreaNames().stream()
             .map(s -> s.getStringWithTag().getValue())
             .sorted()
             .collect(Collectors.joining(", ")) + " FIELD");

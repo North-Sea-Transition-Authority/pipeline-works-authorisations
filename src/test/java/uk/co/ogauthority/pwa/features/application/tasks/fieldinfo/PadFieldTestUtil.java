@@ -19,7 +19,7 @@ public class PadFieldTestUtil {
   public static PadLinkedArea createManualPadField(PwaApplicationDetail pwaApplicationDetail){
     var f = createPadField(pwaApplicationDetail);
     // dont care about the name
-    f.setFieldName(String.valueOf(RandomUtils.nextBytes(10)));
+    f.setAreaName(String.valueOf(RandomUtils.nextBytes(10)));
     return f;
   }
 

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
@@ -73,10 +74,11 @@ public class PadAreaService implements ApplicationFormSectionService {
 
     List<PadLinkedArea> newPadLinkedAreas = fields.stream()
         .map(devukField -> {
-          var padField = new PadLinkedArea();
-          padField.setPwaApplicationDetail(pwaApplicationDetail);
-          padField.setDevukField(devukField);
-          return padField;
+          var padLinkedArea = new PadLinkedArea();
+          padLinkedArea.setPwaApplicationDetail(pwaApplicationDetail);
+          padLinkedArea.setDevukField(devukField);
+          padLinkedArea.setAreaType(LinkedAreaType.findAreaTypeByResourceType(pwaApplicationDetail.getResourceType()));
+          return padLinkedArea;
         })
         .collect(Collectors.toList());
 
@@ -90,13 +92,14 @@ public class PadAreaService implements ApplicationFormSectionService {
    * @param pwaApplicationDetail The current application detail.
    * @param fieldNames           A list of field names to save as PadFields.
    */
-  private void addManuallyEnteredFields(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames, boolean removePrefix) {
+  private void addManuallyEnteredAreas(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames, boolean removePrefix) {
 
     List<PadLinkedArea> newPadLinkedAreas = fieldNames.stream()
         .map(fieldName -> {
           var padField = new PadLinkedArea();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
-          padField.setFieldName(removePrefix ? searchSelectorService.removePrefix(fieldName) : fieldName);
+          padField.setAreaName(removePrefix ? searchSelectorService.removePrefix(fieldName) : fieldName);
+          padField.setAreaType(LinkedAreaType.findAreaTypeByResourceType(pwaApplicationDetail.getResourceType()));
           return padField;
         })
         .collect(Collectors.toList());
@@ -125,31 +128,31 @@ public class PadAreaService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void updateFieldInformation(PwaApplicationDetail applicationDetail, PwaFieldForm form) {
+  public void updateFieldInformation(PwaApplicationDetail applicationDetail, PwaAreaForm form) {
 
     // if they've said yes or no to the field link question, we have things to do
-    if (form.getLinkedToField() != null) {
+    if (form.getLinkedToArea() != null) {
 
-      pwaApplicationDetailService.setLinkedToFields(applicationDetail, form.getLinkedToField());
-
+      pwaApplicationDetailService.setLinkedToFields(applicationDetail, form.getLinkedToArea());
       removeAllFields(applicationDetail);
 
       // if they've said yes to field link and selected a field, add field
-      if (form.getLinkedToField() && form.getFieldIds() != null) {
-
-        //differentiate between existing devUkFields and manually entered field names
-        var reconciledOptions = devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds());
-        addFields(applicationDetail, reconciledOptions.getLinkedEntries());
-        addManuallyEnteredFields(applicationDetail, reconciledOptions.getManualEntries(), true);
-
-      } else if (!form.getLinkedToField()) {
+      if (form.getLinkedToArea() && form.getLinkedAreas() != null) {
+        if (applicationDetail.getResourceType().equals(PwaResourceType.CCUS)) {
+          addManuallyEnteredAreas(applicationDetail, form.getLinkedAreas(), false);
+        } else {
+          //differentiate between existing devUkFields and manually entered field names
+          var reconciledOptions = devukFieldService.getLinkedAndManualFieldEntries(form.getLinkedAreas());
+          addFields(applicationDetail, reconciledOptions.getLinkedEntries());
+          addManuallyEnteredAreas(applicationDetail, reconciledOptions.getManualEntries(), true);
+        }
+      } else if (!form.getLinkedToArea()) {
         // otherwise they've said no to field link, update linked field description
-        pwaApplicationDetailService.setNotLinkedFieldDescription(applicationDetail, form.getNoLinkedFieldDescription());
-
+        pwaApplicationDetailService.setNotLinkedFieldDescription(applicationDetail, form.getNoLinkedAreaDescription());
       }
 
       // clear FDP answers on project info section based on whether or not we're linked to a field
-      removeFdpDataFromProjectInfo(applicationDetail, form.getLinkedToField());
+      removeFdpDataFromProjectInfo(applicationDetail, form.getLinkedToArea());
 
     }
 
@@ -176,7 +179,7 @@ public class PadAreaService implements ApplicationFormSectionService {
         });
 
         addFields(pwaApplicationDetail, devukFieldService.findByDevukFieldIds(devUkFieldIds));
-        addManuallyEnteredFields(pwaApplicationDetail, manuallyEnteredFields, false);
+        addManuallyEnteredAreas(pwaApplicationDetail, manuallyEnteredFields, false);
 
       } else {
         pwaApplicationDetailService.setNotLinkedFieldDescription(pwaApplicationDetail,
@@ -189,29 +192,31 @@ public class PadAreaService implements ApplicationFormSectionService {
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
-    var form = new PwaFieldForm();
+    var form = new PwaAreaForm();
     mapEntityToForm(detail, form);
     BindingResult bindingResult = new BeanPropertyBindingResult(form, "form");
     bindingResult = validate(form, bindingResult, ValidationType.FULL, detail);
     return !bindingResult.hasErrors();
   }
 
-  public void mapEntityToForm(PwaApplicationDetail pwaApplicationDetail, PwaFieldForm form) {
-    var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
-    form.setLinkedToField(pwaApplicationDetail.getLinkedToArea());
+  public void mapEntityToForm(PwaApplicationDetail pwaApplicationDetail, PwaAreaForm form) {
+    var areas = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
+    form.setLinkedToArea(pwaApplicationDetail.getLinkedToArea());
+    form.setNoLinkedAreaDescription(pwaApplicationDetail.getNotLinkedDescription());
 
-    if (!fields.isEmpty()) {
-      form.setFieldIds(fields.stream()
-          .map(field -> field.isLinkedToDevuk() ? field.getDevukField().getFieldId().toString()
-              : SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName())
-          .collect(Collectors.toList())
-      );
-
-    } else {
-      form.setNoLinkedFieldDescription(pwaApplicationDetail.getNotLinkedDescription());
+    if (!areas.isEmpty()) {
+      if (pwaApplicationDetail.getResourceType().equals(PwaResourceType.CCUS)) {
+        form.setLinkedAreas(areas.stream()
+            .map(PadLinkedArea::getAreaName)
+            .collect(Collectors.toList()));
+      } else {
+        form.setLinkedAreas(areas.stream()
+            .map(area -> area.isLinkedToDevuk() ? area.getDevukField().getFieldId().toString()
+                : SearchSelectable.FREE_TEXT_PREFIX + area.getAreaName())
+            .collect(Collectors.toList()));
+      }
     }
   }
-
 
   public Map<String, String> getPreSelectedApplicationFields(PwaApplicationDetail pwaApplicationDetail) {
     var fields = getActiveFieldsForApplicationDetail(pwaApplicationDetail);
@@ -221,7 +226,7 @@ public class PadAreaService implements ApplicationFormSectionService {
       if (field.isLinkedToDevuk()) {
         preSelectedItems.put(field.getDevukField().getFieldId().toString(), field.getDevukField().getFieldName());
       } else {
-        preSelectedItems.put(SearchSelectable.FREE_TEXT_PREFIX + field.getFieldName(), field.getFieldName());
+        preSelectedItems.put(SearchSelectable.FREE_TEXT_PREFIX + field.getAreaName(), field.getAreaName());
       }
     });
 
@@ -232,7 +237,7 @@ public class PadAreaService implements ApplicationFormSectionService {
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    pwaAreaFormValidator.validate(form, bindingResult, validationType);
+    pwaAreaFormValidator.validate(form, bindingResult, validationType, pwaApplicationDetail);
     return bindingResult;
   }
 
@@ -245,16 +250,16 @@ public class PadAreaService implements ApplicationFormSectionService {
     );
   }
 
-  public PwaFieldLinksView getApplicationFieldLinksView(PwaApplicationDetail pwaApplicationDetail) {
+  public PwaAreaLinksView getApplicationAreaLinksView(PwaApplicationDetail pwaApplicationDetail) {
 
     var linkedFieldNames = padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)
         .stream()
         .map(pf -> pf.getDevukField() != null
             ? new StringWithTag(pf.getDevukField().getFieldName())
-            : new StringWithTag(pf.getFieldName(), Tag.NOT_FROM_PORTAL))
+            : new StringWithTag(pf.getAreaName(), Tag.NOT_FROM_PORTAL))
         .collect(Collectors.toList());
 
-    return new PwaFieldLinksView(
+    return new PwaAreaLinksView(
         pwaApplicationDetail.getLinkedToArea(),
         pwaApplicationDetail.getNotLinkedDescription(),
         linkedFieldNames

@@ -779,11 +779,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
     var v1ManualField = firstVersionApplicationContainer.getPadFields().stream()
-        .filter(f -> f.getFieldName() != null)
+        .filter(f -> f.getAreaName() != null)
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
 
     var v2ManualField = newVersionContainer.getPadFields().stream()
-        .filter(f -> f.getFieldName() != null)
+        .filter(f -> f.getAreaName() != null)
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
 
     var v1DevukField = firstVersionApplicationContainer.getPadFields().stream()

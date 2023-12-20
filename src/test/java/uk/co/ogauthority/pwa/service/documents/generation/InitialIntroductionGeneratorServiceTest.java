@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -78,8 +78,8 @@ public class InitialIntroductionGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_linkedToField() {
 
-    var view = new PwaFieldLinksView(true, null, List.of(new StringWithTag("FIELDNAME")));
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(view);
+    var view = new PwaAreaLinksView(true, null, List.of(new StringWithTag("FIELDNAME")));
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);
 
     var docSectionData = initialIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 
@@ -101,8 +101,8 @@ public class InitialIntroductionGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_notLinkedToField() {
 
-    var view = new PwaFieldLinksView(false, "interconnector", List.of());
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(view);
+    var view = new PwaAreaLinksView(false, "interconnector", List.of());
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);
 
     var docSectionData = initialIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 

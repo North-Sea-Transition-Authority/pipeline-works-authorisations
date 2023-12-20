@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.features.application.tasks.fieldinfo;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -11,19 +13,22 @@ import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.Devu
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
-@Entity(name = "pad_fields")
+@Entity(name = "pad_linked_areas")
 public class PadLinkedArea implements ChildEntity<Integer, PwaApplicationDetail> {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(name = "field_name_manual_entry")
-  private String fieldName;
+  @Column(name = "area_name_manual_entry")
+  private String areaName;
 
   @ManyToOne
   @JoinColumn(name = "field_id")
   private DevukField devukField;
+
+  @Enumerated(EnumType.STRING)
+  private LinkedAreaType areaType;
 
   @ManyToOne
   @JoinColumn(name = "application_detail_id")
@@ -56,12 +61,12 @@ public class PadLinkedArea implements ChildEntity<Integer, PwaApplicationDetail>
     this.id = id;
   }
 
-  public String getFieldName() {
-    return fieldName;
+  public String getAreaName() {
+    return areaName;
   }
 
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
+  public void setAreaName(String areaName) {
+    this.areaName = areaName;
   }
 
   public DevukField getDevukField() {
@@ -82,6 +87,15 @@ public class PadLinkedArea implements ChildEntity<Integer, PwaApplicationDetail>
   }
 
   public boolean isLinkedToDevuk() {
-    return devukField != null;
+    return (devukField != null && LinkedAreaType.FIELD.equals(areaType));
+  }
+
+  public LinkedAreaType getAreaType() {
+    return areaType;
+  }
+
+  public PadLinkedArea setAreaType(LinkedAreaType areaType) {
+    this.areaType = areaType;
+    return this;
   }
 }

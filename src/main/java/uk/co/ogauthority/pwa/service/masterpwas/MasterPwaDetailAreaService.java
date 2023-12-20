@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
@@ -36,7 +36,7 @@ public class MasterPwaDetailAreaService {
     this.masterPwaService = masterPwaService;
   }
 
-  public PwaFieldLinksView getCurrentMasterPwaDetailFieldLinksView(PwaApplication pwaApplication) {
+  public PwaAreaLinksView getCurrentMasterPwaDetailAreaLinksView(PwaApplication pwaApplication) {
 
     var currentMasterPwaDetail = masterPwaService.getCurrentDetailOrThrow(pwaApplication.getMasterPwa());
 
@@ -50,7 +50,7 @@ public class MasterPwaDetailAreaService {
     Map<DevukFieldId, DevukField> devukFieldLookup = devukFieldService.findByDevukFieldIds(fieldIds).stream()
         .collect(Collectors.toMap(DevukField::getDevukFieldId, devukField -> devukField));
 
-    return new PwaFieldLinksView(
+    return new PwaAreaLinksView(
         currentMasterPwaDetail.getLinkedToFields(),
         currentMasterPwaDetail.getPwaLinkedToDescription(),
         masterPwaDetailFields.stream()
@@ -85,7 +85,7 @@ public class MasterPwaDetailAreaService {
         .map(DevukField::getDevukFieldId)
         .orElse(null);
 
-    return new MasterPwaDetailArea(detail, devukFieldId, padLinkedArea.getFieldName());
+    return new MasterPwaDetailArea(detail, devukFieldId, padLinkedArea.getAreaName());
 
   }
 

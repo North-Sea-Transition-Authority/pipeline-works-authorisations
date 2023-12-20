@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
@@ -29,32 +31,35 @@ public class PwaAreaFormValidator implements SmartValidator {
 
   @Override
   public boolean supports(Class<?> clazz) {
-    return PwaFieldForm.class.equals(clazz);
+    return PwaAreaForm.class.equals(clazz);
   }
 
   @Override
   public void validate(Object target, Errors errors, Object... validationHints) {
 
-    var fieldForm = (PwaFieldForm) target;
+    var fieldForm = (PwaAreaForm) target;
     var validationType = (ValidationType) validationHints[0];
+    var pwaApplicationDetail = (PwaApplicationDetail) validationHints[1];
 
     // if full validation, validate everything
     if (validationType == ValidationType.FULL) {
 
       ValidationUtils.rejectIfEmpty(errors,
-          "linkedToField",
-          FieldValidationErrorCodes.REQUIRED.errorCode("linkedToField"),
-          "Select yes if your application is linked to a field");
+          "linkedToArea",
+          FieldValidationErrorCodes.REQUIRED.errorCode("linkedToArea"),
+          "Select yes if your application is linked to an area");
 
-      if (BooleanUtils.isTrue(fieldForm.getLinkedToField())) {
+      if (BooleanUtils.isTrue(fieldForm.getLinkedToArea())) {
         ValidationUtils.rejectIfEmpty(errors,
-            "fieldIds", FieldValidationErrorCodes.REQUIRED.errorCode("fieldIds"), "Select a field");
+            "linkedAreas",
+            FieldValidationErrorCodes.REQUIRED.errorCode("linkedAreas"),
+            "Enter which areas the PWA is related to");
 
-      } else if (BooleanUtils.isFalse(fieldForm.getLinkedToField())) {
+      } else if (BooleanUtils.isFalse(fieldForm.getLinkedToArea())) {
 
         ValidationUtils.rejectIfEmptyOrWhitespace(errors,
-            "noLinkedFieldDescription",
-            FieldValidationErrorCodes.REQUIRED.errorCode("noLinkedFieldDescription"),
+            "noLinkedAreaDescription",
+            FieldValidationErrorCodes.REQUIRED.errorCode("noLinkedAreaDescription"),
             "Enter a description");
       }
     }
@@ -62,19 +67,20 @@ public class PwaAreaFormValidator implements SmartValidator {
 
 
     //Partial validation, always performed regardless
-    if (BooleanUtils.isFalse(fieldForm.getLinkedToField())) {
+    if (BooleanUtils.isFalse(fieldForm.getLinkedToArea())) {
       ValidatorUtils.validateDefaultStringLength(
-          errors, "noLinkedFieldDescription", fieldForm::getNoLinkedFieldDescription,
+          errors, "noLinkedAreaDescription", fieldForm::getNoLinkedAreaDescription,
           String.format("%s related to description", serviceNameAcronym));
     }
 
     // regardless of validation type, make sure that selected field is valid
-    if (BooleanUtils.isTrue(fieldForm.getLinkedToField()) && fieldForm.getFieldIds() != null) {
-
+    if (BooleanUtils.isTrue(fieldForm.getLinkedToArea())
+        && fieldForm.getLinkedAreas() != null
+        && !PwaResourceType.CCUS.equals(pwaApplicationDetail.getResourceType())) {
       try {
-        devukFieldService.getLinkedAndManualFieldEntries(fieldForm.getFieldIds());
+        devukFieldService.getLinkedAndManualFieldEntries(fieldForm.getLinkedAreas());
       } catch (PwaEntityNotFoundException e) {
-        errors.rejectValue("fieldIds", FieldValidationErrorCodes.INVALID.errorCode("fieldIds"), "Select a valid field");
+        errors.rejectValue("linkedAreas", FieldValidationErrorCodes.INVALID.errorCode("linkedAreas"), "Select a valid area");
       }
 
     }

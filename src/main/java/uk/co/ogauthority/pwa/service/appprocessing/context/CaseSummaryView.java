@@ -24,10 +24,11 @@ public class CaseSummaryView {
 
   private final Integer pwaApplicationId;
   private final PwaApplicationType pwaApplicationType;
+  private final PwaResourceType pwaResourceType;
   private final String pwaApplicationTypeDisplay;
   private final String pwaApplicationRef;
   private final String holderNames;
-  private final String fieldNames;
+  private final String areaNames;
   private final String proposedStartDateDisplay;
   private final boolean fastTrackFlag;
   private final String caseOfficerName;
@@ -41,7 +42,7 @@ public class CaseSummaryView {
                          PwaResourceType resourceType,
                          String pwaApplicationRef,
                          String holderNames,
-                         String fieldNames,
+                         String areaNames,
                          String proposedStartDateDisplay,
                          boolean fastTrackFlag,
                          String caseOfficerName,
@@ -51,10 +52,11 @@ public class CaseSummaryView {
                          Integer masterPwaId) {
     this.pwaApplicationId = pwaApplicationId;
     this.pwaApplicationType = pwaApplicationType;
+    this.pwaResourceType = resourceType;
     this.pwaApplicationTypeDisplay = PwaApplicationDisplayUtils.getApplicationTypeDisplay(pwaApplicationType, resourceType);
     this.pwaApplicationRef = pwaApplicationRef;
     this.holderNames = holderNames;
-    this.fieldNames = fieldNames;
+    this.areaNames = areaNames;
     this.proposedStartDateDisplay = proposedStartDateDisplay;
     this.fastTrackFlag = fastTrackFlag;
     this.caseOfficerName = caseOfficerName;
@@ -117,8 +119,8 @@ public class CaseSummaryView {
     return holderNames;
   }
 
-  public String getFieldNames() {
-    return fieldNames;
+  public String getAreaNames() {
+    return areaNames;
   }
 
   public String getProposedStartDateDisplay() {
@@ -149,6 +151,10 @@ public class CaseSummaryView {
     return masterPwaId;
   }
 
+  public PwaResourceType getPwaResourceType() {
+    return pwaResourceType;
+  }
+
   @SuppressWarnings("unused")
   // used in ftl template
   public String getAppSummaryUrl() {
@@ -162,7 +168,7 @@ public class CaseSummaryView {
     if (pwaApplicationType.equals(PwaApplicationType.INITIAL)) {
       return null;
     }
-    
+
     return ReverseRouter.routeWithQueryParamMap(on(PwaViewController.class)
         .renderViewPwa(getMasterPwaId(), PwaViewTab.PIPELINES, null, null, null),
         new LinkedMultiValueMap<>(Map.of("showBreadcrumbs", List.of("false"))));
@@ -178,20 +184,23 @@ public class CaseSummaryView {
       return false;
     }
     CaseSummaryView that = (CaseSummaryView) o;
-    return fastTrackFlag == that.fastTrackFlag && Objects.equals(pwaApplicationId,
-        that.pwaApplicationId) && pwaApplicationType == that.pwaApplicationType && Objects.equals(
-        pwaApplicationTypeDisplay, that.pwaApplicationTypeDisplay) && Objects.equals(pwaApplicationRef,
-        that.pwaApplicationRef) && Objects.equals(holderNames, that.holderNames) && Objects.equals(
-        fieldNames, that.fieldNames) && Objects.equals(proposedStartDateDisplay,
-        that.proposedStartDateDisplay) && Objects.equals(caseOfficerName,
-        that.caseOfficerName)
+    return fastTrackFlag == that.fastTrackFlag
+        && Objects.equals(pwaApplicationId, that.pwaApplicationId)
+        && Objects.equals(pwaApplicationType, that.pwaApplicationType)
+        && Objects.equals(pwaResourceType, that.pwaResourceType)
+        && Objects.equals(pwaApplicationTypeDisplay, that.pwaApplicationTypeDisplay)
+        && Objects.equals(pwaApplicationRef, that.pwaApplicationRef)
+        && Objects.equals(holderNames, that.holderNames)
+        && Objects.equals(areaNames, that.areaNames)
+        && Objects.equals(proposedStartDateDisplay, that.proposedStartDateDisplay)
+        && Objects.equals(caseOfficerName, that.caseOfficerName)
         && Objects.equals(versionNo, that.versionNo)
         && Objects.equals(caseSummaryHeaderId, that.caseSummaryHeaderId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(pwaApplicationId, pwaApplicationType, pwaApplicationTypeDisplay, pwaApplicationRef, holderNames,
-        fieldNames, proposedStartDateDisplay, fastTrackFlag, caseOfficerName, versionNo, caseSummaryHeaderId);
+    return Objects.hash(pwaApplicationId, pwaApplicationType, pwaResourceType, pwaApplicationTypeDisplay, pwaApplicationRef, holderNames,
+        areaNames, proposedStartDateDisplay, fastTrackFlag, caseOfficerName, versionNo, caseSummaryHeaderId);
   }
 }

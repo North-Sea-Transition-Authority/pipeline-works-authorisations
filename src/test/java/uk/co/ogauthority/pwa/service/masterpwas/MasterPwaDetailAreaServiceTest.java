@@ -85,11 +85,11 @@ public class MasterPwaDetailAreaServiceTest {
   @Test
   public void getCurrentMasterPwaDetailFieldLinksView_whenNoFieldInfoSet() {
 
-    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isNull();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
-    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+    assertThat(fieldLinkView.getLinkedAreaNames()).isEmpty();
 
   }
 
@@ -98,11 +98,11 @@ public class MasterPwaDetailAreaServiceTest {
 
     masterPwaDetail.setLinkedToFields(false);
     masterPwaDetail.setPwaLinkedToDescription("DESC");
-    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isFalse();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(masterPwaDetail.getPwaLinkedToDescription());
-    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+    assertThat(fieldLinkView.getLinkedAreaNames()).isEmpty();
 
   }
 
@@ -124,11 +124,11 @@ public class MasterPwaDetailAreaServiceTest {
         List.of(manualFieldLink, devukFieldLink)
     );
 
-    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(pwaApplication);
+    var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplication);
 
     assertThat(fieldLinkView.getLinkedToFields()).isTrue();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(masterPwaDetail.getPwaLinkedToDescription());
-    assertThat(fieldLinkView.getLinkedFieldNames()).containsExactly(
+    assertThat(fieldLinkView.getLinkedAreaNames()).containsExactly(
         new StringWithTagItem(new StringWithTag(DEVUK_FIELD_NAME)),
         new StringWithTagItem(new StringWithTag(MANUAL_FIELD_NAME, Tag.NOT_FROM_PORTAL))
     );
@@ -142,7 +142,7 @@ public class MasterPwaDetailAreaServiceTest {
     devukField.setDevukField(new DevukField(1, "FNAME", 400));
 
     var manualField = new PadLinkedArea();
-    manualField.setFieldName("MANUAL");
+    manualField.setAreaName("MANUAL");
 
     var detail = new MasterPwaDetail();
     masterPwaDetailAreaService.createMasterPwaFieldsFromPadFields(detail, List.of(devukField, manualField));

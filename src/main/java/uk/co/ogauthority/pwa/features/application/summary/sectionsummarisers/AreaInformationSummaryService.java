@@ -53,16 +53,16 @@ public class AreaInformationSummaryService implements ApplicationSectionSummaris
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    var appDetailFieldLinks = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
-    var consentedFieldLinks = masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(
+    var appDetailAreaLinks = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
+    var consentedAreaLinks = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(
         pwaApplicationDetail.getPwaApplication()
     );
 
-    var basicDiffedModel = diffService.diff(appDetailFieldLinks, consentedFieldLinks, Set.of("linkedFieldNames")
+    var basicDiffedModel = diffService.diff(appDetailAreaLinks, consentedAreaLinks, Set.of("linkedAreaNames")
     );
     var diffedFieldNames = diffService.diffComplexLists(
-        appDetailFieldLinks.getLinkedFieldNames(),
-        consentedFieldLinks.getLinkedFieldNames(),
+        appDetailAreaLinks.getLinkedAreaNames(),
+        consentedAreaLinks.getLinkedAreaNames(),
         StringWithTagItem::getStringWithTagHashcode,
         StringWithTagItem::getStringWithTagHashcode
     );
@@ -71,25 +71,22 @@ public class AreaInformationSummaryService implements ApplicationSectionSummaris
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
 
-    summaryModel.put("showFieldNames",
-        BooleanUtils.isTrue(appDetailFieldLinks.getLinkedToFields()) || BooleanUtils.isTrue(consentedFieldLinks.getLinkedToFields())
+    summaryModel.put("showAreaNames",
+        BooleanUtils.isTrue(appDetailAreaLinks.getLinkedToFields()) || BooleanUtils.isTrue(consentedAreaLinks.getLinkedToFields())
     );
-
-    summaryModel.put("hideFieldNamesOnLoad", BooleanUtils.isFalse(appDetailFieldLinks.getLinkedToFields()));
-
+    summaryModel.put("hideAreaNamesOnLoad", BooleanUtils.isFalse(appDetailAreaLinks.getLinkedToFields()));
     summaryModel.put("showPwaLinkedToDesc",
-        BooleanUtils.isFalse(appDetailFieldLinks.getLinkedToFields()) || BooleanUtils.isFalse(consentedFieldLinks.getLinkedToFields())
+        BooleanUtils.isFalse(appDetailAreaLinks.getLinkedToFields()) || BooleanUtils.isFalse(consentedAreaLinks.getLinkedToFields())
     );
-    summaryModel.put("hidePwaLinkedToDescOnLoad", BooleanUtils.isTrue(appDetailFieldLinks.getLinkedToFields()));
-
-    summaryModel.put("fieldLinks", diffedFieldNames);
-    summaryModel.put("fieldLinkQuestions", basicDiffedModel);
+    summaryModel.put("hidePwaLinkedToDescOnLoad", BooleanUtils.isTrue(appDetailAreaLinks.getLinkedToFields()));
+    summaryModel.put("areaLinks", diffedFieldNames);
+    summaryModel.put("areaLinkQuestions", basicDiffedModel);
 
     return new ApplicationSectionSummary(
-        templateName,
+        getSummaryTemplateName(pwaApplicationDetail.getResourceType()),
         List.of(SidebarSectionLink.createAnchorLink(
             sectionDisplayText,
-            "#fieldInformation"
+            "#areaInformation"
         )),
         summaryModel
     );
@@ -100,6 +97,14 @@ public class AreaInformationSummaryService implements ApplicationSectionSummaris
       return ApplicationTask.CARBON_STORAGE_INFORMATION.getDisplayName();
     } else {
       return ApplicationTask.FIELD_INFORMATION.getDisplayName();
+    }
+  }
+
+  private String getSummaryTemplateName(PwaResourceType pwaResourceType) {
+    if (pwaResourceType.equals(PwaResourceType.CCUS)) {
+      return "pwaApplication/applicationSummarySections/storageAreaInformationSummary.ftl";
+    } else {
+      return "pwaApplication/applicationSummarySections/fieldInformationSummary.ftl";
     }
   }
 

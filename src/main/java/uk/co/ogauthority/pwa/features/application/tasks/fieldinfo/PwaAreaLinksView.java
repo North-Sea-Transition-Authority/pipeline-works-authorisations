@@ -11,21 +11,21 @@ import uk.co.ogauthority.pwa.model.view.StringWithTagItem;
 /**
  * General purpose view to display information from application or master pwa about links to DEVUK fields.
  */
-public class PwaFieldLinksView {
+public class PwaAreaLinksView {
 
-  private final Boolean isLinkedToFields;
+  private final Boolean isLinkedToAreas;
   private final String pwaLinkedToDescription;
 
-  private final List<StringWithTagItem> linkedFieldNames;
+  private final List<StringWithTagItem> linkedAreaNames;
 
-  public PwaFieldLinksView(Boolean isLinkedToFields,
-                           String pwaLinkedToDescription,
-                           List<StringWithTag> linkedFieldNames) {
-    this.isLinkedToFields = isLinkedToFields;
+  public PwaAreaLinksView(Boolean isLinkedToAreas,
+                          String pwaLinkedToDescription,
+                          List<StringWithTag> linkedAreaNames) {
+    this.isLinkedToAreas = isLinkedToAreas;
     this.pwaLinkedToDescription = pwaLinkedToDescription;
     // only set field names if flag set even if field names provided
-    this.linkedFieldNames = BooleanUtils.isTrue(isLinkedToFields)
-        ? linkedFieldNames.stream()
+    this.linkedAreaNames = BooleanUtils.isTrue(isLinkedToAreas)
+        ? linkedAreaNames.stream()
         .sorted(Comparator.comparing(StringWithTag::getValue))
         .map(StringWithTagItem::new)
         .collect(Collectors.toList())
@@ -33,15 +33,15 @@ public class PwaFieldLinksView {
   }
 
   public Boolean getLinkedToFields() {
-    return isLinkedToFields;
+    return isLinkedToAreas;
   }
 
   public String getPwaLinkedToDescription() {
     return pwaLinkedToDescription;
   }
 
-  public List<StringWithTagItem> getLinkedFieldNames() {
-    return linkedFieldNames;
+  public List<StringWithTagItem> getLinkedAreaNames() {
+    return linkedAreaNames;
   }
 
   @Override
@@ -52,15 +52,15 @@ public class PwaFieldLinksView {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PwaFieldLinksView that = (PwaFieldLinksView) o;
-    return Objects.equals(isLinkedToFields, that.isLinkedToFields) && Objects.equals(
-        pwaLinkedToDescription, that.pwaLinkedToDescription) && Objects.equals(linkedFieldNames,
-        that.linkedFieldNames);
+    PwaAreaLinksView that = (PwaAreaLinksView) o;
+    return Objects.equals(isLinkedToAreas, that.isLinkedToAreas) && Objects.equals(
+        pwaLinkedToDescription, that.pwaLinkedToDescription) && Objects.equals(linkedAreaNames,
+        that.linkedAreaNames);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(isLinkedToFields, pwaLinkedToDescription, linkedFieldNames);
+    return Objects.hash(isLinkedToAreas, pwaLinkedToDescription, linkedAreaNames);
   }
 
 }

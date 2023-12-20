@@ -7,6 +7,7 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import org.junit.Before;
@@ -14,8 +15,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
+import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -26,29 +30,38 @@ public class PwaAreaFormValidatorTest {
   private DevukFieldService devukFieldService;
 
   private PwaAreaFormValidator validator;
-  private PwaFieldForm form;
+  private PwaAreaForm form;
+
+  private PwaApplicationDetail applicationDetail;
 
   @Before
   public void setUp() {
     var serviceNameAcronym = "PWA";
     validator = new PwaAreaFormValidator(devukFieldService, serviceNameAcronym);
-    form = new PwaFieldForm();
+    form = new PwaAreaForm();
+    var application = new PwaApplication();
+    application.setResourceType(PwaResourceType.PETROLEUM);
+    applicationDetail = new PwaApplicationDetail(
+        application,
+        1,
+        1,
+        Instant.now());
   }
 
   @Test
   public void full_linkedToField_null_fail() {
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
-    assertThat(errors).containsOnlyKeys("linkedToField");
-    assertThat(errors.get("linkedToField")).containsOnly(REQUIRED.errorCode("linkedToField"));
+    assertThat(errors).containsOnlyKeys("linkedToArea");
+    assertThat(errors.get("linkedToArea")).containsOnly(REQUIRED.errorCode("linkedToArea"));
 
   }
 
   @Test
   public void partial_linkedToField_null_pass() {
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -57,21 +70,21 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void full_linkedToField_true_fieldId_null_fail() {
 
-    form.setLinkedToField(true);
+    form.setLinkedToArea(true);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
-    assertThat(errors).containsOnlyKeys("fieldIds");
-    assertThat(errors.get("fieldIds")).containsOnly(REQUIRED.errorCode("fieldIds"));
+    assertThat(errors).containsOnlyKeys("linkedAreas");
+    assertThat(errors.get("linkedAreas")).containsOnly(REQUIRED.errorCode("linkedAreas"));
 
   }
 
   @Test
   public void partial_linkedToField_true_fieldId_null_pass() {
 
-    form.setLinkedToField(true);
+    form.setLinkedToArea(true);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -80,10 +93,10 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void full_linkedToField_true_fieldId_valid_pass() {
 
-    form.setLinkedToField(true);
-    form.setFieldIds(List.of("1"));
+    form.setLinkedToArea(true);
+    form.setLinkedAreas(List.of("1"));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -92,10 +105,10 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void partial_linkedToField_true_fieldId_valid_pass() {
 
-    form.setLinkedToField(true);
-    form.setFieldIds(List.of("1"));
+    form.setLinkedToArea(true);
+    form.setLinkedAreas(List.of("1"));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -104,51 +117,51 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void full_linkedToField_true_fieldId_invalid_fail() {
 
-    form.setLinkedToField(true);
-    form.setFieldIds(List.of("1"));
+    form.setLinkedToArea(true);
+    form.setLinkedAreas(List.of("1"));
 
     when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
-    assertThat(errors).containsOnlyKeys("fieldIds");
-    assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
+    assertThat(errors).containsOnlyKeys("linkedAreas");
+    assertThat(errors.get("linkedAreas")).containsOnly(INVALID.errorCode("linkedAreas"));
 
   }
 
   @Test
   public void partial_linkedToField_true_fieldId_invalid_fail() {
 
-    form.setLinkedToField(true);
-    form.setFieldIds(List.of("1"));
+    form.setLinkedToArea(true);
+    form.setLinkedAreas(List.of("1"));
 
     when(devukFieldService.getLinkedAndManualFieldEntries(List.of("1"))).thenThrow(new PwaEntityNotFoundException("not found"));
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
-    assertThat(errors).containsOnlyKeys("fieldIds");
-    assertThat(errors.get("fieldIds")).containsOnly(INVALID.errorCode("fieldIds"));
+    assertThat(errors).containsOnlyKeys("linkedAreas");
+    assertThat(errors.get("linkedAreas")).containsOnly(INVALID.errorCode("linkedAreas"));
 
   }
 
   @Test
   public void full_linkedToField_false_noLinkedFieldDescription_null_fail() {
 
-    form.setLinkedToField(false);
+    form.setLinkedToArea(false);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
-    assertThat(errors).containsOnlyKeys("noLinkedFieldDescription");
-    assertThat(errors.get("noLinkedFieldDescription")).containsOnly(REQUIRED.errorCode("noLinkedFieldDescription"));
+    assertThat(errors).containsOnlyKeys("noLinkedAreaDescription");
+    assertThat(errors.get("noLinkedAreaDescription")).containsOnly(REQUIRED.errorCode("noLinkedAreaDescription"));
 
   }
 
   @Test
   public void partial_linkedToField_false_noLinkedFieldDescription_null_pass() {
 
-    form.setLinkedToField(false);
+    form.setLinkedToArea(false);
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -157,10 +170,10 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void full_linkedToField_false_noLinkedFieldDescription_pass() {
 
-    form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription("description");
+    form.setLinkedToArea(false);
+    form.setNoLinkedAreaDescription("description");
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
     assertThat(errors).isEmpty();
 
@@ -169,36 +182,36 @@ public class PwaAreaFormValidatorTest {
   @Test
   public void full_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
-    form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setLinkedToArea(false);
+    form.setNoLinkedAreaDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
     assertThat(errors).containsOnly(
-        entry("noLinkedFieldDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedFieldDescription"))));
+        entry("noLinkedAreaDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedAreaDescription"))));
 
   }
 
   @Test
   public void partial_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
-    form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription(ValidatorTestUtils.overMaxDefaultCharLength());
+    form.setLinkedToArea(false);
+    form.setNoLinkedAreaDescription(ValidatorTestUtils.overMaxDefaultCharLength());
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).containsOnly(
-        entry("noLinkedFieldDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedFieldDescription"))));
+        entry("noLinkedAreaDescription", Set.of(MAX_LENGTH_EXCEEDED.errorCode("noLinkedAreaDescription"))));
 
   }
 
   @Test
   public void partial_linkedToField_false_noLinkedFieldDescription_pass() {
 
-    form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription("description");
+    form.setLinkedToArea(false);
+    form.setNoLinkedAreaDescription("description");
 
-    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
+    var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
     assertThat(errors).isEmpty();
 

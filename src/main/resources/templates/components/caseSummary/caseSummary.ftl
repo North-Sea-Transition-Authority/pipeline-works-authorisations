@@ -21,7 +21,12 @@
   <@fdsDataItems.dataItem>
       <@fdsDataItems.dataValues key="Holders" value=caseSummaryView.holderNames />
       <@fdsDataItems.dataValues key="Proposed start date" value=caseSummaryView.proposedStartDateDisplay!"" + fastTrackText />
-      <@fdsDataItems.dataValues key="Fields" value=caseSummaryView.fieldNames!"Not linked to field" />
+      <#if caseSummaryView.pwaResourceType == "CCUS">
+        <@fdsDataItems.dataValues key="Storage area" value=caseSummaryView.areaNames!"Not linked to Carbon storage area" />
+      <#else>
+        <@fdsDataItems.dataValues key="Fields" value=caseSummaryView.areaNames!"Not linked to field" />
+      </#if>
+
       <@fdsDataItems.dataValues key="Case officer" value=caseSummaryView.caseOfficerName!"Not yet assigned" />
       <#if caseSummaryView.masterPwaReference?has_content && caseSummaryView.getViewMasterPwaUrlIfVariation()?has_content>
           <#assign masterPwaLink>

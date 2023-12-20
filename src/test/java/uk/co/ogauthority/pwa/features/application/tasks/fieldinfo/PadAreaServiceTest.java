@@ -21,6 +21,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.Errors;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
@@ -77,13 +79,17 @@ public class PadAreaServiceTest {
   @Before
   public void setUp() {
 
+    var pwaApplication = new PwaApplication();
+    pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
     pwaApplicationDetail = new PwaApplicationDetail();
+    pwaApplicationDetail.setPwaApplication(pwaApplication);
 
     devukField = new DevukField(DEVUK_FIELD_ID, DEVUK_FIELD_NAME, 100);
 
     existingField = new PadLinkedArea();
     existingField.setPwaApplicationDetail(pwaApplicationDetail);
     existingField.setDevukField(devukField);
+    existingField.setAreaType(LinkedAreaType.FIELD);
 
     when(searchSelectorService.removePrefix(SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName)).thenReturn(manuallyEnteredFieldName);
 
@@ -114,7 +120,7 @@ public class PadAreaServiceTest {
   @Test
   public void updateFieldInformation_nothingEntered() {
 
-    padAreaService.updateFieldInformation(pwaApplicationDetail, new PwaFieldForm());
+    padAreaService.updateFieldInformation(pwaApplicationDetail, new PwaAreaForm());
 
     verifyNoInteractions(padAreaRepository, pwaApplicationDetailService, padProjectInformationService,
         devukFieldService);
@@ -124,8 +130,8 @@ public class PadAreaServiceTest {
   @Test
   public void updateFieldInformation_linkedToField_noField() {
 
-    var form = new PwaFieldForm();
-    form.setLinkedToField(true);
+    var form = new PwaAreaForm();
+    form.setLinkedToArea(true);
 
     padAreaService.updateFieldInformation(pwaApplicationDetail, form);
 
@@ -142,14 +148,14 @@ public class PadAreaServiceTest {
   @Test
   public void updateFieldInformation_linkedToField_fieldSelected() {
 
-    var form = new PwaFieldForm();
-    form.setLinkedToField(true);
+    var form = new PwaAreaForm();
+    form.setLinkedToArea(true);
 
-    form.setFieldIds(List.of(String.valueOf(DEVUK_FIELD_ID),  SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
+    form.setLinkedAreas(List.of(String.valueOf(DEVUK_FIELD_ID),  SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
 
-    var searchSelectionView = new SearchSelectionView<>(form.getFieldIds(),
+    var searchSelectionView = new SearchSelectionView<>(form.getLinkedAreas(),
         pickedFieldString -> devukFieldService.findById(Integer.parseInt(pickedFieldString)));
-    when(devukFieldService.getLinkedAndManualFieldEntries(form.getFieldIds())).thenReturn(searchSelectionView);
+    when(devukFieldService.getLinkedAndManualFieldEntries(form.getLinkedAreas())).thenReturn(searchSelectionView);
 
     padAreaService.updateFieldInformation(pwaApplicationDetail, form);
 
@@ -167,12 +173,12 @@ public class PadAreaServiceTest {
     var actualLinkedField = newFields.get(0);
     assertThat(actualLinkedField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(actualLinkedField.get(0).getDevukField()).isEqualTo(devukField);
-    assertThat(actualLinkedField.get(0).getFieldName()).isNull();
+    assertThat(actualLinkedField.get(0).getAreaName()).isNull();
 
     var actualManuallyEnteredField = newFields.get(1);
     assertThat(actualManuallyEnteredField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(actualManuallyEnteredField.get(0).getDevukField()).isNull();
-    assertThat(actualManuallyEnteredField.get(0).getFieldName()).isEqualTo(manuallyEnteredFieldName);
+    assertThat(actualManuallyEnteredField.get(0).getAreaName()).isEqualTo(manuallyEnteredFieldName);
 
     verifyNoInteractions(padProjectInformationService);
 
@@ -181,8 +187,8 @@ public class PadAreaServiceTest {
   @Test
   public void updateFieldInformation_notLinkedToField_noDescription() {
 
-    var form = new PwaFieldForm();
-    form.setLinkedToField(false);
+    var form = new PwaAreaForm();
+    form.setLinkedToArea(false);
 
     padAreaService.updateFieldInformation(pwaApplicationDetail, form);
 
@@ -202,9 +208,9 @@ public class PadAreaServiceTest {
   @Test
   public void updateFieldInformation_notLinkedToField_descriptionEntered() {
 
-    var form = new PwaFieldForm();
-    form.setLinkedToField(false);
-    form.setNoLinkedFieldDescription("description");
+    var form = new PwaAreaForm();
+    form.setLinkedToArea(false);
+    form.setNoLinkedAreaDescription("description");
 
     padAreaService.updateFieldInformation(pwaApplicationDetail, form);
 
@@ -253,12 +259,12 @@ public class PadAreaServiceTest {
     var actualLinkedField = newFields.get(0);
     assertThat(actualLinkedField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(actualLinkedField.get(0).getDevukField()).isEqualTo(devukField);
-    assertThat(actualLinkedField.get(0).getFieldName()).isNull();
+    assertThat(actualLinkedField.get(0).getAreaName()).isNull();
 
     var actualManuallyEnteredField = newFields.get(1);
     assertThat(actualManuallyEnteredField.get(0).getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
     assertThat(actualManuallyEnteredField.get(0).getDevukField()).isNull();
-    assertThat(actualManuallyEnteredField.get(0).getFieldName()).isEqualTo(manuallyEnteredFieldName);
+    assertThat(actualManuallyEnteredField.get(0).getAreaName()).isEqualTo(manuallyEnteredFieldName);
 
   }
 
@@ -278,19 +284,19 @@ public class PadAreaServiceTest {
 
   @Test
   public void mapEntityToForm_whenNoFieldData() {
-    var form = new PwaFieldForm();
+    var form = new PwaAreaForm();
     when(padAreaRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
 
     padAreaService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldIds()).isNull();
-    assertThat(form.getLinkedToField()).isNull();
-    assertThat(form.getNoLinkedFieldDescription()).isNull();
+    assertThat(form.getLinkedAreas()).isNull();
+    assertThat(form.getLinkedToArea()).isNull();
+    assertThat(form.getNoLinkedAreaDescription()).isNull();
   }
 
   @Test
   public void mapEntityToForm_whenNotLinkedToField() {
-    var form = new PwaFieldForm();
+    var form = new PwaAreaForm();
     var desc = "DESC";
     when(padAreaRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
     pwaApplicationDetail.setLinkedToArea(false);
@@ -298,25 +304,26 @@ public class PadAreaServiceTest {
 
     padAreaService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldIds()).isNull();
-    assertThat(form.getLinkedToField()).isFalse();
-    assertThat(form.getNoLinkedFieldDescription()).isEqualTo(desc);
+    assertThat(form.getLinkedAreas()).isNull();
+    assertThat(form.getLinkedToArea()).isFalse();
+    assertThat(form.getNoLinkedAreaDescription()).isEqualTo(desc);
   }
 
   @Test
   public void mapEntityToForm_whenLinkedToField() {
-    var form = new PwaFieldForm();
+    var form = new PwaAreaForm();
     pwaApplicationDetail.setLinkedToArea(true);
 
     var padFieldManaullyEntered = new PadLinkedArea();
-    padFieldManaullyEntered.setFieldName(manuallyEnteredFieldName);
+    padFieldManaullyEntered.setAreaName(manuallyEnteredFieldName);
+    padFieldManaullyEntered.setAreaType(LinkedAreaType.FIELD);
     when(padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField, padFieldManaullyEntered));
 
     padAreaService.mapEntityToForm(pwaApplicationDetail, form);
 
-    assertThat(form.getFieldIds()).isEqualTo(List.of(String.valueOf(DEVUK_FIELD_ID), SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
-    assertThat(form.getLinkedToField()).isTrue();
-    assertThat(form.getNoLinkedFieldDescription()).isNull();
+    assertThat(form.getLinkedAreas()).isEqualTo(List.of(String.valueOf(DEVUK_FIELD_ID), SearchSelectable.FREE_TEXT_PREFIX + manuallyEnteredFieldName));
+    assertThat(form.getLinkedToArea()).isTrue();
+    assertThat(form.getNoLinkedAreaDescription()).isNull();
   }
 
 
@@ -324,7 +331,7 @@ public class PadAreaServiceTest {
   public void getPreSelectedItems() {
     devukField.setFieldName("a field");
     var padFieldManaullyEntered = new PadLinkedArea();
-    padFieldManaullyEntered.setFieldName(manuallyEnteredFieldName);
+    padFieldManaullyEntered.setAreaName(manuallyEnteredFieldName);
     when(padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(existingField, padFieldManaullyEntered));
 
     Map<String, String> preSelectedItems = padAreaService.getPreSelectedApplicationFields(pwaApplicationDetail);
@@ -341,13 +348,13 @@ public class PadAreaServiceTest {
 
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
-      errors.rejectValue("fieldIds", "fieldIds.error");
+      errors.rejectValue("linkedAreas", "linkedAreas.error");
       return invocation;
     }).when(pwaAreaFormValidator).validate(any(), any(), any());
 
     assertThat(padAreaService.isComplete(pwaApplicationDetail)).isFalse();
 
-    verify(pwaAreaFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
+    verify(pwaAreaFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
   }
 
@@ -356,7 +363,7 @@ public class PadAreaServiceTest {
 
     assertThat(padAreaService.isComplete(pwaApplicationDetail)).isTrue();
 
-    verify(pwaAreaFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL) );
+    verify(pwaAreaFormValidator, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
 
   }
 
@@ -364,11 +371,11 @@ public class PadAreaServiceTest {
   public void getApplicationFieldLinksView_whenNoLinkData() {
     pwaApplicationDetail.setLinkedToArea(null);
     pwaApplicationDetail.setNotLinkedDescription(null);
-    var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var fieldLinkView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
     assertThat(fieldLinkView.getLinkedToFields()).isNull();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
-    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+    assertThat(fieldLinkView.getLinkedAreaNames()).isEmpty();
 
   }
 
@@ -376,30 +383,30 @@ public class PadAreaServiceTest {
   public void getApplicationFieldLinksView_whenIsNotLinkedToField() {
     pwaApplicationDetail.setLinkedToArea(false);
     pwaApplicationDetail.setNotLinkedDescription("NOT_LINKED");
-    var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var fieldLinkView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
     assertThat(fieldLinkView.getLinkedToFields()).isFalse();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isEqualTo(pwaApplicationDetail.getNotLinkedDescription());
-    assertThat(fieldLinkView.getLinkedFieldNames()).isEmpty();
+    assertThat(fieldLinkView.getLinkedAreaNames()).isEmpty();
 
   }
 
   @Test
   public void getApplicationFieldLinksView_whenIsLinkedToField() {
     var padManualFieldLink = new PadLinkedArea();
-    padManualFieldLink.setFieldName("FIELD_NAME");
+    padManualFieldLink.setAreaName("FIELD_NAME");
 
     when(padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padManualFieldLink, existingField));
 
     pwaApplicationDetail.setLinkedToArea(true);
 
-    var fieldLinkView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var fieldLinkView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
     assertThat(fieldLinkView.getLinkedToFields()).isTrue();
     assertThat(fieldLinkView.getPwaLinkedToDescription()).isNull();
-    assertThat(fieldLinkView.getLinkedFieldNames()).containsExactly(
-        new StringWithTagItem(new StringWithTag(padManualFieldLink.getFieldName(), Tag.NOT_FROM_PORTAL)),
+    assertThat(fieldLinkView.getLinkedAreaNames()).containsExactly(
+        new StringWithTagItem(new StringWithTag(padManualFieldLink.getAreaName(), Tag.NOT_FROM_PORTAL)),
         new StringWithTagItem(new StringWithTag(devukField.getFieldName()))
     );
 

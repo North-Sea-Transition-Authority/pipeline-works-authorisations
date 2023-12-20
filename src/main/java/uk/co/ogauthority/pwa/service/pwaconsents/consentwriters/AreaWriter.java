@@ -64,9 +64,9 @@ public class AreaWriter implements ConsentWriter {
       // otherwise we need to see if there are differences between the application and
       // the current master PWA info before deciding to write new fields
       var masterPwaFieldView = masterPwaDetailAreaService
-          .getCurrentMasterPwaDetailFieldLinksView(pwaApplicationDetail.getPwaApplication());
+          .getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication());
 
-      var padFieldView = padAreaService.getApplicationFieldLinksView(pwaApplicationDetail);
+      var padFieldView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
       if (!Objects.equals(masterPwaFieldView, padFieldView)) {
 

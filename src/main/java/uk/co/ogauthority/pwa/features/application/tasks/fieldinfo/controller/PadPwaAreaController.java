@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldForm;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.controller.FieldRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukField;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldService;
@@ -61,19 +63,20 @@ public class PadPwaAreaController {
   }
 
   private ModelAndView getFieldsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/fieldInformation/fieldInformation")
-        .addObject("backUrl",
-            pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()));
-
-    modelAndView.addObject("fields", padAreaService.getActiveFieldsForApplicationDetail(pwaApplicationDetail));
-    modelAndView.addObject("fieldMap", getDevukFieldMap());
-    modelAndView.addObject("errorList", List.of());
-    modelAndView.addObject("preSelectedItems", padAreaService.getPreSelectedApplicationFields(pwaApplicationDetail));
-    modelAndView.addObject("fieldNameRestUrl", SearchSelectorService.route(on(FieldRestController.class)
-            .searchFields(pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
-
-    breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Field information");
-
+    var modelAndView = getView(pwaApplicationDetail.getResourceType())
+        .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
+        .addObject("fields", padAreaService.getActiveFieldsForApplicationDetail(pwaApplicationDetail))
+        .addObject("fieldMap", getDevukFieldMap())
+        .addObject("errorList", List.of())
+        .addObject("preSelectedItems", padAreaService.getPreSelectedApplicationFields(pwaApplicationDetail))
+        .addObject("fieldNameRestUrl",
+            SearchSelectorService.route(on(FieldRestController.class)
+                .searchFields(
+                    pwaApplicationDetail.getMasterPwaApplicationId(),
+                    null,
+                    null)
+            ));
+    breadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Area information");
     return modelAndView;
   }
 
@@ -81,7 +84,7 @@ public class PadPwaAreaController {
   public ModelAndView renderFields(
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
-      @ModelAttribute("form") PwaFieldForm form,
+      @ModelAttribute("form") PwaAreaForm form,
       AuthenticatedUserAccount user,
       PwaApplicationContext applicationContext
   ) {
@@ -97,7 +100,7 @@ public class PadPwaAreaController {
       @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
       @PathVariable("applicationId") Integer applicationId,
       AuthenticatedUserAccount user,
-      @ModelAttribute("form") PwaFieldForm form,
+      @ModelAttribute("form") PwaAreaForm form,
       BindingResult bindingResult,
       PwaApplicationContext applicationContext,
       ValidationType validationType) {
@@ -122,6 +125,21 @@ public class PadPwaAreaController {
             .collect(StreamUtils.toLinkedHashMap(
                 devukField -> devukField.getFieldId().toString(),
                 DevukField::getFieldName));
+  }
+
+  private ModelAndView getView(PwaResourceType resourceType) {
+    switch (resourceType) {
+      case PETROLEUM:
+      case HYDROGEN:
+        return new ModelAndView("pwaApplication/shared/areaInformation/fieldInformation");
+      case CCUS:
+        return new ModelAndView("pwaApplication/shared/areaInformation/storageInformation");
+      default:
+        throw new PwaEntityNotFoundException(String.format(
+            "No defined linked area for resource type: %s",
+            resourceType.getDisplayName())
+        );
+    }
   }
 
 }

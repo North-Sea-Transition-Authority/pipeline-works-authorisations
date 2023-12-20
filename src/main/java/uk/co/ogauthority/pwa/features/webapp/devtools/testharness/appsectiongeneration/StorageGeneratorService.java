@@ -10,14 +10,14 @@ import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaForm;
 
 @Service
 @Profile("test-harness")
-class AreaGeneratorService implements TestHarnessAppFormService {
+class StorageGeneratorService implements TestHarnessAppFormService {
 
   private final PadAreaService padAreaService;
 
-  private static final ApplicationTask linkedAppFormTask = ApplicationTask.FIELD_INFORMATION;
+  private static final ApplicationTask linkedAppFormTask = ApplicationTask.CARBON_STORAGE_INFORMATION;
 
   @Autowired
-  public AreaGeneratorService(
+  public StorageGeneratorService(
       PadAreaService padAreaService) {
     this.padAreaService = padAreaService;
   }

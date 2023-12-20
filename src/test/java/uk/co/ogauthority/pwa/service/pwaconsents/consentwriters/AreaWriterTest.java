@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -97,13 +97,13 @@ public class AreaWriterTest {
 
     pwaConsent.setVariationNumber(1);
 
-    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
-    var pwaFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var padFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var pwaFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(padFieldLinksView);
 
     areaWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -119,13 +119,13 @@ public class AreaWriterTest {
 
     pwaConsent.setVariationNumber(1);
 
-    var pwaFieldLinksView = new PwaFieldLinksView(false, "desc", List.of());
-    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var pwaFieldLinksView = new PwaAreaLinksView(false, "desc", List.of());
+    var padFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(padFieldLinksView);
 
     areaWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -141,13 +141,13 @@ public class AreaWriterTest {
 
     pwaConsent.setVariationNumber(null);
 
-    var pwaFieldLinksView = new PwaFieldLinksView(false, "desc", List.of());
-    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var pwaFieldLinksView = new PwaAreaLinksView(false, "desc", List.of());
+    var padFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(padFieldLinksView);
 
     areaWriter.write(detail, pwaConsent, consentWriterDto);
 
@@ -163,13 +163,13 @@ public class AreaWriterTest {
 
     pwaConsent.setVariationNumber(null);
 
-    var padFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
-    var pwaFieldLinksView = new PwaFieldLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var padFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
+    var pwaFieldLinksView = new PwaAreaLinksView(true, null, List.of(new StringWithTag("fieldname")));
 
-    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailFieldLinksView(detail.getPwaApplication()))
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(detail.getPwaApplication()))
         .thenReturn(pwaFieldLinksView);
 
-    when(padAreaService.getApplicationFieldLinksView(detail)).thenReturn(padFieldLinksView);
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(padFieldLinksView);
 
     areaWriter.write(detail, pwaConsent, consentWriterDto);
 
