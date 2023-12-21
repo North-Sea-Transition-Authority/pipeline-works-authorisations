@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
@@ -95,6 +96,7 @@ public class PadAreaService implements ApplicationFormSectionService {
   private void addManuallyEnteredAreas(PwaApplicationDetail pwaApplicationDetail, List<String> fieldNames, boolean removePrefix) {
 
     List<PadLinkedArea> newPadLinkedAreas = fieldNames.stream()
+        .filter(Objects::nonNull)
         .map(fieldName -> {
           var padField = new PadLinkedArea();
           padField.setPwaApplicationDetail(pwaApplicationDetail);
