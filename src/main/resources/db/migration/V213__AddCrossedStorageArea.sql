@@ -7,7 +7,7 @@ CREATE TABLE ${datasource.user}.pad_crossed_storage_areas (
     , created_timestamp TIMESTAMP
     , CONSTRAINT pad_crossed_storage_areas_pad_fk FOREIGN KEY (pad_id) REFERENCES ${datasource.user}.pwa_application_details(id)
 );
-CREATE INDEX ${datasource.user}.pad_storage_areas_pad_idx ON ${datasource.user}.pad_crossed_storage_areas (application_detail_id);
+CREATE INDEX ${datasource.user}.pad_storage_areas_pad_idx ON ${datasource.user}.pad_crossed_storage_areas (pad_id);
 
 CREATE TABLE ${datasource.user}.pad_storage_area_crossing_owners (
     id NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY
