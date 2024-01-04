@@ -5,7 +5,7 @@ CREATE TABLE ${datasource.user}.pad_crossed_storage_areas (
     , location VARCHAR2(4000)
     , crossing_owner VARCHAR2(4000)
     , created_timestamp TIMESTAMP
-    , CONSTRAINT pad_crossed_storage_areas_pad_fk FOREIGN KEY (application_detail_id) REFERENCES ${datasource.user}.pwa_application_details(id)
+    , CONSTRAINT pad_crossed_storage_areas_pad_fk FOREIGN KEY (pad_id) REFERENCES ${datasource.user}.pwa_application_details(id)
 );
 CREATE INDEX ${datasource.user}.pad_storage_areas_pad_idx ON ${datasource.user}.pad_crossed_storage_areas (application_detail_id);
 
