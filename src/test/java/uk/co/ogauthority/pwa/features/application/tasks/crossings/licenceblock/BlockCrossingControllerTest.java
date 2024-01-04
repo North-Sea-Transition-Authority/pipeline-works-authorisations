@@ -185,14 +185,14 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
     return new LinkedMultiValueMap<>() {{
       add("pickedBlock", "10BLOCK");
-      add("crossedBlockOwner", "HOLDER");
+      add("crossingOwner", "HOLDER");
     }};
   }
 
   private MultiValueMap<String, String> getValidEditBlockFormAsMap() {
 
     return new LinkedMultiValueMap<>() {{
-      add("crossedBlockOwner", "HOLDER");
+      add("crossingOwner", "HOLDER");
     }};
   }
 
@@ -415,7 +415,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     null)
             )
         )
-        .addRequestParam("crossedBlockOwner", "HOLDER");
+        .addRequestParam("crossingOwner", "HOLDER");
 
     endpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -435,7 +435,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     null)
             )
         )
-        .addRequestParam("crossedBlockOwner", "HOLDER");
+        .addRequestParam("crossingOwner", "HOLDER");
 
 
     endpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
@@ -456,7 +456,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
                     null)
             )
         )
-        .addRequestParam("crossedBlockOwner", "HOLDER");
+        .addRequestParam("crossingOwner", "HOLDER");
 
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 

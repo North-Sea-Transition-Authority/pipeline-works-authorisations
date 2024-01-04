@@ -3,11 +3,12 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 import java.util.Collections;
 import java.util.List;
 import javax.validation.constraints.NotNull;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 
 public class EditBlockCrossingForm {
 
   @NotNull(message = "Select a block owner")
-  private CrossedBlockOwner crossedBlockOwner;
+  private CrossingOwner crossingOwner;
 
   private List<Integer> blockOwnersOuIdList = Collections.emptyList();
 
@@ -15,18 +16,18 @@ public class EditBlockCrossingForm {
   }
 
   public EditBlockCrossingForm(
-      CrossedBlockOwner crossedBlockOwner,
+      CrossingOwner crossingOwner,
       List<Integer> blockOwnerOuId) {
-    this.crossedBlockOwner = crossedBlockOwner;
+    this.crossingOwner = crossingOwner;
     this.blockOwnersOuIdList = blockOwnerOuId;
   }
 
-  public CrossedBlockOwner getCrossedBlockOwner() {
-    return crossedBlockOwner;
+  public CrossingOwner getCrossingOwner() {
+    return crossingOwner;
   }
 
-  public void setCrossedBlockOwner(CrossedBlockOwner crossedBlockOwner) {
-    this.crossedBlockOwner = crossedBlockOwner;
+  public void setCrossingOwner(CrossingOwner crossingOwner) {
+    this.crossingOwner = crossingOwner;
   }
 
   public List<Integer> getBlockOwnersOuIdList() {

@@ -9,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller.CarbonStorageAreaCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingController;
@@ -40,7 +41,7 @@ public class CrossingAgreementsTaskListService {
         return ReverseRouter.route(on(MedianLineCrossingController.class).renderMedianLineOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null));
       case CARBON_STORAGE_AREAS:
-        return ReverseRouter.route(on(BlockCrossingController.class).renderBlockCrossingOverview(
+        return ReverseRouter.route(on(CarbonStorageAreaCrossingController.class).renderCarbonStorageCrossingOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case CROSSING_TYPES:
         return ReverseRouter.route(on(CrossingTypesController.class).renderForm(
@@ -62,7 +63,7 @@ public class CrossingAgreementsTaskListService {
         return ReverseRouter.redirect(on(BlockCrossingController.class).renderBlockCrossingOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case CARBON_STORAGE_AREAS:
-        return ReverseRouter.redirect(on(BlockCrossingController.class).renderBlockCrossingOverview(
+        return ReverseRouter.redirect(on(CarbonStorageAreaCrossingController.class).renderCarbonStorageCrossingOverview(
             detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null));
       case MEDIAN_LINE:
         return ReverseRouter.redirect(on(MedianLineCrossingController.class).renderMedianLineOverview(

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
@@ -16,11 +17,11 @@ public class PadCrossedBlockTestUtil {
     // no instantiation
   }
 
-  public static PadCrossedBlock createUnlicensedPadCrossedBlock(PwaApplicationDetail pwaApplicationDetail, CrossedBlockOwner crossedBlockOwner){
+  public static PadCrossedBlock createUnlicensedPadCrossedBlock(PwaApplicationDetail pwaApplicationDetail, CrossingOwner crossingOwner){
 
     var cb  = new PadCrossedBlock();
     cb.setPwaApplicationDetail(pwaApplicationDetail);
-    cb.setBlockOwner(crossedBlockOwner);
+    cb.setBlockOwner(crossingOwner);
     cb.setCreatedInstant(Instant.now());
     cb.setLocation(BlockLocation.OFFSHORE);
     cb.setQuadrantNumber("1");
@@ -36,10 +37,10 @@ public class PadCrossedBlockTestUtil {
   }
 
   public static PadCrossedBlock createLicensedPadCrossedBlock(PwaApplicationDetail pwaApplicationDetail,
-                                                              CrossedBlockOwner crossedBlockOwner,
+                                                              CrossingOwner crossingOwner,
                                                               PearsLicence pearsLicence){
 
-    var cb  = createUnlicensedPadCrossedBlock(pwaApplicationDetail, crossedBlockOwner);
+    var cb  = createUnlicensedPadCrossedBlock(pwaApplicationDetail, crossingOwner);
     cb.setLicence(pearsLicence);
 
     ObjectTestUtils.assertAllFieldsNotNull(cb, PadCrossedBlock.class,

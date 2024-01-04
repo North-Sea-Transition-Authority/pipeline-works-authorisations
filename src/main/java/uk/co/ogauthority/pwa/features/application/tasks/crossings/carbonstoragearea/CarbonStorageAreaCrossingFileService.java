@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,21 +17,21 @@ import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
-public class BlockCrossingFileService implements ApplicationFormSectionService {
+public class CarbonStorageAreaCrossingFileService implements ApplicationFormSectionService {
 
-  private final PadCrossedBlockRepository padCrossedBlockRepository;
+  private final PadCrossedStorageAreaRepository crossedStorageAreaRepository;
   private final PadFileService padFileService;
 
   @Autowired
-  public BlockCrossingFileService(PadCrossedBlockRepository padCrossedBlockRepository,
-                                  PadFileService padFileService) {
-    this.padCrossedBlockRepository = padCrossedBlockRepository;
+  public CarbonStorageAreaCrossingFileService(PadCrossedStorageAreaRepository crossedStorageAreaRepository,
+                                              PadFileService padFileService) {
+    this.crossedStorageAreaRepository = crossedStorageAreaRepository;
     this.padFileService = padFileService;
   }
 
   public boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
     // return 'true' for full validation if non holder organisations listed as crossed block owners
-    return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(
+    return crossedStorageAreaRepository.countPadCrossedStorageAreaByPwaApplicationDetailAndCrossingOwnerTypeIn(
         pwaApplicationDetail,
         List.of(CrossingOwner.PORTAL_ORGANISATION)
     ) > 0;
@@ -40,7 +40,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();
-    padFileService.mapFilesToForm(form, detail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS);
+    padFileService.mapFilesToForm(form, detail, ApplicationDetailFilePurpose.CARBON_STORAGE_CROSSINGS);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
@@ -64,6 +64,6 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    // files copied in BlockCrossingService
+    // files copied in CarbonStorageCrossingService
   }
 }

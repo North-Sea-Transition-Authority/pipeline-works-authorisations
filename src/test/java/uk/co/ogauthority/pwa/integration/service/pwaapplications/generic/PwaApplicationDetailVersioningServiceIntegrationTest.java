@@ -29,9 +29,9 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorksScheduleTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing_;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockOwner_;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock_;
@@ -356,7 +356,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var crossedBlock1 = PadCrossedBlockTestUtil.createUnlicensedPadCrossedBlock(
         pwaApplicationDetail,
-        CrossedBlockOwner.PORTAL_ORGANISATION);
+        CrossingOwner.PORTAL_ORGANISATION);
     var crossedBlock1Owner = PadCrossedBlockTestUtil.createPortalOrgPadCrossedBlockOwner(
         crossedBlock1,
         portalOrganisationUnit1);
@@ -366,7 +366,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var crossedBlock2 = PadCrossedBlockTestUtil.createLicensedPadCrossedBlock(
         pwaApplicationDetail,
-        CrossedBlockOwner.PORTAL_ORGANISATION,
+        CrossingOwner.PORTAL_ORGANISATION,
         pearsLicence);
     var crossedBlock2Owner = PadCrossedBlockTestUtil.createManualPadCrossedBlockOwner(crossedBlock2);
 

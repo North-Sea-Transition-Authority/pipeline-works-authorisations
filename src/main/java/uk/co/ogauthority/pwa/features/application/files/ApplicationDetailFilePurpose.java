@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.files;
 
 import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller.CableCrossingDocumentsController;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller.CarbonStorageAreaCrossingDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingDocumentsController;
@@ -25,6 +26,7 @@ public enum ApplicationDetailFilePurpose {
   PROJECT_INFORMATION(ProjectInformationController.class),
   PROJECT_EXTENSION(PadProjectExtensionController.class),
   BLOCK_CROSSINGS(BlockCrossingDocumentsController.class),
+  CARBON_STORAGE_CROSSINGS(CarbonStorageAreaCrossingDocumentsController.class),
   CABLE_CROSSINGS(CableCrossingDocumentsController.class),
   PIPELINE_CROSSINGS(PipelineCrossingDocumentsController.class),
   MEDIAN_LINE_CROSSING(MedianLineDocumentsController.class),

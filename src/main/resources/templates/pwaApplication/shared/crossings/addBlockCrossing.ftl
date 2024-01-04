@@ -12,15 +12,15 @@
         <@fdsSearchSelector.searchSelectorRest path="form.pickedBlock" restUrl=springUrl(blockSelectorUrl) labelText="What block is the pipeline located in or crossing?" selectorMinInputLength=3 preselectedItems=preselectedBlock
         hintText="For example, 44/22a"/>
         <@fdsRadio.radioGroup
-        path="form.crossedBlockOwner"
+        path="form.crossingOwner"
         labelText="Who owns the block?"
         hintText="If the block owner is not the PWA holder(s) you will be expected to provide a block crossing agreement document"
         hiddenContent=true>
             <#assign firstItem=true/>
             <#list crossedBlockOwnerOptions as crossedBlock>
-                <@fdsRadio.radioItem path="form.crossedBlockOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>
+                <@fdsRadio.radioItem path="form.crossingOwner" itemMap={crossedBlock : crossedBlock.getDisplayName()} isFirstItem=firstItem>
                     <#if crossedBlock == "PORTAL_ORGANISATION">
-                        <@fdsSearchSelector.searchSelectorEnhanced path="form.blockOwnersOuIdList" options=orgUnits labelText="Select block owner" nestingPath="form.crossedBlockOwner" />
+                        <@fdsSearchSelector.searchSelectorEnhanced path="form.blockOwnersOuIdList" options=orgUnits labelText="Select block owner" nestingPath="form.crossingOwner" />
                     </#if>
                 </@fdsRadio.radioItem>
                 <#assign firstItem=false/>

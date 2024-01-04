@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
@@ -40,7 +41,7 @@ public class EditBlockCrossingFormValidatorTest {
 
     var form = new AddBlockCrossingForm();
     form.setPickedBlock("ref");
-    form.setCrossedBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    form.setCrossingOwner(CrossingOwner.PORTAL_ORGANISATION);
     var orgUnitId = 1;
     form.setBlockOwnersOuIdList(List.of(orgUnitId));
 
@@ -60,7 +61,7 @@ public class EditBlockCrossingFormValidatorTest {
 
     var form = new AddBlockCrossingForm();
     form.setPickedBlock("ref");
-    form.setCrossedBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    form.setCrossingOwner(CrossingOwner.PORTAL_ORGANISATION);
     var orgUnitId = 1;
     form.setBlockOwnersOuIdList(List.of(orgUnitId));
 

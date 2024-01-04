@@ -9,6 +9,7 @@ import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.App
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.AreaInformationSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CableCrossingsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CampaignWorkScheduleSummaryService;
+import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CarbonStorageAreaCrossingSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.CrossingTypesSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.DepositDrawingsSummaryService;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.DesignOpConditionsSummaryService;
@@ -111,6 +112,11 @@ public enum ApplicationSectionSummaryType {
       90,
       "pwaApplication/applicationSummarySections/licenceBlockSummary.ftl",
       LicenceBlockSummaryService.class),
+
+  CARBON_STORAGE_AREAS(
+      95,
+      "pwaApplication/applicationSummarySections/carbonStorageCrossingSummary.ftl",
+      CarbonStorageAreaCrossingSummaryService.class),
 
   CROSSING_TYPES(
       100,

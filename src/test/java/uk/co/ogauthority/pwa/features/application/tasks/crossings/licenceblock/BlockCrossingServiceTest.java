@@ -22,9 +22,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -103,7 +103,7 @@ public class BlockCrossingServiceTest {
     padCrossedBlock = new PadCrossedBlock();
     padCrossedBlock.setId(CROSSED_BLOCK_ID);
     padCrossedBlock.setPwaApplicationDetail(pwaApplicationDetail);
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.HOLDER);
+    padCrossedBlock.setBlockOwner(CrossingOwner.HOLDER);
     padCrossedBlock.setBlockReference(BLOCK_REF);
 
     when(padCrossedBlockRepository.findById(CROSSED_BLOCK_ID)).thenReturn(Optional.of(padCrossedBlock));
@@ -193,7 +193,7 @@ public class BlockCrossingServiceTest {
   public void getCrossedBlockViews_whenOrgUnitIsOwner_andUnlicensedBlock() {
     var orgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var owner = new PadCrossedBlockOwner(padCrossedBlock, PortalOrganisationTestUtils.DEFAULT_UNIT_ID, null);
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossingOwner.PORTAL_ORGANISATION);
 
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padCrossedBlock));
@@ -218,7 +218,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void getCrossedBlockViews_whenManualOrgIsOwner_andUnlicensedBlock() {
 
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENSED);
+    padCrossedBlock.setBlockOwner(CrossingOwner.UNLICENSED);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padCrossedBlock));
@@ -243,7 +243,7 @@ public class BlockCrossingServiceTest {
   public void updateAndSaveBlockCrossingAndOwnersFromForm_verifyRepositoryInteractionIsInCorrectOrder() {
 
     editBlockForm.setBlockOwnersOuIdList(List.of(PortalOrganisationTestUtils.DEFAULT_UNIT_ID));
-    editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    editBlockForm.setCrossingOwner(CrossingOwner.PORTAL_ORGANISATION);
 
     blockCrossingService.updateAndSaveBlockCrossingAndOwnersFromForm(padCrossedBlock, editBlockForm);
 
@@ -259,7 +259,7 @@ public class BlockCrossingServiceTest {
   public void updateAndSaveBlockCrossingAndOwnersFromForm_whenPortalOrgOwner() {
 
     editBlockForm.setBlockOwnersOuIdList(List.of(PortalOrganisationTestUtils.DEFAULT_UNIT_ID));
-    editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    editBlockForm.setCrossingOwner(CrossingOwner.PORTAL_ORGANISATION);
 
     ArgumentCaptor<List<PadCrossedBlockOwner>> ownerCapture = ArgumentCaptor.forClass(List.class);
 
@@ -285,7 +285,7 @@ public class BlockCrossingServiceTest {
     });
 
     assertThat(blockCapture.getValue()).satisfies(padBlock -> {
-      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.PORTAL_ORGANISATION);
+      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossingOwner.PORTAL_ORGANISATION);
     });
 
   }
@@ -293,7 +293,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void updateAndSaveBlockCrossingAndOwnersFromForm_whenUnlicenced() {
 
-    editBlockForm.setCrossedBlockOwner(CrossedBlockOwner.UNLICENSED);
+    editBlockForm.setCrossingOwner(CrossingOwner.UNLICENSED);
 
     ArgumentCaptor<List<PadCrossedBlockOwner>> ownerCapture = ArgumentCaptor.forClass(List.class);
 
@@ -314,7 +314,7 @@ public class BlockCrossingServiceTest {
     assertThat(ownerCapture.getValue().size()).isEqualTo(0);
 
     assertThat(blockCapture.getValue()).satisfies(padBlock -> {
-      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENSED);
+      assertThat(padBlock.getBlockOwner()).isEqualTo(CrossingOwner.UNLICENSED);
     });
   }
 
@@ -323,12 +323,12 @@ public class BlockCrossingServiceTest {
 
     var orgUnitOwner = new PadCrossedBlockOwner(padCrossedBlock, PortalOrganisationTestUtils.DEFAULT_UNIT_ID, null);
     when(padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock)).thenReturn(List.of(orgUnitOwner));
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.PORTAL_ORGANISATION);
+    padCrossedBlock.setBlockOwner(CrossingOwner.PORTAL_ORGANISATION);
 
     blockCrossingService.mapBlockCrossingToEditForm(padCrossedBlock, editBlockForm);
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEqualTo(List.of(PortalOrganisationTestUtils.DEFAULT_UNIT_ID));
-    assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.PORTAL_ORGANISATION);
+    assertThat(editBlockForm.getCrossingOwner()).isEqualTo(CrossingOwner.PORTAL_ORGANISATION);
 
   }
 
@@ -337,30 +337,30 @@ public class BlockCrossingServiceTest {
 
     var orgUnitOwner = new PadCrossedBlockOwner(padCrossedBlock, null, "OTHER");
     when(padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock)).thenReturn(List.of(orgUnitOwner));
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENSED);
+    padCrossedBlock.setBlockOwner(CrossingOwner.UNLICENSED);
 
     blockCrossingService.mapBlockCrossingToEditForm(padCrossedBlock, editBlockForm);
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEmpty();
-    assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.UNLICENSED);
+    assertThat(editBlockForm.getCrossingOwner()).isEqualTo(CrossingOwner.UNLICENSED);
 
   }
 
   @Test
   public void mapBlockCrossingToEditForm_whenHolderOwner() {
     when(padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock)).thenReturn(List.of());
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.HOLDER);
+    padCrossedBlock.setBlockOwner(CrossingOwner.HOLDER);
 
     blockCrossingService.mapBlockCrossingToEditForm(padCrossedBlock, editBlockForm);
 
     assertThat(editBlockForm.getBlockOwnersOuIdList()).isEmpty();
-    assertThat(editBlockForm.getCrossedBlockOwner()).isEqualTo(CrossedBlockOwner.HOLDER);
+    assertThat(editBlockForm.getCrossingOwner()).isEqualTo(CrossingOwner.HOLDER);
 
   }
 
   @Test
   public void getCrossedBlockView_Valid() {
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENSED);
+    padCrossedBlock.setBlockOwner(CrossingOwner.UNLICENSED);
     padCrossedBlock.setId(1);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
@@ -375,7 +375,7 @@ public class BlockCrossingServiceTest {
 
   @Test(expected = PwaEntityNotFoundException.class)
   public void getCrossedBlockView_Invalid() {
-    padCrossedBlock.setBlockOwner(CrossedBlockOwner.UNLICENSED);
+    padCrossedBlock.setBlockOwner(CrossingOwner.UNLICENSED);
     padCrossedBlock.setId(1);
     var owner = new PadCrossedBlockOwner(padCrossedBlock, null, "MANUAL");
     when(padCrossedBlockRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
@@ -390,7 +390,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void isDocumentsRequired_notRequiredHolderOwned() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+        pwaApplicationDetail, CrossingOwner.HOLDER)).thenReturn(0);
     assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isFalse();
   }
 
@@ -404,7 +404,7 @@ public class BlockCrossingServiceTest {
   @Test
   public void isDocumentsRequired_required() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+        pwaApplicationDetail, CrossingOwner.HOLDER)).thenReturn(1);
     assertThat(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).isTrue();
   }
 
@@ -412,7 +412,7 @@ public class BlockCrossingServiceTest {
   public void isComplete_noDocsRequired_valid() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(0);
+        pwaApplicationDetail, CrossingOwner.HOLDER)).thenReturn(0);
     assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
   }
 
@@ -420,7 +420,7 @@ public class BlockCrossingServiceTest {
   public void isComplete_docsRequired_valid() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+        pwaApplicationDetail, CrossingOwner.HOLDER)).thenReturn(1);
     when(blockCrossingFileService.isComplete(pwaApplicationDetail)).thenReturn(true);
     assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isTrue();
   }
@@ -435,7 +435,7 @@ public class BlockCrossingServiceTest {
   public void isComplete_docsRequiredAndNotProvided_invalid() {
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(1);
     when(padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-        pwaApplicationDetail, CrossedBlockOwner.HOLDER)).thenReturn(1);
+        pwaApplicationDetail, CrossingOwner.HOLDER)).thenReturn(1);
     assertThat(blockCrossingService.isComplete(pwaApplicationDetail)).isFalse();
   }
 

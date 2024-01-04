@@ -4,9 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesForm;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
@@ -50,7 +50,7 @@ class BlocksAndCrossingsGeneratorService implements TestHarnessAppFormService {
     var form = new AddBlockCrossingForm();
     var blockRef = "10/1a101a300";
     form.setPickedBlock(blockRef);
-    form.setCrossedBlockOwner(CrossedBlockOwner.HOLDER);
+    form.setCrossingOwner(CrossingOwner.HOLDER);
     return form;
   }
 

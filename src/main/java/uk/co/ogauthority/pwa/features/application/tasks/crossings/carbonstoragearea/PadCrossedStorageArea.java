@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
+package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea;
 
 import java.time.Instant;
 import java.util.Objects;
@@ -11,43 +11,28 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
-import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 import uk.co.ogauthority.pwa.service.entitycopier.ParentEntity;
 
-@Entity(name = "pad_blocks")
-public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
+@Entity(name = "pad_crossed_storage_areas")
+public class PadCrossedStorageArea implements ChildEntity<Integer, PwaApplicationDetail>, ParentEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @ManyToOne
-  @JoinColumn(name = "application_detail_id")
+  @JoinColumn(name = "pad_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @OneToOne
-  @JoinColumn(name = "plm_id")
-  private PearsLicence licence;
-
-  @Column(name = "block_ref")
-  private String blockReference;
-
-  @Column(name = "quadrant_no")
-  private String quadrantNumber;
-
-  @Column(name = "block_no")
-  private String blockNumber;
+  @Column(name = "storage_area_ref")
+  private String storageAreaReference;
 
   @Enumerated(EnumType.STRING)
-  private CrossingOwner blockOwner;
-
-  private String suffix;
-  private BlockLocation location;
+  private CrossingOwner crossingOwnerType;
+  private String location;
 
   @Column(name = "created_timestamp")
   private Instant createdInstant;
@@ -90,52 +75,22 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
-  public PearsLicence getLicence() {
-    return licence;
+  public String getStorageAreaReference() {
+    return storageAreaReference;
   }
 
-  public void setLicence(PearsLicence licence) {
-    this.licence = licence;
+  public PadCrossedStorageArea setStorageAreaReference(String storageAreaReference) {
+    this.storageAreaReference = storageAreaReference;
+    return this;
   }
 
-  public String getBlockReference() {
-    return blockReference;
-  }
-
-  public void setBlockReference(String blockReference) {
-    this.blockReference = blockReference;
-  }
-
-  public String getQuadrantNumber() {
-    return quadrantNumber;
-  }
-
-  public void setQuadrantNumber(String quadrantNumber) {
-    this.quadrantNumber = quadrantNumber;
-  }
-
-  public String getBlockNumber() {
-    return blockNumber;
-  }
-
-  public void setBlockNumber(String blockNumber) {
-    this.blockNumber = blockNumber;
-  }
-
-  public String getSuffix() {
-    return suffix;
-  }
-
-  public void setSuffix(String suffix) {
-    this.suffix = suffix;
-  }
-
-  public BlockLocation getLocation() {
+  public String getLocation() {
     return location;
   }
 
-  public void setLocation(BlockLocation location) {
+  public PadCrossedStorageArea setLocation(String location) {
     this.location = location;
+    return this;
   }
 
   public Instant getCreatedInstant() {
@@ -146,12 +101,12 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
     this.createdInstant = createdInstant;
   }
 
-  public CrossingOwner getBlockOwner() {
-    return blockOwner;
+  public CrossingOwner getCrossingOwnerType() {
+    return crossingOwnerType;
   }
 
-  public void setBlockOwner(CrossingOwner blockOwner) {
-    this.blockOwner = blockOwner;
+  public void setCrossingOwnerType(CrossingOwner crossingOwnerType) {
+    this.crossingOwnerType = crossingOwnerType;
   }
 
   @Override
@@ -162,15 +117,11 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PadCrossedBlock that = (PadCrossedBlock) o;
+    PadCrossedStorageArea that = (PadCrossedStorageArea) o;
     return Objects.equals(id, that.id)
         && pwaApplicationDetail.equals(that.pwaApplicationDetail)
-        && Objects.equals(licence, that.licence)
-        && Objects.equals(blockReference, that.blockReference)
-        && Objects.equals(quadrantNumber, that.quadrantNumber)
-        && Objects.equals(blockNumber, that.blockNumber)
-        && blockOwner == that.blockOwner
-        && Objects.equals(suffix, that.suffix)
+        && Objects.equals(storageAreaReference, that.storageAreaReference)
+        && crossingOwnerType == that.crossingOwnerType
         && location == that.location
         && Objects.equals(createdInstant, that.createdInstant);
   }
@@ -180,12 +131,8 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
     return Objects.hash(
         id,
         pwaApplicationDetail,
-        licence,
-        blockReference,
-        quadrantNumber,
-        blockNumber,
-        blockOwner,
-        suffix,
+        storageAreaReference,
+        crossingOwnerType,
         location,
         createdInstant
     );
