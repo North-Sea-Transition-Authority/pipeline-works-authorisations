@@ -132,7 +132,7 @@ public enum DocumentSpec {
           DocumentSection.DEPOSIT_DRAWINGS, 30),
       "Deposit consent document - CCUS",
       List.of(
-          PwaApplicationType.INITIAL
+          PwaApplicationType.DEPOSIT_CONSENT
       )),
 
   VARIATION_CCUS_CONSENT_DOCUMENT(
