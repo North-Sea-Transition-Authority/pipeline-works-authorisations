@@ -70,7 +70,7 @@
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        <@fdsAction.submitButtons  linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -31,11 +33,14 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragea
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.EditCarbonStorageAreaCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.EditCarbonStorageAreaCrossingFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.PadCrossedStorageArea;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -107,7 +112,12 @@ public class CarbonStorageAreaCrossingController {
         .addObject("carbonStorageCrossings",
             carbonStorageAreaCrossingService.getCrossedAreaViews(applicationDetail))
         .addObject("carbonStorageCrossingUrlFactory", urlFactory)
-        .addObject("backUrl", urlFactory.getOverviewCarbonStorageCrossingUrl())
+        .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
+            .renderCrossingAgreementsOverview(
+                applicationDetail.getPwaApplicationType(),
+                applicationDetail.getMasterPwaApplicationId(),
+                null,
+                null)))
         .addObject("isStorageAreaDocumentsRequired",
             carbonStorageAreaCrossingService.isDocumentsRequired(applicationDetail))
         .addObject("carbonStorageCrossingFiles",
@@ -118,6 +128,22 @@ public class CarbonStorageAreaCrossingController {
         modelAndView,
         "Carbon storage areas");
     return modelAndView;
+  }
+
+  @PostMapping
+  public ModelAndView postOverview(
+      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
+      @PathVariable("applicationId") Integer applicationId,
+      @ModelAttribute("form") AddBlockCrossingForm form,
+      PwaApplicationContext applicationContext) {
+
+    var detail = applicationContext.getApplicationDetail();
+    return ReverseRouter.redirect(on(CrossingAgreementsController.class)
+        .renderCrossingAgreementsOverview(
+            detail.getPwaApplicationType(),
+            detail.getMasterPwaApplicationId(),
+            null,
+            null));
   }
 
   @GetMapping("/new")
