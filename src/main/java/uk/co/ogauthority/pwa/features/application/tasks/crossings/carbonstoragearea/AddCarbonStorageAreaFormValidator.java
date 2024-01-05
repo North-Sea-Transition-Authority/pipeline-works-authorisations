@@ -37,7 +37,7 @@ public class AddCarbonStorageAreaFormValidator implements SmartValidator {
     var form = (AddCarbonStorageAreaCrossingForm) target;
     PwaApplicationDetail pwaApplicationDetail = (PwaApplicationDetail) validationHints[0];
 
-    if (form.getStorageAreaRef().isEmpty()) {
+    if (form.getStorageAreaRef() == null || form.getStorageAreaRef().isEmpty()) {
       errors.rejectValue(
           "storageAreaRef",
           "storageAreaRef" + FieldValidationErrorCodes.REQUIRED.getCode(),
