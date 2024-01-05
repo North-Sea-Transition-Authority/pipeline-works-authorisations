@@ -11,14 +11,14 @@
   <h2 class="govuk-heading-l" id="areaInformation">${sectionDisplayText}</h2>
     <@fdsCheckAnswers.checkAnswers>
       <@fdsCheckAnswers.checkAnswersRow keyText="Fields covered by this PWA" actionUrl="" screenReaderActionText="" actionText="">
-        <@diffChanges.renderDiff areaLinkQuestions.PwaFieldLinksView_isLinkedToFields />
+        <@diffChanges.renderDiff areaLinkQuestions.PwaAreaLinksView_isLinkedToAreas />
       </@fdsCheckAnswers.checkAnswersRow>
 
       <#assign diffHideGroup = "hide-when-diff-disabled"/>
 
       <#if showPwaLinkedToDesc>
         <@fdsCheckAnswers.checkAnswersRowNoAction keyText="What is this PWA related to?" rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
-          <@diffChanges.renderDiff diffedField=areaLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
+          <@diffChanges.renderDiff diffedField=areaLinkQuestions.PwaAreaLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
         </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
 
