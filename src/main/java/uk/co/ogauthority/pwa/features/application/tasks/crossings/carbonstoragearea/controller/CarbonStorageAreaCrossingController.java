@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragea
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.EditCarbonStorageAreaCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.EditCarbonStorageAreaCrossingFormValidator;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.PadCrossedStorageArea;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
@@ -180,6 +181,14 @@ public class CarbonStorageAreaCrossingController {
       @ModelAttribute("form") EditCarbonStorageAreaCrossingForm form,
       PwaApplicationContext applicationContext) {
 
+    var crossedArea = carbonStorageAreaCrossingService.getById(crossingId);
+    carbonStorageAreaCrossingService.mapToEditForm(crossedArea, form);
+    return renderEditModelAndView(applicationContext, form, crossedArea);
+  }
+
+  private ModelAndView renderEditModelAndView(PwaApplicationContext applicationContext,
+                                              EditCarbonStorageAreaCrossingForm form,
+                                              PadCrossedStorageArea crossedStorageArea) {
     var sortedOrganisationUnits = portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch()
         .stream()
         .sorted(Comparator.comparing(o -> o.getOrgSearchableUnitName().toLowerCase()))
@@ -187,14 +196,13 @@ public class CarbonStorageAreaCrossingController {
             String.valueOf(o.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName));
 
     var urlFactory = new CarbonStorageCrossingUrlFactory(applicationContext.getApplicationDetail());
-    var crossedArea = carbonStorageAreaCrossingService.getById(crossingId);
-    carbonStorageAreaCrossingService.mapToEditForm(crossedArea, form);
+
 
     var modelAndView = new ModelAndView("pwaApplication/shared/crossings/carbonStorageArea/editCarbonStorageAreaCrossing")
         .addObject("errorList", List.of())
         .addObject("crossedOwnerOptions", CrossingOwner.asList())
         .addObject("orgUnits", sortedOrganisationUnits)
-        .addObject("reference", crossedArea.getStorageAreaReference())
+        .addObject("reference", crossedStorageArea.getStorageAreaReference())
         .addObject("backUrl", urlFactory.getOverviewCarbonStorageCrossingUrl());
     breadcrumbService.fromCrossingSection(applicationContext.getApplicationDetail(), modelAndView,
         CrossingAgreementTask.CARBON_STORAGE_AREAS, "Edit carbon storage area crossing");
@@ -211,15 +219,13 @@ public class CarbonStorageAreaCrossingController {
       PwaApplicationContext applicationContext) {
 
     editCarbonStorageAreaCrossingFormValidator.validate(form, bindingResult);
-
+    var crossedArea = carbonStorageAreaCrossingService.getById(crossingId);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
-        renderEditAreaCrossing(
-            applicationType,
-            applicationId,
-            crossingId,
+        renderEditModelAndView(
+            applicationContext,
             form,
-            applicationContext),
+            crossedArea),
         () -> {
           carbonStorageAreaCrossingService.updateStorageAreaCrossings(form, crossingId);
           return redirectToCrossingOverview(applicationContext);

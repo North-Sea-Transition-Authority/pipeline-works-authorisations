@@ -5,9 +5,9 @@
 <#-- @ftlvariable name="urlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingUrlFactory" -->
 
 <#macro carbonStorageCrossingManagement urlFactory isDocumentsRequired crossings=[] crossingFileViews=[]>
-  <h2 class="govuk-heading-l">Carbon storage areas</h2>
+  <h2 class="govuk-heading-l">Carbon storage licence area</h2>
     <@fdsInsetText.insetText>
-      <span>Add each storage area the pipelines are located in or will cross.</span>
+      <span>Add each Carbon storage licence area the pipelines are located in or will cross.</span>
     </@fdsInsetText.insetText>
 
     <@fdsAction.link linkText="Add storage area" linkUrl=springUrl(urlFactory.getAddCarbonStorageCrossingUrl()) linkClass="govuk-button govuk-button--blue"/>
@@ -28,10 +28,13 @@
               <ul class="govuk-list">
                   <#if crossing.ownedCompletelyByHolder>
                     <li>Holder owned</li>
+                  <#elseif crossing.operatorList?has_content>
+                      <#list crossing.operatorList as operator>
+                        <li>${operator}</li>
+                      </#list>
+                  <#else>
+                    <li>Unlicensed</li>
                   </#if>
-                  <#list crossing.operatorList as operator>
-                    <li>${operator}</li>
-                  </#list>
               </ul>
             </td>
             <td class="govuk-table__cell">

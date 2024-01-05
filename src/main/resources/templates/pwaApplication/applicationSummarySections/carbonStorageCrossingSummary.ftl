@@ -35,7 +35,7 @@
                           <li>${operator}</li>
                         </#list>
                     <#else>
-                      <li>No operator</li>
+                      <li>Unlicensed</li>
                     </#if>
                 </ul>
             </@fdsCheckAnswers.checkAnswersRow>
