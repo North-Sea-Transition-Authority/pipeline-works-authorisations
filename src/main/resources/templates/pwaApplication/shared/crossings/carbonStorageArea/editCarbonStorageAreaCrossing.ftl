@@ -26,6 +26,6 @@
             <#assign firstItem=false/>
           </#list>
         </@fdsRadio.radioGroup>
-        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Edit storage area" secondaryLinkText="Back to carbon storage areas" linkSecondaryActionUrl=springUrl(backUrl) />
+        <@fdsAction.submitButtons linkSecondaryAction=true primaryButtonText="Save storage area" secondaryLinkText="Back to carbon storage areas" linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 </@defaultPage>
