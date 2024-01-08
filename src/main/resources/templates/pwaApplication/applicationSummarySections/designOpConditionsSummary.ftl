@@ -41,6 +41,12 @@
        <@minMaxView designOpConditionsView.flowrateDesignMinMaxView/>
     </@fdsCheckAnswers.checkAnswersRow>
 
+    <#if designOpConditionsView.co2DensityView?has_content>
+      <@fdsCheckAnswers.checkAnswersRow keyText="CO2 density conditions" actionUrl="" screenReaderActionText="" actionText="">
+        <@minMaxView designOpConditionsView.co2DensityView/>
+      </@fdsCheckAnswers.checkAnswersRow>
+    </#if>
+
     <@fdsCheckAnswers.checkAnswersRow keyText="U-value design conditions" actionUrl="" screenReaderActionText="" actionText="">
         <#if designOpConditionsView.uvalueDesign?has_content> ${designOpConditionsView.uvalueDesign!} ${unitMeasurements.WM2K.suffixDisplay} </#if>
     </@fdsCheckAnswers.checkAnswersRow>

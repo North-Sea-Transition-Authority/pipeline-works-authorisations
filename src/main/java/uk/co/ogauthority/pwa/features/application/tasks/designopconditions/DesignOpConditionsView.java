@@ -46,10 +46,13 @@ public class DesignOpConditionsView {
         getStringValue(padDesignOpConditions.getFlowrateDesignMaxValue()),
         padDesignOpConditions.getFlowrateMeasurement());
 
-    this.co2DensityView = MinMaxView.createMinMaxView(
-        getStringValue(padDesignOpConditions.getCo2DensityMinValue()),
-        getStringValue(padDesignOpConditions.getCo2DensityMaxValue()),
-        UnitMeasurement.KG_METRE_CUBED);
+    if (padDesignOpConditions.getCo2DensityMinValue() != null) {
+      this.co2DensityView = MinMaxView.createMinMaxView(
+          getStringValue(padDesignOpConditions.getCo2DensityMinValue()),
+          getStringValue(padDesignOpConditions.getCo2DensityMaxValue()),
+          UnitMeasurement.KG_METRE_CUBED);
+    }
+
     this.uvalueDesign = getStringValue(padDesignOpConditions.getUvalueDesign());
   }
 
@@ -76,6 +79,10 @@ public class DesignOpConditionsView {
 
   public MinMaxView getFlowrateDesignMinMaxView() {
     return flowrateDesignMinMaxView;
+  }
+
+  public MinMaxView getCo2DensityView() {
+    return co2DensityView;
   }
 
   public String getUvalueDesign() {
