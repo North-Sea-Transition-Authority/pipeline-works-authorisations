@@ -19,7 +19,7 @@
         <#if fluidCompositionDataForm.chemicalMeasurementType?has_content>
           <#if fluidCompositionDataForm.chemicalMeasurementType == "MOLE_PERCENTAGE">
             ${fluidCompositionDataForm.measurementValue.value}%
-          <#elseif fluidCompositionDataForm.chemicalMeasurementType?contains("PPMV")>
+          <#elseif fluidCompositionDataForm.chemicalMeasurementType?contains("PPMV") && fluidCompositionDataForm.measurementValue?has_content>
               ${fluidCompositionDataForm.measurementValue.value} ppmv
           <#else>
             ${fluidCompositionDataForm.chemicalMeasurementType.getDisplayTextSimple()}
