@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.othertechprops.datainfrastructure;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
@@ -16,6 +17,7 @@ public class PipelinePropertyPhaseConverter implements AttributeConverter<Set<Pr
   public String convertToDatabaseColumn(Set<PropertyPhase> propertyPhases) {
     propertyPhases = propertyPhases != null ? propertyPhases : Set.of();
     return propertyPhases.stream()
+        .filter(Objects::nonNull)
         .map(Enum::name)
         .collect(Collectors.joining(","));
   }

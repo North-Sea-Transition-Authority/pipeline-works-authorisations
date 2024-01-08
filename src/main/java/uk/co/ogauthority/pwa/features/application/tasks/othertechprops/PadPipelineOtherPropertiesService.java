@@ -94,12 +94,12 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = form.getPropertyDataFormMap().get(entity.getPropertyName());
 
-      if (pipelineOtherPropertiesDataForm != null
-          && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null
-          && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+      if (pipelineOtherPropertiesDataForm != null && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null) {
         entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
-        entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
-        entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
+        if (pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+          entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
+          entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
+        }
       }
     }
     padPipelineOtherPropertiesRepository.saveAll(entities);
