@@ -39,25 +39,43 @@ public enum MailMergeFieldMnem {
           PwaApplicationType.OPTIONS_VARIATION
       ),
       Set.of(
-          DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
-          DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
-          DocumentSpec.HUOO_CONSENT_DOCUMENT)),
+          DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.HUOO_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.INITIAL_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.HUOO_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.INITIAL_CCUS_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_CCUS_CONSENT_DOCUMENT,
+          DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT)),
   HUOO_TERMS(
       List.of(
           PwaApplicationType.HUOO_VARIATION
       ),
       Set.of(
-          DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
-          DocumentSpec.DEPOSIT_CONSENT_DOCUMENT,
-          DocumentSpec.VARIATION_CONSENT_DOCUMENT)),
+          DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.VARIATION_PETROLEUM_CONSENT_DOCUMENT,
+          DocumentSpec.INITIAL_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.VARIATION_HYDROGEN_CONSENT_DOCUMENT,
+          DocumentSpec.INITIAL_CCUS_CONSENT_DOCUMENT,
+          DocumentSpec.DEPOSIT_CCUS_CONSENT_DOCUMENT,
+          DocumentSpec.VARIATION_CCUS_CONSENT_DOCUMENT)),
   DEPCON_TERMS(
       List.of(
           PwaApplicationType.DEPOSIT_CONSENT
       ),
       Set.of(
-        DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT,
-        DocumentSpec.VARIATION_CONSENT_DOCUMENT,
-        DocumentSpec.HUOO_CONSENT_DOCUMENT));
+        DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT,
+        DocumentSpec.VARIATION_PETROLEUM_CONSENT_DOCUMENT,
+        DocumentSpec.HUOO_PETROLEUM_CONSENT_DOCUMENT,
+        DocumentSpec.INITIAL_HYDROGEN_CONSENT_DOCUMENT,
+        DocumentSpec.VARIATION_HYDROGEN_CONSENT_DOCUMENT,
+        DocumentSpec.HUOO_HYDROGEN_CONSENT_DOCUMENT,
+        DocumentSpec.INITIAL_CCUS_CONSENT_DOCUMENT,
+        DocumentSpec.VARIATION_CCUS_CONSENT_DOCUMENT,
+        DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT));
 
   private final Set<PwaApplicationType> permittedAppTypes;
 

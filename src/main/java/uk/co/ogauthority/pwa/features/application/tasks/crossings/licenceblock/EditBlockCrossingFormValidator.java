@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
@@ -37,8 +38,8 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
     var form = (EditBlockCrossingForm) target;
     var licence = (PearsLicence) validationHints[0];
 
-    if (form.getCrossedBlockOwner() != null
-        && form.getCrossedBlockOwner().equals(CrossedBlockOwner.PORTAL_ORGANISATION)) {
+    if (form.getCrossingOwner() != null
+        && form.getCrossingOwner().equals(CrossingOwner.PORTAL_ORGANISATION)) {
       ValidationUtils.rejectIfEmpty(
           errors, "blockOwnersOuIdList",
           "blockOwnersOuIdList.required",
@@ -46,14 +47,14 @@ public class EditBlockCrossingFormValidator implements SmartValidator {
       );
     }
 
-    if (form.getCrossedBlockOwner() != null && form.getCrossedBlockOwner() != CrossedBlockOwner.UNLICENSED) {
+    if (form.getCrossingOwner() != null && form.getCrossingOwner() != CrossingOwner.UNLICENSED) {
       if (licence == null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
             "Unlicensed blocks cannot have an owner");
       }
     }
 
-    if (form.getCrossedBlockOwner() == CrossedBlockOwner.UNLICENSED) {
+    if (form.getCrossingOwner() == CrossingOwner.UNLICENSED) {
       if (licence != null) {
         errors.rejectValue("crossedBlockOwner", "crossedBlockOwner" + FieldValidationErrorCodes.INVALID.getCode(),
             "Licensed blocks must have an owner");

@@ -2,41 +2,34 @@
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
 
-<#-- @ftlvariable name="showFieldNames" type="java.lang.Boolean" -->
-<#-- @ftlvariable name="hideFieldNamesOnLoad" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="showAreaNames" type="java.lang.Boolean" -->
+<#-- @ftlvariable name="hideAreaNamesOnLoad" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="showPwaLinkedToDesc" type="java.lang.Boolean" -->
 <#-- @ftlvariable name="hidePwaLinkedToDescOnLoad" type="java.lang.Boolean" -->
 
 <div class="pwa-application-summary-section">
-  <h2 class="govuk-heading-l" id="fieldInformation">${sectionDisplayText}</h2>
-
+  <h2 class="govuk-heading-l" id="areaInformation">${sectionDisplayText}</h2>
     <@fdsCheckAnswers.checkAnswers>
-
       <@fdsCheckAnswers.checkAnswersRow keyText="Fields covered by this PWA" actionUrl="" screenReaderActionText="" actionText="">
-        <@diffChanges.renderDiff fieldLinkQuestions.PwaFieldLinksView_isLinkedToFields />
+        <@diffChanges.renderDiff areaLinkQuestions.PwaAreaLinksView_isLinkedToAreas />
       </@fdsCheckAnswers.checkAnswersRow>
 
       <#assign diffHideGroup = "hide-when-diff-disabled"/>
 
       <#if showPwaLinkedToDesc>
         <@fdsCheckAnswers.checkAnswersRowNoAction keyText="What is this PWA related to?" rowClass=hidePwaLinkedToDescOnLoad?then(diffHideGroup, "")>
-          <@diffChanges.renderDiff diffedField=fieldLinkQuestions.PwaFieldLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
+          <@diffChanges.renderDiff diffedField=areaLinkQuestions.PwaAreaLinksView_pwaLinkedToDescription multiLineTextBlockClass="govuk-summary-list"/>
         </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
 
-      <#if showFieldNames>
-        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Linked fields" rowClass=hideFieldNamesOnLoad?then(diffHideGroup, "")>
+      <#if showAreaNames>
+        <@fdsCheckAnswers.checkAnswersRowNoAction keyText="Linked fields" rowClass=hideAreaNamesOnLoad?then(diffHideGroup, "")>
           <ul class="govuk-list">
-          <#list fieldLinks as field>
-
-            <li><@diffChanges.renderDiff field.StringWithTagItem_stringWithTag /></li>
-
+          <#list areaLinks as area>
+            <li><@diffChanges.renderDiff area.StringWithTagItem_stringWithTag /></li>
           </#list>
           </ul>
         </@fdsCheckAnswers.checkAnswersRowNoAction>
       </#if>
-
     </@fdsCheckAnswers.checkAnswers>
-
-
 </div>

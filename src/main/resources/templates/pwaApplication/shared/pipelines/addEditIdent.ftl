@@ -70,8 +70,11 @@
 
             <@fdsTextarea.textarea path="form.dataForm.componentPartsDescription" labelText="Description of component part" nestingPath="form.definingStructure"
              hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper, Control Jumper etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
-            <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
-
+            <#if resourceType == "CCUS">
+              <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products and phase to be conveyed" hintText="Example: Carbon dioxide dense phase" nestingPath="form.definingStructure"/>
+            <#else>
+              <@identDataTextInput coreType=coreType textInputPath="form.dataForm.productsToBeConveyed" textAreaPath="form.dataForm.productsToBeConveyedMultiCore" useTextArea=true labelText="Products to be conveyed" nestingPath="form.definingStructure"/>
+            </#if>
             <@fdsRadio.radioGroup path="form.definingStructure" labelText="Is this ident defining a structure?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.definingStructure">
                     <@fdsTextInput.textInput path="form.lengthOptional.value" labelText="Length" suffix="m" inputClass="govuk-input--width-5" optionalLabel=true nestingPath="form.definingStructure"/>
@@ -106,20 +109,25 @@
   suffix=""
   suffixScreenReaderPrompt=""
   useTextArea=false
+  hintText=""
   multiCoreHintText=""
   nestingPath="">
     <#if coreType == "SINGLE_CORE">
         <#if useTextArea>
-            <@fdsTextarea.textarea path=textInputPath labelText="${labelText} ${suffix}" maxCharacterLength=maxCharacterLength?c characterCount=true nestingPath=nestingPath/>
+            <@fdsTextarea.textarea path=textInputPath labelText="${labelText} ${suffix}" hintText=hintText maxCharacterLength=maxCharacterLength?c characterCount=true nestingPath=nestingPath/>
         <#else>
-            <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt nestingPath=nestingPath/>
+            <@fdsTextInput.textInput path=textInputPath labelText=labelText inputClass="govuk-input--width-5" suffix=suffix suffixScreenReaderPrompt=suffixScreenReaderPrompt hintText=hintText nestingPath=nestingPath/>
         </#if>
     <#else>
         <#assign unit = ""/>
         <#if suffix?has_content>
             <#assign unit = "(" + suffix + ")"/>
         </#if>
-        <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength=maxCharacterLength?c characterCount=true hintText=multiCoreHintText nestingPath=nestingPath/>
+        <#if hintText?has_content>
+            <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength=maxCharacterLength?c characterCount=true hintText=hintText+". "+multiCoreHintText nestingPath=nestingPath/>
+        <#else>
+            <@fdsTextarea.textarea path=textAreaPath labelText="${labelText} ${unit}" maxCharacterLength=maxCharacterLength?c characterCount=true hintText=multiCoreHintText nestingPath=nestingPath/>
+        </#if>
     </#if>
 </#macro>
 

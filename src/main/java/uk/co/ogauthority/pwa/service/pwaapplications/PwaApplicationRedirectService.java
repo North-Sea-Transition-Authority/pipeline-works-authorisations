@@ -38,15 +38,13 @@ public class PwaApplicationRedirectService {
         return ReverseRouter.redirect(on(StartInitialPwaController.class)
             .renderStartPage(resourceType));
       case CAT_1_VARIATION:
-        return ReverseRouter.redirect(on(StartVariationController.class)
-            .renderVariationTypeStartPage(applicationType, resourceType));
       case HUOO_VARIATION:
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
         return ReverseRouter.redirect(on(StartVariationController.class)
-            .renderVariationTypeStartPage(applicationType, PwaResourceType.PETROLEUM));
+            .renderVariationTypeStartPage(applicationType, resourceType));
       default:
         return ReverseRouter.redirect(on(StartPwaApplicationController.class)
             .renderStartApplication(null, resourceType));

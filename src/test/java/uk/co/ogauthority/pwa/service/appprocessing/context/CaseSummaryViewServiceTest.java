@@ -56,7 +56,7 @@ public class CaseSummaryViewServiceTest {
     var holderNameStringList = Arrays.stream(caseSummaryView.getHolderNames().split(", "))
         .collect(Collectors.toList());
 
-    var fieldNameList = Arrays.stream(caseSummaryView.getFieldNames().split(", "))
+    var fieldNameList = Arrays.stream(caseSummaryView.getAreaNames().split(", "))
         .collect(Collectors.toList());
 
     assertThat(caseSummaryView.getPwaApplicationRef()).isEqualTo(applicationDetailView.getPadReference());
@@ -83,7 +83,7 @@ public class CaseSummaryViewServiceTest {
     var holderNameStringList = Arrays.stream(caseSummaryView.getHolderNames().split(", "))
         .collect(Collectors.toList());
 
-    var fieldNameList = Arrays.stream(caseSummaryView.getFieldNames().split(", "))
+    var fieldNameList = Arrays.stream(caseSummaryView.getAreaNames().split(", "))
         .collect(Collectors.toList());
 
     assertThat(caseSummaryView.getPwaApplicationRef()).isEqualTo(applicationDetailView.getPadReference());

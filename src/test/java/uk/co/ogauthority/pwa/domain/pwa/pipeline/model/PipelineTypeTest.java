@@ -45,4 +45,14 @@ public class PipelineTypeTest {
         .isNotEmpty()
         .doesNotContainAnyElementsOf(List.of(PipelineType.HYDROGEN_TRANSPORT));
   }
+
+  @Test
+  public void ccusType_includesAllPetroleum() {
+    var ccusPipeline = PipelineType.streamDisplayValues(PwaResourceType.CCUS)
+        .collect(Collectors.toList());
+    var petroleumPipeline = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM)
+        .collect(Collectors.toList());
+    assertThat(ccusPipeline).containsAll(petroleumPipeline);
+    assertThat(ccusPipeline).contains(PipelineType.CARBON_DIOXIDE_PIPELINE);
+  }
 }

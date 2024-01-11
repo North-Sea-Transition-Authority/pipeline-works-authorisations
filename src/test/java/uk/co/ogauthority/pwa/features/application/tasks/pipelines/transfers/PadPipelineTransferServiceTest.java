@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,12 +14,15 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadPipelineTransferServiceTest {
@@ -86,8 +90,55 @@ public class PadPipelineTransferServiceTest {
         .setDonorApplicationDetail(pwaApplicationDetail)
         .setDonorPipeline(pipeline);
 
+    var recipeintApplication = new PwaApplication();
+    recipeintApplication.setResourceType(PwaResourceType.PETROLEUM);
     var recipientApplicationDetail = new PwaApplicationDetail();
     recipientApplicationDetail.setId(2);
+    recipientApplicationDetail.setPwaApplication(recipeintApplication);
+
+    var transferredPipeline = new Pipeline();
+    transferredPipeline.setId(2);
+
+    var transferredPadPipeline = new PadPipeline();
+    transferredPadPipeline.setPipeline(transferredPipeline);
+
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
+    when(transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(pipeline)).thenReturn(Optional.of(transfer));
+    when(padPipelineService.createTransferredPipeline(form, recipientApplicationDetail)).thenReturn(transferredPadPipeline);
+
+    padPipelineTransferService.claimPipeline(form, recipientApplicationDetail);
+
+    ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
+    verify(transferRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getDonorPipeline()).isEqualTo(pipeline);
+    assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(transferredPipeline);
+    assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(recipientApplicationDetail);
+
+  }
+
+  @Test
+  public void claimPipeline_CcusResourceType() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPipelineId(1)
+        .setAssignNewPipelineNumber(false)
+        .setCompatibleWithTarget(true)
+        .setLastIntelligentlyPigged(DateUtils.formatToDatePickerString(LocalDate.now()));
+
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setId(1);
+    pipelineDetail.setPipeline(pipeline);
+
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(pwaApplicationDetail)
+        .setDonorPipeline(pipeline);
+
+    var recipeintApplication = new PwaApplication();
+    recipeintApplication.setResourceType(PwaResourceType.CCUS);
+    var recipientApplicationDetail = new PwaApplicationDetail();
+    recipientApplicationDetail.setId(2);
+    recipientApplicationDetail.setPwaApplication(recipeintApplication);
 
     var transferredPipeline = new Pipeline();
     transferredPipeline.setId(2);

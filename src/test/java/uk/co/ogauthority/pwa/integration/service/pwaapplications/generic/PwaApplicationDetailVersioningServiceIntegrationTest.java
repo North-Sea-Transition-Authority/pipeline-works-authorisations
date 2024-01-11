@@ -29,9 +29,9 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorkSchedule_;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.PadCampaignWorksScheduleTestUtil;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing_;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockOwner_;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlockTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock_;
@@ -46,10 +46,10 @@ import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEn
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack_;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldTestUtil;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField_;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea_;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo_;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfoTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo_;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleTestUtil;
@@ -356,7 +356,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var crossedBlock1 = PadCrossedBlockTestUtil.createUnlicensedPadCrossedBlock(
         pwaApplicationDetail,
-        CrossedBlockOwner.PORTAL_ORGANISATION);
+        CrossingOwner.PORTAL_ORGANISATION);
     var crossedBlock1Owner = PadCrossedBlockTestUtil.createPortalOrgPadCrossedBlockOwner(
         crossedBlock1,
         portalOrganisationUnit1);
@@ -366,7 +366,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
     var crossedBlock2 = PadCrossedBlockTestUtil.createLicensedPadCrossedBlock(
         pwaApplicationDetail,
-        CrossedBlockOwner.PORTAL_ORGANISATION,
+        CrossingOwner.PORTAL_ORGANISATION,
         pearsLicence);
     var crossedBlock2Owner = PadCrossedBlockTestUtil.createManualPadCrossedBlockOwner(crossedBlock2);
 
@@ -779,11 +779,11 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
     var newVersionContainer = testHelper.getApplicationDetailContainer(newVersionDetail);
 
     var v1ManualField = firstVersionApplicationContainer.getPadFields().stream()
-        .filter(f -> f.getFieldName() != null)
+        .filter(f -> f.getAreaName() != null)
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
 
     var v2ManualField = newVersionContainer.getPadFields().stream()
-        .filter(f -> f.getFieldName() != null)
+        .filter(f -> f.getAreaName() != null)
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find manual field"));
 
     var v1DevukField = firstVersionApplicationContainer.getPadFields().stream()
@@ -795,10 +795,10 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
         .findFirst().orElseThrow(() -> new RuntimeException("Expected to find devuk field"));
 
     ObjectTestUtils.assertValuesEqual(v1ManualField, v2ManualField,
-        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+        Set.of(PadLinkedArea_.ID, PadLinkedArea_.PWA_APPLICATION_DETAIL));
 
     ObjectTestUtils.assertValuesEqual(v1DevukField, v2DevukField,
-        Set.of(PadField_.ID, PadField_.PWA_APPLICATION_DETAIL));
+        Set.of(PadLinkedArea_.ID, PadLinkedArea_.PWA_APPLICATION_DETAIL));
 
   }
 

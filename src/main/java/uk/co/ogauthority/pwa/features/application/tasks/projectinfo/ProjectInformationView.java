@@ -37,6 +37,10 @@ public class ProjectInformationView {
   private final Boolean fdpConfirmationFlag;
   private final String fdpNotSelectedReason;
 
+  private final Boolean cspOptionSelected;
+  private final Boolean cspConfirmationFlag;
+  private final String cspNotSelectedReason;
+
   private final UploadedFileView layoutDiagramFileView;
 
 
@@ -95,6 +99,10 @@ public class ProjectInformationView {
     this.fdpOptionSelected = padProjectInformation.getFdpOptionSelected();
     this.fdpConfirmationFlag = padProjectInformation.getFdpConfirmationFlag();
     this.fdpNotSelectedReason = padProjectInformation.getFdpNotSelectedReason();
+
+    this.cspOptionSelected = padProjectInformation.getCspOptionSelected();
+    this.cspConfirmationFlag = padProjectInformation.getCspConfirmationFlag();
+    this.cspNotSelectedReason = padProjectInformation.getCspNotSelectedReason();
 
     this.layoutDiagramFileView = layoutDiagramFileView;
   }
@@ -178,6 +186,18 @@ public class ProjectInformationView {
 
   public String getFdpNotSelectedReason() {
     return fdpNotSelectedReason;
+  }
+
+  public Boolean getCspOptionSelected() {
+    return cspOptionSelected;
+  }
+
+  public Boolean getCspConfirmationFlag() {
+    return cspConfirmationFlag;
+  }
+
+  public String getCspNotSelectedReason() {
+    return cspNotSelectedReason;
   }
 
   public UploadedFileView getLayoutDiagramFileView() {

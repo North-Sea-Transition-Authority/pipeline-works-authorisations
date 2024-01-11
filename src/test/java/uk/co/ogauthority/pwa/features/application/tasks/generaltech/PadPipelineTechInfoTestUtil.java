@@ -15,7 +15,7 @@ public class PadPipelineTechInfoTestUtil {
     var td = new PadPipelineTechInfo();
     td.setPwaApplicationDetail(pwaApplicationDetail);
     td.setCorrosionDescription("corrosian desc");
-    td.setEstimatedFieldLife(10);
+    td.setEstimatedAssetLife(10);
     td.setPipelineDesignedToStandards(true);
     td.setPipelineStandardsDescription("standards description");
     td.setPlannedPipelineTieInPoints(true);

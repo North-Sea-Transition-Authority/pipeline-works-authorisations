@@ -40,7 +40,7 @@ class GeneralTechDetailsGeneratorService implements TestHarnessAppFormService {
   private PipelineTechInfoForm createForm() {
 
     var form = new PipelineTechInfoForm();
-    form.setEstimatedFieldLife(50);
+    form.setEstimatedAssetLife(50);
     form.setPipelineDesignedToStandards(false);
     form.setCorrosionDescription("My description of the corrosion management strategy");
     form.setPlannedPipelineTieInPoints(false);

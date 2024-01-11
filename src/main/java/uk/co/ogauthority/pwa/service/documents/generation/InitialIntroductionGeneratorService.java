@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -18,17 +18,17 @@ import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 public class InitialIntroductionGeneratorService implements DocumentSectionGenerator {
 
   private final DocumentInstanceService documentInstanceService;
-  private final PadFieldService padFieldService;
+  private final PadAreaService padAreaService;
   private final MailMergeService mailMergeService;
 
   private static final DocumentSection SECTION = DocumentSection.INITIAL_INTRO;
 
   @Autowired
   public InitialIntroductionGeneratorService(DocumentInstanceService documentInstanceService,
-                                             PadFieldService padFieldService,
+                                             PadAreaService padAreaService,
                                              MailMergeService mailMergeService) {
     this.documentInstanceService = documentInstanceService;
-    this.padFieldService = padFieldService;
+    this.padAreaService = padAreaService;
     this.mailMergeService = mailMergeService;
   }
 
@@ -37,10 +37,10 @@ public class InitialIntroductionGeneratorService implements DocumentSectionGener
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
 
-    var fieldLinksView = padFieldService.getApplicationFieldLinksView(pwaApplicationDetail);
+    var fieldLinksView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
 
     String fieldOrOther = Optional.ofNullable(fieldLinksView.getPwaLinkedToDescription())
-        .orElse(fieldLinksView.getLinkedFieldNames().stream()
+        .orElse(fieldLinksView.getLinkedAreaNames().stream()
             .map(s -> s.getStringWithTag().getValue())
             .sorted()
             .collect(Collectors.joining(", ")) + " FIELD");

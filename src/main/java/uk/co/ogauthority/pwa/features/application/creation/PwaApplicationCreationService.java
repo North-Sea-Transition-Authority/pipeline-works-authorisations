@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -24,7 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
@@ -43,8 +43,8 @@ public class PwaApplicationCreationService {
   private final PwaApplicationReferencingService pwaApplicationReferencingService;
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
   private final PadOrganisationRoleService padOrganisationRoleService;
-  private final MasterPwaDetailFieldService masterPwaDetailFieldService;
-  private final PadFieldService padFieldService;
+  private final MasterPwaDetailAreaService masterPwaDetailAreaService;
+  private final PadAreaService padAreaService;
   private final Clock clock;
 
 
@@ -57,8 +57,8 @@ public class PwaApplicationCreationService {
                                        PwaApplicationReferencingService pwaApplicationReferencingService,
                                        PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                        PadOrganisationRoleService padOrganisationRoleService,
-                                       MasterPwaDetailFieldService masterPwaDetailFieldService,
-                                       PadFieldService padFieldService,
+                                       MasterPwaDetailAreaService masterPwaDetailAreaService,
+                                       PadAreaService padAreaService,
                                        @Qualifier("utcClock") Clock clock) {
     this.masterPwaService = masterPwaService;
     this.pwaApplicationRepository = pwaApplicationRepository;
@@ -68,8 +68,8 @@ public class PwaApplicationCreationService {
     this.pwaApplicationReferencingService = pwaApplicationReferencingService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
     this.padOrganisationRoleService = padOrganisationRoleService;
-    this.masterPwaDetailFieldService = masterPwaDetailFieldService;
-    this.padFieldService = padFieldService;
+    this.masterPwaDetailAreaService = masterPwaDetailAreaService;
+    this.padAreaService = padAreaService;
     this.clock = clock;
   }
 
@@ -155,9 +155,9 @@ public class PwaApplicationCreationService {
 
     var applicationDetail = createApplication(masterPwa, pwaApplicationType, pwaResourceType, 0, createdByUser, applicantOrganisationUnit);
 
-    var masterPwaDetailFields = masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa);
+    var masterPwaDetailFields = masterPwaDetailAreaService.getMasterPwaDetailFields(masterPwa);
 
-    padFieldService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
+    padAreaService.createAndSavePadFieldsFromMasterPwa(applicationDetail,
         masterPwaService.getCurrentDetailOrThrow(masterPwa), masterPwaDetailFields);
 
     return applicationDetail;

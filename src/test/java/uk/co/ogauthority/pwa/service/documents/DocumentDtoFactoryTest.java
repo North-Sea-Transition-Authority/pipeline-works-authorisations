@@ -44,7 +44,7 @@ public class DocumentDtoFactoryTest {
 
     var template = new DocumentTemplate();
     template.setId(1);
-    template.setMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    template.setMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
     var sectionToClauseListMap = DocumentDtoTestUtils.createArgMap(template, clock);
 

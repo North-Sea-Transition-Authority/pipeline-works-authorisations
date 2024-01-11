@@ -3,6 +3,7 @@
 <#import 'medianLineCrossingManagement.ftl' as medianLineCrossingManagement>
 <#import 'cableCrossingManagement.ftl' as cableCrossingManagement>
 <#import 'pipeline/pipelineCrossingManagement.ftl' as pipelineCrossingManagement>
+<#import 'carbonStorageArea/carbonStorageCrossingsManagement.ftl' as carbonStorageCrossingManagement>
 
 <#-- @ftlvariable name="errorMessage" type="String" -->
 
@@ -10,6 +11,11 @@
 <#-- @ftlvariable name="blockCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingUrlFactory" -->
 <#-- @ftlvariable name="blockCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
 <#-- @ftlvariable name="isDocumentsRequired" type="java.lang.boolean" -->
+
+<#-- @ftlvariable name="carbonStorageCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingView>" -->
+<#-- @ftlvariable name="carbonStorageCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingUrlFactory" -->
+<#-- @ftlvariable name="carbonStorageCrossingFiles" type="java.util.List<uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView>" -->
+<#-- @ftlvariable name="isStorageAreaDocumentsRequired" type="java.lang.boolean" -->
 
 <#-- @ftlvariable name="cableCrossings" type="java.util.List<uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView>" -->
 <#-- @ftlvariable name="cableCrossingUrlFactory" type="uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory" -->
@@ -55,10 +61,16 @@
         urlFactory=medianLineUrlFactory
         medianLineAgreementView=medianLineAgreementView!""
         medianLineFileViews=medianLineFiles />
+    <#elseif overview == "CARBON_STORAGE_AREA">
+        <@carbonStorageCrossingManagement.carbonStorageCrossingManagement
+        crossings=carbonStorageCrossings
+        crossingFileViews=carbonStorageCrossingFiles
+        urlFactory=carbonStorageCrossingUrlFactory
+        isDocumentsRequired=isStorageAreaDocumentsRequired/>
     </#if>
 
     <@fdsForm.htmlForm>
-        <@fdsAction.submitButtons linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
+        <@fdsAction.submitButtons  linkSecondaryAction=true linkSecondaryActionUrl=springUrl(backUrl) primaryButtonText="Complete" secondaryLinkText="Back to blocks and crossing agreements"/>
     </@fdsForm.htmlForm>
 
 </@defaultPage>

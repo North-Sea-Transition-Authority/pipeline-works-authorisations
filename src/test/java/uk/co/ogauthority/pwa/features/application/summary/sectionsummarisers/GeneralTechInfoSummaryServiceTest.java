@@ -72,9 +72,10 @@ public class GeneralTechInfoSummaryServiceTest {
 
     var appSummary = generalTechInfoSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).hasSize(2);
+    assertThat(appSummary.getTemplateModel()).hasSize(3);
     assertThat(appSummary.getTemplateModel()).contains(entry("generalTechInfoView", generalTechInfoView));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName()));
+    assertThat(appSummary.getTemplateModel()).contains(entry("resourceType", "PETROLEUM"));
 
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.GENERAL_TECH_DETAILS.getDisplayName(), "#generalTechInfoDetails")

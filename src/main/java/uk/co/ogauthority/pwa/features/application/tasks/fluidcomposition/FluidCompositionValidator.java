@@ -36,7 +36,7 @@ public class FluidCompositionValidator implements SmartValidator {
     var chemicalDataFormMap = fluidCompositionForm.getChemicalDataFormMap();
 
     if (validationType.equals(ValidationType.FULL)) {
-      fluidCompositionFormValidator.validate(fluidCompositionForm, errors);
+      fluidCompositionFormValidator.validate(fluidCompositionForm, errors, validationHints);
     }
 
     // sort form map by chemical display order to ensure the validation errors are ordered correctly

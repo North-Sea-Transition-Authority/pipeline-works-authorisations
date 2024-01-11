@@ -85,7 +85,7 @@ public class PwaApplicationDetailService {
    */
   @Transactional
   public PwaApplicationDetail setLinkedToFields(PwaApplicationDetail pwaApplicationDetail, Boolean linked) {
-    pwaApplicationDetail.setLinkedToField(linked);
+    pwaApplicationDetail.setLinkedToArea(linked);
     if (linked) {
       pwaApplicationDetail.setNotLinkedDescription(null);
     }
@@ -170,14 +170,16 @@ public class PwaApplicationDetailService {
 
   private void copyApplicationDetailData(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
 
-    toDetail.setLinkedToField(fromDetail.getLinkedToField());
+    toDetail.setLinkedToArea(fromDetail.getLinkedToArea());
     toDetail.setNotLinkedDescription(fromDetail.getNotLinkedDescription());
     toDetail.setPipelinesCrossed(fromDetail.getPipelinesCrossed());
     toDetail.setCablesCrossed(fromDetail.getCablesCrossed());
     toDetail.setMedianLineCrossed(fromDetail.getMedianLineCrossed());
+    toDetail.setCsaCrossed(fromDetail.getCsaCrossed());
     toDetail.setNumOfHolders(fromDetail.getNumOfHolders());
     toDetail.setPipelinePhaseProperties(fromDetail.getPipelinePhaseProperties());
     toDetail.setOtherPhaseDescription(fromDetail.getOtherPhaseDescription());
+    toDetail.setOtherFluidDescription(fromDetail.getOtherFluidDescription());
     toDetail.setPartnerLettersRequired(fromDetail.getPartnerLettersRequired());
     toDetail.setPartnerLettersConfirmed(fromDetail.getPartnerLettersConfirmed());
     toDetail.setSupplementaryDocumentsFlag(fromDetail.getSupplementaryDocumentsFlag());
@@ -208,6 +210,7 @@ public class PwaApplicationDetailService {
     detail.setCablesCrossed(form.getCablesCrossed());
     detail.setPipelinesCrossed(form.getPipelinesCrossed());
     detail.setMedianLineCrossed(form.getMedianLineCrossed());
+    detail.setCsaCrossed(form.getCsaCrossed());
     pwaApplicationDetailRepository.save(detail);
   }
 
@@ -249,6 +252,12 @@ public class PwaApplicationDetailService {
     pwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
     pwaApplicationDetail.setDeletedTimestamp(Instant.now(clock));
     pwaApplicationDetail.setDeletingPersonId(deletingUser.getId());
+    pwaApplicationDetailRepository.save(pwaApplicationDetail);
+  }
+
+  @Transactional
+  public void setOtherFluidDescription(PwaApplicationDetail pwaApplicationDetail, String fluidDescription) {
+    pwaApplicationDetail.setOtherFluidDescription(fluidDescription);
     pwaApplicationDetailRepository.save(pwaApplicationDetail);
   }
 

@@ -6,6 +6,10 @@ public class PadPipelineTransferClaimForm {
 
   private boolean assignNewPipelineNumber;
 
+  private String lastIntelligentlyPigged;
+
+  private boolean compatibleWithTarget;
+
   public Integer getPipelineId() {
     return pipelineId;
   }
@@ -24,4 +28,21 @@ public class PadPipelineTransferClaimForm {
     return this;
   }
 
+  public String getLastIntelligentlyPigged() {
+    return lastIntelligentlyPigged;
+  }
+
+  public PadPipelineTransferClaimForm setLastIntelligentlyPigged(String lastIntelligentlyPigged) {
+    this.lastIntelligentlyPigged = lastIntelligentlyPigged;
+    return this;
+  }
+
+  public boolean isCompatibleWithTarget() {
+    return compatibleWithTarget;
+  }
+
+  public PadPipelineTransferClaimForm setCompatibleWithTarget(boolean compatibleWithTarget) {
+    this.compatibleWithTarget = compatibleWithTarget;
+    return this;
+  }
 }

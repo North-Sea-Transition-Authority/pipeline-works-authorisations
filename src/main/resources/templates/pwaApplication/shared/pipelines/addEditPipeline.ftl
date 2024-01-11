@@ -64,7 +64,11 @@
 
             <@fdsTextarea.textarea path="form.componentPartsDescription" labelText="Description of component parts of the pipeline" hintText="e.g. 10\" production flowline, electrical lead d B, 2 x 6\" Production Jumper, Control Jumper etc" characterCount=true maxCharacterLength=maxCharacterLength?c/>
 
-            <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+            <#if resourceType == "CCUS">
+                <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products and phase to be conveyed" hintText="Example: Carbon dioxide dense phase" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+            <#else>
+                <@fdsTextarea.textarea path="form.productsToBeConveyed" labelText="Products to be conveyed" characterCount=true maxCharacterLength=maxCharacterLength?c/>
+            </#if>
 
             <@fdsRadio.radioGroup path="form.trenchedBuriedBackfilled" labelText="Will the pipeline be trenched and/or buried and/or backfilled?" hiddenContent=true>
                 <@fdsRadio.radioYes path="form.trenchedBuriedBackfilled">

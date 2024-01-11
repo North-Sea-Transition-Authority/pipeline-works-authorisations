@@ -71,15 +71,13 @@ public class StartVariationController {
 
     switch (applicationType) {
       case CAT_1_VARIATION:
-        return ReverseRouter.redirect(on(PickExistingPwaController.class)
-            .renderPickPwaToStartApplication(applicationType, resourceType, null, null));
       case HUOO_VARIATION:
       case CAT_2_VARIATION:
       case DEPOSIT_CONSENT:
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)
-            .renderPickPwaToStartApplication(applicationType, PwaResourceType.PETROLEUM, null, null));
+            .renderPickPwaToStartApplication(applicationType, resourceType, null, null));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", applicationType));
     }

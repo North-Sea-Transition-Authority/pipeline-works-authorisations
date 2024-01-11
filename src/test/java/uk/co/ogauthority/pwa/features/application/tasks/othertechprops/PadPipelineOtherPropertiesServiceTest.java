@@ -16,7 +16,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -71,9 +73,25 @@ public class PadPipelineOtherPropertiesServiceTest {
   }
 
   @Test
-  public void getPipelineOtherPropertiesEntity_newEntitiesReturned() {
+  public void getPipelineOtherPropertiesEntity_Petroleum_newEntitiesReturned() {
     var expectedEntityList = new ArrayList<>();
-    for (OtherPipelineProperty property: OtherPipelineProperty.asList()) {
+    for (OtherPipelineProperty property: OtherPipelineProperty.asList(PwaResourceType.PETROLEUM)) {
+      var entity = new PadPipelineOtherProperties(pwaApplicationDetail, property);
+      expectedEntityList.add(entity);
+    }
+    when(padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(new ArrayList<>());
+    var actualEntityList = padPipelineOtherPropertiesService.getPipelineOtherPropertyEntities(pwaApplicationDetail);
+    assertThat(actualEntityList).isEqualTo(expectedEntityList);
+  }
+
+  @Test
+  public void getPipelineOtherPropertiesEntity_CCUS_newEntitiesReturned() {
+    var application = new PwaApplication();
+    application.setResourceType(PwaResourceType.CCUS);
+    pwaApplicationDetail.setPwaApplication(application);
+
+    var expectedEntityList = new ArrayList<>();
+    for (OtherPipelineProperty property: OtherPipelineProperty.asList(PwaResourceType.CCUS)) {
       var entity = new PadPipelineOtherProperties(pwaApplicationDetail, property);
       expectedEntityList.add(entity);
     }
@@ -109,10 +127,9 @@ public class PadPipelineOtherPropertiesServiceTest {
     var actualEntities = PadPipelineOtherPropertiesTestUtil.createBlankEntities(pwaApplicationDetail);
     padPipelineOtherPropertiesService.saveEntitiesUsingForm(formBuilder.createFullForm(), actualEntities, pwaApplicationDetail);
 
-    assertThat(actualEntities).isEqualTo(PadPipelineOtherPropertiesTestUtil.createAllEntities(pwaApplicationDetail));
+    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
     verify(pwaApplicationDetailService, times(1)).setPhasesPresent(pwaApplicationDetail,
         PadPipelineOtherPropertiesTestUtil.getPhaseDataForAppDetail(), PadPipelineOtherPropertiesTestUtil.getOtherPhaseDescription());
-    verify(padPipelineOtherPropertiesRepository, times(1)).saveAll(actualEntities);
   }
 
   @Test

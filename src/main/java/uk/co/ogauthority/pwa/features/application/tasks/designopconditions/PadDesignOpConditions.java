@@ -4,12 +4,15 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
@@ -53,6 +56,16 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
   private BigDecimal flowrateDesignMinValue;
   @Column(name = "flowrate_design_max")
   private BigDecimal flowrateDesignMaxValue;
+
+  @Column(name = "flowrate_unit")
+  @Enumerated(EnumType.STRING)
+  private UnitMeasurement flowrateMeasurement;
+
+  @Column(name = "co2_density_max")
+  private BigDecimal co2DensityMaxValue;
+
+  @Column(name = "co2_density_min")
+  private BigDecimal co2DensityMinValue;
 
   private BigDecimal uvalueDesign;
 
@@ -185,6 +198,34 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
     this.flowrateDesignMaxValue = flowrateDesignMaxValue;
   }
 
+  public UnitMeasurement getFlowrateMeasurement() {
+    return flowrateMeasurement;
+  }
+
+  public PadDesignOpConditions setFlowrateMeasurement(
+      UnitMeasurement flowrateMeasurement) {
+    this.flowrateMeasurement = flowrateMeasurement;
+    return this;
+  }
+
+  public BigDecimal getCo2DensityMaxValue() {
+    return co2DensityMaxValue;
+  }
+
+  public PadDesignOpConditions setCo2DensityMaxValue(BigDecimal co2DensityMaxValue) {
+    this.co2DensityMaxValue = co2DensityMaxValue;
+    return this;
+  }
+
+  public BigDecimal getCo2DensityMinValue() {
+    return co2DensityMinValue;
+  }
+
+  public PadDesignOpConditions setCo2DensityMinValue(BigDecimal co2DensityMinValue) {
+    this.co2DensityMinValue = co2DensityMinValue;
+    return this;
+  }
+
   public BigDecimal getUvalueDesign() {
     return uvalueDesign;
   }
@@ -217,6 +258,9 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
         && Objects.equals(flowrateOpMaxValue, that.flowrateOpMaxValue)
         && Objects.equals(flowrateDesignMinValue, that.flowrateDesignMinValue)
         && Objects.equals(flowrateDesignMaxValue, that.flowrateDesignMaxValue)
+        && Objects.equals(flowrateMeasurement, that.flowrateMeasurement)
+        && Objects.equals(co2DensityMaxValue, that.co2DensityMaxValue)
+        && Objects.equals(co2DensityMinValue, that.co2DensityMinValue)
         && Objects.equals(uvalueDesign, that.uvalueDesign);
   }
 
@@ -226,7 +270,7 @@ public class PadDesignOpConditions implements ChildEntity<Integer, PwaApplicatio
         temperatureDesignMinValue,
         temperatureDesignMaxValue, pressureOpMinValue, pressureOpMaxValue,
         pressureDesignMaxValue, flowrateOpMinValue, flowrateOpMaxValue, flowrateDesignMinValue,
-        flowrateDesignMaxValue, uvalueDesign);
+        flowrateDesignMaxValue, flowrateMeasurement, co2DensityMaxValue, co2DensityMinValue, uvalueDesign);
   }
 }
 

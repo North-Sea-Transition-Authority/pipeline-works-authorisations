@@ -23,6 +23,7 @@ public enum ProjectInformationQuestion {
   PERMANENT_DEPOSITS_BEING_MADE((applicationType) -> false),
   TEMPORARY_DEPOSITS_BEING_MADE((applicationType) -> false),
   FIELD_DEVELOPMENT_PLAN((applicationType) -> false),
+  CARBON_STORAGE_PERMIT((applicationType) -> false),
   PROJECT_LAYOUT_DIAGRAM((applicationType) -> false);
 
   private final Function<PwaApplicationType, Boolean> isOptional;

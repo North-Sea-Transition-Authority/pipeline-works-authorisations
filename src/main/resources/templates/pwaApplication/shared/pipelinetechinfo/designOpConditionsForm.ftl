@@ -21,11 +21,22 @@
              suffixScreenReaderPrompt=unitMeasurements.BAR_G.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>
         </@fdsFieldset.fieldset>
 
-        <@minMaxInput minFormPath="form.flowrateOpMinMax.minValue" maxFormPath="form.flowrateOpMinMax.maxValue"
+        <#if resourceType = "CCUS">
+            <@minMaxInput minFormPath="form.flowrateOpMinMax.minValue" maxFormPath="form.flowrateOpMinMax.maxValue"
+            labelText="What are the flowrate operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.MTONNE_YEAR />
+
+            <@minMaxInput minFormPath="form.flowrateDesignMinMax.minValue" maxFormPath="form.flowrateDesignMinMax.maxValue"
+            labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement=unitMeasurements.MTONNE_YEAR />
+
+            <@minMaxInput minFormPath="form.co2Density.minValue" maxFormPath="form.co2Density.maxValue"
+            labelText="What are the CO2 density conditions?" nestedPath="" unitMeasurement=unitMeasurements.KG_METRE_CUBED />
+        <#else>
+            <@minMaxInput minFormPath="form.flowrateOpMinMax.minValue" maxFormPath="form.flowrateOpMinMax.maxValue"
             labelText="What are the flowrate operating conditions?" nestedPath="" unitMeasurement=unitMeasurements.KSCM_D />
 
-        <@minMaxInput minFormPath="form.flowrateDesignMinMax.minValue" maxFormPath="form.flowrateDesignMinMax.maxValue"
+            <@minMaxInput minFormPath="form.flowrateDesignMinMax.minValue" maxFormPath="form.flowrateDesignMinMax.maxValue"
             labelText="What are the flowrate design conditions?" nestedPath="" unitMeasurement=unitMeasurements.KSCM_D />
+        </#if>
 
         <@fdsFieldset.fieldset legendHeading="What is the U-value design condition?" legendHeadingSize="h2" legendHeadingClass="govuk-fieldset__legend govuk-fieldset__legend--s">
             <@fdsTextInput.textInput path="form.uvalueDesign" labelText="" suffix=stringUtils.superscriptConverter(unitMeasurements.WM2K.suffixDisplay) suffixScreenReaderPrompt=unitMeasurements.WM2K.suffixScreenReaderDisplay inputClass="govuk-input--width-5"/>

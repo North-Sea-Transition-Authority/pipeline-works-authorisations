@@ -40,10 +40,11 @@ public class TemplateDocumentSourceMailMergeResolver implements DocumentSourceMa
 
     Map<PwaApplicationType, List<ApplicationTask>> appTypeToAppTasksMap = new HashMap<>();
 
-    PwaApplicationType.stream()
-        .filter(appType -> appType.getConsentDocumentSpec().equals(templateDocumentSource.getDocumentSpec()))
-        .forEach(pwaApplicationType -> appTypeToAppTasksMap
-            .put(pwaApplicationType, taskListService.getApplicationTasksForAppType(pwaApplicationType)));
+    templateDocumentSource.getDocumentSpec()
+        .getApplicationType()
+        .forEach(pwaApplicationType -> appTypeToAppTasksMap.put(
+            pwaApplicationType,
+            taskListService.getApplicationTasksForAppType(pwaApplicationType)));
 
     var mailMergeMnemSet = new HashSet<MailMergeFieldMnem>();
 

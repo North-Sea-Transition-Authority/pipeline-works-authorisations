@@ -154,7 +154,8 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
     modelAndView.addObject("permanentDepositsMadeOptions", PermanentDepositMade.asList(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
         .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
-            pwaApplicationDetail.getPwaApplicationType()))
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getResourceType()))
         .addObject("isPipelineDeploymentQuestionOptional",
             ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT.isOptionalForType(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))

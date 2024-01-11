@@ -5,7 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +45,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
         padPipelineOtherPropertiesRepository.getAllByPwaApplicationDetail(pwaApplicationDetail);
 
     if (pipelineOtherPropertiesList.isEmpty()) {
-      for (OtherPipelineProperty property: OtherPipelineProperty.asList()) {
+      for (OtherPipelineProperty property: OtherPipelineProperty.asList(pwaApplicationDetail.getResourceType())) {
         var padPipelineOtherProperty = new PadPipelineOtherProperties(pwaApplicationDetail, property);
         pipelineOtherPropertiesList.add(padPipelineOtherProperty);
       }
@@ -58,13 +57,15 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   public void mapEntitiesToForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                 PwaApplicationDetail pwaApplicationDetail) {
     var phasesPresent = pwaApplicationDetail.getPipelinePhaseProperties();
-    phasesPresent =  phasesPresent != null ? phasesPresent : new HashSet<>();
-    for (var phase: phasesPresent) {
-      form.getPhasesSelection().put(phase, "true");
-    }
+    if (phasesPresent != null && !phasesPresent.isEmpty()) {
+      for (var phase: phasesPresent) {
+        form.getPhasesSelection().put(phase, "true");
+      }
+      form.setPhase(phasesPresent.iterator().next());
 
-    if (phasesPresent.contains(PropertyPhase.OTHER)) {
-      form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
+      if (phasesPresent.contains(PropertyPhase.OTHER)) {
+        form.setOtherPhaseDescription(pwaApplicationDetail.getOtherPhaseDescription());
+      }
     }
 
     for (PadPipelineOtherProperties entity: entities) {
@@ -82,20 +83,23 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
 
   public void saveEntitiesUsingForm(PipelineOtherPropertiesForm form, List<PadPipelineOtherProperties> entities,
                                     PwaApplicationDetail pwaApplicationDetail) {
-    var otherPhaseDescription = form.getPhasesSelection().containsKey(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
-    Set<PropertyPhase> propertyPhases = form.getPhasesSelection().entrySet().stream()
-        .map(Map.Entry::getKey)
-        .collect(Collectors.toSet());
+    var propertyPhases = new HashSet<PropertyPhase>();
+    propertyPhases.addAll(form.getPhasesSelection().keySet());
+    propertyPhases.add(form.getPhase());
+
+    var otherPhaseDescription = propertyPhases.contains(PropertyPhase.OTHER) ? form.getOtherPhaseDescription() : null;
 
     pwaApplicationDetailService.setPhasesPresent(pwaApplicationDetail, propertyPhases, otherPhaseDescription);
 
     for (PadPipelineOtherProperties entity: entities) {
       var pipelineOtherPropertiesDataForm = form.getPropertyDataFormMap().get(entity.getPropertyName());
-      entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
-      if (pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null
-          && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
-        entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
-        entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
+
+      if (pipelineOtherPropertiesDataForm != null && pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption() != null) {
+        entity.setAvailabilityOption(pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption());
+        if (pipelineOtherPropertiesDataForm.getPropertyAvailabilityOption().equals(PropertyAvailabilityOption.AVAILABLE)) {
+          entity.setMinValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMinOrNull());
+          entity.setMaxValue(pipelineOtherPropertiesDataForm.getMinMaxInput().createMaxOrNull());
+        }
       }
     }
     padPipelineOtherPropertiesRepository.saveAll(entities);
@@ -141,7 +145,7 @@ public class PadPipelineOtherPropertiesService implements ApplicationFormSection
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    pipelineOtherPropertiesValidator.validate(form, bindingResult, validationType);
+    pipelineOtherPropertiesValidator.validate(form, bindingResult, validationType, pwaApplicationDetail.getResourceType());
     if (bindingResult.hasErrors()) {
       var otherPropertiesForm = (PipelineOtherPropertiesForm) form;
       for (var phaseEntry: otherPropertiesForm.getPhasesSelection().entrySet()) {

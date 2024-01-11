@@ -48,29 +48,12 @@ public class VariationIntroductionGeneratorServiceTest {
   public void setUp() throws Exception {
 
     variationIntroductionGeneratorService = new VariationIntroductionGeneratorService(documentInstanceService, mailMergeService);
-
-    DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
-        .getDocumentInstanceSectionClauseVersionDto(DocumentSection.VARIATION_INTRO.name(), "intro", 1, 1);
-    DocumentInstanceSectionClauseVersionDto dto2 = DocumentDtoTestUtils
-        .getDocumentInstanceSectionClauseVersionDto(DocumentSection.VARIATION_INTRO.name(), "not intro", 1, 2);
-
-    var sectionView = new SectionView();
-    var clauseList = new ArrayList<SectionClauseVersionView>();
-    clauseList.add(SectionClauseVersionView.from(dto1));
-    clauseList.add(SectionClauseVersionView.from(dto2));
-    sectionView.setClauses(clauseList);
-
-    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
-    docView.setSections(List.of(sectionView));
-
-    when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO))
-        .thenReturn(docView);
-
   }
 
   @Test
-  public void getDocumentSectionData_dataPresent() {
-
+  public void getDocumentSectionData_dataPresent_Petroleum() {
+    docView = setupDocView(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
+    when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
     var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 
     verify(mailMergeService, times(1)).mailMerge(docView, DocGenType.PREVIEW);
@@ -84,7 +67,58 @@ public class VariationIntroductionGeneratorServiceTest {
         entry("introParagraph", "intro"),
         entry("sectionType", DocumentSection.VARIATION_INTRO)
     );
+  }
+  @Test
+  public void getDocumentSectionData_dataPresent_Hydrogen() {
+    docView = setupDocView(DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT);
+    when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
+    var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 
+    verify(mailMergeService, times(1)).mailMerge(docView, DocGenType.PREVIEW);
+
+    // remove first clause from docview as it is used in intro paragraph
+    docView.getSections().get(0).getClauses().remove(0);
+
+    assertThat(docSectionData.getTemplatePath()).isEqualTo("documents/consents/sections/variationIntro.ftl");
+    assertThat(docSectionData.getTemplateModel()).containsOnly(
+        entry("docView", docView),
+        entry("introParagraph", "intro"),
+        entry("sectionType", DocumentSection.VARIATION_INTRO)
+    );
+  }
+  @Test
+  public void getDocumentSectionData_dataPresent_Ccus() {
+    docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
+    when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
+    var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
+
+    verify(mailMergeService, times(1)).mailMerge(docView, DocGenType.PREVIEW);
+
+    // remove first clause from docview as it is used in intro paragraph
+    docView.getSections().get(0).getClauses().remove(0);
+
+    assertThat(docSectionData.getTemplatePath()).isEqualTo("documents/consents/sections/variationIntro.ftl");
+    assertThat(docSectionData.getTemplateModel()).containsOnly(
+        entry("docView", docView),
+        entry("introParagraph", "intro"),
+        entry("sectionType", DocumentSection.VARIATION_INTRO)
+    );
   }
 
+  private DocumentView setupDocView(DocumentTemplateMnem templateMnem) {
+    DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
+        .getDocumentInstanceSectionClauseVersionDto(DocumentSection.VARIATION_INTRO.name(), "intro", 1, 1);
+    DocumentInstanceSectionClauseVersionDto dto2 = DocumentDtoTestUtils
+        .getDocumentInstanceSectionClauseVersionDto(DocumentSection.VARIATION_INTRO.name(), "not intro", 1, 2);
+
+    var sectionView = new SectionView();
+    var clauseList = new ArrayList<SectionClauseVersionView>();
+    clauseList.add(SectionClauseVersionView.from(dto1));
+    clauseList.add(SectionClauseVersionView.from(dto2));
+    sectionView.setClauses(clauseList);
+
+    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), templateMnem);
+    docView.setSections(List.of(sectionView));
+    return docView;
+  }
 }

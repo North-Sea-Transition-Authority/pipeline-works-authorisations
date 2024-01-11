@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaFieldLinksView;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -37,7 +37,7 @@ public class InitialIntroductionGeneratorServiceTest {
   private DocumentInstanceService documentInstanceService;
 
   @Mock
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   @Mock
   private MailMergeService mailMergeService;
@@ -53,7 +53,8 @@ public class InitialIntroductionGeneratorServiceTest {
   @Before
   public void setUp() throws Exception {
 
-    initialIntroductionGeneratorService = new InitialIntroductionGeneratorService(documentInstanceService, padFieldService, mailMergeService);
+    initialIntroductionGeneratorService = new InitialIntroductionGeneratorService(documentInstanceService,
+        padAreaService, mailMergeService);
 
     DocumentInstanceSectionClauseVersionDto dto1 = DocumentDtoTestUtils
         .getDocumentInstanceSectionClauseVersionDto(DocumentSection.INITIAL_INTRO.name(), "intro", 1, 1);
@@ -66,7 +67,7 @@ public class InitialIntroductionGeneratorServiceTest {
     clauseList.add(SectionClauseVersionView.from(dto2));
     sectionView.setClauses(clauseList);
 
-    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    docView = new DocumentView(PwaDocumentType.INSTANCE, detail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     docView.setSections(List.of(sectionView));
 
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.INITIAL_INTRO))
@@ -77,8 +78,8 @@ public class InitialIntroductionGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_linkedToField() {
 
-    var view = new PwaFieldLinksView(true, null, List.of(new StringWithTag("FIELDNAME")));
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(view);
+    var view = new PwaAreaLinksView(true, null, List.of(new StringWithTag("FIELDNAME")));
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);
 
     var docSectionData = initialIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 
@@ -100,8 +101,8 @@ public class InitialIntroductionGeneratorServiceTest {
   @Test
   public void getDocumentSectionData_notLinkedToField() {
 
-    var view = new PwaFieldLinksView(false, "interconnector", List.of());
-    when(padFieldService.getApplicationFieldLinksView(detail)).thenReturn(view);
+    var view = new PwaAreaLinksView(false, "interconnector", List.of());
+    when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);
 
     var docSectionData = initialIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 

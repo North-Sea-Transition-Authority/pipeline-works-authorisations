@@ -12,7 +12,7 @@ public class ConsentSearchResultView {
 
   private final String pwaReference;
 
-  private final String resourceType;
+  private final PwaResourceType resourceType;
 
   private final String fieldNameOrOtherReference;
 
@@ -33,7 +33,7 @@ public class ConsentSearchResultView {
                                  Instant latestConsentTimestamp) {
     this.pwaId = pwaId;
     this.pwaReference = pwaReference;
-    this.resourceType = resourceType.getDisplayName();
+    this.resourceType = resourceType;
     this.fieldNameOrOtherReference = fieldNameOrOtherReference;
     this.holderNamesCsv = holderNamesCsv;
     this.firstConsentTimestampDisplay = DateUtils.formatDate(firstConsentTimestamp);
@@ -64,7 +64,7 @@ public class ConsentSearchResultView {
     return pwaReference;
   }
 
-  public String getResourceType() {
+  public PwaResourceType getResourceType() {
     return resourceType;
   }
 

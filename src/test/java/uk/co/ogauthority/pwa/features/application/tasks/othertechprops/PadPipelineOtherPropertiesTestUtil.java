@@ -111,7 +111,7 @@ public class PadPipelineOtherPropertiesTestUtil {
   public static List<PadPipelineOtherProperties> createBlankEntities(PwaApplicationDetail pwaApplicationDetail) {
     List<PadPipelineOtherProperties> pipelineOtherPropertiesList = new ArrayList<>();
     int id = 1;
-    for (OtherPipelineProperty property : OtherPipelineProperty.asList()) {
+    for (OtherPipelineProperty property : OtherPipelineProperty.asList(pwaApplicationDetail.getResourceType())) {
       var padPipelineOtherProperty = new PadPipelineOtherProperties(pwaApplicationDetail, property);
       padPipelineOtherProperty.setId(id++);
       pipelineOtherPropertiesList.add(padPipelineOtherProperty);

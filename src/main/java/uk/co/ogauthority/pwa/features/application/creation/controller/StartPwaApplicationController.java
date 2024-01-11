@@ -59,9 +59,7 @@ public class StartPwaApplicationController {
         .sorted(Comparator.comparing(PwaApplicationType::getDisplayOrder))
         .collect(Collectors.toList());
 
-    var initialGuideText = pwaResourceType == PwaResourceType.HYDROGEN
-        ? "All new applications irrespective of pipeline lengths. "
-        : "All new fields irrespective of pipeline lengths. ";
+    var initialGuideText = "All new projects irrespective of pipeline lengths. ";
 
     return new ModelAndView("pwaApplication/selectApplication")
       .addObject("contactEmail", contactEmail)

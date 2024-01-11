@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
@@ -68,7 +69,7 @@ public class PadPipelineTransferClaimController {
                                               @ModelAttribute("form") PadPipelineTransferClaimForm form,
                                               BindingResult bindingResult) {
     var detail = applicationContext.getApplicationDetail();
-    var validatedBindingResult = padPipelineTransferService.validateClaimForm(form, bindingResult);
+    var validatedBindingResult = padPipelineTransferService.validateClaimForm(form, bindingResult, detail.getResourceType());
 
     return controllerHelperService.checkErrorsAndRedirect(
         validatedBindingResult,
@@ -85,7 +86,8 @@ public class PadPipelineTransferClaimController {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelines/transferClaimPipeline")
         .addObject("claimablePipelines", padPipelineTransferService.getClaimablePipelinesForForm(detail.getResourceType()))
         .addObject("backUrl", ReverseRouter.route(on(PipelinesTaskListController.class)
-            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)));
+            .renderPipelinesOverview(detail.getMasterPwaApplicationId(), detail.getPwaApplicationType(), null, null)))
+        .addObject("isCO2Pipeline", detail.getResourceType().equals(PwaResourceType.CCUS));
 
     applicationBreadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView, "Transfer from another PWA");
 

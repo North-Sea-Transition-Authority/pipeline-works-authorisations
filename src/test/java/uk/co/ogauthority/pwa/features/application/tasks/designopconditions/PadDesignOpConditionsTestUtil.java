@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Set;
 import org.apache.commons.lang3.RandomUtils;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
@@ -53,6 +54,7 @@ public class PadDesignOpConditionsTestUtil {
     entity.setFlowrateOpMaxValue(form.getFlowrateOpMinMax().createMaxOrNull());
     entity.setFlowrateDesignMinValue(form.getFlowrateDesignMinMax().createMinOrNull());
     entity.setFlowrateDesignMaxValue(form.getFlowrateDesignMinMax().createMaxOrNull());
+    entity.setFlowrateMeasurement(UnitMeasurement.KSCM_D);
     entity.setUvalueDesign(form.getUvalueDesign() != null ? new BigDecimal(form.getUvalueDesign()) : null);
 
     return entity;
@@ -79,6 +81,9 @@ public class PadDesignOpConditionsTestUtil {
     oc.setFlowrateDesignMinValue(BigDecimal.valueOf(RandomUtils.nextDouble(0, 50)).setScale(2, RoundingMode.HALF_UP));
     oc.setFlowrateDesignMaxValue(BigDecimal.valueOf(RandomUtils.nextDouble(50, 100)).setScale(2, RoundingMode.HALF_UP));
     oc.setUvalueDesign(BigDecimal.valueOf(RandomUtils.nextDouble(0, 100)).setScale(2, RoundingMode.HALF_UP));
+    oc.setCo2DensityMinValue(BigDecimal.valueOf(RandomUtils.nextDouble(0, 50)).setScale(2, RoundingMode.HALF_UP));
+    oc.setCo2DensityMaxValue(BigDecimal.valueOf(RandomUtils.nextDouble(50, 100)).setScale(2, RoundingMode.HALF_UP));
+    oc.setFlowrateMeasurement(UnitMeasurement.KSCM_D);
 
     ObjectTestUtils.assertAllFieldsNotNull(
         oc,

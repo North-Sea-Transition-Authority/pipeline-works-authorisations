@@ -14,10 +14,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.documents.templates.DocumentTemplateDto;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
 
@@ -44,15 +46,17 @@ public class DocumentServiceTest {
 
     var app = new PwaApplication();
     app.setApplicationType(PwaApplicationType.INITIAL);
+    app.setResourceType(PwaResourceType.PETROLEUM);
     var person = new Person();
 
     var docDto = new DocumentTemplateDto();
+    var docSpec = DocumentSpec.getSpecForApplication(app);
 
-    when(documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec())).thenReturn(docDto);
+    when(documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec)).thenReturn(docDto);
 
     documentService.createDocumentInstance(app, person);
 
-    verify(documentTemplateService, times(1)).populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PWA_CONSENT_DOCUMENT, PwaApplicationType.INITIAL.getConsentDocumentSpec());
+    verify(documentTemplateService, times(1)).populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec);
 
     verify(documentInstanceService, times(1)).createFromDocumentDto(app, docDto, person);
 
@@ -62,11 +66,12 @@ public class DocumentServiceTest {
   public void reloadDocumentInstance_docInstanceExists() {
 
     var app = new PwaApplication();
+    app.setResourceType(PwaResourceType.PETROLEUM);
     app.setApplicationType(PwaApplicationType.INITIAL);
 
     documentService.reloadDocumentInstance(app, new Person());
 
-    verify(documentInstanceService, times(1)).clearClauses(app, DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+    verify(documentInstanceService, times(1)).clearClauses(app, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
   }
 
@@ -75,7 +80,7 @@ public class DocumentServiceTest {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
-    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isPresent();
+    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT)).isPresent();
 
   }
 
@@ -84,7 +89,7 @@ public class DocumentServiceTest {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
-    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)).isEmpty();
+    assertThat(documentService.getDocumentInstance(new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT)).isEmpty();
 
   }
 

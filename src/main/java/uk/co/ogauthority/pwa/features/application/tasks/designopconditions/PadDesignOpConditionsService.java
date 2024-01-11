@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.model.entity.enums.measurements.UnitMeasurement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -48,6 +50,11 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   }
 
   public void saveEntityUsingForm(DesignOpConditionsForm form, PadDesignOpConditions entity) {
+    if (entity.getParent().getResourceType().equals(PwaResourceType.CCUS)) {
+      entity.setFlowrateMeasurement(UnitMeasurement.MTONNE_YEAR);
+    } else {
+      entity.setFlowrateMeasurement(UnitMeasurement.KSCM_D);
+    }
     padDesignOpConditionsMappingService.mapFormToEntity(form, entity);
     padDesignOpConditionsRepository.save(entity);
   }
@@ -74,7 +81,7 @@ public class PadDesignOpConditionsService implements ApplicationFormSectionServi
   @Override
   public BindingResult validate(Object form, BindingResult bindingResult,
                                 ValidationType validationType, PwaApplicationDetail pwaApplicationDetail) {
-    validator.validate(form, bindingResult, validationType);
+    validator.validate(form, bindingResult, validationType, pwaApplicationDetail.getResourceType());
     return bindingResult;
   }
 

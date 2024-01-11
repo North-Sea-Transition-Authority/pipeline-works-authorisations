@@ -115,8 +115,9 @@ public class SendForApprovalCheckerService {
       failedChecks.add(new FailedSendForApprovalCheck(SendConsentForApprovalRequirement.NO_PUBLIC_NOTICE_IN_PROGRESS));
     }
 
+    var docMnem = DocumentTemplateMnem.getMnemFromResourceType(detail.getResourceType());
     var docInstance = documentInstanceService
-        .getDocumentInstanceOrError(detail.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+        .getDocumentInstanceOrError(detail.getPwaApplication(), docMnem);
     var docView = documentInstanceService.getDocumentView(docInstance);
 
     if (!documentViewService.documentViewHasClauses(docView)) {

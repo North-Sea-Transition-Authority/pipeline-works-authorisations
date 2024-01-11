@@ -44,7 +44,7 @@ public class TermsAndConditionsMailMergeResolverTest {
     assertThat(termsAndConditionsMailMergeResolver
         .supportsDocumentSource(new PwaApplication())).isTrue();
     assertThat(termsAndConditionsMailMergeResolver
-        .supportsDocumentSource(new TemplateDocumentSource(DocumentSpec.VARIATION_CONSENT_DOCUMENT))).isTrue();
+        .supportsDocumentSource(new TemplateDocumentSource(DocumentSpec.VARIATION_PETROLEUM_CONSENT_DOCUMENT))).isTrue();
 
   }
 }

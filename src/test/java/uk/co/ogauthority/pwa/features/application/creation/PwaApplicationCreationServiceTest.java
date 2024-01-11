@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.application.repository.PwaApplicationRepository;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadFieldService;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
@@ -37,9 +37,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailField;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetailArea;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailFieldService;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
@@ -89,10 +89,10 @@ public class PwaApplicationCreationServiceTest {
   private PadOrganisationRoleService padOrganisationRoleService;
 
   @Mock
-  private MasterPwaDetailFieldService masterPwaDetailFieldService;
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
 
   @Mock
-  private PadFieldService padFieldService;
+  private PadAreaService padAreaService;
 
   private PwaApplicationCreationService pwaApplicationCreationService;
 
@@ -123,8 +123,8 @@ public class PwaApplicationCreationServiceTest {
         pwaApplicationReferencingService,
         pwaConsentOrganisationRoleService,
         padOrganisationRoleService,
-        masterPwaDetailFieldService,
-        padFieldService,
+        masterPwaDetailAreaService,
+        padAreaService,
         clock
     );
   }
@@ -227,6 +227,55 @@ public class PwaApplicationCreationServiceTest {
     assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
   }
 
+  @Test
+  public void createInitialPwa_CCUS() {
+    WebUserAccount user = new WebUserAccount(123);
+    when(masterPwaDetail.getMasterPwa()).thenReturn(masterPwa);
+    when(masterPwaService.createMasterPwa(any(), any(), any())).thenReturn(masterPwaDetail);
+
+    PwaApplicationDetail createdApplication = pwaApplicationCreationService.createInitialPwaApplication(
+        applicantOrganisationUnit,
+        user,
+        PwaResourceType.CCUS);
+
+    ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
+
+    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    PwaApplication application = applicationArgumentCaptor.getValue();
+
+    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService, times(1)).startWorkflow(application);
+    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
+    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    assertThat(application)
+        .extracting(
+            PwaApplication::getMasterPwa,
+            PwaApplication::getApplicationType,
+            PwaApplication::getResourceType,
+            PwaApplication::getAppReference,
+            PwaApplication::getConsentReference,
+            PwaApplication::getVariationNo,
+            PwaApplication::getDecision,
+            PwaApplication::getDecisionTimestamp,
+            PwaApplication::getApplicationCreatedTimestamp,
+            PwaApplication::getApplicantOrganisationUnitId)
+        .containsExactly(
+            masterPwa,
+            PwaApplicationType.INITIAL,
+            PwaResourceType.CCUS,
+            "PA/1",
+            null,
+            0,
+            Optional.empty(),
+            Optional.empty(),
+            clock.instant(),
+            OrganisationUnitId.from(applicantOrganisationUnit)
+        );
+
+    assertThat(createdApplication.getPwaApplication()).isEqualTo(application);
+  }
+
 
   // The below tests could be much better with a parameterised, repeated test and only defined once. Would be good to figure out how to do this.
   @Test
@@ -282,8 +331,8 @@ public class PwaApplicationCreationServiceTest {
     MasterPwa masterPwa = new MasterPwa(fixedInstant);
     masterPwa.setId(1);
 
-    var masterPwaDetailField = new MasterPwaDetailField();
-    when(masterPwaDetailFieldService.getMasterPwaDetailFields(masterPwa)).thenReturn(List.of(masterPwaDetailField));
+    var masterPwaDetailField = new MasterPwaDetailArea();
+    when(masterPwaDetailAreaService.getMasterPwaDetailFields(masterPwa)).thenReturn(List.of(masterPwaDetailField));
     var masterPwaDetail = new MasterPwaDetail();
     when(masterPwaService.getCurrentDetailOrThrow(masterPwa)).thenReturn(masterPwaDetail);
 
@@ -303,7 +352,7 @@ public class PwaApplicationCreationServiceTest {
     verify(camundaWorkflowService, times(1)).startWorkflow(application);
     verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
         Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(padFieldService, times(1)).createAndSavePadFieldsFromMasterPwa(
+    verify(padAreaService, times(1)).createAndSavePadFieldsFromMasterPwa(
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
     assertThat(application)

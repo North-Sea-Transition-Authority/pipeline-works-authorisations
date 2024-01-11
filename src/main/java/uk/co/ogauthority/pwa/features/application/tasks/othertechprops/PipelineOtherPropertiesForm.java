@@ -9,6 +9,8 @@ public class PipelineOtherPropertiesForm {
 
   private Map<OtherPipelineProperty, PipelineOtherPropertiesDataForm> propertyDataFormMap = new HashMap<>();
   private Map<PropertyPhase, String> phasesSelection = new HashMap<>();
+
+  private PropertyPhase phase;
   private String otherPhaseDescription;
 
 
@@ -41,6 +43,16 @@ public class PipelineOtherPropertiesForm {
   public void setPhasesSelection(
       Map<PropertyPhase, String> phasesSelection) {
     this.phasesSelection = phasesSelection;
+  }
+
+  public PropertyPhase getPhase() {
+    return phase;
+  }
+
+  public PipelineOtherPropertiesForm setPhase(
+      PropertyPhase phase) {
+    this.phase = phase;
+    return this;
   }
 
   @Override

@@ -15,15 +15,8 @@ public class DocumentInstanceRedirectUtils {
   }
 
   public static ModelAndView getRedirect(PwaApplication application, DocumentTemplateMnem mnem) {
-
-    if (mnem == DocumentTemplateMnem.PWA_CONSENT_DOCUMENT) {
-      return ReverseRouter.redirect(on(AppConsentDocController.class)
-          .renderConsentDocEditor(application.getId(), application.getApplicationType(), null, null));
-    }
-
-    throw new IllegalArgumentException(
-        String.format("[%s] doc template mnem hasn't got a document instance redirect specified", mnem.name()));
-
+    return ReverseRouter.redirect(on(AppConsentDocController.class)
+        .renderConsentDocEditor(application.getId(), application.getApplicationType(), null, null));
   }
 
 }

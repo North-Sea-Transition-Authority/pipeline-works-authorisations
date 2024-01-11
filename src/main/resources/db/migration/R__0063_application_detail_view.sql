@@ -33,8 +33,8 @@ SELECT
 , ppi.project_name pad_project_name
 , ppi.proposed_start_timestamp pad_proposed_start_timestamp
 , (
-    SELECT LISTAGG(COALESCE(df.field_name, pf.field_name_manual_entry), ';;;;') WITHIN GROUP(ORDER BY 1) -- this will do for now. might need to change as requirements become more specific.
-    FROM ${datasource.user}.pad_fields pf
+    SELECT LISTAGG(COALESCE(df.field_name, pf.area_name_manual_entry), ';;;;') WITHIN GROUP(ORDER BY 1) -- this will do for now. might need to change as requirements become more specific.
+    FROM ${datasource.user}.pad_linked_areas pf
     LEFT JOIN ${datasource.user}.devuk_fields df ON pf.field_id = df.field_id
     WHERE pf.application_detail_id = pad.id
   ) pad_field_name_list

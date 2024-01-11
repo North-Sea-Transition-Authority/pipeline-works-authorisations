@@ -112,6 +112,7 @@ public class ApplicationTaskServiceTest {
       case CAT_1_VARIATION:
         return EnumSet.of(
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
@@ -135,6 +136,7 @@ public class ApplicationTaskServiceTest {
       case DEPOSIT_CONSENT:
         return EnumSet.of(
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
@@ -148,6 +150,7 @@ public class ApplicationTaskServiceTest {
       case DECOMMISSIONING:
         return EnumSet.of(
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
@@ -168,6 +171,7 @@ public class ApplicationTaskServiceTest {
         return EnumSet.of(
             // pre-options approval tasks
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,
@@ -187,6 +191,7 @@ public class ApplicationTaskServiceTest {
       case CAT_2_VARIATION:
         return EnumSet.of(
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.ENVIRONMENTAL_DECOMMISSIONING,
@@ -206,6 +211,7 @@ public class ApplicationTaskServiceTest {
       case HUOO_VARIATION:
         return EnumSet.of(
             ApplicationTask.FIELD_INFORMATION,
+            ApplicationTask.CARBON_STORAGE_INFORMATION,
             ApplicationTask.APPLICATION_USERS,
             ApplicationTask.PROJECT_INFORMATION,
             ApplicationTask.FAST_TRACK,

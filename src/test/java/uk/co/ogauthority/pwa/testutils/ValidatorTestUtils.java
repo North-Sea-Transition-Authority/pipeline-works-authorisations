@@ -9,6 +9,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 /**
@@ -26,7 +28,7 @@ public class ValidatorTestUtils {
   public static Map<String, Set<String>> getFormValidationErrors(Validator validator, Object form) {
 
     var errors = new BeanPropertyBindingResult(form, "form");
-    ValidationUtils.invokeValidator(validator, form, errors);
+    ValidationUtils.invokeValidator(validator, form, errors, ValidationType.FULL, PwaResourceType.PETROLEUM);
 
     return errors.getFieldErrors().stream()
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));

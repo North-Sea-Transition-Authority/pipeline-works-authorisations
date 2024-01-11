@@ -74,7 +74,7 @@ public class ProjectInformationSummaryServiceTest {
         new ProjectInformationView(new PadProjectInformation(), false, null,
             Collections.emptyList()));
 
-    when(padProjectInformationService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType()))
+    when(padProjectInformationService.getRequiredQuestions(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getResourceType()))
         .thenReturn(Set.of());
 
     var appSummary = projectInformationSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);

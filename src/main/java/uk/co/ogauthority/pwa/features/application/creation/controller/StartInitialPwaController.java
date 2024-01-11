@@ -25,10 +25,7 @@ public class StartInitialPwaController {
    */
   @GetMapping
   public ModelAndView renderStartPage(@PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
-    var guideText = resourceType == PwaResourceType.HYDROGEN
-        ? "All new applications irrespective of pipeline lengths. "
-        : "All new fields irrespective of pipeline lengths. ";
-
+    var guideText = "All new projects irrespective of pipeline lengths. ";
     guideText += "This requires a 28 day Public Notice. This also includes cases where there are Median Line implications.";
 
     return new ModelAndView("pwaApplication/startPages/initial")

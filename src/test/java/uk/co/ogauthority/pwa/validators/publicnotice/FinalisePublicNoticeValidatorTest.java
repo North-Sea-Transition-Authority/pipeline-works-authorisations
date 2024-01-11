@@ -29,7 +29,7 @@ public class FinalisePublicNoticeValidatorTest {
   public void validate_form_empty() {
     var form = new FinalisePublicNoticeForm();
     form.setDaysToBePublishedFor(null);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, null);
     assertThat(errorsMap).containsOnly(
         entry("startDay", Set.of("startDay" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("startMonth", Set.of("startMonth" + FieldValidationErrorCodes.REQUIRED.getCode())),
@@ -45,7 +45,7 @@ public class FinalisePublicNoticeValidatorTest {
     form.setStartYear(2020);
     form.setDaysToBePublishedFor(28);
 
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, false);
     assertThat(errorsMap).isEmpty();
   }
 

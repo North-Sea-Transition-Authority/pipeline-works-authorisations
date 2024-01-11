@@ -102,7 +102,8 @@ public class PipelinesController {
         .addObject("bundleNameRestUrl", SearchSelectorService.route(on(PipelineRestController.class)
             .searchBundleNames(detail.getMasterPwaApplicationId(), null, null)))
         .addObject("requiredQuestions",
-            pipelineHeaderService.getRequiredQuestions(padPipeline, detail.getPwaApplicationType()));
+            pipelineHeaderService.getRequiredQuestions(padPipeline, detail.getPwaApplicationType()))
+        .addObject("resourceType", detail.getResourceType().name());
 
     breadcrumbService.fromPipelinesOverview(detail.getPwaApplication(), modelAndView,
         type.getSubmitButtonText() + " pipeline");

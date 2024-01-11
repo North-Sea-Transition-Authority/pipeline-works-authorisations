@@ -14,6 +14,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -52,6 +53,7 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
     Set<PwaApplicationPermission> requiredPermissions = getApplicationPermissionsCheck(methodParameter);
     Set<PwaApplicationStatus> appStatuses = ArgumentResolverUtils.getApplicationStatusCheck(methodParameter);
     Set<PwaApplicationType> applicationTypes = getApplicationTypeCheck(methodParameter);
+    Set<PwaResourceType> resourceTypes = getResourceTypeCheck(methodParameter);
 
     // blow up if no annotations used on controller
     if (requiredPermissions.isEmpty() && appStatuses.isEmpty() && applicationTypes.isEmpty()) {
@@ -62,6 +64,7 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
     var contextParams = new PwaApplicationContextParams(applicationId, authenticatedUser)
         .requiredAppStatuses(appStatuses)
         .requiredAppTypes(applicationTypes)
+        .requiredResourceTypes(resourceTypes)
         .requiredUserPermissions(requiredPermissions)
         .withPadPipelineId(ArgumentResolverUtils.resolveIdFromRequestOrNull(nativeWebRequest, "padPipelineId"))
         .withFileId(ArgumentResolverUtils.resolveStringFromRequestOrNull(nativeWebRequest, "fileId"));
@@ -92,6 +95,12 @@ public class PwaApplicationContextArgumentResolver implements HandlerMethodArgum
 
   private Set<PwaApplicationType> getApplicationTypeCheck(MethodParameter methodParameter) {
     return Optional.ofNullable(methodParameter.getContainingClass().getAnnotation(PwaApplicationTypeCheck.class))
+        .map(t -> Arrays.stream(t.types()).collect(Collectors.toSet()))
+        .orElse(Set.of());
+  }
+
+  private Set<PwaResourceType> getResourceTypeCheck(MethodParameter methodParameter) {
+    return Optional.ofNullable(methodParameter.getContainingClass().getAnnotation(PwaResourceTypeCheck.class))
         .map(t -> Arrays.stream(t.types()).collect(Collectors.toSet()))
         .orElse(Set.of());
   }

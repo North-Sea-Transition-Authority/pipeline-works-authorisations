@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -123,7 +124,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
           crossedBlock.getBlockReference(),
           crossedBlock.getLicence() != null ? crossedBlock.getLicence().getLicenceName() : "Unlicensed",
           ownerNameList,
-          CrossedBlockOwner.HOLDER.equals(crossedBlock.getBlockOwner())
+          CrossingOwner.HOLDER.equals(crossedBlock.getBlockOwner())
       );
       crossedBlockViewList.add(view);
     });
@@ -151,11 +152,11 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
     var ownerList = padCrossedBlockOwnerRepository.findByPadCrossedBlock(padCrossedBlock);
 
-    if (CrossedBlockOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
+    if (CrossingOwner.UNLICENSED.equals(padCrossedBlock.getBlockOwner())) {
 
       form.setBlockOwnersOuIdList(Collections.emptyList());
 
-    } else if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
+    } else if (CrossingOwner.PORTAL_ORGANISATION.equals(padCrossedBlock.getBlockOwner())) {
 
       var ownerOuIdList = ownerList.stream()
           .filter(o -> o.getOwnerOuId() != null)
@@ -166,7 +167,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
 
     }
 
-    form.setCrossedBlockOwner(padCrossedBlock.getBlockOwner());
+    form.setCrossingOwner(padCrossedBlock.getBlockOwner());
 
   }
 
@@ -204,7 +205,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   }
 
   private void mapEditFormBlockToEntity(PadCrossedBlock padCrossedBlock, EditBlockCrossingForm form) {
-    padCrossedBlock.setBlockOwner(form.getCrossedBlockOwner());
+    padCrossedBlock.setBlockOwner(form.getCrossingOwner());
   }
 
 
@@ -213,7 +214,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
     var createdBlockOwners = new ArrayList<PadCrossedBlockOwner>();
     // Each ouId will have been validated so we can assume everything is good for db persistence
     // only create owners when the owner type is not holder
-    if (CrossedBlockOwner.PORTAL_ORGANISATION.equals(form.getCrossedBlockOwner())) {
+    if (CrossingOwner.PORTAL_ORGANISATION.equals(form.getCrossingOwner())) {
       form.getBlockOwnersOuIdList().forEach(ouId ->
           createdBlockOwners.add(new PadCrossedBlockOwner(padCrossedBlock, ouId, null))
       );
@@ -251,7 +252,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   public boolean isDocumentsRequired(PwaApplicationDetail pwaApplicationDetail) {
     return !pwaApplicationDetail.getPwaApplicationType().equals(PwaApplicationType.DEPOSIT_CONSENT)
         && padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerNot(
-            pwaApplicationDetail, CrossedBlockOwner.HOLDER) > 0;
+            pwaApplicationDetail, CrossingOwner.HOLDER) > 0;
   }
 
   @Override

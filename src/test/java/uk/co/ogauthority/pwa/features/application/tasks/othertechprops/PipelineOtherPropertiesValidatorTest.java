@@ -10,6 +10,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -32,7 +34,16 @@ public class PipelineOtherPropertiesValidatorTest {
     var form = new PipelineOtherPropertiesForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
-        entry("phasesSelection[OIL]", Set.of("phasesSelection.required"))
+        entry("phasesSelection", Set.of("phasesSelection.required"))
+    );
+  }
+
+  @Test
+  public void validate_formPhases_emptyCCUS() {
+    var form = new PipelineOtherPropertiesForm();
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.CCUS);
+    assertThat(errorsMap).contains(
+        entry("phase", Set.of("phase.required"))
     );
   }
 
@@ -43,6 +54,14 @@ public class PipelineOtherPropertiesValidatorTest {
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).doesNotContain(entry("phasesSelection", Set.of("phasesSelection.required")));
+  }
+
+  @Test
+  public void validate_formPhases_validemptyCCUS() {
+    var form = new PipelineOtherPropertiesForm();
+    form.setOtherPhaseDescription("Plasma phase");
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.CCUS);
+    assertThat(errorsMap).isEmpty();
   }
 
   @Test

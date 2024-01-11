@@ -90,6 +90,14 @@ public class ProjectInformationEntityMappingService {
       }
     }
 
+    if (padProjectInformation.getCspOptionSelected() != null) {
+      form.setCspOptionSelected(padProjectInformation.getCspOptionSelected());
+      if (BooleanUtils.isTrue(padProjectInformation.getCspOptionSelected())) {
+        form.setCspConfirmationFlag(padProjectInformation.getCspConfirmationFlag());
+      } else if (BooleanUtils.isFalse(padProjectInformation.getCspOptionSelected())) {
+        form.setCspNotSelectedReason(padProjectInformation.getCspNotSelectedReason());
+      }
+    }
   }
 
 
@@ -172,6 +180,15 @@ public class ProjectInformationEntityMappingService {
         padProjectInformation.setFdpConfirmationFlag(form.getFdpConfirmationFlag());
       } else {
         padProjectInformation.setFdpNotSelectedReason(form.getFdpNotSelectedReason());
+      }
+    }
+
+    if (form.getCspOptionSelected() != null) {
+      padProjectInformation.setCspOptionSelected(form.getCspOptionSelected());
+      if (form.getCspOptionSelected()) {
+        padProjectInformation.setCspConfirmationFlag(form.getCspConfirmationFlag());
+      } else {
+        padProjectInformation.setCspNotSelectedReason(form.getCspNotSelectedReason());
       }
     }
   }

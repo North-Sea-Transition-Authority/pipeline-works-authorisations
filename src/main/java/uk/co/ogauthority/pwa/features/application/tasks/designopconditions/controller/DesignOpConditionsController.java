@@ -93,7 +93,8 @@ public class DesignOpConditionsController {
 
   private ModelAndView getAddDesignOpConditionsModelAndView(PwaApplicationDetail pwaApplicationDetail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/pipelinetechinfo/designOpConditionsForm")
-        .addObject("unitMeasurements", UnitMeasurement.toMap());
+        .addObject("unitMeasurements", UnitMeasurement.toMap())
+        .addObject("resourceType", pwaApplicationDetail.getResourceType().name());
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Design and operating conditions");

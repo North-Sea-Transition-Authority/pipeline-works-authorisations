@@ -119,8 +119,9 @@ public class AppConsentDocController {
         processingContext,
         () -> {
 
+          var docMnem = DocumentTemplateMnem.getMnemFromResourceType(processingContext.getApplicationDetail().getResourceType());
           var docInstanceOpt = documentService
-              .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT);
+              .getDocumentInstance(processingContext.getPwaApplication(), docMnem);
 
           var docView = docInstanceOpt
               .map(documentService::getDocumentViewForInstance)
@@ -189,8 +190,9 @@ public class AppConsentDocController {
 
     return whenPrepareConsentAvailable(processingContext, () -> {
 
+      var docMnem = DocumentTemplateMnem.getMnemFromResourceType(processingContext.getApplicationDetail().getResourceType());
       var docInstance = documentService
-          .getDocumentInstance(processingContext.getPwaApplication(), DocumentTemplateMnem.PWA_CONSENT_DOCUMENT)
+          .getDocumentInstance(processingContext.getPwaApplication(), docMnem)
           .orElseThrow(() -> new DocumentInstanceException(String.format("Couldn't find doc instance for app with id: %s",
               applicationId)));
 
@@ -364,9 +366,8 @@ public class AppConsentDocController {
                                               RedirectAttributes redirectAttributes,
                                               Supplier<ModelAndView> successSupplier) {
 
-    if (documentService.getDocumentInstance(processingContext.getPwaApplication(),
-        DocumentTemplateMnem.PWA_CONSENT_DOCUMENT).isEmpty()) {
-
+    var docMnem = DocumentTemplateMnem.getMnemFromResourceType(processingContext.getApplicationDetail().getResourceType());
+    if (documentService.getDocumentInstance(processingContext.getPwaApplication(), docMnem).isEmpty()) {
       FlashUtils.error(redirectAttributes, String.format("%s does not have a consent document to reload",
           processingContext.getPwaApplication().getAppReference()));
 

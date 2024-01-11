@@ -66,7 +66,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
     templateClauseManager = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE));
     caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_CASE_OFFICER));
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     documentView = new DocumentView(PwaDocumentType.TEMPLATE, docSource, docSource.getDocumentTemplateMnem());
 
@@ -121,7 +121,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddClauseAfter_correctPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager)))
         .andExpect(status().isOk());
 
@@ -131,7 +131,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddClauseAfter_wrongPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(caseOfficer)))
         .andExpect(status().isForbidden());
 
@@ -141,7 +141,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddClauseAfter_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1,null, null, null, null)))
+        .postAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1,null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf())
         .param("name", "name")
@@ -156,7 +156,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddClauseAfter_validationFail() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddClauseAfter(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1,null, null, null, null)))
+        .postAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1,null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -169,7 +169,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddClauseBefore_correctPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager)))
         .andExpect(status().isOk());
 
@@ -179,7 +179,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddClauseBefore_wrongPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(caseOfficer)))
         .andExpect(status().isForbidden());
 
@@ -189,7 +189,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddClauseBefore_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf())
         .param("name", "name")
@@ -204,7 +204,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddClauseBefore_validationFail() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddClauseBefore(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -217,7 +217,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddSubClauseFor_correctPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager)))
         .andExpect(status().isOk());
 
@@ -227,7 +227,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderAddSubClauseFor_wrongPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(caseOfficer)))
         .andExpect(status().isForbidden());
 
@@ -237,7 +237,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddSubClauseFor_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf())
         .param("name", "name")
@@ -252,7 +252,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postAddSubClauseFor_validationFail() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postAddSubClauseFor(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -265,7 +265,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderEditClause_correctPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager)))
         .andExpect(status().isOk());
 
@@ -275,7 +275,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderEditClause_wrongPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .renderEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(caseOfficer)))
         .andExpect(status().isForbidden());
 
@@ -285,7 +285,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postEditClause_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf())
         .param("name", "name")
@@ -300,7 +300,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postEditClause_validationFail() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postEditClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null, null, null)))
+        .postEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
@@ -319,7 +319,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
     when(docView.getSectionClauseView(1)).thenReturn(sectionView);
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null)))
+        .renderRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null)))
         .with(authenticatedUserAndSession(templateClauseManager)))
         .andExpect(status().isOk());
 
@@ -329,7 +329,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void renderRemoveClause_wrongPermission() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
-        .renderRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null)))
+        .renderRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null)))
         .with(authenticatedUserAndSession(caseOfficer)))
         .andExpect(status().isForbidden());
 
@@ -339,7 +339,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
   public void postRemoveClause_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
-        .postRemoveClause(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT, 1, null, null)))
+        .postRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
         .with(authenticatedUserAndSession(templateClauseManager))
         .with(csrf())
         .param("name", "name")

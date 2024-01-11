@@ -79,14 +79,14 @@ public class TaskListService {
         .stream()
         // filter out groups where no tasks in the group are shown
         .filter(applicationTaskGroup -> !SetUtils.intersection(
-            applicationTaskGroup.getApplicationTaskSet(),
+            applicationTaskGroup.getApplicationTaskSet(pwaApplicationDetail.getResourceType()),
             shownApplicationTasks
             ).isEmpty()
         )
         // for each group where tasks are shown, create a task list group object
         .map(applicationTaskGroup -> {
           // per group, filter out tasks that are not shown.
-          var visibleTasksInGroup = applicationTaskGroup.getTasks().stream()
+          var visibleTasksInGroup = applicationTaskGroup.getTasks(pwaApplicationDetail.getResourceType()).stream()
               .filter(o -> shownApplicationTasks.contains(o.getApplicationTask()))
               .collect(Collectors.toList());
 

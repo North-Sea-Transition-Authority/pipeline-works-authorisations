@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -28,6 +29,13 @@ public class PadPipelineTransferService {
   private final PadPipelineService padPipelineService;
   private final PadPipelineTransferClaimValidator padPipelineTransferClaimValidator;
   private final PipelineDetailService pipelineDetailService;
+
+  private static final Map<PwaResourceType, List<PwaResourceType>> claimableResourceTypes =
+      Map.of(
+          PwaResourceType.PETROLEUM, List.of(PwaResourceType.PETROLEUM),
+          PwaResourceType.HYDROGEN, List.of(PwaResourceType.HYDROGEN),
+          PwaResourceType.CCUS, List.of(PwaResourceType.PETROLEUM, PwaResourceType.CCUS)
+      );
 
   @Autowired
   public PadPipelineTransferService(PadPipelineTransferRepository transferRepository,
@@ -58,6 +66,11 @@ public class PadPipelineTransferService {
       var transfer = unclaimedTransfer.get();
       transfer.setRecipientApplicationDetail(recipientApplicationDetail);
       transfer.setRecipientPipeline(claimedPipeline.getPipeline());
+      transfer.setCompatibleWithTarget(form.isCompatibleWithTarget());
+      if (form.getLastIntelligentlyPigged() != null) {
+        transfer.setLastIntelligentlyPigged(DateUtils.datePickerStringToInstant(form.getLastIntelligentlyPigged()));
+      }
+
       transferRepository.save(transfer);
 
     }
@@ -65,7 +78,9 @@ public class PadPipelineTransferService {
 
   public Map<String, String> getClaimablePipelinesForForm(PwaResourceType resourceType) {
     var pipelineIds = transferRepository.findAllByRecipientApplicationDetailIsNull().stream()
-        .filter(padPipelineTransfer -> padPipelineTransfer.getDonorApplicationDetail().getResourceType().equals(resourceType))
+        .filter(padPipelineTransfer -> isClaimableResourceType(
+            padPipelineTransfer.getDonorApplicationDetail().getResourceType(),
+            resourceType))
         .map(padPipelineTransfer -> padPipelineTransfer.getDonorPipeline().getId())
         .collect(Collectors.toList());
 
@@ -77,8 +92,8 @@ public class PadPipelineTransferService {
         );
   }
 
-  public BindingResult validateClaimForm(PadPipelineTransferClaimForm form, BindingResult bindingResult) {
-    padPipelineTransferClaimValidator.validate(form, bindingResult);
+  public BindingResult validateClaimForm(PadPipelineTransferClaimForm form, BindingResult bindingResult, PwaResourceType resourceType) {
+    padPipelineTransferClaimValidator.validate(form, bindingResult, resourceType.name());
     return bindingResult;
   }
 
@@ -169,6 +184,10 @@ public class PadPipelineTransferService {
         .flatMap(map -> map.entrySet().stream())
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
+  }
+
+  private boolean isClaimableResourceType(PwaResourceType sourceResourceType, PwaResourceType targetResourceType) {
+    return claimableResourceTypes.get(targetResourceType).contains(sourceResourceType);
   }
 
 }

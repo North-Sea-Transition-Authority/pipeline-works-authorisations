@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineTransferView;
 
 public class PwaPipelineViewTestUtil {
 
@@ -59,7 +60,7 @@ public class PwaPipelineViewTestUtil {
     }
 
 
-    return PipelineDiffableSummary.from(new PipelineHeaderView(pipelineDetail, null, null), List.of(identView), null);
+    return PipelineDiffableSummary.from(new PipelineHeaderView(pipelineDetail, new PipelineTransferView()), List.of(identView), null);
   }
 
 

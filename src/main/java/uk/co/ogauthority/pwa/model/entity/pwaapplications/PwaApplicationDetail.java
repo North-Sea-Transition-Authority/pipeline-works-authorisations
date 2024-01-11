@@ -70,7 +70,7 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   private String confirmedSatisfactoryReason;
 
-  private Boolean isLinkedToField;
+  private Boolean isLinkedToArea;
 
   private String notLinkedDescription;
 
@@ -80,6 +80,8 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   private Boolean medianLineCrossed;
 
+  private Boolean csaCrossed;
+
   private Boolean submittedAsFastTrackFlag;
 
   private Integer numOfHolders;
@@ -88,6 +90,8 @@ public final class PwaApplicationDetail implements ParentEntity {
   private Set<PropertyPhase> pipelinePhaseProperties;
 
   private String otherPhaseDescription;
+
+  private String otherFluidDescription;
 
   private Boolean partnerLettersRequired;
 
@@ -228,12 +232,12 @@ public final class PwaApplicationDetail implements ParentEntity {
     this.confirmedSatisfactoryReason = confirmedSatisfactoryReason;
   }
 
-  public Boolean getLinkedToField() {
-    return isLinkedToField;
+  public Boolean getLinkedToArea() {
+    return isLinkedToArea;
   }
 
-  public void setLinkedToField(Boolean linkedToField) {
-    isLinkedToField = linkedToField;
+  public void setLinkedToArea(Boolean linkedToArea) {
+    isLinkedToArea = linkedToArea;
   }
 
   public Integer getMasterPwaApplicationId() {
@@ -308,6 +312,15 @@ public final class PwaApplicationDetail implements ParentEntity {
     this.medianLineCrossed = medianLineCrossed;
   }
 
+  public Boolean getCsaCrossed() {
+    return csaCrossed;
+  }
+
+  public PwaApplicationDetail setCsaCrossed(Boolean csaCrossed) {
+    this.csaCrossed = csaCrossed;
+    return this;
+  }
+
   public Boolean getSubmittedAsFastTrackFlag() {
     return submittedAsFastTrackFlag;
   }
@@ -339,6 +352,15 @@ public final class PwaApplicationDetail implements ParentEntity {
 
   public void setOtherPhaseDescription(String otherPhaseDescription) {
     this.otherPhaseDescription = otherPhaseDescription;
+  }
+
+  public String getOtherFluidDescription() {
+    return otherFluidDescription;
+  }
+
+  public PwaApplicationDetail setOtherFluidDescription(String otherFluidDescription) {
+    this.otherFluidDescription = otherFluidDescription;
+    return this;
   }
 
   public Boolean getPartnerLettersRequired() {
@@ -429,7 +451,7 @@ public final class PwaApplicationDetail implements ParentEntity {
         && Objects.equals(createdTimestamp, that.createdTimestamp)
         && Objects.equals(submittedByPersonId, that.submittedByPersonId)
         && Objects.equals(submittedTimestamp, that.submittedTimestamp)
-        && Objects.equals(isLinkedToField, that.isLinkedToField)
+        && Objects.equals(isLinkedToArea, that.isLinkedToArea)
         && Objects.equals(notLinkedDescription, that.notLinkedDescription)
         && Objects.equals(pipelinesCrossed, that.pipelinesCrossed)
         && Objects.equals(cablesCrossed, that.cablesCrossed)
@@ -452,7 +474,7 @@ public final class PwaApplicationDetail implements ParentEntity {
   public int hashCode() {
     return Objects.hash(id, pwaApplication, tipFlag, versionNo, status, statusLastModifiedTimestamp,
         statusLastModifiedByWuaId, createdByWuaId, createdTimestamp, submittedByPersonId, submittedTimestamp,
-        isLinkedToField, notLinkedDescription, pipelinesCrossed, cablesCrossed, medianLineCrossed,
+        isLinkedToArea, notLinkedDescription, pipelinesCrossed, cablesCrossed, medianLineCrossed,
         submittedAsFastTrackFlag, numOfHolders, pipelinePhaseProperties, otherPhaseDescription, partnerLettersRequired,
         partnerLettersConfirmed, supplementaryDocumentsFlag, withdrawalTimestamp, withdrawalReason,
         withdrawingPersonId, deletedTimestamp, deletingPersonId);

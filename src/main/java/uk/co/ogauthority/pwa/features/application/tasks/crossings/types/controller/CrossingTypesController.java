@@ -65,7 +65,8 @@ public class CrossingTypesController {
   }
 
   private ModelAndView createModelAndView(PwaApplicationDetail pwaApplicationDetail) {
-    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/crossingTypes");
+    var modelAndView = new ModelAndView("pwaApplication/shared/crossings/crossingTypes")
+        .addObject("resourceType", pwaApplicationDetail.getResourceType().name());
     applicationBreadcrumbService.fromCrossings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         CrossingAgreementTask.CROSSING_TYPES.getDisplayText());
     return modelAndView;
@@ -91,7 +92,7 @@ public class CrossingTypesController {
                                ValidationType validationType) {
     var detail = applicationContext.getApplicationDetail();
     if (validationType.equals(ValidationType.FULL)) {
-      crossingTypesFormValidator.validate(form, bindingResult);
+      crossingTypesFormValidator.validate(form, bindingResult, detail.getResourceType());
     }
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, createModelAndView(detail), () -> {
       pwaApplicationDetailService.updateCrossingTypes(detail, form);

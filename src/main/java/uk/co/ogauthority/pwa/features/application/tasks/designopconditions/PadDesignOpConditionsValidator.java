@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -49,6 +50,7 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
   public void validate(Object o, Errors errors, Object... validationHints) {
     var form = (DesignOpConditionsForm) o;
     var validationType = (ValidationType) validationHints[0];
+    var resourceType = (PwaResourceType) validationHints[1];
 
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "temperatureOpMinMax",
         form.getTemperatureOpMinMax(), "temperature operating conditions", List.of(), List.of(new IntegerHint()), validationType);
@@ -69,6 +71,12 @@ public class PadDesignOpConditionsValidator implements SmartValidator {
     ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "flowrateDesignMinMax",
         form.getFlowrateDesignMinMax(), "flowrate design conditions",
         List.of(), List.of(new DecimalPlacesHint(2)), validationType);
+
+    if (resourceType.equals(PwaResourceType.CCUS)) {
+      ValidatorUtils.invokeNestedValidator(errors, minMaxInputValidator, "co2Density",
+          form.getCo2Density(), "CO2 operational density",
+          List.of(), List.of(new DecimalPlacesHint(2)), validationType);
+    }
 
     validateStringLength(errors, form.getPressureDesignMax(), "pressureDesignMax", "pressure design conditions");
     validateStringLength(errors, form.getUvalueDesign(), "uvalueDesign", "U-value design conditions");

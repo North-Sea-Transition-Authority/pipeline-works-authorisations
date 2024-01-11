@@ -19,6 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
+import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineTransferView;
 
 public class PipelineDetailTestUtil {
 
@@ -58,14 +59,14 @@ public class PipelineDetailTestUtil {
   public static PipelineOverview createPipelineOverview(String referenceId) {
     PadPipeline padPipeline = createPadPipeline();
     var pipelineDetail = createPipelineDetail(padPipeline, referenceId);
-    return new PipelineHeaderView(pipelineDetail, null, null);
+    return new PipelineHeaderView(pipelineDetail, new PipelineTransferView());
   }
 
   public static PipelineOverview createPipelineOverview(String referenceId, PipelineStatus pipelineStatus) {
     PadPipeline padPipeline = createPadPipeline();
     var pipelineDetail = createPipelineDetail(padPipeline, referenceId);
     pipelineDetail.setPipelineStatus(pipelineStatus);
-    return new PipelineHeaderView(pipelineDetail, null, null);
+    return new PipelineHeaderView(pipelineDetail, new PipelineTransferView());
   }
 
   public static PipelineOverview createPipelineOverviewWithAsBuiltStatus(String referenceId, PipelineStatus pipelineStatus,

@@ -107,4 +107,20 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
     verify(validator).validate(any(), any());
     verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaResourceType.PETROLEUM);
   }
+
+  @Test
+  public void postResourceScreen_validCCUS() throws Exception {
+    var form = new PwaResourceTypeForm();
+    form.setResourceType(PwaResourceType.CCUS);
+
+    var bindingResult = new BeanPropertyBindingResult(form, "form");
+
+    mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
+        .postResourceType(form, bindingResult, null)))
+        .with(authenticatedUserAndSession(user))
+        .with(csrf())
+        .param("resourceType", PwaResourceType.CCUS.name()));
+    verify(validator).validate(any(), any());
+    verify(pwaApplicationRedirectService).getStartApplicationRedirect(PwaResourceType.CCUS);
+  }
 }

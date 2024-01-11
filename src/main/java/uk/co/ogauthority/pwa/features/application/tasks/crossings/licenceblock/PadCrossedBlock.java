@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -43,7 +44,7 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
   private String blockNumber;
 
   @Enumerated(EnumType.STRING)
-  private CrossedBlockOwner blockOwner;
+  private CrossingOwner blockOwner;
 
   private String suffix;
   private BlockLocation location;
@@ -145,11 +146,11 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
     this.createdInstant = createdInstant;
   }
 
-  public CrossedBlockOwner getBlockOwner() {
+  public CrossingOwner getBlockOwner() {
     return blockOwner;
   }
 
-  public void setBlockOwner(CrossedBlockOwner blockOwner) {
+  public void setBlockOwner(CrossingOwner blockOwner) {
     this.blockOwner = blockOwner;
   }
 

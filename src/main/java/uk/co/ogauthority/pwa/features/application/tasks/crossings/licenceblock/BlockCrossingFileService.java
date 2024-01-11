@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -32,7 +33,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
     // return 'true' for full validation if non holder organisations listed as crossed block owners
     return padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetailAndBlockOwnerIn(
         pwaApplicationDetail,
-        List.of(CrossedBlockOwner.PORTAL_ORGANISATION)
+        List.of(CrossingOwner.PORTAL_ORGANISATION)
     ) > 0;
   }
 

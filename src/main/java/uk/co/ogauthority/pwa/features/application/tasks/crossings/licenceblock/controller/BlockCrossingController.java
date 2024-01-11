@@ -23,12 +23,12 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingUrlFactory;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.CrossedBlockOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.EditBlockCrossingFormValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.PadCrossedBlock;
@@ -245,7 +245,7 @@ public class BlockCrossingController {
         .collect(StreamUtils.toLinkedHashMap(o ->
             String.valueOf(o.getOrgUnitId()), PortalOrganisationSearchUnit::getOrgSearchableUnitName));
 
-    modelAndView.addObject("crossedBlockOwnerOptions", CrossedBlockOwner.asList());
+    modelAndView.addObject("crossedBlockOwnerOptions", CrossingOwner.asList());
     modelAndView.addObject("orgUnits", sortedOrganisationUnits);
     modelAndView.addObject("backUrl", ReverseRouter.route(on(BlockCrossingController.class)
         .renderBlockCrossingOverview(context.getApplicationType(), context.getMasterPwaApplicationId(), null, null)));

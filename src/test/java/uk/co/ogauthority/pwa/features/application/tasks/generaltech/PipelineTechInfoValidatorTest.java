@@ -28,7 +28,7 @@ public class PipelineTechInfoValidatorTest {
     var form = new PipelineTechInfoForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
-        entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")),
+        entry("estimatedAssetLife", Set.of("estimatedAssetLife.required")),
         entry("pipelineDesignedToStandards", Set.of("pipelineDesignedToStandards.required")),
         entry("corrosionDescription", Set.of("corrosionDescription.required")),
         entry("plannedPipelineTieInPoints", Set.of("plannedPipelineTieInPoints.required"))
@@ -47,7 +47,7 @@ public class PipelineTechInfoValidatorTest {
 
   private PipelineTechInfoForm getFullForm() {
     var form = new PipelineTechInfoForm();
-    form.setEstimatedFieldLife(5);
+    form.setEstimatedAssetLife(5);
     form.setPipelineDesignedToStandards(true);
     form.setPipelineStandardsDescription("description");
     form.setCorrosionDescription("description");
@@ -137,39 +137,52 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_estimatedFieldLife_negativeNumber_invalid() {
+  public void validate_estimatedAssetLife_negativeNumber_invalid() {
     var form = getFullForm();
-    form.setEstimatedFieldLife(-1);
+    form.setEstimatedAssetLife(-1);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
     assertThat(errorsMap).containsOnly(
-        entry("estimatedFieldLife", Set.of("estimatedFieldLife.valueOutOfRange"))
+        entry("estimatedAssetLife", Set.of("estimatedAssetLife.valueOutOfRange"))
     );
   }
 
   @Test
-  public void validate_estimatedFieldLife_zero_invalid() {
+  public void validate_estimatedAssetLife_zero_invalid() {
     var form = getFullForm();
-    form.setEstimatedFieldLife(0);
+    form.setEstimatedAssetLife(0);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
 
     assertThat(errorsMap).containsOnly(
-        entry("estimatedFieldLife", Set.of("estimatedFieldLife.valueOutOfRange"))
+        entry("estimatedAssetLife", Set.of("estimatedAssetLife.valueOutOfRange"))
     );
   }
 
   @Test
-  public void validate_estimatedFieldLife_NullHydrogen() {
+  public void validate_estimatedAssetLife_NullHydrogen() {
     var form = getFullForm();
     form.setCorrosionDescription(null);
-    form.setEstimatedFieldLife(null);
+    form.setEstimatedAssetLife(null);
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.HYDROGEN);
 
     assertThat(errorsMap)
         .isNotEmpty()
-        .doesNotContain(entry("estimatedFieldLife", Set.of("estimatedFieldLife.required")));
+        .doesNotContain(entry("estimatedAssetLife", Set.of("estimatedAssetLife.required")));
+  }
+
+  @Test
+  public void validate_estimatedAssetLife_NullCcus() {
+    var form = getFullForm();
+    form.setCorrosionDescription(null);
+    form.setEstimatedAssetLife(null);
+
+    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.CCUS);
+
+    assertThat(errorsMap)
+        .isNotEmpty()
+        .contains(entry("estimatedAssetLife", Set.of("estimatedAssetLife.required")));
   }
 }

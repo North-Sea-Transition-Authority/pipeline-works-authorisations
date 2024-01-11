@@ -41,13 +41,14 @@ public class DocumentViewTest {
     var person = PersonTestUtil.createDefaultPerson();
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
+    var docSpec = DocumentSpec.getSpecForApplication(detail.getPwaApplicationType(), detail.getResourceType());
     var clauseDtos = SectionClauseVersionDtoTestUtils
-        .getTemplateSectionClauseVersionDtoList(1, detail.getPwaApplicationType().getConsentDocumentSpec(), clock, person, 2, 3, 3)
+        .getTemplateSectionClauseVersionDtoList(1, docSpec, clock, person, 2, 3, 3)
         .stream()
         .map(SectionClauseVersionDto.class::cast)
         .collect(Collectors.toList());
 
-    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_APP_CONSENT_DOCUMENT);
+    var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
     var docView = documentViewService.createDocumentView(PwaDocumentType.TEMPLATE, docSource, clauseDtos);
 

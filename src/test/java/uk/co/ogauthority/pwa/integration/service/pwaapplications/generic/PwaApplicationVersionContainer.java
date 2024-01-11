@@ -18,9 +18,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPi
 import uk.co.ogauthority.pwa.features.application.tasks.designopconditions.PadDesignOpConditions;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.PadEnvironmentalDecommissioning;
 import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrack;
-import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadField;
-import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.Chemical;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadLinkedArea;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.PadFluidCompositionInfo;
+import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.generaltech.PadPipelineTechInfo;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRole;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacility;
@@ -65,7 +65,7 @@ public class PwaApplicationVersionContainer {
 
   private List<PadFacility> padFacilities;
 
-  private List<PadField> padFields;
+  private List<PadLinkedArea> padLinkedAreas;
 
   private List<PadCrossedBlockOwner> padCrossedBlockOwners;
 
@@ -179,12 +179,12 @@ public class PwaApplicationVersionContainer {
     this.padCampaignWorksPipeline = padCampaignWorksPipeline;
   }
 
-  public List<PadField> getPadFields() {
-    return padFields;
+  public List<PadLinkedArea> getPadFields() {
+    return padLinkedAreas;
   }
 
-  public void setPadFields(List<PadField> padFields) {
-    this.padFields = padFields;
+  public void setPadFields(List<PadLinkedArea> padLinkedAreas) {
+    this.padLinkedAreas = padLinkedAreas;
   }
 
   public PadEnvironmentalDecommissioning getPadEnvironmentalDecommissioning() {

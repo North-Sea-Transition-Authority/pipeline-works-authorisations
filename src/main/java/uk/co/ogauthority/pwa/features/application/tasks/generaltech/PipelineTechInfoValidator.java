@@ -38,12 +38,12 @@ public class PipelineTechInfoValidator implements SmartValidator {
       var resourceType = Arrays.stream(validationHints)
           .filter(hint -> hint instanceof PwaResourceType)
           .findFirst();
-      if (resourceType.orElse(PwaResourceType.PETROLEUM).equals(PwaResourceType.PETROLEUM)) {
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedFieldLife", "estimatedFieldLife.required",
-            "Enter a valid year for the estimated field life");
+      if (!resourceType.orElse(PwaResourceType.PETROLEUM).equals(PwaResourceType.HYDROGEN)) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "estimatedAssetLife", "estimatedAssetLife.required",
+            "Enter a valid year for the estimated life of the asset");
 
-        if (form.getEstimatedFieldLife() != null && form.getEstimatedFieldLife() <= 0) {
-          errors.rejectValue("estimatedFieldLife", "estimatedFieldLife.valueOutOfRange", "Enter a value greater than 0");
+        if (form.getEstimatedAssetLife() != null && form.getEstimatedAssetLife() <= 0) {
+          errors.rejectValue("estimatedAssetLife", "estimatedAssetLife.valueOutOfRange", "Enter a value greater than 0");
         }
       }
 
