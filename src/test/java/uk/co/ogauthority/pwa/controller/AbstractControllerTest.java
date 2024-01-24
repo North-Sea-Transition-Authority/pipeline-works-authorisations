@@ -24,6 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
@@ -46,7 +47,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @ActiveProfiles("test")
 @EnableConfigurationProperties(value = {
     AnalyticsProperties.class,
-    AnalyticsConfig.class
+    AnalyticsConfig.class,
+    ExternalApiConfiguration.class
 })
 @Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfigurationProperties.class})
 public abstract class AbstractControllerTest {
