@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -24,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.config.ExternalApiAuthenticationEntryPoint;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
@@ -47,8 +49,7 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @ActiveProfiles("test")
 @EnableConfigurationProperties(value = {
     AnalyticsProperties.class,
-    AnalyticsConfig.class,
-    ExternalApiConfiguration.class
+    AnalyticsConfig.class
 })
 @Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfigurationProperties.class})
 public abstract class AbstractControllerTest {
@@ -111,6 +112,7 @@ public abstract class AbstractControllerTest {
   }
 
   @TestConfiguration
+  @EnableConfigurationProperties(ExternalApiConfiguration.class)
   public static class AbstractControllerTestConfiguration {
 
     @Bean
@@ -152,6 +154,10 @@ public abstract class AbstractControllerTest {
           "emtMnemonic");
     }
 
+    @Bean
+    public ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint() {
+      return new ExternalApiAuthenticationEntryPoint(new ObjectMapper());
+    }
   }
 
 }

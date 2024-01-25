@@ -3,28 +3,28 @@ package uk.co.ogauthority.pwa.externalapi;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PipelineDto {
-  private final Integer pipelineId;
-  private final String pipelineNumber;
-  private final String pwaReference;
+  private final Integer id;
+  private final String number;
+  private final PwaDto pwa;
 
-  public PipelineDto(Integer pipelineId, String pipelineNumber, String pwaReference) {
-    this.pipelineId = pipelineId;
-    this.pipelineNumber = pipelineNumber;
-    this.pwaReference = pwaReference;
+  public PipelineDto(Integer id, String number, String pwaReference) {
+    this.id = id;
+    this.number = number;
+    this.pwa = new PwaDto(pwaReference);
   }
 
   @JsonProperty
-  public Integer getPipelineId() {
-    return pipelineId;
+  public Integer getId() {
+    return id;
   }
 
   @JsonProperty
-  public String getPipelineNumber() {
-    return pipelineNumber;
+  public String getNumber() {
+    return number;
   }
 
   @JsonProperty
-  public String getPwaReference() {
-    return pwaReference;
+  public PwaDto getPwa() {
+    return pwa;
   }
 }
