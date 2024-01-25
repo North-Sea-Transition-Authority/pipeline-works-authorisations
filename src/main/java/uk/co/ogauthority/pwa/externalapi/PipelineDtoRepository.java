@@ -81,7 +81,9 @@ class PipelineDtoRepository {
         masterPwaPipelineJoin.get(Pipeline_.id),
         pipelinePipelineDetailJoin.get(PipelineDetail_.pipelineNumber),
         masterPwaMasterPwaDetailJoin.get(MasterPwaDetail_.reference)
-    ).where(predicates.toArray(new Predicate[0]));
+    )
+    .where(predicates.toArray(new Predicate[0]))
+    .orderBy(criteriaBuilder.asc(masterPwaPipelineJoin.get(Pipeline_.id)));
 
     return entityManager.createQuery(criteriaQuery).getResultList();
   }
