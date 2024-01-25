@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.externalapi;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -62,5 +63,14 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(resultJson));
+  }
+
+  @Test
+  public void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
+    mockMvc.perform(post(
+            ReverseRouter.route(on(PipelineDtoController.class)
+                .searchPipelines(null, null, null))))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
 }
