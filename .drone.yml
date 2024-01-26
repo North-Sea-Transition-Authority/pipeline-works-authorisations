@@ -24,13 +24,21 @@ steps:
       - npx gulp buildAll
 
   - name: build-backend
+    image: openjdk:11-jdk-slim
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
+
+  - name: code-analysis
     image: eclipse-temurin:17-jdk
     environment:
       SONARCLOUD_TOKEN:
         from_secret: SONARCLOUD_TOKEN
     commands:
       - chmod +x gradlew
-      - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar sonarqube
+      - ./gradlew sonarqube
 
   - name: publish-docker-develop
     image: plugins/docker:19.03.8
