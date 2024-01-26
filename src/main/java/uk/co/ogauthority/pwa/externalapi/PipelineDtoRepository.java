@@ -37,7 +37,7 @@ class PipelineDtoRepository {
     var criteriaQuery = criteriaBuilder.createQuery(PipelineDto.class);
 
     Root<MasterPwa> masterPwaRoot = criteriaQuery.from(MasterPwa.class);
-    Join<MasterPwa, MasterPwaDetail> masterPwaMasterPwaDetailJoin = masterPwaRoot.join(MasterPwa_.PIPELINES);
+    Join<MasterPwa, MasterPwaDetail> masterPwaMasterPwaDetailJoin = masterPwaRoot.join(MasterPwa_.MASTER_PWA_DETAILS);
     Join<MasterPwa, Pipeline> masterPwaPipelineJoin = masterPwaRoot.join(MasterPwa_.PIPELINES);
     Join<Pipeline, PipelineDetail> pipelinePipelineDetailJoin = masterPwaPipelineJoin.join(Pipeline_.PIPELINE_DETAILS);
 
