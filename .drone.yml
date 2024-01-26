@@ -24,7 +24,7 @@ steps:
       - npx gulp buildAll
 
   - name: build-backend
-    image: openjdk:11-jdk-slim
+    image: eclipse-temurin:17-jdk
     environment:
       SONARCLOUD_TOKEN:
         from_secret: SONARCLOUD_TOKEN
