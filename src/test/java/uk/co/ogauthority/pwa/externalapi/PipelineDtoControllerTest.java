@@ -48,7 +48,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
 
     var resultJson = MAPPER.writeValueAsString(result);
 
-    when(pipelineDtoRepository.searchPipelineDtos(
+    when(pipelineDtoRepository.searchPipelines(
         List.of(pipelineId),
         pipelineNumber,
         pwaReference

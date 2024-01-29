@@ -30,10 +30,6 @@ public class PipelineDtoRepositoryTest {
   @Autowired
   private TestEntityManager entityManager;
 
-  private PipelineDtoRepository pipelineDtoRepository;
-
-  private MasterPwa pwa;
-
   private MasterPwaDetail pwaDetail;
 
   private Pipeline pipeline;
@@ -41,11 +37,13 @@ public class PipelineDtoRepositoryTest {
   private PipelineDetail pipelineDetail;
   private PipelineDetail secondPipelineDetail;
 
+  @Autowired
+  PipelineDtoRepository pipelineDtoRepository;
+
   @Before
   public void setUp() {
-    pipelineDtoRepository = new PipelineDtoRepository(entityManager.getEntityManager());
 
-    pwa = new MasterPwa();
+    var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
     entityManager.persist(pwa);
     entityManager.persist(secondPwa);
@@ -78,7 +76,7 @@ public class PipelineDtoRepositoryTest {
   @Test
   public void searchPipelines_searchByPipelineId() {
     var searchedIds = List.of(pipeline.getId());
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelineDtos(searchedIds, null, null);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(searchedIds, null, null);
 
     assertThat(resultingPipelineDtos)
         .extracting(PipelineDto::getId)
@@ -88,7 +86,7 @@ public class PipelineDtoRepositoryTest {
   @Test
   public void searchPipelines_searchByPipelineNumber() {
     var pipelineNumber = "pipeline num";
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelineDtos(null, pipelineNumber, null);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
 
     assertThat(resultingPipelineDtos)
         .extracting(PipelineDto::getNumber)
@@ -98,7 +96,7 @@ public class PipelineDtoRepositoryTest {
   @Test
   public void searchPipelines_searchByPwaReference() {
     var pwaReference = "reference";
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelineDtos(null, null, pwaReference);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaReference);
 
     assertThat(resultingPipelineDtos)
         .extracting(pipelineDto -> pipelineDto.getPwa().getReference())
@@ -107,7 +105,7 @@ public class PipelineDtoRepositoryTest {
 
   @Test
   public void searchPipelines_whenAllNull_assertAllPipelinesReturned() {
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelineDtos(null, null, null);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, null);
 
     assertThat(resultingPipelineDtos)
         .extracting(PipelineDto::getId)
@@ -117,7 +115,7 @@ public class PipelineDtoRepositoryTest {
   @Test
   public void searchPipelines_orderedByPipelineId() {
     var ids = List.of(secondPipelineDetail.getPipeline().getId(), pipeline.getId());
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelineDtos(ids, null, null);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(ids, null, null);
 
     var resultingPipelineIds = resultingPipelineDtos.stream()
         .map(PipelineDto::getId)

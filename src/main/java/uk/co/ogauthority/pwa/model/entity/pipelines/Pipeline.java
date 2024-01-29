@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
-import java.util.List;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -8,7 +7,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -27,13 +25,6 @@ public class Pipeline {
   @ManyToOne
   @JoinColumn(name = "pwa_id")
   private MasterPwa masterPwa;
-
-  /**
-   * One-to-many relationships like this should generally be avoided, this relationship exists purely to allow the
-   * Criteria API to be able to find associated data, and should not be used anywhere else.
-   */
-  @OneToMany(mappedBy = "pipeline")
-  private List<PipelineDetail> pipelineDetails;
 
   public Pipeline() {
   }

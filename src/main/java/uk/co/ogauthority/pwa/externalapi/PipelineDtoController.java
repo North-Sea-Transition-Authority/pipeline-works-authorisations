@@ -26,6 +26,6 @@ public class PipelineDtoController {
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
                                     @RequestParam(name = "number", required = false) String number,
                                     @RequestParam(name = "pwaReference", required = false) String pwaReference)    {
-    return pipelineDtoRepository.searchPipelineDtos(ids, number, pwaReference);
+    return pipelineDtoRepository.searchPipelines(ids, number, pwaReference);
   }
 }
