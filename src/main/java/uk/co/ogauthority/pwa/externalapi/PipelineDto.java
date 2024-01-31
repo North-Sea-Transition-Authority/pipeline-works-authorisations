@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PipelineDto {
   private final Integer id;
-  private final String number;
+  private final String pipelineNumber;
   private final PwaDto pwa;
 
-  public PipelineDto(Integer id, String number, String pwaReference) {
+  public PipelineDto(Integer id, String pipelineNumber, String pwaReference) {
     this.id = id;
-    this.number = number;
+    this.pipelineNumber = pipelineNumber;
     this.pwa = new PwaDto(pwaReference);
   }
 
@@ -19,8 +19,8 @@ public class PipelineDto {
   }
 
   @JsonProperty
-  public String getNumber() {
-    return number;
+  public String getPipelineNumber() {
+    return pipelineNumber;
   }
 
   @JsonProperty
