@@ -1,4 +1,4 @@
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const postcss = require('gulp-postcss');
 const gulp = require('gulp');
 const sourcemaps = require('gulp-sourcemaps');

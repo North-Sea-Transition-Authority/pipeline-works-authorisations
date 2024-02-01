@@ -8,7 +8,7 @@
 * Git Bash
 * Java v11 - ([Recommended Library - Adoptium](https://adoptium.net/temurin/releases))
 * Python v2.7 - ([Official Download](https://www.python.org/downloads/release/python-278/))
-* Node LTS + NPM v12 - ([Official Download](https://nodejs.org/download/release/v12.22.12/))
+* Node LTS + NPM v18 - ([Official Download](https://nodejs.org/download/release/v12.22.12/))
 * Docker
 
 #### Permissions / Project Access
@@ -48,13 +48,13 @@ Output should claim build succesfull.
 To create the flyway user for the first time:
 * Open Toad and connect to:
 
-  | Connection Credentials      |                      |
-  |-----------------------------|----------------------|
-  | User schema:                | xviewmgr             |
-  | Password:                   |                      |
-  | Host:                       | db1.dev.fivium.local | 
-  | Port:                       | 1521                 |
-  | SID:                        | OGADEV1              |
+  | Connection Credentials      |                     |
+  |-----------------------------|---------------------|
+  | User schema:                | xviewmgr            |
+  | Password:                   |                     |
+  | Host:                       | db-ogadev1.sb2.dev | 
+  | Port:                       | 1521                |
+  | SID:                        | OGADEV1             |
 
 
 * Run the below script to create your user 

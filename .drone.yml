@@ -18,7 +18,7 @@ steps:
       - cd ..
 
   - name: build-frontend
-    image: node:14
+    image: node:18
     commands:
       - npm install
       - npx gulp buildAll
