@@ -31,7 +31,7 @@ steps:
     commands:
       - chmod +x gradlew
       - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
-      
+
   - name: sonarqube
     image: eclipse-temurin:17-jdk
     environment:
