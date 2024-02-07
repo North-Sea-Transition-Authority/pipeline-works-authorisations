@@ -89,7 +89,7 @@ public class PipelineDtoRepositoryTest {
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
 
     assertThat(resultingPipelineDtos)
-        .extracting(PipelineDto::getNumber)
+        .extracting(PipelineDto::getPipelineNumber)
         .containsExactly(pipelineDetail.getPipelineNumber(), secondPipelineDetail.getPipelineNumber());
   }
 
