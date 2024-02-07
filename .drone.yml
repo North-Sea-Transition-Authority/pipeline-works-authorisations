@@ -18,7 +18,7 @@ steps:
       - cd ..
 
   - name: build-frontend
-    image: node:14
+    image: node:18
     commands:
       - npm install
       - npx gulp buildAll
@@ -26,12 +26,13 @@ steps:
   - name: build-backend
     image: openjdk:11-jdk-slim
     environment:
-      GRADLE_USER_HOME: /drone/src/gradle_cache
+      SONARCLOUD_TOKEN:
+        from_secret: SONARCLOUD_TOKEN
     commands:
       - chmod +x gradlew
       - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
 
-  - name: code-analysis
+  - name: sonarqube
     image: eclipse-temurin:17-jdk
     environment:
       SONARCLOUD_TOKEN:
@@ -47,6 +48,7 @@ steps:
       repo: quay.io/fivium/pipeline-works-authorisations
       tags:
         - develop
+        - develop-${DRONE_BUILD_NUMBER}
       config:
         from_secret: docker_config
     when:
