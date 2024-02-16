@@ -84,9 +84,16 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPipelineNumber() {
-    var pipelineNumber = "pipeline num";
+  public void searchPipelines_searchByPipelineNumber_nonCaseSensitive() {
+    var pipelineNumber = "PIPELINE NUM";
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(PipelineDto::getPipelineNumber)
+        .containsExactly(pipelineDetail.getPipelineNumber(), secondPipelineDetail.getPipelineNumber());
+
+    pipelineNumber = "pipeline num";
+    resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
 
     assertThat(resultingPipelineDtos)
         .extracting(PipelineDto::getPipelineNumber)
@@ -94,9 +101,16 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPwaReference() {
-    var pwaReference = "reference";
+  public void searchPipelines_searchByPwaReference_nonCaseSensitive() {
+    var pwaReference = "REFERENCE";
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaReference);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(pipelineDto -> pipelineDto.getPwa().getReference())
+        .containsExactly(pwaDetail.getReference());
+
+    pwaReference = "reference";
+    resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaReference);
 
     assertThat(resultingPipelineDtos)
         .extracting(pipelineDto -> pipelineDto.getPwa().getReference())
