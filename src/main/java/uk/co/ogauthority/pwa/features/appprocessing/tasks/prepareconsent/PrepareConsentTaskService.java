@@ -68,6 +68,17 @@ public class PrepareConsentTaskService implements AppProcessingService {
       return TaskState.LOCK;
     }
 
+    var detail = processingContext.getApplicationDetail();
+    boolean isOptions = detail.getPwaApplicationType() == PwaApplicationType.OPTIONS_VARIATION;
+    boolean optionsApprovedAndWorkDonePerOption = approveOptionsService.getOptionsApprovalStatus(detail).isConsentedOptionConfirmed();
+
+    boolean optionsAppAndOptionsNotApprovedOrWorkNotDonePerOption = isOptions && !optionsApprovedAndWorkDonePerOption;
+
+    // can only enter the task if work done per approved options
+    if (optionsAppAndOptionsNotApprovedOrWorkNotDonePerOption) {
+      return TaskState.LOCK;
+    }
+
     /* assigned case officer only has access  to task at case officer review stage if there is at least one
     satisfactory version of the application*/
     if (appInvolvement.isUserAssignedCaseOfficer()
