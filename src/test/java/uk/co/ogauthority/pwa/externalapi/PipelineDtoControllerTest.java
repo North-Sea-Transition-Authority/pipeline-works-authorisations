@@ -37,12 +37,14 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
     var pipelineId  = 1;
     var pipelineNumber = "PL123";
     var pwaReference = "10/W//12";
+    var pwaId = 2;
 
     var result = List.of(
         PipelineDtoTestUtil.builder()
             .withId(pipelineId)
             .withNumber(pipelineNumber)
             .withPwaReference(pwaReference)
+            .withPwaId(pwaId)
             .build()
     );
 
@@ -51,6 +53,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
     when(pipelineDtoRepository.searchPipelines(
         List.of(pipelineId),
         pipelineNumber,
+        List.of(pwaId),
         pwaReference
     )).thenReturn(result);
 
@@ -58,6 +61,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
         ReverseRouter.route(on(PipelineDtoController.class).searchPipelines(
             Collections.singletonList(pipelineId),
             pipelineNumber,
+            List.of(pwaId),
             pwaReference
         ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())
@@ -69,7 +73,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   public void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PipelineDtoController.class)
-                .searchPipelines(null, null, null))))
+                .searchPipelines(null, null, null, null))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }

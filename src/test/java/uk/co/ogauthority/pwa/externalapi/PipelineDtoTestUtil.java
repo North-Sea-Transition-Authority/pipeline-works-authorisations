@@ -12,6 +12,7 @@ class PipelineDtoTestUtil {
 
     private Integer id;
     private String number;
+    private Integer pwaId;
     private String pwaReference;
 
     public Builder withId(Integer id) {
@@ -24,6 +25,11 @@ class PipelineDtoTestUtil {
       return this;
     }
 
+    public Builder withPwaId(Integer id) {
+      this.pwaId = id;
+      return this;
+    }
+
     public Builder withPwaReference(String pwaReference) {
       this.pwaReference = pwaReference;
       return this;
@@ -33,6 +39,7 @@ class PipelineDtoTestUtil {
       return new PipelineDto(
           id,
           number,
+          pwaId,
           pwaReference
       );
     }

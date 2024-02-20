@@ -7,10 +7,10 @@ public class PipelineDto {
   private final String pipelineNumber;
   private final PwaDto pwa;
 
-  public PipelineDto(Integer id, String pipelineNumber, String pwaReference) {
+  public PipelineDto(Integer id, String pipelineNumber, Integer pwaId, String pwaReference) {
     this.id = id;
     this.pipelineNumber = pipelineNumber;
-    this.pwa = new PwaDto(pwaReference);
+    this.pwa = new PwaDto(pwaId, pwaReference);
   }
 
   @JsonProperty

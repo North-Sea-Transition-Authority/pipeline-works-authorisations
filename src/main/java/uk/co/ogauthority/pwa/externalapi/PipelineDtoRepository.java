@@ -9,7 +9,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 @Repository
 interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> {
 
-  @Query("select new uk.co.ogauthority.pwa.externalapi.PipelineDto(p.id, pd.pipelineNumber, mpd.reference) " +
+  @Query("select new uk.co.ogauthority.pwa.externalapi.PipelineDto(p.id, pd.pipelineNumber, mpd.masterPwa.id, mpd.reference) " +
       "from PipelineDetail pd " +
       "join Pipeline p on pd.pipeline = p " +
       "join MasterPwaDetail mpd on p.masterPwa = mpd.masterPwa " +
@@ -17,7 +17,8 @@ interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> 
       "and pd.tipFlag = true " +
       "and (LOWER(mpd.reference) like LOWER('%'||:reference||'%') or :reference is null) " +
       "and (LOWER(pd.pipelineNumber) like LOWER('%'||:pipelineNumber||'%') or :pipelineNumber is null) " +
-      "and (p.id in (:ids) or COALESCE(:ids, null) is null ) "
+      "and (mpd.id in (:pwaIds) or COALESCE(:pwaIds, null) is null) " +
+      "and (p.id in (:ids) or COALESCE(:ids, null) is null) "
   )
-  List<PipelineDto> searchPipelines(List<Integer> ids, String pipelineNumber, String reference);
+  List<PipelineDto> searchPipelines(List<Integer> ids, String pipelineNumber, List<Integer> pwaIds, String reference);
 }
