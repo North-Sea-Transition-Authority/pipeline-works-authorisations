@@ -15,8 +15,8 @@ interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> 
       "join MasterPwaDetail mpd on p.masterPwa = mpd.masterPwa " +
       "where mpd.endInstant is null " +
       "and pd.tipFlag = true " +
-      "and (mpd.reference like '%'||:reference||'%' or :reference is null) " +
-      "and (pd.pipelineNumber like '%'||:pipelineNumber||'%' or :pipelineNumber is null) " +
+      "and (LOWER(mpd.reference) like LOWER('%'||:reference||'%') or :reference is null) " +
+      "and (LOWER(pd.pipelineNumber) like LOWER('%'||:pipelineNumber||'%') or :pipelineNumber is null) " +
       "and (mpd.id in (:pwaIds) or COALESCE(:pwaIds, null) is null) " +
       "and (p.id in (:ids) or COALESCE(:ids, null) is null) "
   )
