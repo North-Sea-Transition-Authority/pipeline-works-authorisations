@@ -17,7 +17,7 @@ interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> 
       "and pd.tipFlag = true " +
       "and (LOWER(mpd.reference) like LOWER('%'||:reference||'%') or :reference is null) " +
       "and (LOWER(pd.pipelineNumber) like LOWER('%'||:pipelineNumber||'%') or :pipelineNumber is null) " +
-      "and (mpd.id in (:pwaIds) or COALESCE(:pwaIds, null) is null) " +
+      "and (mpd.masterPwa.id in (:pwaIds) or COALESCE(:pwaIds, null) is null) " +
       "and (p.id in (:ids) or COALESCE(:ids, null) is null) "
   )
   List<PipelineDto> searchPipelines(List<Integer> ids, String pipelineNumber, List<Integer> pwaIds, String reference);
