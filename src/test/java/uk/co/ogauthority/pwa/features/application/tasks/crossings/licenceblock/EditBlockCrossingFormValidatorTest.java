@@ -76,6 +76,15 @@ public class EditBlockCrossingFormValidatorTest {
 
   }
 
+  @Test
+  public void validate_blockOwnerLicensedBlock_MarkedAsUnlicensed() {
+    var form = new AddBlockCrossingForm();
+    form.setPickedBlock("licensedBlock");
+    form.setCrossingOwner(CrossingOwner.UNLICENSED);
 
-
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, pearsLicence);
+    assertThat(errorsMap).contains(
+        entry("crossingOwner", Set.of("crossingOwner" + FieldValidationErrorCodes.INVALID.getCode()))
+    );
+  }
 }
