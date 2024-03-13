@@ -22,8 +22,8 @@ public class PipelineDtoController {
     this.pipelineDtoRepository = pipelineDtoRepository;
   }
 
-  @GetMapping("/pipelines")
   @Deprecated
+  @GetMapping("/pipelines-deprecated")
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
                                     @RequestParam(name = "pipelineNumber", required = false) String pipelineNumber,
                                     @RequestParam(name = "pwaIds", required = false) List<Integer> pwaIds,

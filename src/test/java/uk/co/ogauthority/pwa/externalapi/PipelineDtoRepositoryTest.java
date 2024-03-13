@@ -74,7 +74,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPipelineId() {
+  public void searchPipelines_searchByPipelineId_deprecated() {
     var searchedIds = List.of(pipeline.getId());
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(searchedIds, null, null, null);
 
@@ -84,7 +84,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPipelineNumber() {
+  public void searchPipelines_searchByPipelineNumber_deprecated() {
     var pipelineNumber = "PIPELINE NUM";
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null, null);
 
@@ -101,7 +101,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPwaReference() {
+  public void searchPipelines_searchByPwaReference_deprecated() {
     var pwaReference = "REFERENCE";
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, null, pwaReference);
 
@@ -118,7 +118,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPwaIds() {
+  public void searchPipelines_searchByPwaIds_deprecated() {
     var pwaIds = List.of(pwaDetail.getMasterPwaId());
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaIds, null);
 
@@ -129,8 +129,70 @@ public class PipelineDtoRepositoryTest {
 
 
   @Test
-  public void searchPipelines_whenAllNull_assertAllPipelinesReturned() {
+  public void searchPipelines_whenAllNull_assertAllPipelinesReturned_deprecated() {
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, null, null);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(PipelineDto::getId)
+        .containsExactly(pipeline.getId(), secondPipelineDetail.getPipeline().getId());
+  }
+
+  @Test
+  public void searchPipelines_orderedByPipelineId_deprecated() {
+    var ids = List.of(secondPipelineDetail.getPipeline().getId(), pipeline.getId());
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(ids, null, null, null);
+
+    var resultingPipelineIds = resultingPipelineDtos.stream()
+        .map(PipelineDto::getId)
+        .collect(Collectors.toList());
+    var sortedPipelineIds = List.copyOf(resultingPipelineIds).stream()
+        .sorted()
+        .collect(Collectors.toList());
+
+    assertThat(resultingPipelineIds).isEqualTo(sortedPipelineIds);
+  }
+
+  @Test
+  public void searchPipelines_searchByPipelineId() {
+    var searchedIds = List.of(pipeline.getId());
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(searchedIds, null, null);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(PipelineDto::getId)
+        .containsExactly(pipeline.getId());
+  }
+
+  @Test
+  public void searchPipelines_searchByPipelineNumber() {
+    var pipelineNumber = "PIPELINE NUM";
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(PipelineDto::getPipelineNumber)
+        .containsExactly(pipelineDetail.getPipelineNumber(), secondPipelineDetail.getPipelineNumber());
+
+    pipelineNumber = "pipeline num";
+    resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(PipelineDto::getPipelineNumber)
+        .containsExactly(pipelineDetail.getPipelineNumber(), secondPipelineDetail.getPipelineNumber());
+  }
+
+  @Test
+  public void searchPipelines_searchByPwaIds() {
+    var pwaIds = List.of(pwaDetail.getMasterPwaId());
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaIds);
+
+    assertThat(resultingPipelineDtos)
+        .extracting(pipelineDto -> pipelineDto.getPwa().getId())
+        .containsExactly(pwaDetail.getMasterPwaId());
+  }
+
+
+  @Test
+  public void searchPipelines_whenAllNull_assertAllPipelinesReturned() {
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, null);
 
     assertThat(resultingPipelineDtos)
         .extracting(PipelineDto::getId)
@@ -140,7 +202,7 @@ public class PipelineDtoRepositoryTest {
   @Test
   public void searchPipelines_orderedByPipelineId() {
     var ids = List.of(secondPipelineDetail.getPipeline().getId(), pipeline.getId());
-    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(ids, null, null, null);
+    var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(ids, null, null);
 
     var resultingPipelineIds = resultingPipelineDtos.stream()
         .map(PipelineDto::getId)
