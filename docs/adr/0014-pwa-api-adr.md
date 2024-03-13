@@ -1,6 +1,6 @@
 # API to retrieve PWAs and pipelines
 
-* Status: proposed 
+* Status: accepted 
 * Deciders: Chris T, Sam W
 * Date: 2024-03-12
 
@@ -22,12 +22,13 @@ Create a /pwas api that returns the pipelines in the json request, similar to ho
 This means that we automatically get the pwa id and reference for each pipeline & we get all the pipleine ids and numbers for each pwa.
 
 ### Option 2
-Similar to organisation unit/groups relationship. Instead of getting all of the data at once from a singular api, we only get the pipelines 
+Similar to organisation unit/groups relationship. Instead of getting all the data at once from a singular api, we only get the pipelines 
 for a pwa if it's specified in the projection root. 
 This would involve having a /pwas api that just takes pwaIds or a reference and returns only pwa information. 
 Then if the consumer asks for pipelines in their projection root, then we make a request to the /pipelines endpoint with the pwaIds parameter. 
 
 ## Decision Outcome
-I think that option 2 makes the most sense. It means that we only get the data we need, option 1 could mean receiving all of the pipeline information even if it's not asked for in the projection root. 
-It's also consistent with similar EPA relationships (org groups/units) & is more similar to how a graphql request works. However it will be more code. 
-Chosen option: "[option 1]", because [justification. e.g., only option, which meets k.o. criterion decision driver | which resolves force force | … | comes out best (see below)].
+I think that option 2 makes the most sense. It means that we only get the data we need, option 1 could mean receiving all the pipeline information even if it's not asked for in the projection root. 
+It's also consistent with similar EPA relationships (org groups/units) & is more similar to how a graphql request works. However, it will be more code. 
+
+Chosen option: option 2, because it follows similar patterns that already exist on EPA & means that we only retrieve the data that we need. 
