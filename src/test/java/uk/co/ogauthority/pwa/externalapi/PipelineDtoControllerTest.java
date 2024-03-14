@@ -33,7 +33,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Test
-  public void searchPipelines() throws Exception {
+  public void searchPipelines_deprecated() throws Exception {
     var pipelineId  = 1;
     var pipelineNumber = "PL123";
     var pwaReference = "10/W//12";
@@ -70,10 +70,52 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   }
 
   @Test
-  public void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
+  public void searchPipelines_NoBearerToken_AssertForbidden_deprecated() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PipelineDtoController.class)
                 .searchPipelines(null, null, null, null))))
+        .andExpect(status().isUnauthorized())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+  }
+
+  @Test
+  public void searchPipelines() throws Exception {
+    var pipelineId  = 1;
+    var pipelineNumber = "PL123";
+    var pwaId = 2;
+
+    var result = List.of(
+        PipelineDtoTestUtil.builder()
+            .withId(pipelineId)
+            .withNumber(pipelineNumber)
+            .withPwaId(pwaId)
+            .build()
+    );
+
+    var resultJson = MAPPER.writeValueAsString(result);
+
+    when(pipelineDtoRepository.searchPipelines(
+        List.of(pipelineId),
+        pipelineNumber,
+        List.of(pwaId)
+    )).thenReturn(result);
+
+    mockMvc.perform(get(
+            ReverseRouter.route(on(PipelineDtoController.class).searchPipelines(
+                Collections.singletonList(pipelineId),
+                pipelineNumber,
+                List.of(pwaId)
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andExpect(content().json(resultJson));
+  }
+
+  @Test
+  public void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
+    mockMvc.perform(post(
+            ReverseRouter.route(on(PipelineDtoController.class)
+                .searchPipelines(null, null, null))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
