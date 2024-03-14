@@ -25,7 +25,7 @@ public class PipelineDtoController {
   /**
    * @deprecated This is currently consumed by EPA & removing it will cause their APIs to break. Instead, it has been
    * deprecated and will be removed after EPA no longer consumes it.
-   */
+  */
   @Deprecated
   @GetMapping("/pipelines-deprecated")
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
