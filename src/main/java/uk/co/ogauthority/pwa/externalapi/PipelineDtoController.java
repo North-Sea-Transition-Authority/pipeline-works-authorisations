@@ -30,7 +30,7 @@ public class PipelineDtoController {
     * @param pwaIds: pwa ids
     * @param pwaReference: pwa reference
     * @return PipelineDto
-    */
+   */
   @Deprecated
   @GetMapping("/pipelines-deprecated")
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,

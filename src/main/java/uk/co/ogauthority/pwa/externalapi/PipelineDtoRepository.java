@@ -17,7 +17,7 @@ interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> 
     * @param pwaIds: pwa ids
     * @param reference: pwa reference
     * @return PipelineDto
-    */
+   */
   @Deprecated
   @Query("select new uk.co.ogauthority.pwa.externalapi.PipelineDto(p.id, pd.pipelineNumber, mpd.masterPwa.id, mpd.reference) " +
       "from PipelineDetail pd " +
