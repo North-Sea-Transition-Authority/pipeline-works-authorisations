@@ -22,7 +22,7 @@ public class PipelineDtoController {
     this.pipelineDtoRepository = pipelineDtoRepository;
   }
 
-   /**
+  /**
     * @deprecated This is currently consumed by EPA & removing it will cause their APIs to break. Instead, it has been
     * deprecated and will be removed after EPA no longer consumes it.
     * @param ids: pipeline ids
