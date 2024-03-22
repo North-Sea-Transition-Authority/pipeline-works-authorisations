@@ -13,7 +13,7 @@ interface PwaDtoRepository extends CrudRepository<MasterPwaDetail, Integer> {
       "FROM MasterPwaDetail mpd " +
       "WHERE mpd.endInstant IS NULL " +
       "AND (mpd.masterPwa.id in (:ids) or COALESCE(:ids, null) is null) " +
-      "AND (LOWER(mpd.reference) like LOWER('%'||:reference||'%') or :reference is null) "
+      "AND (LOWER(mpd.reference) like LOWER(:reference||'%') or :reference is null) "
   )
   List<PwaDto> searchPwas(List<Integer> ids, String reference);
 }
