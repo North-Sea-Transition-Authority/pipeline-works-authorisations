@@ -42,6 +42,7 @@ public class PwaReferenceComparatorTest {
     var sortedList = Stream.of(secondPwaDto, thirdPwaDto, firstPwaDto)
         .sorted(new PwaReferenceComparator())
         .collect(Collectors.toUnmodifiableList());
+
     assertThat(sortedList)
         .extracting(PwaDto::getReference)
         .containsExactly(
@@ -60,9 +61,9 @@ public class PwaReferenceComparatorTest {
         {"1/D/01", "1/W/01", "1/V/02"},
         {"1/W/01", "10/W/01", "1/W/02"},
         {"1/W/01", "PA/1", "PA/2"},
-        {"PWADATE/1983-01-12", "PA/2", "NONPWA/99"},
-        {"PWADATE/1983-01-12", "NONPWA/89", "NONPWA/99"},
-        {"PWADATE/1983-01-12", "PWADATE/1983-10-12", "NONPWA/99"}
+        {"NONPWA/99", "PA/2", "PWADATE/1983-01-12"},
+        {"NONPWA/2", "NONPWA/10", "PWADATE/1983-01-12"},
+        {"NONPWA/99", "PWADATE/1983-01-12", "PWADATE/1983-10-12"}
     });
   }
 }

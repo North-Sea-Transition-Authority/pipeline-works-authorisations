@@ -28,6 +28,7 @@ public class PwaDtoRepositoryTest {
   private TestEntityManager entityManager;
   private MasterPwaDetail pwaDetail;
   private MasterPwaDetail secondPwaDetail;
+  private MasterPwaDetail thirdPwaDetail;
 
   @Autowired
   PwaDtoRepository pwaDtoRepository;
@@ -37,13 +38,17 @@ public class PwaDtoRepositoryTest {
 
     var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
+    var thirdPwa = new MasterPwa();
     entityManager.persist(pwa);
     entityManager.persist(secondPwa);
+    entityManager.persist(thirdPwa);
 
-    pwaDetail = new MasterPwaDetail(pwa, null, "pwa detail reference", Instant.now(), null);
-    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "non like match ref", Instant.now(), null);
+    pwaDetail = new MasterPwaDetail(pwa, null, "1/W/97", Instant.now(), null);
+    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "11/W/97", Instant.now(), null);
+    thirdPwaDetail = new MasterPwaDetail(thirdPwa, null, "PA/23", Instant.now(), null);
     entityManager.persist(pwaDetail);
     entityManager.persist(secondPwaDetail);
+    entityManager.persist(thirdPwaDetail);
   }
 
   @Test
@@ -57,16 +62,26 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByPwaReference() {
-    var pwaReference = "REFERENCE";
+  public void searchPwas_searchByPwaReference_caseSensitive() {
+    var pwaReference = "PA";
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
-        .containsExactly(pwaDetail.getReference());
+        .containsExactly(thirdPwaDetail.getReference());
 
-    pwaReference = "reference";
+    pwaReference = "pa";
     resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
+
+    assertThat(resultingPwaDtos)
+        .extracting(PwaDto::getReference)
+        .containsExactly(thirdPwaDetail.getReference());
+  }
+
+  @Test
+  public void searchPwas_searchByPwaReference_assertExactMatchOnConsentNumber() {
+    var pwaReference = "1/";
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
@@ -79,7 +94,7 @@ public class PwaDtoRepositoryTest {
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
-        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId());
+        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId(), thirdPwaDetail.getMasterPwaId());
 
   }
 }
