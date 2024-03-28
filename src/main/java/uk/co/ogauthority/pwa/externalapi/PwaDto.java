@@ -12,6 +12,12 @@ public class PwaDto {
     this.reference = reference;
   }
 
+  // No-args constructor required for Jackson mapping in controller test
+  private PwaDto() {
+    id = null;
+    reference = null;
+  }
+
   @JsonProperty
   public String getReference() {
     return reference;

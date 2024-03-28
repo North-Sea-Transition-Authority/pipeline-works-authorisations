@@ -13,6 +13,13 @@ public class PipelineDto {
     this.pwa = new PwaDto(pwaId, pwaReference);
   }
 
+  // No-args constructor required for Jackson mapping in controller test
+  private PipelineDto() {
+    id = null;
+    pipelineNumber = null;
+    pwa = null;
+  }
+
   @JsonProperty
   public Integer getId() {
     return id;

@@ -1,14 +1,14 @@
 package uk.co.ogauthority.pwa.externalapi;
 
-class PipelineDtoTestUtil {
+public class PipelineDtoTestUtil {
 
   private PipelineDtoTestUtil() {}
 
-  static Builder builder() {
+  public static Builder builder() {
     return new Builder();
   }
 
-  static class Builder {
+  public static class Builder {
 
     private Integer id;
     private String number;
