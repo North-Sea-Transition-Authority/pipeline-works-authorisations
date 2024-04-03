@@ -28,7 +28,7 @@ public class PwaDtoController {
                           @RequestParam(name = "reference", required = false) String reference) {
     return pwaDtoRepository.searchPwas(ids, reference)
         .stream()
-        .sorted(new PwaReferenceComparator())
+        .sorted(PwaDto::compareTo)
         .collect(Collectors.toList());
   }
 }

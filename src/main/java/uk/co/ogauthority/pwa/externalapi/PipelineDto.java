@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.externalapi;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
-public class PipelineDto {
+public class PipelineDto implements Comparable<PipelineDto> {
   private final Integer id;
   private final String pipelineNumber;
   private final PwaDto pwa;
@@ -33,5 +34,10 @@ public class PipelineDto {
   @JsonProperty
   public PwaDto getPwa() {
     return pwa;
+  }
+
+  @Override
+  public int compareTo(PipelineDto pipelineDtoToCompare) {
+    return PipelineNumberSortingUtil.compare(this.getPipelineNumber(), pipelineDtoToCompare.getPipelineNumber());
   }
 }

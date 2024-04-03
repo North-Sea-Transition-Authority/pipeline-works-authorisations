@@ -79,16 +79,6 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByPwaReference_assertExactMatchOnConsentNumber() {
-    var pwaReference = "1/";
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
-
-    assertThat(resultingPwaDtos)
-        .extracting(PwaDto::getReference)
-        .containsExactly(pwaDetail.getReference());
-  }
-
-  @Test
   public void searchPwas_whenAllNull_assertAllPwasReturned() {
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null);
 

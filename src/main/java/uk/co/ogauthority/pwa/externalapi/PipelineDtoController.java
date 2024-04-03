@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @RestController
 @RequestMapping(ENERGY_PORTAL_API_BASE_PATH)
@@ -30,7 +29,7 @@ public class PipelineDtoController {
                                     @RequestParam(name = "pwaIds", required = false) List<Integer> pwaIds) {
     return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds)
         .stream()
-        .sorted((pipeline1, pipeline2) -> PipelineNumberSortingUtil.compare(pipeline1.getPipelineNumber(), pipeline2.getPipelineNumber()))
+        .sorted(PipelineDto::compareTo)
         .collect(Collectors.toList());
   }
 }
