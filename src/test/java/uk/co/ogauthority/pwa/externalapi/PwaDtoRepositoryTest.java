@@ -28,7 +28,6 @@ public class PwaDtoRepositoryTest {
   private TestEntityManager entityManager;
   private MasterPwaDetail pwaDetail;
   private MasterPwaDetail secondPwaDetail;
-  private MasterPwaDetail thirdPwaDetail;
 
   @Autowired
   PwaDtoRepository pwaDtoRepository;
@@ -38,17 +37,13 @@ public class PwaDtoRepositoryTest {
 
     var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
-    var thirdPwa = new MasterPwa();
     entityManager.persist(pwa);
     entityManager.persist(secondPwa);
-    entityManager.persist(thirdPwa);
 
     pwaDetail = new MasterPwaDetail(pwa, null, "1/W/97", Instant.now(), null);
-    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "11/W/97", Instant.now(), null);
-    thirdPwaDetail = new MasterPwaDetail(thirdPwa, null, "PA/23", Instant.now(), null);
+    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "11/V/97", Instant.now(), null);
     entityManager.persist(pwaDetail);
     entityManager.persist(secondPwaDetail);
-    entityManager.persist(thirdPwaDetail);
   }
 
   @Test
@@ -63,19 +58,19 @@ public class PwaDtoRepositoryTest {
 
   @Test
   public void searchPwas_searchByPwaReference_caseSensitive() {
-    var pwaReference = "PA";
+    var pwaReference = "W";
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
-        .containsExactly(thirdPwaDetail.getReference());
+        .containsExactly(pwaDetail.getReference());
 
-    pwaReference = "pa";
+    pwaReference = "w";
     resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
-        .containsExactly(thirdPwaDetail.getReference());
+        .containsExactly(pwaDetail.getReference());
   }
 
   @Test
@@ -84,7 +79,7 @@ public class PwaDtoRepositoryTest {
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
-        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId(), thirdPwaDetail.getMasterPwaId());
+        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId());
 
   }
 }
