@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.externalapi;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -63,6 +66,50 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(resultJson));
+  }
+
+  @Test
+  public void searchPipelines_assertSort() throws Exception {
+    var firstPipeline = PipelineDtoTestUtil.builder()
+        .withId(1)
+        .withNumber("PL1")
+        .build();
+
+    var secondPipeline = PipelineDtoTestUtil.builder()
+        .withId(2)
+        .withNumber("PL2")
+        .build();
+
+    var thirdPipeline = PipelineDtoTestUtil.builder()
+        .withId(2)
+        .withNumber("PL10")
+        .build();
+
+    var unsortedList = List.of(secondPipeline, thirdPipeline, firstPipeline);
+
+    when(pipelineDtoRepository.searchPipelines(
+        List.of(1, 2, 3),
+        null,
+        null
+    )).thenReturn(unsortedList);
+
+    var result = mockMvc.perform(get(
+            ReverseRouter.route(on(PipelineDtoController.class).searchPipelines(
+                List.of(1, 2, 3),
+                null,
+                null
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    var encodedResponse = result.getResponse().getContentAsString();
+
+    List<PipelineDto> resultingPipelines = new ArrayList<>(Arrays.asList(MAPPER.readValue(encodedResponse, PipelineDto[].class)));
+
+    assertThat(resultingPipelines)
+        .extracting(PipelineDto::getId)
+        .containsExactly(firstPipeline.getId(), secondPipeline.getId(), thirdPipeline.getId());
   }
 
   @Test

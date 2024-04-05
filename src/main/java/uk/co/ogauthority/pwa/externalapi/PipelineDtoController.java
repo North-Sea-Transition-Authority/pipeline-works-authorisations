@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.externalapi;
 import static uk.co.ogauthority.pwa.externalapi.PipelineDtoController.ENERGY_PORTAL_API_BASE_PATH;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,9 @@ public class PipelineDtoController {
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
                                     @RequestParam(name = "pipelineNumber", required = false) String pipelineNumber,
                                     @RequestParam(name = "pwaIds", required = false) List<Integer> pwaIds) {
-    return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds);
+    return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds)
+        .stream()
+        .sorted(PipelineDto::compareTo)
+        .collect(Collectors.toList());
   }
 }
