@@ -14,6 +14,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 
@@ -28,6 +29,7 @@ public class PwaDtoRepositoryTest {
   private TestEntityManager entityManager;
   private MasterPwaDetail pwaDetail;
   private MasterPwaDetail secondPwaDetail;
+  private MasterPwaDetail thirdPwaDetail;
 
   @Autowired
   PwaDtoRepository pwaDtoRepository;
@@ -37,19 +39,23 @@ public class PwaDtoRepositoryTest {
 
     var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
+    var thirdPwa = new MasterPwa();
     entityManager.persist(pwa);
     entityManager.persist(secondPwa);
+    entityManager.persist(thirdPwa);
 
-    pwaDetail = new MasterPwaDetail(pwa, null, "1/W/97", Instant.now(), null);
-    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "11/V/97", Instant.now(), null);
+    pwaDetail = new MasterPwaDetail(pwa, MasterPwaDetailStatus.APPLICATION, "1/W/97", Instant.now(), null);
+    secondPwaDetail = new MasterPwaDetail(secondPwa, MasterPwaDetailStatus.CONSENTED, "11/V/97", Instant.now(), null);
+    thirdPwaDetail = new MasterPwaDetail(thirdPwa, null, "11/V/97", Instant.now(), null);
     entityManager.persist(pwaDetail);
     entityManager.persist(secondPwaDetail);
+    entityManager.persist(thirdPwaDetail);
   }
 
   @Test
   public void searchPwas_searchByPwaId() {
     var searchedIds = List.of(pwaDetail.getMasterPwaId());
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(searchedIds, null);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(searchedIds, null, null);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
@@ -59,14 +65,14 @@ public class PwaDtoRepositoryTest {
   @Test
   public void searchPwas_searchByPwaReference_caseSensitive() {
     var pwaReference = "W";
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
         .containsExactly(pwaDetail.getReference());
 
     pwaReference = "w";
-    resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
+    resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
@@ -74,12 +80,20 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_whenAllNull_assertAllPwasReturned() {
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null);
+  public void searchPwas_searchByStatus() {
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, MasterPwaDetailStatus.CONSENTED);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
-        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId());
+        .containsExactly(secondPwaDetail.getMasterPwaId());
+  }
 
+  @Test
+  public void searchPwas_whenAllNull_assertAllPwasReturned() {
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, null);
+
+    assertThat(resultingPwaDtos)
+        .extracting(PwaDto::getId)
+        .containsExactly(pwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId(), thirdPwaDetail.getMasterPwaId());
   }
 }
