@@ -3,99 +3,62 @@ package uk.co.ogauthority.pwa.util.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.runners.Parameterized;
+import uk.co.ogauthority.pwa.externalapi.PipelineDto;
+import uk.co.ogauthority.pwa.externalapi.PipelineDtoTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(Parameterized.class)
 public class PipelineNumberSortingUtilTest {
 
+  private final String firstPipelineNumber;
+  private final String secondPipelineNumber;
+
+  public PipelineNumberSortingUtilTest(String firstPipelineNumber, String secondPipelineNumber) {
+    this.firstPipelineNumber = firstPipelineNumber;
+    this.secondPipelineNumber = secondPipelineNumber;
+  }
 
   @Test
   public void compare_comparisonExcludesAnyLetterPrefix_pipelineNumberNumericValuesCompared() {
-    var pipelineNumber1 = "  PLU4353";
-    var pipelineNumber2 = "PL638   ";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
+    var firstPipelineDto = PipelineDtoTestUtil.builder()
+        .withNumber(firstPipelineNumber)
+        .build();
+    var secondPipelineDto = PipelineDtoTestUtil.builder()
+        .withNumber(secondPipelineNumber)
+        .build();
+
+    var sortedList = Stream.of(secondPipelineDto, firstPipelineDto)
+        .sorted((pipelineDto1, pipelineDto2) -> PipelineNumberSortingUtil.compare(pipelineDto1.getPipelineNumber(), pipelineDto2.getPipelineNumber()))
+        .collect(Collectors.toList());
+
+    assertThat(sortedList)
+        .extracting(PipelineDto::getPipelineNumber)
+        .containsExactly(
+            firstPipelineDto.getPipelineNumber(),
+            secondPipelineDto.getPipelineNumber()
+        );
   }
 
-  @Test
-  public void compare_comparisonExcludesAnyLetterSuffix_pipelineNumberNumericValuesCompared() {
-    var pipelineNumber1 = "4353RTD";
-    var pipelineNumber2 = "PL638NL";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
+  @Parameterized.Parameters(name = "{0} {1}")
+  public static Collection getPipelinesToCompare() {
+    return Arrays.asList(new Object[][] {
+        {"PL638   ", "  PLU4353"},
+        {"PL638NL", "4353RTD"},
+        {"PL638.23", "PL638.65"},
+        {"PL123.2", "PL123.11"},
+        {"PL638.23.34", "PL638.65.34"},
+        {"PL638.11.25", "PL638.11.45"},
+        {"PL638.11", "PL638.11.25"},
+        {"PLU1905.34.98.58.36(J)21/24-TU", "PL1905.34.98.58.36(J)21/24-T1"},
+        {"PL1841.2JP3", "PL1841.2JP10"},
+        {"PLU2447JI2", "PLU2447 JP2"},
+        {"PLNL", "PLURTS"}
+    });
   }
-
-  @Test
-  public void compare_comparisonIncludesDot_pipelineNumberNumericValuesCompared() {
-    var pipelineNumber1 = "PL638.65";
-    var pipelineNumber2 = "PL638.23";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_comparisonIncludesDot_sameDimension_firstNumHasTensAndUnits_secondNumHasUnitsOnly() {
-    var pipelineNumber1 = "PL123.11";
-    var pipelineNumber2 = "PL123.2";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_comparisonIncludesMultipleDots_sameDimension_firstSectionEqual_comparisonMadeAtSecondSection() {
-    var pipelineNumber1 = "PL638.65.34";
-    var pipelineNumber2 = "PL638.23.34";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_comparisonIncludesMultipleDots_sameDimension_numbersEqualUpToLastSection_comparisonMadeAtLastSection() {
-    var pipelineNumber1 = "PL638.11.45";
-    var pipelineNumber2 = "PL638.11.25";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_comparisonIncludesMultipleDots_firstNumHasSmallerDimension_equalUpToSameDimension_firstNumIsSmaller() {
-    var pipelineNumber1 = "PL638.11";
-    var pipelineNumber2 = "PL638.11.25";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isNegative();
-  }
-
-  @Test
-  public void compare_comparisonIncludesMultipleDots_secondNumHasSmallerDimension_equalUpToSameDimension_secondNumIsSmaller() {
-    var pipelineNumber1 = "PL638.11.25";
-    var pipelineNumber2 = "PL638.11";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_numericValuesAreEqualUpToLetterSuffix_pipelineNumberWithAdditionalNumericValueIsLarger() {
-    var commonPipelineNumberPart = "1905.34.98.58.36(J)21/24-T";
-    var pipelineNumber1 = "PL" + commonPipelineNumberPart + "1";
-    var pipelineNumber2 = "PLU" + commonPipelineNumberPart + "U";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_numericValuesAreEqualUpToLetterSuffix_numbersAfterLetterSuffixCompared() {
-    var pipelineNumber1 = "PL1841.2JP10";
-    var pipelineNumber2 = "PL1841.2JP3";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_numericValuesEqual_comparedAsStringIgnoringWhiteSpace() {
-    var pipelineNumber1 = "PLU2447 JP2";
-    var pipelineNumber2 = "PLU2447JI2";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-  @Test
-  public void compare_pipelineNumericValueNotFound_defaultStringComparisonPerformed() {
-    var pipelineNumber1 = "PLURTS";
-    var pipelineNumber2 = "PLNL";
-    assertThat(PipelineNumberSortingUtil.compare(pipelineNumber1, pipelineNumber2)).isPositive();
-  }
-
-
-
 }

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.externalapi;
 import static uk.co.ogauthority.pwa.externalapi.PwaDtoController.ENERGY_PORTAL_API_BASE_PATH;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,9 @@ public class PwaDtoController {
   @GetMapping("/pwas")
   List<PwaDto> searchPwas(@RequestParam(name = "ids", required = false) List<Integer> ids,
                           @RequestParam(name = "reference", required = false) String reference) {
-    return pwaDtoRepository.searchPwas(ids, reference);
+    return pwaDtoRepository.searchPwas(ids, reference)
+        .stream()
+        .sorted(PwaDto::compareTo)
+        .collect(Collectors.toList());
   }
 }

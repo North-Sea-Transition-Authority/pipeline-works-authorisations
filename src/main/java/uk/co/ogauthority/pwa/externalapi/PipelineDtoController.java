@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.externalapi;
 import static uk.co.ogauthority.pwa.externalapi.PipelineDtoController.ENERGY_PORTAL_API_BASE_PATH;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,29 +23,13 @@ public class PipelineDtoController {
     this.pipelineDtoRepository = pipelineDtoRepository;
   }
 
-  /**
-   * This method searches for pipelines and their associated pwas.
-   * @deprecated This is currently consumed by EPA & removing it will cause their APIs to break. Instead, it has been
-                  deprecated and will be removed after EPA no longer consumes it.
-   * @param ids pipeline ids
-   * @param pipelineNumber pipeline number
-   * @param pwaIds pwa ids
-   * @param pwaReference pwa reference
-   * @return PipelineDto
-  */
-  @Deprecated
-  @GetMapping("/pipelines-deprecated")
-  List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
-                                    @RequestParam(name = "pipelineNumber", required = false) String pipelineNumber,
-                                    @RequestParam(name = "pwaIds", required = false) List<Integer> pwaIds,
-                                    @RequestParam(name = "pwaReference", required = false) String pwaReference) {
-    return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds, pwaReference);
-  }
-
   @GetMapping("/pipelines")
   List<PipelineDto> searchPipelines(@RequestParam(name = "ids", required = false) List<Integer> ids,
                                     @RequestParam(name = "pipelineNumber", required = false) String pipelineNumber,
                                     @RequestParam(name = "pwaIds", required = false) List<Integer> pwaIds) {
-    return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds);
+    return pipelineDtoRepository.searchPipelines(ids, pipelineNumber, pwaIds)
+        .stream()
+        .sorted(PipelineDto::compareTo)
+        .collect(Collectors.toList());
   }
 }

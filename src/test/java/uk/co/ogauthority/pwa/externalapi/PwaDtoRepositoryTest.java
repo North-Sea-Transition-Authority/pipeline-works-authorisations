@@ -40,8 +40,8 @@ public class PwaDtoRepositoryTest {
     entityManager.persist(pwa);
     entityManager.persist(secondPwa);
 
-    pwaDetail = new MasterPwaDetail(pwa, null, "pwa detail reference", Instant.now(), null);
-    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "non like match ref", Instant.now(), null);
+    pwaDetail = new MasterPwaDetail(pwa, null, "1/W/97", Instant.now(), null);
+    secondPwaDetail = new MasterPwaDetail(secondPwa, null, "11/V/97", Instant.now(), null);
     entityManager.persist(pwaDetail);
     entityManager.persist(secondPwaDetail);
   }
@@ -57,15 +57,15 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByPwaReference() {
-    var pwaReference = "REFERENCE";
+  public void searchPwas_searchByPwaReference_caseSensitive() {
+    var pwaReference = "W";
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
         .containsExactly(pwaDetail.getReference());
 
-    pwaReference = "reference";
+    pwaReference = "w";
     resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference);
 
     assertThat(resultingPwaDtos)

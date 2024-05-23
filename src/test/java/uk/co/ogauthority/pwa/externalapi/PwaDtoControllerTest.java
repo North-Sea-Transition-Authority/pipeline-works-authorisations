@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.externalapi;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -8,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
@@ -43,7 +46,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
 
   @Test
   public void searchPwas() throws Exception {
-    var id  = 1;
+    var id = 1;
     var reference = "PL123";
 
     var result = List.of(
@@ -68,5 +71,47 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(content().json(resultJson));
+  }
+
+  @Test
+  public void searchPwas_assertSort() throws Exception {
+    var firstPwa = PwaDtoTestUtil.builder()
+        .withId(1)
+        .withReference("1/W/02")
+        .build();
+
+    var secondPwa = PwaDtoTestUtil.builder()
+        .withId(2)
+        .withReference("2/W/02")
+        .build();
+
+    var thirdPwa = PwaDtoTestUtil.builder()
+        .withId(3)
+        .withReference("10/W/02")
+        .build();
+
+    var unsortedList = List.of(secondPwa, thirdPwa, firstPwa);
+
+    when(pwaDtoRepository.searchPwas(
+        List.of(1, 2, 3),
+        null
+    )).thenReturn(unsortedList);
+
+    var result = mockMvc.perform(get(
+            ReverseRouter.route(on(PwaDtoController.class).searchPwas(
+                List.of(1, 2, 3),
+                null
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    var encodedResponse = result.getResponse().getContentAsString();
+
+    List<PwaDto> resultingPwas = new ArrayList<>(Arrays.asList(MAPPER.readValue(encodedResponse, PwaDto[].class)));
+
+    assertThat(resultingPwas)
+        .extracting(PwaDto::getId)
+        .containsExactly(firstPwa.getId(), secondPwa.getId(), thirdPwa.getId());
   }
 }

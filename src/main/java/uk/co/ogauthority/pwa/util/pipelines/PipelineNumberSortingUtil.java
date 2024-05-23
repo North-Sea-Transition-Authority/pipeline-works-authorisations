@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class PipelineNumberSortingUtil {
 
-
   private static final Logger LOGGER = LoggerFactory.getLogger(PipelineNumberSortingUtil.class);
-
 
   private static List<Integer> getPipelineNumberNumericalParts(String pipelineNumber) {
 
@@ -40,9 +38,6 @@ public class PipelineNumberSortingUtil {
         .replace("PL", "")
         .replaceAll("\\s","");
   }
-
-
-
 
   public static int compare(String pipelineNumberA, String pipelineNumberB) {
 
@@ -78,9 +73,5 @@ public class PipelineNumberSortingUtil {
       //the pipeline numeric values are completely equal, need to compare by their suffix
       return getPipelineNumberWithoutPrefix(pipelineNumberA).compareTo(getPipelineNumberWithoutPrefix(pipelineNumberB));
     }
-
-
   }
-
-
 }
