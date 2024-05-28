@@ -9,7 +9,8 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 @Repository
 interface PipelineDtoRepository extends CrudRepository<PipelineDetail, Integer> {
 
-  @Query("select new uk.co.ogauthority.pwa.externalapi.PipelineDto(p.id, pd.pipelineNumber, mpd.masterPwa.id, mpd.reference) " +
+  @Query("select new uk.co.ogauthority.pwa.externalapi.PipelineDto" +
+      "(p.id, pd.pipelineNumber, mpd.masterPwa.id, mpd.reference, mpd.masterPwaDetailStatus) " +
       "from PipelineDetail pd " +
       "join Pipeline p on pd.pipeline = p " +
       "join MasterPwaDetail mpd on p.masterPwa = mpd.masterPwa " +
