@@ -385,7 +385,7 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
   }
 
   /**
-   * To be used in stream filters to filter out ApplicationTasks that have the same service calss
+   * To be used in stream filters to filter out ApplicationTasks that have the same service class.
    * @return Predicate
    */
   public static Predicate<ApplicationTask> distinctByService() {
