@@ -121,7 +121,7 @@ public class EntityCopyingService {
       Supplier<Collection<T>> getEntitiesToCopy,
       Set<CopiedEntityIdTuple<I, P>> copiedParentEntityIdTuples,
       Class<T> duplicationEntityClass) {
-    var entitiesToCopy = getEntitiesToCopy.get();//
+    var entitiesToCopy = getEntitiesToCopy.get();
     var copiedEntityIdTuples = new HashSet<CopiedEntityIdTuple<I, T>>();
 
     Map<Object, P> mapOfOriginalParentIdToDuplicatedParentEntityReference = copiedParentEntityIdTuples.stream()
