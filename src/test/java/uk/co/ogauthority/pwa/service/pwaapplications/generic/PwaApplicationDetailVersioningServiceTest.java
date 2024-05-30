@@ -63,6 +63,7 @@ public class PwaApplicationDetailVersioningServiceTest {
     copyableTasks.forEach(
         applicationTask -> when(applicationTaskService.taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail)).thenReturn(true)
     );
+
     when(applicationTaskService.taskAllowsCopySectionInformation(ApplicationTask.CARBON_STORAGE_INFORMATION, pwaApplicationDetail))
         .thenReturn(true);
 
@@ -88,6 +89,7 @@ public class PwaApplicationDetailVersioningServiceTest {
           .copyApplicationTaskDataToApplicationDetail(applicationTask, pwaApplicationDetail, fakeVersionedAppDetail);
 
     });
+    // We want to check that copyApplicationTaskDataToApplicationDetail is called with FIELD_INFORMATION but not CARBON_STORAGE_INFORMATION
     verify(applicationTaskService, never())
         .copyApplicationTaskDataToApplicationDetail(ApplicationTask.CARBON_STORAGE_INFORMATION, pwaApplicationDetail, fakeVersionedAppDetail);
 

@@ -36,7 +36,7 @@ public class PwaApplicationDetailVersioningService {
 
     ApplicationTask.stream()
         .filter(applicationTask -> applicationTaskService.taskAllowsCopySectionInformation(applicationTask, detail))
-        .filter(distinctByService(ApplicationTask::getServiceClass))
+        .filter(distinctByService())
         .sorted(Comparator.comparing(ApplicationTask::getVersioningProcessingOrder))
         .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,

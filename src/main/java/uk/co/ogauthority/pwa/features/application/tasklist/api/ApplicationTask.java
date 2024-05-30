@@ -384,11 +384,14 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
             () -> new ValueNotFoundException(String.format("Couldn't find task with display name [%s]", displayName)));
   }
 
-  public static <ApplicationTask> Predicate<ApplicationTask> distinctByService(
-      Function<? super ApplicationTask, ?> keyExtractor) {
-
+  /**
+   * To be used in stream filters to filter out ApplicationTasks that have the same service calss
+   * @return Predicate
+   */
+  public static Predicate<ApplicationTask> distinctByService() {
+    Function<ApplicationTask, Object> serviceExtractor = ApplicationTask::getServiceClass;
     Map<Object, Boolean> seen = new ConcurrentHashMap<>();
-    return applicationTask -> seen.putIfAbsent(keyExtractor.apply(applicationTask), Boolean.TRUE) == null;
+    return applicationTask -> seen.putIfAbsent(serviceExtractor.apply(applicationTask), Boolean.TRUE) == null;
   }
 
 }
