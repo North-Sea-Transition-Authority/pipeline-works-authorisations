@@ -5,6 +5,9 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
@@ -379,6 +382,13 @@ public enum ApplicationTask implements GeneralPurposeApplicationTask {
         .findFirst()
         .orElseThrow(
             () -> new ValueNotFoundException(String.format("Couldn't find task with display name [%s]", displayName)));
+  }
+
+  public static <ApplicationTask> Predicate<ApplicationTask> distinctByService(
+      Function<? super ApplicationTask, ?> keyExtractor) {
+
+    Map<Object, Boolean> seen = new ConcurrentHashMap<>();
+    return applicationTask -> seen.putIfAbsent(keyExtractor.apply(applicationTask), Boolean.TRUE) == null;
   }
 
 }
