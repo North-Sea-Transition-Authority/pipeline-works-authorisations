@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -18,18 +19,25 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
 
   private final DepositDrawingsService depositDrawingsService;
   private final ConsentDocumentImageService consentDocumentImageService;
+  private final PadProjectInformationService padProjectInformationService;
 
   @Autowired
   public DepositDrawingsGeneratorService(DepositDrawingsService depositDrawingsService,
-                                         ConsentDocumentImageService consentDocumentImageService) {
+                                         ConsentDocumentImageService consentDocumentImageService,
+                                         PadProjectInformationService padProjectInformationService) {
     this.depositDrawingsService = depositDrawingsService;
     this.consentDocumentImageService = consentDocumentImageService;
+    this.padProjectInformationService = padProjectInformationService;
   }
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
+
+    if (!padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)) {
+      return null;
+    }
 
     var drawings = depositDrawingsService.getAllDepositDrawingsForDetail(pwaApplicationDetail);
 

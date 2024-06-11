@@ -22,6 +22,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositPi
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDepositTestUtil;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -49,6 +50,9 @@ public class DepositGeneratorServiceTest {
   @Mock
   private DepositDrawingsService depositDrawingsService;
 
+  @Mock
+  private PadProjectInformationService padProjectInformationService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private DepositsGeneratorService depositsGeneratorService;
@@ -59,7 +63,13 @@ public class DepositGeneratorServiceTest {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
-    depositsGeneratorService = new DepositsGeneratorService(pipelineAndIdentViewFactory, permanentDepositService, depositDrawingsService);
+
+    depositsGeneratorService = new DepositsGeneratorService(
+        pipelineAndIdentViewFactory,
+        permanentDepositService,
+        depositDrawingsService,
+        padProjectInformationService
+    );
   }
 
 
@@ -98,6 +108,8 @@ public class DepositGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData() {
+
+    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(true);
 
     var deposit1 = createDeposit(1);
     deposit1.setFootnote("dep1 footnote");
@@ -247,12 +259,20 @@ public class DepositGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData_noDeposits() {
-
+    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(true);
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
 
     var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
 
+    assertThat(docSectionData).isNull();
+
+  }
+
+  @Test
+  public void getDocumentSectionData_notIncludingPermanentDeposits() {
+    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(false);
+    var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     assertThat(docSectionData).isNull();
 
   }

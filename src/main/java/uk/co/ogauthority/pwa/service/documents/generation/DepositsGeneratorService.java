@@ -16,6 +16,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.MaterialType
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingLink;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
@@ -29,25 +30,30 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @Service
 public class DepositsGeneratorService implements DocumentSectionGenerator {
 
-
   private final PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
   private final PermanentDepositService permanentDepositService;
   private final DepositDrawingsService depositDrawingsService;
+  private final PadProjectInformationService padProjectInformationService;
 
   @Autowired
   public DepositsGeneratorService(
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PermanentDepositService permanentDepositService,
-      DepositDrawingsService depositDrawingsService) {
+      DepositDrawingsService depositDrawingsService, PadProjectInformationService padProjectInformationService) {
     this.pipelineAndIdentViewFactory = pipelineAndIdentViewFactory;
     this.permanentDepositService = permanentDepositService;
     this.depositDrawingsService = depositDrawingsService;
+    this.padProjectInformationService = padProjectInformationService;
   }
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
+
+    if (!padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)) {
+      return null;
+    }
 
     var depositForPipelinesMap = permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail);
     var depositsWithPipelinesFromOtherApps = permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail);
