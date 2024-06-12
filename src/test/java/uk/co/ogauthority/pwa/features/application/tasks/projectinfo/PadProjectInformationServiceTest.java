@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -46,6 +44,11 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
+
+  private static final EnumSet<PermanentDepositMade> INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES = EnumSet.of(
+      PermanentDepositMade.THIS_APP,
+      PermanentDepositMade.YES
+  );
 
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
@@ -503,38 +506,32 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void isIncludingPermanentDepositsIn_trueWithGivenValues() {
-    var depositSelections = EnumSet.of(
-        PermanentDepositMade.THIS_APP,
-        PermanentDepositMade.YES
-    );
+  public void isIncludingPermanentDepositsIn_whenIsExpectedValue_thenTrue() {
+    INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES.forEach(deposit -> {
 
-    // Assert that each deposit type in depositSelections variable result in true
-    depositSelections.forEach(deposit -> {
-
-      // Assert each expected deposit
       var projectInfoData = new PadProjectInformation();
       projectInfoData.setPermanentDepositsMade(deposit);
       when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
           .thenReturn(Optional.of(projectInfoData));
       var result = service.isIncludingPermanentDepositsIn(pwaApplicationDetail);
 
-      assertTrue(result);
+      assertThat(result).isTrue();
 
     });
+  }
 
-    // Assert that the remaining deposit types result in false
-    EnumSet.complementOf(depositSelections)
+  @Test
+  public void isIncludingPermanentDepositsIn_whenIsNotExpectedValue_thenFalse() {
+    EnumSet.complementOf(INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES)
         .forEach(deposit -> {
 
-          // Assert each expected deposit
           var projectInfoData = new PadProjectInformation();
           projectInfoData.setPermanentDepositsMade(deposit);
           when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
               .thenReturn(Optional.of(projectInfoData));
           var result = service.isIncludingPermanentDepositsIn(pwaApplicationDetail);
 
-          assertFalse(result);
+          assertThat(result).isFalse();
         });
   }
 

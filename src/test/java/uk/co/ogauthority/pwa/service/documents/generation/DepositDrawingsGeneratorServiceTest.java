@@ -13,6 +13,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
@@ -37,6 +38,7 @@ public class DepositDrawingsGeneratorServiceTest {
   @Mock
   private PadProjectInformationService padProjectInformationService;
 
+  @InjectMocks
   private DepositDrawingsGeneratorService depositDrawingsGeneratorService;
 
   private PadDepositDrawing drawing1;
@@ -46,12 +48,6 @@ public class DepositDrawingsGeneratorServiceTest {
 
   @Before
   public void setUp() throws Exception {
-
-    depositDrawingsGeneratorService = new DepositDrawingsGeneratorService(
-        depositDrawingsService,
-        consentDocumentImageService,
-        padProjectInformationService
-    );
 
     drawing1 = new PadDepositDrawing();
     drawing1.setReference("drawing1Ref");

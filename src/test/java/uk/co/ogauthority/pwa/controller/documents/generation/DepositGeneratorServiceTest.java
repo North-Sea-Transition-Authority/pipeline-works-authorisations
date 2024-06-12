@@ -11,6 +11,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -53,26 +54,16 @@ public class DepositGeneratorServiceTest {
   @Mock
   private PadProjectInformationService padProjectInformationService;
 
-  private PwaApplicationDetail pwaApplicationDetail;
-
+  @InjectMocks
   private DepositsGeneratorService depositsGeneratorService;
 
+  private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
   public void setUp() {
-
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
-
-    depositsGeneratorService = new DepositsGeneratorService(
-        pipelineAndIdentViewFactory,
-        permanentDepositService,
-        depositDrawingsService,
-        padProjectInformationService
-    );
   }
-
-
 
   private PadPermanentDeposit createDeposit(int id) {
     var deposit =  PadPermanentDepositTestUtil.createRockPadDeposit(
@@ -103,8 +94,6 @@ public class DepositGeneratorServiceTest {
     pipelineDetail.setPipelineNumber(pipelineNumber);
     return new PipelineHeaderView(pipelineDetail, new PipelineTransferView());
   }
-
-
 
   @Test
   public void getDocumentSectionData() {
@@ -255,7 +244,6 @@ public class DepositGeneratorServiceTest {
     );
 
   }
-
 
   @Test
   public void getDocumentSectionData_noDeposits() {
