@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 
 @RestController
 @RequestMapping(ENERGY_PORTAL_API_BASE_PATH)
@@ -25,8 +26,9 @@ public class PwaDtoController {
 
   @GetMapping("/pwas")
   List<PwaDto> searchPwas(@RequestParam(name = "ids", required = false) List<Integer> ids,
-                          @RequestParam(name = "reference", required = false) String reference) {
-    return pwaDtoRepository.searchPwas(ids, reference)
+                          @RequestParam(name = "reference", required = false) String reference,
+                          @RequestParam(name = "status", required = false) MasterPwaDetailStatus status) {
+    return pwaDtoRepository.searchPwas(ids, reference, status)
         .stream()
         .sorted(PwaDto::compareTo)
         .collect(Collectors.toList());

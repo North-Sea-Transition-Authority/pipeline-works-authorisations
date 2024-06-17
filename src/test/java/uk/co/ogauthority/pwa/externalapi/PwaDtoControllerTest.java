@@ -23,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @RunWith(SpringRunner.class)
@@ -36,10 +37,10 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Test
-  public void searchPwas_NoBearerToken_AssertForbidden_deprecated() throws Exception {
+  public void searchPwas_NoBearerToken_AssertForbidden() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PwaDtoController.class)
-                .searchPwas(null, null))))
+                .searchPwas(null, null, null))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
@@ -53,6 +54,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
         PwaDtoTestUtil.builder()
             .withId(id)
             .withReference(reference)
+            .withStatus(MasterPwaDetailStatus.CONSENTED)
             .build()
     );
 
@@ -60,13 +62,15 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
 
     when(pwaDtoRepository.searchPwas(
         List.of(id),
-        reference
+        reference,
+        MasterPwaDetailStatus.CONSENTED
     )).thenReturn(result);
 
     mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 Collections.singletonList(id),
-                reference
+                reference,
+                MasterPwaDetailStatus.CONSENTED
             ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -78,28 +82,33 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     var firstPwa = PwaDtoTestUtil.builder()
         .withId(1)
         .withReference("1/W/02")
+        .withStatus(MasterPwaDetailStatus.CONSENTED)
         .build();
 
     var secondPwa = PwaDtoTestUtil.builder()
         .withId(2)
         .withReference("2/W/02")
+        .withStatus(MasterPwaDetailStatus.APPLICATION)
         .build();
 
     var thirdPwa = PwaDtoTestUtil.builder()
         .withId(3)
         .withReference("10/W/02")
+        .withStatus(MasterPwaDetailStatus.CONSENTED)
         .build();
 
     var unsortedList = List.of(secondPwa, thirdPwa, firstPwa);
 
     when(pwaDtoRepository.searchPwas(
         List.of(1, 2, 3),
+        null,
         null
     )).thenReturn(unsortedList);
 
     var result = mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 List.of(1, 2, 3),
+                null,
                 null
             ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())

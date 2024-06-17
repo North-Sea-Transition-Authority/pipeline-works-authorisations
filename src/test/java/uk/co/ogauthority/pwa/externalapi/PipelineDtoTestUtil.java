@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.externalapi;
 
+import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
+
 public class PipelineDtoTestUtil {
 
   private PipelineDtoTestUtil() {}
@@ -14,6 +16,7 @@ public class PipelineDtoTestUtil {
     private String number;
     private Integer pwaId;
     private String pwaReference;
+    private MasterPwaDetailStatus pwaStatus;
 
     public Builder withId(Integer id) {
       this.id = id;
@@ -35,12 +38,18 @@ public class PipelineDtoTestUtil {
       return this;
     }
 
+    public Builder withStatus(MasterPwaDetailStatus pwaStatus) {
+      this.pwaStatus = pwaStatus;
+      return this;
+    }
+
     public PipelineDto build() {
       return new PipelineDto(
           id,
           number,
           pwaId,
-          pwaReference
+          pwaReference,
+          pwaStatus
       );
     }
   }
