@@ -45,6 +45,11 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
 
+  private static final EnumSet<PermanentDepositMade> INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES = EnumSet.of(
+      PermanentDepositMade.THIS_APP,
+      PermanentDepositMade.YES
+  );
+
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
 
@@ -185,8 +190,9 @@ public class PadProjectInformationServiceTest {
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getResourceType(),
             ValidationType.FULL,
-            EnumSet.complementOf(EnumSet.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT))
-            , false));
+            EnumSet.complementOf(EnumSet.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT)),
+            false
+        ));
   }
 
   @Test
@@ -497,6 +503,36 @@ public class PadProjectInformationServiceTest {
 
     });
 
+  }
+
+  @Test
+  public void isIncludingPermanentDepositsIn_whenIsExpectedValue_thenTrue() {
+    INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES.forEach(deposit -> {
+
+      var projectInfoData = new PadProjectInformation();
+      projectInfoData.setPermanentDepositsMade(deposit);
+      when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+          .thenReturn(Optional.of(projectInfoData));
+      var result = service.isIncludingPermanentDepositsIn(pwaApplicationDetail);
+
+      assertThat(result).isTrue();
+
+    });
+  }
+
+  @Test
+  public void isIncludingPermanentDepositsIn_whenIsNotExpectedValue_thenFalse() {
+    EnumSet.complementOf(INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES)
+        .forEach(deposit -> {
+
+          var projectInfoData = new PadProjectInformation();
+          projectInfoData.setPermanentDepositsMade(deposit);
+          when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+              .thenReturn(Optional.of(projectInfoData));
+          var result = service.isIncludingPermanentDepositsIn(pwaApplicationDetail);
+
+          assertThat(result).isFalse();
+        });
   }
 
 }
