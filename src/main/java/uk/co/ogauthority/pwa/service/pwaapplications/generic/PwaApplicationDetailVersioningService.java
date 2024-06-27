@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
+import static uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask.distinctByService;
+
 import java.util.Comparator;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class PwaApplicationDetailVersioningService {
 
     ApplicationTask.stream()
         .filter(applicationTask -> applicationTaskService.taskAllowsCopySectionInformation(applicationTask, detail))
+        .filter(distinctByService())
         .sorted(Comparator.comparing(ApplicationTask::getVersioningProcessingOrder))
         .forEachOrdered(applicationTask -> applicationTaskService.copyApplicationTaskDataToApplicationDetail(
             applicationTask,
