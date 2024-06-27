@@ -6,7 +6,7 @@ SELECT
     fpd.period_end_timestamp
 FROM
     ${datasource.user}.fee_periods fp
-    LEFT JOIN ${datasource.user}.fee_period_details fpd ON fp.id = fpd.fee_period_id AND tip_flag = 1
+    JOIN ${datasource.user}.fee_period_details fpd ON fp.id = fpd.fee_period_id AND tip_flag = 1
 ORDER BY
     fpd.period_start_timestamp DESC;
 

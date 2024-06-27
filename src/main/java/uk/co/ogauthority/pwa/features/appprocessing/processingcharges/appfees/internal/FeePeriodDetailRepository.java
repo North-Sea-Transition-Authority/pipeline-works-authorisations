@@ -25,9 +25,11 @@ public interface FeePeriodDetailRepository extends CrudRepository<FeePeriodDetai
 
   Optional<FeePeriodDetail> findFirstByTipFlagIsTrueOrderByPeriodStartTimestampDesc();
 
-  Optional<FeePeriodDetail> findByTipFlagIsTrueAndFeePeriod(FeePeriod feePeriod);
+  Optional<FeePeriodDetail> findFirstByTipFlagIsTrueAndPeriodStartTimestampAfterOrderByPeriodStartTimestampDesc(
+      Instant instant);
 
   Optional<FeePeriodDetail> findByTipFlagIsTrueAndPeriodEndTimestamp(Instant periodEndTimeStamp);
 
-  Optional<FeePeriodDetail> findByTipFlagIsTrueAndPeriodEndTimestampIsNull();
+  Optional<FeePeriodDetail> findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
+      Instant instant);
 }

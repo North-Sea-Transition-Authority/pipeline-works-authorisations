@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.feemanagement.service;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -7,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
@@ -33,6 +35,8 @@ public class FeePeriodService {
 
   private final FeeItemRepository feeItemRepository;
 
+  private final Clock clock;
+
   private static final Logger LOGGER = LoggerFactory.getLogger(FeePeriodService.class);
 
 
@@ -40,11 +44,12 @@ public class FeePeriodService {
   public FeePeriodService(FeePeriodRepository feePeriodRepository,
                           FeePeriodDetailRepository feePeriodDetailRepository,
                           FeePeriodDetailItemRepository feePeriodDetailItemRepository,
-                          FeeItemRepository feeItemRepository) {
+                          FeeItemRepository feeItemRepository, @Qualifier("utcClock") Clock clock) {
     this.feePeriodRepository = feePeriodRepository;
     this.feePeriodDetailRepository = feePeriodDetailRepository;
     this.feePeriodDetailItemRepository = feePeriodDetailItemRepository;
     this.feeItemRepository = feeItemRepository;
+    this.clock = clock;
   }
 
   public void saveFeePeriod(FeePeriodForm form, Person person) {
@@ -71,11 +76,12 @@ public class FeePeriodService {
   private List<FeePeriodDetailFeeItem> getFeePeriodDetailFeeItemsFromForm(FeePeriodForm form) {
     var feeItemList = new ArrayList<FeePeriodDetailFeeItem>();
 
-    for (var cost: form.getApplicationCostMap().entrySet()) {
+    for (var cost : form.getApplicationCostMap().entrySet()) {
       var costDetails = cost.getKey().split(":");
       var applicationType = PwaApplicationType.valueOf(costDetails[0]);
       var applicationFeeType = PwaApplicationFeeType.valueOf(costDetails[1]);
-      var feeItemOptional = feeItemRepository.findByPwaApplicationTypeAndPwaApplicationFeeType(applicationType, applicationFeeType);
+      var feeItemOptional = feeItemRepository.findByPwaApplicationTypeAndPwaApplicationFeeType(applicationType,
+          applicationFeeType);
 
       if (feeItemOptional.isPresent()) {
         var feePeriodDetailFeeItem = new FeePeriodDetailFeeItem();
@@ -105,21 +111,27 @@ public class FeePeriodService {
   }
 
   private void updateFeePeriodDetail(FeePeriodDetail newPendingDetail, Integer personId) {
+    var currentInstant = clock.instant();
 
     // get the current detail for this new detail's fee period and end it
-    var oldPendingDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndFeePeriod(newPendingDetail.getFeePeriod());
-    oldPendingDetailOptional.ifPresent(feePeriodDetail -> updateOldPendingDetail(feePeriodDetail, newPendingDetail, personId));
+    var oldPendingDetailOptional = feePeriodDetailRepository
+        .findFirstByTipFlagIsTrueAndPeriodStartTimestampAfterOrderByPeriodStartTimestampDesc(currentInstant);
+    oldPendingDetailOptional.ifPresent(
+        feePeriodDetail -> updateOldPendingDetail(feePeriodDetail, newPendingDetail, personId));
 
     // update the detail for the latest un-ended detail
-    var oldActiveDetailOptional = feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestampIsNull();
-    oldActiveDetailOptional.ifPresent(feePeriodDetail -> updateActivePeriodDetails(feePeriodDetail, newPendingDetail, personId));
+    var oldActiveDetailOptional = feePeriodDetailRepository
+        .findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(currentInstant);
+    oldActiveDetailOptional.ifPresent(
+        feePeriodDetail -> updateActivePeriodDetails(feePeriodDetail, newPendingDetail, personId));
 
     newPendingDetail.setLastModifiedBy(personId);
     feePeriodDetailRepository.save(newPendingDetail);
     LOGGER.debug("Added new pending fee period detail object");
   }
 
-  private void updateOldPendingDetail(FeePeriodDetail oldPendingDetail, FeePeriodDetail newPendingDetail, Integer username) {
+  private void updateOldPendingDetail(FeePeriodDetail oldPendingDetail, FeePeriodDetail newPendingDetail,
+                                      Integer username) {
 
     // end the previous 'current' detail
     oldPendingDetail.setTipFlag(false);
@@ -166,7 +178,8 @@ public class FeePeriodService {
     }
   }
 
-  private void updateActivePeriodDetails(FeePeriodDetail oldActiveDetail, FeePeriodDetail newPendingDetail, Integer username) {
+  private void updateActivePeriodDetails(FeePeriodDetail oldActiveDetail, FeePeriodDetail newPendingDetail,
+                                         Integer username) {
 
     var newActiveEndDate = newPendingDetail.getPeriodStartTimestamp().minus(1, ChronoUnit.SECONDS);
 
