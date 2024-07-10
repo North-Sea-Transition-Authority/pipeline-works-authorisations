@@ -98,7 +98,7 @@ public class DepositGeneratorServiceTest {
   @Test
   public void getDocumentSectionData() {
 
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(true);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(true);
 
     var deposit1 = createDeposit(1);
     deposit1.setFootnote("dep1 footnote");
@@ -247,7 +247,7 @@ public class DepositGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData_noDeposits() {
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(true);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(true);
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
 
@@ -259,7 +259,7 @@ public class DepositGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData_notIncludingPermanentDeposits() {
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)).thenReturn(false);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(false);
     var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     assertThat(docSectionData).isNull();
 
