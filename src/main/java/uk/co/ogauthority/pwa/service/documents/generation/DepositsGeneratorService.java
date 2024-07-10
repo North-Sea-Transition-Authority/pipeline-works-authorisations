@@ -51,7 +51,7 @@ public class DepositsGeneratorService implements DocumentSectionGenerator {
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
 
-    if (!padProjectInformationService.isIncludingPermanentDepositsIn(pwaApplicationDetail)) {
+    if (!permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)) {
       return null;
     }
 

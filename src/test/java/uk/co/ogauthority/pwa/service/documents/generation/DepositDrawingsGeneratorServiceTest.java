@@ -20,6 +20,7 @@ import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePur
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
+import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -33,10 +34,10 @@ public class DepositDrawingsGeneratorServiceTest {
   private DepositDrawingsService depositDrawingsService;
 
   @Mock
-  private ConsentDocumentImageService consentDocumentImageService;
+  private PermanentDepositService permanentDepositService;
 
   @Mock
-  private PadProjectInformationService padProjectInformationService;
+  private ConsentDocumentImageService consentDocumentImageService;
 
   @InjectMocks
   private DepositDrawingsGeneratorService depositDrawingsGeneratorService;
@@ -68,7 +69,7 @@ public class DepositDrawingsGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData() {
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(detail)).thenReturn(true);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(true);
 
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
@@ -85,7 +86,7 @@ public class DepositDrawingsGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData_noDrawings() {
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(detail)).thenReturn(true);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(true);
     when(depositDrawingsService.getAllDepositDrawingsForDetail(detail)).thenReturn(List.of());
 
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
@@ -96,7 +97,7 @@ public class DepositDrawingsGeneratorServiceTest {
 
   @Test
   public void getDocumentSectionData_notIncludingPermanentDeposits() {
-    when(padProjectInformationService.isIncludingPermanentDepositsIn(detail)).thenReturn(false);
+    when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(false);
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
     assertThat(docSectionData).isNull();
 

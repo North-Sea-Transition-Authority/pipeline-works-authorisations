@@ -180,14 +180,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     return Optional.ofNullable(projectInformation.getLatestCompletionTimestamp());
   }
 
-  public boolean isIncludingPermanentDepositsIn(PwaApplicationDetail pwaApplicationDetail) {
-    var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    var permanentDepositStatus = Arrays.stream(PermanentDepositMade.values())
-        .filter(PermanentDepositMade::arePermanentDepositsRequiredOnApp)
-        .collect(Collectors.toSet());
-    return permanentDepositStatus.contains(projectInformation.getPermanentDepositsMade());
-  }
-
   public Set<ProjectInformationQuestion> getRequiredQuestions(
       PwaApplicationType pwaApplicationType,
       PwaResourceType resourceType
