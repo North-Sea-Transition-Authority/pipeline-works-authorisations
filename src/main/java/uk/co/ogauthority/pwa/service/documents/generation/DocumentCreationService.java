@@ -86,6 +86,7 @@ public class DocumentCreationService {
     docSpec.getDocumentSectionDisplayOrderMap().entrySet().stream()
         .sorted(Map.Entry.comparingByValue())
         .map(entry -> {
+
           var sectionData = getDocumentSectionData(latestSubmittedDetail, documentInstance, entry.getKey(), docGenType);
           LOGGER.info("Document section data is null?: [{}] for: [{}] on detail [{}] with document instance [{}] and docGenType [{}]",
                   Objects.isNull(sectionData),
