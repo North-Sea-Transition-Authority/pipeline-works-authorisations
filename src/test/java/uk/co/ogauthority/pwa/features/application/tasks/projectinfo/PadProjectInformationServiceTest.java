@@ -1,23 +1,5 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,8 +24,24 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
+
+  private static final EnumSet<PermanentDepositMade> INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES = EnumSet.of(
+      PermanentDepositMade.THIS_APP,
+      PermanentDepositMade.YES
+  );
 
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
@@ -185,8 +183,9 @@ public class PadProjectInformationServiceTest {
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getResourceType(),
             ValidationType.FULL,
-            EnumSet.complementOf(EnumSet.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT))
-            , false));
+            EnumSet.complementOf(EnumSet.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT)),
+            false
+        ));
   }
 
   @Test

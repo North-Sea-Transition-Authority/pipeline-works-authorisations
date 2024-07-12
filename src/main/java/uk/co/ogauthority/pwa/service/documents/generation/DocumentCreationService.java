@@ -85,7 +85,18 @@ public class DocumentCreationService {
     // 3. join onto previously rendered section
     docSpec.getDocumentSectionDisplayOrderMap().entrySet().stream()
         .sorted(Map.Entry.comparingByValue())
-        .map(entry -> getDocumentSectionData(latestSubmittedDetail, documentInstance, entry.getKey(), docGenType))
+        .map(entry -> {
+
+          var sectionData = getDocumentSectionData(latestSubmittedDetail, documentInstance, entry.getKey(), docGenType);
+          LOGGER.info("Document section data is null?: [{}] for: [{}] on detail [{}] with document instance [{}] and docGenType [{}]",
+                  Objects.isNull(sectionData),
+                  entry.getKey().name(),
+                  latestSubmittedDetail.getId(),
+                  documentInstance.getId(),
+                  docGenType.name()
+          );
+          return sectionData;
+        })
         .filter(Objects::nonNull)
         .forEach(documentSectionData -> {
 
