@@ -1,8 +1,0 @@
-# commons-io:commons-io
-CVE-2021-29425
-
-# io.netty:netty-codec
-CVE-2022-24823
-
-# org.apache.httpcomponents:httpclient
-CVE-2020-13956
