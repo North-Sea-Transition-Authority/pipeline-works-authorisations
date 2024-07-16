@@ -111,7 +111,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   public void setup() {
 
 
-    doCallRealMethod().when(pickPwaFormValidator).validate(any(), any(), any());
+    doCallRealMethod().when(pickPwaFormValidator).validate(any(), any(), any(Object[].class));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     pwaApplication = pwaApplicationDetail.getPwaApplication();

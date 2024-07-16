@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.repository.pwaconsents;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;

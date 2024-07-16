@@ -5,7 +5,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class PipelineDetailIdentServiceTest {
   private PipelineDetailIdentService pipelineDetailIdentService;
 
   @Captor
-  private ArgumentCaptor<List<PipelineDetailIdent>> pipelineDetailIdentsCaptor;
+  private ArgumentCaptor<Collection<PipelineDetailIdent>> pipelineDetailIdentsCaptor;
 
   @Captor
   private ArgumentCaptor<Map<PipelineDetailIdent, Set<PadPipelineIdentData>>> identDataCreationMapCaptor;

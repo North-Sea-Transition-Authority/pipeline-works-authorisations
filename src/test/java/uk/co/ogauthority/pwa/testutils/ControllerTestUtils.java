@@ -51,7 +51,7 @@ public class ControllerTestUtils {
       fieldsWithErrors.forEach(field ->
           result.rejectValue(field, "fake.code", "fake message"));
       return result;
-    }).when(validator).validate(any(), any(), any());
+    }).when(validator).validate(any(), any(), any(Object[].class));
 
   }
 

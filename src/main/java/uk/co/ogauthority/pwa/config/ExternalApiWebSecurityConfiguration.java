@@ -1,18 +1,16 @@
 package uk.co.ogauthority.pwa.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
 import uk.co.ogauthority.pwa.externalapi.PipelineDtoController;
 
 @Configuration
-@EnableWebSecurity
-@Order(1)
-class ExternalApiWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class ExternalApiWebSecurityConfiguration {
 
   private final String preSharedKey;
   private final ExternalApiAuthenticationEntryPoint externalApiAuthenticationEntryPoint;
@@ -26,20 +24,23 @@ class ExternalApiWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     this.externalApiAuthenticationEntryPoint = externalApiAuthenticationEntryPoint;
   }
 
-  @Override
-  protected void configure(HttpSecurity httpSecurity) throws Exception {
+  @Bean
+  @Order(1)
+  protected SecurityFilterChain externalApiFilterChain(HttpSecurity httpSecurity) throws Exception {
     var filter = new PreSharedKeyAuthFilter("Authorization");
     filter.setAuthenticationManager(new ExternalApiSecurityAuthManager(preSharedKey));
-    httpSecurity
-        .mvcMatcher(ENERGY_PORTAL_API_PATH_MATCHER)
-        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and()
-        .addFilter(filter).authorizeRequests()
-          .anyRequest().authenticated()
-        .and()
-        .exceptionHandling()
-          .authenticationEntryPoint(externalApiAuthenticationEntryPoint);
 
-    httpSecurity.csrf().ignoringAntMatchers(ENERGY_PORTAL_API_PATH_MATCHER);
+    httpSecurity
+        .securityMatcher(ENERGY_PORTAL_API_PATH_MATCHER)
+        .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry.anyRequest().authenticated())
+        .sessionManagement(httpSecuritySessionManagementConfigurer ->
+            httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .addFilter(filter)
+        .csrf(csrfConfigurer -> csrfConfigurer.ignoringRequestMatchers(ENERGY_PORTAL_API_PATH_MATCHER))
+        .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+            httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(externalApiAuthenticationEntryPoint));
+
+    return httpSecurity.build();
   }
 }

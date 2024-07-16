@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions;
 
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchContext;
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParameters;
@@ -19,7 +19,7 @@ public interface ApplicationSearchPredicateProvider {
 
   Predicate createPredicate(ApplicationSearchContext applicationSearchContext,
                             ApplicationSearchParameters applicationSearchParameters,
-                            CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                            CriteriaQuery<?> searchCoreQuery,
                             Root<ApplicationDetailView> searchCoreRoot);
 
 }

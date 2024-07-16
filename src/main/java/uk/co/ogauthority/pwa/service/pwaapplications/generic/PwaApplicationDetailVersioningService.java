@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 import static uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask.distinctByService;
 
+import jakarta.transaction.Transactional;
 import java.util.Comparator;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;

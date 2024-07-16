@@ -2,16 +2,16 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions;
 
 import static java.util.stream.Collectors.toSet;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.time.Instant;
 import java.util.Set;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
   @Override
   public Predicate createPredicate(ApplicationSearchContext applicationSearchContext,
                                    ApplicationSearchParameters applicationSearchParameters,
-                                   CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                   CriteriaQuery<?> searchCoreQuery,
                                    Root<ApplicationDetailView> searchCoreRoot) {
     Set<UserType> userTypes = applicationSearchContext.getUserTypes();
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -91,7 +91,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
-  private Predicate getLastSubmittedVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+  private Predicate getLastSubmittedVersionPredicate(CriteriaQuery<?> searchCoreQuery,
                                                      Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -107,7 +107,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
-  private Predicate getLastSubmittedVersionOrFirstDraftPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+  private Predicate getLastSubmittedVersionOrFirstDraftPredicate(CriteriaQuery<?> searchCoreQuery,
                                                                  Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -125,7 +125,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
 
   }
 
-  private Predicate getLatestSatisfactoryVersionPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+  private Predicate getLatestSatisfactoryVersionPredicate(CriteriaQuery<?> searchCoreQuery,
                                                           Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -145,7 +145,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
   /**
    * Restrict to the last submitted version of all apps only.
    */
-  private Predicate createRegulatorUserPredicate(CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+  private Predicate createRegulatorUserPredicate(CriteriaQuery<?> searchCoreQuery,
                                                  Root<ApplicationDetailView> searchCoreRoot) {
     return getLastSubmittedVersionPredicate(searchCoreQuery, searchCoreRoot);
 
@@ -155,7 +155,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
    * Return applications only where the user's consultee group has been consulted and only return the "last accepted" version.
    */
   private Predicate createConsulteeUserPredicate(ApplicationSearchContext applicationSearchContext,
-                                                CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                CriteriaQuery<?> searchCoreQuery,
                                                 Root<ApplicationDetailView> searchCoreRoot) {
 
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -187,7 +187,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
    * NB. Holders defined the application should be ignored except when its an INITIAL_PWA application.
    */
   private Predicate createIndustryUserPredicate(ApplicationSearchContext applicationSearchContext,
-                                                CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                CriteriaQuery<?> searchCoreQuery,
                                                 Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
@@ -204,7 +204,7 @@ public class RestrictByUserTypePredicateProvider implements ApplicationSearchPre
   }
 
   private Predicate getHolderOrgApplicationsPredicate(ApplicationSearchContext applicationSearchContext,
-                                                      CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                                      CriteriaQuery<?> searchCoreQuery,
                                                       Root<ApplicationDetailView> searchCoreRoot) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 

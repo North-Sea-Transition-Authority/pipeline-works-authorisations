@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import javax.persistence.EntityNotFoundException;
 import org.apache.commons.collections4.IterableUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

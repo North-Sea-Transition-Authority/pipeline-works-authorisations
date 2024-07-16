@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

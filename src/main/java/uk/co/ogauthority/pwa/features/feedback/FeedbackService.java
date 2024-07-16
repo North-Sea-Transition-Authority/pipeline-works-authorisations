@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.features.feedback;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import javax.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

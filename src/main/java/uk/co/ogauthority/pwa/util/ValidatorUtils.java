@@ -3,13 +3,13 @@ package uk.co.ogauthority.pwa.util;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.INVALID;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
+import jakarta.annotation.Nullable;
 import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
 import java.util.function.Supplier;
-import javax.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.Range;

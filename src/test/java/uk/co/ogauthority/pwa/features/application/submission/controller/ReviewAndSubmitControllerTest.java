@@ -244,7 +244,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("madeOnlyRequestedChanges", "madeOnlyRequestedChanges.required", "message");
       return invocation;
-    }).when(validator).validate(any(), any(), any());
+    }).when(validator).validate(any(), any(), any(Object[].class));
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
@@ -421,7 +421,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("madeOnlyRequestedChanges", "madeOnlyRequestedChanges.required", "message");
       return invocation;
-    }).when(validator).validate(any(), any(), any());
+    }).when(validator).validate(any(), any(), any(Object[].class));
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))

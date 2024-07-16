@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.model.form.pwaapplications.start;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class StartPwaApplicationForm {
 

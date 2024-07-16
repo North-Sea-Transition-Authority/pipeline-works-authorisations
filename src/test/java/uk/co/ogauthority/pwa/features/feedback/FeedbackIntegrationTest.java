@@ -86,7 +86,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   private final static Instant DATETIME = Instant.parse("2020-04-29T10:15:30Z");
   private final static Integer APPLICATION_ID = 10;
   private final static String CASE_REFERENCE = "APP_REFERENCE/" + APPLICATION_ID;
-  private final static String CASE_LINK = String.format("http://test/pwa/pwa-application/options/%s/case-management/TASKS/", APPLICATION_ID);
+  private final static String CASE_LINK = String.format("http://test/pwa/pwa-application/options/%s/case-management/TASKS", APPLICATION_ID);
   private final static Integer APPLICATION_DETAIL_ID = 20;
   private final static String SUPPORT_EMAIl = ServiceContactDetail.TECHNICAL_SUPPORT.getEmailAddress();
 

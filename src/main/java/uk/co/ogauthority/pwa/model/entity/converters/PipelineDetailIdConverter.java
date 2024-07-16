@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.model.entity.converters;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 
 @Converter

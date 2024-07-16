@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.transaction.Transactional;
 import java.util.List;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;

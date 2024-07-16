@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class AddBlockCrossingForm extends EditBlockCrossingForm {
 

@@ -83,7 +83,7 @@ public class DocumentInstanceServiceTest {
   private ArgumentCaptor<Collection<DocumentInstanceSectionClause>> clausesCaptor;
 
   @Captor
-  private ArgumentCaptor<List<DocumentInstanceSectionClauseVersion>> clauseVersionsCaptor;
+  private ArgumentCaptor<Collection<DocumentInstanceSectionClauseVersion>> clauseVersionsCaptor;
 
   @Captor
   private ArgumentCaptor<DocumentInstanceSectionClauseVersion> singleClauseVersionCaptor;

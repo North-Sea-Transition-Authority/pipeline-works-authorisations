@@ -176,7 +176,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("ogaSubmissionReason", MAX_LENGTH_EXCEEDED.errorCode("ogaSubmissionReason"), "error message");
       return errors;
-    }).when(asBuiltNotificationSubmissionValidator).validate(any(), any(), any());
+    }).when(asBuiltNotificationSubmissionValidator).validate(any(), any(), any(Object[].class));
 
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)

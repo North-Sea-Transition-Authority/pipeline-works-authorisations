@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineBundlePairDto;

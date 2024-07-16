@@ -19,8 +19,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
@@ -28,6 +30,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaDtoController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+@Import(ExternalApiWebSecurityConfiguration.class)
 public class PwaDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @MockBean

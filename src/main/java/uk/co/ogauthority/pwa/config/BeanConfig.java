@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.validation.Validation;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Clock;
-import javax.validation.Validation;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
