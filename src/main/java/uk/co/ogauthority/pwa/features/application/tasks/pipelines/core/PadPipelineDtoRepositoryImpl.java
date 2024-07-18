@@ -179,7 +179,7 @@ public class PadPipelineDtoRepositoryImpl implements PadPipelineDtoRepository {
   @Override
   public Integer getMaxTemporaryNumberByPwaApplicationDetail(PwaApplicationDetail pwaApplicationDetail) {
     return entityManager.createQuery("" +
-        "SELECT NVL(MAX(pp.temporaryNumber), 0) " +
+        "SELECT COALESCE(MAX(pp.temporaryNumber), 0) " +
         "FROM PadPipeline pp " +
         "WHERE pp.pwaApplicationDetail = :detail", Integer.class)
         .setParameter("detail", pwaApplicationDetail)
