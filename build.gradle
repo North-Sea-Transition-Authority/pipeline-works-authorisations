@@ -23,6 +23,7 @@ repositories {
   mavenCentral()
   maven { url "https://nexus.fivium.co.uk/repository/maven-releases/" }
   maven { url "https://nexus.fivium.co.uk/repository/maven-snapshots/" }
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
@@ -42,6 +43,9 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
+  // Temporarily bump Hibernate to 6.5.3-SNAPSHOT until 6.5.3 is released with the fix for slow queries
+  // https://hibernate.atlassian.net/browse/HHH-18352.
+  implementation 'org.hibernate.orm:hibernate-core:6.5.3-SNAPSHOT'
   implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE'
