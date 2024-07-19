@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;

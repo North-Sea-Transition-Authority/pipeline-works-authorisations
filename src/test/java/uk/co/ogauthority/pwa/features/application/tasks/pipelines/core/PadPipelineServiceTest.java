@@ -605,7 +605,7 @@ public class PadPipelineServiceTest {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
-    }).when(pipelineHeaderFormValidator).validate(any(), any(), any());
+    }).when(pipelineHeaderFormValidator).validate(any(), any(), any(Object[].class));
 
     PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);

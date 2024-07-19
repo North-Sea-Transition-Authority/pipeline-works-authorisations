@@ -154,7 +154,7 @@ public class PwaApplicationEndpointTestBuilder {
   }
 
   public PwaApplicationEndpointTestBuilder setRequestMethod(HttpMethod requestMethod) {
-    if (!EnumSet.of(HttpMethod.GET, HttpMethod.POST).contains(requestMethod)) {
+    if (requestMethod != HttpMethod.GET && requestMethod != HttpMethod.POST) {
       throw new IllegalArgumentException("Only GET,  POST supported request types. Actual: " + requestMethod);
     }
     this.requestMethod = requestMethod;

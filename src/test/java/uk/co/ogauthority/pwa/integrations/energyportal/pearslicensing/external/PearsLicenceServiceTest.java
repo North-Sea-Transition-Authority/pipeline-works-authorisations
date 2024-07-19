@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityNotFoundException;
 import org.assertj.core.util.IterableUtil;
 import org.junit.Before;
 import org.junit.Test;

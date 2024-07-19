@@ -2,15 +2,15 @@ package uk.co.ogauthority.pwa.repository.asbuilt;
 
 import static java.util.stream.Collectors.toSet;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -61,15 +61,20 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     //count query
     CriteriaQuery<Long> countResultsQuery = cb.createQuery(Long.class);
     Root<AsBuiltNotificationWorkareaView> countQueryRoot = countResultsQuery.from(AsBuiltNotificationWorkareaView.class);
-    countResultsQuery.select(cb.count(root));
+    countResultsQuery.select(cb.count(countQueryRoot));
 
-    List<Predicate> predicates = new ArrayList<Predicate>();
-    addPredicateToFilterBasedOnUserType(predicates, authenticatedUserAccount, cq, countResultsQuery, root);
-    addPredicateToFilterGroupsWithCompleteStatus(predicates, cq, countResultsQuery, root);
+    List<Predicate> predicates = new ArrayList<>();
+    List<Predicate> countPredicates = new ArrayList<>();
+
+    addPredicateToFilterBasedOnUserType(predicates, authenticatedUserAccount, cq, root);
+    addPredicateToFilterBasedOnUserType(countPredicates, authenticatedUserAccount, countResultsQuery, countQueryRoot);
+
+    addPredicateToFilterGroupsWithCompleteStatus(predicates, root);
+    addPredicateToFilterGroupsWithCompleteStatus(countPredicates, countQueryRoot);
 
     //needs to apply same predicates to both result query and count query
     cq.where(predicates.toArray(new Predicate[]{}));
-    countResultsQuery.where(predicates.toArray(new Predicate[]{}));
+    countResultsQuery.where(countPredicates.toArray(new Predicate[]{}));
 
     var resultsQuery = createAsBuiltWorkAreaResultsQuery(cb, cq, root, pageable);
     var totalResultCount = entityManager.createQuery(countResultsQuery).getSingleResult();
@@ -106,20 +111,22 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
     return cb.in(searchCoreRoot.get(ApplicationDetailView_.PWA_ID)).value(applicationSubQuery);
   }
 
-  private void addPredicateToFilterBasedOnUserType(List<Predicate> predicates, AuthenticatedUserAccount user,
-                                          CriteriaQuery<AsBuiltNotificationWorkareaView> query,
-                                          CriteriaQuery<Long> countQuery,
-                                          Root<AsBuiltNotificationWorkareaView> root) {
+  private void addPredicateToFilterBasedOnUserType(
+      List<Predicate> predicates,
+      AuthenticatedUserAccount user,
+      CriteriaQuery<?> query,
+      Root<AsBuiltNotificationWorkareaView> root
+  ) {
     if (!isUserAsBuiltNotificationAdmin(user.getLinkedPerson())) {
       var groupsUserCanAccess = getOrgGroupsUserCanAccess(user);
       predicates.add(getHolderOrgApplicationsPredicate(groupsUserCanAccess, query, root));
     }
   }
 
-  private void addPredicateToFilterGroupsWithCompleteStatus(List<Predicate> predicates,
-                                                                  CriteriaQuery<AsBuiltNotificationWorkareaView> query,
-                                                                  CriteriaQuery<Long> countQuery,
-                                                                  Root<AsBuiltNotificationWorkareaView> root) {
+  private void addPredicateToFilterGroupsWithCompleteStatus(
+      List<Predicate> predicates,
+      Root<AsBuiltNotificationWorkareaView> root
+  ) {
     CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     predicates.add(cb.notEqual(root.get("status"), AsBuiltNotificationGroupStatus.COMPLETE));
   }

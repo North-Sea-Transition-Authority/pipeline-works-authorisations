@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.controller.appprocessing.casenotes;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

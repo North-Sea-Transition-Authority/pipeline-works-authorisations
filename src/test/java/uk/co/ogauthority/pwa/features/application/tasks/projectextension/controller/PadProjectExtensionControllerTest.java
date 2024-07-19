@@ -124,7 +124,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
             .with(csrf())
             .param(ValidationType.FULL.getButtonText(), ""))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/pwa-application/initial/1/tasks/"));
+        .andExpect(view().name("redirect:/pwa-application/initial/1/tasks"));
   }
 
   @Test

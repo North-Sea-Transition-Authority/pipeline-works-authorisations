@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.List;
-import javax.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 
 public class EditCarbonStorageAreaCrossingForm {

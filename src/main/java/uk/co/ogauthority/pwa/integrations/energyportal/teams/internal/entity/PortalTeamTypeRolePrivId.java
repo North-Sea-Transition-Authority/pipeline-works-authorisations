@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 
 @Embeddable
 public class PortalTeamTypeRolePrivId implements Serializable {

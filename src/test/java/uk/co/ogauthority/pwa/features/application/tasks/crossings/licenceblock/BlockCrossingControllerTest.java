@@ -213,7 +213,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(getValidAddBlockFormAsMap()))
         .andExpect(status().is3xxRedirection());
 
-    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
+    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any(Object[].class));
 
   }
 
@@ -233,7 +233,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .with(csrf())
             .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
-    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
+    verify(addBlockCrossingFormValidator, times(1)).validate(any(), any(), any(Object[].class));
 
   }
 
@@ -376,7 +376,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(getValidEditBlockFormAsMap()))
         .andExpect(status().is3xxRedirection());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any(Object[].class));
 
   }
 
@@ -398,7 +398,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
             .params(new LinkedMultiValueMap<>()))
         .andExpect(status().isOk());
 
-    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any());
+    verify(editBlockCrossingFormValidator, times(1)).validate(any(), any(), any(Object[].class));
   }
 
   @Test

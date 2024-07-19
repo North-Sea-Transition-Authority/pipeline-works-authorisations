@@ -60,7 +60,7 @@ public class PadConfirmationOfOptionServiceTest {
 
     // always return input binding result
     doAnswer(invocation -> invocation.getArgument(1))
-        .when(confirmOptionFormValidator).validate(any(), any(), any());
+        .when(confirmOptionFormValidator).validate(any(), any(), any(Object[].class));
     when(confirmOptionFormValidator.supports(any())).thenReturn(true);
 
   }

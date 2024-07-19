@@ -1,27 +1,17 @@
-buildscript {
-  repositories {
-    mavenCentral()
-  }
-  dependencies {
-    classpath 'org.owasp:dependency-check-gradle:5.2.4'
-  }
-}
-
 plugins {
-  id 'org.springframework.boot' version '2.7.12'
+  id 'org.springframework.boot' version '3.3.1'
+  id 'io.spring.dependency-management' version '1.1.5'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
   id 'war'
-  id "org.sonarqube" version "3.0"
+  id 'org.sonarqube' version '5.0.0.4638'
+  id 'org.owasp.dependencycheck' version '6.1.2'
 }
-
-apply plugin: 'io.spring.dependency-management'
-apply plugin: 'org.owasp.dependencycheck'
 
 group = 'uk.co.fivium'
 version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
-sourceCompatibility = '11'
+sourceCompatibility = '21'
 
 tasks {
   bootJar {
@@ -29,18 +19,11 @@ tasks {
   }
 }
 
-sourceSets.main.java.srcDirs += "${buildDir}/generated"
-
-// annotation processor generated classes should be placed in /generated directory.
-compileJava {
-  options.annotationProcessorGeneratedSourcesDirectory = file("${buildDir}/generated")
-}
-
-
 repositories {
   mavenCentral()
   maven { url "https://nexus.fivium.co.uk/repository/maven-releases/" }
   maven { url "https://nexus.fivium.co.uk/repository/maven-snapshots/" }
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 dependencies {
@@ -60,24 +43,33 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-  implementation 'org.flywaydb:flyway-core:5.2.1-FIVIUM'
-  implementation 'com.oracle:ojdbc7:12.1.0.2'
+  // Temporarily bump Hibernate to 6.5.3-SNAPSHOT until 6.5.3 is released with the fix for slow queries
+  // https://hibernate.atlassian.net/browse/HHH-18352.
+  implementation 'org.hibernate.orm:hibernate-core:6.5.3-SNAPSHOT'
+  implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
+  implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:3.17.0-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation 'org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:3.4.4'
+  implementation('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.21.0') {
+    // Exclude com.sun.xml.bind JAXB as it conflicts with glassfish JAXB from Hibernate Envers. The packages inside
+    // the dependencies are the same so it is fine to exclude it.
+    exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
+  }
 
-  // Required by Hibernate Envers
-  // https://mvnrepository.com/artifact/org.hibernate/hibernate-envers
-  implementation 'org.hibernate:hibernate-envers:5.6.5.Final'
+  implementation 'org.springframework.data:spring-data-envers'
 
   // automatically generates jpa meta-model for type safe criteria builder queries
-  annotationProcessor("javax.xml.bind:jaxb-api")
-  annotationProcessor("org.hibernate:hibernate-jpamodelgen")
+  annotationProcessor("jakarta.xml.bind:jakarta.xml.bind-api")
+  annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
 
-  implementation 'com.google.guava:guava:31.0.1-jre'
+  implementation 'com.google.guava:guava:33.2.1-jre'
   implementation 'org.apache.commons:commons-lang3:3.12.0'
   implementation 'org.apache.commons:commons-collections4:4.4'
-  implementation group: 'commons-validator', name: 'commons-validator', version: '1.7'
+  implementation('commons-validator:commons-validator:1.7') {
+    // Exclude commons-logging to fix "Standard Commons Logging discovery in action with spring-jcl: please remove
+    // commons-logging.jar from classpath in order to avoid potential conflicts" warning on startup.
+    exclude group: 'commons-logging', module: 'commons-logging'
+  }
 
   implementation group: 'fi.solita.clamav', name: 'clamav-client', version: '1.0.1'
 
@@ -98,7 +90,7 @@ dependencies {
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
   testImplementation 'com.h2database:h2:1.4.200'
-  testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.1.8'
+  testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.16.1'
   testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
@@ -130,13 +122,11 @@ dependencyCheck {
 test {
   minHeapSize = "5g" // initial heap size
   maxHeapSize = "10g" // maximum heap size
-  jvmArgs '-XX:MaxPermSize=10g' // mem argument for the test JVM
 }
 
 tasks.jacocoTestReport {
   reports {
-    xml.enabled(true)
-    html.enabled(false)
+    xml.required = true
   }
 }
 

@@ -3,12 +3,12 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.review
 import static org.quartz.JobBuilder.newJob;
 import static org.quartz.JobKey.jobKey;
 
+import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;

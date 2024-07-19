@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.organisations.external;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import org.hibernate.annotations.Immutable;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 

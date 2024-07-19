@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+@WebMvcTest(WebDataBinderTest.class)
 @Import(PwaMvcTestConfiguration.class)
 public class WebDataBinderTest extends AbstractControllerTest {
 

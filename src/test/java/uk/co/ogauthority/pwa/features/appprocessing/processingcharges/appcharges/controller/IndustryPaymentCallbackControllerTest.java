@@ -146,7 +146,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
         .with(authenticatedUserAndSession(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
-        .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS/"))
+        .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS"))
         .andExpect(flash().attributeCount(2));
 
     verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.PAYMENT_ATTEMPT_NOT_COMPLETED));

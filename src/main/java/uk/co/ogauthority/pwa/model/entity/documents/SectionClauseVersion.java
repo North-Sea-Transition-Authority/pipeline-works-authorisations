@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.model.entity.documents;
 
+import jakarta.persistence.Basic;
+import jakarta.persistence.Convert;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
 import java.util.Optional;
-import javax.persistence.Basic;
-import javax.persistence.Convert;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.MappedSuperclass;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.converters.PersonIdConverter;
 import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;

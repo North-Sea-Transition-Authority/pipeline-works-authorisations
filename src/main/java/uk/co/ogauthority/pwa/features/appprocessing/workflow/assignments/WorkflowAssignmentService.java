@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments;
 
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;

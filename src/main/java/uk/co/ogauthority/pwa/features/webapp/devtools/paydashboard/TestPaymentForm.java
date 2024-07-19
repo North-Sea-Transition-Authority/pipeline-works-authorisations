@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.webapp.devtools.paydashboard;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 public class TestPaymentForm {
 

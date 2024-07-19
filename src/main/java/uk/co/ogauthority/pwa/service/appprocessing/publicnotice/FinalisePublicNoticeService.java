@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
+import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Set;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;

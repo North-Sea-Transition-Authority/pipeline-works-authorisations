@@ -1,13 +1,14 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
 
@@ -25,7 +26,7 @@ public class PadDepositPipeline implements ChildEntity<Integer, PadPermanentDepo
   private PadPermanentDeposit padPermanentDeposit;
 
   @NotNull
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "pipeline_id")
   private Pipeline pipeline;
 

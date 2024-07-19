@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.submission.controller;
 
+import jakarta.transaction.Transactional;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
