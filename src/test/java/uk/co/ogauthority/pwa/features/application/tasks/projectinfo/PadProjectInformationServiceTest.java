@@ -140,11 +140,14 @@ public class PadProjectInformationServiceTest {
   @Test
   public void getPadProjectInformationData_NoExisting() {
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());
-    var result = service.getPadProjectInformationData(pwaApplicationDetail);
-    assertThat(result).isNotEqualTo(padProjectInformation);
-    assertThat(result.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-  }
+    var padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
 
+    when(padProjectInformationRepository.save(refEq(padProjectInformation))).thenReturn(padProjectInformation);
+    var result = service.getPadProjectInformationData(pwaApplicationDetail);
+    assertThat(result).isEqualTo(padProjectInformation);
+    assertThat(result.getPwaApplicationDetail()).usingRecursiveComparison().isEqualTo(pwaApplicationDetail);
+  }
 
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeContainsLicence() {

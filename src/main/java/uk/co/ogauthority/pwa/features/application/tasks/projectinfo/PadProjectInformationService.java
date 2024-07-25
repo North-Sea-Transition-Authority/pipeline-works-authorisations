@@ -66,7 +66,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(new PadProjectInformation());
+        .orElseGet(() -> getNewPadProjectInformation(pwaApplicationDetail));
     projectInformation.setPwaApplicationDetail(pwaApplicationDetail);
     return projectInformation;
   }
@@ -84,11 +84,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padLicenceTransactionService.mapApplicationsToForm(form, padProjectInformation);
   }
 
-
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
     List<String> licenceApplications = projectInformation.getId() != null
@@ -102,7 +102,6 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         licenceApplications
     );
   }
-
 
   /**
    * From the form extract form data and file data which should be persisted.
@@ -349,7 +348,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     }
 
     return map;
-
   }
 
+  private PadProjectInformation getNewPadProjectInformation(PwaApplicationDetail pwaApplicationDetail) {
+    var padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
+    return padProjectInformationRepository.save(padProjectInformation);
+  }
 }
