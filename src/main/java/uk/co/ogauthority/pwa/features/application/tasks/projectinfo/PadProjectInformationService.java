@@ -4,14 +4,12 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,13 +91,16 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
-    var licenceApplications = padLicenceTransactionService.getInformationSummary(projectInformation);
+    List<String> licenceApplications = projectInformation.getId() != null
+        ? padLicenceTransactionService.getInformationSummary(projectInformation)
+        : List.of();
 
     return new ProjectInformationView(
         projectInformation,
         isFdpQuestionRequired(pwaApplicationDetail),
         !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null,
-        licenceApplications);
+        licenceApplications
+    );
   }
 
 
@@ -234,7 +235,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType(), detail.getResourceType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)
-        && !projectInformation.getLicenceTransferPlanned()) {
+        && BooleanUtils.isFalse(projectInformation.getLicenceTransferPlanned())) {
       // null out licence transfer info if no licence transfer
       projectInformation.setLicenceTransferTimestamp(null);
       projectInformation.setCommercialAgreementTimestamp(null);
@@ -242,7 +243,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     // null out temporary deposit description if temporary deposits not made
     if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)
-        && !projectInformation.getTemporaryDepositsMade()) {
+        && BooleanUtils.isFalse(projectInformation.getTemporaryDepositsMade())) {
       projectInformation.setTemporaryDepDescription(null);
     }
 
