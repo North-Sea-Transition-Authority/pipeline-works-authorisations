@@ -65,18 +65,18 @@ public class PipelineHeaderFormValidator implements SmartValidator {
       PipelineValidationUtils.validateLength(form.getLength(), errors, "length", "Pipeline length");
     }
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "productsToBeConveyed", "productsToBeConveyed.required",
-        "Enter the products to be conveyed");
-
-    ValidatorUtils.validateDefaultStringLength(
-        errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
-
     ValidationUtils.rejectIfEmptyOrWhitespace(errors, "componentPartsDescription", "componentPartsDescription.required",
         "Enter a description of the component parts");
 
     ValidatorUtils.validateDefaultStringLength(
         errors, "componentPartsDescription", form::getComponentPartsDescription,
         "Description of the component parts");
+
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "productsToBeConveyed", "productsToBeConveyed.required",
+        "Enter the products to be conveyed");
+
+    ValidatorUtils.validateDefaultStringLength(
+        errors, "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
 
     ValidationUtils.rejectIfEmpty(errors, "trenchedBuriedBackfilled", "trenchedBuriedBackfilled.required",
         "Select yes if the pipeline will be trenched and/or buried and/or backfilled");
