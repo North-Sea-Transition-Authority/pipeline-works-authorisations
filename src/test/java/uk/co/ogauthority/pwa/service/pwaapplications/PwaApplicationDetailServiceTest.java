@@ -42,6 +42,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackSe
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.PadInitialReviewService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -74,6 +75,9 @@ public class PwaApplicationDetailServiceTest {
 
   @Mock
   private UserTypeService userTypeService;
+
+  @Mock
+  private PadInitialReviewService initialReviewService;
 
   @Mock
   private Consumer<PwaApplicationDetail> detailHandlerFunction;
@@ -111,8 +115,8 @@ public class PwaApplicationDetailServiceTest {
 
     when(applicationDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService, userTypeService
-        );
+    pwaApplicationDetailService = new PwaApplicationDetailService(applicationDetailRepository, clock, fastTrackService,
+        userTypeService, initialReviewService);
   }
 
   @Test
@@ -303,6 +307,9 @@ public class PwaApplicationDetailServiceTest {
     var newDetail = pwaApplicationDetailService
         .createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, user);
 
+    verify(initialReviewService, times(1))
+        .carryForwardInitialReview(pwaApplicationDetail, newDetail);
+
     // Test Old Detail
     assertThat(pwaApplicationDetail.isTipFlag()).isFalse();
 
@@ -314,12 +321,14 @@ public class PwaApplicationDetailServiceTest {
     assertThat(newDetail.isTipFlag()).isTrue();
     assertThat(newDetail.getCreatedTimestamp()).isAfter(pwaApplicationDetail.getCreatedTimestamp());
     assertThat(newDetail.getStatusLastModifiedTimestamp()).isEqualTo(newDetail.getCreatedTimestamp());
-    assertThat(newDetail.getStatusLastModifiedByWuaId()).isNotEqualTo(pwaApplicationDetail.getStatusLastModifiedByWuaId());
+    assertThat(newDetail.getStatusLastModifiedByWuaId()).isNotEqualTo(
+        pwaApplicationDetail.getStatusLastModifiedByWuaId());
     assertThat(newDetail.getCreatedByWuaId()).isNotEqualTo(pwaApplicationDetail.getCreatedByWuaId());
     // sets new detail to UPDATE_REQUESTED
     assertThat(newDetail.getStatus()).isEqualTo(PwaApplicationStatus.UPDATE_REQUESTED);
 
-    var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp", "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
+    var ignoredFields = List.of("id", "status", "tipFlag", "versionNo", "createdTimestamp",
+        "statusLastModifiedTimestamp", "statusLastModifiedByWuaId", "createdByWuaId");
 
     var nullFields = List.of("id",
         "submittedByPersonId",
@@ -414,19 +423,20 @@ public class PwaApplicationDetailServiceTest {
     // want to make sure that this method always gives every pwaApplicationDetail attribute a value.
     // This should ensure that tests are updated if attributes added later on.
     var nullFields = Arrays.stream(FieldUtils.getAllFields(PwaApplicationDetail.class))
-       .filter(field -> Objects.isNull(getFieldValue(field, detail)))
+        .filter(field -> Objects.isNull(getFieldValue(field, detail)))
         .map(Field::getName)
-       .collect(Collectors.toSet());
+        .collect(Collectors.toSet());
     // If this has values, need to make sure some value is set, and that creating a new version of a detail deals with that attribute.
     try {
       assertThat(nullFields).isEmpty();
     } catch (AssertionError e) {
-      throw new AssertionError(String.format("Expected all fields to be given a value, but [%s] is/are null", String.join(",", nullFields)));
+      throw new AssertionError(
+          String.format("Expected all fields to be given a value, but [%s] is/are null", String.join(",", nullFields)));
     }
   }
 
   @Test
-  public void getLatestDetailForUser_industry_firstDraft(){
+  public void getLatestDetailForUser_industry_firstDraft() {
 
     var draftDetail = new PwaApplicationDetail();
     draftDetail.setStatus(PwaApplicationStatus.DRAFT);
@@ -444,7 +454,7 @@ public class PwaApplicationDetailServiceTest {
 
   }
 
-  private PwaApplicationDetail createDetail(PwaApplicationStatus pwaApplicationStatus, int versionNumber){
+  private PwaApplicationDetail createDetail(PwaApplicationStatus pwaApplicationStatus, int versionNumber) {
     var detail = new PwaApplicationDetail();
     detail.setVersionNo(versionNumber);
     detail.setStatus(pwaApplicationStatus);
@@ -453,7 +463,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_submitted(){
+  public void getLatestDetailForUser_industry_submitted() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -462,7 +472,8 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setSubmittedTimestamp(Instant.now());
     submittedDetail2.setTipFlag(true);
 
-    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(
+        List.of(draftDetail, submittedDetail1, submittedDetail2));
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
@@ -474,7 +485,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_submittedVersionExists(){
+  public void getLatestDetailForUser_industry_andOga_submittedVersionExists() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -483,7 +494,8 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setSubmittedTimestamp(Instant.now());
     submittedDetail2.setTipFlag(true);
 
-    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(
+        List.of(draftDetail, submittedDetail1, submittedDetail2));
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY, UserType.OGA));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
@@ -495,7 +507,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_submittedVersions_draftVersionIsTip(){
+  public void getLatestDetailForUser_industry_andOga_submittedVersions_draftVersionIsTip() {
 
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 1);
     var submittedDetail2 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -503,7 +515,8 @@ public class PwaApplicationDetailServiceTest {
     var draftDetail = createDetail(PwaApplicationStatus.UPDATE_REQUESTED, 3);
     draftDetail.setTipFlag(true);
 
-    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(submittedDetail1, submittedDetail2, draftDetail));
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(
+        List.of(submittedDetail1, submittedDetail2, draftDetail));
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY, UserType.OGA));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
@@ -515,7 +528,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_firstDraftVersionIsTip(){
+  public void getLatestDetailForUser_industry_andOga_firstDraftVersionIsTip() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     draftDetail.setTipFlag(true);
@@ -532,7 +545,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_oga_submitted(){
+  public void getLatestDetailForUser_oga_submitted() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -541,7 +554,8 @@ public class PwaApplicationDetailServiceTest {
     submittedDetail2.setSubmittedTimestamp(Instant.now());
     submittedDetail2.setTipFlag(true);
 
-    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(List.of(draftDetail, submittedDetail1, submittedDetail2));
+    when(applicationDetailRepository.findByPwaApplicationId(APP_ID)).thenReturn(
+        List.of(draftDetail, submittedDetail1, submittedDetail2));
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.OGA));
 
     var latestDetailOpt = pwaApplicationDetailService.getLatestDetailForUser(APP_ID, user);
@@ -623,7 +637,8 @@ public class PwaApplicationDetailServiceTest {
 
   @Test
   public void getAllWithdrawnApplicationDetailsForApplication() {
-    pwaApplicationDetailService.getAllWithdrawnApplicationDetailsForApplication(pwaApplicationDetail.getPwaApplication());
+    pwaApplicationDetailService.getAllWithdrawnApplicationDetailsForApplication(
+        pwaApplicationDetail.getPwaApplication());
     verify(applicationDetailRepository, times(1))
         .findByPwaApplicationAndStatus(pwaApplicationDetail.getPwaApplication(), PwaApplicationStatus.WITHDRAWN);
   }
@@ -636,7 +651,8 @@ public class PwaApplicationDetailServiceTest {
     var detail2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId2);
 
     var openStatuses = ApplicationState.IN_PROGRESS.getStatuses();
-    when(applicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(openStatuses)).thenReturn(List.of(detail1, detail2));
+    when(applicationDetailRepository.findLastSubmittedAppDetailsWithStatusIn(openStatuses)).thenReturn(
+        List.of(detail1, detail2));
 
     var openApplicationIds = pwaApplicationDetailService.getInProgressApplicationIds();
     assertThat(openApplicationIds).isEqualTo(List.of(
@@ -706,12 +722,15 @@ public class PwaApplicationDetailServiceTest {
 
   @Test
   public void getLatestDetailsForApplications() {
-    when(applicationDetailRepository.findByPwaApplicationIsInAndTipFlagIsTrue(List.of(pwaApplicationDetail.getPwaApplication())))
+    when(applicationDetailRepository.findByPwaApplicationIsInAndTipFlagIsTrue(
+        List.of(pwaApplicationDetail.getPwaApplication())))
         .thenReturn(List.of(pwaApplicationDetail));
-    assertThat(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(pwaApplicationDetail.getPwaApplication())))
+    assertThat(
+        pwaApplicationDetailService.getLatestDetailsForApplications(List.of(pwaApplicationDetail.getPwaApplication())))
         .isEqualTo(List.of(pwaApplicationDetail));
 
-    verify(applicationDetailRepository).findByPwaApplicationIsInAndTipFlagIsTrue(List.of(pwaApplicationDetail.getPwaApplication()));
+    verify(applicationDetailRepository).findByPwaApplicationIsInAndTipFlagIsTrue(
+        List.of(pwaApplicationDetail.getPwaApplication()));
   }
 
   @Test
@@ -738,7 +757,8 @@ public class PwaApplicationDetailServiceTest {
 
     var pwaApplication = new PwaApplication();
     var lastSubmittedDetail = new PwaApplicationDetail();
-    when(applicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication)).thenReturn(List.of(lastSubmittedDetail));
+    when(applicationDetailRepository.findByPwaApplicationAndSubmittedTimestampIsNotNull(pwaApplication)).thenReturn(
+        List.of(lastSubmittedDetail));
 
     pwaApplicationDetailService.doWithLastSubmittedDetailIfExists(pwaApplication, detailHandlerFunction);
 

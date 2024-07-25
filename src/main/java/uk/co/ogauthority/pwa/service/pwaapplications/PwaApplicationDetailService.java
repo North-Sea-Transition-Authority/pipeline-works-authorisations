@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.fasttrack.PadFastTrackSe
 import uk.co.ogauthority.pwa.features.application.tasks.othertechprops.PropertyPhase;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision;
+import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.PadInitialReviewService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -42,6 +43,7 @@ public class PwaApplicationDetailService {
   private final Clock clock;
   private final PadFastTrackService padFastTrackService;
   private final UserTypeService userTypeService;
+  private final PadInitialReviewService padInitialReviewService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaApplicationDetailService.class);
 
@@ -49,11 +51,13 @@ public class PwaApplicationDetailService {
   public PwaApplicationDetailService(PwaApplicationDetailRepository pwaApplicationDetailRepository,
                                      @Qualifier("utcClock") Clock clock,
                                      PadFastTrackService padFastTrackService,
-                                     UserTypeService userTypeService) {
+                                     UserTypeService userTypeService,
+                                     PadInitialReviewService padInitialReviewService) {
     this.pwaApplicationDetailRepository = pwaApplicationDetailRepository;
     this.clock = clock;
     this.padFastTrackService = padFastTrackService;
     this.userTypeService = userTypeService;
+    this.padInitialReviewService = padInitialReviewService;
   }
 
   public PwaApplicationDetail getTipDetailByApplication(PwaApplication pwaApplication) {
@@ -154,10 +158,13 @@ public class PwaApplicationDetailService {
                                                  PwaApplicationStatus newStatus,
                                                  WebUserAccount webUserAccount) {
     if (!currentTipDetail.isTipFlag()) {
-      throw new ActionNotAllowedException("Cannot create new tip detail from non tip detail. pad_id:" + currentTipDetail.getId());
+      throw new ActionNotAllowedException(
+          "Cannot create new tip detail from non tip detail. pad_id:" + currentTipDetail.getId());
     }
+
     currentTipDetail.setTipFlag(false);
     currentTipDetail = pwaApplicationDetailRepository.save(currentTipDetail);
+
     var newTipDetail = new PwaApplicationDetail(
         currentTipDetail.getPwaApplication(),
         currentTipDetail.getVersionNo() + 1,
@@ -165,7 +172,11 @@ public class PwaApplicationDetailService {
         clock.instant());
     newTipDetail.setStatus(newStatus);
     copyApplicationDetailData(currentTipDetail, newTipDetail);
-    return pwaApplicationDetailRepository.save(newTipDetail);
+
+    var newSavedTipDetail = pwaApplicationDetailRepository.save(newTipDetail);
+    padInitialReviewService.carryForwardInitialReview(currentTipDetail, newSavedTipDetail);
+
+    return newSavedTipDetail;
   }
 
   private void copyApplicationDetailData(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
@@ -367,7 +378,8 @@ public class PwaApplicationDetailService {
 
   public PwaApplicationDetail getDetailByDetailId(Integer appDetailId) {
     return pwaApplicationDetailRepository.findById(appDetailId).orElseThrow(() ->
-        new PwaEntityNotFoundException(String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
+        new PwaEntityNotFoundException(
+            String.format("Couldn't find PwaApplicationDetail for PwaApplicationDetail ID: %s", appDetailId))
     );
   }
 
@@ -408,6 +420,4 @@ public class PwaApplicationDetailService {
     }
     return Optional.empty();
   }
-
-
 }

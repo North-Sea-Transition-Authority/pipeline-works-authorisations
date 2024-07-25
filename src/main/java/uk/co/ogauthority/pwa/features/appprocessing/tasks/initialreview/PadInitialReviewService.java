@@ -40,7 +40,8 @@ public class PadInitialReviewService {
   }
 
   private PadInitialReview getLatestInitialReviewForDetailOrThrow(PwaApplicationDetail pwaApplicationDetail) {
-    return getLatestInitialReviewForDetail(pwaApplicationDetail).orElseThrow(() -> new EntityLatestVersionNotFoundException(
+    return getLatestInitialReviewForDetail(pwaApplicationDetail).orElseThrow(
+        () -> new EntityLatestVersionNotFoundException(
             "Could not find latest initial review for application detail with id: " + pwaApplicationDetail.getId()));
   }
 
@@ -55,7 +56,9 @@ public class PadInitialReviewService {
 
   public boolean isInitialReviewComplete(PwaApplication pwaApplication) {
     var latestUnRevokedInitialReviewsForApplication  =
-        padInitialReviewRepository.findByPwaApplicationDetail_pwaApplicationAndApprovalRevokedTimestampIsNull(pwaApplication);
+        padInitialReviewRepository.findByPwaApplicationDetail_pwaApplicationAndApprovalRevokedTimestampIsNull(
+            pwaApplication
+        );
     return !latestUnRevokedInitialReviewsForApplication.isEmpty();
   }
 
@@ -67,4 +70,20 @@ public class PadInitialReviewService {
 
   }
 
+  public void carryForwardInitialReview(PwaApplicationDetail oldDetail, PwaApplicationDetail newDetail) {
+    var padInitialReviewOptional = getLatestInitialReviewForDetail(oldDetail);
+    padInitialReviewOptional.ifPresent(
+        oldInitialReview -> copyInitialReviewEntity(oldInitialReview, newDetail)
+    );
+  }
+
+  private void copyInitialReviewEntity(PadInitialReview oldInitialReview, PwaApplicationDetail newDetail) {
+    var newPadInitialReview = new PadInitialReview(
+        newDetail,
+        oldInitialReview.getInitialReviewApprovedByWuaId(),
+        oldInitialReview.getInitialReviewApprovedTimestamp()
+    );
+
+    padInitialReviewRepository.save(newPadInitialReview);
+  }
 }

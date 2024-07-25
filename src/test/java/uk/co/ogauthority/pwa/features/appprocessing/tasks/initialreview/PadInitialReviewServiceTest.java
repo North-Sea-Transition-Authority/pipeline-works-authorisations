@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -130,4 +133,41 @@ public class PadInitialReviewServiceTest {
 
   }
 
+  @Test
+  public void carryForwardInitialReview_noExistingInitialReview() {
+    when(padInitialReviewRepository
+        .findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(pwaApplicationDetail))
+        .thenReturn(Optional.empty());
+
+    padInitialReviewService.carryForwardInitialReview(pwaApplicationDetail, new PwaApplicationDetail());
+
+    verify(padInitialReviewRepository, never())
+        .save(any());
+  }
+
+  @Test
+  public void carryForwardInitialReview_savesNewReview() {
+    var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
+    var newApplicationDetail = new PwaApplicationDetail();
+
+    when(padInitialReviewRepository
+        .findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(pwaApplicationDetail))
+        .thenReturn(Optional.of(initialReview));
+
+    padInitialReviewService.carryForwardInitialReview(pwaApplicationDetail, newApplicationDetail);
+
+    verify(padInitialReviewRepository, times(1))
+        .save(padInitialReviewArgumentCaptor.capture());
+    assertThat(padInitialReviewArgumentCaptor.getValue())
+        .extracting(
+            PadInitialReview::getPwaApplicationDetail,
+            PadInitialReview::getInitialReviewApprovedByWuaId,
+            PadInitialReview::getInitialReviewApprovedTimestamp
+        )
+        .containsExactly(
+            newApplicationDetail,
+            authenticatedUser.getWuaId(),
+            clock.instant()
+        );
+  }
 }
