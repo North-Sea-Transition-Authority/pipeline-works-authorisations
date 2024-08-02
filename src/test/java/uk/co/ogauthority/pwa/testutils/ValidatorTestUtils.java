@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.testutils;
 
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,15 +43,9 @@ public class ValidatorTestUtils {
     var errors = new BeanPropertyBindingResult(form, "form");
     ValidationUtils.invokeValidator(validator, form, errors, validationHints);
 
-    var errorMap = new LinkedHashMap<String, Set<String>>();
+    return errors.getFieldErrors().stream()
+        .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
 
-    errors.getFieldErrors()
-        .forEach(error -> {
-          errorMap.putIfAbsent(error.getField(), new LinkedHashSet<>());
-          errorMap.get(error.getField()).add(error.getCode());
-        });
-
-    return errorMap;
   }
 
   /**
