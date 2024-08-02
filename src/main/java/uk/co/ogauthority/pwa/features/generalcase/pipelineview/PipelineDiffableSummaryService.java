@@ -14,6 +14,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.TransferParticipantType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -92,7 +93,10 @@ public class PipelineDiffableSummaryService {
               transferView = new PipelineTransferView(
                   donorPwaToReferenceMap.get(pwa),
                   null,
-                  DateUtils.formatDate(transferOpt.get().getLastIntelligentlyPigged()),
+                  transferOpt
+                      .map(PadPipelineTransfer::getLastIntelligentlyPigged)
+                      .map(DateUtils::formatDate)
+                      .orElse(null),
                   transferOpt.get().getCompatibleWithTarget());
             }
           }

@@ -182,6 +182,58 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
+  public void getApplicationDetailPipelines_pipelineTransfer_whenNoIntelligentlyPiggedDate_thenMapsAsExpected() {
+    var pipelineId = new PipelineId(PIPELINE_ID);
+    var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
+
+    var fromMasterPwaDetail = getMasterPwaDetail(FROM_MASTER_PWA, "1/W/23");
+
+    var toPipeline = new Pipeline();
+    toPipeline.setId(PIPELINE_ID);
+    toPipeline.setMasterPwa(TO_MASTER_PWA);
+    pipelineDetail.setTransferredToPipeline(toPipeline);
+
+    var fromPipeline = new Pipeline();
+    fromPipeline.setMasterPwa(FROM_MASTER_PWA);
+    pipelineDetail.setTransferredFromPipeline(fromPipeline);
+
+    var toApplication = new PwaApplication();
+    toApplication.setMasterPwa(TO_MASTER_PWA);
+    var toApplicationDetail = new PwaApplicationDetail();
+    toApplicationDetail.setPwaApplication(toApplication);
+
+    var fromApplication = new PwaApplication();
+    fromApplication.setMasterPwa(FROM_MASTER_PWA);
+    var fromApplicationDetail = new PwaApplicationDetail();
+    fromApplicationDetail.setPwaApplication(fromApplication);
+
+
+    var padPipelineTransfer = new PadPipelineTransfer();
+    padPipelineTransfer.setDonorPipeline(fromPipeline);
+    padPipelineTransfer.setDonorApplicationDetail(fromApplicationDetail);
+    padPipelineTransfer.setRecipientApplicationDetail(toApplicationDetail);
+    padPipelineTransfer.setRecipientPipeline(toPipeline);
+    padPipelineTransfer.setCompatibleWithTarget(true);
+    padPipelineTransfer.setLastIntelligentlyPigged(null);
+
+    var padPipeline = new PadPipeline();
+    padPipeline.setPipeline(fromPipeline);
+
+    when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
+        .thenReturn(List.of(padPipelineOverview));
+    when(padPipelineTransferService.getPipelineToTransferMap(pwaApplicationDetail)).thenReturn(
+        Map.of(toPipeline, padPipelineTransfer)
+    );
+    when(masterPwaService.findAllCurrentDetailsIn(any())).thenReturn(List.of(fromMasterPwaDetail));
+
+    var summary = pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail).get(0);
+    assertThat(summary.getPipelineHeaderView().getTransferredFromRef()).isEqualTo("1/W/23");
+    assertThat(summary.getPipelineHeaderView().getTransferredToRef()).isEqualTo(null);
+    assertThat(summary.getPipelineHeaderView().getPipelineIntelligentlyPigged()).isEqualTo(null);
+    assertThat(summary.getPipelineHeaderView().getPipelineCompatible()).isTrue();
+  }
+
+  @Test
   public void getApplicationDetailPipelines_whenOnePipeline_andZeroIdents() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
