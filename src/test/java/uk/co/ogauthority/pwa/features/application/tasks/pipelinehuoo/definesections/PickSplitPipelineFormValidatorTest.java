@@ -42,7 +42,7 @@ public class PickSplitPipelineFormValidatorTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
   @Before
-  public void setUp() {
+  public void setUp() throws Exception {
 
     form = new PickSplitPipelineForm();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -62,13 +62,14 @@ public class PickSplitPipelineFormValidatorTest {
 
     assertThat(validationErrors).containsExactly(
         entry(
-            PickSplitPipelineFormValidator.PIPELINE_ID_ATTRIBUTE,
-            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(PickSplitPipelineFormValidator.PIPELINE_ID_ATTRIBUTE))
-        ),
-        entry(
             PickSplitPipelineFormValidator.NUMBER_OF_SECTIONS_ATTRIBUTE,
             Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(PickSplitPipelineFormValidator.NUMBER_OF_SECTIONS_ATTRIBUTE))
+        ),
+        entry(
+            PickSplitPipelineFormValidator.PIPELINE_ID_ATTRIBUTE,
+            Set.of(FieldValidationErrorCodes.REQUIRED.errorCode(PickSplitPipelineFormValidator.PIPELINE_ID_ATTRIBUTE))
         )
+
     );
 
   }
