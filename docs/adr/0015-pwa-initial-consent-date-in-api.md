@@ -105,7 +105,7 @@ type Pwa {
 
 type PwaConsent {
     id: Int,
-    pwaId: Int, 
+    pwa: Pwa, 
     reference: String, 
     consentType: PwaConsentType, 
     consentDate: Date, 
