@@ -2,11 +2,13 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +23,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -166,7 +169,21 @@ public class PadPipelineTransferServiceTest {
   public void findUnclaimedTransfers() {
     var pipelineAppDetail = new PwaApplicationDetail();
     padPipelineTransferService.findUnclaimedByDonorApplication(pipelineAppDetail);
-    verify(transferRepository).findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(pipelineAppDetail);
+    verify(transferRepository).findByDonorApplicationDetail(pipelineAppDetail);
+  }
+
+  @Test
+  public void findUnclaimedPadPipeline_whenClaimedByInvalidRecipient() {
+    var invalidPipelineTransfer = mock(PadPipelineTransfer.class);
+    var deletedPwaApplicationDetail = new PwaApplicationDetail();
+    deletedPwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    when(invalidPipelineTransfer.getRecipientApplicationDetail()).thenReturn(deletedPwaApplicationDetail);
+
+    var donorApplicationDetail = new PwaApplicationDetail();
+    when(transferRepository.findByDonorApplicationDetail(donorApplicationDetail)).thenReturn(
+        List.of(invalidPipelineTransfer));
+    var results = padPipelineTransferService.findUnclaimedByDonorApplication(donorApplicationDetail);
+    assertThat(results).containsExactly(invalidPipelineTransfer);
   }
 
   @Test

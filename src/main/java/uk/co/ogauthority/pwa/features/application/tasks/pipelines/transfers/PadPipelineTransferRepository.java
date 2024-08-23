@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public interface PadPipelineTransferRepository extends CrudRepository<PadPipelineTransfer, Integer> {
-  List<PadPipelineTransfer> findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(PwaApplicationDetail donorApplicationDetail);
+  List<PadPipelineTransfer> findByDonorApplicationDetail(PwaApplicationDetail donorApplicationDetail);
 
   List<PadPipelineTransfer> findByRecipientApplicationDetail(PwaApplicationDetail recipientApplicationDetail);
 

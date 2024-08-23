@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -77,7 +79,8 @@ public class PadPipelineTransferService {
   }
 
   public Map<String, String> getClaimablePipelinesForForm(PwaResourceType resourceType) {
-    var pipelineIds = transferRepository.findAllByRecipientApplicationDetailIsNull().stream()
+    var pipelineIds = StreamSupport.stream(transferRepository.findAll().spliterator(), false)
+        .filter(padPipelineTransfer -> hasBeenClaimedByValidRecipient(padPipelineTransfer.getRecipientApplicationDetail()))
         .filter(padPipelineTransfer -> isClaimableResourceType(
             padPipelineTransfer.getDonorApplicationDetail().getResourceType(),
             resourceType))
@@ -92,13 +95,24 @@ public class PadPipelineTransferService {
         );
   }
 
+  private boolean hasBeenClaimedByValidRecipient(PwaApplicationDetail recipientApplicationDetail) {
+    if (Objects.isNull(recipientApplicationDetail)) {
+      return true;
+    }
+
+    return PwaApplicationStatus.DELETED.equals(recipientApplicationDetail.getStatus());
+  }
+
   public BindingResult validateClaimForm(PadPipelineTransferClaimForm form, BindingResult bindingResult, PwaResourceType resourceType) {
     padPipelineTransferClaimValidator.validate(form, bindingResult, resourceType.name());
     return bindingResult;
   }
 
   public List<PadPipelineTransfer> findUnclaimedByDonorApplication(PwaApplicationDetail applicationDetail) {
-    return transferRepository.findByDonorApplicationDetailAndRecipientApplicationDetailIsNull(applicationDetail);
+    return transferRepository.findByDonorApplicationDetail(applicationDetail)
+        .stream()
+        .filter(padPipelineTransfer -> hasBeenClaimedByValidRecipient(padPipelineTransfer.getRecipientApplicationDetail()))
+        .collect(Collectors.toList());
   }
 
   public List<PadPipelineTransfer> getWithdrawnPipelineClaims() {
