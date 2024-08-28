@@ -80,7 +80,7 @@ public class PadPipelineTransferService {
 
   public Map<String, String> getClaimablePipelinesForForm(PwaResourceType resourceType) {
     var pipelineIds = StreamSupport.stream(transferRepository.findAll().spliterator(), false)
-        .filter(padPipelineTransfer -> hasBeenClaimedByValidRecipient(padPipelineTransfer.getRecipientApplicationDetail()))
+        .filter(this::isPipelineTransferUnclaimed)
         .filter(padPipelineTransfer -> isClaimableResourceType(
             padPipelineTransfer.getDonorApplicationDetail().getResourceType(),
             resourceType))
@@ -95,7 +95,8 @@ public class PadPipelineTransferService {
         );
   }
 
-  private boolean hasBeenClaimedByValidRecipient(PwaApplicationDetail recipientApplicationDetail) {
+  private boolean isPipelineTransferUnclaimed(PadPipelineTransfer padPipelineTransfer) {
+    var recipientApplicationDetail = padPipelineTransfer.getRecipientApplicationDetail();
     if (Objects.isNull(recipientApplicationDetail)) {
       return true;
     }
@@ -111,7 +112,7 @@ public class PadPipelineTransferService {
   public List<PadPipelineTransfer> findUnclaimedByDonorApplication(PwaApplicationDetail applicationDetail) {
     return transferRepository.findByDonorApplicationDetail(applicationDetail)
         .stream()
-        .filter(padPipelineTransfer -> hasBeenClaimedByValidRecipient(padPipelineTransfer.getRecipientApplicationDetail()))
+        .filter(this::isPipelineTransferUnclaimed)
         .collect(Collectors.toList());
   }
 
