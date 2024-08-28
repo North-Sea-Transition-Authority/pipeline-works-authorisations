@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -172,11 +174,12 @@ public class PadPipelineTransferServiceTest {
     verify(transferRepository).findByDonorApplicationDetail(pipelineAppDetail);
   }
 
-  @Test
-  public void findUnclaimedPadPipeline_whenClaimedByInvalidRecipient() {
+  @ParameterizedTest
+  @EnumSource(value=PwaApplicationStatus.class, names = {"DELETED", "WITHDRAWN"}, mode= EnumSource.Mode.INCLUDE)
+  public void findUnclaimedPadPipelineTransfer_whenClaimedByInvalidRecipient(PwaApplicationStatus status) {
     var invalidPipelineTransfer = mock(PadPipelineTransfer.class);
     var deletedPwaApplicationDetail = new PwaApplicationDetail();
-    deletedPwaApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    deletedPwaApplicationDetail.setStatus(status);
     when(invalidPipelineTransfer.getRecipientApplicationDetail()).thenReturn(deletedPwaApplicationDetail);
 
     var donorApplicationDetail = new PwaApplicationDetail();

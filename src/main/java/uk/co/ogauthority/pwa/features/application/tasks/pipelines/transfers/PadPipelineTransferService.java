@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -101,7 +102,9 @@ public class PadPipelineTransferService {
       return true;
     }
 
-    return PwaApplicationStatus.DELETED.equals(recipientApplicationDetail.getStatus());
+    var revokedClaimApplicationStatuses = Set.of(PwaApplicationStatus.DELETED, PwaApplicationStatus.WITHDRAWN);
+
+    return revokedClaimApplicationStatuses.contains(recipientApplicationDetail.getStatus());
   }
 
   public BindingResult validateClaimForm(PadPipelineTransferClaimForm form, BindingResult bindingResult, PwaResourceType resourceType) {
