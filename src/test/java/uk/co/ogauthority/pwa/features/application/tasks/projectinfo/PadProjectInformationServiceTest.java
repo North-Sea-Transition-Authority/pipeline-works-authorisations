@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
+import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,6 +62,9 @@ public class PadProjectInformationServiceTest {
   @Mock
   private MasterPwaService masterPwaService;
 
+  @Mock
+  private EntityManager entityManager;
+
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
   private ProjectInformationForm form;
@@ -78,7 +82,8 @@ public class PadProjectInformationServiceTest {
         padFileService,
         padLicenceTransactionService,
         entityCopyingService,
-        masterPwaService);
+        masterPwaService,
+        entityManager);
 
     date = LocalDate.now();
 
@@ -107,6 +112,8 @@ public class PadProjectInformationServiceTest {
     var licenceApplications = List.of("application");
     when(padLicenceTransactionService.getInformationSummary(padProjectInformation))
         .thenReturn(licenceApplications);
+
+    when(entityManager.contains(padProjectInformation)).thenReturn(true);
 
     assertProjectInformationViewProperties(licenceApplications, uploadedFileViews.get(0));
   }

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final PadLicenceTransactionService padLicenceTransactionService;
   private final EntityCopyingService entityCopyingService;
   private final MasterPwaService masterPwaService;
+  private final EntityManager entityManager;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
@@ -54,7 +56,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       PadFileService padFileService,
       PadLicenceTransactionService padLicenceTransactionService,
       EntityCopyingService entityCopyingService,
-      MasterPwaService masterPwaService) {
+      MasterPwaService masterPwaService, EntityManager entityManager) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
@@ -62,6 +64,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     this.padLicenceTransactionService = padLicenceTransactionService;
     this.entityCopyingService = entityCopyingService;
     this.masterPwaService = masterPwaService;
+    this.entityManager = entityManager;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -91,9 +94,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
-    List<String> licenceApplications = projectInformation.getId() != null
-        ? padLicenceTransactionService.getInformationSummary(projectInformation)
-        : List.of();
+    List<String> licenceApplications = Optional.of(projectInformation)
+        .filter(entityManager::contains)
+        .map(padLicenceTransactionService::getInformationSummary)
+        .orElse(List.of());
 
     return new ProjectInformationView(
         projectInformation,
