@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
+import javax.persistence.EntityManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,11 +13,13 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
@@ -37,11 +40,6 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PadProjectInformationServiceTest {
-
-  private static final EnumSet<PermanentDepositMade> INCLUDING_PERMANENT_DEPOSIT_MADE_VALUES = EnumSet.of(
-      PermanentDepositMade.THIS_APP,
-      PermanentDepositMade.YES
-  );
 
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
@@ -64,6 +62,9 @@ public class PadProjectInformationServiceTest {
   @Mock
   private MasterPwaService masterPwaService;
 
+  @Mock
+  private EntityManager entityManager;
+
   private PadProjectInformationService service;
   private PadProjectInformation padProjectInformation;
   private ProjectInformationForm form;
@@ -81,7 +82,8 @@ public class PadProjectInformationServiceTest {
         padFileService,
         padLicenceTransactionService,
         entityCopyingService,
-        masterPwaService);
+        masterPwaService,
+        entityManager);
 
     date = LocalDate.now();
 
@@ -93,6 +95,46 @@ public class PadProjectInformationServiceTest {
 
   }
 
+  @Test
+  public void getProjectInformationView_existingPadProjectInformationData_thenGetsLicenceApplications() {
+    padProjectInformation.setId(1);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padProjectInformation));
+
+    var uploadedFileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
+    when(padFileService.getUploadedFileViews(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+        ApplicationFileLinkStatus.FULL))
+        .thenReturn(uploadedFileViews);
+
+    var licenceApplications = List.of("application");
+    when(padLicenceTransactionService.getInformationSummary(padProjectInformation))
+        .thenReturn(licenceApplications);
+
+    when(entityManager.contains(padProjectInformation)).thenReturn(true);
+
+    assertProjectInformationViewProperties(licenceApplications, uploadedFileViews.get(0));
+  }
+
+  @Test
+  public void getProjectInformationView_noExistingPadProjectInformationData_thenNoLicenceApplications() {
+    padProjectInformation.setId(null);
+
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
+        .thenReturn(Optional.of(padProjectInformation));
+
+    var uploadedFileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
+    when(padFileService.getUploadedFileViews(
+        pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+        ApplicationFileLinkStatus.FULL))
+        .thenReturn(uploadedFileViews);
+
+    List<String> expectedLicenceApplications = List.of();
+    assertProjectInformationViewProperties(expectedLicenceApplications, uploadedFileViews.get(0));
+  }
 
   @Test
   public void getPadProjectInformationData_WithExisting() {
@@ -105,11 +147,14 @@ public class PadProjectInformationServiceTest {
   @Test
   public void getPadProjectInformationData_NoExisting() {
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());
-    var result = service.getPadProjectInformationData(pwaApplicationDetail);
-    assertThat(result).isNotEqualTo(padProjectInformation);
-    assertThat(result.getPwaApplicationDetail()).isEqualTo(pwaApplicationDetail);
-  }
+    var padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
 
+    when(padProjectInformationRepository.save(refEq(padProjectInformation))).thenReturn(padProjectInformation);
+    var result = service.getPadProjectInformationData(pwaApplicationDetail);
+    assertThat(result).isEqualTo(padProjectInformation);
+    assertThat(result.getPwaApplicationDetail()).usingRecursiveComparison().isEqualTo(pwaApplicationDetail);
+  }
 
   @Test
   public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeContainsLicence() {
@@ -134,7 +179,7 @@ public class PadProjectInformationServiceTest {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
-    var pwaApplicationDetail = new PwaApplicationDetail();
+    pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setPwaApplication(pwaApplication);
 
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
@@ -195,7 +240,8 @@ public class PadProjectInformationServiceTest {
     var projectInformation = new PadProjectInformation();
     projectInformation.setProposedStartTimestamp(instant);
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(projectInformation));
 
     assertThat(service.getFormattedProposedStartDate(pwaApplicationDetail)).isEqualTo("15 May 2017");
   }
@@ -245,7 +291,8 @@ public class PadProjectInformationServiceTest {
 
   @Test
   public void getAvailableQuestions_optionsVariationAppType() {
-    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION, PwaResourceType.PETROLEUM);
+    var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION,
+        PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
         ProjectInformationQuestion.USING_CAMPAIGN_APPROACH,
@@ -283,7 +330,8 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setTemporaryDepositsMade(false);
     padProjectInformation.setTemporaryDepDescription("desc");
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(padProjectInformation));
 
     service.cleanupData(pwaApplicationDetail);
 
@@ -310,7 +358,8 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setFutureAppSubmissionMonth(1);
     padProjectInformation.setFutureAppSubmissionYear(2);
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(padProjectInformation));
 
     service.cleanupData(pwaApplicationDetail);
 
@@ -333,7 +382,8 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setTemporaryDepositsMade(false);
     padProjectInformation.setTemporaryDepDescription("Some content");
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(padProjectInformation));
 
     service.cleanupData(pwaApplicationDetail);
 
@@ -358,7 +408,8 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setTemporaryDepositsMade(true);
     padProjectInformation.setTemporaryDepDescription("desc");
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(padProjectInformation));
 
     service.cleanupData(pwaApplicationDetail);
 
@@ -379,7 +430,8 @@ public class PadProjectInformationServiceTest {
     padProjectInformation.setFdpOptionSelected(true);
     padProjectInformation.setFdpConfirmationFlag(true);
     padProjectInformation.setFdpNotSelectedReason("reason");
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(padProjectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(padProjectInformation));
 
     service.removeFdpQuestionData(pwaApplicationDetail);
 
@@ -390,7 +442,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void copySectionInformation_serviceIteractions(){
+  public void copySectionInformation_serviceIteractions() {
     var copyToDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1000, 1001);
     var oldProjectInformation = new PadProjectInformation();
     oldProjectInformation.setId(2222);
@@ -425,7 +477,8 @@ public class PadProjectInformationServiceTest {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(null);
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(projectInformation));
 
     assertThat(service.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).isEmpty();
 
@@ -437,9 +490,11 @@ public class PadProjectInformationServiceTest {
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(PermanentDepositMade.NONE);
 
-    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(projectInformation));
+    when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
+        Optional.of(projectInformation));
 
-    assertThat(service.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).contains(projectInformation.getPermanentDepositsMade());
+    assertThat(service.getPermanentDepositsMadeAnswer(pwaApplicationDetail)).contains(
+        projectInformation.getPermanentDepositsMade());
 
   }
 
@@ -485,7 +540,8 @@ public class PadProjectInformationServiceTest {
       var mergeFieldsMap = service.resolveMailMergeFields(detail);
 
       var expectedMergeFieldsMap = new HashMap<>(Map.of(
-          MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, DateUtils.formatDate(projectInfoData.getProposedStartTimestamp()),
+          MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE,
+          DateUtils.formatDate(projectInfoData.getProposedStartTimestamp()),
           MailMergeFieldMnem.PROJECT_NAME, projectInfoData.getProjectName()));
 
       if (appType != PwaApplicationType.INITIAL) {
@@ -498,4 +554,73 @@ public class PadProjectInformationServiceTest {
 
   }
 
+  private void assertProjectInformationViewProperties(List<String> licenceApplications, UploadedFileView uploadedFileView) {
+    assertThat(service.getProjectInformationView(pwaApplicationDetail))
+        .extracting(
+            ProjectInformationView::getProjectName,
+            ProjectInformationView::getProjectOverview,
+
+            ProjectInformationView::getMethodOfPipelineDeployment,
+            ProjectInformationView::getProposedStartDate,
+            ProjectInformationView::getMobilisationDate,
+            ProjectInformationView::getEarliestCompletionDate,
+            ProjectInformationView::getLatestCompletionDate,
+
+            ProjectInformationView::getLicenceTransferPlanned,
+            ProjectInformationView::getLicenceReferences,
+            ProjectInformationView::getLicenceTransferDate,
+
+            ProjectInformationView::getCommercialAgreementDate,
+            ProjectInformationView::getUsingCampaignApproach,
+
+            ProjectInformationView::getPermanentDepositsMadeType,
+            ProjectInformationView::getFutureSubmissionDate,
+            ProjectInformationView::getTemporaryDepositsMade,
+            ProjectInformationView::getTemporaryDepDescription,
+
+            ProjectInformationView::getIsFdpQuestionRequiredBasedOnField,
+            ProjectInformationView::getFdpOptionSelected,
+            ProjectInformationView::getFdpConfirmationFlag,
+            ProjectInformationView::getFdpNotSelectedReason,
+
+            ProjectInformationView::getCspOptionSelected,
+            ProjectInformationView::getCspConfirmationFlag,
+            ProjectInformationView::getCspNotSelectedReason,
+
+            ProjectInformationView::getLayoutDiagramFileView
+        )
+        .containsExactly(
+            padProjectInformation.getProjectName(),
+            padProjectInformation.getProjectOverview(),
+
+            padProjectInformation.getMethodOfPipelineDeployment(),
+            DateUtils.formatDate(padProjectInformation.getProposedStartTimestamp()),
+            DateUtils.formatDate(padProjectInformation.getMobilisationTimestamp()),
+            DateUtils.formatDate(padProjectInformation.getEarliestCompletionTimestamp()),
+            DateUtils.formatDate(padProjectInformation.getLatestCompletionTimestamp()),
+
+            padProjectInformation.getLicenceTransferPlanned(),
+            licenceApplications,
+            DateUtils.formatDate(padProjectInformation.getLicenceTransferTimestamp()),
+
+            DateUtils.formatDate(padProjectInformation.getCommercialAgreementTimestamp()),
+            padProjectInformation.getUsingCampaignApproach(),
+
+            padProjectInformation.getPermanentDepositsMade(),
+            padProjectInformation.getFutureAppSubmissionMonth() + "/" + padProjectInformation.getFutureAppSubmissionYear(),
+            padProjectInformation.getTemporaryDepositsMade(),
+            padProjectInformation.getTemporaryDepDescription(),
+
+            padProjectInformation.getParent().getLinkedToArea() == null ? false : padProjectInformation.getParent().getLinkedToArea(),
+            padProjectInformation.getFdpOptionSelected(),
+            padProjectInformation.getFdpConfirmationFlag(),
+            padProjectInformation.getFdpNotSelectedReason(),
+
+            padProjectInformation.getCspOptionSelected(),
+            padProjectInformation.getCspConfirmationFlag(),
+            padProjectInformation.getCspNotSelectedReason(),
+
+            uploadedFileView
+        );
+  }
 }

@@ -57,11 +57,12 @@
 </#macro>
 
 <#macro minMaxView minMaxViewData>
+  <#assign suffixDisplay=minMaxViewData.unitMeasurement?has_content?then(minMaxViewData.unitMeasurement.suffixDisplay, "")/>
   <@minMaxSummary.minMaxSummary
-  minMaxViewData.minValue!""
-  minMaxViewData.maxValue!""
-  minMaxViewData.minPrompt!""
-  minMaxViewData.maxPrompt!""
-    stringUtils.superscriptConverter(minMaxViewData.unitMeasurement.suffixDisplay)
+    minValue=(minMaxViewData.minValue)!""
+    maxValue=(minMaxViewData.maxValue)!""
+    minPrompt=(minMaxViewData.minPrompt)!""
+    maxPrompt=(minMaxViewData.maxPrompt)!""
+    unit=stringUtils.superscriptConverter((minMaxViewData.unitMeasurement.suffixDisplay)!"")
   />
 </#macro>
