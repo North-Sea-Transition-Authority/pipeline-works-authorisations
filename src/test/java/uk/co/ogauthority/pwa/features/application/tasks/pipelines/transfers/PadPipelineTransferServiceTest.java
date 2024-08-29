@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -95,11 +93,11 @@ public class PadPipelineTransferServiceTest {
         .setDonorApplicationDetail(pwaApplicationDetail)
         .setDonorPipeline(pipeline);
 
-    var recipeintApplication = new PwaApplication();
-    recipeintApplication.setResourceType(PwaResourceType.PETROLEUM);
+    var recipientApplication = new PwaApplication();
+    recipientApplication.setResourceType(PwaResourceType.PETROLEUM);
     var recipientApplicationDetail = new PwaApplicationDetail();
     recipientApplicationDetail.setId(2);
-    recipientApplicationDetail.setPwaApplication(recipeintApplication);
+    recipientApplicationDetail.setPwaApplication(recipientApplication);
 
     var transferredPipeline = new Pipeline();
     transferredPipeline.setId(2);
@@ -108,7 +106,7 @@ public class PadPipelineTransferServiceTest {
     transferredPadPipeline.setPipeline(transferredPipeline);
 
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
-    when(transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(pipeline)).thenReturn(Optional.of(transfer));
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
     when(padPipelineService.createTransferredPipeline(form, recipientApplicationDetail)).thenReturn(transferredPadPipeline);
 
     padPipelineTransferService.claimPipeline(form, recipientApplicationDetail);
@@ -121,6 +119,81 @@ public class PadPipelineTransferServiceTest {
     assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(transferredPipeline);
     assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(recipientApplicationDetail);
 
+  }
+
+  @Test
+  public void claimPipeline_whenClaimedByRevokedPipelineApplication() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPipelineId(1)
+        .setAssignNewPipelineNumber(false);
+
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setId(1);
+    pipelineDetail.setPipeline(pipeline);
+
+    var revokedRecipientApplicationDetail = new PwaApplicationDetail();
+    revokedRecipientApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(pwaApplicationDetail)
+        .setDonorPipeline(pipeline)
+        .setRecipientApplicationDetail(revokedRecipientApplicationDetail);
+
+    var recipientApplication = new PwaApplication();
+    recipientApplication.setResourceType(PwaResourceType.PETROLEUM);
+    var recipientApplicationDetail = new PwaApplicationDetail();
+    recipientApplicationDetail.setId(2);
+    recipientApplicationDetail.setPwaApplication(recipientApplication);
+
+    var transferredPipeline = new Pipeline();
+    transferredPipeline.setId(2);
+
+    var transferredPadPipeline = new PadPipeline();
+    transferredPadPipeline.setPipeline(transferredPipeline);
+
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
+    when(padPipelineService.createTransferredPipeline(form, recipientApplicationDetail)).thenReturn(transferredPadPipeline);
+
+    padPipelineTransferService.claimPipeline(form, recipientApplicationDetail);
+
+    ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
+    verify(transferRepository).save(captor.capture());
+
+    assertThat(captor.getValue().getDonorPipeline()).isEqualTo(pipeline);
+    assertThat(captor.getValue().getDonorApplicationDetail()).isEqualTo(pwaApplicationDetail);
+    assertThat(captor.getValue().getRecipientPipeline()).isEqualTo(transferredPipeline);
+    assertThat(captor.getValue().getRecipientApplicationDetail()).isEqualTo(recipientApplicationDetail);
+  }
+
+  @Test
+  public void claimPipeline_whenClaimedByPipelineApplication() {
+    var form = new PadPipelineTransferClaimForm()
+        .setPipelineId(1)
+        .setAssignNewPipelineNumber(false);
+
+    var pipelineDetail = new PipelineDetail();
+    pipelineDetail.setId(1);
+    pipelineDetail.setPipeline(pipeline);
+
+    var claimedRecipientApplicationDetail = new PwaApplicationDetail();
+    claimedRecipientApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    var transfer = new PadPipelineTransfer()
+        .setDonorApplicationDetail(pwaApplicationDetail)
+        .setDonorPipeline(pipeline)
+        .setRecipientApplicationDetail(claimedRecipientApplicationDetail);
+
+    var recipientApplication = new PwaApplication();
+    recipientApplication.setResourceType(PwaResourceType.PETROLEUM);
+    var recipientApplicationDetail = new PwaApplicationDetail();
+    recipientApplicationDetail.setId(2);
+    recipientApplicationDetail.setPwaApplication(recipientApplication);
+
+    when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
+
+    padPipelineTransferService.claimPipeline(form, recipientApplicationDetail);
+    verify(padPipelineService, never()).createTransferredPipeline(any(), any());
+    verify(transferRepository, never()).save(any());
   }
 
   @Test
@@ -139,11 +212,11 @@ public class PadPipelineTransferServiceTest {
         .setDonorApplicationDetail(pwaApplicationDetail)
         .setDonorPipeline(pipeline);
 
-    var recipeintApplication = new PwaApplication();
-    recipeintApplication.setResourceType(PwaResourceType.CCUS);
+    var recipientApplication = new PwaApplication();
+    recipientApplication.setResourceType(PwaResourceType.CCUS);
     var recipientApplicationDetail = new PwaApplicationDetail();
     recipientApplicationDetail.setId(2);
-    recipientApplicationDetail.setPwaApplication(recipeintApplication);
+    recipientApplicationDetail.setPwaApplication(recipientApplication);
 
     var transferredPipeline = new Pipeline();
     transferredPipeline.setId(2);
@@ -152,7 +225,7 @@ public class PadPipelineTransferServiceTest {
     transferredPadPipeline.setPipeline(transferredPipeline);
 
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
-    when(transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(pipeline)).thenReturn(Optional.of(transfer));
+    when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.of(transfer));
     when(padPipelineService.createTransferredPipeline(form, recipientApplicationDetail)).thenReturn(transferredPadPipeline);
 
     padPipelineTransferService.claimPipeline(form, recipientApplicationDetail);
@@ -168,25 +241,41 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void findUnclaimedTransfers() {
+  public void findUnclaimedByDonorApplication() {
     var pipelineAppDetail = new PwaApplicationDetail();
-    padPipelineTransferService.findUnclaimedByDonorApplication(pipelineAppDetail);
-    verify(transferRepository).findByDonorApplicationDetail(pipelineAppDetail);
+    var pipelineTransfer = mock(PadPipelineTransfer.class);
+
+    when(transferRepository.findByDonorApplicationDetail(pipelineAppDetail))
+        .thenReturn(List.of(pipelineTransfer));
+
+    var results = padPipelineTransferService.findUnclaimedByDonorApplication(pipelineAppDetail);
+    assertThat(results).containsExactly(pipelineTransfer);
   }
 
-  @ParameterizedTest
-  @EnumSource(value=PwaApplicationStatus.class, names = {"DELETED", "WITHDRAWN"}, mode= EnumSource.Mode.INCLUDE)
-  public void findUnclaimedPadPipelineTransfer_whenClaimedByInvalidRecipient(PwaApplicationStatus status) {
-    var invalidPipelineTransfer = mock(PadPipelineTransfer.class);
-    var deletedPwaApplicationDetail = new PwaApplicationDetail();
-    deletedPwaApplicationDetail.setStatus(status);
-    when(invalidPipelineTransfer.getRecipientApplicationDetail()).thenReturn(deletedPwaApplicationDetail);
+  @Test
+  public void findUnclaimedByDonorApplication_whenPipelineTransferClaimedByRevokedApplication() {
+    var pipelineAppDetail = new PwaApplicationDetail();
 
-    var donorApplicationDetail = new PwaApplicationDetail();
-    when(transferRepository.findByDonorApplicationDetail(donorApplicationDetail)).thenReturn(
-        List.of(invalidPipelineTransfer));
-    var results = padPipelineTransferService.findUnclaimedByDonorApplication(donorApplicationDetail);
-    assertThat(results).containsExactly(invalidPipelineTransfer);
+    var pipelineTransferWithWithdrawnClaim = mock(PadPipelineTransfer.class);
+    var withdrawnApplicationDetail = new PwaApplicationDetail();
+    withdrawnApplicationDetail.setStatus(PwaApplicationStatus.WITHDRAWN);
+    when(pipelineTransferWithWithdrawnClaim.getRecipientApplicationDetail()).thenReturn(withdrawnApplicationDetail);
+
+    var pipelineTransferWithDeletedClaim = mock(PadPipelineTransfer.class);
+    var deletedApplicationDetail = new PwaApplicationDetail();
+    deletedApplicationDetail.setStatus(PwaApplicationStatus.DELETED);
+    when(pipelineTransferWithDeletedClaim.getRecipientApplicationDetail()).thenReturn(deletedApplicationDetail);
+
+    var pipelineTransferWthValidClaim = mock(PadPipelineTransfer.class);
+    var completedApplicationDetail = new PwaApplicationDetail();
+    completedApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
+    when(pipelineTransferWthValidClaim.getRecipientApplicationDetail()).thenReturn(completedApplicationDetail);
+
+    when(transferRepository.findByDonorApplicationDetail(pipelineAppDetail))
+        .thenReturn(List.of(pipelineTransferWithDeletedClaim, pipelineTransferWithWithdrawnClaim, pipelineTransferWthValidClaim));
+
+    var results = padPipelineTransferService.findUnclaimedByDonorApplication(pipelineAppDetail);
+    assertThat(results).containsExactlyInAnyOrder(pipelineTransferWithDeletedClaim, pipelineTransferWithWithdrawnClaim);
   }
 
   @Test
