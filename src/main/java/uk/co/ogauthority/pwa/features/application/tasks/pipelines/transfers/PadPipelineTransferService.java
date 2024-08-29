@@ -124,7 +124,10 @@ public class PadPipelineTransferService {
   }
 
   private Optional<PadPipelineTransfer> findUnclaimedByDonorPipeline(Pipeline donorPipeline) {
-    return transferRepository.findByDonorPipelineAndRecipientApplicationDetailIsNull(donorPipeline);
+    return transferRepository.findByDonorPipeline(donorPipeline)
+        .stream()
+        .filter(this::isPipelineTransferUnclaimed)
+        .findFirst();
   }
 
   public List<PadPipelineTransfer> findByRecipientApplication(PwaApplicationDetail applicationDetail) {
