@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import javax.persistence.EntityManager;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final PadLicenceTransactionService padLicenceTransactionService;
   private final EntityCopyingService entityCopyingService;
   private final MasterPwaService masterPwaService;
+  private final EntityManager entityManager;
 
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
 
@@ -54,7 +56,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       PadFileService padFileService,
       PadLicenceTransactionService padLicenceTransactionService,
       EntityCopyingService entityCopyingService,
-      MasterPwaService masterPwaService) {
+      MasterPwaService masterPwaService, EntityManager entityManager) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
@@ -62,11 +64,12 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     this.padLicenceTransactionService = padLicenceTransactionService;
     this.entityCopyingService = entityCopyingService;
     this.masterPwaService = masterPwaService;
+    this.entityManager = entityManager;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
     var projectInformation = padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
-        .orElse(new PadProjectInformation());
+        .orElseGet(() -> getNewPadProjectInformation(pwaApplicationDetail));
     projectInformation.setPwaApplicationDetail(pwaApplicationDetail);
     return projectInformation;
   }
@@ -84,22 +87,25 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     padLicenceTransactionService.mapApplicationsToForm(form, padProjectInformation);
   }
 
-
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
+    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
+        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         ApplicationFileLinkStatus.FULL);
 
-    var licenceApplications = padLicenceTransactionService.getInformationSummary(projectInformation);
+    List<String> licenceApplications = Optional.of(projectInformation)
+        .filter(entityManager::contains)
+        .map(padLicenceTransactionService::getInformationSummary)
+        .orElse(List.of());
 
     return new ProjectInformationView(
         projectInformation,
         isFdpQuestionRequired(pwaApplicationDetail),
         !layoutDiagramFileViews.isEmpty() ? layoutDiagramFileViews.get(0) : null,
-        licenceApplications);
+        licenceApplications
+    );
   }
-
 
   /**
    * From the form extract form data and file data which should be persisted.
@@ -232,7 +238,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     var requiredQuestions = getRequiredQuestions(detail.getPwaApplicationType(), detail.getResourceType());
 
     if (requiredQuestions.contains(ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED)
-        && !projectInformation.getLicenceTransferPlanned()) {
+        && BooleanUtils.isFalse(projectInformation.getLicenceTransferPlanned())) {
       // null out licence transfer info if no licence transfer
       projectInformation.setLicenceTransferTimestamp(null);
       projectInformation.setCommercialAgreementTimestamp(null);
@@ -240,7 +246,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
 
     // null out temporary deposit description if temporary deposits not made
     if (requiredQuestions.contains(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE)
-        && !projectInformation.getTemporaryDepositsMade()) {
+        && BooleanUtils.isFalse(projectInformation.getTemporaryDepositsMade())) {
       projectInformation.setTemporaryDepDescription(null);
     }
 
@@ -346,7 +352,11 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
     }
 
     return map;
-
   }
 
+  private PadProjectInformation getNewPadProjectInformation(PwaApplicationDetail pwaApplicationDetail) {
+    var padProjectInformation = new PadProjectInformation();
+    padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
+    return padProjectInformationRepository.save(padProjectInformation);
+  }
 }
