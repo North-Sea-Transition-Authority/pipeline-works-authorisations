@@ -86,7 +86,7 @@ public class PwaConsentDtoRepositoryTest {
 
     assertThat(resultingConsentDtos)
         .extracting(PwaConsentDto::getId)
-        .contains(firstPwaConsent.getId(), secondPwaConsent.getId());
+        .containsOnly(firstPwaConsent.getId(), secondPwaConsent.getId());
   }
 
   @Test
