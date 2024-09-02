@@ -10,7 +10,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 interface PwaConsentDtoRepository extends CrudRepository<PwaConsent, Integer> {
 
   @Query("SELECT new uk.co.ogauthority.pwa.externalapi.PwaConsentDto" +
-      "(pc.id, pc.reference, pc.consentType, pc.createdInstant, pc.consentInstant, mpd.masterPwa.id, mpd.reference, mpd.masterPwaDetailStatus)" +
+      "(pc.id, pc.reference, pc.consentType, pc.createdInstant, pc.consentInstant, mpd.masterPwa.id," +
+      " mpd.reference, mpd.masterPwaDetailStatus)" +
       "FROM MasterPwaDetail mpd " +
       "JOIN PwaConsent pc ON pc.masterPwa.id = mpd.masterPwa.id " +
       "WHERE mpd.endInstant IS NULL " +
