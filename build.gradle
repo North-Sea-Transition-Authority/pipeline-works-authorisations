@@ -89,6 +89,8 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
+  implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
   testImplementation 'com.h2database:h2:1.4.200'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.16.1'
   testImplementation(
