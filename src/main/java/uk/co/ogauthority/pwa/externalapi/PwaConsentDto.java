@@ -29,6 +29,16 @@ public class PwaConsentDto {
     this.pwa = new PwaDto(pwaId, pwaReference, pwaStatus);
   }
 
+  // No-args constructor required for Jackson mapping in controller test
+  private PwaConsentDto() {
+    id = null;
+    reference = null;
+    consentType = null;
+    createdDate = null;
+    consentedDate = null;
+    pwa = null;
+  }
+
   @JsonProperty
   public Integer getId() {
     return id;
