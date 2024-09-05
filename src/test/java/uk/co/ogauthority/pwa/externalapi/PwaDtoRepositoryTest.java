@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -55,7 +56,7 @@ public class PwaDtoRepositoryTest {
   @Test
   public void searchPwas_searchByPwaId() {
     var searchedIds = List.of(pwaDetail.getMasterPwaId());
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(searchedIds, null, null);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(searchedIds, null, null, PageRequest.of(0, 10));
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
@@ -65,14 +66,14 @@ public class PwaDtoRepositoryTest {
   @Test
   public void searchPwas_searchByPwaReference_caseSensitive() {
     var pwaReference = "W";
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null, PageRequest.of(0, 10));
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
         .containsExactly(pwaDetail.getReference());
 
     pwaReference = "w";
-    resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null);
+    resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null, PageRequest.of(0, 10));
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getReference)
@@ -81,7 +82,7 @@ public class PwaDtoRepositoryTest {
 
   @Test
   public void searchPwas_searchByStatus() {
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, MasterPwaDetailStatus.CONSENTED);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, MasterPwaDetailStatus.CONSENTED, PageRequest.of(0, 10));
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)
@@ -90,7 +91,7 @@ public class PwaDtoRepositoryTest {
 
   @Test
   public void searchPwas_whenAllNull_assertAllPwasReturned() {
-    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, null);
+    var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, null, PageRequest.of(0, 10));
 
     assertThat(resultingPwaDtos)
         .extracting(PwaDto::getId)

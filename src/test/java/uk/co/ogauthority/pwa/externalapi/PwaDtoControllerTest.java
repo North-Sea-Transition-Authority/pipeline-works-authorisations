@@ -1,12 +1,16 @@
 package uk.co.ogauthority.pwa.externalapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.externalapi.PwaDtoController.PAGE_SIZE;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -20,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
@@ -43,7 +48,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   public void searchPwas_NoBearerToken_AssertForbidden() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PwaDtoController.class)
-                .searchPwas(null, null, null))))
+                .searchPwas(null, null, null, 0))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
@@ -66,14 +71,16 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     when(pwaDtoRepository.searchPwas(
         List.of(id),
         reference,
-        MasterPwaDetailStatus.CONSENTED
+        MasterPwaDetailStatus.CONSENTED,
+        PageRequest.of(0, PAGE_SIZE)
     )).thenReturn(result);
 
     mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 Collections.singletonList(id),
                 reference,
-                MasterPwaDetailStatus.CONSENTED
+                MasterPwaDetailStatus.CONSENTED.name(),
+                0
             ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -105,14 +112,16 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     when(pwaDtoRepository.searchPwas(
         List.of(1, 2, 3),
         null,
-        null
+        null,
+        PageRequest.of(0, PAGE_SIZE)
     )).thenReturn(unsortedList);
 
     var result = mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 List.of(1, 2, 3),
                 null,
-                null
+                null,
+                0
             ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -125,5 +134,47 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     assertThat(resultingPwas)
         .extracting(PwaDto::getId)
         .containsExactly(firstPwa.getId(), secondPwa.getId(), thirdPwa.getId());
+  }
+
+  @Test
+  public void searchPwas_whenStatusIsInvalid() throws Exception {
+    var result = mockMvc.perform(get(
+            ReverseRouter.route(on(PwaDtoController.class).searchPwas(
+                null,
+                null,
+                "invalid enum",
+                0
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    var encodedResponse = result.getResponse().getContentAsString();
+
+    List<PwaDto> resultingPwas = new ArrayList<>(Arrays.asList(MAPPER.readValue(encodedResponse, PwaDto[].class)));
+
+    assertThat(resultingPwas).isEmpty();
+    verify(pwaDtoRepository, never()).searchPwas(any(), any(), any(), any());
+  }
+
+  @Test
+  public void searchPwas_whenPageNumberIsNull() throws Exception {
+    var result = mockMvc.perform(get(
+            ReverseRouter.route(on(PwaDtoController.class).searchPwas(
+                null,
+                null,
+                null,
+                null
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isOk())
+        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+        .andReturn();
+
+    var encodedResponse = result.getResponse().getContentAsString();
+
+    List<PwaDto> resultingPwas = new ArrayList<>(Arrays.asList(MAPPER.readValue(encodedResponse, PwaDto[].class)));
+
+    assertThat(resultingPwas).isEmpty();
+    verify(pwaDtoRepository, never()).searchPwas(any(), any(), any(), any());
   }
 }
