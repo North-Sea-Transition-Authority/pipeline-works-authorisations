@@ -5,6 +5,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +55,12 @@ public class FeePeriodServiceTest {
 
   private FeePeriodForm form;
 
+  private final Clock fixedClock = Clock.fixed(Instant.parse("2002-01-11T10:15:30Z"), ZoneId.of("UTC"));
+
+  private final Instant currentInstant = LocalDate.of(2002, 1, 11)
+      .atTime(LocalTime.of(10, 15, 30))
+      .toInstant(ZoneOffset.UTC);
+
   @Captor
   ArgumentCaptor<FeePeriodDetail> periodCaptor;
 
@@ -60,7 +72,8 @@ public class FeePeriodServiceTest {
     feePeriodService = new FeePeriodService(feePeriodRepository,
         feePeriodDetailRepository,
         feePeriodDetailItemRepository,
-        feeItemRepository);
+        feeItemRepository,
+        fixedClock);
 
     form = new FeePeriodForm();
     form.setPeriodDescription("Test Description");
@@ -110,7 +123,8 @@ public class FeePeriodServiceTest {
 
   @Test
   public void testSaveFeePeriod_NewPendingActiveExisting() {
-    when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestampIsNull())
+    when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
+        currentInstant))
         .thenReturn(Optional.of(getActiveFeePeriodDetail()));
     feePeriodService.saveFeePeriod(form, getTestPerson());
     verify(feePeriodDetailRepository, times(3)).save(periodCaptor.capture());
@@ -129,9 +143,11 @@ public class FeePeriodServiceTest {
 
   @Test
   public void testSaveFeePeriod_EditPendingNoActive() {
-    when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestampIsNull())
+    when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
+        currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));
-    when(feePeriodDetailRepository.findByTipFlagIsTrueAndFeePeriod(any()))
+    when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampAfterOrderByPeriodStartTimestampDesc(
+        currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));
 
     feePeriodService.saveFeePeriod(form, getTestPerson());
@@ -151,9 +167,11 @@ public class FeePeriodServiceTest {
 
   @Test
   public void testSaveFeePeriod_EditPendingActiveExisting() {
-    when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestampIsNull())
+    when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
+        currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));
-    when(feePeriodDetailRepository.findByTipFlagIsTrueAndFeePeriod(any()))
+    when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampAfterOrderByPeriodStartTimestampDesc(
+        currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));
     when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodEndTimestamp(any()))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));

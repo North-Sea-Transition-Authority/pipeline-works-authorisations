@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.mvc;
 
-import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.RandomStringUtils;

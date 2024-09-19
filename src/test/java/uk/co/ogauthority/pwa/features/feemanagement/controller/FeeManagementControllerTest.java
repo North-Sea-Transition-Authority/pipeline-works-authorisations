@@ -118,7 +118,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
         .getModelAndView()
         .getModel();
 
-    assertThat(mvc).containsEntry("backUrl", "/fee-management/");
+    assertThat(mvc).containsEntry("backUrl", "/fee-management");
   }
 
   @Test

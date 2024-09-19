@@ -55,9 +55,8 @@ public class PipelineHeaderFormValidatorTest {
     form.setToCoordinateForm(new CoordinateForm());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
 
-    assertThat(result).contains(
+    assertThat(result).containsExactly(
         entry("fromLocation", Set.of("fromLocation.required")),
-        entry("toLocation", Set.of("toLocation.required")),
         entry("fromCoordinateForm.latitudeDegrees", Set.of("fromCoordinateForm.latitudeDegrees.required")),
         entry("fromCoordinateForm.latitudeMinutes", Set.of("fromCoordinateForm.latitudeMinutes.required")),
         entry("fromCoordinateForm.latitudeSeconds", Set.of("fromCoordinateForm.latitudeSeconds.required")),
@@ -65,6 +64,8 @@ public class PipelineHeaderFormValidatorTest {
         entry("fromCoordinateForm.longitudeMinutes", Set.of("fromCoordinateForm.longitudeMinutes.required")),
         entry("fromCoordinateForm.longitudeSeconds", Set.of("fromCoordinateForm.longitudeSeconds.required")),
         entry("fromCoordinateForm.longitudeDirection", Set.of("fromCoordinateForm.longitudeDirection.required")),
+
+        entry("toLocation", Set.of("toLocation.required")),
         entry("toCoordinateForm.latitudeDegrees", Set.of("toCoordinateForm.latitudeDegrees.required")),
         entry("toCoordinateForm.latitudeMinutes", Set.of("toCoordinateForm.latitudeMinutes.required")),
         entry("toCoordinateForm.latitudeSeconds", Set.of("toCoordinateForm.latitudeSeconds.required")),
@@ -72,6 +73,7 @@ public class PipelineHeaderFormValidatorTest {
         entry("toCoordinateForm.longitudeMinutes", Set.of("toCoordinateForm.longitudeMinutes.required")),
         entry("toCoordinateForm.longitudeSeconds", Set.of("toCoordinateForm.longitudeSeconds.required")),
         entry("toCoordinateForm.longitudeDirection", Set.of("toCoordinateForm.longitudeDirection.required")),
+
         entry("pipelineType", Set.of("pipelineType.required")),
         entry("length", Set.of("length.required")),
         entry("componentPartsDescription", Set.of("componentPartsDescription.required")),

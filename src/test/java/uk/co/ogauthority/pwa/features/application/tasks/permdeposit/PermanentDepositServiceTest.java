@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import jakarta.validation.Validation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -19,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import javax.validation.Validation;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -179,7 +179,7 @@ public class PermanentDepositServiceTest {
       BindingResult result = invocation.getArgument(1);
       result.rejectValue("materialType", "fake.code", "fake message");
       return result;
-    }).when(validator).validate(any(), any(), any());
+    }).when(validator).validate(any(), any(), any(Object[].class));
 
     var summaryResult = permanentDepositService.getDepositSummaryScreenValidationResult(pwaApplicationDetail);
 

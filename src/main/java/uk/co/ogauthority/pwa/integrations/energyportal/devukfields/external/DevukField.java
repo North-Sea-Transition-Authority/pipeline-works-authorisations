@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external;
 
 import com.google.common.annotations.VisibleForTesting;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import org.hibernate.annotations.Immutable;
 
 @Entity(name = "devuk_fields")

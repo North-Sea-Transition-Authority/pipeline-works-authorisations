@@ -1,11 +1,9 @@
 package uk.co.ogauthority.pwa.features.analytics;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties(prefix = "analytics.properties")
-@ConstructorBinding
 @Validated
 public class AnalyticsProperties {
 

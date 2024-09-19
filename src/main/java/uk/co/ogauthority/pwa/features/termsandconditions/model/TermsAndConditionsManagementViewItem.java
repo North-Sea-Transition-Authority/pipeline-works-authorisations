@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.features.termsandconditions.model;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.features.termsandconditions.controller.TermsAndConditionsFormController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 

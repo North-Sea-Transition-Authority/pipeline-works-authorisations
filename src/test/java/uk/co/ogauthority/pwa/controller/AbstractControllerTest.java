@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ExternalApiAuthenticationEntryPoint;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
+import uk.co.ogauthority.pwa.config.WebSecurityConfig;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
@@ -51,7 +52,11 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
     AnalyticsProperties.class,
     AnalyticsConfig.class
 })
-@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, AnalyticsConfigurationProperties.class})
+@Import({
+    AbstractControllerTest.AbstractControllerTestConfiguration.class,
+    AnalyticsConfigurationProperties.class,
+    WebSecurityConfig.class
+})
 public abstract class AbstractControllerTest {
 
   protected MockMvc mockMvc;

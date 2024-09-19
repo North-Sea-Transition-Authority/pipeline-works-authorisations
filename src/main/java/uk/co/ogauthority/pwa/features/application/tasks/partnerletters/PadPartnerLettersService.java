@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
-import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

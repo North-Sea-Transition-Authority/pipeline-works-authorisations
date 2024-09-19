@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaapplications.generic;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -57,11 +58,14 @@ public class PwaApplicationDetailVersioningServiceTest {
   @Test
   public void createNewApplicationVersion_serviceInteractions_whenMultipleTasksCanBeCopied() {
 
-    var copyableTasks = EnumSet.of(ApplicationTask.APPLICATION_USERS, ApplicationTask.PROJECT_INFORMATION);
+    var copyableTasks = EnumSet.of(ApplicationTask.APPLICATION_USERS, ApplicationTask.PROJECT_INFORMATION, ApplicationTask.FIELD_INFORMATION);
 
     copyableTasks.forEach(
         applicationTask -> when(applicationTaskService.taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail)).thenReturn(true)
     );
+
+    when(applicationTaskService.taskAllowsCopySectionInformation(ApplicationTask.CARBON_STORAGE_INFORMATION, pwaApplicationDetail))
+        .thenReturn(true);
 
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
 
@@ -85,6 +89,9 @@ public class PwaApplicationDetailVersioningServiceTest {
           .copyApplicationTaskDataToApplicationDetail(applicationTask, pwaApplicationDetail, fakeVersionedAppDetail);
 
     });
+    // We want to check that copyApplicationTaskDataToApplicationDetail is called with FIELD_INFORMATION but not CARBON_STORAGE_INFORMATION
+    verify(applicationTaskService, never())
+        .copyApplicationTaskDataToApplicationDetail(ApplicationTask.CARBON_STORAGE_INFORMATION, pwaApplicationDetail, fakeVersionedAppDetail);
 
     // tasks that cannot be copied are checked and not copied
     EnumSet.complementOf(copyableTasks).forEach(applicationTask -> {

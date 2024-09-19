@@ -3,12 +3,12 @@ package uk.co.ogauthority.pwa.features.application.submission.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import com.google.common.base.Stopwatch;
+import jakarta.servlet.http.HttpSession;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

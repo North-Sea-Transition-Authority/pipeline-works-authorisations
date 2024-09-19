@@ -1,13 +1,13 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -74,8 +74,23 @@ public class ApplicationDetailSearchService {
 
     CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
     Root<ApplicationDetailView> count = countQuery.from(ApplicationDetailView.class);
+
+    List<Predicate> countPredicateList = new ArrayList<>();
+    // loop providers and get applicable predicates
+    applicationSearchPredicateProviders.stream()
+        .filter(applicationSearchPredicateProvider -> applicationSearchPredicateProvider.doesPredicateApply(
+            applicationSearchContext,
+            searchParameters
+        ))
+        .forEach(applicationSearchPredicateProvider -> countPredicateList.add(applicationSearchPredicateProvider.createPredicate(
+            applicationSearchContext,
+            searchParameters,
+            countQuery,
+            count
+        )));
+
     countQuery.select(cb.count(count))
-        .where(searchCoreQuery.getRestriction());
+        .where(countPredicateList.toArray(Predicate[]::new));
 
     long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
 

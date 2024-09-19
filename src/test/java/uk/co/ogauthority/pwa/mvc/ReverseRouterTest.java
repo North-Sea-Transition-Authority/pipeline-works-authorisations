@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest // We need a WebApplicationContext to test the reverse router
+@WebMvcTest(ReverseRouterTest.class) // We need a WebApplicationContext to test the reverse router
 @Import(PwaMvcTestConfiguration.class)
 public class ReverseRouterTest extends AbstractControllerTest {
 
@@ -91,11 +91,6 @@ public class ReverseRouterTest extends AbstractControllerTest {
         on(TestController.class).testMethod("method_child_id"), Collections.singletonMap("parentId", "map_parent_id"),
         false);
     assertThat(redirect.getViewName()).isEqualTo("redirect:/parent/map_parent_id/child/method_child_id");
-  }
-
-  // Dummy application to stop the @WebMvcTest loading more than it needs
-  @SpringBootApplication
-  public static class TestApplication {
   }
 
   @RequestMapping("/parent/{parentId}")

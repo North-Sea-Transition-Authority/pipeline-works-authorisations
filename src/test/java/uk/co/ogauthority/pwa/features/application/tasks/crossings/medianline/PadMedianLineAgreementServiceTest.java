@@ -219,7 +219,7 @@ public class PadMedianLineAgreementServiceTest {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("agreementStatus", "agreementStatus.bad", "agreementStatus bad");
       return invocation;
-    }).when(medianLineAgreementValidator).validate(any(), any(), any());
+    }).when(medianLineAgreementValidator).validate(any(), any(), any(Object[].class));
 
     padMedianLineAgreementService.isComplete(pwaApplicationDetail);
 
@@ -237,7 +237,7 @@ public class PadMedianLineAgreementServiceTest {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("agreementStatus", "agreementStatus.bad", "agreementStatus bad");
       return invocation;
-    }).when(medianLineAgreementValidator).validate(any(), any(), any());
+    }).when(medianLineAgreementValidator).validate(any(), any(), any(Object[].class));
 
     assertThat(padMedianLineAgreementService.isMedianLineAgreementFormComplete(pwaApplicationDetail)).isFalse();
 

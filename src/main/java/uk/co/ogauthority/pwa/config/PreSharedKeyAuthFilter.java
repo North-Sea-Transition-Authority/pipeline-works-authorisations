@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
-import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
 public class PreSharedKeyAuthFilter extends AbstractPreAuthenticatedProcessingFilter {

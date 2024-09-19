@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.domain.pwa.application.service;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;

@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.features.reassignment;
 
 import static org.mockito.Mockito.verify;
 
+import jakarta.persistence.criteria.Predicate;
 import java.util.List;
-import javax.persistence.criteria.Predicate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

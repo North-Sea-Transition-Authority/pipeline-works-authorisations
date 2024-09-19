@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview;
 
 import static uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialReviewPaymentDecision.PAYMENT_WAIVED;
 
+import jakarta.transaction.Transactional;
 import java.util.EnumSet;
-import javax.transaction.Transactional;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

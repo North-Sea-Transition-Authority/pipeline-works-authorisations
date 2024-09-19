@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.features.application.creation;
 
+import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Set;
-import javax.transaction.Transactional;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

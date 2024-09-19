@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -53,7 +54,7 @@ public class PipelineDetailServiceTest {
   private PipelineDetailIdentService pipelineDetailIdentService;
 
   @Captor
-  private ArgumentCaptor<List<PipelineDetail>> pipelineDetailsArgCaptor;
+  private ArgumentCaptor<Collection<PipelineDetail>> pipelineDetailsArgCaptor;
 
   @Captor
   private ArgumentCaptor<PipelineDetail> pipeDetailArgCaptor;

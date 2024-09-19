@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

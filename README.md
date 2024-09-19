@@ -6,7 +6,7 @@
 #### Downloads/Installation
 * IntelliJ Ultimate
 * Git Bash
-* Java v11 - ([Recommended Library - Adoptium](https://adoptium.net/temurin/releases))
+* Java 21
 * Python v2.7 - ([Official Download](https://www.python.org/downloads/release/python-278/))
 * Node LTS + NPM v18 - ([Official Download](https://nodejs.org/download/release/v12.22.12/))
 * Docker

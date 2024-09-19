@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.service.search.consents;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -71,8 +71,15 @@ public class ConsentSearchService {
 
     CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
     Root<ConsentSearchItem> count = countQuery.from(ConsentSearchItem.class);
+
+    List<Predicate> countPredicates = consentSearchPredicateProviders.stream()
+        .filter(predicateProvider -> predicateProvider.shouldApplyToSearch(searchParams, searchContext))
+        .map(predicateProvider -> predicateProvider.getPredicate(searchParams, searchContext, countQuery,
+            count))
+        .collect(Collectors.toList());
+
     countQuery.select(cb.count(count))
-        .where(criteriaQuery.getRestriction());
+        .where(countPredicates.toArray(Predicate[]::new));
 
     long countQueryResult = entityManager.createQuery(countQuery).getSingleResult();
 

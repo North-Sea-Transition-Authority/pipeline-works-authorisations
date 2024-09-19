@@ -2,9 +2,9 @@ package uk.co.ogauthority.pwa.integration.model.entity.masterpwas;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

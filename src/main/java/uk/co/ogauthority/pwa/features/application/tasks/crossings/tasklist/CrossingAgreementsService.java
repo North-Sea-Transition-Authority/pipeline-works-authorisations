@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist;
 
 import com.google.common.annotations.VisibleForTesting;
+import jakarta.transaction.Transactional;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

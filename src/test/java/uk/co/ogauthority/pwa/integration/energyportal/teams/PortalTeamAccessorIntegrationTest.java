@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.integration.energyportal.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

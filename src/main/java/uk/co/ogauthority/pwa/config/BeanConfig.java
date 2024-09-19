@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.config;
 
 import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.validation.Validation;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.time.Clock;
-import javax.validation.Validation;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -18,7 +18,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
-import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
 import uk.gov.service.notify.NotificationClient;
 
 @Configuration
@@ -74,17 +73,6 @@ public class BeanConfig {
   @Bean
   public EmailValidator emailValidator() {
     return EmailValidator.getInstance();
-  }
-
-  @Bean
-  public FilterRegistrationBean<FoxSessionFilter> foxSessionFilterRegistration(FoxSessionFilter foxSessionFilter) {
-    // Important - disable automatic registration fo the FoxSessionFilter. We register it manually within the WebSecurityConfig
-    // If auto registration is not disabled, Spring will includes the session filter 'early' in its filter chain as
-    // part of Spring Session filters but before Spring Security. This causes the FoxSessionFilter to be included in
-    // requests that have disabled Spring Security (e.g. /assets/**) which can cause performance issues.
-    FilterRegistrationBean<FoxSessionFilter> registration = new FilterRegistrationBean<>(foxSessionFilter);
-    registration.setEnabled(false);
-    return registration;
   }
 
   @Bean

@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
+import uk.co.ogauthority.pwa.config.WebSecurityConfig;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
@@ -44,7 +45,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @RunWith(SpringRunner.class)
-@Import({AbstractControllerTest.AbstractControllerTestConfiguration.class, PwaMvcTestConfiguration.class})
+@Import({
+    AbstractControllerTest.AbstractControllerTestConfiguration.class,
+    PwaMvcTestConfiguration.class,
+    WebSecurityConfig.class
+})
 @EnableConfigurationProperties(ExternalApiConfiguration.class)
 @ActiveProfiles("test")
 @WebMvcTest(

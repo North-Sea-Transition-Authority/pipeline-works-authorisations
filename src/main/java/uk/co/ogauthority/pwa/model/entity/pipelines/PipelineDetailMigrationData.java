@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.time.Instant;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "pipeline_detail_migration_data")

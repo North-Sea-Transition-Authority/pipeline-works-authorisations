@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions;
 
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
@@ -36,7 +36,7 @@ public class ApplicationCaseOfficerPredicateProvider implements ApplicationSearc
   @Override
   public Predicate createPredicate(ApplicationSearchContext applicationSearchContext,
                                    ApplicationSearchParameters applicationSearchParameters,
-                                   CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                   CriteriaQuery<?> searchCoreQuery,
                                    Root<ApplicationDetailView> searchCoreRoot) {
 
     var cb = entityManager.getCriteriaBuilder();

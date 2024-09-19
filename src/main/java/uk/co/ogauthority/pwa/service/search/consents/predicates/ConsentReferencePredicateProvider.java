@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.service.search.consents.predicates;
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class ConsentReferencePredicateProvider implements ConsentSearchPredicate
   @Override
   public Predicate getPredicate(ConsentSearchParams searchParams,
                                 ConsentSearchContext searchContext,
-                                CriteriaQuery<ConsentSearchItem> criteriaQuery,
+                                CriteriaQuery<?> criteriaQuery,
                                 Root<ConsentSearchItem> queryRoot) {
 
     var cb = entityManager.getCriteriaBuilder();

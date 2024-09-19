@@ -198,7 +198,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
             .param("selectedApplicationIds", "5000", "3000")
             .param("assignedCaseOfficerPersonId", "1111"))
         .andExpect(status().is3xxRedirection())
-        .andExpect(view().name("redirect:/reassign-cases/"));
+        .andExpect(view().name("redirect:/reassign-cases"));
     verify(assignCaseOfficerService, times(2)).assignCaseOfficer(applicationDetail, new PersonId(1111), userAccount);
   }
 

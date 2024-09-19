@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments;
 
+import jakarta.transaction.Transactional;
 import java.time.Clock;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

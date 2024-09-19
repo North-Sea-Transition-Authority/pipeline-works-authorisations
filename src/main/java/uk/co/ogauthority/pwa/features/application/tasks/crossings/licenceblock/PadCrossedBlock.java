@@ -1,17 +1,16 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.time.Instant;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
@@ -30,7 +29,7 @@ public class PadCrossedBlock implements ChildEntity<Integer, PwaApplicationDetai
   @JoinColumn(name = "application_detail_id")
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "plm_id")
   private PearsLicence licence;
 

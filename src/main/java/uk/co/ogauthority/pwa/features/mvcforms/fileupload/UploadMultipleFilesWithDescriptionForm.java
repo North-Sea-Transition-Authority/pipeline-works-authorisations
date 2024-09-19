@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.mvcforms.fileupload;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 

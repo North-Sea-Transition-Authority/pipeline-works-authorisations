@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.teams.events;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;

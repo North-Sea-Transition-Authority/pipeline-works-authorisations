@@ -1,11 +1,11 @@
 package uk.co.ogauthority.pwa.features.webapp.devtools.testharness;
 
+import jakarta.transaction.Transactional;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

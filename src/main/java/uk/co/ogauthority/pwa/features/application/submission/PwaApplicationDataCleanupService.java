@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.submission;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;

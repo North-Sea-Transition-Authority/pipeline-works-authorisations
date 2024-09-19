@@ -107,7 +107,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(any(), eq(pipeline.getPipelineId())))
         .thenReturn(pipelineOverview);
 
-    doAnswer(invocation -> invocation.getArgument(1)).when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
+    doAnswer(invocation -> invocation.getArgument(1)).when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any(Object[].class));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
     when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
@@ -253,7 +253,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     )
         .andExpect(status().isOk());
 
-    verify(pickSplitPipelineFormValidator, times(1)).validate(any(), any(), any());
+    verify(pickSplitPipelineFormValidator, times(1)).validate(any(), any(), any(Object[].class));
     verify(padPipelinesHuooService, times(0)).removeSplitsForPipeline(any(), any(), any());
 
 
@@ -272,7 +272,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     )
         .andExpect(status().is3xxRedirection());
 
-    verify(pickSplitPipelineFormValidator, times(1)).validate(any(), any(), any());
+    verify(pickSplitPipelineFormValidator, times(1)).validate(any(), any(), any(Object[].class));
     verify(padPipelinesHuooService, times(1)).removeSplitsForPipeline(pwaApplicationDetail, pipeline.getPipelineId(), DEFAULT_ROLE);
 
 
@@ -283,7 +283,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     doAnswer(invocation -> {((BindingResult)invocation.getArgument(1))
         .rejectValue("pipelineId", "pipelineId.required", "pipelineIdRequired");
       return invocation;
-    }).when(pickSplitPipelineFormValidator).validate(any(), any(), any());
+    }).when(pickSplitPipelineFormValidator).validate(any(), any(), any(Object[].class));
   }
 
   @Test
@@ -451,7 +451,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
       ((BindingResult) invocation.getArgument(1)).rejectValue("pipelineSectionPoints", "pipelineSectionPoints.fake", "fake msg");
       return invocation;
     })
-        .when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any());
+        .when(definePipelineHuooSectionsFormValidator).validate(any(), any(), any(Object[].class));
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null

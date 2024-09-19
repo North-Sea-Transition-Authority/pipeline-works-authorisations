@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.fileupload;
 
 import com.google.common.base.Stopwatch;
+import jakarta.transaction.Transactional;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -12,7 +13,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import javax.sql.rowset.serial.SerialBlob;
-import javax.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

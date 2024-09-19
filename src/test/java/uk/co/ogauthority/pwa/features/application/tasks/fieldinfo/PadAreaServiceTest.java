@@ -350,7 +350,7 @@ public class PadAreaServiceTest {
       var errors = (Errors) invocation.getArgument(1);
       errors.rejectValue("linkedAreas", "linkedAreas.error");
       return invocation;
-    }).when(pwaAreaFormValidator).validate(any(), any(), any());
+    }).when(pwaAreaFormValidator).validate(any(), any(), any(Object[].class));
 
     assertThat(padAreaService.isComplete(pwaApplicationDetail)).isFalse();
 

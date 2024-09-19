@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
+import jakarta.persistence.EntityManager;
 import java.util.List;
-import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;

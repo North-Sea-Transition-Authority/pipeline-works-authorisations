@@ -1,14 +1,15 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch.restrictions;
 
 
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail_;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
@@ -36,7 +37,7 @@ public class ApplicationStatusPredicateProvider implements ApplicationSearchPred
   @Override
   public Predicate createPredicate(ApplicationSearchContext applicationSearchContext,
                                    ApplicationSearchParameters applicationSearchParameters,
-                                   CriteriaQuery<ApplicationDetailView> searchCoreQuery,
+                                   CriteriaQuery<?> searchCoreQuery,
                                    Root<ApplicationDetailView> searchCoreRoot) {
 
     var cb = entityManager.getCriteriaBuilder();
@@ -51,7 +52,7 @@ public class ApplicationStatusPredicateProvider implements ApplicationSearchPred
     subQuery.where(cb.and(
         cb.equal(
             searchCoreRoot.get(ApplicationDetailView_.PWA_APPLICATION_ID),
-            subRoot.get(PwaApplicationDetail_.PWA_APPLICATION)
+            subRoot.get(PwaApplicationDetail_.PWA_APPLICATION).get(PwaApplication_.ID)
         ),
         cb.in(subRoot.get(PwaApplicationDetail_.STATUS)).value(excludeAppsWithStatus)
     ));

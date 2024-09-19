@@ -185,7 +185,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
             .with(csrf())
             .params(getValidAddFormAsMap()))
         .andExpect(status().is3xxRedirection());
-    verify(addFormValidator, times(1)).validate(any(), any(), any());
+    verify(addFormValidator, times(1)).validate(any(), any(), any(Object[].class));
   }
 
   @Test

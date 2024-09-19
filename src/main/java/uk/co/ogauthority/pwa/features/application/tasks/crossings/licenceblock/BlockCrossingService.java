@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
+import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

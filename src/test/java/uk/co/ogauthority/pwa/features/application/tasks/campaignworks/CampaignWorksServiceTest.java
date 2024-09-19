@@ -260,10 +260,10 @@ public class CampaignWorksServiceTest {
         ValidationType.FULL,
         pwaApplicationDetail);
 
-    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    ArgumentCaptor<Object[]> hintCapture = ArgumentCaptor.forClass(Object[].class);
     verify(workScheduleFormValidator, times(1))
         .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
-    var capturedHints = hintCapture.getAllValues();
+    var capturedHints = hintCapture.getValue();
     assetValidationHintsWhenNoProjectInfoDate(capturedHints, 12L);
 
   }
@@ -280,18 +280,18 @@ public class CampaignWorksServiceTest {
         ValidationType.FULL,
         pwaApplicationDetail);
 
-    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    ArgumentCaptor<Object[]> hintCapture = ArgumentCaptor.forClass(Object[].class);
     verify(workScheduleFormValidator, times(1))
         .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
 
-    var capturedHints = hintCapture.getAllValues();
+    var capturedHints = hintCapture.getValue();
     assetValidationHintsWhenNoProjectInfoDate(capturedHints, 6L);
 
   }
 
-  public void assetValidationHintsWhenNoProjectInfoDate(List<Object> validationHints, long expectedLatestDateMonths) {
-    assertThat(validationHints.get(0)).isEqualTo(pwaApplicationDetail);
-    assertThat(validationHints.get(1)).satisfies(o -> {
+  public void assetValidationHintsWhenNoProjectInfoDate(Object[] validationHints, long expectedLatestDateMonths) {
+    assertThat(validationHints[0]).isEqualTo(pwaApplicationDetail);
+    assertThat(validationHints[1]).satisfies(o -> {
       var hint = (CampaignWorkScheduleValidationHint) o;
       // check earliest date
       assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
@@ -323,14 +323,14 @@ public class CampaignWorksServiceTest {
         ValidationType.FULL,
         pwaApplicationDetail);
 
-    ArgumentCaptor<Object> hintCapture = ArgumentCaptor.forClass(Object.class);
+    ArgumentCaptor<Object[]> hintCapture = ArgumentCaptor.forClass(Object[].class);
     verify(workScheduleFormValidator, times(1))
         .validate(eq(workScheduleForm), eq(originalBindingResult), hintCapture.capture());
 
-    var capturedHints = hintCapture.getAllValues();
+    var capturedHints = hintCapture.getValue();
 
-    assertThat(capturedHints.get(0)).isEqualTo(pwaApplicationDetail);
-    assertThat(capturedHints.get(1)).satisfies(o -> {
+    assertThat(capturedHints[0]).isEqualTo(pwaApplicationDetail);
+    assertThat(capturedHints[1]).satisfies(o -> {
       var hint = (CampaignWorkScheduleValidationHint) o;
       // check earliest date
       assertThat(hint.getEarliestDate()).isEqualTo(LocalDate.now());
@@ -575,7 +575,7 @@ public class CampaignWorksServiceTest {
         errors.rejectValue("padPipelineIds", "fake_error");
       }
       return errors;
-    }).when(workScheduleFormValidator).validate(any(), any(), any());
+    }).when(workScheduleFormValidator).validate(any(), any(), any(Object[].class));
   }
 
   private void setupValidationResultMocks_whenNotAllApplicationPipelinesWithinAWorkSchedule_andNoFormValidationHasErrors() {

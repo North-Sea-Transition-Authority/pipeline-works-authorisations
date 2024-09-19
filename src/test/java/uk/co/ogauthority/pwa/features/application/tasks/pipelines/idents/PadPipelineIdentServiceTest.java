@@ -483,7 +483,7 @@ public class PadPipelineIdentServiceTest {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
-    }).when(pipelineIdentFormValidator).validate(any(), any(), any());
+    }).when(pipelineIdentFormValidator).validate(any(), any(), any(Object[].class));
     var valid = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(valid).isFalse();
   }
@@ -898,7 +898,7 @@ public class PadPipelineIdentServiceTest {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
-    }).when(pipelineIdentFormValidator).validate(any(), any(), any());
+    }).when(pipelineIdentFormValidator).validate(any(), any(), any(Object[].class));
     when(padPipelineIdentRepository.getAllByPadPipeline(padPipeline))
         .thenReturn(List.of(ident));
     var result = padPipelineIdentService.getSummaryScreenValidationResult(padPipeline);
@@ -917,7 +917,7 @@ public class PadPipelineIdentServiceTest {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
-    }).when(pipelineIdentFormValidator).validate(any(), any(), any());
+    }).when(pipelineIdentFormValidator).validate(any(), any(), any(Object[].class));
     var result = padPipelineIdentService.isIdentValid(padPipeline, ident);
     assertThat(result).isFalse();
   }
@@ -947,7 +947,7 @@ public class PadPipelineIdentServiceTest {
       var bindingResult = (BindingResult) invocation.getArgument(1);
       bindingResult.addError(new ObjectError("", ""));
       return null;
-    }).when(pipelineIdentFormValidator).validate(any(), any(), any());
+    }).when(pipelineIdentFormValidator).validate(any(), any(), any(Object[].class));
     var result = padPipelineIdentService.isSectionValid(padPipeline);
     assertThat(result).isFalse();
   }

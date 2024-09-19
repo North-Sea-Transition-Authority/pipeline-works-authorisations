@@ -105,19 +105,18 @@ public class PipelineIdentDataFormValidator implements SmartValidator {
 
 
     } else {
-
-      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyed",
-          "productsToBeConveyed" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the products to be conveyed");
-
-      ValidatorUtils.validateDefaultStringLength(
-          errors, fieldPrefix + "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
-
       ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "componentPartsDescription",
           "componentPartsDescription" + FieldValidationErrorCodes.REQUIRED.getCode(),
           "Enter a description of the component parts");
 
       ValidatorUtils.validateDefaultStringLength(
           errors, fieldPrefix + "componentPartsDescription", form::getComponentPartsDescription, "Description of component parts");
+
+      ValidationUtils.rejectIfEmptyOrWhitespace(errors, fieldPrefix + "productsToBeConveyed",
+          "productsToBeConveyed" + FieldValidationErrorCodes.REQUIRED.getCode(), "Enter the products to be conveyed");
+
+      ValidatorUtils.validateDefaultStringLength(
+          errors, fieldPrefix + "productsToBeConveyed", form::getProductsToBeConveyed, "Products to be conveyed");
 
       if (isDefiningStructure.equals(PipelineIdentDataValidationRule.AS_SECTION)) {
 

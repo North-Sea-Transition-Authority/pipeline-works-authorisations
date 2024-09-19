@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.tasklist;
 
+import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
-import javax.persistence.EntityManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
