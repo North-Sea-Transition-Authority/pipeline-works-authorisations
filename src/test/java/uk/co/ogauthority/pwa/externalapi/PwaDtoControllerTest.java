@@ -132,7 +132,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
 
   @Test
   public void searchPwas_whenStatusIsInvalid_thenBadRequest() throws Exception {
-    var invalidStatus = "invalid enum";
+    var invalidStatus = "invalid";
     mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 null,

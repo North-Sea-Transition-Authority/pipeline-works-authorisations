@@ -21,7 +21,6 @@ import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 public class PwaDtoController {
 
   public static final String ENERGY_PORTAL_API_BASE_PATH = "/api/external/v1";
-  static final int PAGE_SIZE = 1000;
 
   private final PwaDtoRepository pwaDtoRepository;
 
