@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.externalapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -135,5 +138,17 @@ public class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractCo
     assertThat(resultingPwaConsents)
         .extracting(PwaConsentDto::getId)
         .containsExactly(firstPwaConsent.getId(), secondPwaConsent.getId(), thirdPwaConsent.getId());
+  }
+
+  @Test
+  public void searchPwaConsents_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
+
+    mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER).searchPwaConsents(null)))
+            .header("Authorization", "Bearer " + PRE_SHARED_KEY)
+        )
+        .andExpect(status().isBadRequest())
+        .andExpect(status().reason("Required parameter 'pwaIds' is not present."));
+
+    verify(pwaConsentDtoRepository, never()).searchPwaConsents(any());
   }
 }
