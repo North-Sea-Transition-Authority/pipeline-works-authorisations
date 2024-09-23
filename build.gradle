@@ -1,5 +1,5 @@
 plugins {
-  id 'org.springframework.boot' version '3.3.1'
+  id 'org.springframework.boot' version '3.3.4'
   id 'io.spring.dependency-management' version '1.1.5'
   id 'java'
   id 'jacoco'
@@ -43,9 +43,12 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-  // Temporarily bump Hibernate to 6.5.3-SNAPSHOT until 6.5.3 is released with the fix for slow queries
-  // https://hibernate.atlassian.net/browse/HHH-18352.
-  implementation 'org.hibernate.orm:hibernate-core:6.5.3-SNAPSHOT'
+  // Hibernate 6.5 introduced a performance issue with certain Oracle queries, see https://hibernate.atlassian.net/browse/HHH-18352.
+  // This was fixed in a 6.5.3 snapshot but development moved over to 6.6.0 before a final 6.5.3 was released.
+  // The upcoming spring-data-jpa 3.4.x will use Hibernate 6.6 https://github.com/spring-projects/spring-data-jpa/issues/3574, until then we
+  // use a pinned 6.5.3 snapshot which has passed all the Hibernate CI tests, and which we have tested internally.
+  implementation 'org.hibernate.orm:hibernate-core:6.5.3-20240807.164253-67'
+
   implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:5.1.0-RELEASE'
