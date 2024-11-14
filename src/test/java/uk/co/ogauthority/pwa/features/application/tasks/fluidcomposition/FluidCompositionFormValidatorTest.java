@@ -58,6 +58,24 @@ public class FluidCompositionFormValidatorTest {
   }
 
   @Test
+  public void validateForm_invalid_otherInformationLength() {
+    var compositionDataForm1 = new FluidCompositionDataForm();
+    compositionDataForm1.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
+    compositionDataForm1.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(101)));
+    var chemicalDataFormMap = Map.of(
+        Chemical.H2O, compositionDataForm1
+    );
+    fluidCompositionForm.setChemicalDataFormMap(chemicalDataFormMap);
+    fluidCompositionForm.setOtherInformation("a".repeat(1001));
+
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, fluidCompositionForm);
+    assertThat(errorsMap.size()).isEqualTo(1);
+    assertThat(errorsMap).contains(
+        entry("otherInformation", Set.of("otherInformation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED))
+    );
+  }
+
+  @Test
   public void validateForm_valid() {
     var compositionDataForm1 = new FluidCompositionDataForm();
     compositionDataForm1.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);

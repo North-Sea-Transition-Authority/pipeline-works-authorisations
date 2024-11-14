@@ -58,7 +58,7 @@ public class FluidCompositionFormValidator implements SmartValidator {
     }
   }
 
-  private MinMaxLimit getFluidCompositionLimits(PwaResourceType resourceType) {
+  MinMaxLimit getFluidCompositionLimits(PwaResourceType resourceType) {
     switch (resourceType) {
       case PETROLEUM:
       case HYDROGEN:

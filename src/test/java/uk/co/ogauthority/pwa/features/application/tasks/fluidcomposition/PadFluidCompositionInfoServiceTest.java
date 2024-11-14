@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
@@ -15,6 +16,7 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -180,7 +182,51 @@ public class PadFluidCompositionInfoServiceTest {
     assertThat(fluidCompositionView.getChemicalDataFormMap().get(Chemical.N2)).isNull();
   }
 
-  //TODO: EDU-6728 Add SaveEntityFromForm test for all resourceTypes.
+  @Test
+  public void saveEntitiesUsingForm() {
+    var form = new FluidCompositionForm();
+    var h20Form = new FluidCompositionDataForm();
+    h20Form.setChemicalMeasurementType(ChemicalMeasurementType.NONE);
+    var c1Form = new FluidCompositionDataForm();
+    c1Form.setChemicalMeasurementType(ChemicalMeasurementType.TRACE);
+    var c2Form = new FluidCompositionDataForm();
+    c2Form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
+    c2Form.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(100)));
+    var hgForm = new FluidCompositionDataForm();
+    hgForm.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);
+    hgForm.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(100)));
+
+    Map<Chemical, FluidCompositionDataForm> chemicalDataFormMap = new HashMap<>();
+    chemicalDataFormMap.put(Chemical.H2O, h20Form);
+    chemicalDataFormMap.put(Chemical.C1, c1Form);
+    chemicalDataFormMap.put(Chemical.C2, c2Form);
+    chemicalDataFormMap.put(Chemical.HG, hgForm);
+    form.setChemicalDataFormMap(chemicalDataFormMap);
+
+    var entities = List.of(
+        createValidEntity(Chemical.H2O, ChemicalMeasurementType.NONE),
+        createValidEntity(Chemical.C1, ChemicalMeasurementType.TRACE),
+        createValidEntity(Chemical.C2, ChemicalMeasurementType.MOLE_PERCENTAGE),
+        createValidEntity(Chemical.HG, ChemicalMeasurementType.PPMV_100K));
+
+    padFluidCompositionInfoService.saveEntitiesUsingForm(form, entities);
+
+    ArgumentCaptor<List<PadFluidCompositionInfo>> captor = ArgumentCaptor.forClass(List.class);
+    verify(padFluidCompositionInfoRepository).saveAll(captor.capture());
+    assertThat(captor.getValue())
+        .extracting(
+            PadFluidCompositionInfo::getChemicalName,
+            PadFluidCompositionInfo::getChemicalMeasurementType,
+            PadFluidCompositionInfo::getMoleValue
+        )
+        .containsExactly(
+            tuple(Chemical.H2O, ChemicalMeasurementType.NONE, null),
+            tuple(Chemical.C1, ChemicalMeasurementType.TRACE, null),
+            tuple(Chemical.C2, ChemicalMeasurementType.MOLE_PERCENTAGE, BigDecimal.valueOf(100)),
+            tuple(Chemical.HG, ChemicalMeasurementType.PPMV_100K, BigDecimal.valueOf(100))
+        );
+  }
+
   //Validation / Checking Tests
   @Test
   public void validate_valid() {
