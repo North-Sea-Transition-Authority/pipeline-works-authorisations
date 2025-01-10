@@ -5,9 +5,13 @@ steps:
   - name: fetch-fds-submodule
     image: alpine/git:v2.26.2
     commands:
-      # Drone cannot auth to a ssh based repo, so override to https to make use of .netrc
-      - git config submodule.fivium-design-system-core.url https://bitbucket.org/fiviumuk/fivium-design-system-core.git
+      - echo "$${BITBUCKET_SSH_KEY}" > bitbucket_ssh_key
+      - chmod 600 bitbucket_ssh_key
+      - export GIT_SSH_COMMAND="ssh -i bitbucket_ssh_key -F /dev/null  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
       - git submodule update --init --recursive
+    environment:
+      BITBUCKET_SSH_KEY:
+        from_secret: bitbucket_ssh_key
 
   - name: build-fds
     image: node:18
@@ -25,21 +29,9 @@ steps:
 
   - name: build-backend
     image: eclipse-temurin:21-jdk
-    environment:
-      SONARCLOUD_TOKEN:
-        from_secret: SONARCLOUD_TOKEN
     commands:
       - chmod +x gradlew
       - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
-
-  - name: sonarqube
-    image: eclipse-temurin:21-jdk
-    environment:
-      SONARCLOUD_TOKEN:
-        from_secret: SONARCLOUD_TOKEN
-    commands:
-      - chmod +x gradlew
-      - ./gradlew sonarqube
 
   - name: publish-docker-develop
     image: plugins/docker:19.03.8
@@ -132,21 +124,6 @@ steps:
     when:
       status: [ success, failure ]
 
-  - name: deploy-dev-st
-    image: plugins/downstream:linux-amd64
-    settings:
-      server: https://drone.fivium.co.uk
-      token:
-        from_secret: drone_token
-      fork: true
-      repositories:
-        - fiviumuk/fivium-dev-app@master
-    when:
-      branch:
-        - develop
-      status:
-        - success
-
   - name: slack-all
     image: plugins/slack:linux-amd64
     settings:
@@ -157,6 +134,11 @@ steps:
         Reports published to: http://drone-assets.fivium.local:9090/pwa/{{build.number}}/
     when:
       status: [ success, failure ]
+
+trigger:
+  event:
+    include:
+      - push
 
 volumes:
   - name: webfiles
@@ -176,3 +158,119 @@ volumes:
   - name: drone-trivy-cache
     host:
       path: /root/.cache/
+
+---
+kind: pipeline
+type: docker
+name: github-pr
+
+clone:
+  disable: true
+
+steps:
+  - name: clone
+    image: alpine/git:v2.26.2
+    commands:
+      # Manually cloning as there seems to be a bug with DRONE_BRANCH on Pull Request Events
+      # DRONE_BRANCH is set to the target branch, rather than the current branch
+      # This means that Sonarcloud doesn't think anything has changed
+      - git clone https://github.com/Fivium/pipeline-works-authorisations.git .
+      - git checkout $DRONE_SOURCE_BRANCH
+
+  - name: restore-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      restore: true
+      mount:
+        - ./node_modules
+        # We can only mount volume caches into the working directory, so all steps which use Gradle must have
+        # the GRADLE_USER_HOME environment variable pointing here.
+        - ./gradle_cache
+        - ./sonar_cache
+
+  - name: fetch-fds-submodule
+    image: alpine/git:v2.26.2
+    commands:
+      - echo "$${BITBUCKET_SSH_KEY}" > bitbucket_ssh_key
+      - chmod 600 bitbucket_ssh_key
+      - export GIT_SSH_COMMAND="ssh -i bitbucket_ssh_key -F /dev/null  -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      - git submodule update --init --recursive
+    environment:
+      BITBUCKET_SSH_KEY:
+        from_secret: bitbucket_ssh_key
+
+  - name: build-fds
+    image: node:18
+    commands:
+      - cd fivium-design-system-core
+      - npm install
+      - npx gulp build
+      - cd ..
+
+  - name: build-frontend
+    image: node:18
+    commands:
+      - npm install
+      - npx gulp buildAll
+
+  - name: build-java
+    image: eclipse-temurin:21-jdk
+    environment:
+      GRADLE_USER_HOME: /drone/src/gradle_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew test jacocoTestReport checkstyleMain bootWar bootJar
+
+  # This is in the PR pipeline as only PR events get the necessary information for proper github integration
+  - name: code-analysis
+    image: eclipse-temurin:21-jdk
+    environment:
+      SONARCLOUD_TOKEN:
+        from_secret: sonarcloud_token
+      # This SONAR_USER_HOME is the cache path - not the actual user home
+      SONAR_USER_HOME: /drone/src/sonar_cache
+    commands:
+      - chmod +x gradlew
+      - ./gradlew sonarqube -info
+
+  - name: rebuild-cache
+    image: drillster/drone-volume-cache
+    volumes:
+      - name: drone-cache
+        path: /cache
+    settings:
+      rebuild: true
+      mount:
+        - ./node_modules
+        - ./gradle_cache
+        - ./sonar_cache
+
+trigger:
+  event:
+    - pull_request
+
+volumes:
+  - name: drone-cache
+    host:
+      path: /home/fivium/drone-cache
+
+---
+
+kind: secret
+name: docker_config
+data: uXcDoHE+kTNm76bNUPtvMmtsrYRO40mKddsc/PpPHVBt7xHhdwZA8wy2vRbhvDBbRuugD1VDa8Ef385/4icZ8Hpq6RMFzanBOHuSLPGmLe6pN/MNGujjltts4rKxGYc7f0InAFjHBpqTOSuKWl0rmQiG6PGFTyH+11aip6xg7GxgZXUwnqOK+aPv8QmSGOm7fQn6mPueUp4bwLmBRSi4kj7nf1cTsiUtFxrj+ZhcaR91TXxQ5pLsKf2aU26IIdq9DoOL8sBrWWkbssiuCviO3Fbl3RC6ojDIYoQrbiVyXMYfCZCmbPGTTP6g0lgpieQvIJi9aQm1zqbSe99alu7bvWNkyVh3uQxmWuewuoU39a1Nnu/B+8WOYJ7tGHboJ/2ClMRggnE=
+
+---
+
+kind: secret
+name: sonarcloud_token
+data: ZL8uwro8kFVBiRWNgQPbt2lqWVcnqX6soL8SEnKnBOOJZdwRfzuEpSJHAU5i4Fgp94Lsl4MM0OoeM74i292UqMnXgUo=
+
+---
+
+kind: secret
+name: bitbucket_ssh_key
+data: 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
