@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 /**
- * <p>A Geometry object represents points, curves, and surfaces in coordinate space. Every Geometry object is a GeoJSON
- * object no matter where it occurs in a GeoJSON text.</p>
+ * A Geometry object represents points, curves, and surfaces in coordinate space. Every Geometry object is a GeoJSON
+ * object no matter where it occurs in a GeoJSON text.
+ *
  * <p>See <a href="https://datatracker.ietf.org/doc/html/rfc7946#section-3.1">GeoJson reference</a></p>
  */
 public abstract class GeoJsonGeometry {
@@ -13,7 +14,7 @@ public abstract class GeoJsonGeometry {
   }
 
   /**
-   * Decimal degrees e.g [0.9, 41.1]
+   * Decimal degrees e.g [0.9, 41.1].
    */
   public abstract Object[] getCoordinates();
 

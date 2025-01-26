@@ -8,7 +8,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
 /**
- * <p>Describes the highest level category of pipelines supported by the application.</p>
+ * Describes the highest level category of pipelines supported by the application.
  *
  * <p><b>If this list changes you MUST update the following the database API view: api_vw_pwa_pipeline_details.</b></p>
  *

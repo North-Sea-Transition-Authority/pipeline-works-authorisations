@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.EntityCopyingException;
 
 /**
- * <p>This service is designed to make copying simple ORM Entities easy.</p>
+ * This service is designed to make copying simple ORM Entities easy.
  *
  * <p>When to use this service:<ul>
  * <li> When only a small (rule of thumb less than 3) number of attributes need to be manually set after copying</li>

@@ -5,8 +5,8 @@ import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.Organisatio
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
 
 /**
- * <p>Class which captures an "organisation" role owner. This is the organisation or treaty which owns a particular role instance for a PWA.
- * A role owner is not an instance of a HuooRole, but the concept(org unit or treaty) that could have an instance of the HUOO roles.</p>
+ * Class which captures an "organisation" role owner. This is the organisation or treaty which owns a particular role instance for a PWA.
+ * A role owner is not an instance of a HuooRole, but the concept(org unit or treaty) that could have an instance of the HUOO roles.
  *
  * <p>Implementing DiffableAsString is currently a workaround for ignoring this class as a field as part of the DiffableOrgRolePipelineGroup
  * class when used for diffing huoo pipelines</p>

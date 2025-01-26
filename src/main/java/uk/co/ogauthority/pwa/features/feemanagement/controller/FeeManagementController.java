@@ -63,11 +63,11 @@ public class FeeManagementController {
         .addObject("feePeriods", displayService.listAllPeriods())
         .addObject("newPeriodUrl", ReverseRouter.route(on(
             FeeManagementController.class).renderNewPeriodForm(null,
-            new FeePeriodForm())))
+              new FeePeriodForm())))
         .addObject("editPeriodUrl", ReverseRouter.route(on(
             FeeManagementController.class).renderEditPeriodForm(null,
             null,
-            new FeePeriodForm())))
+              new FeePeriodForm())))
         .addObject("urlFactory", new FeeManagementUrlFactory())
         .addObject("createPeriodFlag", displayService.futurePeriodExists())
         .addObject("success");

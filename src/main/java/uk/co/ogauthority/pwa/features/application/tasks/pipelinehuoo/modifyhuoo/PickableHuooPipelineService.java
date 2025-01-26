@@ -56,8 +56,8 @@ public class PickableHuooPipelineService {
   }
 
   /**
-   * <p>Pickable pipeline are from both the application and PWA as a whole. If an application updates a consented PWA
-   * pipeline, we want the pickable option to show the application details and not the consented details.</p>
+   * Pickable pipeline are from both the application and PWA as a whole. If an application updates a consented PWA
+   * pipeline, we want the pickable option to show the application details and not the consented details.
    *
    * <p>The returned map will have not have any pipeline splits represented as they only exist in the
    * context of an applications HUOO roles.</p>
@@ -79,8 +79,8 @@ public class PickableHuooPipelineService {
 
 
   /**
-   * <p>Pickable pipelines for the application as a whole are those added by the app, imported for update by the app,
-   * or active pipeline linked to the application's master pwa which are not imported into the application.</p>
+   * Pickable pipelines for the application as a whole are those added by the app, imported for update by the app,
+   * or active pipeline linked to the application's master pwa which are not imported into the application.
    *
    * <p>For every pipeline which has been split for the HUOO role, we need to include each split segment as a discrete option
    * and not include a row which represents the entire pipeline.</p>

@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
 /**
- * <p>Represents the types of pipeline that can be picked when assigning HUOO roles.</p>
+ * Represents the types of pipeline that can be picked when assigning HUOO roles.
  *
  * <p>Would probably be better to have the enum only contain the values, and then a separate static PickablePipelineIdFactory class
  * to contains all the String construction, object wrapping, and String decoding.</p>

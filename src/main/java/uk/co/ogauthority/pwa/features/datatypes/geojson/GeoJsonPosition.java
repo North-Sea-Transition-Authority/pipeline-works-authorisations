@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 /**
- * <p>A position is an array of numbers.  There MUST be two or more elements.
- * The first two elements are longitude and latitude precisely in that order and using decimal numbers.</p>
+ * A position is an array of numbers.  There MUST be two or more elements.
+ * The first two elements are longitude and latitude precisely in that order and using decimal numbers.
+ *
  * <p>GeoJson spec reference https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.1.</p>
  */
 public final class GeoJsonPosition {

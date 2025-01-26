@@ -17,12 +17,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelinehuoo.views.h
 @Service
 public class DiffableOrgRolePipelineGroupCreator {
 
-
-  @Autowired
-  public DiffableOrgRolePipelineGroupCreator(){
-  }
-
-  
   public AllRoleDiffablePipelineGroupView getDiffableViewForAllOrgRolePipelineGroupView(
       AllOrgRolePipelineGroupsView huooRolePipelineGroupsPadView) {
 

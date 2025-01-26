@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 /**
- * <p>Multiple whole pipelines or pipeline sections can be associated with one or more org role owners.</p>
+ * Multiple whole pipelines or pipeline sections can be associated with one or more org role owners.
  *
  * <p>This class captures a group of pipelines or pipeline sections which have the same group of associated org role owners.</p>
  */

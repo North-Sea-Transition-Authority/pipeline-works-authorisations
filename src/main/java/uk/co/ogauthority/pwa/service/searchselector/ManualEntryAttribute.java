@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.searchselector;
 
 /**
- * <p>Modifier to be used with SearchSelectorService::addManualEntry
- * Allows free text prefix to be excluded from the result ID.</p>
+ * Modifier to be used with SearchSelectorService::addManualEntry
+ * Allows free text prefix to be excluded from the result ID.
  *
  * <p>The use case for this enum is to allow text to be searched over when there is no corresponding ID.
  * SearchSelectorService::addManualEntry by default will apply {WITH_FREE_TEXT_PREFIX}.

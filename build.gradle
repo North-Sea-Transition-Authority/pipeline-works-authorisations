@@ -110,7 +110,7 @@ dependencies {
 
 checkstyle {
   config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
-  toolVersion '8.28'
+  toolVersion '10.21.1'
   ignoreFailures = false
   maxWarnings = 0
   // Sets suppressionFile property so checkstyle during build ignores generated files.

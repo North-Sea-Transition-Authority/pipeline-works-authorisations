@@ -64,9 +64,9 @@ public class PipelineAndIdentViewFactory {
   }
 
   /**
-   * <p>Pipelines and Ident views from both the application and PWA as a whole prioritising details from the application.
+   * Pipelines and Ident views from both the application and PWA as a whole prioritising details from the application.
    * If an application updates a consented PWA pipeline, we want the detail to show the application details and not the
-   * consented details.</p>
+   * consented details.
    *
    * <p>The returned List will have not have any pipeline splits represented as they only exist in the
    * context of an application's/Master PWA's HUOO roles and pipeline links.</p>
@@ -136,8 +136,8 @@ public class PipelineAndIdentViewFactory {
 
 
   /**
-   * <p>Pipelines from both the application and PWA as a whole. If an application updates a consented PWA
-   * pipeline, we want the detail to show the application details and not the consented details.</p>
+   * Pipelines from both the application and PWA as a whole. If an application updates a consented PWA
+   * pipeline, we want the detail to show the application details and not the consented details.
    *
    * <p>The returned map will have not have any pipeline splits represented as they only exist in the
    * context of an applications/Master PWA's HUOO roles.</p>
