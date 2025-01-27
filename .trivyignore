@@ -1,5 +1,6 @@
 # spring-security-core needs 6.3.2 (not released yet)
 CVE-2024-38810
+CVE-2024-38827
 
 # io.netty:netty-common
 CVE-2024-47535

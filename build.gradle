@@ -53,7 +53,7 @@ dependencies {
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:5.1.0-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.21.0') {
+  implementation('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.22.0') {
     // Exclude com.sun.xml.bind JAXB as it conflicts with glassfish JAXB from Hibernate Envers. The packages inside
     // the dependencies are the same so it is fine to exclude it.
     exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
