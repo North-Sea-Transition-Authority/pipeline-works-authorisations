@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +53,6 @@ public class PipelineDetailDtoRepositoryImplTest {
   private final Instant baseTime = Instant.now().minus(1, ChronoUnit.MINUTES);
 
   private MasterPwa masterPwa;
-  private PipelineDetail inServicePipeDetail, returnedToShorePipeDetail;
   private PwaConsent firstConsentInService, secondConsentReturnedToShore;
   private static final Set<PipelineStatus> ON_SEABED_STATUSES = PipelineStatus.getStatusesWithState(PhysicalPipelineState.ON_SEABED);
 
@@ -65,55 +63,85 @@ public class PipelineDetailDtoRepositoryImplTest {
   @Before
   public void setUp() {
 
-    masterPwa = new MasterPwa();
-    masterPwa.setId(1);
+    // Create or retrieve the MasterPwa entity
+    masterPwa = getOrCreateMasterPwa(1);
 
-    var pipeline = new Pipeline();
-    pipeline.setId(1);
-    pipeline.setMasterPwa(masterPwa);
+    // Create or retrieve the Pipeline entity
+    var pipeline = getOrCreatePipeline(1, masterPwa);
 
-    // first consent, setting pipeline to IN_SERVICE
-    firstConsentInService = new PwaConsent();
-    firstConsentInService.setId(1);
-    firstConsentInService.setConsentInstant(baseTime.minus(5, ChronoUnit.MINUTES));
-    firstConsentInService.setMasterPwa(masterPwa);
+    // Create or retrieve consents
+    firstConsentInService = getOrCreatePwaConsent(1, baseTime.minus(5, ChronoUnit.MINUTES), masterPwa);
+    secondConsentReturnedToShore = getOrCreatePwaConsent(2, baseTime, masterPwa);
 
-    // second consent, setting pipeline to RETURNED_TO_SHORE
-    secondConsentReturnedToShore = new PwaConsent();
-    secondConsentReturnedToShore.setId(2);
-    secondConsentReturnedToShore.setConsentInstant(baseTime);
-    secondConsentReturnedToShore.setMasterPwa(masterPwa);
+    // Prepare PipelineDetail entities
+    var inServicePipeDetail = getOrCreatePipelineDetailByPipelineAndConsent(
+        pipeline,
+        firstConsentInService,
+        firstConsentInService.getConsentInstant(),
+        PipelineStatus.IN_SERVICE,
+        secondConsentReturnedToShore.getConsentInstant().minusSeconds(1),
+        false
+    );
 
-    var consentList = List.of(firstConsentInService, secondConsentReturnedToShore);
+    var returnedToShorePipeDetail = getOrCreatePipelineDetailByPipelineAndConsent(
+        pipeline,
+        secondConsentReturnedToShore,
+        secondConsentReturnedToShore.getConsentInstant(),
+        PipelineStatus.RETURNED_TO_SHORE,
+        null, // No end timestamp here
+        true
+    );
+  }
 
-    // detail linked to first consent
-    inServicePipeDetail = new PipelineDetail();
-    inServicePipeDetail.setPipeline(pipeline);
-    inServicePipeDetail.setPwaConsent(firstConsentInService);
-    inServicePipeDetail.setStartTimestamp(firstConsentInService.getConsentInstant());
-    inServicePipeDetail.setPipelineStatus(PipelineStatus.IN_SERVICE);
-    inServicePipeDetail.setEndTimestamp(secondConsentReturnedToShore.getConsentInstant());
+  private MasterPwa getOrCreateMasterPwa(int id) {
+    return masterPwaRepository.findById(id)
+        .orElseGet(() -> {
+          var masterPwa = new MasterPwa();
+          return masterPwaRepository.save(masterPwa);
+        });
+  }
 
-    // detail linked to second consent
-    returnedToShorePipeDetail = new PipelineDetail();
-    returnedToShorePipeDetail.setPipeline(pipeline);
-    returnedToShorePipeDetail.setPwaConsent(secondConsentReturnedToShore);
-    returnedToShorePipeDetail.setStartTimestamp(secondConsentReturnedToShore.getConsentInstant());
-    returnedToShorePipeDetail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
-    returnedToShorePipeDetail.setTipFlag(true);
+  private Pipeline getOrCreatePipeline(int id, MasterPwa masterPwa) {
+    return pipelineRepository.findById(id)
+        .orElseGet(() -> {
+          var pipeline = new Pipeline();
+          pipeline.setMasterPwa(masterPwa);
+          return pipelineRepository.save(pipeline);
+        });
+  }
 
-    var detailList = List.of(inServicePipeDetail, returnedToShorePipeDetail);
+  private PwaConsent getOrCreatePwaConsent(int id, Instant consentInstant, MasterPwa masterPwa) {
+    return pwaConsentRepository.findById(id)
+        .orElseGet(() -> {
+          var pwaConsent = new PwaConsent();
+          pwaConsent.setConsentInstant(consentInstant);
+          pwaConsent.setMasterPwa(masterPwa);
+          return pwaConsentRepository.save(pwaConsent);
+        });
+  }
 
-    // store entities if not stored before
-    if(masterPwaRepository.findById(1).isEmpty()) {
-
-      masterPwaRepository.save(masterPwa);
-      pipelineRepository.save(pipeline);
-      pwaConsentRepository.saveAll(consentList);
-      pipelineDetailRepository.saveAll(detailList);
-
-    }
-
+  private PipelineDetail getOrCreatePipelineDetailByPipelineAndConsent(
+      Pipeline pipeline,
+      PwaConsent pwaConsent,
+      Instant startTimestamp,
+      PipelineStatus status,
+      Instant endTimestamp,
+      boolean tipFlag
+  ) {
+    return pipelineDetailRepository.findAllByPipeline_Id(pipeline.getId())
+        .stream()
+        .filter(pipelineDetail -> pipelineDetail.getPwaConsent().getId() == pwaConsent.getId())
+        .findFirst()
+        .orElseGet(() -> {
+          var pipelineDetail = new PipelineDetail();
+          pipelineDetail.setPipeline(pipeline);
+          pipelineDetail.setPwaConsent(pwaConsent);
+          pipelineDetail.setStartTimestamp(startTimestamp);
+          pipelineDetail.setPipelineStatus(status);
+          pipelineDetail.setEndTimestamp(endTimestamp);
+          pipelineDetail.setTipFlag(tipFlag);
+          return pipelineDetailRepository.save(pipelineDetail);
+        });
   }
 
   @Test
