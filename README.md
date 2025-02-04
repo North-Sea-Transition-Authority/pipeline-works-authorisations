@@ -20,9 +20,9 @@
 * In Git Bash, from Project Home Directory
 * `git submodule update --init --recursive --remote`    
 * `cd fivium-design-system-core`
-* `npm install && npx gulp build`
+* `npm install && npx gulp buildAll`
 * `cd ..`
-Output should claim build succesfull.
+Output should claim build successful.
 
 #### Build frontend components
 * `npm install`
@@ -188,7 +188,7 @@ Run the project and wait for terminal output similar to the below example:
 Started PipelineWorksAuthorisationApplication in 26.086 seconds (JVM running for 26.832)
 ```
 
-You can then reach the work area on http://localhost:8081/engedudev1/xx/work-area (where xx is your `CONTEXT_SUFFIX`).
+You can then reach the work area on http://localhost:8081/engedudev1/XX/work-area (where XX is your `CONTEXT_SUFFIX` (WARNING: case-sensitive)).
 You will be redirected to your local fox instance for authentication, and then redirected back to your local PWA instance with an active session.
 
 ### GOV.UK Notify setup
