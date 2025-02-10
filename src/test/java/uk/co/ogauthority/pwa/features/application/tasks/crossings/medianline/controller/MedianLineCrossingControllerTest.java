@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -112,7 +112,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
             mockMvc.perform(
                 get(ReverseRouter.route(
                     on(MedianLineCrossingController.class).renderMedianLineForm(invalidAppType, APP_ID, null, null)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
                 .andExpect(status().isForbidden());
           } catch (Exception e) {
@@ -130,7 +130,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
         get(ReverseRouter.route(
             on(MedianLineCrossingController.class).renderMedianLineForm(PwaApplicationType.INITIAL, APP_ID, null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -202,7 +202,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
   public void postOverview_notValid() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(MedianLineCrossingController.class)
         .postOverview(TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(ValidationType.FULL.getButtonText(), "")
         .with(csrf()))
         .andExpect(status().isOk())
@@ -218,7 +218,7 @@ public class MedianLineCrossingControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(post(ReverseRouter.route(on(MedianLineCrossingController.class)
         .postOverview(TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(ValidationType.FULL.getButtonText(), "")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());

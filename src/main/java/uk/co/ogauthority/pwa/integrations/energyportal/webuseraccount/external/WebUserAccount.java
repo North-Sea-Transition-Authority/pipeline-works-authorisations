@@ -40,7 +40,9 @@ public class WebUserAccount implements Serializable {
   @JoinColumn(name = "person_id", referencedColumnName = "id", updatable = false, insertable = false)
   protected Person person;
 
-  public WebUserAccount() {}
+  public WebUserAccount() {
+
+  }
 
   @VisibleForTesting
   public WebUserAccount(int wuaId) {
@@ -66,7 +68,37 @@ public class WebUserAccount implements Serializable {
     this.person = person;
   }
 
+  public void setWuaId(int wuaId) {
+    this.wuaId = wuaId;
+  }
 
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  public void setForename(String forename) {
+    this.forename = forename;
+  }
+
+  public void setSurname(String surname) {
+    this.surname = surname;
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
+  }
+
+  public void setLoginId(String loginId) {
+    this.loginId = loginId;
+  }
+
+  public void setAccountStatus(WebUserAccountStatus accountStatus) {
+    this.accountStatus = accountStatus;
+  }
+
+  public void setPerson(Person person) {
+    this.person = person;
+  }
 
   public int getWuaId() {
     return wuaId;

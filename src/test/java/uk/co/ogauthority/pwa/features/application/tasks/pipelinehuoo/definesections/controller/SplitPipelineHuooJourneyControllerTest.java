@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -183,7 +183,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderSelectPipelineToSplit(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -245,7 +245,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .splitSelectedPipeline(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("pipelineId", String.valueOf(pipeline.getId()))
         .param("numberOfSections", "0")
@@ -265,7 +265,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .splitSelectedPipeline(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("pipelineId", String.valueOf(pipeline.getId()))
         .param("numberOfSections", "1")
@@ -331,7 +331,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -363,7 +363,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isNotFound());
@@ -415,7 +415,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -438,7 +438,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isNotFound());
@@ -456,7 +456,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk());

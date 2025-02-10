@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -129,7 +129,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultations(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -143,7 +143,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultations(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-      .with(authenticatedUserAndSession(user))
+      .with(user(user))
       .with(csrf()))
       .andExpect(status().isOk())
       .andExpect(model().attribute("userCanWithdrawConsultations", false));
@@ -157,7 +157,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderConsultations(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-      .with(authenticatedUserAndSession(user))
+      .with(user(user))
       .with(csrf()))
       .andExpect(status().isOk())
       .andExpect(model().attribute("userCanWithdrawConsultations", true));
@@ -208,7 +208,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsultationController.class).renderWithdrawConsultation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 

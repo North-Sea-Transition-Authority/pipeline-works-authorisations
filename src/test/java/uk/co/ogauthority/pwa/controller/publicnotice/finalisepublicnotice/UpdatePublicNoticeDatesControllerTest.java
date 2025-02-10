@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -128,7 +128,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderUpdatePublicNoticePublicationDates(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -142,7 +142,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .renderUpdatePublicNoticePublicationDates(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
@@ -156,7 +156,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
             .renderUpdatePublicNoticePublicationDates(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("startDay", String.valueOf(localDate.getDayOfMonth()))
             .param("startMonth", String.valueOf(localDate.getMonthValue()))
@@ -173,7 +173,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
             .renderUpdatePublicNoticePublicationDates(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("startDay", String.valueOf(localDate.getDayOfMonth()))
             .param("startMonth", String.valueOf(localDate.getMonthValue()))
@@ -219,7 +219,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("publicNotice/finalisePublicNotice"));
@@ -234,7 +234,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postUpdatePublicNoticePublicationDates(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -247,7 +247,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }

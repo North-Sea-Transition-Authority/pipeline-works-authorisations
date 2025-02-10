@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +55,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
         .renderResourceTypeForm(null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("resourceOptions", resourceOptions));
   }
@@ -64,7 +64,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   public void renderResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
         .renderResourceTypeForm(null, null)))
-        .with(authenticatedUserAndSession(userNoPrivs)))
+        .with(user(userNoPrivs)))
         .andExpect(status().isForbidden());
   }
 
@@ -72,7 +72,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   public void postResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(null, null, null)))
-        .with(authenticatedUserAndSession(userNoPrivs)))
+        .with(user(userNoPrivs)))
         .andExpect(status().isForbidden());
   }
 
@@ -85,7 +85,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
@@ -101,7 +101,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.PETROLEUM.name()));
     verify(validator).validate(any(), any());
@@ -117,7 +117,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("resourceType", PwaResourceType.CCUS.name()));
     verify(validator).validate(any(), any());

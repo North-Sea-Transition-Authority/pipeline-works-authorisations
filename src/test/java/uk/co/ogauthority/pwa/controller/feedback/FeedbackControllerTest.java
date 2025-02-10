@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Optional;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   public void getFeedback_whenAuthenticatedAndApplicationDetailId_thenOk() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(10), null, null)))
-        .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+        .with(user(AUTHENTICATED_USER))
     )
         .andExpect(status().isOk());
   }
@@ -58,7 +58,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   public void getFeedback_whenAuthenticatedAndNoApplicationDetailId_thenOk() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+                .with(user(AUTHENTICATED_USER))
         )
         .andExpect(status().isOk());
   }
@@ -67,7 +67,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   public void getFeedback_whenUnauthenticatedAndApplicationDetailId_thenForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(10), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
         )
         .andExpect(status().isOk());
   }
@@ -76,7 +76,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   public void getFeedback_whenUnauthenticatedAndNoApplicationDetailId_thenForbidden() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-        .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+        .with(user(UNAUTHENTICATED_USER))
     )
         .andExpect(status().isOk());
   }
@@ -85,7 +85,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   public void getFeedback_whenUnauthenticated_thenForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
         )
         .andExpect(status().isOk());
   }
@@ -100,7 +100,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(APP_DETAIL_ID), null, null)))
-            .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+            .with(user(AUTHENTICATED_USER))
             .with(csrf())
         )
         .andExpect(status().is3xxRedirection())
@@ -120,7 +120,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-            .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+            .with(user(AUTHENTICATED_USER))
             .with(csrf())
         )
         .andExpect(status().isOk());
@@ -138,7 +138,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
                 .with(csrf())
         )
         .andExpect(status().is3xxRedirection());

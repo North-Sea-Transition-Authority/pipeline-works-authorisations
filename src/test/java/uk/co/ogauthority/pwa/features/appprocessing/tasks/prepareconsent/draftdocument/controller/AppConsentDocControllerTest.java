@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -182,7 +182,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderConsentDocEditor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -216,7 +216,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
   public void postConsentDocEditor_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postConsentDocEditor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -230,7 +230,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postConsentDocEditor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -281,7 +281,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
         .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -297,7 +297,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class)
         .schedulePreview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -355,7 +355,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
         .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -378,7 +378,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
         .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -401,7 +401,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
         .renderDocumentGenerating(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -445,7 +445,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
         .getDocgenRunStatus(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -465,7 +465,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class)
         .getDocgenRunStatus(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
@@ -509,7 +509,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -520,7 +520,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -560,7 +560,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -574,7 +574,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(documentService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -588,7 +588,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(prepareConsentTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).postReloadDocument(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -627,7 +627,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(consentDocumentService.getPreSendForApprovalChecksView(any())).thenReturn(failCheck);
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderSendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -639,7 +639,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(templateTextService.getLatestVersionTextByType(pwaApplicationDetail.getPwaApplicationType().getConsentEmailTemplateTextType())).thenReturn("my cover letter");
 
     mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).renderSendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attribute("form", hasProperty("coverLetterText", is("my cover letter"))));
@@ -677,7 +677,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(consentDocumentService.getPreSendForApprovalChecksView(any())).thenReturn(failCheck);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -692,7 +692,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     doAnswer(invocation -> invocation).when(consentDocumentService).validateSendConsentFormUsingPreApprovalChecks(any(), any(), any(), any());
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection());
@@ -712,7 +712,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
         .thenReturn(preSendApprovalView);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection());
@@ -726,7 +726,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
 
     when(consentReviewService.areThereAnyOpenReviews(pwaApplicationDetail)).thenReturn(true);
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).sendForApproval(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("coverLetterText", "mytext"))
         .andExpect(status().is3xxRedirection())
@@ -752,7 +752,7 @@ public class AppConsentDocControllerTest extends PwaAppProcessingContextAbstract
     when(mailMergeService.resolveMergeFields(pwaApplicationDetail.getPwaApplication(), DocGenType.PREVIEW)).thenReturn(container);
 
     mockMvc.perform(post(ReverseRouter.route(on(AppConsentDocController.class).previewCoverLetter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("coverLetterText", "mytext")
             .param("preview-text-button", "Preview text"))

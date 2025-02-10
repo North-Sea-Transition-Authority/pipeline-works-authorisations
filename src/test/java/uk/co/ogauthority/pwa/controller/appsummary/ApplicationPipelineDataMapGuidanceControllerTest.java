@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -102,7 +102,7 @@ public class ApplicationPipelineDataMapGuidanceControllerTest extends PwaAppProc
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineDataMapGuidanceController.class).renderMappingGuidance(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseSummaryView"))

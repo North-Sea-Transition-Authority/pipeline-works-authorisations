@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -132,7 +132,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
         mockMvc.perform(
             get(ReverseRouter.route(on(ApplicantOrganisationController.class)
                 .renderSelectOrganisation(MASTER_PWA_ID, appType, PwaResourceType.PETROLEUM, null, null)
-            )).with(authenticatedUserAndSession(user))
+            )).with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -150,7 +150,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
     mockMvc.perform(
             get(ReverseRouter.route(on(ApplicantOrganisationController.class)
                 .renderSelectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null)
-            )).with(authenticatedUserAndSession(user))
+            )).with(user(user))
                 .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -163,7 +163,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
       try {
         mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
             .selectOrganisation(MASTER_PWA_ID, appType, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
             .andExpect(expectedStatus);
@@ -181,7 +181,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
             .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
         .andExpect(status().isForbidden());
@@ -193,7 +193,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
             .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
         .andExpect(status().is3xxRedirection());
@@ -210,7 +210,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
             .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("applicantOrganisationOuId", String.valueOf(applicantOrganisation.getOuId())))
         .andExpect(status().isOk());

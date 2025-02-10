@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -126,7 +126,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     var result = mockMvc.perform(
         get(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .renderRequestUpdate(APP_ID, APP_TYPE, null, null, null)
-        )).with(authenticatedUserAndSession(user))
+        )).with(user(user))
 
     ).andExpect(status().is2xxSuccessful())
         .andReturn();
@@ -152,7 +152,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
     var result = mockMvc.perform(
         get(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .renderRequestUpdate(APP_ID, APP_TYPE, null, null, null)
-        )).with(authenticatedUserAndSession(user))
+        )).with(user(user))
 
     ).andExpect(status().isForbidden())
         .andReturn();
@@ -185,7 +185,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(REQUEST_REASON_ATTR, "")
 
@@ -211,7 +211,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(REQUEST_REASON_ATTR, ValidatorTestUtils.overMaxDefaultCharLength())
 
@@ -238,7 +238,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, form, null, Optional.empty())
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
             .param("deadlineTimestampStr", form.getDeadlineTimestampStr())
@@ -266,7 +266,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
         post(ReverseRouter.route(on(RequestApplicationUpdateController.class)
             .requestUpdate(APP_ID, APP_TYPE, null, null, null, null, Optional.empty())
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
 

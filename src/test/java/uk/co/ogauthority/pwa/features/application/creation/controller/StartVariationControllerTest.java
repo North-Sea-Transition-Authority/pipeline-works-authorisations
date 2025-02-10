@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -52,7 +52,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
             get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -73,7 +73,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
                 get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.HYDROGEN)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -90,7 +90,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
 
       mockMvc.perform(
           get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
-              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(user(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
 
@@ -114,7 +114,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
             post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.PETROLEUM)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -133,7 +133,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
                 post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -150,7 +150,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
 
       mockMvc.perform(
           post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
-              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(user(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
 

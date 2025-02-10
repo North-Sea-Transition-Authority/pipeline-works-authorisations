@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class OrganisationGroupRestControllerTest extends PwaApplicationContextAb
   public void searchOrganisations_whenAuthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(OrganisationGroupRestController.class).searchOrganisations(SEARCH_TERM)))
-        .with(authenticatedUserAndSession(authenticatedUser)))
+        .with(user(authenticatedUser)))
         .andExpect(status().isOk());
 
     verify(searchSelectorService, times(1)).search(SEARCH_TERM, List.of());

@@ -4,7 +4,7 @@ package uk.co.ogauthority.pwa.features.webapp.footer.controller;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -38,14 +38,14 @@ public class ContactInformationControllerTest extends AbstractControllerTest {
   @Test
   public void getContactInformation_whenAuthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(user(authenticatedUserAccount)))
         .andExpect(status().isOk());
   }
 
   @Test
   public void getContactInformation_whenUnauthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(ContactInformationController.class).getContactInformation(null)))
-        .with(authenticatedUserAndSession(unAuthenticatedUser)))
+        .with(user(unAuthenticatedUser)))
         .andExpect(status().isOk());
   }
 

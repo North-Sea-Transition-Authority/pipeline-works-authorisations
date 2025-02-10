@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -104,7 +104,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         EnumSet.noneOf(PwaUserPrivilege.class));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .with(authenticatedUserAndSession(unauthorisedUserAccount)))
+        .with(user(unauthorisedUserAccount)))
         .andExpect(status().isForbidden());
   }
 
@@ -115,7 +115,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .with(user(pwaManagerUser)))
         .andExpect(status().isForbidden());
 
   }
@@ -124,7 +124,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void renderWorkArea_defaultTab() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
-        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
   }
@@ -136,7 +136,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
         EnumSet.noneOf(PwaUserPrivilege.class));
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(unauthorisedUserAccount)))
+        .with(user(unauthorisedUserAccount)))
         .andExpect(status().isForbidden());
 
   }
@@ -144,7 +144,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_forAttentionTab() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null, Optional.empty())))
-        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
@@ -158,7 +158,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_backgroundTab() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, null, Optional.empty())))
-            .with(authenticatedUserAndSession(pwaManagerUser)))
+            .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
@@ -173,7 +173,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
         .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100, Optional.empty())))
-        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
     verify(workAreaService, times(1))
@@ -188,7 +188,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
         .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null, Optional.empty())))
-        .with(authenticatedUserAndSession(pwaManagerUser)))
+        .with(user(pwaManagerUser)))
         .andExpect(status().isForbidden());
   }
 

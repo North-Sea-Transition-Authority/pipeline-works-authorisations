@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -63,7 +63,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .renderTermsAndConditionsManagement(null, null, userAccount)))
-            .with(authenticatedUserAndSession(userAccount)))
+            .with(user(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView()
@@ -77,7 +77,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   public void renderTermsAndConditionsVariationForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .renderTermsAndConditionsManagement(null, null, userAccount)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 
@@ -90,7 +90,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
 
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .filterTermsAndConditions(form, null, userAccount)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
   }
@@ -99,7 +99,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   public void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .filterTermsAndConditions(null, null , userAccountNoAuth)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 }

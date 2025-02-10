@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -143,7 +143,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS"))
@@ -164,7 +164,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/payment-result"))
@@ -182,7 +182,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is4xxClientError());
   }
 
@@ -191,7 +191,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).renderPaymentResult(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().isOk())
         .andExpect(model().hasNoErrors())
         .andExpect(model().attributeExists("workAreaUrl"))
@@ -222,7 +222,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).renderPaymentResult(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is5xxServerError());
 
   }

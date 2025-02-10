@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -79,7 +79,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
         .renderNewTermsAndConditionsForm(null, userAccount)))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView()
@@ -109,7 +109,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderEditTermsAndConditionsForm(null, 1, userAccount)))
-            .with(authenticatedUserAndSession(userAccount)))
+            .with(user(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView()
@@ -126,7 +126,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   public void renderTermsAndConditionsForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderNewTermsAndConditionsForm(null, userAccountNoAuth)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 
@@ -134,7 +134,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   public void submitTermsAndConditionsVariationForm_post() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -147,7 +147,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
 
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -156,7 +156,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   public void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccountNoAuth, null)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 }

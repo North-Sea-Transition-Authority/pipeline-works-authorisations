@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -125,7 +125,7 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderFinalisePublicNotice(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -139,7 +139,7 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .renderFinalisePublicNotice(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
@@ -182,7 +182,7 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("publicNotice/finalisePublicNotice"));
@@ -196,7 +196,7 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -209,7 +209,7 @@ public class FinalisePublicNoticeControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postFinalisePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }

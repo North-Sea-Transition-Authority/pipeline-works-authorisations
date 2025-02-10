@@ -15,6 +15,7 @@ sourceCompatibility = '21'
 tasks {
   bootJar {
     archiveFileName.set("${rootProject.name}.jar")
+    exclude('**/localdevonly/**')
   }
 }
 
@@ -23,6 +24,10 @@ repositories {
   maven { url "https://nexus.fivium.co.uk/repository/maven-releases/" }
   maven { url "https://nexus.fivium.co.uk/repository/maven-snapshots/" }
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven {
+    // Required for opensaml deps
+    url "https://build.shibboleth.net/nexus/content/repositories/releases/"
+  }
 }
 
 dependencies {
@@ -33,6 +38,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security:spring-security-saml2-service-provider'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework:spring-test'
   implementation 'org.springframework.boot:spring-boot-starter-freemarker'

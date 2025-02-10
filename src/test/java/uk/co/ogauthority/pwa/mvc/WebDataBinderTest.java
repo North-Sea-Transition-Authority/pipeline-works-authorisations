@@ -7,7 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.Test;
@@ -36,7 +36,7 @@ public class WebDataBinderTest extends AbstractControllerTest {
     var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
 
     mockMvc.perform(post("/data-binder-test")
-        .with(authenticatedUserAndSession(testUser))
+        .with(user(testUser))
         .with(csrf())
         .param("leading", " test")
         .param("trailing", "test ")

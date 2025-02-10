@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.Before;
@@ -85,7 +85,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
       try {
 
         mockMvc.perform(get("/document-templates/" + documentSpec.name())
-            .with(authenticatedUserAndSession(templateClauseManager)))
+            .with(user(templateClauseManager)))
             .andExpect(status().isOk());
 
       } catch (Exception e) {
@@ -106,7 +106,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
       try {
 
         mockMvc.perform(get("/document-templates/" + documentSpec.name())
-            .with(authenticatedUserAndSession(caseOfficer)))
+            .with(user(caseOfficer)))
             .andExpect(status().isForbidden());
 
       } catch (Exception e) {
@@ -122,7 +122,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -132,7 +132,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -142,7 +142,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1,null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -157,7 +157,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddClauseAfter(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1,null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -170,7 +170,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -180,7 +180,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -190,7 +190,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -205,7 +205,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddClauseBefore(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -218,7 +218,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -228,7 +228,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -238,7 +238,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -253,7 +253,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postAddSubClauseFor(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -266,7 +266,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -276,7 +276,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -286,7 +286,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -301,7 +301,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postEditClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -320,7 +320,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null)))
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -330,7 +330,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(DocumentTemplateController.class)
         .renderRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null)))
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -340,7 +340,7 @@ public class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentTemplateController.class)
         .postRemoveClause(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, 1, null, null)))
-        .with(authenticatedUserAndSession(templateClauseManager))
+        .with(user(templateClauseManager))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))

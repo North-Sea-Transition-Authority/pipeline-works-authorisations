@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -155,7 +155,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
     mockMvc.perform(get(ReverseRouter.route(on(InitialReviewController.class)
         .renderInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
@@ -182,7 +182,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(CASE_OFFICER_ID_ATTR, "5")
         .param(REVIEW_DECISION_ATTR, InitialReviewPaymentDecision.PAYMENT_WAIVED.name())
         .param(PAYMENT_WAIVED_ATTR, "REASON")
@@ -207,7 +207,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(CASE_OFFICER_ID_ATTR, "5")
         .param(REVIEW_DECISION_ATTR, InitialReviewPaymentDecision.PAYMENT_REQUIRED.name())
         // still provide this and verify its ignored by service call
@@ -236,7 +236,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -255,7 +255,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("caseOfficerPersonId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))
         .andExpect(status().isOk())
@@ -274,7 +274,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(InitialReviewController.class).postInitialReview(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("caseOfficerPersonId", "5")
         .with(csrf()))
         .andExpect(status().isForbidden());

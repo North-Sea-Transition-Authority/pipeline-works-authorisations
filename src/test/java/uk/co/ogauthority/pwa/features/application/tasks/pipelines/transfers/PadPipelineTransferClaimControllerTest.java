@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import org.junit.Before;
@@ -71,7 +71,7 @@ public class PadPipelineTransferClaimControllerTest extends PwaApplicationContex
   public void renderClaimPipelineForm() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PadPipelineTransferClaimController.class)
         .renderClaimPipelineForm(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -79,7 +79,7 @@ public class PadPipelineTransferClaimControllerTest extends PwaApplicationContex
   public void submitClaimPipelineForm() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PadPipelineTransferClaimController.class)
             .submitClaimPipelineForm(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
   }

@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlTemplate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.co.ogauthority.pwa.features.feedback.FeedbackIntegrationTest.FeedbackTestConfig.mockWebServer;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -131,7 +131,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT))
@@ -151,7 +151,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.enqueue(responseWhenNotAuthorized);
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT))
@@ -171,7 +171,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT)
@@ -201,7 +201,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT))
@@ -230,7 +230,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", ""))
         .andExpect(status().isOk());
@@ -244,7 +244,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     mockWebServer.shutdown();
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT))
@@ -261,7 +261,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
     );
 
     mockMvc.perform(post("/feedback")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("serviceRating", RATING)
             .param("feedback", COMMENT))

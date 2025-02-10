@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -160,7 +160,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -170,7 +170,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -181,7 +181,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .with(csrf())
     )
@@ -196,7 +196,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .param(DEADLINE_MONTH_ATTR, "12")
         .param(DEADLINE_YEAR_ATTR, "2020")
@@ -218,7 +218,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 

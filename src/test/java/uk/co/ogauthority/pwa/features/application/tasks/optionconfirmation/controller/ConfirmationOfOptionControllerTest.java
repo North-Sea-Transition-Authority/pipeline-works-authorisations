@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -123,7 +123,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
     mockMvc.perform(
         get(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .renderConfirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     ).andExpect(status().isOk());
 
     verify(padConfirmationOfOptionService, times(1)).mapEntityToForm(any(), eq(confirmation));
@@ -139,7 +139,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.FULL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
 
@@ -159,7 +159,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.PARTIAL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
 
@@ -187,7 +187,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.FULL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
 

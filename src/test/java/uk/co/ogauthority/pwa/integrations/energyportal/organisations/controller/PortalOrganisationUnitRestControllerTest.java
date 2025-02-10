@@ -4,7 +4,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Set;
 import org.junit.Before;
@@ -51,7 +51,7 @@ public class PortalOrganisationUnitRestControllerTest extends PwaApplicationCont
   public void searchPortalOrgUnits_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnits("Test")))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
   }
@@ -60,7 +60,7 @@ public class PortalOrganisationUnitRestControllerTest extends PwaApplicationCont
   public void searchPortalOrgUnitsNoManualEntry_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(PortalOrganisationUnitRestController.class).searchPortalOrgUnitsNoManualEntry("Test")))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
   }

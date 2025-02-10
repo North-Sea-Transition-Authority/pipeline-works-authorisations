@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class ApplicationLandingPageRouterControllerTest extends AbstractControll
         EnumSet.allOf(PwaUserPrivilege.class));
 
    mockMvc.perform(get(ReverseRouter.route(on(ApplicationLandingPageRouterController.class).route(APP_ID, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(user(authenticatedUserAccount)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ROUTE));
 

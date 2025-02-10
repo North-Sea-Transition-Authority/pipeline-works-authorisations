@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -148,7 +148,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .confirmSatisfactory(APP_ID, APP_TYPE, null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -158,7 +158,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
     mockMvc.perform(get(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .renderConfirmSatisfactory(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -168,7 +168,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .confirmSatisfactory(APP_ID, APP_TYPE, null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("reason", "val")
         .with(csrf()))
         .andExpect(status().isOk());
@@ -181,7 +181,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .confirmSatisfactory(APP_ID, APP_TYPE, null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("reason", "val")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -199,7 +199,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
     mockMvc.perform(get(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .renderConfirmSatisfactory(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 

@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.List;
@@ -113,7 +113,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -122,7 +122,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("isOgaUser", false));
   }
@@ -135,7 +135,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("isOgaUser", true));
   }
@@ -149,7 +149,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("isOgaUser", true))
         .andExpect(model().attribute("asBuiltStatusOptions",
@@ -165,7 +165,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
   }
@@ -181,7 +181,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is2xxSuccessful());
   }
@@ -193,7 +193,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user))));
@@ -209,7 +209,7 @@ public class AsBuiltNotificationSubmissionControllerTest extends AbstractControl
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .postSubmitAsBuiltNotification(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.AS_BUILT_NOTIFICATIONS,

@@ -9,7 +9,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import org.junit.Before;
@@ -165,7 +165,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
             null,
             null,
             ValidationType.FULL)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(ValidationType.FULL.getButtonText(), "")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -200,7 +200,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
             null,
             null,
             ValidationType.FULL)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(ValidationType.FULL.getButtonText(), "")
         .with(csrf()))
         .andExpect(status().isOk());

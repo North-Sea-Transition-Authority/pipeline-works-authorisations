@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -184,7 +184,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(PipelinesHuooController.class)
         .renderSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -237,7 +237,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(PipelinesHuooController.class)
         .postSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -254,7 +254,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(PipelinesHuooController.class)
         .postSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())

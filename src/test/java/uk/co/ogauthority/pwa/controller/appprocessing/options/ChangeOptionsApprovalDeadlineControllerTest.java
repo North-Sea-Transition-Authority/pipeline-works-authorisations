@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -170,7 +170,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
 
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -180,7 +180,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
 
     mockMvc.perform(get(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .renderChangeDeadline(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -191,7 +191,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
 
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .with(csrf())
     )
@@ -207,7 +207,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
     var note = "some note";
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .param(DEADLINE_MONTH_ATTR, "12")
         .param(DEADLINE_YEAR_ATTR, "2020")
@@ -231,7 +231,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .renderChangeDeadline(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();

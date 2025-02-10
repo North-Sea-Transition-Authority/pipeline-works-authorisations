@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
-import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 import uk.co.ogauthority.pwa.util.SessionUtils;
 
 @Component
 public class UserPrivReloadInterceptor implements HandlerInterceptor {
 
-  private final UserSessionService userSessionService;
+  private final UserSessionPrivilegesService userSessionPrivilegesService;
 
   @Autowired
-  public UserPrivReloadInterceptor(UserSessionService userSessionService) {
-    this.userSessionService = userSessionService;
+  public UserPrivReloadInterceptor(UserSessionPrivilegesService userSessionPrivilegesService) {
+    this.userSessionPrivilegesService = userSessionPrivilegesService;
   }
 
   /**
@@ -33,7 +33,7 @@ public class UserPrivReloadInterceptor implements HandlerInterceptor {
     if (existingAuth.getPrincipal() instanceof AuthenticatedUserAccount) {
 
       AuthenticatedUserAccount authenticatedUser = (AuthenticatedUserAccount) existingAuth.getPrincipal();
-      userSessionService.populateUserPrivileges(authenticatedUser);
+      userSessionPrivilegesService.populateUserPrivileges(authenticatedUser);
 
       // use existing session id to ensure we don't make FoxSessionFilter think the auth has changed
       String sessionId = SessionUtils.getSessionId();

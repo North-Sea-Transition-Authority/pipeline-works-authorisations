@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.mvc.UserPrivReloadInterceptor;
 import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
-import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
 import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterEnumToString;
@@ -39,7 +39,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
   private final PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver;
   private final PwaContextArgumentResolver pwaContextArgumentResolver;
-  private final UserSessionService userSessionService;
+  private final UserSessionPrivilegesService userSessionPrivilegesService;
   private final Optional<RequestLogger> requestLoggerOpt;
   private final AnalyticsService analyticsService;
   private final ConfigurableEnvironment configurableEnvironment;
@@ -48,14 +48,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
                       PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver,
                       PwaContextArgumentResolver pwaContextArgumentResolver,
-                      UserSessionService userSessionService,
+                      UserSessionPrivilegesService userSessionPrivilegesService,
                       Optional<RequestLogger> requestLoggerOpt,
                       AnalyticsService analyticsService,
                       ConfigurableEnvironment configurableEnvironment) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
-    this.userSessionService = userSessionService;
+    this.userSessionPrivilegesService = userSessionPrivilegesService;
     this.requestLoggerOpt = requestLoggerOpt;
     this.analyticsService = analyticsService;
     this.configurableEnvironment = configurableEnvironment;
@@ -76,7 +76,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     registry.addInterceptor(new ResponseBufferSizeHandlerInterceptor())
         .excludePathPatterns("/assets/**");
 
-    registry.addInterceptor(new UserPrivReloadInterceptor(userSessionService))
+    registry.addInterceptor(new UserPrivReloadInterceptor(userSessionPrivilegesService))
         .addPathPatterns("/work-area/*", "/work-area");
 
     registry.addInterceptor(new PwaApplicationRouteInterceptor(analyticsService))

@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void renderSearch_whenPermitted_noActualSearch() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk());
 
     // search not done when basic render
@@ -81,7 +81,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void renderSearch_whenPermitted_searchDone() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
-        .with(authenticatedUserAndSession(permittedUser))
+        .with(user(permittedUser))
         .queryParam("search", "true"))
         .andExpect(status().isOk());
 
@@ -99,7 +99,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void renderSearch_searched_filterByOrgUnit() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
-        .with(authenticatedUserAndSession(permittedUser))
+        .with(user(permittedUser))
         .queryParam("search", "true")
         .queryParam("holderOrgUnitId", "22"))
         .andExpect(status().isOk());
@@ -118,7 +118,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void renderSearch_whenProhibited() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
-        .with(authenticatedUserAndSession(prohibitedUser)))
+        .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
 
   }
@@ -136,7 +136,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
 
     String viewName = Objects.requireNonNull(
         mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty())))
-            .with(authenticatedUserAndSession(permittedUser))
+            .with(user(permittedUser))
             .with(csrf())
             .param("holderOuId", "25"))
             .andExpect(status().is3xxRedirection())
@@ -159,7 +159,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   public void postSearch_whenProhibited() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(prohibitedUser))
+        .with(user(prohibitedUser))
         .with(csrf()))
         .andExpect(status().isForbidden());
 

@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -120,7 +120,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
         .downloadConsentDocument(1, null, 1, 1L)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(content().bytes(blob.getBytes(1, (int) blob.length())))
@@ -137,7 +137,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
         .downloadConsentDocument(1, null, 1, 1L)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 

@@ -17,7 +17,6 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.gov.service.notify.NotificationClient;
 
 @Configuration
@@ -73,14 +72,6 @@ public class BeanConfig {
   @Bean
   public EmailValidator emailValidator() {
     return EmailValidator.getInstance();
-  }
-
-  @Bean
-  public FilterRegistrationBean<FoxLoginCallbackFilter> foxLoginCallbackFilterRegistration(FoxLoginCallbackFilter foxLoginCallbackFilter) {
-    //Disable automatic registration of the security filter - this will be manually registered in security config
-    FilterRegistrationBean<FoxLoginCallbackFilter> registration = new FilterRegistrationBean<>(foxLoginCallbackFilter);
-    registration.setEnabled(false);
-    return registration;
   }
 
   @Bean("messageSource")

@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.Before;
@@ -56,7 +56,7 @@ public class CreateTeamsControllerTest extends AbstractControllerTest {
   public void getNewOrganisationTeam_whenAuthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CreateTeamsController.class).getNewOrganisationTeam(null)))
-        .with(authenticatedUserAndSession(organisationAccessManager)))
+        .with(user(organisationAccessManager)))
         .andExpect(status().isOk());
   }
 
@@ -64,7 +64,7 @@ public class CreateTeamsControllerTest extends AbstractControllerTest {
   public void getNewOrganisationTeam_whenUnauthenticated_thenNoAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CreateTeamsController.class).getNewOrganisationTeam(null)))
-        .with(authenticatedUserAndSession(unAuthenticatedUserAccount)))
+        .with(user(unAuthenticatedUserAccount)))
         .andExpect(status().isForbidden());
   }
 
@@ -83,7 +83,7 @@ public class CreateTeamsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(
         on(CreateTeamsController.class).createNewOrganisationTeam(form, bindingResult, ValidationType.FULL, null)))
-        .with(authenticatedUserAndSession(organisationAccessManager))
+        .with(user(organisationAccessManager))
         .with(csrf())
         .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
@@ -102,7 +102,7 @@ public class CreateTeamsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(
         on(CreateTeamsController.class).createNewOrganisationTeam(form, bindingResult, ValidationType.FULL, organisationAccessManager)))
-        .with(authenticatedUserAndSession(organisationAccessManager))
+        .with(user(organisationAccessManager))
         .with(csrf())
         .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -121,7 +121,7 @@ public class CreateTeamsControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(
         on(CreateTeamsController.class).createNewOrganisationTeam(form, bindingResult, ValidationType.FULL, null)))
-        .with(authenticatedUserAndSession(unAuthenticatedUserAccount))
+        .with(user(unAuthenticatedUserAccount))
         .with(csrf())
         .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isForbidden());

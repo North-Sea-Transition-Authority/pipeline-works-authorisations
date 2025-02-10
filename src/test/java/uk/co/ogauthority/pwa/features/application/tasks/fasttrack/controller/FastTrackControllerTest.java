@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.Period;
@@ -90,7 +90,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     ).andExpect(status().isOk());
   }
 
@@ -102,7 +102,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams())
     ).andExpect(status().isOk());
@@ -116,7 +116,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.partialValidationPostParams())
     ).andExpect(status().is3xxRedirection());
@@ -154,13 +154,13 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     ).andExpect(status().isForbidden());
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams())
     ).andExpect(status().isForbidden());
@@ -168,7 +168,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.partialValidationPostParams())
     ).andExpect(status().isForbidden());
@@ -179,7 +179,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     ).andExpect(status().isOk())
     .andExpect(view().name("pwaApplication/shared/fastTrack"));
   }
@@ -205,7 +205,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .params(completeParams)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
     verify(padFastTrackService, never()).saveEntityUsingForm(any(), any());
@@ -231,7 +231,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .params(completeParams)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
     verify(padFastTrackService, times(1)).saveEntityUsingForm(any(), any());
@@ -257,7 +257,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .params(continueParams)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
     verify(padFastTrackService, times(1)).saveEntityUsingForm(any(), any());
@@ -283,7 +283,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
             .params(continueParams)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
     verify(padFastTrackService, times(1)).saveEntityUsingForm(any(), any());

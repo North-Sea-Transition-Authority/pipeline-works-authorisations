@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -128,7 +128,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationResponseController.class)
         .postResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("consultationResponseOption", "")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -147,7 +147,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationResponseController.class)
         .postResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("consultationResponseOption", "")
         .with(csrf()))
         .andExpect(status().isOk())

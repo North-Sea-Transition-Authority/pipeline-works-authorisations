@@ -10,7 +10,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -177,7 +177,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -186,14 +186,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     verify(documentInstanceService, times(1)).addClauseAfter(any(), any(), eq(user.getLinkedPerson()));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
         .andExpect(status().is3xxRedirection());
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
@@ -215,7 +215,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseAfter(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -289,7 +289,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -298,14 +298,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     verify(documentInstanceService, times(1)).addClauseBefore(any(), any(), eq(user.getLinkedPerson()));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
         .andExpect(status().is3xxRedirection());
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
@@ -327,7 +327,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddClauseBefore(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -401,7 +401,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -410,14 +410,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     verify(documentInstanceService, times(1)).addSubClause(any(), any(), eq(user.getLinkedPerson()));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
         .andExpect(status().is3xxRedirection());
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
@@ -439,7 +439,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postAddSubClauseFor(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
@@ -513,7 +513,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("name", "name")
         .param("text", "text"))
@@ -522,14 +522,14 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     verify(documentInstanceService, times(1)).editClause(any(), any(), eq(user.getLinkedPerson()));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
         .andExpect(status().is3xxRedirection());
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("name", "name")
             .param("text", "text"))
@@ -551,19 +551,19 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, 1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
     verify(documentInstanceService, times(0)).editClause(any(), any(), eq(user.getLinkedPerson()));
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
 
     mockMvc.perform(post(ReverseRouter.route(on(DocumentInstanceController.class).postEditClause(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
 

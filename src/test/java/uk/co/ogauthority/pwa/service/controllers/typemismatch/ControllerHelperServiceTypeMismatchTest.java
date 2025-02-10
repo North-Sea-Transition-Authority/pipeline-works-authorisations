@@ -20,12 +20,15 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
+import uk.co.ogauthority.pwa.config.SamlProperties;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.WebSecurityConfig;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -36,8 +39,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.FoxUrlService;
-import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -48,7 +50,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,
     PwaMvcTestConfiguration.class,
-    WebSecurityConfig.class
+    WebSecurityConfig.class,
+    SamlProperties.class
 })
 @EnableConfigurationProperties(ExternalApiConfiguration.class)
 @ActiveProfiles("test")
@@ -63,10 +66,7 @@ public class ControllerHelperServiceTypeMismatchTest {
   protected WebApplicationContext context;
 
   @MockBean
-  protected FoxUrlService foxUrlService;
-
-  @MockBean
-  protected UserSessionService userSessionService;
+  protected UserSessionPrivilegesService userSessionPrivilegesService;
 
   @MockBean
   protected PwaApplicationDetailService pwaApplicationDetailService;
@@ -97,6 +97,12 @@ public class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   protected AnalyticsService analyticsService;
+
+  @MockBean
+  protected SamlResponseParser samlResponseParser;
+
+  @MockBean
+  protected LogoutSuccessHandler logoutSuccessHandler;
 
   @Before
   public void setUp() {

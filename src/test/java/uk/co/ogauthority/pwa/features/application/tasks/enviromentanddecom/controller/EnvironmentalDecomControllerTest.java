@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.EnumSet;
@@ -102,7 +102,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             get(ReverseRouter.route(
                 on(EnvironmentalDecomController.class).renderEnvDecom(validAppType, null, null),
                 Map.of("applicationId", 1)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
       } catch (Exception e) {
@@ -126,7 +126,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             get(ReverseRouter.route(
                 on(EnvironmentalDecomController.class).renderEnvDecom(invalidAppType, null, null),
                 Map.of("applicationId", 1)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(status().isForbidden());
       } catch (Exception e) {
@@ -165,7 +165,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/environmentalAndDecommissioning"));
@@ -180,7 +180,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -199,7 +199,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk())
@@ -235,7 +235,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(completeParams))
         .andExpect(status().is3xxRedirection());

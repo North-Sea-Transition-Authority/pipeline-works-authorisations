@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -223,7 +223,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 99,
                 null,
                 null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
             .andReturn()
@@ -257,7 +257,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 99,
                 null,
                 null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
             .andReturn()
@@ -346,7 +346,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null,
             null,
             null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -367,7 +367,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null,
             null,
             null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -584,7 +584,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
         .postRemoveIdent(APP_ID, PwaApplicationType.INITIAL, padPipeline.getId(), null, 1, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -935,7 +935,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 1,
                 null,
                 null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
             .andReturn()
@@ -968,7 +968,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
                 1,
                 null,
                 null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
             .andReturn()
@@ -1068,7 +1068,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null,
             null,
             null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditIdent"))
@@ -1090,7 +1090,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
             null,
             null,
             null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 

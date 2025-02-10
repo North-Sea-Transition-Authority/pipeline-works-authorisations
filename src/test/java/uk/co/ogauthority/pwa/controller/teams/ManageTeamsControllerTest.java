@@ -5,7 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Map;
@@ -43,7 +43,7 @@ public class ManageTeamsControllerTest extends AbstractControllerTest {
     ));
 
     mockMvc.perform(get(ReverseRouter.route(on(ManageTeamsController.class).renderTeamTypes(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
 
   }
@@ -56,7 +56,7 @@ public class ManageTeamsControllerTest extends AbstractControllerTest {
     ));
 
     mockMvc.perform(get(ReverseRouter.route(on(ManageTeamsController.class).renderTeamTypes(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:regUrl"));
 
@@ -68,7 +68,7 @@ public class ManageTeamsControllerTest extends AbstractControllerTest {
     when(manageTeamService.getManageTeamTypesAndUrlsForUser(user)).thenReturn(Map.of());
 
     mockMvc.perform(get(ReverseRouter.route(on(ManageTeamsController.class).renderTeamTypes(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
   }

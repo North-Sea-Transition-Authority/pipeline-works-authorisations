@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -106,7 +106,7 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineSpatialDataRestController.class)
         .getLatestAvailableAppPipelinesForUserAsGeoJson(pwaApplicationDetail.getMasterPwaApplicationId(),
             pwaApplicationDetail.getPwaApplicationType(), null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(header().string(HttpHeaders.CONTENT_TYPE, "application/geo+json"))
         .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString("attachment; filename=\"APP_REFERENCE-25_v1_")))
@@ -128,7 +128,7 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationPipelineSpatialDataRestController.class)
         .getLatestAvailableAppPipelinesForUserAsGeoJson(pwaApplicationDetail.getMasterPwaApplicationId(),
             pwaApplicationDetail.getPwaApplicationType(), ApplicationVersionRequestType.CURRENT_DRAFT, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     );
 
     verify(applicationPipelineGeoJsonViewFactory).createApplicationPipelinesAsLineFeatures(currentDraftDetail);

@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -144,7 +144,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getPwaApplication().getId(), null, null), Map.of("consultationRequestId", "1"))).file(file)
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -161,7 +161,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
             null, null), Map.of("consultationRequestId", "1"))).file(file)
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -177,7 +177,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -192,7 +192,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -211,7 +211,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -230,7 +230,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -247,7 +247,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 
@@ -264,7 +264,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -281,7 +281,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
 
     verify(appFileService).processFileDeletionWithPreDeleteAction(eq(appFile), eq(user), any());
@@ -299,7 +299,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
     verify(appFileService, never()).processFileDeletionWithPreDeleteAction(eq(appFile), eq(user), any());
@@ -321,7 +321,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
 
     verify(appFileService).processFileDeletionWithPreDeleteAction(eq(appFile), eq(user), any());
@@ -340,7 +340,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
             .handleDelete(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getPwaApplication().getId(),
                 FILE_ID, null), Map.of("consultationRequestId", "1")))
         .with(csrf())
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
     verify(appFileService, never()).processFileDeletionWithPreDeleteAction(eq(appFile), eq(user), any());

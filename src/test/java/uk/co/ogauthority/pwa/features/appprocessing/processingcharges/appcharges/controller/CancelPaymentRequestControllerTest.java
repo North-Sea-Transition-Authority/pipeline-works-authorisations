@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -127,7 +127,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().hasNoErrors())
@@ -146,7 +146,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isForbidden());
   }
@@ -157,7 +157,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isInternalServerError());
   }
@@ -180,7 +180,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isForbidden());
@@ -192,7 +192,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isInternalServerError());
@@ -206,7 +206,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     var result = mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(CANCEL_REASON_ATTR, "")
     )
@@ -222,7 +222,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(CANCEL_REASON_ATTR, ValidatorTestUtils.exactlyMaxDefaultCharLength())
     )

@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.BEFORE_TODAY;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .renderAsBuiltGroupUpdateDeadlineForm(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().is2xxSuccessful())
         .andExpect(view().name("asbuilt/form/changeAsBuiltDeadline"));
   }
@@ -91,7 +91,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .renderAsBuiltGroupUpdateDeadlineForm(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -103,7 +103,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .submitAsBuiltGroupUpdateDeadline(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), null,
                 null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
   }
@@ -121,7 +121,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .submitAsBuiltGroupUpdateDeadline(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), null,
                 null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is2xxSuccessful())
         .andExpect(view().name("asbuilt/form/changeAsBuiltDeadline"));
@@ -133,7 +133,7 @@ public class AsBuiltNotificationDeadlineControllerTest extends AbstractControlle
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .submitAsBuiltGroupUpdateDeadline(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), null,
                 null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user))));

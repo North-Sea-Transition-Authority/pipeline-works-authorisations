@@ -9,7 +9,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
@@ -130,7 +130,7 @@ public class DeleteApplicationControllerTest extends PwaApplicationContextAbstra
                 .postDeleteApplication(pwaApplicationDetail.getPwaApplicationType(),
                     pwaApplicationDetail.getMasterPwaApplicationId(), null, null, Optional.empty())
             ))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf())
 
         ).andExpect(status().is3xxRedirection());

@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController.UPDATE_PIPELINE_ORG_ROLES_BACK_BUTTON_TEXT;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -205,7 +205,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
@@ -215,7 +215,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
     MvcResult result = mockMvc.perform(get(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         //  .andExpect(status().isOk())
         .andExpect(model().attributeExists("form"))
@@ -238,7 +238,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk());
@@ -344,7 +344,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
@@ -354,7 +354,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .selectOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE,
             null, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, String.format("%s", TreatyAgreement.ANY_TREATY_COUNTRY))
@@ -388,7 +388,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_PIPELINE_ATTR, PICKED_PIPELINE_IDS.toArray(new String[0]))
     )
@@ -399,7 +399,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .selectOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE,
             null, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, String.format("%s,%s", TreatyAgreement.ANY_TREATY_COUNTRY, TreatyAgreement.ANY_TREATY_COUNTRY))
@@ -427,7 +427,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
         .selectOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE,
             null, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
     )
@@ -485,7 +485,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .returnToPipelineSelection(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(FORM_PICKED_ORG_ATTR, PICKED_ORG_IDS.stream().map(Object::toString).toArray(String[]::new))
         .param(FORM_PICKED_TREATY_ATTR, TreatyAgreement.ANY_TREATY_COUNTRY.name())
@@ -496,7 +496,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     MvcResult result = mockMvc.perform(get(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -613,7 +613,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
     // check redirect target as expected
     mockMvc.perform(post(postUrlDecoded)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
         )
         .andExpect(status().is3xxRedirection())
@@ -642,7 +642,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             null,
             null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -664,7 +664,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
             null,
             null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -679,7 +679,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     MvcResult pipelineResult = mockMvc.perform(get(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -696,7 +696,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
     MvcResult orgResult = mockMvc.perform(get(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .renderOrganisationsForPipelineHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())

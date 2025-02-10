@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -178,7 +178,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(AddHuooController.class)
             .renderAddHuoo(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk())
         .andReturn().getModelAndView();
@@ -298,7 +298,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(AddHuooController.class)
             .postEditOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(parameters)
     ).andExpect(status().is3xxRedirection());
@@ -349,7 +349,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(AddHuooController.class)
             .renderRemoveOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk())
         .andReturn().getModelAndView();
@@ -369,7 +369,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     var modelAndView = mockMvc.perform(
         get(ReverseRouter.route(on(AddHuooController.class)
             .renderRemoveTreatyHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk())
         .andReturn().getModelAndView();
@@ -386,7 +386,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(AddHuooController.class)
             .postRemoveTreatyHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_ROLE_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
 
@@ -405,7 +405,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(AddHuooController.class)
             .postRemoveOrgHuoo(PwaApplicationType.INITIAL, APP_ID, ORG_UNIT_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(parameters)
     ).andExpect(status().is3xxRedirection());

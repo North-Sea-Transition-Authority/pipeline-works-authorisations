@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -119,7 +119,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         var result = mockMvc.perform(
             get(ReverseRouter.route(
                 on(ProjectInformationController.class).renderProjectInformation(appType, APP_ID, null, null)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()));
         if (allowedApplicationTypes.contains(appType)) {
           result.andExpect(status().isOk());
@@ -142,7 +142,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         var result = mockMvc.perform(
             get(ReverseRouter.route(
                 on(ProjectInformationController.class).renderProjectInformation(appType, APP_ID, null, null)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()));
         if (allowedApplicationTypes.contains(appType)) {
           if (appType == PwaApplicationType.OPTIONS_VARIATION) {
@@ -172,7 +172,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     var result = mockMvc.perform(
         get(ReverseRouter.route(
             on(ProjectInformationController.class).renderProjectInformation(PwaApplicationType.CAT_1_VARIATION, APP_ID, null, form)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("pearsApplicationList", "5555"));
       result
@@ -195,7 +195,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf())
                 .params(ControllerTestUtils.fullValidationPostParams()));
         if (allowedApplicationTypes.contains(appType)) {
@@ -223,7 +223,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
         var result = mockMvc.perform(
             post(ReverseRouter.route(
                 on(ProjectInformationController.class).postProjectInformation(appType, APP_ID, null, null, null, null)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf())
                 .params(ControllerTestUtils.partialValidationPostParams()));
         if (allowedApplicationTypes.contains(appType)) {
@@ -271,7 +271,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectInformation"));
@@ -286,7 +286,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -307,7 +307,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(params))
         .andExpect(status().isOk());
@@ -323,7 +323,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
@@ -364,7 +364,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(ProjectInformationController.class)
             .postProjectInformation(PwaApplicationType.INITIAL, 1, null, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(params))
         .andExpect(status().is3xxRedirection());

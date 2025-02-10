@@ -6,7 +6,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Set;
@@ -54,7 +54,7 @@ public class DevukRestControllerTest extends PwaApplicationContextAbstractContro
   public void searchFacilities_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(DevukRestController.class).searchFacilities("Test")))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
   }

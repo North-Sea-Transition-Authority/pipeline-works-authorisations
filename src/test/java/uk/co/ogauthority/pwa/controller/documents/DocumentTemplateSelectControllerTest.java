@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.controller.documents;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   public void getTemplatesForSelect_hasPriv() throws Exception {
 
     mockMvc.perform(get("/document-templates/select")
-        .with(authenticatedUserAndSession(templateClauseManager)))
+        .with(user(templateClauseManager)))
         .andExpect(status().isOk());
 
   }
@@ -46,7 +46,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   public void getTemplatesForSelect_doesntHavePriv() throws Exception {
 
     mockMvc.perform(get("/document-templates/select")
-        .with(authenticatedUserAndSession(caseOfficer)))
+        .with(user(caseOfficer)))
         .andExpect(status().isForbidden());
 
   }
@@ -54,7 +54,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   @Test
   public void getTemplatesForSelect_doesntHaveTcPriv() throws Exception {
     mockMvc.perform(get("/document-templates/select")
-            .with(authenticatedUserAndSession(templateClauseManager)))
+            .with(user(templateClauseManager)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("tcManagementAllowed", false));
   }
@@ -62,7 +62,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   @Test
   public void getTemplatesForSelect_HasTcPriv() throws Exception {
     mockMvc.perform(get("/document-templates/select")
-            .with(authenticatedUserAndSession(pwaManager)))
+            .with(user(pwaManager)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("tcManagementAllowed", true));
   }
@@ -70,7 +70,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   @Test
   public void getTemplatesForSelect_SmokeTest() throws Exception {
     mockMvc.perform(get("/document-templates/select")
-            .with(authenticatedUserAndSession(templateClauseManager)))
+            .with(user(templateClauseManager)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists(
             "documentTemplates",

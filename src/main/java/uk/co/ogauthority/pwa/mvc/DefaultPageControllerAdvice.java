@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsController;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
-import uk.co.ogauthority.pwa.service.FoxUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
@@ -32,7 +31,6 @@ import uk.co.ogauthority.pwa.util.ValidatorUtils;
 @ControllerAdvice(annotations = Controller.class)
 public class DefaultPageControllerAdvice {
 
-  private final FoxUrlService foxUrlService;
   private final TopMenuService topMenuService;
   private final HttpServletRequest request;
   private final ServiceProperties serviceProperties;
@@ -41,13 +39,11 @@ public class DefaultPageControllerAdvice {
   private final String analyticsMeasurementUrl;
 
   @Autowired
-  public DefaultPageControllerAdvice(FoxUrlService foxUrlService,
-                                     TopMenuService topMenuService,
+  public DefaultPageControllerAdvice(TopMenuService topMenuService,
                                      HttpServletRequest request,
                                      ServiceProperties serviceProperties,
                                      FooterService footerService,
                                      AnalyticsConfigurationProperties analyticsConfigurationProperties) {
-    this.foxUrlService = foxUrlService;
     this.topMenuService = topMenuService;
     this.request = request;
     this.serviceProperties = serviceProperties;
@@ -66,7 +62,6 @@ public class DefaultPageControllerAdvice {
   @ModelAttribute
   public void addCommonModelAttributes(Model model) {
     addCurrentUserView(model);
-    addLogoutUrl(model);
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
     addMarkdownGuidanceUrl(model);
@@ -84,10 +79,6 @@ public class DefaultPageControllerAdvice {
   private void addCurrentUserView(Model model) {
     SecurityUtils.getAuthenticatedUserFromSecurityContext()
         .ifPresent(user -> model.addAttribute("currentUserView", CurrentUserView.authenticated(user)));
-  }
-
-  private void addLogoutUrl(Model model) {
-    model.addAttribute("foxLogoutUrl", foxUrlService.getFoxLogoutUrl());
   }
 
   private void addTopMenuItems(Model model, HttpServletRequest request) {

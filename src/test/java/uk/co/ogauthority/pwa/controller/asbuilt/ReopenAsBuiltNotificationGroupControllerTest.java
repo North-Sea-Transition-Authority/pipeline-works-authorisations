@@ -8,7 +8,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,7 +70,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
     mockMvc.perform(get(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .renderReopenAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -83,7 +83,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
     mockMvc.perform(get(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .renderReopenAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -92,7 +92,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
     mockMvc.perform(get(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .renderReopenAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().is2xxSuccessful())
     .andExpect(view().name("/asbuilt/form/reopenAsBuiltGroup"));
   }
@@ -106,7 +106,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
     mockMvc.perform(post(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .reopenAsBuiltNotification(NOTIFICATION_GROUP_ID, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
@@ -119,7 +119,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
     mockMvc.perform(post(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .reopenAsBuiltNotification(NOTIFICATION_GROUP_ID, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 

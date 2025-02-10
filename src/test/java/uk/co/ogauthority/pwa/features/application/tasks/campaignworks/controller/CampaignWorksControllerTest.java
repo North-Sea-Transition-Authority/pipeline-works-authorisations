@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import org.junit.Before;
@@ -170,7 +170,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
         get(ReverseRouter.route(
             on(CampaignWorksController.class).renderSummary(pwaApplicationDetail.getPwaApplicationType(), APP_ID,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     )
         .andExpect(status().isOk());
 
@@ -234,7 +234,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 APP_ID,
                 null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().attribute("screenActionType", ScreenActionType.ADD));
@@ -312,7 +312,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 APP_ID,
                 null,
                 null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
     )
@@ -333,7 +333,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                     null,
                     null,
                     null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
     )
@@ -402,7 +402,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 APP_ID, SCHEDULE_ID,
                 null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().attribute("screenActionType", ScreenActionType.EDIT));
@@ -485,7 +485,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 null,
                 null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
     )
@@ -506,7 +506,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 null,
                 null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
     )
@@ -572,7 +572,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 pwaApplicationDetail.getPwaApplicationType(),
                 APP_ID, SCHEDULE_ID,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     )
         .andExpect(status().isOk());
 
@@ -645,7 +645,7 @@ public class CampaignWorksControllerTest extends PwaApplicationContextAbstractCo
                 APP_ID,
                 SCHEDULE_ID,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getWorkScheduleFormAsMap())
     )

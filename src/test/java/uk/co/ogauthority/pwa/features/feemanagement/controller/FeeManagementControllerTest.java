@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -77,7 +77,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeeManagementOverview(userAccount)))
-            .with(authenticatedUserAndSession(userAccount))).andExpect(status().isOk());
+            .with(user(userAccount))).andExpect(status().isOk());
   }
 
   @Test
@@ -88,7 +88,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeeManagementOverview(userAccount)))
-        .with(authenticatedUserAndSession(userAccount))).andExpect(status().isForbidden());
+        .with(user(userAccount))).andExpect(status().isForbidden());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeeManagementOverview(userAccount)))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andReturn()
         .getModelAndView()
         .getModel();
@@ -113,7 +113,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeePeriodDetail(userAccount, 1000)))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andReturn()
         .getModelAndView()
         .getModel();
@@ -126,7 +126,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderNewPeriodForm(userAccount, new FeePeriodForm())))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andReturn()
         .getModelAndView()
         .getModel();
@@ -143,7 +143,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
             on(FeeManagementController.class)
                 .renderNewPeriodForm(userAccount, new FeePeriodForm())))
-            .with(authenticatedUserAndSession(userAccount)))
+            .with(user(userAccount)))
         .andExpect(status().is3xxRedirection());
   }
 
@@ -152,7 +152,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderEditPeriodForm(userAccount, 1000, new FeePeriodForm())))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andReturn()
         .getModelAndView()
         .getModel();

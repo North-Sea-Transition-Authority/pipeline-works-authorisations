@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -104,7 +104,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
   public void renderFields_petroleumSmokeTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PadPwaAreaController.class)
             .renderFields(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/areaInformation/fieldInformation"));
@@ -116,7 +116,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
     when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     mockMvc.perform(get(ReverseRouter.route(on(PadPwaAreaController.class)
             .renderFields(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/areaInformation/fieldInformation"));
@@ -128,7 +128,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
     when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     mockMvc.perform(get(ReverseRouter.route(on(PadPwaAreaController.class)
             .renderFields(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/areaInformation/storageInformation"));
@@ -176,7 +176,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(PadPwaAreaController.class)
         .renderFields(PwaApplicationType.INITIAL, APP_ID, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("breadcrumbMap", "currentPage", "backUrl"))
@@ -240,7 +240,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
     mockMvc.perform(post(ReverseRouter.route(on(PadPwaAreaController.class)
         .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
             null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .params(ControllerTestUtils.fullValidationPostParams())
         .with(csrf()))
         .andExpect(status().isOk())
@@ -261,7 +261,7 @@ public class PadPwaAreaControllerTest extends PwaApplicationContextAbstractContr
     mockMvc.perform(post(ReverseRouter.route(on(PadPwaAreaController.class)
         .postFields(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),
             null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .params(ControllerTestUtils.partialValidationPostParams())
         .with(csrf()))
         .andExpect(status().is3xxRedirection());

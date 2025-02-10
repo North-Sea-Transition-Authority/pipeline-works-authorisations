@@ -15,33 +15,34 @@ public class PersonTestUtil {
   }
 
   public static Person createPersonFrom(PersonId personId, String email) {
-    return new Person(
-        personId.asInt(),
-        "firstname",
-        "surname",
-        email,
-        "0123456789"
-    );
+    Person person = new Person();
+    person.setId(personId.asInt());
+    person.setForename("firstname");
+    person.setSurname("surname");
+    person.setEmailAddress(email);
+    person.setTelephoneNo("0123456789");
+    return person;
+
   }
 
   public static Person createPersonFrom(PersonId personId, String email, String forename) {
-    return new Person(
-        personId.asInt(),
-        forename,
-        "surname",
-        email,
-        "0123456789"
-    );
+    Person person = new Person();
+    person.setId(personId.asInt());
+    person.setForename(forename);
+    person.setSurname("surname");
+    person.setEmailAddress(email);
+    person.setTelephoneNo("0123456789");
+    return person;
   }
 
   public static Person createDefaultPerson() {
-    return new Person(
-        100,
-        "firstname",
-        "surname",
-        "email@email.com",
-        "0123456789"
-    );
+    Person person = new Person();
+    person.setId(100);
+    person.setForename("firstname");
+    person.setSurname("surname");
+    person.setEmailAddress("email@email.com");
+    person.setTelephoneNo("0123456789");
+    return person;
   }
 
   public static Person createPersonWithNameFrom(PersonId personId) {

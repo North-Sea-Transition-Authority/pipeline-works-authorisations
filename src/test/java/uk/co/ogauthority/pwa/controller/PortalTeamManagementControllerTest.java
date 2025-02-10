@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlTemplate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Optional;
@@ -113,7 +113,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(List.of(regulatorTeam, organisationTeam));
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
@@ -123,7 +123,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(List.of(regulatorTeam));
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().is3xxRedirection());
   }
 
@@ -133,7 +133,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(List.of());
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
@@ -143,7 +143,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(List.of(regTeamAdminTeamUserView));
 
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andDo(print())
         .andExpect(status().isOk())
         .andExpect(view().name("teamManagement/teamMembers"));
@@ -152,14 +152,14 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   public void renderTeamMembers_whenTeamFound_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(organisationTeamAdmin)))
+        .with(user(organisationTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
   @Test
   public void renderTeamMembers_whenTeamNotFound() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", UNKNOWN_RES_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andDo(print())
         .andExpect(status().isNotFound());
   }
@@ -171,7 +171,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
             .requestAttr("form", new UserRolesForm())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
         .andExpect(view().name("teamManagement/memberRoles"));
 
@@ -189,7 +189,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
         .param("userRoles", teamAdminRole.getRoleName())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
         .andExpect(view().name("teamManagement/memberRoles"));
 
@@ -206,7 +206,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             regulatorTeam.getId(),
             UNKNOWN_PERSON_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
@@ -216,7 +216,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             UNKNOWN_RES_ID,
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
@@ -226,7 +226,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .param("userRoles", teamAdminRole.getRoleName())
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -254,7 +254,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userRoles", teamAdminRole.getRoleName()))
         .andExpect(status().isOk())
@@ -274,7 +274,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userRoles", ""))
         .andExpect(status().isOk())
@@ -290,7 +290,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(organisationTeamAdmin))
+        .with(user(organisationTeamAdmin))
         .with(csrf())
         .param("userRoles", ""))
         .andExpect(status().isForbidden());
@@ -309,7 +309,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         get("/portal-team-management/teams/{resId}/member/{personId}/remove",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
@@ -319,7 +319,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         get("/portal-team-management/teams/{resId}/member/{personId}/remove",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
@@ -330,7 +330,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession((regulatorTeamAdmin)))
+        .with(user((regulatorTeamAdmin)))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrlTemplate("/portal-team-management/teams/{resId}/member", regulatorTeam.getId()));
@@ -346,7 +346,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(organisationTeamAdmin))
+        .with(user(organisationTeamAdmin))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -367,7 +367,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession((regulatorTeamAdmin)))
+        .with(user((regulatorTeamAdmin)))
         .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -375,28 +375,28 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   public void renderAddUserToTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
   @Test
   public void renderAddUserToTeam_whenTeamDoesNotExist() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", UNKNOWN_RES_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
   @Test
   public void renderAddUserToTeam_whenTeamExists_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(organisationTeamAdmin)))
+        .with(user(organisationTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
   @Test
   public void renderAddUserToTeam_whenTeamExists_andUserCanManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
@@ -406,7 +406,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(organisationTeamAdminPerson));
 
     mockMvc.perform(post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userIdentifier", organisationTeamAdminPerson.getEmailAddress()))
         .andExpect(status().is3xxRedirection())
@@ -418,7 +418,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   @Test
   public void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsValid_andFormEmailNotKnown() throws Exception {
     mockMvc.perform(post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userIdentifier", "Some.Unknown@email.com"))
         .andExpect(status().isNotFound());
@@ -431,7 +431,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-            .with(authenticatedUserAndSession(regulatorTeamAdmin))
+            .with(user(regulatorTeamAdmin))
             .with(csrf())
             .param("userIdentifier", ""))
         .andExpect(status().isOk())
@@ -442,7 +442,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   public void handleAddUserToTeamSubmit_whenTeamExists_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-            .with(authenticatedUserAndSession(organisationTeamAdmin))
+            .with(user(organisationTeamAdmin))
             .with(csrf())
             .param("newUser", ""))
         .andExpect(status().isForbidden());

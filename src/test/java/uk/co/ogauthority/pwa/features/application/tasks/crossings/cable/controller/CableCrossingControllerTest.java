@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -112,7 +112,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             mockMvc.perform(
                 get(ReverseRouter.route(
                     on(CableCrossingController.class).renderAddCableCrossing(invalidAppType, 1, null, null)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
                 .andExpect(status().isForbidden());
           } catch (Exception e) {
@@ -135,7 +135,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             mockMvc.perform(
                 get(ReverseRouter.route(
                     on(CableCrossingController.class).renderEditCableCrossing(invalidAppType, 1, 1, null, null)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
                 .andExpect(status().isForbidden());
           } catch (Exception e) {
@@ -158,7 +158,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
             mockMvc.perform(
                 get(ReverseRouter.route(
                     on(CableCrossingController.class).renderRemoveCableCrossing(invalidAppType, 1, 1, null)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
                 .andExpect(status().isForbidden());
           } catch (Exception e) {
@@ -175,7 +175,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderAddCableCrossing(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/crossings/addCableCrossing"));
@@ -190,7 +190,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/crossings/editCableCrossing"));
@@ -209,7 +209,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderRemoveCableCrossing(PwaApplicationType.INITIAL, 1, 1, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/crossings/removeCableCrossing"));
@@ -262,7 +262,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postAddCableCrossings(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
     verify(padCableCrossingService, never()).createCableCrossing(eq(pwaApplicationDetail), any());
@@ -280,7 +280,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postAddCableCrossings(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(paramMap))
         .andExpect(status().is3xxRedirection());
@@ -293,7 +293,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
         post(ReverseRouter.route(
             on(CableCrossingController.class).postEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null,
                 null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
     verify(padCableCrossingService, never()).updateCableCrossing(eq(pwaApplicationDetail), eq(1), any());
@@ -312,7 +312,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
         post(ReverseRouter.route(
             on(CableCrossingController.class)
                 .postEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(paramMap))
         .andExpect(status().is3xxRedirection());
@@ -324,7 +324,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postRemoveCableCrossing(PwaApplicationType.INITIAL, 1, 1, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padCableCrossingService, times(1)).removeCableCrossing(eq(pwaApplicationDetail), eq(1));

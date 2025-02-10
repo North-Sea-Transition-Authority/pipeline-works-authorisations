@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -215,7 +215,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postAddPipeline(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/pipelines/addEditPipeline"))
@@ -231,7 +231,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postAddPipeline(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 

@@ -29,7 +29,7 @@ public class FinalisePublicNoticeValidatorTest {
   public void validate_form_empty() {
     var form = new FinalisePublicNoticeForm();
     form.setDaysToBePublishedFor(null);
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, null);
+    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, false);
     assertThat(errorsMap).containsOnly(
         entry("startDay", Set.of("startDay" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("startMonth", Set.of("startMonth" + FieldValidationErrorCodes.REQUIRED.getCode())),

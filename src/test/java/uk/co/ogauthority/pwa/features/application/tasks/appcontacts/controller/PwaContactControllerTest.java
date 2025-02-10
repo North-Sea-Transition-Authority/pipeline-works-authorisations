@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Set;
 import org.junit.Before;
@@ -363,7 +363,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("orgGroupHolders", Set.of("ORGGRP")));
 
@@ -383,7 +383,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))
@@ -410,7 +410,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseManagementUrl"))
         .andExpect(model().attributeExists("completeSectionUrl"))
@@ -433,7 +433,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseManagementUrl"))
         .andExpect(model().attributeExists("completeSectionUrl"))
@@ -457,7 +457,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))
@@ -488,7 +488,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))

@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -153,7 +153,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
         get(ReverseRouter.route(
             on(LocationDetailsController.class).renderLocationDetails(PwaApplicationType.INITIAL, null, null, null),
             Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/locationDetails"));
@@ -170,7 +170,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
             .params(ControllerTestUtils.partialValidationPostParams())
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
@@ -193,7 +193,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
             .params(continueParams)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
   }
@@ -209,7 +209,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
             .params(ControllerTestUtils.partialValidationPostParams())
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
@@ -227,7 +227,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
             .params(ControllerTestUtils.fullValidationPostParams())
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk());
 
@@ -255,7 +255,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
             on(LocationDetailsController.class).postLocationDetails(PwaApplicationType.INITIAL, null, null, null, null,
                 null), Map.of("applicationId", 1)))
             .params(params)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());

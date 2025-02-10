@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -131,7 +131,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
         .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     ).andExpect(status().isOk());
 
   }
@@ -141,7 +141,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
         .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
-        .with(authenticatedUserAndSession(userNoPrivs))
+        .with(user(userNoPrivs))
     ).andExpect(status().isForbidden());
 
   }
@@ -154,7 +154,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, user)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("holderOuId", "111"))
         .andExpect(status().is3xxRedirection());
@@ -169,7 +169,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, userNoPrivs)))
-        .with(authenticatedUserAndSession(userNoPrivs))
+        .with(user(userNoPrivs))
         .with(csrf())
         .param("holderOuId", "111"))
         .andExpect(status().isForbidden());
@@ -186,7 +186,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("holderOuId", ""))
         .andExpect(status().isOk())
@@ -207,7 +207,7 @@ public class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("holderOuId", "44"))
         .andExpect(status().is4xxClientError());

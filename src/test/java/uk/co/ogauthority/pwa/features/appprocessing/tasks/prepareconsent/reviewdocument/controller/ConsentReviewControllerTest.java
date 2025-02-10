@@ -14,7 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -175,7 +175,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     when(assignmentService.getAssignments(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(assignment));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentReviewController.class).renderReturnToCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attribute("form", hasProperty("caseOfficerPersonId", is(caseOfficerPerson.getId().asInt()))));
@@ -198,7 +198,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     when(assignmentService.getAssignments(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(assignment));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentReviewController.class).renderReturnToCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attribute("form", hasProperty("caseOfficerPersonId", nullValue())));
@@ -235,7 +235,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   public void returnToCaseOfficer_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).returnToCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("returnReason", "my reason")
         .param("caseOfficerPersonId", "2"))
@@ -251,7 +251,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     ControllerTestUtils.mockSmartValidatorErrors(consentReviewReturnFormValidator, List.of("returnReason"));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).returnToCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("returnReason", "my reason")
         .param("caseOfficerPersonId", "2"))
@@ -303,7 +303,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
             pwaApplicationDetail.getPwaApplicationType(),
             null,
             user)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attribute("consentTransferBlock",true))
@@ -339,7 +339,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -361,7 +361,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
     when(pipelineTransferService.findByRecipientApplication(pwaApplicationDetail)).thenReturn(List.of(transfer));
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:/pwa-application/initial/1/case-management/consent-review/issue"));

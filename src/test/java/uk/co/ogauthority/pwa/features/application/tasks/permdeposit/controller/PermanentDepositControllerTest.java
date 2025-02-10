@@ -9,7 +9,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -190,7 +190,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
@@ -203,7 +203,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postPermanentDeposits(PwaApplicationType.INITIAL, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -297,7 +297,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postEditPermanentDeposits(PwaApplicationType.INITIAL, 1, 1,null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk());
@@ -310,7 +310,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
     mockMvc.perform(
         post(ReverseRouter.route(on(PermanentDepositController.class)
             .postEditPermanentDeposits(PwaApplicationType.INITIAL, 1, 1, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -424,7 +424,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
 
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositController.class)
         .renderRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -434,7 +434,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   public void postRemovePermanentDeposits_success() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositController.class)
         .postRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
   }

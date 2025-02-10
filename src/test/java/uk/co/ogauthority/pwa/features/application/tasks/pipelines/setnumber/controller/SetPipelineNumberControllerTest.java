@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.math.BigDecimal;
 import java.util.EnumSet;
@@ -206,7 +206,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
         post(ReverseRouter.route(on(SetPipelineNumberController.class)
             .setPipelineReference(APP_TYPE, APP_ID, PAD_PIPELINE_ID, null, null, null)
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
 
     ).andExpect(status().is2xxSuccessful())
@@ -224,7 +224,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
         post(ReverseRouter.route(on(SetPipelineNumberController.class)
             .setPipelineReference(APP_TYPE, APP_ID, PAD_PIPELINE_ID, null, null, null)
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("pipelineNumber", "PL1000")
 

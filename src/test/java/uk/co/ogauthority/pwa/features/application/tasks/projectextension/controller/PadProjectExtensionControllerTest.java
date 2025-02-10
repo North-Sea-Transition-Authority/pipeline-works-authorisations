@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -100,7 +100,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
         get(ReverseRouter.route(on(
             PadProjectExtensionController.class)
             .renderProjectExtension(null, APP_ID, PwaApplicationType.INITIAL, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectExtension"))
@@ -120,7 +120,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
                 null,
                 APP_ID,
                 PwaApplicationType.INITIAL)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(ValidationType.FULL.getButtonText(), ""))
         .andExpect(status().is3xxRedirection())
@@ -139,7 +139,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
                     null,
                     APP_ID,
                     PwaApplicationType.INITIAL)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf())
                 .param(ValidationType.FULL.getButtonText(), ""))
         .andExpect(status().isOk())

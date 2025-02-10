@@ -13,7 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -223,7 +223,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(result -> result.getModelAndView().getViewName().equals(
@@ -248,7 +248,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
@@ -265,7 +265,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/submission/reviewAndSubmit"));
@@ -286,7 +286,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
             .submit(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, Optional.empty()))
         ).param("madeOnlyRequestedChanges", "false")
         .param("otherChangesDescription", description)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -311,7 +311,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
         )
         .param("madeOnlyRequestedChanges", "true")
         .param("otherChangesDescription", description)
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -365,7 +365,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("submitterPersonId", String.valueOf(user.getLinkedPerson().getId().asInt())))
         .andExpect(status().is3xxRedirection())
@@ -383,7 +383,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("submitterPersonId", String.valueOf(user.getLinkedPerson().getId().asInt()))
         .param("madeOnlyRequestedChanges", "false")
@@ -403,7 +403,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("submitterPersonId", String.valueOf(user.getLinkedPerson().getId().asInt())))
         .andExpect(status().isOk())
@@ -425,7 +425,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
 
     mockMvc.perform(post(ReverseRouter.route(on(ReviewAndSubmitController.class)
         .sendToSubmitter(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("submitterPersonId", String.valueOf(user.getLinkedPerson().getId().asInt())))
         .andExpect(status().isOk())
