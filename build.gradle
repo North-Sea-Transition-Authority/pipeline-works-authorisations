@@ -48,6 +48,8 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
+  implementation 'uk.co.fivium.energyportalapi:client:v12.4.0'
+
   implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE'

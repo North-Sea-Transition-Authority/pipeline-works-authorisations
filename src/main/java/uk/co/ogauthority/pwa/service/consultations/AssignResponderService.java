@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
@@ -39,7 +39,7 @@ public class AssignResponderService implements AppProcessingService {
   private final WorkflowAssignmentService workflowAssignmentService;
   private final AssignResponderValidator assignResponderValidator;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
   private final NotifyService notifyService;
@@ -49,7 +49,7 @@ public class AssignResponderService implements AppProcessingService {
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
                                 AssignResponderValidator assignResponderValidator,
                                 ConsulteeGroupTeamService consulteeGroupTeamService,
-                                TeamManagementService teamManagementService,
+                                OldTeamManagementService teamManagementService,
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
                                 NotifyService notifyService,

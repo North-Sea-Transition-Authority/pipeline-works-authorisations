@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -43,7 +43,7 @@ public class ConsulteeGroupTeamManagementController {
 
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
@@ -52,7 +52,7 @@ public class ConsulteeGroupTeamManagementController {
   @Autowired
   public ConsulteeGroupTeamManagementController(ConsulteeGroupTeamService consulteeGroupTeamService,
                                                 AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator,
-                                                TeamManagementService teamManagementService,
+                                                OldTeamManagementService teamManagementService,
                                                 @Value("${oga.registration.link}") String ogaRegistrationLink) {
 
     this.consulteeGroupTeamService = consulteeGroupTeamService;
@@ -103,7 +103,7 @@ public class ConsulteeGroupTeamManagementController {
             .sorted(Comparator.comparing(TeamMemberView::getForename).thenComparing(TeamMemberView::getSurname))
             .collect(Collectors.toList());
 
-    return new ModelAndView("teamManagement/teamMembers")
+    return new ModelAndView("teamManagementOld/teamMembers")
         .addObject("teamId", consulteeGroupDetail.getConsulteeGroupId())
         .addObject("teamName", consulteeGroupDetail.getName())
         .addObject("teamMemberViews", teamMemberViews)
@@ -127,7 +127,7 @@ public class ConsulteeGroupTeamManagementController {
   }
 
   private ModelAndView getAddUserToTeamModelAndView(ConsulteeGroupDetail groupDetail) {
-    return new ModelAndView("teamManagement/addUserToTeam")
+    return new ModelAndView("teamManagementOld/addUserToTeam")
         .addObject("groupName", groupDetail.getName())
         .addObject("teamId", groupDetail.getConsulteeGroupId())
         .addObject("showTopNav", true)
@@ -217,7 +217,7 @@ public class ConsulteeGroupTeamManagementController {
 
   private ModelAndView getMemberRolesModelAndView(ConsulteeGroupDetail consulteeGroupDetail, Person person, UserRolesForm form) {
 
-    return new ModelAndView("teamManagement/memberRoles")
+    return new ModelAndView("teamManagementOld/memberRoles")
         .addObject("teamId", consulteeGroupDetail.getConsulteeGroupId())
         .addObject("form", form)
         .addObject("roles", rolesCheckboxMap)
@@ -232,7 +232,7 @@ public class ConsulteeGroupTeamManagementController {
 
   private ModelAndView getRemoveMemberScreenModelAndView(ConsulteeGroupDetail detail, ConsulteeGroupTeamMember member) {
 
-    return new ModelAndView("teamManagement/removeMember")
+    return new ModelAndView("teamManagementOld/removeMember")
         .addObject("cancelUrl",
             ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
                 .renderTeamMembers(detail.getConsulteeGroupId(), null)))

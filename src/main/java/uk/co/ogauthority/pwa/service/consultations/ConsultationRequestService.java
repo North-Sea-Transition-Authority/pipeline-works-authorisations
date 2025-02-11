@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
@@ -49,7 +49,7 @@ public class ConsultationRequestService {
   private final ConsultationRequestRepository consultationRequestRepository;
   private final ConsultationRequestValidator consultationRequestValidator;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final NotifyService notifyService;
@@ -64,7 +64,7 @@ public class ConsultationRequestService {
       ConsultationRequestRepository consultationRequestRepository,
       ConsultationRequestValidator consultationRequestValidator,
       CamundaWorkflowService camundaWorkflowService,
-      TeamManagementService teamManagementService,
+      OldTeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
       NotifyService notifyService,

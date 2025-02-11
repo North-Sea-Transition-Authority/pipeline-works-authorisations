@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 
 @Service
@@ -29,7 +29,7 @@ public class WorkflowAssignmentService {
   private final PwaTeamService pwaTeamService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final AssignmentService assignmentService;
 
   @Autowired
@@ -37,7 +37,7 @@ public class WorkflowAssignmentService {
                                    PwaTeamService pwaTeamService,
                                    ConsulteeGroupTeamService consulteeGroupTeamService,
                                    ConsultationRequestService consultationRequestService,
-                                   TeamManagementService teamManagementService,
+                                   OldTeamManagementService teamManagementService,
                                    AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaTeamService = pwaTeamService;

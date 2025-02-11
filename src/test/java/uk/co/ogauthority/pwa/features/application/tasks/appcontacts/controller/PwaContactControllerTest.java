@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -51,7 +51,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @MockBean
   private AddPwaContactFormValidator addPwaContactFormValidator;

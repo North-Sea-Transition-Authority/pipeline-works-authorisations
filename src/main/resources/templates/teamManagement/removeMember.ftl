@@ -1,48 +1,54 @@
-<#-- @ftlvariable name="teamName" type="String" -->
-<#-- @ftlvariable name="error" type="String" -->
-<#-- @ftlvariable name="teamMember" type="uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView" -->
-<#-- @ftlvariable name="cancelUrl" type="String" -->
-<#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
-
+<#-- @ftlvariable name="teamMemberView" type="uk.co.ogauthority.pwa.teams.management.view.TeamMemberView" -->
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Remove User" backLink=true topNavigation=showTopNav twoThirdsColumn=false>
-
-    <#if error?has_content>
-        <@fdsError.singleErrorSummary errorMessage=error/>
+    <#if canRemoveTeamMember>
+        <#assign pageHeading="Are you sure you want to remove ${teamMemberView.getDisplayName()} from ${teamName}?"/>
+      <#else>
+        <#assign pageHeading="You are unable to remove ${teamMemberView.getDisplayName()} from ${teamName}"/>
     </#if>
 
-    <h1 class="govuk-heading-xl">Are you sure you want to remove this user from the ${teamName} team?</h1>
+<@defaultPage
+    htmlTitle=pageHeading
+    pageHeading=pageHeading
+    twoThirdsColumn=true
+>
+    <#if !canRemoveTeamMember>
+        <@fdsWarning.warning>
+            <p class="govuk-body">
+                You cannot remove ${teamMemberView.getDisplayName()} as they are the last person who can add, remove and update members of this team.
+            </p>
+            <@fdsDetails.details
+                detailsTitle="How can I remove this user?"
+                detailsText="If you wish to remove this user, you must give another team member the ability add, remove and update members of this team"
+            />
+        </@fdsWarning.warning>
+    </#if>
+
+    <@fdsSummaryList.summaryList>
+        <#if teamMemberView.email()?has_content>
+            <@fdsSummaryList.summaryListRowNoAction keyText="Email address">${teamMemberView.email()}</@fdsSummaryList.summaryListRowNoAction>
+        </#if>
+        <#if teamMemberView.telNo()?has_content>
+            <@fdsSummaryList.summaryListRowNoAction keyText="Telephone number">${teamMemberView.telNo()}</@fdsSummaryList.summaryListRowNoAction>
+        </#if>
+        <@fdsSummaryList.summaryListRowNoAction keyText="Roles">
+          <ul class="govuk-list govuk-!-margin-bottom-0">
+              <#list teamMemberView.roles() as role>
+                <li>${role.getDescription()}</li>
+              </#list>
+          </ul>
+        </@fdsSummaryList.summaryListRowNoAction>
+    </@fdsSummaryList.summaryList>
 
     <@fdsForm.htmlForm>
-
-        <@fdsCheckAnswers.checkAnswers summaryListClass="">
-
-          <@fdsCheckAnswers.checkAnswersRow keyText="Full name" actionText="" actionUrl="" screenReaderActionText="">
-              ${teamMember.getFullName()}
-          </@fdsCheckAnswers.checkAnswersRow>
-
-          <@fdsCheckAnswers.checkAnswersRow keyText="Email address" actionText="" actionUrl="" screenReaderActionText="">
-              <#if teamMember.emailAddress?has_content>
-                  ${teamMember.emailAddress}
-              </#if>
-          </@fdsCheckAnswers.checkAnswersRow>
-
-          <@fdsCheckAnswers.checkAnswersRow keyText="Telephone number" actionText="" actionUrl="" screenReaderActionText="">
-              <#if teamMember.telephoneNo?has_content>
-                  ${teamMember.telephoneNo}
-              </#if>
-          </@fdsCheckAnswers.checkAnswersRow>
-
-          <@fdsCheckAnswers.checkAnswersRow keyText="Roles" actionText="" actionUrl="" screenReaderActionText="">
-              <#list teamMember.roleViews?sort_by("displaySequence") as role>
-                  ${role.title}<#if role_has_next>,</#if>
-              </#list>
-          </@fdsCheckAnswers.checkAnswersRow>
-
-        </@fdsCheckAnswers.checkAnswers>
-
-        <@fdsAction.submitButtons primaryButtonText="Remove" secondaryLinkText="Cancel" linkSecondaryAction=true linkSecondaryActionUrl=springUrl(cancelUrl)/>
-
+        <@fdsAction.buttonGroup>
+            <#if canRemoveTeamMember>
+                <@fdsAction.button buttonText="Remove" buttonClass="govuk-button govuk-button--warning"/>
+                <@fdsAction.link linkText="Cancel" linkUrl=springUrl(cancelUrl) linkClass="fds-link-button"/>
+            <#else>
+                <@fdsAction.link linkText="Back to ${teamName}" linkUrl=springUrl(cancelUrl) linkClass="fds-link-button"/>
+            </#if>
+        </@fdsAction.buttonGroup>
     </@fdsForm.htmlForm>
+
 </@defaultPage>

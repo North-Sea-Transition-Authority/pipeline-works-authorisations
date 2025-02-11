@@ -45,13 +45,15 @@ import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
 
 @RunWith(SpringRunner.class)
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,
     PwaMvcTestConfiguration.class,
     WebSecurityConfig.class,
-    SamlProperties.class
+    SamlProperties.class,
 })
 @EnableConfigurationProperties(ExternalApiConfiguration.class)
 @ActiveProfiles("test")
@@ -103,6 +105,12 @@ public class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   protected LogoutSuccessHandler logoutSuccessHandler;
+
+  @MockBean
+  private TeamManagementService teamManagementService;
+
+  @MockBean
+  private TeamQueryService teamQueryService;
 
   @Before
   public void setUp() {

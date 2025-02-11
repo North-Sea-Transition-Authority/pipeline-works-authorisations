@@ -30,7 +30,7 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -48,7 +48,7 @@ public class ConsultationViewServiceTest {
   private ConsulteeGroupDetailService consulteeGroupDetailService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;

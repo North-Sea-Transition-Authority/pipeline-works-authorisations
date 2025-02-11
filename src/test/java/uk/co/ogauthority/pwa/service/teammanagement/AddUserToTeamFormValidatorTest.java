@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 public class AddUserToTeamFormValidatorTest {
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private AddUserToTeamFormValidator addUserToTeamFormValidator;
   private AddUserToTeamForm addUserToTeamForm;

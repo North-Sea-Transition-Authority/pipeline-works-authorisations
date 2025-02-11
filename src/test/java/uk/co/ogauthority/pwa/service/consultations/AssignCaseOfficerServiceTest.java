@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
@@ -49,7 +49,7 @@ public class AssignCaseOfficerServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private NotifyService notifyService;

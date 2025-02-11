@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -43,12 +43,12 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 @RequestMapping("/portal-team-management")
 public class PortalTeamManagementController {
 
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final AddUserToTeamFormValidator addUserToTeamFormValidator;
   private final String ogaRegistrationLink;
 
   @Autowired
-  public PortalTeamManagementController(TeamManagementService teamManagementService,
+  public PortalTeamManagementController(OldTeamManagementService teamManagementService,
                                         AddUserToTeamFormValidator addUserToTeamFormValidator,
                                         @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.teamManagementService = teamManagementService;
@@ -71,7 +71,7 @@ public class PortalTeamManagementController {
    */
   @GetMapping("")
   public ModelAndView renderManageableTeams(AuthenticatedUserAccount currentUser) {
-    var modelAndView = new ModelAndView("teamManagement/manageableTeams");
+    var modelAndView = new ModelAndView("teamManagementOld/manageableTeams");
 
     List<TeamView> teamViews = teamManagementService.getAllPwaTeamsUserCanManage(currentUser).stream()
         .map(team -> new TeamView(team,
@@ -105,7 +105,7 @@ public class PortalTeamManagementController {
         .sorted(Comparator.comparing(TeamMemberView::getForename).thenComparing(TeamMemberView::getSurname))
         .collect(Collectors.toList());
 
-    return new ModelAndView("teamManagement/teamMembers")
+    return new ModelAndView("teamManagementOld/teamMembers")
         .addObject("teamId", team.getId())
         .addObject("teamName", team.getName())
         .addObject("teamMemberViews", teamMemberViews)
@@ -130,7 +130,7 @@ public class PortalTeamManagementController {
   }
 
   private ModelAndView getAddUserToTeamModelAndView(PwaTeam team) {
-    return new ModelAndView("teamManagement/addUserToTeam")
+    return new ModelAndView("teamManagementOld/addUserToTeam")
         .addObject("groupName", "team")
         .addObject("teamId", team.getId())
         .addObject("showTopNav", true)
@@ -193,7 +193,7 @@ public class PortalTeamManagementController {
             String.format("personId: %s is not a member of resId: %s", person.getId(), team.getId())
         ));
 
-    return new ModelAndView("teamManagement/removeMember")
+    return new ModelAndView("teamManagementOld/removeMember")
         .addObject("cancelUrl", ReverseRouter.route(on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
         .addObject("showTopNav", true)
         .addObject("teamName", team.getName())
@@ -240,7 +240,7 @@ public class PortalTeamManagementController {
 
   private ModelAndView getMemberRolesModelAndView(PwaTeam team, Person person, UserRolesForm form) {
     List<TeamRoleView> roles = teamManagementService.getRolesForTeam(team);
-    return new ModelAndView("teamManagement/memberRoles")
+    return new ModelAndView("teamManagementOld/memberRoles")
         .addObject("teamId", team.getId())
         .addObject("form", form)
         .addObject("roles", ControllerUtils.asCheckboxMap(roles))

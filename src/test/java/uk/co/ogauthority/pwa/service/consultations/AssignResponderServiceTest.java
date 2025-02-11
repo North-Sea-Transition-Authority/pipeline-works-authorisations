@@ -51,7 +51,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -74,7 +74,7 @@ public class AssignResponderServiceTest {
   private AssignResponderValidator validator;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;

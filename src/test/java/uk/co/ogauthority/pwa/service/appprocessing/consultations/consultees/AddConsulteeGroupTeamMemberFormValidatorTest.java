@@ -18,7 +18,7 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberForm;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -26,7 +26,7 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 public class AddConsulteeGroupTeamMemberFormValidatorTest {
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;

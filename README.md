@@ -59,6 +59,8 @@ Output should claim build succesfull.
 | PWA_SAML_LOGIN_URL           | The URL to hit the `login` entry theme of the SAML login module                                                                   |
 | PWA_ENERGY_PORTAL_LOGOUT_URL | Energy Portal logout URL                                                                                                          |
 | PWA_ENERGY_PORTAL_LOGOUT_KEY | The pre-shared logout key for the energy portal.                                                                                  |
+| PWA_ENERGY_PORTAL_API_URL    | The energy portal API URL                                                                                                         |
+| PWA_ENERGY_PORTAL_API_TOKEN  | Security key for access the energy portal API                                                                                     |
 
 ## Logging
 

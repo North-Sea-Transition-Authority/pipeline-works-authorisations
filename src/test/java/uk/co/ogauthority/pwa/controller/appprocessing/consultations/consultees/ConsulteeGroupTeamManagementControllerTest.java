@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 
@@ -62,7 +62,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   private AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person(1, null, null, null, null)), List.of());
@@ -130,7 +130,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(emtGroupDetail.getConsulteeGroupId(), user)))
         .with(user(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/teamMembers"));
+        .andExpect(view().name("teamManagementOld/teamMembers"));
 
   }
 
@@ -270,7 +270,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
             .param("userRoles", "")
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
   }
 

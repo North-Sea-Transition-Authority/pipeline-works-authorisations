@@ -60,7 +60,7 @@ public class CreateTeamsController {
   }
 
   private ModelAndView getNewOrganisationTeamModelAndView(AddOrganisationTeamForm form) {
-    return new ModelAndView("teamManagement/addNewOrganisationTeam")
+    return new ModelAndView("teamManagementOld/addNewOrganisationTeam")
         .addObject("form", form)
         .addObject("teamTypeDisplayName", PwaTeamType.ORGANISATION.name().toLowerCase())
         .addObject("organisationRestUrl",

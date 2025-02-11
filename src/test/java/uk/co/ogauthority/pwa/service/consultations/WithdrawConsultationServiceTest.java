@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
@@ -59,7 +59,7 @@ public class WithdrawConsultationServiceTest {
   CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;

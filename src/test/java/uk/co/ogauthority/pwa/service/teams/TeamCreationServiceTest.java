@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.AddOrganisationTeamForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.NewTeamForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TeamCreationServiceTest {
@@ -40,7 +40,7 @@ public class TeamCreationServiceTest {
   private PwaOrganisationAccessor pwaOrganisationAccessor;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private TeamCreationService teamCreationService;
 

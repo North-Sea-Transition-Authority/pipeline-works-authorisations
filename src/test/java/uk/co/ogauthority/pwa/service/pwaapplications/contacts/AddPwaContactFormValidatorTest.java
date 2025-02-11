@@ -19,14 +19,14 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddP
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddPwaContactFormValidatorTest {
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private PwaContactService pwaContactService;

@@ -40,7 +40,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
@@ -53,7 +53,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   private static final int UNKNOWN_RES_ID = 99999;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @MockBean
   protected AddUserToTeamFormValidator addUserToTeamFormValidator;
@@ -146,7 +146,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .with(user(regulatorTeamAdmin)))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/teamMembers"));
+        .andExpect(view().name("teamManagementOld/teamMembers"));
   }
 
   @Test
@@ -173,7 +173,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
             .requestAttr("form", new UserRolesForm())
         .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
     verify(teamManagementService, times(1)).populateExistingRoles(
         eq(regulatorTeamAdminPerson),
@@ -191,7 +191,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         .param("userRoles", teamAdminRole.getRoleName())
         .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
     verify(teamManagementService, times(0)).populateExistingRoles(
         eq(regulatorTeamAdminPerson),

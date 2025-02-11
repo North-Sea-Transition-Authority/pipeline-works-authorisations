@@ -29,7 +29,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /*
@@ -42,7 +42,7 @@ public class ConsultationViewService {
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationResponseService consultationResponseService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationFileService consultationFileService;
 
@@ -51,7 +51,7 @@ public class ConsultationViewService {
       ConsultationRequestService consultationRequestService,
       ConsultationResponseService consultationResponseService,
       ConsulteeGroupDetailService consulteeGroupDetailService,
-      TeamManagementService teamManagementService,
+      OldTeamManagementService teamManagementService,
       ConsultationResponseDataService consultationResponseDataService,
       ConsultationFileService consultationFileService) {
     this.consultationRequestService = consultationRequestService;

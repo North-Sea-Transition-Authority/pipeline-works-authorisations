@@ -11,11 +11,11 @@ import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.controller.documents.DocumentTemplateSelectController;
 import uk.co.ogauthority.pwa.controller.search.applicationsearch.ApplicationSearchController;
 import uk.co.ogauthority.pwa.controller.search.consents.ConsentSearchController;
-import uk.co.ogauthority.pwa.controller.teams.ManageTeamsController;
 import uk.co.ogauthority.pwa.features.feemanagement.controller.FeeManagementController;
 import uk.co.ogauthority.pwa.features.reassignment.CaseReassignmentController;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.teams.management.TeamManagementController;
 
 @Service
 public class TopMenuService {
@@ -51,8 +51,8 @@ public class TopMenuService {
     }
 
     if (systemAreaAccessService.canAccessTeamManagement(user)) {
-      menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(ManageTeamsController.class)
-          .renderTeamTypes(null)))
+      menuItems.add(new TopMenuItem(TEAM_MANAGEMENT_TITLE, ReverseRouter.route(on(TeamManagementController.class)
+          .renderTeamTypeList(null)))
       );
     }
 

@@ -22,3 +22,15 @@ CVE-2023-33202
 CVE-2024-29857
 CVE-2024-30171
 CVE-2024-34447
+
+# com.google.protobuf:protobuf-java
+CVE-2024-7254
+
+# net.minidev:json-smart
+CVE-2024-57699
+
+# io.netty:netty-common
+CVE-2025-25193
+
+# io.netty:netty-handler
+CVE-2025-24970

@@ -80,7 +80,7 @@ public class TeamManagementServiceTest {
   private AuthenticatedUserAccount manageAllTeamsUser;
   private WebUserAccount someWebUserAccount = new WebUserAccount(99);
   private UserRolesForm userRolesForm;
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   /**
    * This creates:
@@ -92,7 +92,7 @@ public class TeamManagementServiceTest {
   @Before
   public void setUp() {
 
-    teamManagementService = new TeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
+    teamManagementService = new OldTeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
 

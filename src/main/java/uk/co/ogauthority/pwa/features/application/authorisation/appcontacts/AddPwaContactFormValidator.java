@@ -11,19 +11,19 @@ import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationServic
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 @Service
 public class AddPwaContactFormValidator implements Validator {
 
   private static final String USER_ID_FORM_FIELD = "userIdentifier";
 
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final PwaContactService pwaContactService;
   private final PwaApplicationService pwaApplicationService;
 
   @Autowired
-  public AddPwaContactFormValidator(TeamManagementService teamManagementService,
+  public AddPwaContactFormValidator(OldTeamManagementService teamManagementService,
                                     PwaContactService pwaContactService,
                                     PwaApplicationService pwaApplicationService) {
     this.teamManagementService = teamManagementService;

@@ -13,16 +13,16 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 @Service
 public class AddConsulteeGroupTeamMemberFormValidator implements SmartValidator {
 
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService groupTeamService;
 
   @Autowired
-  public AddConsulteeGroupTeamMemberFormValidator(TeamManagementService teamManagementService,
+  public AddConsulteeGroupTeamMemberFormValidator(OldTeamManagementService teamManagementService,
                                                   ConsulteeGroupTeamService groupTeamService) {
     this.teamManagementService = teamManagementService;
     this.groupTeamService = groupTeamService;

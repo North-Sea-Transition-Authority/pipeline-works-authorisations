@@ -46,6 +46,9 @@ import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
+import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterceptor;
 
 @ActiveProfiles("test")
 @EnableConfigurationProperties(value = {
@@ -59,6 +62,7 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
     WebSecurityConfig.class,
     RequestLogFilter.class,
     PostAuthenticationRequestMdcFilter.class,
+    TeamManagementHandlerInterceptor.class
 })
 public abstract class AbstractControllerTest {
 
@@ -103,6 +107,15 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected LogoutSuccessHandler logoutSuccessHandler;
+
+  @MockBean
+  protected TeamManagementService teamManagementService;
+
+  @MockBean
+  protected TeamQueryService teamQueryService;
+
+  @Autowired
+  protected TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   @Before
   public void commonControllerTestSetup() {
