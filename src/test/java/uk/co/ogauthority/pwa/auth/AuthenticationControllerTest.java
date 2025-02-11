@@ -1,5 +1,11 @@
 package uk.co.ogauthority.pwa.auth;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -12,19 +18,13 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
-
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AuthenticationControllerTest.TestAuthenticationController.class)
 @ContextConfiguration(classes = {
     AuthenticationControllerTest.TestAuthenticationController.class
 })
 public class AuthenticationControllerTest extends AbstractControllerTest {
-  private static final String SAML_LOGIN_REDIRECT_URL = "http://localhost/saml2/authenticate/saml";
+  private static final String SAML_LOGIN_REDIRECT_URL = "http://localhost/saml2/authenticate?registrationId=saml";
 
   @Controller
   @RequestMapping("/auth")

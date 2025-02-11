@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
     TestAuthenticationController.class
 })
 public class TestAuthenticationControllerTestResolver extends ResolverAbstractControllerTest {
-  private static final String SAML_LOGIN_REDIRECT_URL = "http://localhost/saml2/authenticate/saml";
+  private static final String SAML_LOGIN_REDIRECT_URL = "http://localhost/saml2/authenticate?registrationId=saml";
 
 
   @Before
