@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationServiceTest {
 
   @Mock
   private ConsultationRequestService consultationRequestService;
@@ -43,9 +43,8 @@ public class ConsultationServiceTest {
   private ApplicationInvolvementDto appInvolvementDto;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     consultationService = new ConsultationService(consultationRequestService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -57,7 +56,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_viewAllConsultations() {
+  void canShowInTaskList_viewAllConsultations() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null, null,
         Set.of());
@@ -69,7 +68,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry() {
+  void canShowInTaskList_industry() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
         Set.of());
@@ -81,7 +80,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermission() {
+  void canShowInTaskList_showAllTasksPermission() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
         Set.of());
@@ -93,7 +92,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermissions() {
+  void canShowInTaskList_noPermissions() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
@@ -104,7 +103,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_notSatisfactory() {
+  void getTaskListEntry_notSatisfactory() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
@@ -124,7 +123,7 @@ public class ConsultationServiceTest {
 
 
   @Test
-  public void getTaskListEntry_noConsultations() {
+  void getTaskListEntry_noConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
@@ -143,7 +142,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_activeConsultations() {
+  void getTaskListEntry_activeConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
@@ -164,7 +163,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_allCompletedConsultations() {
+  void getTaskListEntry_allCompletedConsultations() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
@@ -189,7 +188,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_hasViewPermissionAndCorrectAppStatus_noSatisfactoryVersion_taskStateLocked() {
+  void getTaskListEntry_hasViewPermissionAndCorrectAppStatus_noSatisfactoryVersion_taskStateLocked() {
 
     var appInvolvementDto = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication);
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null,
@@ -199,7 +198,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_hasViewPermissionAndSatisfactoryVersion_incorrectAppStatus_taskStateLocked() {
+  void getTaskListEntry_hasViewPermissionAndSatisfactoryVersion_incorrectAppStatus_taskStateLocked() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null,
@@ -209,7 +208,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersion_noViewPermission_taskStateLocked() {
+  void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersion_noViewPermission_taskStateLocked() {
 
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null,
         Set.of(), null, appInvolvementDto, Set.of());
@@ -218,7 +217,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersionAndViewPermission_taskStateView() {
+  void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersionAndViewPermission_taskStateView() {
 
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null,
         Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS), null, appInvolvementDto, Set.of());
@@ -227,7 +226,7 @@ public class ConsultationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersionAndEditPermission_taskStateEdit() {
+  void getTaskListEntry_hasCorrectAppStatusAndSatisfactoryVersionAndEditPermission_taskStateEdit() {
 
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null,
         Set.of(PwaAppProcessingPermission.EDIT_CONSULTATIONS), null, appInvolvementDto, Set.of());

@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.submission.controller.ReviewAndSubmitController;
@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TaskListEntryFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class TaskListEntryFactoryTest {
 
   private final String DEFAULT_APP_TASK_ROUTE = "/My_Task/route";
   private final int DEFAULT_DISPLAY_ORDER = 500;
@@ -39,13 +39,10 @@ public class TaskListEntryFactoryTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private TestGeneralPurposeApplicationTask testGeneralPurposeApplicationTask;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     testGeneralPurposeApplicationTask = new TestGeneralPurposeApplicationTask();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
-
-    when(pwaApplicationRedirectService.getTaskListRoute(eq(pwaApplicationDetail.getPwaApplication())))
-        .thenReturn(DEFAULT_TASK_LIST_ROUTE);
 
     taskListEntryFactory = new TaskListEntryFactory(applicationTaskService, pwaApplicationRedirectService);
 
@@ -53,7 +50,7 @@ public class TaskListEntryFactoryTest {
 
 
   @Test
-  public void createApplicationTaskListEntry_whenNotComplete_andNoTaskInfoItems() {
+  void createApplicationTaskListEntry_whenNotComplete_andNoTaskInfoItems() {
 
     var taskListEntry = taskListEntryFactory.createApplicationTaskListEntry(pwaApplicationDetail, testGeneralPurposeApplicationTask);
     assertThat(taskListEntry.isCompleted()).isFalse();
@@ -65,7 +62,7 @@ public class TaskListEntryFactoryTest {
   }
 
   @Test
-  public void createApplicationTaskListEntry_whenComplete_andTaskInfoItems() {
+  void createApplicationTaskListEntry_whenComplete_andTaskInfoItems() {
 
     when(applicationTaskService.isTaskComplete(
         eq(testGeneralPurposeApplicationTask),
@@ -90,7 +87,10 @@ public class TaskListEntryFactoryTest {
   }
 
   @Test
-  public void createNoTasksEntry_createdObjectHasExpectedAttributes() {
+  void createNoTasksEntry_createdObjectHasExpectedAttributes() {
+    when(pwaApplicationRedirectService.getTaskListRoute(eq(pwaApplicationDetail.getPwaApplication())))
+        .thenReturn(DEFAULT_TASK_LIST_ROUTE);
+
     var taskListEntry = taskListEntryFactory.createNoTasksEntry(pwaApplicationDetail.getPwaApplication());
     assertThat(taskListEntry.isCompleted()).isFalse();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(0);
@@ -100,7 +100,7 @@ public class TaskListEntryFactoryTest {
   }
 
   @Test
-  public void createReviewAndSubmitTask_createdObjectHasExpectedAttributes() {
+  void createReviewAndSubmitTask_createdObjectHasExpectedAttributes() {
     var taskListEntry = taskListEntryFactory.createReviewAndSubmitTask(pwaApplicationDetail);
     assertThat(taskListEntry.isCompleted()).isFalse();
     assertThat(taskListEntry.getDisplayOrder()).isEqualTo(999);

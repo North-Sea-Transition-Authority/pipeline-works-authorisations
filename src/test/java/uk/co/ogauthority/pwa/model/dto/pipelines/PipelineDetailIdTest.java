@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.model.dto.pipelines;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PipelineDetailIdTest {
+class PipelineDetailIdTest {
 
   @Test
-  public void testEqualsAndHashcode() {
+  void equalsAndHashcode() {
     EqualsVerifier.forClass(PipelineDetailId.class)
         .verify();
 

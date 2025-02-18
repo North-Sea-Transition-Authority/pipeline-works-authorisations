@@ -4,14 +4,14 @@ package uk.co.ogauthority.pwa.domain.pwa.pipeline.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /* interface test for default methods */
-@RunWith(MockitoJUnitRunner.class)
-public class NamedPipelineTest {
+@ExtendWith(MockitoExtension.class)
+class NamedPipelineTest {
 
   private final String PIPELINE_NUMBER = "PL123";
   private final String BUNDLE_NAME = "BUNDLE";
@@ -19,27 +19,27 @@ public class NamedPipelineTest {
 
   private NamedPipelineTestImpl namedPipeline;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     namedPipeline = new NamedPipelineTestImpl();
     namedPipeline.setPipelineNumber(PIPELINE_NUMBER);
   }
 
   @Test
-  public void getPipelineName_whenOnlyPipelineNumberHasValue() {
+  void getPipelineName_whenOnlyPipelineNumberHasValue() {
 
     assertThat(namedPipeline.getPipelineName()).isEqualTo(PIPELINE_NUMBER + " - " + PipelineType.UNKNOWN.getDisplayName());
   }
 
   @Test
-  public void getPipelineName_whenPipelineNumberHasValue_andPipelineTypeHasValue() {
+  void getPipelineName_whenPipelineNumberHasValue_andPipelineTypeHasValue() {
 
     namedPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     assertThat(namedPipeline.getPipelineName()).isEqualTo(PIPELINE_NUMBER + " - " + PipelineType.PRODUCTION_FLOWLINE.getDisplayName());
   }
 
   @Test
-  public void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue() {
+  void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue() {
 
     namedPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     namedPipeline.setMaxExternalDiameter(MAX_EXTERNAL_DIAMETER);
@@ -48,7 +48,7 @@ public class NamedPipelineTest {
   }
 
   @Test
-  public void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue_andWithinBundle() {
+  void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue_andWithinBundle() {
 
     namedPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     namedPipeline.setMaxExternalDiameter(MAX_EXTERNAL_DIAMETER);
@@ -60,7 +60,7 @@ public class NamedPipelineTest {
   }
 
   @Test
-  public void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue_andWithinBundle_andNoBundleName() {
+  void getPipelineName_whenPipelineTypeIsSingleCore_andMaxExternalDiameterHasValue_andWithinBundle_andNoBundleName() {
 
     namedPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     namedPipeline.setMaxExternalDiameter(MAX_EXTERNAL_DIAMETER);

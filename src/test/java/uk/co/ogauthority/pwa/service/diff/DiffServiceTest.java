@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.diff;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.reflect.Field;
 import java.time.Instant;
@@ -16,17 +17,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.exception.DifferenceProcessingException;
 import uk.co.ogauthority.pwa.model.diff.DiffType;
 import uk.co.ogauthority.pwa.model.diff.DiffedField;
 import uk.co.ogauthority.pwa.model.view.StringWithTag;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DiffServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DiffServiceTest {
 
   private DiffService diffService;
 
@@ -67,8 +68,8 @@ public class DiffServiceTest {
   private final String defaultStringValue = "string";
   private final Integer defaultIntegerValue = 100;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     diffService = new DiffService();
 
     simpleObjectCurrent = new SimpleDiffTestClass(true,
@@ -99,7 +100,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenUsingSimpleObjects_thenResultContainsAllFields() {
+  void diff_whenUsingSimpleObjects_thenResultContainsAllFields() {
     Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious);
 
     Set<String> resultKeySet = diffResult.keySet();
@@ -113,7 +114,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenUsingSimpleObjects_andObjectsAreEquivalent_thenAllDiffedResultObjectsAreTypeUNCHANGED() {
+  void diff_whenUsingSimpleObjects_andObjectsAreEquivalent_thenAllDiffedResultObjectsAreTypeUNCHANGED() {
     Map<String, Object> diffResult = diffService.diff(simpleObjectCurrent, simpleObjectPrevious);
 
     Set<DiffedField> resultDiffedFields = diffResult.values().stream().map(o -> ((DiffedField) o)).collect(
@@ -130,7 +131,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeUPDATED() {
+  void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeUPDATED() {
     simpleObjectCurrent.setBooleanField(false);
     simpleObjectCurrent.setIntegerField(999);
     simpleObjectCurrent.setStringField("Updated String");
@@ -153,7 +154,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeDELETED() {
+  void diff_whenUsingSimpleObjects_andAllFieldsHaveChanged_thenAllDiffedResultObjectsAreTypeDELETED() {
     simpleObjectCurrent.setBooleanField(null);
     simpleObjectCurrent.setIntegerField(null);
     simpleObjectCurrent.setStringField(null);
@@ -178,20 +179,23 @@ public class DiffServiceTest {
   }
 
 
-  @Test(expected = DifferenceProcessingException.class)
-  public void diff_whenObjectWithUnsupportedFieldType_thenThrowsException() {
+  @Test
+  void diff_whenObjectWithUnsupportedFieldType_thenThrowsException() {
     UndiffableObject undiffableObject = new UndiffableObject(Instant.now());
-    diffService.diff(undiffableObject, undiffableObject);
-  }
-
-  @Test(expected = DifferenceProcessingException.class)
-  public void diff_whenObjectHasUnsupportedLists_thenThrowsException() {
-    DiffTestWithUnsupportedListField undiffableObject = new DiffTestWithUnsupportedListField();
-    Map<String, Object> diffResult = diffService.diff(undiffableObject, undiffableObject);
+    assertThrows(DifferenceProcessingException.class, () ->
+      diffService.diff(undiffableObject, undiffableObject));
   }
 
   @Test
-  public void diff_whenObjectHasSupportedLists_thenResultContainsListOfDiffs() {
+  void diff_whenObjectHasUnsupportedLists_thenThrowsException() {
+    DiffTestWithUnsupportedListField undiffableObject = new DiffTestWithUnsupportedListField();
+    assertThrows(DifferenceProcessingException.class, () -> {
+      Map<String, Object> diffResult = diffService.diff(undiffableObject, undiffableObject);
+    });
+  }
+
+  @Test
+  void diff_whenObjectHasSupportedLists_thenResultContainsListOfDiffs() {
 
     Map<String, Object> diffResult = diffService.diff(diffWithListsCurrent, diffWithListsPrevious);
 
@@ -210,7 +214,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenObjectHasSupportedListsA_andNoListItemsAreDifferent_thenResultListForFieldsAreAllUNCHANGED() {
+  void diff_whenObjectHasSupportedListsA_andNoListItemsAreDifferent_thenResultListForFieldsAreAllUNCHANGED() {
 
     Map<String, Object> diffResult = diffService.diff(diffWithListsCurrent, diffWithListsPrevious);
 
@@ -232,7 +236,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenObjectHasSupportedListsA_andPreviousListWasEmpty_thenAllResultsAreADDED() {
+  void diff_whenObjectHasSupportedListsA_andPreviousListWasEmpty_thenAllResultsAreADDED() {
 
     diffWithListsPrevious.setIntegerList(Collections.emptyList());
     diffWithListsPrevious.setStringList(Collections.emptyList());
@@ -257,7 +261,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_whenObjectHasSupportedListsA_andCurrentListIsEmpty_andPreviousListHasContent_thenAllResultsAreDELETED() {
+  void diff_whenObjectHasSupportedListsA_andCurrentListIsEmpty_andPreviousListHasContent_thenAllResultsAreDELETED() {
 
     diffWithListsCurrent.setIntegerList(Collections.emptyList());
     diffWithListsCurrent.setStringList(Collections.emptyList());
@@ -282,7 +286,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diffComplexLists_whenListsObjectsCompletelyMap_andThereAreNoUpdatedObjects_thenResultListContainsOnlyUNCHANGEDDiffs() {
+  void diffComplexLists_whenListsObjectsCompletelyMap_andThereAreNoUpdatedObjects_thenResultListContainsOnlyUNCHANGEDDiffs() {
     List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
         listOfSimpleDiffsPrevious, this::simpleDiffTestClassMappingFunction, this::simpleDiffTestClassMappingFunction);
 
@@ -299,7 +303,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diffComplexLists_whenListsObjectsCompletelyMap_andEachObjectHasHadANonMappingFieldUpdated_thenResultListContainsUPDATEDDiffs() {
+  void diffComplexLists_whenListsObjectsCompletelyMap_andEachObjectHasHadANonMappingFieldUpdated_thenResultListContainsUPDATEDDiffs() {
     for (int i = 0; i < listOfSimpleDiffsCurrent.size(); i++) {
       listOfSimpleDiffsCurrent.get(i).setStringField("Updated Item");
     }
@@ -318,7 +322,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diffComplexLists_whenPreviousListIsEmpty_thenResultListContainsADDEDDiffsOnly() {
+  void diffComplexLists_whenPreviousListIsEmpty_thenResultListContainsADDEDDiffsOnly() {
     listOfSimpleDiffsPrevious = Collections.emptyList();
 
     List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
@@ -336,7 +340,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diffComplexLists_whenCurrentListIsEmpty_thenResultListContainsDeletedDiffsOnly() {
+  void diffComplexLists_whenCurrentListIsEmpty_thenResultListContainsDeletedDiffsOnly() {
     listOfSimpleDiffsCurrent = Collections.emptyList();
 
     List<Map<String, ?>> diffResultList = diffService.diffComplexLists(listOfSimpleDiffsCurrent,
@@ -358,7 +362,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void allSupportedDiffClassesAreIncludedInTestedObject() {
+  void allSupportedDiffClassesAreIncludedInTestedObject() {
     Set<Class> supportedClassSet = new HashSet<>();
     Set<Class> testedClassMemberClassSet = new HashSet<Field>(
         Arrays.asList(FieldUtils.getAllFields(SimpleDiffTestClass.class)))
@@ -382,7 +386,7 @@ public class DiffServiceTest {
   }
 
   @Test
-  public void diff_ignoresFieldsWithinIgnoreSet(){
+  void diff_ignoresFieldsWithinIgnoreSet(){
 
     var allFieldNames = Arrays.stream(FieldUtils.getAllFields(SimpleDiffTestClass.class))
         .map(Field::getName)

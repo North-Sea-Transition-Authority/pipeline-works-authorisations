@@ -14,15 +14,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -46,9 +44,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PublicNoticeDraftController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -64,8 +61,8 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
@@ -93,7 +90,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
 
 
   @Test
-  public void renderDraftPublicNotice_appStatusSmokeTest() {
+  void renderDraftPublicNotice_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -105,7 +102,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void renderDraftPublicNotice_processingPermissionSmokeTest() {
+  void renderDraftPublicNotice_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -117,7 +114,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void renderDraftPublicNotice_noSatisfactoryVersions() throws Exception {
+  void renderDraftPublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
@@ -132,7 +129,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void renderDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
+  void renderDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
 
     when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(false);
 
@@ -145,7 +142,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void postDraftPublicNotice_appStatusSmokeTest() {
+  void postDraftPublicNotice_appStatusSmokeTest() {
 
     when(publicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeDraftForm(), "form"));
 
@@ -159,7 +156,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void postDraftPublicNotice_permissionSmokeTest() {
+  void postDraftPublicNotice_permissionSmokeTest() {
 
     when(publicNoticeService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeDraftForm(), "form"));
 
@@ -173,7 +170,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void postDraftPublicNotice_validationFail() throws Exception {
+  void postDraftPublicNotice_validationFail() throws Exception {
 
     var failedBindingResult = new BeanPropertyBindingResult(new PublicNoticeDraftForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
@@ -188,7 +185,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void postDraftPublicNotice_noSatisfactoryVersions() throws Exception {
+  void postDraftPublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
@@ -203,7 +200,7 @@ public class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbst
   }
 
   @Test
-  public void postDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
+  void postDraftPublicNotice_cannotDraftNewPublicNotice() throws Exception {
 
     when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(false);
 

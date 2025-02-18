@@ -6,15 +6,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
-public class UserSessionPrivilegesServiceTest {
+class UserSessionPrivilegesServiceTest {
 
   private UserSessionPrivilegesService userSessionPrivilegesService;
 
@@ -22,8 +22,8 @@ public class UserSessionPrivilegesServiceTest {
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     teamService = mock(TeamService.class);
     userSessionPrivilegesService = new UserSessionPrivilegesService(teamService);
 
@@ -34,14 +34,14 @@ public class UserSessionPrivilegesServiceTest {
   }
 
   @Test
-  public void populateUserPrivileges_verifyServiceInteractions() {
+  void populateUserPrivileges_verifyServiceInteractions() {
 
     userSessionPrivilegesService.populateUserPrivileges(user);
     verify(teamService).getAllUserPrivilegesForPerson(user.getLinkedPerson());
   }
 
   @Test
-  public void populateUserPrivileges_userPrivilegesUpdated_andOrgMembershipUpdated() {
+  void populateUserPrivileges_userPrivilegesUpdated_andOrgMembershipUpdated() {
     var privList = Set.of(PwaUserPrivilege.PWA_MANAGER);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
         .thenReturn(privList);

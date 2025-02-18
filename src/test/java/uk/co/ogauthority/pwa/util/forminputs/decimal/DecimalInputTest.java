@@ -6,46 +6,46 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DecimalInputTest {
+@ExtendWith(MockitoExtension.class)
+class DecimalInputTest {
 
   private DecimalInput decimalInput;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     decimalInput = new DecimalInput();
   }
 
   @Test
-  public void createBigDecimalOrNull_whenNullValue() {
+  void createBigDecimalOrNull_whenNullValue() {
     assertThat(decimalInput.createBigDecimalOrNull()).isNull();
   }
 
   @Test
-  public void asBigDecimal_whenNullValue() {
+  void asBigDecimal_whenNullValue() {
     assertThat(decimalInput.asBigDecimal()).isEmpty();
   }
 
   @Test
-  public void asBigDecimal_whenValueIsNumber() {
+  void asBigDecimal_whenValueIsNumber() {
     decimalInput.setValue("56.9935");
     assertThat(decimalInput.asBigDecimal()).isPresent();
     assertThat(decimalInput.asBigDecimal()).isEqualTo(Optional.of(BigDecimal.valueOf(56.9935)));
   }
 
   @Test
-  public void asBigDecimal_whenValueIsNonNumerical() {
+  void asBigDecimal_whenValueIsNonNumerical() {
     decimalInput.setValue("no number");
     assertThat(decimalInput.asBigDecimal()).isEmpty();
   }
 
   @Test
-  public void testEquals(){
+  void equals(){
 
     EqualsVerifier.forClass(DecimalInput.class)
       .suppress(Warning.NONFINAL_FIELDS)

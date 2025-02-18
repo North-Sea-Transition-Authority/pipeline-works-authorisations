@@ -5,28 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.PipelineChangeCategory;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationSubmissionValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationSubmissionValidatorTest {
 
   private AsBuiltNotificationSubmissionValidator asBuiltNotificationSubmissionValidator;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationSubmissionValidator = new AsBuiltNotificationSubmissionValidator();
   }
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new AsBuiltNotificationSubmissionForm();
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
@@ -37,7 +37,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_ogaReasonRequired() {
+  void validate_form_ogaReasonRequired() {
     var form = new AsBuiltNotificationSubmissionForm();
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(asBuiltNotificationSubmissionValidator, form,
@@ -50,7 +50,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
+  void validate_form_newPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
 
@@ -66,7 +66,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_noDateWorkCompleted_validationFails() {
+  void validate_form_newPipeline_noDateWorkCompleted_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setPerConsentDateBroughtIntoUseTimestampStr("31/08/2030");
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
@@ -81,7 +81,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_dateWorkCompletedAfterToday_validationFails() {
+  void validate_form_newPipeline_dateWorkCompletedAfterToday_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("10/10/3000");
@@ -96,7 +96,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__perConsent_validationFails() {
+  void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__perConsent_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -112,7 +112,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_perConsent_validationPasses() {
+  void validate_form_newPipeline_perConsent_validationPasses() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -125,7 +125,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_notPerConsent_noDateWorkCompleted_validationFails() {
+  void validate_form_newPipeline_notPerConsent_noDateWorkCompleted_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setNotPerConsentDateBroughtIntoUseTimestampStr("31/08/2030");
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
@@ -140,7 +140,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__notPerConsent_validationFails() {
+  void validate_form_newPipeline_dateWorkCompletedAfterDateBroughtIntoUse__notPerConsent_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
     form.setNotPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -156,7 +156,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_notPerConsent_validationPasses() {
+  void validate_form_newPipeline_notPerConsent_validationPasses() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.NOT_PER_CONSENT);
     form.setNotPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -169,7 +169,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_newPipeline_invalidDateBroughtIntoUse_validationFails() {
+  void validate_form_newPipeline_invalidDateBroughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -185,7 +185,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_notNewPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
+  void validate_form_notNewPipeline_noDateWorkCompleted_noDateBrughtIntoUse_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
 
@@ -199,7 +199,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_notNewPipeline_validationPasses() {
+  void validate_form_notNewPipeline_validationPasses() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("10/10/2000");
@@ -211,7 +211,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_invalidDate_validationFails() {
+  void validate_form_invalidDate_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     form.setPerConsentDateWorkCompletedTimestampStr("abc");
@@ -228,7 +228,7 @@ public class AsBuiltNotificationSubmissionValidatorTest {
   }
 
   @Test
-  public void validate_form_invalidStatus_validationFails() {
+  void validate_form_invalidStatus_validationFails() {
     var form = new AsBuiltNotificationSubmissionForm();
     form.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.MIGRATION);
 

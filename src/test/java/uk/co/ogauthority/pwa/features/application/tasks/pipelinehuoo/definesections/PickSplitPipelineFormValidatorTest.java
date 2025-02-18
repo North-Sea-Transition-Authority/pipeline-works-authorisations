@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickSplitPipelineFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PickSplitPipelineFormValidatorTest {
   private static final Integer UNKNOWN_PIPELINE_ID = 9999;
   private static final PipelineId PIPELINE_ID = new PipelineId(1);
 
@@ -41,8 +41,8 @@ public class PickSplitPipelineFormValidatorTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     form = new PickSplitPipelineForm();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -51,7 +51,7 @@ public class PickSplitPipelineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenAllNulls() {
+  void validate_whenAllNulls() {
 
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         pickSplitPipelineFormValidator,
@@ -74,7 +74,7 @@ public class PickSplitPipelineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenInvalidPipelineProvided() {
+  void validate_whenInvalidPipelineProvided() {
 
     form.setPipelineId(UNKNOWN_PIPELINE_ID);
     form.setNumberOfSections(0);
@@ -97,7 +97,7 @@ public class PickSplitPipelineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenValidPipelineProvided_andNumberOfSectionsIsZero() {
+  void validate_whenValidPipelineProvided_andNumberOfSectionsIsZero() {
 
     form.setPipelineId(PIPELINE_ID.asInt());
     form.setNumberOfSections(0);
@@ -123,7 +123,7 @@ public class PickSplitPipelineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenValidPipelineProvided_andNumberOfSectionsIsMoreThanZero() {
+  void validate_whenValidPipelineProvided_andNumberOfSectionsIsMoreThanZero() {
 
     form.setPipelineId(PIPELINE_ID.asInt());
     form.setNumberOfSections(1);

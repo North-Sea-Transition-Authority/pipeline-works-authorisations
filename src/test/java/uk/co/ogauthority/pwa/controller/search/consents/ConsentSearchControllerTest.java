@@ -17,13 +17,11 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -37,10 +35,9 @@ import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchContextCreator;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ConsentSearchController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ConsentSearchControllerTest extends AbstractControllerTest {
+class ConsentSearchControllerTest extends AbstractControllerTest {
 
   private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
@@ -59,12 +56,12 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaOrganisationAccessor pwaOrganisationAccessor;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
   }
 
   @Test
-  public void renderSearch_whenPermitted_noActualSearch() throws Exception {
+  void renderSearch_whenPermitted_noActualSearch() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(user(permittedUser)))
@@ -78,7 +75,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderSearch_whenPermitted_searchDone() throws Exception {
+  void renderSearch_whenPermitted_searchDone() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(user(permittedUser))
@@ -96,7 +93,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderSearch_searched_filterByOrgUnit() throws Exception {
+  void renderSearch_searched_filterByOrgUnit() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(user(permittedUser))
@@ -115,7 +112,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderSearch_whenProhibited() throws Exception {
+  void renderSearch_whenProhibited() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null)))
         .with(user(prohibitedUser)))
@@ -124,7 +121,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderSearch_whenNotLoggedIn() throws Exception {
+  void renderSearch_whenNotLoggedIn() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentSearchController.class).renderSearch(null, null))))
         .andExpect(status().is3xxRedirection());
@@ -132,7 +129,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postSearch_whenPermitted_filtersPassedInRedirect_eventLogged() throws Exception {
+  void postSearch_whenPermitted_filtersPassedInRedirect_eventLogged() throws Exception {
 
     String viewName = Objects.requireNonNull(
         mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty())))
@@ -156,7 +153,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void postSearch_whenProhibited() throws Exception {
+  void postSearch_whenProhibited() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty())))
         .with(user(prohibitedUser))
@@ -167,7 +164,7 @@ public class ConsentSearchControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void postSearch_whenNotLoggedIn() throws Exception {
+  void postSearch_whenNotLoggedIn() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentSearchController.class).postSearch(null, null, Optional.empty()))))
         .andExpect(status().isForbidden());

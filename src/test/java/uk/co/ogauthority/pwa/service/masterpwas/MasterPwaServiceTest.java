@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.masterpwas;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,13 +13,13 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
@@ -27,8 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailRepository;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MasterPwaServiceTest {
+@ExtendWith(MockitoExtension.class)
+class MasterPwaServiceTest {
 
   @Mock
   private MasterPwaRepository masterPwaRepository;
@@ -46,21 +47,21 @@ public class MasterPwaServiceTest {
 
   private MasterPwaService masterPwaService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     masterPwaService = new MasterPwaService(
         masterPwaRepository,
         masterPwaDetailRepository,
         clock
     );
+  }
+
+  @Test
+  void createMasterPwa() {
 
     // make sure we get an object back from save as real repos do.
     when(masterPwaDetailRepository.save(any()))
         .thenAnswer(invocation -> invocation.getArgument(0));
-  }
-
-  @Test
-  public void createMasterPwa() {
 
     var user = new WebUserAccount();
 
@@ -83,7 +84,7 @@ public class MasterPwaServiceTest {
   }
 
   @Test
-  public void getCurrentDetailOrThrow_found() {
+  void getCurrentDetailOrThrow_found() {
 
     var detail = new MasterPwaDetail();
     when(masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(any())).thenReturn(Optional.of(detail));
@@ -94,17 +95,22 @@ public class MasterPwaServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getCurrentDetailOrThrow_notFound() {
-
+  @Test
+  void getCurrentDetailOrThrow_notFound() {
     when(masterPwaDetailRepository.findByMasterPwaAndEndInstantIsNull(any())).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    masterPwaService.getCurrentDetailOrThrow(new MasterPwa());
+      masterPwaService.getCurrentDetailOrThrow(new MasterPwa()));
 
   }
 
   @Test
-  public void updateDetailFieldInfo_setsValuesAsExpected() {
+  void updateDetailFieldInfo_setsValuesAsExpected() {
+
+    // make sure we get an object back from save as real repos do.
+    when(masterPwaDetailRepository.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
     var masterPwa = new MasterPwa();
     var detail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.APPLICATION, "some ref", clock.instant().minusMillis(100), HYDROGEN);
     detail.setLinkedToFields(false);
@@ -123,7 +129,11 @@ public class MasterPwaServiceTest {
   }
 
   @Test
-  public void createDuplicateNewDetail_endsOldDetailAndSetsNewDetailValuesAsExpected() {
+  void createDuplicateNewDetail_endsOldDetailAndSetsNewDetailValuesAsExpected() {
+
+    // make sure we get an object back from save as real repos do.
+    when(masterPwaDetailRepository.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var masterPwa = new MasterPwa();
     var detail = new MasterPwaDetail();
@@ -140,9 +150,8 @@ public class MasterPwaServiceTest {
 
     verify(masterPwaDetailRepository, times(2)).save(pwaDetailArgumentCaptor.capture());
 
-    assertThat(pwaDetailArgumentCaptor.getAllValues().get(0)).satisfies(first -> {
-      assertThat(first.getEndInstant()).isNotNull();
-    });
+    assertThat(pwaDetailArgumentCaptor.getAllValues().get(0)).satisfies(first ->
+      assertThat(first.getEndInstant()).isNotNull());
 
     assertThat(pwaDetailArgumentCaptor.getAllValues().get(1)).satisfies(second -> {
       assertThat(second.getMasterPwa()).isEqualTo(masterPwa);

@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InitialIntroductionGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class InitialIntroductionGeneratorServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
@@ -50,8 +50,8 @@ public class InitialIntroductionGeneratorServiceTest {
 
   private DocumentView docView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     initialIntroductionGeneratorService = new InitialIntroductionGeneratorService(documentInstanceService,
         padAreaService, mailMergeService);
@@ -76,7 +76,7 @@ public class InitialIntroductionGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_linkedToField() {
+  void getDocumentSectionData_linkedToField() {
 
     var view = new PwaAreaLinksView(true, null, List.of(new StringWithTag("FIELDNAME")));
     when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);
@@ -99,7 +99,7 @@ public class InitialIntroductionGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_notLinkedToField() {
+  void getDocumentSectionData_notLinkedToField() {
 
     var view = new PwaAreaLinksView(false, "interconnector", List.of());
     when(padAreaService.getApplicationAreaLinksView(detail)).thenReturn(view);

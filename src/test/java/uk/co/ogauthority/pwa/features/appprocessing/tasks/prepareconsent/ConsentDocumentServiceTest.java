@@ -10,12 +10,12 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -42,8 +42,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentDocumentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentDocumentServiceTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -75,8 +75,8 @@ public class ConsentDocumentServiceTest {
   private final Person person = PersonTestUtil.createDefaultPerson();
   private final AuthenticatedUserAccount authUser = new AuthenticatedUserAccount(new WebUserAccount(1, person), Set.of());
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     consentDocumentService = new ConsentDocumentService(
         pwaApplicationDetailService,
@@ -93,7 +93,7 @@ public class ConsentDocumentServiceTest {
   }
 
   @Test
-  public void sendForApproval_verifyServiceCalls_noParallelConsentViews() {
+  void sendForApproval_verifyServiceCalls_noParallelConsentViews() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     consentDocumentService.sendForApproval(detail, "cover letter my text", authUser, List.of());
@@ -112,7 +112,7 @@ public class ConsentDocumentServiceTest {
   }
 
   @Test
-  public void sendForApproval_verifyServiceCalls_withParallelConsentViews() {
+  void sendForApproval_verifyServiceCalls_withParallelConsentViews() {
 
     var parallelConsentViews = List.of(
         ParallelConsentViewTestUtil.createParallelConsentView(1, PwaApplicationType.INITIAL, 1),
@@ -144,7 +144,7 @@ public class ConsentDocumentServiceTest {
   }
 
   @Test
-  public void validate_serviceInteractions(){
+  void validate_serviceInteractions(){
 
     var form = new SendConsentForApprovalForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

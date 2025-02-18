@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.authorisation.context;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -11,13 +12,15 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -45,8 +48,9 @@ import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaAppProcessingContextServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaAppProcessingContextServiceTest {
 
   @Mock
   private PwaApplicationDetailService detailService;
@@ -80,8 +84,8 @@ public class PwaAppProcessingContextServiceTest {
   private PwaApplication application;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     application = new PwaApplication();
     application.setId(1);
@@ -116,7 +120,7 @@ public class PwaAppProcessingContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_noChecks() {
+  void validateAndCreate_noChecks() {
 
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
     var processingContext = contextService.validateAndCreate(contextBuilder);
@@ -127,16 +131,17 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
+  @Test
+  void validateAndCreate_noChecks_userHasNoProcessingPermissions() {
     when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(
-        PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
+          PwaAppProcessingContextDtoTestUtils.emptyPermissionsDto());
     var contextBuilder = new PwaAppProcessingContextParams(1, user);
-    contextService.validateAndCreate(contextBuilder);
+    assertThrows(AccessDeniedException.class, () ->
+      contextService.validateAndCreate(contextBuilder));
   }
 
   @Test
-  public void validateAndCreate_statusCheck_valid() {
+  void validateAndCreate_statusCheck_valid() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW));
@@ -149,15 +154,16 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void validateAndCreate_statusCheck_invalid() {
+  @Test
+  void validateAndCreate_statusCheck_invalid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT));
-    contextService.validateAndCreate(builder);
+          .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT));
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      contextService.validateAndCreate(builder));
   }
 
   @Test
-  public void validateAndCreate_permissionsCheck_valid() {
+  void validateAndCreate_permissionsCheck_valid() {
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
     var appContext = contextService.validateAndCreate(builder);
@@ -167,7 +173,7 @@ public class PwaAppProcessingContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_permissionsCheck_atLeastOnePermission_valid() {
+  void validateAndCreate_permissionsCheck_atLeastOnePermission_valid() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredProcessingPermissions(Set.of(
@@ -185,17 +191,18 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_permissionsCheck_invalid() {
+  @Test
+  void validateAndCreate_permissionsCheck_invalid() {
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
     when(appProcessingPermissionService.getProcessingPermissionsDto(detail, user)).thenReturn(permissionsDto);
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
-    contextService.validateAndCreate(builder);
+          .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    assertThrows(AccessDeniedException.class, () ->
+      contextService.validateAndCreate(builder));
   }
 
   @Test
-  public void validateAndCreate_allChecks_valid() {
+  void validateAndCreate_allChecks_valid() {
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
@@ -205,24 +212,26 @@ public class PwaAppProcessingContextServiceTest {
     assertThat(appContext.getAppProcessingPermissions()).containsExactly(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void validateAndCreate_allChecks_statusInvalid() {
+  @Test
+  void validateAndCreate_allChecks_statusInvalid() {
     var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
-        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
-    contextService.validateAndCreate(builder);
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_allChecks_permissionsInvalid() {
-    var builder = new PwaAppProcessingContextParams(1, user)
-        .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
-        .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
-    contextService.validateAndCreate(builder);
+          .requiredAppStatuses(Set.of(PwaApplicationStatus.DRAFT))
+          .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      contextService.validateAndCreate(builder));
   }
 
   @Test
-  public void validateAndCreate_caseSummaryCreated() {
+  void validateAndCreate_allChecks_permissionsInvalid() {
+    var builder = new PwaAppProcessingContextParams(1, user)
+          .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
+          .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.CASE_OFFICER_REVIEW));
+    assertThrows(AccessDeniedException.class, () ->
+      contextService.validateAndCreate(builder));
+  }
+
+  @Test
+  void validateAndCreate_caseSummaryCreated() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
@@ -238,7 +247,7 @@ public class PwaAppProcessingContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_caseSummaryNotFound() {
+  void validateAndCreate_caseSummaryNotFound() {
 
     when(caseSummaryViewService.getCaseSummaryViewForAppDetail(any())).thenReturn(Optional.empty());
 
@@ -252,23 +261,24 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getProcessingContext_noLastSubmittedDetail(){
+  @Test
+  void getProcessingContext_noLastSubmittedDetail(){
     when(detailService.getLatestDetailForUser(detail.getMasterPwaApplicationId(), user))
-        .thenReturn(Optional.empty());
-    contextService.getProcessingContext(1, user);
+          .thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      contextService.getProcessingContext(1, user));
 
   }
 
   @Test
-  public void getProcessingContext_happyPath(){
+  void getProcessingContext_happyPath(){
 
     assertThat(contextService.getProcessingContext(1, user)).isNotNull();
 
   }
 
   @Test
-  public void validateAndCreate_withFileId_valid() {
+  void validateAndCreate_withFileId_valid() {
 
     var builder = new PwaAppProcessingContextParams(1, user)
         .withFileId("valid-file");
@@ -279,35 +289,32 @@ public class PwaAppProcessingContextServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void validateAndCreate_withFileId_fileNotFound() {
-
+  @Test
+  void validateAndCreate_withFileId_fileNotFound() {
     when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "bad-file")).thenThrow(PwaEntityNotFoundException.class);
-
     var builder = new PwaAppProcessingContextParams(1, user)
-        .withFileId("bad-file");
+          .withFileId("bad-file");
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    contextService.validateAndCreate(builder);
-
-  }
-
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_withFileId_appDetailMismatch() {
-
-    var otherAppFile = new AppFile();
-    otherAppFile.setPwaApplication(new PwaApplication());
-
-    when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "other-file")).thenReturn(otherAppFile);
-
-    var builder = new PwaAppProcessingContextParams(1, user)
-        .withFileId("other-file");
-
-    contextService.validateAndCreate(builder);
+      contextService.validateAndCreate(builder));
 
   }
 
   @Test
-  public void validateAndCreate_activeConsultationRequest_consultee_present() {
+  void validateAndCreate_withFileId_appDetailMismatch() {
+    var otherAppFile = new AppFile();
+    otherAppFile.setPwaApplication(new PwaApplication());
+    when(appFileService.getAppFileByPwaApplicationAndFileId(detail.getPwaApplication(), "other-file")).thenReturn(otherAppFile);
+    var builder = new PwaAppProcessingContextParams(1, user)
+          .withFileId("other-file");
+    assertThrows(AccessDeniedException.class, () ->
+
+      contextService.validateAndCreate(builder));
+
+  }
+
+  @Test
+  void validateAndCreate_activeConsultationRequest_consultee_present() {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
@@ -338,7 +345,7 @@ public class PwaAppProcessingContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_noActiveConsultationRequest_consultee_notPresent() {
+  void validateAndCreate_noActiveConsultationRequest_consultee_notPresent() {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
@@ -354,7 +361,7 @@ public class PwaAppProcessingContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_activeConsultationRequest_notConsultee_notPresent() {
+  void validateAndCreate_activeConsultationRequest_notConsultee_notPresent() {
 
     var builder = new PwaAppProcessingContextParams(1, user);
 
@@ -370,9 +377,8 @@ public class PwaAppProcessingContextServiceTest {
   }
 
 
-
   @Test
-  public void validateAndCreate_timerMetricStarted_timeRecordedAndLogged() {
+  void validateAndCreate_timerMetricStarted_timeRecordedAndLogged() {
     var builder = new PwaAppProcessingContextParams(1, user)
         .requiredAppStatuses(Set.of(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW))
         .requiredProcessingPermissions(Set.of(PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW));

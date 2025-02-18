@@ -8,11 +8,9 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -21,10 +19,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(AccessibilityStatementController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class AccessibilityStatementControllerTest extends AbstractControllerTest {
+class AccessibilityStatementControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
@@ -35,14 +32,14 @@ public class AccessibilityStatementControllerTest extends AbstractControllerTest
       Set.of());
 
   @Test
-  public void getAccessibilityStatement_whenAuthenticated_thenAccess() throws Exception {
+  void getAccessibilityStatement_whenAuthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
         .with(user(authenticatedUserAccount)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void getAccessibilityStatement_whenUnauthenticated_thenAccess() throws Exception {
+  void getAccessibilityStatement_whenUnauthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
         .with(user(unAuthenticatedUser)))
         .andExpect(status().isOk());

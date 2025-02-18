@@ -19,16 +19,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -54,9 +52,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = LocationDetailsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class LocationDetailsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class LocationDetailsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -87,8 +84,8 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   private PwaApplicationEndpointTestBuilder endpointTester;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(APP_ID);
@@ -120,7 +117,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_fullValidationParams_unauthenticatedUser() throws Exception {
+  void postLocationDetails_fullValidationParams_unauthenticatedUser() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(LocationDetailsController.class).renderLocationDetails(PwaApplicationType.INITIAL, null, null, null),
@@ -137,7 +134,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_partialValidationParams_unauthenticatedUser() throws Exception {
+  void postLocationDetails_partialValidationParams_unauthenticatedUser() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(
@@ -148,7 +145,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderLocationDetails_validAppId() throws Exception {
+  void renderLocationDetails_validAppId() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(LocationDetailsController.class).renderLocationDetails(PwaApplicationType.INITIAL, null, null, null),
@@ -160,7 +157,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_partialSave_noData() throws Exception {
+  void postLocationDetails_partialSave_noData() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
@@ -178,7 +175,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_partialSave_invalidForm() throws Exception {
+  void postLocationDetails_partialSave_invalidForm() throws Exception {
 
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
@@ -199,7 +196,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_partialSave_validForm() throws Exception {
+  void postLocationDetails_partialSave_validForm() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.PARTIAL);
@@ -217,7 +214,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_InvalidForm() throws Exception {
+  void postLocationDetails_InvalidForm() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(padLocationDetailsService, new LocationDetailsForm(),
         ValidationType.FULL);
@@ -236,7 +233,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postLocationDetails_ValidForm() throws Exception {
+  void postLocationDetails_ValidForm() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
@@ -263,7 +260,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderLocationDetails_appTypeSmokeTest() {
+  void renderLocationDetails_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)
@@ -275,7 +272,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderLocationDetails_contactRoleSmokeTest() {
+  void renderLocationDetails_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)
@@ -287,7 +284,7 @@ public class LocationDetailsControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderLocationDetails_appStatusSmokeTest() {
+  void renderLocationDetails_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(LocationDetailsController.class)

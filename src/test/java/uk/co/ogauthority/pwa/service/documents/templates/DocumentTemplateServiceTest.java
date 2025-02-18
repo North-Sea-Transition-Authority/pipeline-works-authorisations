@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.documents.templates;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -15,13 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.exception.documents.DocumentTemplateException;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -47,8 +50,9 @@ import uk.co.ogauthority.pwa.service.documents.DocumentViewService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.SectionClauseVersionDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentTemplateServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DocumentTemplateServiceTest {
 
   @Mock
   private DocumentTemplateSectionRepository templateSectionRepository;
@@ -81,8 +85,8 @@ public class DocumentTemplateServiceTest {
 
   private final Person person = PersonTestUtil.createDefaultPerson();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var inst = Instant.now();
     when(clock.instant()).thenReturn(inst);
@@ -98,7 +102,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void populateDocumentDtoFromTemplateMnem() {
+  void populateDocumentDtoFromTemplateMnem() {
 
     var template = new DocumentTemplate();
 
@@ -127,20 +131,19 @@ public class DocumentTemplateServiceTest {
 
   }
 
-  @Test(expected = DocumentTemplateException.class)
-  public void populateDocumentDtoFromTemplateMnem_noSections() {
-
+  @Test
+  void populateDocumentDtoFromTemplateMnem_noSections() {
     var docSpec = DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT;
-
     when(templateSectionRepository.getAllByDocumentTemplate_MnemAndNameInAndStatusIs(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec.getSectionNames(), DocumentTemplateSectionStatus.ACTIVE))
-        .thenReturn(List.of());
+          .thenReturn(List.of());
+    assertThrows(DocumentTemplateException.class, () ->
 
-    documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec);
+      documentTemplateService.populateDocumentDtoFromTemplateMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT, docSpec));
 
   }
 
   @Test
-  public void getDocumentView() {
+  void getDocumentView() {
 
     var list = SectionClauseVersionDtoTestUtils
         .getTemplateSectionClauseVersionDtoList(1, DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT, clock, person, 1, 3, 3);
@@ -163,7 +166,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void getTemplateClauseVersionByClauseIdOrThrow_resultAvailable() {
+  void getTemplateClauseVersionByClauseIdOrThrow_resultAvailable() {
 
     var version = new DocumentTemplateSectionClauseVersion();
 
@@ -176,15 +179,16 @@ public class DocumentTemplateServiceTest {
 
   }
 
-  @Test(expected = DocumentTemplateException.class)
-  public void getTemplateClauseVersionByClauseIdOrThrow_noResultAvailable() {
+  @Test
+  void getTemplateClauseVersionByClauseIdOrThrow_noResultAvailable() {
+    assertThrows(DocumentTemplateException.class, () ->
 
-    documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(1);
+      documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(1));
 
   }
 
   @Test
-  public void addClauseAfter() {
+  void addClauseAfter() {
 
     var addAfter = new DocumentTemplateSectionClauseVersion();
 
@@ -203,7 +207,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void addClauseBefore() {
+  void addClauseBefore() {
 
     var addBeforeVersion = new DocumentTemplateSectionClauseVersion();
     var addBeforeClause = new DocumentTemplateSectionClause();
@@ -237,7 +241,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void addSubClauseFor() {
+  void addSubClauseFor() {
 
     var addSubFor = new DocumentTemplateSectionClauseVersion();
 
@@ -256,7 +260,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void editClause_updatedClauseVersionsSaved() {
+  void editClause_updatedClauseVersionsSaved() {
 
     var originalClauseVersion = new DocumentTemplateSectionClauseVersion();
     var newClauseVersion = new DocumentTemplateSectionClauseVersion();
@@ -271,7 +275,7 @@ public class DocumentTemplateServiceTest {
   }
 
   @Test
-  public void removeClause_updatedClausesSaved() {
+  void removeClause_updatedClausesSaved() {
 
     var parentClauseVersion = new DocumentTemplateSectionClauseVersion();
     var parentClause = new DocumentTemplateSectionClause();

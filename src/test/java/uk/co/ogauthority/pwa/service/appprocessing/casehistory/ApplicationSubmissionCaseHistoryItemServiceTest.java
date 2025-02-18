@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequest;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSubmissionCaseHistoryItemServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSubmissionCaseHistoryItemServiceTest {
 
   private final static PersonId PERSON_ID1 = new PersonId(1);
   private final static PersonId PERSON_ID2 = new PersonId(2);
@@ -51,8 +51,8 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
   private PwaApplication application;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     applicationSubmissionCaseHistoryItemService = new ApplicationSubmissionCaseHistoryItemService(
         pwaApplicationDetailService, applicationUpdateRequestService);
@@ -71,7 +71,7 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews_whenMultipleVersions() {
+  void getCaseHistoryItemViews_whenMultipleVersions() {
 
     var details = List.of(detail1, detail2);
     when(pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(application))
@@ -107,7 +107,7 @@ public class ApplicationSubmissionCaseHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews_only1VersionExists_noUpdateRequest() {
+  void getCaseHistoryItemViews_only1VersionExists_noUpdateRequest() {
 
     when(pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(application))
         .thenReturn(List.of(detail1));

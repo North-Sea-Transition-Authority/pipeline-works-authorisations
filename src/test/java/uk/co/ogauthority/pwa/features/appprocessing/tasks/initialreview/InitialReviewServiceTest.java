@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -12,13 +13,15 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -51,8 +54,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InitialReviewServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class InitialReviewServiceTest {
 
   private static String WAIVE_REASON = "REASON";
 
@@ -98,8 +102,8 @@ public class InitialReviewServiceTest {
 
   private Person caseOfficerPerson;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaManagerPerson = new Person(1, "Oga", "Person", "manager@pwa.co.uk", null);
     pwaManagerUser = new AuthenticatedUserAccount(new WebUserAccount(1, pwaManagerPerson), EnumSet.allOf(PwaUserPrivilege.class));
@@ -131,7 +135,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void acceptApplication_success_paymentWaived() {
+  void acceptApplication_success_paymentWaived() {
 
     initialReviewService.acceptApplication(
         detail,
@@ -172,7 +176,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void acceptApplication_success_paymentRequired() {
+  void acceptApplication_success_paymentRequired() {
 
     initialReviewService.acceptApplication(
         detail,
@@ -211,7 +215,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void acceptApplication_success_multipleFeeReportFeeItems() {
+  void acceptApplication_success_multipleFeeReportFeeItems() {
 
     applicationFeeReport = ApplicationFeeReportTestUtil.createReport(
         app,
@@ -247,43 +251,42 @@ public class InitialReviewServiceTest {
 
   }
 
-  @Test(expected = ActionAlreadyPerformedException.class)
-  public void acceptApplication_failed_alreadyAccepted() {
-
+  @Test
+  void acceptApplication_failed_alreadyAccepted() {
     initialReviewService.acceptApplication(
-        detail,
-        caseOfficerPerson.getId(),
-        InitialReviewPaymentDecision.PAYMENT_REQUIRED,
-        null,
-        pwaManagerUser);
-
+          detail,
+          caseOfficerPerson.getId(),
+          InitialReviewPaymentDecision.PAYMENT_REQUIRED,
+          null,
+          pwaManagerUser);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
-    initialReviewService.acceptApplication(
-        detail,
-        caseOfficerPerson.getId(),
-        InitialReviewPaymentDecision.PAYMENT_REQUIRED,
-        null,
-        pwaManagerUser);
-
-  }
-
-  @Test(expected = WorkflowAssignmentException.class)
-  public void acceptApplication_paymentWaived_invalidCaseOfficer() {
-
-    doThrow(new WorkflowAssignmentException("")).when(assignCaseOfficerService).assignCaseOfficer(any(), any(), any());
-
-    initialReviewService.acceptApplication(
-        detail,
-        new PersonId(999),
-        InitialReviewPaymentDecision.PAYMENT_WAIVED,
-        WAIVE_REASON,
-        pwaManagerUser
-    );
+    assertThrows(ActionAlreadyPerformedException.class, () ->
+      initialReviewService.acceptApplication(
+          detail,
+          caseOfficerPerson.getId(),
+          InitialReviewPaymentDecision.PAYMENT_REQUIRED,
+          null,
+          pwaManagerUser));
 
   }
 
   @Test
-  public void canShowInTaskList_ogaCaseManagementPermission_true() {
+  void acceptApplication_paymentWaived_invalidCaseOfficer() {
+    doThrow(new WorkflowAssignmentException("")).when(assignCaseOfficerService).assignCaseOfficer(any(), any(), any());
+    assertThrows(WorkflowAssignmentException.class, () ->
+
+      initialReviewService.acceptApplication(
+          detail,
+          new PersonId(999),
+          InitialReviewPaymentDecision.PAYMENT_WAIVED,
+          WAIVE_REASON,
+          pwaManagerUser
+      ));
+
+  }
+
+  @Test
+  void canShowInTaskList_ogaCaseManagementPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(
         null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA), null, null, Set.of());
@@ -295,7 +298,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_caseManagementIndustryPermission_true() {
+  void canShowInTaskList_caseManagementIndustryPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
         Set.of());
@@ -307,7 +310,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermissions_false() {
+  void canShowInTaskList_noPermissions_false() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
@@ -318,7 +321,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompletedCompleted() {
+  void getTaskListEntry_initialReviewCompletedCompleted() {
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
@@ -335,7 +338,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewCompletedNotCompleted() {
+  void getTaskListEntry_initialReviewCompletedNotCompleted() {
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null, null, Set.of());
 
@@ -352,7 +355,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewNotCompleted_noAcceptInitialReviewPermission() {
+  void getTaskListEntry_initialReviewNotCompleted_noAcceptInitialReviewPermission() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -369,7 +372,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_initialReviewNotCompleted_whenAcceptInitialReviewPermission() {
+  void getTaskListEntry_initialReviewNotCompleted_whenAcceptInitialReviewPermission() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -388,7 +391,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_invalidApplicationStatus_taskLocked() {
+  void getTaskListEntry_invalidApplicationStatus_taskLocked() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
@@ -401,7 +404,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_invalidPermission_taskLocked() {
+  void getTaskListEntry_invalidPermission_taskLocked() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -414,7 +417,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
+  void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -427,7 +430,7 @@ public class InitialReviewServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_appUpdateRequestOpen() {
+  void getTaskListEntry_appUpdateRequestOpen() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 

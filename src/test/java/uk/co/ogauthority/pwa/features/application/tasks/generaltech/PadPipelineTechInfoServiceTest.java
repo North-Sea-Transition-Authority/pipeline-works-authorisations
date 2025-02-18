@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineTechInfoServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineTechInfoServiceTest {
 
   private PadPipelineTechInfoService padPipelineTechInfoService;
 
@@ -44,8 +44,8 @@ public class PadPipelineTechInfoServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padPipelineTechInfoService = new PadPipelineTechInfoService(
         padPipelineTechInfoRepository,
         pipelineTechInfoMappingService,
@@ -77,7 +77,7 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void getPipelineTechInfoEntity_existingNotFound() {
+  void getPipelineTechInfoEntity_existingNotFound() {
     var padPipelineTechInfo = padPipelineTechInfoService.getPipelineTechInfoEntity(pwaApplicationDetail);
     var expectedPadPipelineTechInfo = new PadPipelineTechInfo();
     expectedPadPipelineTechInfo.setPwaApplicationDetail(pwaApplicationDetail);
@@ -85,13 +85,13 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm() {
+  void saveEntityUsingForm() {
     padPipelineTechInfoService.saveEntityUsingForm(new PipelineTechInfoForm(), new PadPipelineTechInfo());
     verify(padPipelineTechInfoRepository, times(1)).save(any(PadPipelineTechInfo.class));
   }
 
   @Test
-  public void getGeneralTechInfoView() {
+  void getGeneralTechInfoView() {
     var entity = createValidEntity();
     when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(entity));
     var view = padPipelineTechInfoService.getGeneralTechInfoView(pwaApplicationDetail);
@@ -106,14 +106,14 @@ public class PadPipelineTechInfoServiceTest {
 
 
   @Test
-  public void isComplete_valid() {
+  void isComplete_valid() {
     when(padPipelineTechInfoRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(createValidEntity()));
     var isValid = padPipelineTechInfoService.isComplete(pwaApplicationDetail);
     assertTrue(isValid);
   }
 
   @Test
-  public void validate_anyType_withErrors_bindingResultHasErrors() {
+  void validate_anyType_withErrors_bindingResultHasErrors() {
 
     var bindingResult = new BeanPropertyBindingResult(new PipelineTechInfoForm(), "form");
 
@@ -126,7 +126,7 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void validate_anyType_noErrors_bindingResultHasNoErrors() {
+  void validate_anyType_noErrors_bindingResultHasNoErrors() {
 
     var bindingResult = new BeanPropertyBindingResult(new PipelineTechInfoForm(), "form");
 
@@ -138,7 +138,7 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  void cleanupData_hiddenData() {
 
     var techInfo = new PadPipelineTechInfo();
 
@@ -161,7 +161,7 @@ public class PadPipelineTechInfoServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  void cleanupData_noHiddenData() {
 
     var techInfo = new PadPipelineTechInfo();
 

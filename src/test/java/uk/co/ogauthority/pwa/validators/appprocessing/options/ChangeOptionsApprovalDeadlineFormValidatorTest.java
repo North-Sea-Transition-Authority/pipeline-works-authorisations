@@ -8,15 +8,15 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.appprocessing.options.ChangeOptionsApprovalDeadlineForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ChangeOptionsApprovalDeadlineFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ChangeOptionsApprovalDeadlineFormValidatorTest {
 
   private static final String DAY_ATTR = "deadlineDateDay";
   private static final String MONTH_ATTR = "deadlineDateMonth";
@@ -27,24 +27,24 @@ public class ChangeOptionsApprovalDeadlineFormValidatorTest {
 
   private ChangeOptionsApprovalDeadlineForm form;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     changeOptionsApprovalDeadlineFormValidator = new ChangeOptionsApprovalDeadlineFormValidator();
     form = new ChangeOptionsApprovalDeadlineForm();
   }
 
   @Test
-  public void supports_whenSupported() {
+  void supports_whenSupported() {
     assertThat(changeOptionsApprovalDeadlineFormValidator.supports(ChangeOptionsApprovalDeadlineForm.class)).isTrue();
   }
 
   @Test
-  public void supports_whenNotSupported() {
+  void supports_whenNotSupported() {
     assertThat(changeOptionsApprovalDeadlineFormValidator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_whenAllNull() {
+  void validate_whenAllNull() {
     var results = ValidatorTestUtils.getFormValidationErrors(changeOptionsApprovalDeadlineFormValidator, form);
 
     assertThat(results).containsOnly(
@@ -57,7 +57,7 @@ public class ChangeOptionsApprovalDeadlineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenDateInPast() {
+  void validate_whenDateInPast() {
 
     form.setDeadlineDateDay(1);
     form.setDeadlineDateMonth(1);
@@ -75,7 +75,7 @@ public class ChangeOptionsApprovalDeadlineFormValidatorTest {
   }
 
   @Test
-  public void validate_whenNoteTooLong() {
+  void validate_whenNoteTooLong() {
 
     form.setNote(ValidatorTestUtils.overMaxDefaultCharLength());
 

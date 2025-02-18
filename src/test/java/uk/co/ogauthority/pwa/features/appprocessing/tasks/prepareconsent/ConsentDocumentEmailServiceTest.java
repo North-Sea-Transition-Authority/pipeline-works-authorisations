@@ -8,13 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentDocumentEmailService;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentDocumentEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentDocumentEmailServiceTest {
 
   @Mock
   private NotifyService notifyService;
@@ -55,8 +55,8 @@ public class ConsentDocumentEmailServiceTest {
   private final Person pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(11));
   private final Set<Person> pwaManagers = Set.of(pwaManager1, pwaManager2);
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     when(caseLinkService.generateCaseManagementLink(any())).thenReturn("my case link");
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
@@ -66,7 +66,7 @@ public class ConsentDocumentEmailServiceTest {
   }
 
   @Test
-  public void sendConsentReviewStartedEmail() {
+  void sendConsentReviewStartedEmail() {
 
     consentDocumentEmailService.sendConsentReviewStartedEmail(detail, person);
 

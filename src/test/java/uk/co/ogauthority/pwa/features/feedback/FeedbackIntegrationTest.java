@@ -25,10 +25,9 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -41,7 +40,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -68,7 +66,6 @@ import uk.co.ogauthority.pwa.validators.feedback.FeedbackValidator;
     "pwa.url.base = http://test/",
     "context-path = pwa"
 })
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = FeedbackController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
         classes = {FeedbackService.class, FeedbackValidator.class, FeedbackEmailService.class,
@@ -79,7 +76,7 @@ import uk.co.ogauthority.pwa.validators.feedback.FeedbackValidator;
 //Spring knows how to handle CannotSendFeedbackException in some tests
 @Import({FeedbackIntegrationTest.FeedbackTestConfig.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTest {
+class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTest {
 
   private final static String RATING = ServiceFeedbackRating.NEITHER.name();
   private final static String COMMENT = "testImprovement";
@@ -104,8 +101,8 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   private MockResponse responseWhenAuthorized;
   private MockResponse responseWhenNotAuthorized;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     person = PersonTestUtil.createDefaultPerson();
     var systemWua = new WebUserAccount(1, person);
     user = new AuthenticatedUserAccount(systemWua, Set.of(PwaUserPrivilege.PWA_REGULATOR));
@@ -121,13 +118,13 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
         .setBody("{\"timestamp\":\"2021-11-04T17:55:25.329+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Access Denied\",\"path\":\"/fmslocal/api/v1/save-feedback\"}");
   }
 
-  @After
-  public void tearDown() throws IOException {
+  @AfterEach
+  void tearDown() throws IOException {
     mockWebServer.shutdown();
   }
 
   @Test
-  public void saveFeedback_authorized() throws Exception {
+  void saveFeedback_authorized() throws Exception {
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
@@ -147,7 +144,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_unauthorized()  throws Exception{
+  void saveFeedback_unauthorized()  throws Exception{
     mockWebServer.enqueue(responseWhenNotAuthorized);
 
     mockMvc.perform(post("/feedback")
@@ -161,7 +158,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_withApplicationDetailId() throws Exception {
+  void saveFeedback_withApplicationDetailId() throws Exception {
     var pwaApplicationDetail = PwaApplicationTestUtil
         .createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION, APPLICATION_ID, APPLICATION_DETAIL_ID);
 
@@ -197,7 +194,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_withoutApplicationDetailId() throws Exception {
+  void saveFeedback_withoutApplicationDetailId() throws Exception {
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
@@ -226,7 +223,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_invalidParameters() throws Exception {
+  void saveFeedback_invalidParameters() throws Exception {
     mockWebServer.enqueue(responseWhenAuthorized);
 
     mockMvc.perform(post("/feedback")
@@ -240,7 +237,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_serverDown_throwCannotSendFeedbackException() throws Exception {
+  void saveFeedback_serverDown_throwCannotSendFeedbackException() throws Exception {
     mockWebServer.shutdown();
 
     mockMvc.perform(post("/feedback")
@@ -254,7 +251,7 @@ public class FeedbackIntegrationTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void saveFeedback_unexpectedRespone() throws Exception {
+  void saveFeedback_unexpectedRespone() throws Exception {
     mockWebServer.enqueue(new MockResponse()
         .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
         .setResponseCode(500)

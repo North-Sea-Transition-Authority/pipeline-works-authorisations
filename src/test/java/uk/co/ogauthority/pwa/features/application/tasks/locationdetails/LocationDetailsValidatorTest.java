@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
-public class LocationDetailsValidatorTest {
+class LocationDetailsValidatorTest {
 
   private LocationDetailsValidator locationDetailsValidator;
 
@@ -30,8 +30,8 @@ public class LocationDetailsValidatorTest {
   private static int INVALID_SMALL_YEAR = 999;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     TwoFieldDateInputValidator twoFieldDateInputValidator = new TwoFieldDateInputValidator();
     LocationDetailsSafetyZoneValidator safetyZoneValidator = new LocationDetailsSafetyZoneValidator();
     locationDetailsValidator = new LocationDetailsValidator(safetyZoneValidator, twoFieldDateInputValidator);
@@ -49,7 +49,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_allQuestionsRequired_formAllNulls() {
+  void validate_full_allQuestionsRequired_formAllNulls() {
     var form = new LocationDetailsForm();
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
@@ -71,7 +71,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_allQuestionsRequired_formAllNulls() {
+  void validate_partial_allQuestionsRequired_formAllNulls() {
     var form = new LocationDetailsForm();
     var errors = new BeanPropertyBindingResult(form, "form");
     locationDetailsValidator.validate(form, errors,
@@ -83,7 +83,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_formAllEmptyText() {
+  void validate_full_formAllEmptyText() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore("");
     form.setTransportationMethodToShore("");
@@ -110,7 +110,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_withinSafetyZone_no() {
+  void validate_full_withinSafetyZone_no() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -119,7 +119,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_withinSafetyZone_no() {
+  void validate_partial_withinSafetyZone_no() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -128,7 +128,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_withinSafetyZone_partially_nullFacilities() {
+  void validate_full_withinSafetyZone_partially_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -139,7 +139,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_withinSafetyZone_partially_nullFacilities() {
+  void validate_partial_withinSafetyZone_partially_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -148,7 +148,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_withinSafetyZone_partially_withFacilities() {
+  void validate_full_withinSafetyZone_partially_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
@@ -158,7 +158,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_withinSafetyZone_partially_withFacilities() {
+  void validate_partial_withinSafetyZone_partially_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     form.getPartiallyWithinSafetyZoneForm().setFacilities(List.of("1"));
@@ -168,7 +168,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_withinSafetyZone_yes_nullFacilities() {
+  void validate_full_withinSafetyZone_yes_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -179,7 +179,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_withinSafetyZone_yes_nullFacilities() {
+  void validate_partial_withinSafetyZone_yes_nullFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -188,7 +188,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_withinSafetyZone_yes_withFacilities() {
+  void validate_full_withinSafetyZone_yes_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
@@ -198,7 +198,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_withinSafetyZone_yes_withFacilities() {
+  void validate_partial_withinSafetyZone_yes_withFacilities() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1"));
@@ -208,7 +208,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_surveyConcludedDate_nulls() {
+  void validate_full_surveyConcludedDate_nulls() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -221,7 +221,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_surveyConcludedDate_yearTooBig() {
+  void validate_full_surveyConcludedDate_yearTooBig() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedYear(4001);
@@ -233,7 +233,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_surveyConcludedDate_yearTooSmall() {
+  void validate_full_surveyConcludedDate_yearTooSmall() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedYear(999);
@@ -245,7 +245,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_surveyConcludedDate_valid() {
+  void validate_full_surveyConcludedDate_valid() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
@@ -257,7 +257,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_pipelineRouteDetails_noText_routeUndertaken() {
+  void validate_full_pipelineRouteDetails_noText_routeUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -266,7 +266,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_pipelineRouteDetails_withText_routeUndertaken() {
+  void validate_full_pipelineRouteDetails_withText_routeUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setPipelineRouteDetails("route");
@@ -276,7 +276,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_pipelineRouteDetails_noText_routeNotUndertaken() {
+  void validate_full_pipelineRouteDetails_noText_routeNotUndertaken() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -285,7 +285,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_pipelineRouteDetailsText_tooLong() {
+  void validate_partial_pipelineRouteDetailsText_tooLong() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setPipelineRouteDetails(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -296,7 +296,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeNotUndertakenReason_null() {
+  void validate_full_routeNotUndertakenReason_null() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -306,7 +306,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_routeNotUndertakenReason_tooLong() {
+  void validate_partial_routeNotUndertakenReason_tooLong() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     form.setRouteSurveyNotUndertakenReason(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -317,7 +317,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_valid() {
+  void validate_full_valid() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
@@ -339,7 +339,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_tooManyCharacters() {
+  void validate_partial_tooManyCharacters() {
     var form = new LocationDetailsForm();
     form.setApproximateProjectLocationFromShore(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setTransportationMethodToShore(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -374,7 +374,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_invalidDate() {
+  void validate_partial_invalidDate() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
@@ -393,7 +393,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_valid() {
+  void validate_partial_valid() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(true);
     form.setSurveyConcludedDay(1);
@@ -410,7 +410,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_facilitiesOffshore_false_noText() {
+  void validate_full_facilitiesOffshore_false_noText() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -419,7 +419,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_facilitiesOffshore_false_withText() {
+  void validate_full_facilitiesOffshore_false_withText() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(false);
     form.setPipelineAshoreLocation("Test");
@@ -429,7 +429,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethod_true_noText() {
+  void validate_full_transportMethod_true_noText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -439,7 +439,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethodToShore_false() {
+  void validate_full_transportMethodToShore_false() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -448,7 +448,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethodToShore_true_withText() {
+  void validate_full_transportMethodToShore_true_withText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsToShore(true);
     form.setTransportationMethodToShore("Test");
@@ -458,7 +458,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethodFromShore_false() {
+  void validate_full_transportMethodFromShore_false() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsFromShore(false);
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
@@ -467,7 +467,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_transportMethodFromShore_true_withText() {
+  void validate_full_transportMethodFromShore_true_withText() {
     var form = new LocationDetailsForm();
     form.setTransportsMaterialsFromShore(true);
     form.setTransportationMethodFromShore("Test");
@@ -477,7 +477,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedYes_submittedDateNotEntered() {
+  void validate_notificationSubmittedYes_submittedDateNotEntered() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
     form.setPsrNotificationSubmittedDate(new TwoFieldDateInput());
@@ -489,7 +489,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedYes_submittedDateAfterToday() {
+  void validate_notificationSubmittedYes_submittedDateAfterToday() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
     form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(LocalDate.now().getYear() + 1, 1));
@@ -501,7 +501,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedNo_expectedSubmissionDateNotEntered() {
+  void validate_notificationSubmittedNo_expectedSubmissionDateNotEntered() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NO);
     form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput());
@@ -513,7 +513,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedNo_expectedSubmissionDateBeforeToday() {
+  void validate_notificationSubmittedNo_expectedSubmissionDateBeforeToday() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NO);
     form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(LocalDate.now().getYear() - 1, 1));
@@ -525,7 +525,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedYes_yearTooBig() {
+  void validate_notificationSubmittedYes_yearTooBig() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
     form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
@@ -536,7 +536,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedYes_yearTooSmall() {
+  void validate_notificationSubmittedYes_yearTooSmall() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
     form.setPsrNotificationSubmittedDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
@@ -547,7 +547,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedNo_yearTooBig() {
+  void validate_notificationSubmittedNo_yearTooBig() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NO);
     form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_LARGE_YEAR, 1));
@@ -558,7 +558,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_notificationSubmittedNo_yearTooSmall() {
+  void validate_notificationSubmittedNo_yearTooSmall() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NO);
     form.setPsrNotificationExpectedSubmissionDate(new TwoFieldDateInput(INVALID_SMALL_YEAR, 1));
@@ -569,7 +569,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeDocumentUploaded_hasDescription_valid() {
+  void validate_full_routeDocumentUploaded_hasDescription_valid() {
 
     var form = new LocationDetailsForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -582,7 +582,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeDocumentUploaded_noDescription_invalid() {
+  void validate_full_routeDocumentUploaded_noDescription_invalid() {
 
     var form = new LocationDetailsForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -595,7 +595,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_partial_routeDocumentUploaded_noDescription_valid() {
+  void validate_partial_routeDocumentUploaded_noDescription_valid() {
 
     var form = new LocationDetailsForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -608,7 +608,7 @@ public class LocationDetailsValidatorTest {
   }
 
   @Test
-  public void validate_full_routeDocumentUploaded_descriptionOverMaxLength_invalid() {
+  void validate_full_routeDocumentUploaded_descriptionOverMaxLength_invalid() {
 
     var form = new LocationDetailsForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);

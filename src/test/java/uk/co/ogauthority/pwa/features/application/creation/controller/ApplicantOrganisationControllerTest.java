@@ -18,14 +18,12 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -50,10 +48,9 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ApplicantOrganisationController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ApplicantOrganisationControllerTest extends AbstractControllerTest {
+class ApplicantOrganisationControllerTest extends AbstractControllerTest {
 
   private static final EnumSet<PwaApplicationType> RELEVANT_APP_TYPES = EnumSet.of(
       PwaApplicationType.CAT_1_VARIATION,
@@ -95,8 +92,8 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   private PwaApplicationDetail pwaApplicationDetail;
   private MasterPwaDetail masterPwaDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -124,7 +121,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void renderSelectOrganisation_onlySupportedTypesGetOkStatus() throws Exception {
+  void renderSelectOrganisation_onlySupportedTypesGetOkStatus() throws Exception {
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = RELEVANT_APP_TYPES.contains(appType) ? status().isOk() : status().isForbidden();
@@ -143,7 +140,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void renderSelectOrganisation_noAcceptableOrgs_denied() throws Exception {
+  void renderSelectOrganisation_noAcceptableOrgs_denied() throws Exception {
 
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of());
 
@@ -157,7 +154,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void selectOrganisation_urlAppTypeCheck() throws Exception {
+  void selectOrganisation_urlAppTypeCheck() throws Exception {
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       ResultMatcher expectedStatus = RELEVANT_APP_TYPES.contains(appType) ? status().is3xxRedirection() : status().isForbidden();
       try {
@@ -175,7 +172,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void selectOrganisation_noAcceptableOrgs_denied() throws Exception {
+  void selectOrganisation_noAcceptableOrgs_denied() throws Exception {
 
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of());
 
@@ -189,7 +186,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void selectOrganisation_success_appCreated() throws Exception {
+  void selectOrganisation_success_appCreated() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicantOrganisationController.class)
             .selectOrganisation(MASTER_PWA_ID, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
@@ -204,7 +201,7 @@ public class ApplicantOrganisationControllerTest extends AbstractControllerTest 
   }
 
   @Test
-  public void selectOrganisation_fail_noAppCreated() throws Exception {
+  void selectOrganisation_fail_noAppCreated() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(applicantOrganisationFormValidator, List.of("applicantOrganisationOuId"));
 

@@ -15,16 +15,14 @@ import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -55,9 +53,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-
-
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PermanentDepositController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 public class PermanentDepositControllerTest extends PwaApplicationContextAbstractControllerTest {
 
@@ -81,8 +76,8 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   private AuthenticatedUserAccount user;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
@@ -106,10 +101,9 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
   //ADD deposit tests
   @Test
-  public void renderAddPermanentDeposits_permissionSmokeTest() {
+  void renderAddPermanentDeposits_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -120,7 +114,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderAddPermanentDeposits_appTypeSmokeTest() {
+  void renderAddPermanentDeposits_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -132,7 +126,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderAddPermanentDeposits_appStatusSmokeTest() {
+  void renderAddPermanentDeposits_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -144,7 +138,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDeposits_appTypeSmokeTest() {
+  void postPermanentDeposits_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -157,7 +151,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDeposits_appStatusSmokeTest() {
+  void postPermanentDeposits_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -170,7 +164,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDeposits_permissionSmokeTest() {
+  void postPermanentDeposits_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -183,7 +177,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDeposits_withInvalidForm() throws Exception {
+  void postPermanentDeposits_withInvalidForm() throws Exception {
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromMonth"));
 
@@ -197,7 +191,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDeposits_withValidForm() throws Exception {
+  void postPermanentDeposits_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
 
     mockMvc.perform(
@@ -213,10 +207,9 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
   //EDIT deposit tests
   @Test
-  public void renderEditPermanentDeposits_permissionSmokeTest() {
+  void renderEditPermanentDeposits_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -227,7 +220,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderEditPermanentDeposits_appTypeSmokeTest() {
+  void renderEditPermanentDeposits_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -239,7 +232,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderEditPermanentDeposits_appStatusSmokeTest() {
+  void renderEditPermanentDeposits_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -251,7 +244,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postEditPermanentDeposits_appTypeSmokeTest() {
+  void postEditPermanentDeposits_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -264,7 +257,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postEditPermanentDeposits_appStatusSmokeTest() {
+  void postEditPermanentDeposits_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -277,7 +270,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postEditPermanentDeposits_permissionSmokeTest() {
+  void postEditPermanentDeposits_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -290,7 +283,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postEditPermanentDeposits_withInvalidForm() throws Exception {
+  void postEditPermanentDeposits_withInvalidForm() throws Exception {
     ControllerTestUtils.failValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromMonth"));
 
@@ -304,7 +297,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postEditPermanentDeposits_withValidForm() throws Exception {
+  void postEditPermanentDeposits_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
 
     mockMvc.perform(
@@ -320,11 +313,9 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
-
   //OVERVIEW deposit tests
   @Test
-  public void renderPermanentDepositsOverview_permissionSmokeTest() {
+  void renderPermanentDepositsOverview_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
@@ -334,7 +325,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderPermanentDepositsOverview_appTypeSmokeTest() {
+  void renderPermanentDepositsOverview_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
@@ -345,7 +336,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderPermanentDepositsOverview_appStatusSmokeTest() {
+  void renderPermanentDepositsOverview_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PermanentDepositController.class)
@@ -356,9 +347,8 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
   @Test
-  public void postPermanentDepositsOverview_appTypeSmokeTest() {
+  void postPermanentDepositsOverview_appTypeSmokeTest() {
     when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
@@ -372,7 +362,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDepositsOverview_appStatusSmokeTest() {
+  void postPermanentDepositsOverview_appStatusSmokeTest() {
     when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
@@ -387,7 +377,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDepositsOverview_permissionSmokeTest() {
+  void postPermanentDepositsOverview_permissionSmokeTest() {
     when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
@@ -402,7 +392,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postPermanentDepositsOverview_failValidation() {
+  void postPermanentDepositsOverview_failValidation() {
     when(permanentDepositService.getDepositSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.incompleteResult());
     ControllerTestUtils.passValidationWhenPost(permanentDepositService, new PermanentDepositsForm(), ValidationType.FULL );
@@ -419,7 +409,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
 
   //Remove deposit tests
   @Test
-  public void renderRemovePermanentDeposits_success() throws Exception {
+  void renderRemovePermanentDeposits_success() throws Exception {
     when(padPermanentDepositRepository.findById(1)).thenReturn(Optional.of(buildDepositEntity()));
 
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositController.class)
@@ -431,7 +421,7 @@ public class PermanentDepositControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postRemovePermanentDeposits_success() throws Exception {
+  void postRemovePermanentDeposits_success() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositController.class)
         .postRemovePermanentDeposits(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), 1, null, null, null)))
         .with(user(user))

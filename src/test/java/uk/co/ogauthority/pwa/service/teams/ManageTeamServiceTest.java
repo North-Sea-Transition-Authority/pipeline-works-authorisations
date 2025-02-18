@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ManageTeamServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ManageTeamServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -52,8 +52,8 @@ public class ManageTeamServiceTest {
   private Map.Entry<ManageTeamType, String> orgTeamEntry;
   private Map.Entry<ManageTeamType, String> consulteeTeamEntry;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "TEST GROUP", "TG");
     orgGroupTeam = new PwaOrganisationTeam(2, "test team", "a test team", orgGroup);
@@ -76,7 +76,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_regulatorAdmin() {
+  void getManageTeamTypesAndUrlsForUser_regulatorAdmin() {
 
     returnMemberWithRegRoles(Set.of(PwaRegulatorRole.TEAM_ADMINISTRATOR));
 
@@ -88,7 +88,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_regulatorOrgManager() {
+  void getManageTeamTypesAndUrlsForUser_regulatorOrgManager() {
 
     returnMemberWithRegRoles(Set.of(PwaRegulatorRole.ORGANISATION_MANAGER));
 
@@ -97,7 +97,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_regulatorAdmin_and_orgManager() {
+  void getManageTeamTypesAndUrlsForUser_regulatorAdmin_and_orgManager() {
 
     returnMemberWithRegRoles(Set.of(PwaRegulatorRole.ORGANISATION_MANAGER, PwaRegulatorRole.TEAM_ADMINISTRATOR));
 
@@ -110,7 +110,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_consulteeAccessManager() {
+  void getManageTeamTypesAndUrlsForUser_consulteeAccessManager() {
 
     var consulteeGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "n");
     when(consulteeGroupTeamService.getGroupsUserHasRoleFor(user, ConsulteeGroupMemberRole.ACCESS_MANAGER)).thenReturn(Set.of(consulteeGroupDetail.getConsulteeGroup()));
@@ -120,7 +120,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_consulteeAccessManager_and_orgManager() {
+  void getManageTeamTypesAndUrlsForUser_consulteeAccessManager_and_orgManager() {
 
     var consulteeGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "n");
     when(consulteeGroupTeamService.getGroupsUserHasRoleFor(user, ConsulteeGroupMemberRole.ACCESS_MANAGER)).thenReturn(Set.of(consulteeGroupDetail.getConsulteeGroup()));
@@ -135,7 +135,7 @@ public class ManageTeamServiceTest {
   }
 
   @Test
-  public void getManageTeamTypesAndUrlsForUser_orgGroupTeamManagerOnly() {
+  void getManageTeamTypesAndUrlsForUser_orgGroupTeamManagerOnly() {
 
 
     when(teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), EnumSet.of(PwaOrganisationRole.TEAM_ADMINISTRATOR)))

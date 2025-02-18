@@ -4,12 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -23,8 +22,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsW
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaAppNotificationBannerServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaAppNotificationBannerServiceTest {
 
   @Mock
   private PwaApplicationService pwaApplicationService;
@@ -41,8 +40,8 @@ public class PwaAppNotificationBannerServiceTest {
 
   private PwaApplicationDetail siblingPwaApplicationDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaAppNotificationBannerService = new PwaAppNotificationBannerService(pwaApplicationService, pwaApplicationDetailService);
 
     siblingPwaApplication.setId(11);
@@ -54,12 +53,13 @@ public class PwaAppNotificationBannerServiceTest {
 
     when(pwaApplicationService.getAllApplicationsForMasterPwa(pwaApplicationDetail.getMasterPwa()))
         .thenReturn(List.of(pwaApplicationDetail.getPwaApplication(), siblingPwaApplicationDetail.getPwaApplication()));
-    when(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(siblingPwaApplicationDetail.getPwaApplication())))
-        .thenReturn(List.of(siblingPwaApplicationDetail));
   }
 
   @Test
-  public void addParallelPwaApplicationsWarningBannerIfRequired() {
+  void addParallelPwaApplicationsWarningBannerIfRequired() {
+    when(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(siblingPwaApplicationDetail.getPwaApplication())))
+        .thenReturn(List.of(siblingPwaApplicationDetail));
+
     var modelAndView = new ModelAndView();
     var bannerView = new NotificationBannerView.BannerBuilder(DefaultNotificationBannerType.PARALLEL_APPS_WARNING.getTitle())
         .addBodyLine(new NotificationBannerBodyLine(siblingPwaApplication.getAppReference(), "govuk-!-font-weight-bold"))
@@ -75,7 +75,7 @@ public class PwaAppNotificationBannerServiceTest {
   }
 
   @Test
-  public void addParallelPwaApplicationsWarningBannerIfRequired_appTypeDoesNotRequireParallelWarning() {
+  void addParallelPwaApplicationsWarningBannerIfRequired_appTypeDoesNotRequireParallelWarning() {
     siblingPwaApplication.setApplicationType(PwaApplicationType.INITIAL);
 
     var modelAndView = new ModelAndView();
@@ -86,11 +86,13 @@ public class PwaAppNotificationBannerServiceTest {
   }
 
   @Test
-  public void addParallelPwaApplicationsWarningBannerIfRequired_shownForAllAppTypesThatRequireParallelWarning() {
+  void addParallelPwaApplicationsWarningBannerIfRequired_shownForAllAppTypesThatRequireParallelWarning() {
+    when(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(siblingPwaApplicationDetail.getPwaApplication())))
+        .thenReturn(List.of(siblingPwaApplicationDetail));
 
     var appsRequiringWarning = PwaApplicationType.stream()
         .filter(appType -> appType.getParallelApplicationsWarning().equals(ParallelApplicationsWarning.SHOW_WARNING))
-        .collect(Collectors.toList());
+        .toList();
 
     appsRequiringWarning.forEach(appType -> {
       siblingPwaApplication.setApplicationType(appType);
@@ -104,7 +106,9 @@ public class PwaAppNotificationBannerServiceTest {
   }
 
   @Test
-  public void addParallelPwaApplicationsWarningBannerIfRequired_parallelApplicationExists_parallelAppIsNotBeingProcessed() {
+  void addParallelPwaApplicationsWarningBannerIfRequired_parallelApplicationExists_parallelAppIsNotBeingProcessed() {
+    when(pwaApplicationDetailService.getLatestDetailsForApplications(List.of(siblingPwaApplicationDetail.getPwaApplication())))
+        .thenReturn(List.of(siblingPwaApplicationDetail));
     siblingPwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
 
     var modelAndView = new ModelAndView();

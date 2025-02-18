@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,13 +9,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.integrations.camunda.external.GenericWorkflowSubject;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
@@ -22,8 +23,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AssignmentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AssignmentServiceTest {
 
   @Mock
   private AssignmentRepository assignmentRepository;
@@ -39,15 +40,15 @@ public class AssignmentServiceTest {
   private final Person assignee = PersonTestUtil.createPersonFrom(new PersonId(1));
   private final Person assigner = PersonTestUtil.createPersonFrom(new PersonId(2));
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     assignmentService = new AssignmentService(assignmentRepository, assignmentAuditService);
 
   }
 
   @Test
-  public void createOrUpdateAssignment_newAssignment() {
+  void createOrUpdateAssignment_newAssignment() {
 
     var subject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     var task = PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW;
@@ -67,7 +68,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void createOrUpdateAssignment_updatedAssignment() {
+  void createOrUpdateAssignment_updatedAssignment() {
 
     var subject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     var task = PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW;
@@ -103,7 +104,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentsForPerson() {
+  void getAssignmentsForPerson() {
 
     var person = PersonTestUtil.createDefaultPerson();
 
@@ -123,7 +124,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentsForPerson_workflowSubject() {
+  void getAssignmentsForPerson_workflowSubject() {
 
     var person = PersonTestUtil.createDefaultPerson();
 
@@ -139,7 +140,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void clearAssignments() {
+  void clearAssignments() {
 
     var assignment = new Assignment(1, WorkflowType.PWA_APPLICATION, WorkflowAssignment.CASE_OFFICER, new PersonId(1));
     when(assignmentRepository.findByBusinessKeyAndWorkflowType(1, WorkflowType.PWA_APPLICATION))
@@ -152,7 +153,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignments() {
+  void getAssignments() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     assignmentService.getAssignments(workflowSubject);
@@ -163,7 +164,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentsForWorkflowAssignment() {
+  void getAssignmentsForWorkflowAssignment() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     assignmentService.getAssignmentsForWorkflowAssignment(workflowSubject, WorkflowAssignment.CASE_OFFICER);
@@ -174,7 +175,7 @@ public class AssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentOrError_verifyRepoInteraction_noException() {
+  void getAssignmentOrError_verifyRepoInteraction_noException() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     var assignment = new Assignment(
@@ -189,17 +190,14 @@ public class AssignmentServiceTest {
         WorkflowAssignment.CASE_OFFICER, WorkflowType.PWA_APPLICATION);
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void getAssignmentOrError_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
-
+  @Test
+  void getAssignmentOrError_verifyRepoInteraction_noAssignmentFound_exceptionThrown() {
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     when(assignmentRepository.findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(
-        workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
-        .thenReturn(Optional.empty());
-
-    assignmentService.getAssignmentOrError(workflowSubject, WorkflowAssignment.CASE_OFFICER);
-    verify(assignmentRepository).findByBusinessKeyAndWorkflowAssignmentAndWorkflowType(workflowSubject.getBusinessKey(),
-        WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType());
+          workflowSubject.getBusinessKey(), WorkflowAssignment.CASE_OFFICER, workflowSubject.getWorkflowType()))
+          .thenReturn(Optional.empty());
+    assertThrows(IllegalStateException.class, () ->
+      assignmentService.getAssignmentOrError(workflowSubject, WorkflowAssignment.CASE_OFFICER));
   }
 
 }

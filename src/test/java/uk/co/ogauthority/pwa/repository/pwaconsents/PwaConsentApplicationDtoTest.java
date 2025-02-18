@@ -3,15 +3,15 @@ package uk.co.ogauthority.pwa.repository.pwaconsents;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaConsentApplicationDtoTest {
+@ExtendWith(MockitoExtension.class)
+class PwaConsentApplicationDtoTest {
 
   private DocgenRun getRunWithInfo(long id, DocgenRunStatus complete) {
     var run = new DocgenRun();
@@ -21,7 +21,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void consentDocumentDownloadable_complete() {
+  void consentDocumentDownloadable_complete() {
 
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), getRunWithInfo(1L, DocgenRunStatus.COMPLETE));
 
@@ -30,7 +30,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void consentDocumentDownloadable_notComplete() {
+  void consentDocumentDownloadable_notComplete() {
 
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), getRunWithInfo(1L, DocgenRunStatus.PENDING));
 
@@ -39,7 +39,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void consentDocumentDownloadable_notPresent() {
+  void consentDocumentDownloadable_notPresent() {
 
     var dto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now());
 
@@ -48,7 +48,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void getDocStatusDisplay_pending() {
+  void getDocStatusDisplay_pending() {
 
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), getRunWithInfo(1L, DocgenRunStatus.PENDING));
 
@@ -57,7 +57,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void getDocStatusDisplay_failed() {
+  void getDocStatusDisplay_failed() {
 
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), getRunWithInfo(1L, DocgenRunStatus.FAILED));
 
@@ -66,7 +66,7 @@ public class PwaConsentApplicationDtoTest {
   }
 
   @Test
-  public void getDocStatusDisplay_complete() {
+  void getDocStatusDisplay_complete() {
 
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), getRunWithInfo(1L, DocgenRunStatus.COMPLETE));
 

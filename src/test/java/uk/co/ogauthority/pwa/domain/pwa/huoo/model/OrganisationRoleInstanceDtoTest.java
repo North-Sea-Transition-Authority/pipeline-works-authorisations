@@ -3,16 +3,16 @@ package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OrganisationRoleInstanceDtoTest {
+@ExtendWith(MockitoExtension.class)
+class OrganisationRoleInstanceDtoTest {
 
   @Test
-  public void getOrganisationRoleOwnerDto_whenTreatyParamsGiven() {
+  void getOrganisationRoleOwnerDto_whenTreatyParamsGiven() {
     var orgRole = new OrganisationRoleInstanceDto(null, null, TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.HOLDER,
         HuooType.TREATY_AGREEMENT);
     assertThat(orgRole.getOrganisationRoleOwnerDto()).extracting(
@@ -29,7 +29,7 @@ public class OrganisationRoleInstanceDtoTest {
   }
 
   @Test
-  public void getOrganisationRoleOwnerDto_whenPortalOrgParamsGiven() {
+  void getOrganisationRoleOwnerDto_whenPortalOrgParamsGiven() {
     var orgRole = new OrganisationRoleInstanceDto(1, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getOrganisationRoleOwnerDto()).extracting(
         OrganisationRoleOwnerDto::getHuooType,
@@ -45,43 +45,43 @@ public class OrganisationRoleInstanceDtoTest {
   }
 
   @Test
-  public void getOrganisationUnitId_whenIdProvided() {
+  void getOrganisationUnitId_whenIdProvided() {
     var orgRole = new OrganisationRoleInstanceDto(1, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getOrganisationUnitId()).isEqualTo(new OrganisationUnitId(1));
   }
 
   @Test
-  public void getOrganisationUnitId_whenIdNotProvided() {
+  void getOrganisationUnitId_whenIdNotProvided() {
     var orgRole = new OrganisationRoleInstanceDto(null, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getOrganisationUnitId()).isNull();
   }
 
   @Test
-  public void isPortalOrgRole_whenIdProvided() {
+  void isPortalOrgRole_whenIdProvided() {
     var orgRole = new OrganisationRoleInstanceDto(1, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.isPortalOrgRole()).isTrue();
   }
 
   @Test
-  public void isPortalOrgRole_whenIdNotProvided() {
+  void isPortalOrgRole_whenIdNotProvided() {
     var orgRole = new OrganisationRoleInstanceDto(null, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.isPortalOrgRole()).isFalse();
   }
 
   @Test
-  public void getManualOrganisationName_whenNameProvided() {
+  void getManualOrganisationName_whenNameProvided() {
     var orgRole = new OrganisationRoleInstanceDto(null, "some name", null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getManualOrganisationName()).containsSame("some name");
   }
 
   @Test
-  public void getManualOrganisationName_whenNameNotProvided() {
+  void getManualOrganisationName_whenNameNotProvided() {
     var orgRole = new OrganisationRoleInstanceDto(null, null, null, HuooRole.HOLDER, HuooType.PORTAL_ORG);
     assertThat(orgRole.getManualOrganisationName()).isEmpty();
   }
 
   @Test
-  public void testEquals() {
+  void equals() {
 
     EqualsVerifier.forClass(OrganisationRoleInstanceDto.class)
         .withNonnullFields("huooRole")

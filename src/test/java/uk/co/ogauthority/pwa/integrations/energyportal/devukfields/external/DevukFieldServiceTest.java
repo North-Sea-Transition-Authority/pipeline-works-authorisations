@@ -1,35 +1,36 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.internal.DevukFieldRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DevukFieldServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DevukFieldServiceTest {
 
   @Mock
   private DevukFieldRepository devukFieldRepository;
 
   private DevukFieldService devukFieldService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     devukFieldService = new DevukFieldService(devukFieldRepository);
   }
 
   @Test
-  public void getByStatusRange() {
+  void getByStatusRange() {
     var field = new DevukField();
     var statusCodes = List.of(9999);
     when(devukFieldRepository.findAllByStatusNotIn(statusCodes)).thenReturn(List.of(field));
@@ -38,16 +39,17 @@ public class DevukFieldServiceTest {
   }
 
   @Test
-  public void findById() {
+  void findById() {
     var field = new DevukField();
     when(devukFieldRepository.findById(1)).thenReturn(Optional.of(field));
     assertThat(devukFieldService.findById(1)).isEqualTo(field);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void findById_Invalid() {
+  @Test
+  void findById_Invalid() {
     when(devukFieldRepository.findById(2)).thenReturn(Optional.empty());
-    devukFieldService.findById(2);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      devukFieldService.findById(2));
   }
 
 }

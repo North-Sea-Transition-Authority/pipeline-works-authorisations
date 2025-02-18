@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,13 +13,13 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
@@ -44,8 +44,8 @@ import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class WithdrawConsultationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class WithdrawConsultationServiceTest {
 
   private WithdrawConsultationService withdrawConsultationService;
 
@@ -80,8 +80,8 @@ public class WithdrawConsultationServiceTest {
 
   private Clock clock;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     clock = Clock.fixed(Instant.parse(Instant.now().toString()), ZoneId.of("UTC"));
     var webUserAccount = new WebUserAccount(1, new Person(1, "", "", "", ""));
@@ -103,7 +103,7 @@ public class WithdrawConsultationServiceTest {
 
 
   @Test
-  public void withdrawConsultationRequest_emailResponder() {
+  void withdrawConsultationRequest_emailResponder() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
 
@@ -151,7 +151,7 @@ public class WithdrawConsultationServiceTest {
 
 
   @Test
-  public void withdrawConsultationRequest_emailTeamMembers() {
+  void withdrawConsultationRequest_emailTeamMembers() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
 
@@ -215,28 +215,28 @@ public class WithdrawConsultationServiceTest {
 
 
   @Test
-  public void canWithDrawConsultationRequest_allocation() {
+  void canWithDrawConsultationRequest_allocation() {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setStatus(ConsultationRequestStatus.ALLOCATION);
     assertTrue(withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest));
   }
 
   @Test
-  public void canWithDrawConsultationRequest_awaitingResponse() {
+  void canWithDrawConsultationRequest_awaitingResponse() {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setStatus(ConsultationRequestStatus.AWAITING_RESPONSE);
     assertTrue(withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest));
   }
 
   @Test
-  public void canWithDrawConsultationRequest_withdrawn() {
+  void canWithDrawConsultationRequest_withdrawn() {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setStatus(ConsultationRequestStatus.WITHDRAWN);
     assertFalse(withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest));
   }
 
   @Test
-  public void canWithDrawConsultationRequest_responded() {
+  void canWithDrawConsultationRequest_responded() {
     var consultationRequest = new ConsultationRequest();
     consultationRequest.setStatus(ConsultationRequestStatus.RESPONDED);
     assertFalse(withdrawConsultationService.canWithDrawConsultationRequest(consultationRequest));

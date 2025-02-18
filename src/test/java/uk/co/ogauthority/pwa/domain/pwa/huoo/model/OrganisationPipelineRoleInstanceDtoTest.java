@@ -3,23 +3,23 @@ package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OrganisationPipelineRoleInstanceDtoTest {
+@ExtendWith(MockitoExtension.class)
+class OrganisationPipelineRoleInstanceDtoTest {
   private static int OU_ID = 1;
   private static int PIPELINE_ID = 2;
 
 
   @Test
-  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenWholePipelines() {
+  void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenWholePipelines() {
 
     for (HuooRole role : HuooRole.values()) {
       for (HuooType type : HuooType.values()) {
@@ -49,7 +49,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
   }
 
   @Test
-  public void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenPipelineSections() {
+  void organisationPipelineRoleDto_constructorMapsArgsAsExpected_whenPipelineSections() {
 
     for (HuooRole role : HuooRole.values()) {
       for (HuooType type : HuooType.values()) {
@@ -85,7 +85,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
   }
 
   @Test
-  public void hasValidOrganisationRole_whenGivenOrgUnitId() {
+  void hasValidOrganisationRole_whenGivenOrgUnitId() {
     var organisationPipelineRoleDto = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
         OU_ID,
@@ -96,7 +96,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
   }
 
   @Test
-  public void hasValidOrganisationRole_whenNotGivenOrgUnitId() {
+  void hasValidOrganisationRole_whenNotGivenOrgUnitId() {
     var organisationPipelineRoleDto = OrganisationRoleDtoTestUtil.createMigratedOrgUnitPipelineRoleInstance(
         HuooRole.HOLDER,
         "someName",
@@ -107,7 +107,7 @@ public class OrganisationPipelineRoleInstanceDtoTest {
   }
 
   @Test
-  public void testEquals(){
+  void equals(){
 
     EqualsVerifier.forClass(OrganisationPipelineRoleInstanceDto.class)
         .verify();

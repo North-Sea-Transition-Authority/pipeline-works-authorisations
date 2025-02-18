@@ -1,16 +1,19 @@
 package uk.co.ogauthority.pwa.service.pwacontext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -24,8 +27,9 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.shared.pipelines.PipelineService;
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaContextServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaContextServiceTest {
 
   @Mock
   private PwaPermissionService pwaPermissionService;
@@ -49,8 +53,8 @@ public class PwaContextServiceTest {
   private final static int PIPELINE_ID = 1;
   private final static int MASTER_PWA_ID1 = 1;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     masterPwa = new MasterPwa();
     masterPwa.setId(MASTER_PWA_ID1);
@@ -78,16 +82,16 @@ public class PwaContextServiceTest {
   }
 
 
-
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_userHasNoPermissions() {
+  @Test
+  void validateAndCreate_userHasNoPermissions() {
     when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of());
     var contextParams = new PwaContextParams(MASTER_PWA_ID1, user);
-    contextService.validateAndCreate(contextParams);
+    assertThrows(AccessDeniedException.class, () ->
+      contextService.validateAndCreate(contextParams));
   }
 
   @Test
-  public void validateAndCreate_permissionRequired_userHasCorrectPermissions() {
+  void validateAndCreate_permissionRequired_userHasCorrectPermissions() {
     var contextParams = new PwaContextParams(MASTER_PWA_ID1, user).requiredPwaPermissions(Set.of(PwaPermission.VIEW_PWA));
     var context = contextService.validateAndCreate(contextParams);
     assertThat(context.getUser()).isEqualTo(user);
@@ -96,21 +100,22 @@ public class PwaContextServiceTest {
   }
 
   @Test
-  public void validateAndCreate_withPipeline_valid() {
+  void validateAndCreate_withPipeline_valid() {
     var contextParams = new PwaContextParams(MASTER_PWA_ID1, user).withPipelineId(PIPELINE_ID);
     var context = contextService.validateAndCreate(contextParams);
     assertThat(context.getPipeline()).isNotNull();
   }
 
-  @Test(expected = AccessDeniedException.class)
-  public void validateAndCreate_withPipeline_pipelineAndPwaMismatch() {
+  @Test
+  void validateAndCreate_withPipeline_pipelineAndPwaMismatch() {
     var masterPwaId2 = 2;
     var contextParams = new PwaContextParams(masterPwaId2, user).withPipelineId(PIPELINE_ID);
-    contextService.validateAndCreate(contextParams);
+    assertThrows(AccessDeniedException.class, () ->
+      contextService.validateAndCreate(contextParams));
   }
 
   @Test
-  public void validateAndCreate_noPipelineContextParam() {
+  void validateAndCreate_noPipelineContextParam() {
     var builder = new PwaContextParams(MASTER_PWA_ID1, user);
     contextService.validateAndCreate(builder);
     verifyNoInteractions(pipelineService);

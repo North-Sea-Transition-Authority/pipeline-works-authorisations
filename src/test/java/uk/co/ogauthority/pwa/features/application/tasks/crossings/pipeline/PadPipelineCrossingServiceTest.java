@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -11,12 +12,12 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -28,8 +29,8 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineCrossingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineCrossingServiceTest {
 
   @Mock
   private PadPipelineCrossingRepository padPipelineCrossingRepository;
@@ -57,8 +58,8 @@ public class PadPipelineCrossingServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PadPipelineCrossing padPipelineCrossing;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padPipelineCrossingService = new PadPipelineCrossingService(
         padPipelineCrossingRepository,
         pipelineCrossingFileService,
@@ -74,29 +75,30 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPipelineCrossing_Found() {
+  void getPipelineCrossing_Found() {
     when(padPipelineCrossingRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(padPipelineCrossing));
     var result = padPipelineCrossingService.getPipelineCrossing(pwaApplicationDetail, 1);
     assertThat(result).isEqualTo(padPipelineCrossing);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getPipelineCrossing_NotFound() {
+  @Test
+  void getPipelineCrossing_NotFound() {
     when(padPipelineCrossingRepository.getByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
-        .thenReturn(Optional.empty());
-    padPipelineCrossingService.getPipelineCrossing(pwaApplicationDetail, 1);
+          .thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      padPipelineCrossingService.getPipelineCrossing(pwaApplicationDetail, 1));
   }
 
   @Test
-  public void deleteCascade() {
+  void deleteCascade() {
     padPipelineCrossingService.deleteCascade(padPipelineCrossing);
     verify(padPipelineCrossingOwnerService, times(1)).removeAllForCrossing(padPipelineCrossing);
     verify(padPipelineCrossingRepository, times(1)).delete(padPipelineCrossing);
   }
 
   @Test
-  public void getPipelineCrossingViews_LinkedOwner() {
+  void getPipelineCrossingViews_LinkedOwner() {
     var CROSSED_TEXT = "Pipeline Crossed";
     padPipelineCrossing.setPipelineCrossed(CROSSED_TEXT);
     padPipelineCrossing.setId(1);
@@ -119,7 +121,7 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPipelineCrossingViews_ManualOwner() {
+  void getPipelineCrossingViews_ManualOwner() {
     var CROSSED_TEXT = "Pipeline Crossed";
     padPipelineCrossing.setPipelineCrossed(CROSSED_TEXT);
     padPipelineCrossing.setId(1);
@@ -141,7 +143,7 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPipelineCrossingViews_OrganisationIsFullOwner() {
+  void getPipelineCrossingViews_OrganisationIsFullOwner() {
     var CROSSED_TEXT = "Pipeline Crossed";
     padPipelineCrossing.setPipelineCrossed(CROSSED_TEXT);
     padPipelineCrossing.setId(1);
@@ -159,7 +161,7 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPipelineCrossingView() {
+  void getPipelineCrossingView() {
     var CROSSED_TEXT = "Pipeline Crossed";
     padPipelineCrossing.setPipelineCrossed(CROSSED_TEXT);
     padPipelineCrossing.setId(1);
@@ -179,7 +181,7 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void createPipelineCrossings() {
+  void createPipelineCrossings() {
     var form = new PipelineCrossingForm();
     form.setPipelineCrossed("Crossed");
     form.setPipelineFullyOwnedByOrganisation(false);
@@ -189,7 +191,7 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void updatePipelineCrossing() {
+  void updatePipelineCrossing() {
     var form = new PipelineCrossingForm();
     form.setPipelineCrossed("Crossed");
     form.setPipelineFullyOwnedByOrganisation(false);
@@ -200,14 +202,14 @@ public class PadPipelineCrossingServiceTest {
   }
 
   @Test
-  public void getPrepopulatedSearchSelectorItems_Empty() {
+  void getPrepopulatedSearchSelectorItems_Empty() {
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of());
     var result = padPipelineCrossingService.getPrepopulatedSearchSelectorItems(List.of());
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void getPrepopulatedSearchSelectorItems_NotEmpty() {
+  void getPrepopulatedSearchSelectorItems_NotEmpty() {
     var selectionIds = List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "Test");
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(any())).thenReturn(List.of(
         PortalOrganisationTestUtils.generateOrganisationUnit(1, "Test")

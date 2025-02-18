@@ -14,16 +14,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -46,9 +44,8 @@ import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTes
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelinesTaskListControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final Set<PipelineStatus> allowedPipelineStatuses = Set.of(
@@ -69,8 +66,8 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   private AuthenticatedUserAccount user;
   private PadPipeline padPipeline;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -113,7 +110,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderPipelinesOverview_permissionSmokeTest() {
+  void renderPipelinesOverview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -125,7 +122,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderPipelinesOverview_appTypeSmokeTest() {
+  void renderPipelinesOverview_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -137,7 +134,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderPipelinesOverview_appStatusSmokeTest() {
+  void renderPipelinesOverview_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -149,7 +146,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postPipelinesOverview_permissionSmokeTest() {
+  void postPipelinesOverview_permissionSmokeTest() {
 
     when(padPipelineTaskListService.isComplete(any())).thenReturn(true);
     when(padPipelineTaskListService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
@@ -164,7 +161,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postPipelinesOverview_appTypeSmokeTest() {
+  void postPipelinesOverview_appTypeSmokeTest() {
 
     when(padPipelineTaskListService.isComplete(any())).thenReturn(true);
     when(padPipelineTaskListService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
@@ -179,7 +176,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postPipelinesOverview_appStatusSmokeTest() {
+  void postPipelinesOverview_appStatusSmokeTest() {
 
     when(padPipelineTaskListService.isComplete(any())).thenReturn(true);
     when(padPipelineTaskListService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
@@ -194,7 +191,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
+  void postPipelinesOverview_validationFail_pipelinesInvalid() throws Exception {
 
     when(padPipelineTaskListService.isComplete(pwaApplicationDetail)).thenReturn(false);
 
@@ -213,7 +210,7 @@ public class PipelinesTaskListControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postPipelinesOverview_validationPass() throws Exception {
+  void postPipelinesOverview_validationPass() throws Exception {
 
     when(padPipelineTaskListService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padPipelineTaskListService.getValidationResult(any())).thenReturn(SummaryScreenValidationResultTestUtils.completeResult());

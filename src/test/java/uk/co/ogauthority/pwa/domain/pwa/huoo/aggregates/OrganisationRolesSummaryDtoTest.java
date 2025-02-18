@@ -2,12 +2,13 @@ package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
@@ -15,8 +16,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifierTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OrganisationRolesSummaryDtoTest {
+@ExtendWith(MockitoExtension.class)
+class OrganisationRolesSummaryDtoTest {
 
   private static final int OU_ID1 = 10;
   private static final int PIPELINE_ID1 = 20;
@@ -40,8 +41,8 @@ public class OrganisationRolesSummaryDtoTest {
   private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1Role;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     holderOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     userOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID1, PIPELINE_ID1);
     operatorOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1, PIPELINE_ID1);
@@ -57,7 +58,7 @@ public class OrganisationRolesSummaryDtoTest {
 
 
   @Test
-  public void getHolderOrganisationUnitGroups_whenSingleGroup_ofWholePipelines() {
+  void getHolderOrganisationUnitGroups_whenSingleGroup_ofWholePipelines() {
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
@@ -68,7 +69,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getHolderOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+  void getHolderOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
     var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
         HuooRole.HOLDER,
         pipeline3Section1
@@ -83,7 +84,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getUserOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+  void getUserOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
     var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
         HuooRole.USER,
         pipeline3Section1
@@ -98,7 +99,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOperatorOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+  void getOperatorOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
     var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
         HuooRole.OPERATOR,
         pipeline3Section1
@@ -113,7 +114,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOwnerOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
+  void getOwnerOrganisationUnitGroups_ignoresUnassignedPipelineSplit() {
     var unassignedSplitPipeline3Section1Instance = OrganisationRoleDtoTestUtil.createUnassignedSplitPipelineSectionRoleInstance(
         HuooRole.OWNER,
         pipeline3Section1
@@ -127,29 +128,29 @@ public class OrganisationRolesSummaryDtoTest {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getHolderOrganisationUnitGroups_cannotModifyPopulatedSet() {
-
+  @Test
+  void getHolderOrganisationUnitGroups_cannotModifyPopulatedSet() {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(holderOrg1Pipeline1Role));
+          Set.of(holderOrg1Pipeline1Role));
     assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(1);
-    summary.getHolderOrganisationUnitGroups().add(
-        // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getHolderOrganisationUnitGroups_cannotModifyEmptySet() {
-
-    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of());
-    assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(0);
-    summary.getHolderOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getHolderOrganisationUnitGroups().add(
+          // different role so not a duplicate entry
+          new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
   }
 
   @Test
-  public void getUserOrganisationUnitGroups_whenSingleGroup() {
+  void getHolderOrganisationUnitGroups_cannotModifyEmptySet() {
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+          Set.of());
+    assertThat(summary.getHolderOrganisationUnitGroups()).hasSize(0);
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getHolderOrganisationUnitGroups().add(
+          new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
+  }
+
+  @Test
+  void getUserOrganisationUnitGroups_whenSingleGroup() {
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
@@ -158,29 +159,29 @@ public class OrganisationRolesSummaryDtoTest {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getUserOrganisationUnitGroups_cannotModifyPopulatedSet() {
-
+  @Test
+  void getUserOrganisationUnitGroups_cannotModifyPopulatedSet() {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(userOrg1Pipeline1Role));
+          Set.of(userOrg1Pipeline1Role));
     assertThat(summary.getUserOrganisationUnitGroups()).hasSize(1);
-    summary.getUserOrganisationUnitGroups().add(
-        // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getUserOrganisationUnitGroups_cannotModifyEmptySet() {
-
-    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of());
-    assertThat(summary.getUserOrganisationUnitGroups()).hasSize(0);
-    summary.getUserOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getUserOrganisationUnitGroups().add(
+          // different role so not a duplicate entry
+          new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
   }
 
   @Test
-  public void getOperatorOrganisationUnitGroups_whenSingleGroup() {
+  void getUserOrganisationUnitGroups_cannotModifyEmptySet() {
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+          Set.of());
+    assertThat(summary.getUserOrganisationUnitGroups()).hasSize(0);
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getUserOrganisationUnitGroups().add(
+          new OrganisationRolePipelineGroupDto(userOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
+  }
+
+  @Test
+  void getOperatorOrganisationUnitGroups_whenSingleGroup() {
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
@@ -190,29 +191,29 @@ public class OrganisationRolesSummaryDtoTest {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getOperatorOrganisationUnitGroups_cannotModifyPopulatedSet() {
-
+  @Test
+  void getOperatorOrganisationUnitGroups_cannotModifyPopulatedSet() {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(operatorOrg1Pipeline1Role));
+          Set.of(operatorOrg1Pipeline1Role));
     assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(1);
-    summary.getOperatorOrganisationUnitGroups().add(
-        // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void getOperatorOrganisationUnitGroups_cannotModifyEmptySet() {
-
-    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of());
-    assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(0);
-    summary.getOperatorOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getOperatorOrganisationUnitGroups().add(
+          // different role so not a duplicate entry
+          new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
   }
 
   @Test
-  public void getOwnerOrganisationGroups_whenSingleGroup() {
+  void getOperatorOrganisationUnitGroups_cannotModifyEmptySet() {
+    var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
+          Set.of());
+    assertThat(summary.getOperatorOrganisationUnitGroups()).hasSize(0);
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getOperatorOrganisationUnitGroups().add(
+          new OrganisationRolePipelineGroupDto(operatorOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
+  }
+
+  @Test
+  void getOwnerOrganisationGroups_whenSingleGroup() {
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role));
@@ -221,30 +222,30 @@ public class OrganisationRolesSummaryDtoTest {
 
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getOwnerOrganisationUnitGroups_cannotModifyPopulatedSet() {
-
+  @Test
+  void getOwnerOrganisationUnitGroups_cannotModifyPopulatedSet() {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of(ownerOrg1Pipeline1Role));
+          Set.of(ownerOrg1Pipeline1Role));
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(1);
-    summary.getOwnerOrganisationUnitGroups().add(
-        // different role so not a duplicate entry
-        new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getOwnerOrganisationUnitGroups().add(
+          // different role so not a duplicate entry
+          new OrganisationRolePipelineGroupDto(holderOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getOwnerOrganisationUnitGroups_cannotModifyEmptySet() {
-
+  @Test
+  void getOwnerOrganisationUnitGroups_cannotModifyEmptySet() {
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
-        Set.of());
+          Set.of());
     assertThat(summary.getOwnerOrganisationUnitGroups()).hasSize(0);
-    summary.getOwnerOrganisationUnitGroups().add(
-        new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of()));
+    assertThrows(UnsupportedOperationException.class, () ->
+      summary.getOwnerOrganisationUnitGroups().add(
+          new OrganisationRolePipelineGroupDto(ownerOrg1Pipeline1Role.getOrganisationRoleInstanceDto(), Set.of())));
   }
 
 
   @Test
-  public void getHolderOrganisationUnitGroups_whenMultipleGroups() {
+  void getHolderOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID2, PIPELINE_ID2);
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
@@ -262,7 +263,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getUserOrganisationUnitGroups_whenMultipleGroups() {
+  void getUserOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID2, PIPELINE_ID2);
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
@@ -282,7 +283,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOperatorOrganisationUnitGroups_whenMultipleGroups() {
+  void getOperatorOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID2, PIPELINE_ID2);
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
@@ -302,7 +303,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOwnerOrganisationUnitGroups_whenMultipleGroups() {
+  void getOwnerOrganisationUnitGroups_whenMultipleGroups() {
     var secondOrganisationPipelineRole = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OWNER, OU_ID2, PIPELINE_ID2);
 
     var summary = OrganisationRolesSummaryDto.aggregateOrganisationPipelineRoles(
@@ -322,7 +323,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getHolderOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+  void getHolderOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
     var ou1HolderSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.HOLDER, OU_ID1,
         pipeline3Section1);
     var ou2HolderSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.HOLDER, OU_ID2,
@@ -344,7 +345,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getUserOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+  void getUserOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
     var ou1UserSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.USER, OU_ID1,
         pipeline3Section1);
     var ou2UserSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.USER, OU_ID2,
@@ -366,7 +367,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOperatorOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+  void getOperatorOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
     var ou1OperatorSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OPERATOR, OU_ID1,
         pipeline3Section1);
     var ou2OperatorSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OPERATOR, OU_ID2,
@@ -388,7 +389,7 @@ public class OrganisationRolesSummaryDtoTest {
   }
 
   @Test
-  public void getOwnerOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
+  void getOwnerOrganisationUnitGroups_whenMultipleGroups_ofSectionedPipelines_andWholePipelines() {
     var ou1OwnerSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OWNER, OU_ID1,
         pipeline3Section1);
     var ou2OwnerSection = OrganisationRoleDtoTestUtil.createOrgUnitPipelineSectionRoleInstance(HuooRole.OWNER, OU_ID2,

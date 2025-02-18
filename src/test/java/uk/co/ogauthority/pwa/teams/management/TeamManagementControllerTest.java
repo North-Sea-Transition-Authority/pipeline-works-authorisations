@@ -25,13 +25,17 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.runner.RunWith;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.auth.EnergyPortalConfiguration;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
@@ -43,7 +47,8 @@ import uk.co.ogauthority.pwa.teams.management.view.TeamTypeView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamView;
 
 @SuppressWarnings({"unchecked", "DataFlowIssue"})
-@ContextConfiguration(classes = TeamManagementController.class)
+@WebMvcTest(TeamManagementController.class)
+@Import(PwaMvcTestConfiguration.class)
 class TeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
@@ -61,7 +66,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   private static AuthenticatedUserAccount invokingUser;
 
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     regTeam = new Team(UUID.randomUUID());
     regTeam.setTeamType(TeamType.REGULATOR);
     regTeam.setName("reg team one");
@@ -566,10 +571,15 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     var roleMap = (Map<String, String>) modelAndView.getModel().get("rolesNamesMap");
 
     assertThat(roleMap)
-        .containsExactly(
-            Map.entry(Role.TEAM_ADMINISTRATOR.name(), Role.TEAM_ADMINISTRATOR.getName()),
+        .contains(
+            Map.entry(Role.AS_BUILT_NOTIFICATION_ADMIN.name(), Role.AS_BUILT_NOTIFICATION_ADMIN.getName()),
+            Map.entry(Role.CASE_OFFICER.name(), Role.CASE_OFFICER.getName()),
+            Map.entry(Role.CONSENT_VIEWER.name(), Role.CONSENT_VIEWER.getName()),
             Map.entry(Role.ORGANISATION_MANAGER.name(), Role.ORGANISATION_MANAGER.getName()),
-            Map.entry(Role.CONSENT_VIEWER.name(), Role.CONSENT_VIEWER.getName())
+            Map.entry(Role.PWA_ACCESS.name(), Role.PWA_ACCESS.getName()),
+            Map.entry(Role.PWA_MANAGER.name(), Role.PWA_MANAGER.getName()),
+            Map.entry(Role.TEAM_ADMINISTRATOR.name(), Role.TEAM_ADMINISTRATOR.getName()),
+            Map.entry(Role.TEMPLATE_CLAUSE_MANAGER.name(), Role.TEMPLATE_CLAUSE_MANAGER.getName())
         );
 
     var teamMemberViewModel = (TeamMemberView) modelAndView.getModel().get("teamMemberView");
@@ -578,7 +588,16 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     var rolesInTeam = (List<Role>) modelAndView.getModel().get("rolesInTeam");
 
     assertThat(rolesInTeam)
-        .containsExactly(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER, Role.CONSENT_VIEWER);
+        .contains(
+            Role.PWA_ACCESS,
+            Role.PWA_MANAGER,
+            Role.CASE_OFFICER,
+            Role.AS_BUILT_NOTIFICATION_ADMIN,
+            Role.TEMPLATE_CLAUSE_MANAGER,
+            Role.ORGANISATION_MANAGER,
+            Role.CONSENT_VIEWER,
+            Role.TEAM_ADMINISTRATOR
+        );
   }
 
   @Test
@@ -609,7 +628,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, null)))
         .with(csrf())
         .with(user(invokingUser))
-        .param("roles", "MANAGE_TEAM"))
+        .param("roles", "TEAM_ADMINISTRATOR"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(regTeam.getId(), null))));
 

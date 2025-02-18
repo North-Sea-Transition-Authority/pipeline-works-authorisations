@@ -1,32 +1,32 @@
 package uk.co.ogauthority.pwa.util.converters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaStringToCollectionConverterTest {
+@ExtendWith(MockitoExtension.class)
+class PwaStringToCollectionConverterTest {
 
   @Mock
   private ConversionService conversionService;
 
   private PwaStringToCollectionConverter pwaStringToCollectionConverter;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaStringToCollectionConverter = new PwaStringToCollectionConverter(conversionService);
   }
 
   @Test
-  public void converter_convertTextArea_ToString() {
+  void converter_convertTextArea_ToString() {
     var testString = "This is a test string, it contains commas as if it came from a test area";
     var sourceType = TypeDescriptor.forObject(testString);
     var destinationType = TypeDescriptor.collection(List.class, TypeDescriptor.forObject(testString));
@@ -37,7 +37,7 @@ public class PwaStringToCollectionConverterTest {
   }
 
   @Test
-  public void converter_convertTextArea_ToInts() {
+  void converter_convertTextArea_ToInts() {
     var testString = "1,2,3,4";
     var sourceType = TypeDescriptor.forObject(testString);
     var destinationType = TypeDescriptor.collection(List.class, TypeDescriptor.valueOf(Integer.class));

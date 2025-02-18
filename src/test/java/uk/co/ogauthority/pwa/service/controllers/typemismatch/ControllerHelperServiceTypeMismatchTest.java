@@ -8,8 +8,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Objects;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -60,7 +60,7 @@ import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
 @WebMvcTest(
     controllers = ControllerHelperServiceTypeMismatchController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {ControllerHelperService.class}))
-public class ControllerHelperServiceTypeMismatchTest {
+class ControllerHelperServiceTypeMismatchTest {
 
   private MockMvc mockMvc;
 
@@ -112,8 +112,8 @@ public class ControllerHelperServiceTypeMismatchTest {
   @MockBean
   private TeamQueryService teamQueryService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     mockMvc = MockMvcBuilders
         .webAppContextSetup(context)
@@ -123,7 +123,7 @@ public class ControllerHelperServiceTypeMismatchTest {
   }
 
   @Test
-  public void checkErrorsAndRedirect_typeMismatchErrors() throws Exception {
+  void checkErrorsAndRedirect_typeMismatchErrors() throws Exception {
 
     @SuppressWarnings("unchecked")
     var errorList = (List<ErrorItem>) Objects.requireNonNull(mockMvc.perform(
@@ -147,7 +147,7 @@ public class ControllerHelperServiceTypeMismatchTest {
   }
 
   @Test
-  public void checkErrorsAndRedirect_noTypeMismatchErrors() throws Exception {
+  void checkErrorsAndRedirect_noTypeMismatchErrors() throws Exception {
 
     var errorList = Objects.requireNonNull(mockMvc.perform(
         post(ReverseRouter.route(on(ControllerHelperServiceTypeMismatchController.class).post(null, null)))

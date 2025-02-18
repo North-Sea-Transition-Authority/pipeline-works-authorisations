@@ -8,11 +8,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TechnicalDrawingsSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TechnicalDrawingsSummaryServiceTest {
 
 
 
@@ -49,8 +49,8 @@ public class TechnicalDrawingsSummaryServiceTest {
   private TechnicalDrawingsSummaryService technicalDrawingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     technicalDrawingsSummaryService = new TechnicalDrawingsSummaryService(taskListService, padFileService, admiraltyChartFileService, umbilicalCrossSectionService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
@@ -58,7 +58,7 @@ public class TechnicalDrawingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)).thenReturn(true);
 
@@ -67,21 +67,20 @@ public class TechnicalDrawingsSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
     when(umbilicalCrossSectionService.canUploadDocuments(pwaApplicationDetail)).thenReturn(true);
     assertThat(technicalDrawingsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(technicalDrawingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
 
-
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var admiraltyChartFileViews = List.of(new UploadedFileView("", "", 1L, null, null, null));
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART, ApplicationFileLinkStatus.FULL))

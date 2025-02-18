@@ -4,15 +4,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
-public class PwaConsentTest {
+class PwaConsentTest {
 
   @Test
-  public void testEqualsAndHashCode() {
+  void equalsAndHashCode() {
     var firstPwaDetail = new MasterPwaDetail();
     var differentPwaDetail = new MasterPwaDetail();
     differentPwaDetail.setReference("rfefafsd");

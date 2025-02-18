@@ -14,15 +14,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -46,9 +44,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConsultationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder viewAllConsultationsEndpointTester;
   private PwaApplicationEndpointTestBuilder withdrawConsultationEndpointTester;
@@ -68,8 +65,8 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     viewAllConsultationsEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE)
@@ -98,7 +95,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
 
 
   @Test
-  public void renderConsultation_appStatusSmokeTest() {
+  void renderConsultation_appStatusSmokeTest() {
 
     viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -110,7 +107,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderConsultation_processingPermissionSmokeTest() {
+  void renderConsultation_processingPermissionSmokeTest() {
 
     viewAllConsultationsEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -122,7 +119,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderConsultation_noSatisfactoryVersions() throws Exception {
+  void renderConsultation_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
@@ -136,7 +133,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderConsultations_userCannotWithdrawConsultations_withdrawLinkNotOnPage() throws Exception {
+  void renderConsultations_userCannotWithdrawConsultations_withdrawLinkNotOnPage() throws Exception {
     var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
       pwaApplicationDetail.getPwaApplication()), Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS));
 
@@ -150,7 +147,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderConsultations_userCanWithdrawConsultations_withdrawLinkOnPage() throws Exception {
+  void renderConsultations_userCanWithdrawConsultations_withdrawLinkOnPage() throws Exception {
     var permissionsDto = new ProcessingPermissionsDto(PwaAppProcessingContextDtoTestUtils.appInvolvementSatisfactoryVersions(
       pwaApplicationDetail.getPwaApplication()), Set.of(PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS, PwaAppProcessingPermission.WITHDRAW_CONSULTATION));
 
@@ -164,7 +161,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderWithdrawConsultation_appStatusSmokeTest() {
+  void renderWithdrawConsultation_appStatusSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
         1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null, ConsultationResponseDocumentType.DEFAULT);
@@ -181,7 +178,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderWithdrawConsultation_permissionSmokeTest() {
+  void renderWithdrawConsultation_permissionSmokeTest() {
 
     ConsultationRequestView consultationRequestView = new ConsultationRequestView(
         1, "", Instant.now(), ConsultationRequestStatus.ALLOCATION, "", List.of(), true, null, null, ConsultationResponseDocumentType.DEFAULT);
@@ -198,7 +195,7 @@ public class ConsultationControllerTest extends PwaAppProcessingContextAbstractC
   }
 
   @Test
-  public void renderWithdrawConsultation_noSatisfactoryVersions() throws Exception {
+  void renderWithdrawConsultation_noSatisfactoryVersions() throws Exception {
 
     var request = new ConsultationRequest();
     request.setId(1);

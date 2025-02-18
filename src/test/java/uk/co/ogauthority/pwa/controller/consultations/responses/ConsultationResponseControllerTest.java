@@ -15,15 +15,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -44,9 +42,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationResponseController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private ConsultationResponseService consultationResponseService;
@@ -68,8 +65,8 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   private ProcessingPermissionsDto permissionsDto;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -97,7 +94,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderResponder_permissionSmokeTest() {
+  void renderResponder_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -109,7 +106,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder_permissionSmokeTest() {
+  void postResponder_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -121,7 +118,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder() throws Exception {
+  void postResponder() throws Exception {
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
@@ -138,7 +135,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder_validationFail() throws Exception {
+  void postResponder_validationFail() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(consultationResponseValidator, List.of("responseDataForms[CONTENT].consultationResponseOption"));
 

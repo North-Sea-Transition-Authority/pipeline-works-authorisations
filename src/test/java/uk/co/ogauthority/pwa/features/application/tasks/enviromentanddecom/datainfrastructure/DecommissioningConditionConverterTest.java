@@ -1,26 +1,26 @@
 package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.datainfrastructure;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom.DecommissioningCondition;
 
-public class DecommissioningConditionConverterTest {
+class DecommissioningConditionConverterTest {
 
   private DecommissioningConditionConverter converter;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     converter = new DecommissioningConditionConverter();
   }
 
   @Test
-  public void testConvertToDatabaseColumn_ValidSet() {
+  void convertToDatabaseColumnValidSet() {
     var decommissioningConditions = Set.of(
         DecommissioningCondition.EOL_REGULATION_STATEMENT,
         DecommissioningCondition.EOL_REMOVAL_STATEMENT,
@@ -38,19 +38,19 @@ public class DecommissioningConditionConverterTest {
   }
 
   @Test
-  public void testConvertToDatabaseColumn_EmptySet() {
+  void convertToDatabaseColumnEmptySet() {
     var result = converter.convertToDatabaseColumn(Set.of());
     assertThat(result).isNull();
   }
 
   @Test
-  public void testConvertToDatabaseColumn_NullSet() {
+  void convertToDatabaseColumnNullSet() {
     var result = converter.convertToDatabaseColumn(null);
     assertThat(result).isNull();
   }
 
   @Test
-  public void testConvertToEntityAttribute_ValidConditionsString() {
+  void convertToEntityAttributeValidConditionsString() {
     var result = converter.convertToEntityAttribute(String.format(
         "%s,%s",
         DecommissioningCondition.EOL_REGULATION_STATEMENT.name(),
@@ -63,13 +63,13 @@ public class DecommissioningConditionConverterTest {
   }
 
   @Test
-  public void testConvertToEntityAttribute_EmptyConditionsString() {
+  void convertToEntityAttributeEmptyConditionsString() {
     var result = converter.convertToEntityAttribute("");
     assertThat(result).isEqualTo(Set.of());
   }
 
   @Test
-  public void testConvertToEntityAttribute_NullConditionsString() {
+  void convertToEntityAttributeNullConditionsString() {
     var result = converter.convertToEntityAttribute(null);
     assertThat(result).isEqualTo(Set.of());
   }

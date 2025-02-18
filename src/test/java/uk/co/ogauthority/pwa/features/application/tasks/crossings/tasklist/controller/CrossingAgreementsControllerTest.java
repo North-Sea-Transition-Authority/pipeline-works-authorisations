@@ -11,15 +11,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -37,9 +35,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CrossingAgreementsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class CrossingAgreementsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final int APP_DETAIL_ID = 10;
@@ -57,8 +54,8 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   private PwaApplicationContext pwaApplicationContext;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
         pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var wua = new WebUserAccount(1);
@@ -71,7 +68,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderCrossingAgreementsOverview_unauthenticated() throws Exception {
+  void renderCrossingAgreementsOverview_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(PwaApplicationType.INITIAL, APP_ID, null, null)))
@@ -79,7 +76,7 @@ public class CrossingAgreementsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderCrossingAgreementsOverview() throws Exception {
+  void renderCrossingAgreementsOverview() throws Exception {
     var entity = new PadMedianLineAgreement();
     entity.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     entity.setNegotiatorName("Name");

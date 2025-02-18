@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -12,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -43,8 +44,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.validators.WithdrawApplicationValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WithdrawApplicationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class WithdrawApplicationServiceTest {
 
   private WithdrawApplicationService withdrawApplicationService;
 
@@ -83,8 +84,8 @@ public class WithdrawApplicationServiceTest {
   private PwaApplication pwaApplication;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     withdrawApplicationService = new WithdrawApplicationService(
         withdrawApplicationValidator,
         pwaApplicationDetailService,
@@ -101,7 +102,7 @@ public class WithdrawApplicationServiceTest {
 
 
   @Test
-  public void withdrawApplication() {
+  void withdrawApplication() {
 
     var withdrawingPerson = PersonTestUtil.createDefaultPerson();
     var withdrawingUser = new AuthenticatedUserAccount(new WebUserAccount(1, withdrawingPerson), List.of());
@@ -134,7 +135,7 @@ public class WithdrawApplicationServiceTest {
 
 
   @Test
-  public void withdrawApplication_verifyLastSubmittedDetailHandlerFunctionCalled_verifyOtherServiceInteractions() {
+  void withdrawApplication_verifyLastSubmittedDetailHandlerFunctionCalled_verifyOtherServiceInteractions() {
 
     var withdrawingPerson = PersonTestUtil.createDefaultPerson();
     var withdrawingUser = new AuthenticatedUserAccount(new WebUserAccount(1, withdrawingPerson), List.of());
@@ -152,7 +153,7 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void withdrawApplication_updateRequestExists_verifyUpdateRequestedDetailHandlerFunctionCalled_verifyOtherServiceInteractions() {
+  void withdrawApplication_updateRequestExists_verifyUpdateRequestedDetailHandlerFunctionCalled_verifyOtherServiceInteractions() {
 
     var withdrawingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     var form = new WithdrawApplicationForm();
@@ -171,26 +172,23 @@ public class WithdrawApplicationServiceTest {
     verify(pwaApplicationDetailService, times(1)).transferTipFlag(pwaApplicationDetail, lastSubmittedDetail);
   }
 
-  @Test(expected = WithdrawApplicationException.class)
-  public void withdrawApplication_updateRequestExists_lastSubmittedDetailNotFound_error() {
-
+  @Test
+  void withdrawApplication_updateRequestExists_lastSubmittedDetailNotFound_error() {
     var withdrawingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     var form = new WithdrawApplicationForm();
     form.setWithdrawalReason("my reason");
-
     when(pwaApplicationDetailService.getLatestSubmittedDetail(pwaApplication)).thenReturn(Optional.empty());
-
     withdrawApplicationService.withdrawApplication(form, pwaApplication, withdrawingUser);
-
     verify(pwaApplicationDetailService).doWithCurrentUpdateRequestedDetailIfExists(
-        eq(pwaApplication), pwaUpdateRequestedDetailConsumerCaptor.capture());
+          eq(pwaApplication), pwaUpdateRequestedDetailConsumerCaptor.capture());
+    assertThrows(WithdrawApplicationException.class, () ->
 
-    pwaUpdateRequestedDetailConsumerCaptor.getValue().accept(pwaApplicationDetail);
+      pwaUpdateRequestedDetailConsumerCaptor.getValue().accept(pwaApplicationDetail));
   }
 
 
   @Test
-  public void canShowInTaskList_appNotEnded_hasPermission_true() {
+  void canShowInTaskList_appNotEnded_hasPermission_true() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.WITHDRAW_APPLICATION), null,
@@ -203,7 +201,7 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
+  void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
@@ -216,7 +214,7 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appEnded_false() {
+  void canShowInTaskList_appEnded_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
     var processingContext = new PwaAppProcessingContext(pwaApplicationDetail, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
@@ -229,7 +227,7 @@ public class WithdrawApplicationServiceTest {
   }
 
   @Test
-  public void validate() {
+  void validate() {
 
     var form = new WithdrawApplicationForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

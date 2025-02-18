@@ -20,8 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -64,9 +64,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsentReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConsentReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -102,8 +101,8 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CONSENT_REVIEW)
@@ -136,7 +135,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderReturnToCaseOfficer_permissionSmokeTest() {
+  void renderReturnToCaseOfficer_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -148,7 +147,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderReturnToCaseOfficer_statusSmokeTest() {
+  void renderReturnToCaseOfficer_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -160,7 +159,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderReturnToCaseOfficer_caseOfficerPrefilled() throws Exception {
+  void renderReturnToCaseOfficer_caseOfficerPrefilled() throws Exception {
 
     var caseOfficerPerson = PersonTestUtil.createPersonFrom(new PersonId(2));
     var assignment = new Assignment(
@@ -183,7 +182,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderReturnToCaseOfficer_caseOfficerNotPrefilled() throws Exception {
+  void renderReturnToCaseOfficer_caseOfficerNotPrefilled() throws Exception {
 
     var caseOfficerPerson = PersonTestUtil.createPersonFrom(new PersonId(2));
     var assignment = new Assignment(
@@ -206,7 +205,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void returnToCaseOfficer_permissionSmokeTest() {
+  void returnToCaseOfficer_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -219,7 +218,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void returnToCaseOfficer_statusSmokeTest() {
+  void returnToCaseOfficer_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -232,7 +231,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void returnToCaseOfficer_success() throws Exception {
+  void returnToCaseOfficer_success() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).returnToCaseOfficer(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null, null)))
         .with(user(user))
@@ -246,7 +245,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void returnToCaseOfficer_validationFail() throws Exception {
+  void returnToCaseOfficer_validationFail() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(consentReviewReturnFormValidator, List.of("returnReason"));
 
@@ -262,7 +261,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderIssueConsent_permissionSmokeTest() {
+  void renderIssueConsent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -274,7 +273,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderIssueConsent_statusSmokeTest() {
+  void renderIssueConsent_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -286,7 +285,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderIssueConsent_consentBlockedByPipelineTransfer() throws Exception {
+  void renderIssueConsent_consentBlockedByPipelineTransfer() throws Exception {
     var donorApplication = new PwaApplication();
     donorApplication.setAppReference("TEST");
 
@@ -311,7 +310,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void scheduleConsentIssue_permissionSmokeTest() {
+  void scheduleConsentIssue_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -323,7 +322,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void scheduleConsentIssue_statusSmokeTest() {
+  void scheduleConsentIssue_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -335,7 +334,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void scheduleConsentIssue_success() throws Exception {
+  void scheduleConsentIssue_success() throws Exception {
 
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsentReviewController.class).scheduleConsentIssue(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
@@ -348,7 +347,7 @@ public class ConsentReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void scheduleConsentIssue_blockedByTransfer() throws Exception {
+  void scheduleConsentIssue_blockedByTransfer() throws Exception {
     var donorApplication = new PwaApplication();
     donorApplication.setAppReference("TEST");
 

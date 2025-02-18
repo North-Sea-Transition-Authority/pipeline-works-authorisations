@@ -20,13 +20,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -48,8 +50,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentAsBuiltWriterServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ConsentAsBuiltWriterServiceTest {
 
   private static final PipelineId PIPELINE_ID_1 = new PipelineId(1);
   private static final PipelineId PIPELINE_ID_2 = new PipelineId(2);
@@ -97,8 +100,8 @@ public class ConsentAsBuiltWriterServiceTest {
 
   private PipelineDetail pipeline1Detail, pipeline2Detail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     pwaApplicationDetail.getPwaApplication().setAppReference("APP/REFERENCE");
@@ -140,7 +143,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesInService_multipleDetailsExist() {
+  void write_consentWriterHasMappedPipelineDetails_pipelinesInService_multipleDetailsExist() {
 
     when(pipelineDetailService.countPipelineDetailsPerPipeline(
         Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
@@ -174,7 +177,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesInService_singleDetailExists() {
+  void write_consentWriterHasMappedPipelineDetails_pipelinesInService_singleDetailExists() {
 
     when(pipelineDetailService.countPipelineDetailsPerPipeline(
         Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
@@ -208,7 +211,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesNeverLaid() {
+  void write_consentWriterHasMappedPipelineDetails_pipelinesNeverLaid() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.NEVER_LAID);
     pipeline2Detail.setPipelineStatus(PipelineStatus.NEVER_LAID);
@@ -227,7 +230,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelinesTransferred() {
+  void write_consentWriterHasMappedPipelineDetails_pipelinesTransferred() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.TRANSFERRED);
     pipeline2Detail.setPipelineStatus(PipelineStatus.TRANSFERRED);
@@ -246,7 +249,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelineReturnedToShore_singleDetailExists_outOfUse() {
+  void write_consentWriterHasMappedPipelineDetails_pipelineReturnedToShore_singleDetailExists_outOfUse() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -287,7 +290,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_consentWriterHasMappedPipelineDetails_pipelineOutOfUse_singleDetailExists_newPipeline() {
+  void write_consentWriterHasMappedPipelineDetails_pipelineOutOfUse_singleDetailExists_newPipeline() {
 
     pipeline1Detail.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
     pipeline2Detail.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -330,7 +333,7 @@ public class ConsentAsBuiltWriterServiceTest {
 
   // Want to confirm hour of day consented has no impact on deadline date for options consents.
   @Test
-  public void write_optionsApplicationIsConsentSource_consentedAM() {
+  void write_optionsApplicationIsConsentSource_consentedAM() {
     when(pipelineDetailService.countPipelineDetailsPerPipeline(
         Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
         .thenReturn(Map.of(
@@ -352,7 +355,7 @@ public class ConsentAsBuiltWriterServiceTest {
 
   // Want to confirm hour of day consented has no impact on deadline date for options consents.
   @Test
-  public void write_optionsApplicationIsConsentSource_consentedPM() {
+  void write_optionsApplicationIsConsentSource_consentedPM() {
     pwaConsent.setConsentInstant(CONSENT_INSTANT_PM);
 
     when(pipelineDetailService.countPipelineDetailsPerPipeline(
@@ -375,7 +378,7 @@ public class ConsentAsBuiltWriterServiceTest {
   }
 
   @Test
-  public void write_nonOptionsApplicationIsConsentSource() {
+  void write_nonOptionsApplicationIsConsentSource() {
     when(pipelineDetailService.countPipelineDetailsPerPipeline(
         Set.of(pipeline1Detail.getPipeline(), pipeline2Detail.getPipeline())))
         .thenReturn(Map.of(

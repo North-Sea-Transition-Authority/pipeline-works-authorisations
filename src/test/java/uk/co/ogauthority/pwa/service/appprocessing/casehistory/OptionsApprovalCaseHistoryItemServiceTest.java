@@ -6,38 +6,38 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.options.OptionsApplicationApproval;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OptionsApprovalCaseHistoryItemServiceTest {
+@ExtendWith(MockitoExtension.class)
+class OptionsApprovalCaseHistoryItemServiceTest {
 
   @Mock
   ApproveOptionsService approveOptionsService;
 
   OptionsApprovalCaseHistoryItemService historyItemService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     historyItemService = new OptionsApprovalCaseHistoryItemService(approveOptionsService);
   }
 
   @Test
-  public void requestHistory_NoApproval() {
+  void requestHistory_NoApproval() {
     when(approveOptionsService.getOptionsApproval(getPwaApplication())).thenReturn(Optional.empty());
     assertThat(historyItemService.getCaseHistoryItemViews(getPwaApplication())).isEqualTo(Collections.emptyList());
   }
 
   @Test
-  public void requestHistory_SingleApproval() {
+  void requestHistory_SingleApproval() {
     when(approveOptionsService.getOptionsApproval(getPwaApplication())).thenReturn(Optional.of(getApproval()));
     var caseHistoryItems = historyItemService.getCaseHistoryItemViews(getPwaApplication());
 

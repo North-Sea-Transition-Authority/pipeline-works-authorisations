@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DateUtilsTest {
+class DateUtilsTest {
 
   @Test
-  public void isOnOrAfter_comparisonIsBefore_true() {
+  void isOnOrAfter_comparisonIsBefore_true() {
 
     var thisDate = LocalDate.of(2030, 1, 1);
     var beforeThisDate = thisDate.minus(1, ChronoUnit.DAYS);
@@ -21,7 +21,7 @@ public class DateUtilsTest {
   }
 
   @Test
-  public void isOnOrAfter_comparisonIsOn_true() {
+  void isOnOrAfter_comparisonIsOn_true() {
 
     var thisDate = LocalDate.of(2030, 1, 1);
 
@@ -32,7 +32,7 @@ public class DateUtilsTest {
   }
 
   @Test
-  public void isOnOrAfter_comparisonIsAfter_false() {
+  void isOnOrAfter_comparisonIsAfter_false() {
 
     var thisDate = LocalDate.of(2030, 1, 1);
     var afterThisDate = thisDate.plus(1, ChronoUnit.DAYS);

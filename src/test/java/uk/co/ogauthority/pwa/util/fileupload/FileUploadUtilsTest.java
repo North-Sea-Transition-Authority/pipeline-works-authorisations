@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
@@ -17,13 +17,13 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
-public class FileUploadUtilsTest {
+class FileUploadUtilsTest {
 
   private static final UploadFileWithDescriptionForm uploadedFileForm =
       new UploadFileWithDescriptionForm("1", "description", Instant.now());
 
   @Test
-  public void validateMaxFileLimit_aboveLimit_error() {
+  void validateMaxFileLimit_aboveLimit_error() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm, uploadedFileForm));
@@ -39,7 +39,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateMaxFileLimit_emptyFileAndValidFile_emptyFileIsExcluded() {
+  void validateMaxFileLimit_emptyFileAndValidFile_emptyFileIsExcluded() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm(), uploadedFileForm));
@@ -53,7 +53,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateMaxFileLimit_onLimit_noError() {
+  void validateMaxFileLimit_onLimit_noError() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
@@ -67,7 +67,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateMaxFileLimit_belowLimit_noError() {
+  void validateMaxFileLimit_belowLimit_noError() {
 
     var form = new OptionsTemplateForm();
 
@@ -80,7 +80,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFileUploaded_multipleUploaded_noError() {
+  void validateFileUploaded_multipleUploaded_noError() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -97,7 +97,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFileUploaded_fileUploaded_noError() {
+  void validateFileUploaded_fileUploaded_noError() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "d", Instant.now())));
@@ -111,7 +111,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFileUploaded_noneUploaded_error() {
+  void validateFileUploaded_noneUploaded_error() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of());
@@ -125,7 +125,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_optional_noFiles_ok() {
+  void validateFiles_optional_noFiles_ok() {
 
     var form = new OptionsTemplateForm();
 
@@ -139,7 +139,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_optional_filesWithDescription_ok() {
+  void validateFiles_optional_filesWithDescription_ok() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "d", Instant.now())));
@@ -153,7 +153,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_optional_filesNoDescription_errors() {
+  void validateFiles_optional_filesNoDescription_errors() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", null, Instant.now())));
@@ -167,7 +167,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_mandatory_noFiles_error() {
+  void validateFiles_mandatory_noFiles_error() {
 
     var form = new OptionsTemplateForm();
 
@@ -180,7 +180,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_mandatory_filesWithDescription_ok() {
+  void validateFiles_mandatory_filesWithDescription_ok() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "d2", Instant.now())));
@@ -194,7 +194,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_mandatory_filesWithDescription_andDeletedFiles_ok() {
+  void validateFiles_mandatory_filesWithDescription_andDeletedFiles_ok() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -211,7 +211,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_fileDescriptionOverMaxCharLength_error() {
+  void validateFiles_fileDescriptionOverMaxCharLength_error() {
 
     var form = new OptionsTemplateForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
@@ -232,7 +232,7 @@ public class FileUploadUtilsTest {
   }
 
   @Test
-  public void validateFiles_mandatory_filesWithoutDescription_andDeletedFiles_error() {
+  void validateFiles_mandatory_filesWithoutDescription_andDeletedFiles_error() {
 
     var form = new OptionsTemplateForm();
     form.setUploadedFileWithDescriptionForms(List.of(
@@ -252,9 +252,8 @@ public class FileUploadUtilsTest {
   }
 
 
-
   @Test
-  public void validateFilesDescriptionLength_fileDescriptionOverMaxCharLength_error() {
+  void validateFilesDescriptionLength_fileDescriptionOverMaxCharLength_error() {
 
     var form = new OptionsTemplateForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);

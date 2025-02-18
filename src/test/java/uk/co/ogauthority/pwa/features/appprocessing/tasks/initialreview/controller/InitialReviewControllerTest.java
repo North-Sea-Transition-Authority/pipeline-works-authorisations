@@ -16,8 +16,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -54,9 +54,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialReviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class InitialReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class InitialReviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final String CASE_OFFICER_ID_ATTR = "caseOfficerPersonId";
   private static final String REVIEW_DECISION_ATTR = "initialReviewPaymentDecision";
@@ -98,8 +97,8 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
 
   private ApplicationPaymentDisplaySummary applicationPaymentDisplaySummary;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     applicationPaymentDisplaySummary = ApplicationPaymentDisplaySummaryTestUtil.getDefaultPaymentDisplaySummary();
     when(applicationFeeService.getApplicationFeeReport(any())).thenReturn(applicationFeeReport);
@@ -120,7 +119,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderInitialReview_permissionSmokeTest() {
+  void renderInitialReview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -132,7 +131,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderInitialReview_statusSmokeTest() {
+  void renderInitialReview_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -144,7 +143,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void renderInitialReview_openUpdateRequest_denied() throws Exception {
+  void renderInitialReview_openUpdateRequest_denied() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
@@ -161,7 +160,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_permissionSmokeTest() {
+  void postInitialReview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -174,7 +173,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_paymentWaived() throws Exception {
+  void postInitialReview_paymentWaived() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
@@ -199,7 +198,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_paymentRequired() throws Exception {
+  void postInitialReview_paymentRequired() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
@@ -225,7 +224,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_alreadyPerformed() throws Exception {
+  void postInitialReview_alreadyPerformed() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
@@ -245,7 +244,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_validationFail() throws Exception {
+  void postInitialReview_validationFail() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 
@@ -264,7 +263,7 @@ public class InitialReviewControllerTest extends PwaAppProcessingContextAbstract
   }
 
   @Test
-  public void postInitialReview_openUpdateRequest_denied() throws Exception {
+  void postInitialReview_openUpdateRequest_denied() throws Exception {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
 

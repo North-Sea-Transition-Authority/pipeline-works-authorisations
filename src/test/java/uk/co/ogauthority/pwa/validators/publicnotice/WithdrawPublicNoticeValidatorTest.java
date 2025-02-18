@@ -5,28 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WithdrawPublicNoticeValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class WithdrawPublicNoticeValidatorTest {
 
   private WithdrawPublicNoticeValidator validator;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new WithdrawPublicNoticeValidator();
   }
 
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new WithdrawPublicNoticeForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).containsOnly(
@@ -34,7 +34,7 @@ public class WithdrawPublicNoticeValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new WithdrawPublicNoticeForm();
     form.setWithdrawalReason("My reason");
 
@@ -43,7 +43,7 @@ public class WithdrawPublicNoticeValidatorTest {
   }
 
   @Test
-  public void validate_form_textAreaLengthExceeded() {
+  void validate_form_textAreaLengthExceeded() {
     var form = new WithdrawPublicNoticeForm();
     form.setWithdrawalReason(ValidatorTestUtils.overMaxDefaultCharLength());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);

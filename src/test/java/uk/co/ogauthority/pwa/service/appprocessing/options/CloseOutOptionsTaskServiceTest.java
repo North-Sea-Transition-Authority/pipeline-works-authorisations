@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CloseOutOptionsTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CloseOutOptionsTaskServiceTest {
 
   private static final PersonId PERSON_ID = new PersonId(1);
 
@@ -40,8 +40,8 @@ public class CloseOutOptionsTaskServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaAppProcessingContext pwaAppProcessingContext;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -58,7 +58,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_withPermissions() {
+  void canShowInTaskList_withPermissions() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.CLOSE_OUT_OPTIONS)
@@ -68,7 +68,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermission_optionsAppType() {
+  void canShowInTaskList_showAllTasksPermission_optionsAppType() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
@@ -77,7 +77,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermission_notOptionsAppType() {
+  void canShowInTaskList_showAllTasksPermission_notOptionsAppType() {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         detail,
@@ -87,7 +87,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_withoutPermissions() {
+  void canShowInTaskList_withoutPermissions() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -98,7 +98,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenAppComplete_andWithPermissions_andConsentedOptionConfirmed() {
+  void taskAccessible_whenAppComplete_andWithPermissions_andConsentedOptionConfirmed() {
     pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
@@ -108,7 +108,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenAppNotComplete_andWithPermissions_andApprovedOptions_andNoAppUpdate_andOtherOptionConfirmed() {
+  void taskAccessible_whenAppNotComplete_andWithPermissions_andApprovedOptions_andNoAppUpdate_andOtherOptionConfirmed() {
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_OTHER_CONFIRMED);
@@ -120,7 +120,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenAppNotComplete_andWithPermissions_andApprovedOptions_andOpenAppUpdate() {
+  void taskAccessible_whenAppNotComplete_andWithPermissions_andApprovedOptions_andOpenAppUpdate() {
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .thenReturn(OptionsApprovalStatus.APPROVED_CONSENTED_OPTION_CONFIRMED);
@@ -132,7 +132,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenAppNotComplete_andWithoutPermissions_andNotApproved() {
+  void taskAccessible_whenAppNotComplete_andWithoutPermissions_andNotApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.noneOf(PwaAppProcessingPermission.class)
@@ -145,7 +145,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenAppComplete_andApprovedOptions_andNoAppUpdate_andConsentedOptionConfirmed() {
+  void getTaskListEntry_whenAppComplete_andApprovedOptions_andNoAppUpdate_andConsentedOptionConfirmed() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
 
@@ -169,7 +169,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andNoAppUpdate_andConsentedOptionConfirmed() {
+  void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andNoAppUpdate_andConsentedOptionConfirmed() {
 
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
@@ -192,7 +192,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andNoAppUpdate_andOtherOptionConfirmed() {
+  void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andNoAppUpdate_andOtherOptionConfirmed() {
 
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
@@ -214,7 +214,7 @@ public class CloseOutOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andOpenAppUpdate_andOtherOptionConfirmed() {
+  void getTaskListEntry_whenAppNotComplete_andApprovedOptions_andOpenAppUpdate_andOtherOptionConfirmed() {
 
 
     when(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))

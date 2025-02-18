@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AreaInformationSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AreaInformationSummaryServiceTest {
   private final String FIELD_NAME = "FIELD";
   private final String LINK_DESC = "LINK DESC";
 
@@ -55,8 +55,8 @@ public class AreaInformationSummaryServiceTest {
   private PwaAreaLinksView linkedFieldView;
   private PwaAreaLinksView notLinkedFieldView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     linkedFieldView = createFieldLinksView(true, FIELD_NAME);
     notLinkedFieldView = createFieldLinksView(false, LINK_DESC);
@@ -72,7 +72,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(Set.of(
         ApplicationTask.FIELD_INFORMATION,
         ApplicationTask.CARBON_STORAGE_INFORMATION), pwaApplicationDetail))
@@ -81,12 +81,12 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(areaInformationSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_PetroleumTemplate() {
+  void summariseSection_PetroleumTemplate() {
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
     when(padAreaService.getApplicationAreaLinksView(pwaApplicationDetail)).thenReturn(notLinkedFieldView);
@@ -97,7 +97,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_HydrogenTemplate() {
+  void summariseSection_HydrogenTemplate() {
     var application = pwaApplicationDetail.getPwaApplication();
     application.setResourceType(PwaResourceType.HYDROGEN);
     pwaApplicationDetail.setPwaApplication(application);
@@ -112,7 +112,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_CcusTemplate() {
+  void summariseSection_CcusTemplate() {
     var application = pwaApplicationDetail.getPwaApplication();
     application.setResourceType(PwaResourceType.CCUS);
     pwaApplicationDetail.setPwaApplication(application);
@@ -127,7 +127,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
@@ -159,7 +159,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_whenAppIsNotLinkedToFields_andConsentIsNotLinkedToFields() {
+  void summariseSection_whenAppIsNotLinkedToFields_andConsentIsNotLinkedToFields() {
 
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
@@ -175,7 +175,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_whenAppIsLinkedToFields_andConsentIsNotLinkedToFields() {
+  void summariseSection_whenAppIsLinkedToFields_andConsentIsNotLinkedToFields() {
 
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(notLinkedFieldView);
@@ -191,7 +191,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_whenAppIsLinkedToFields_andConsentIsLinkedToFields() {
+  void summariseSection_whenAppIsLinkedToFields_andConsentIsLinkedToFields() {
 
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);
@@ -207,7 +207,7 @@ public class AreaInformationSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_whenAppIsNotLinkedToFields_andConsentIsLinkedToFields() {
+  void summariseSection_whenAppIsNotLinkedToFields_andConsentIsLinkedToFields() {
 
     when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(linkedFieldView);

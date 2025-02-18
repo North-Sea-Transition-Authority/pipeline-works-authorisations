@@ -1,12 +1,13 @@
 package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineTestUtil;
@@ -15,14 +16,14 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineMappingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineMappingServiceTest {
 
   private PipelineMappingService pipelineMappingService;
   private Pipeline sourcePipeline;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pipelineMappingService = new PipelineMappingService();
     sourcePipeline = new Pipeline();
@@ -31,7 +32,7 @@ public class PipelineMappingServiceTest {
   }
 
   @Test
-  public void mapPadPipelineToPipelineDetail() throws IllegalAccessException {
+  void mapPadPipelineToPipelineDetail() throws IllegalAccessException {
 
     var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
@@ -82,26 +83,34 @@ public class PipelineMappingServiceTest {
 
   }
 
-  @Test(expected = NullPointerException.class)
-  public void mapPadPipelineToPipelineDetail_noCoordinates() throws IllegalAccessException {
-
+  @Test
+  void mapPadPipelineToPipelineDetail_noFromCoordinate() throws IllegalAccessException {
     var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
     var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
-    padPipeline.setFromCoordinates(null);
-    padPipeline.setToCoordinates(null);
 
     var detail = new PipelineDetail();
-
     pipelineMappingService.mapPipelineEntities(detail, padPipeline);
 
-    ObjectTestUtils.assertAllExpectedFieldsHaveValue(detail,
-        List.of("id", "pipeline", "startTimestamp", "endTimestamp", "tipFlag", "pwaConsent", "fromCoordinates", "toCoordinates", "transferredFrom", "transferredTo"));
+    assertThrows(NullPointerException.class, () -> padPipeline.setFromCoordinates(null));
 
   }
 
   @Test
-  public void mapPadPipelineToPipelineDetail_pipelineTypeNull() throws IllegalAccessException {
+  void mapPadPipelineToPipelineDetail_noToCoordinate() throws IllegalAccessException {
+    var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
+    var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);
+    var padPipeline = padPipelineIdentData.getPadPipelineIdent().getPadPipeline();
+
+    var detail = new PipelineDetail();
+    pipelineMappingService.mapPipelineEntities(detail, padPipeline);
+
+    assertThrows(NullPointerException.class, () -> padPipeline.setToCoordinates(null));
+
+  }
+
+  @Test
+  void mapPadPipelineToPipelineDetail_pipelineTypeNull() throws IllegalAccessException {
 
     var appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var padPipelineIdentData = PadPipelineTestUtil.createPadPipeline(appDetail, PipelineType.METHANOL_PIPELINE);

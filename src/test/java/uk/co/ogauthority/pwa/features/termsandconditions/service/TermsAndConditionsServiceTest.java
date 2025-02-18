@@ -11,12 +11,12 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.PwaTermsAndConditions;
@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TermsAndConditionsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TermsAndConditionsServiceTest {
 
   @Mock
   TermsAndConditionsRepository termsAndConditionsRepository;
@@ -54,8 +54,8 @@ public class TermsAndConditionsServiceTest {
 
   private MasterPwaDetail detail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     termsAndConditionsService = new TermsAndConditionsService(
         termsAndConditionsRepository,
         termsAndConditionsValidator,
@@ -70,7 +70,7 @@ public class TermsAndConditionsServiceTest {
   }
 
   @Test
-  public void saveForm() {
+  void saveForm() {
     var instant = Instant.parse("2023-06-30T15:43:00Z");
     try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
       mockedStatic.when(Instant::now).thenReturn(instant);
@@ -111,14 +111,14 @@ public class TermsAndConditionsServiceTest {
   }
 
   @Test
-  public void getPwasForSelector() {
+  void getPwasForSelector() {
     when(termsAndConditionsPwaViewRepository.findAll()).thenReturn(
         List.of(new TermsAndConditionsPwaView(1, "1/W/23")));
     assertThat(termsAndConditionsService.getPwasForSelector()).containsExactly(entry("1","1/W/23"));
   }
 
   @Test
-  public void getPwaManagementScreenPageView() {
+  void getPwaManagementScreenPageView() {
     var terms = new PwaTermsAndConditions()
         .setMasterPwa(masterPwa)
         .setVariationTerm(7)
@@ -147,14 +147,14 @@ public class TermsAndConditionsServiceTest {
   }
 
   @Test
-  public void findByMasterPwa() {
+  void findByMasterPwa() {
     var masterPwa = new MasterPwa();
     termsAndConditionsService.findByMasterPwa(masterPwa);
     verify(termsAndConditionsRepository).findPwaTermsAndConditionsByMasterPwa(masterPwa);
   }
 
   @Test
-  public void getTermsAndConditionsForm_termsDoNotExist() {
+  void getTermsAndConditionsForm_termsDoNotExist() {
     when(masterPwaService.getMasterPwaById(1)).thenReturn(masterPwa);
     when(termsAndConditionsRepository.findPwaTermsAndConditionsByMasterPwa(masterPwa)).thenReturn(Optional.empty());
 
@@ -162,7 +162,7 @@ public class TermsAndConditionsServiceTest {
   }
 
   @Test
-  public void getTermsAndConditionsForm_termsAlreadyExist() {
+  void getTermsAndConditionsForm_termsAlreadyExist() {
     var pwaTermsAndConditions = new PwaTermsAndConditions()
         .setMasterPwa(masterPwa)
         .setVariationTerm(7)

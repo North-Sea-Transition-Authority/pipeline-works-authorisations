@@ -3,15 +3,18 @@ package uk.co.ogauthority.pwa.features.generalcase.pipelineview;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IdentDiffableViewTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class IdentDiffableViewTest {
 
   private final String POINT_1 = IdentViewTestUtil.POINT_1;
   private final String POINT_2 = IdentViewTestUtil.POINT_2;
@@ -52,14 +55,14 @@ public class IdentDiffableViewTest {
   private IdentView nextIdent;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(currentIdent, POINT_2, POINT_3, CURRENT_IDENT_NUMBER);
   }
 
   @Test
-  public void fromIdentViews_whenNoPreviousIdent_andNoNextIdent() {
+  void fromIdentViews_whenNoPreviousIdent_andNoNextIdent() {
 
     var result = IdentDiffableView.fromIdentViews(null, currentIdent, null);
 
@@ -69,7 +72,7 @@ public class IdentDiffableViewTest {
   }
 
   @Test
-  public void fromIdentViews_whenNoPreviousIdent_andNextIdentNotConnected() {
+  void fromIdentViews_whenNoPreviousIdent_andNextIdentNotConnected() {
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(nextIdent, POINT_4, POINT_4, CURRENT_IDENT_NUMBER + 1);
 
@@ -81,7 +84,7 @@ public class IdentDiffableViewTest {
   }
 
   @Test
-  public void fromIdentViews_whenNoPreviousIdent_andNextIdentIsConnected() {
+  void fromIdentViews_whenNoPreviousIdent_andNextIdentIsConnected() {
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(nextIdent, POINT_3, POINT_4, CURRENT_IDENT_NUMBER + 1);
 
@@ -93,7 +96,7 @@ public class IdentDiffableViewTest {
   }
 
   @Test
-  public void fromIdentViews_whenPreviousIdent_andNoNextIdent() {
+  void fromIdentViews_whenPreviousIdent_andNoNextIdent() {
 
     IdentViewTestUtil.setupSingleCoreIdentViewMock(previousIdent, POINT_1, POINT_2, CURRENT_IDENT_NUMBER - 1);
 
@@ -106,7 +109,7 @@ public class IdentDiffableViewTest {
 
 
   @Test
-  public void fromIdentViews_whenSingleCoreIdent() {
+  void fromIdentViews_whenSingleCoreIdent() {
 
 
     var result = IdentDiffableView.fromIdentViews(null, currentIdent, null);
@@ -128,7 +131,7 @@ public class IdentDiffableViewTest {
   }
 
   @Test
-  public void fromIdentViews_whenMultiCoreIdent() {
+  void fromIdentViews_whenMultiCoreIdent() {
 
     IdentViewTestUtil.setupMultiCoreIdentViewMock(currentIdent, POINT_1, POINT_2, CURRENT_IDENT_NUMBER);
     var result = IdentDiffableView.fromIdentViews(null, currentIdent, null);

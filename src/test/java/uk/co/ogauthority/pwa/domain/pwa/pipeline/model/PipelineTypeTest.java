@@ -4,16 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineTypeTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineTypeTest {
 
   @Test
-  public void hydrogenType_noMultiCore() {
+  void hydrogenType_noMultiCore() {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.HYDROGEN)
         .map(PipelineType::getCoreType)
         .collect(Collectors.toSet());
@@ -23,7 +23,7 @@ public class PipelineTypeTest {
   }
 
   @Test
-  public void hydrogenType_SpecificExclusions() {
+  void hydrogenType_SpecificExclusions() {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.HYDROGEN)
         .collect(Collectors.toSet());
     assertThat(hydrogenPipelines)
@@ -38,7 +38,7 @@ public class PipelineTypeTest {
   }
 
   @Test
-  public void petroleumType_SpecificExclusions() {
+  void petroleumType_SpecificExclusions() {
     var hydrogenPipelines = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM)
         .collect(Collectors.toSet());
     assertThat(hydrogenPipelines)
@@ -47,7 +47,7 @@ public class PipelineTypeTest {
   }
 
   @Test
-  public void ccusType_includesAllPetroleum() {
+  void ccusType_includesAllPetroleum() {
     var ccusPipeline = PipelineType.streamDisplayValues(PwaResourceType.CCUS)
         .collect(Collectors.toList());
     var petroleumPipeline = PipelineType.streamDisplayValues(PwaResourceType.PETROLEUM)

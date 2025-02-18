@@ -1,37 +1,40 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.definesections;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class DefinePipelineHuooSectionsFormTest {
+@ExtendWith(MockitoExtension.class)
+class DefinePipelineHuooSectionsFormTest {
 
   private PickableIdentLocationOption firstIdentLocation;
 
-  @Before
-  public void setup(){
+  @BeforeEach
+  void setup(){
     firstIdentLocation = new PickableIdentLocationOption(1, PickableIdentLocationOption.IdentPoint.FROM_LOCATION, "POINT 1");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void resetSectionPoints_when0Sections() {
+  @Test
+  void resetSectionPoints_when0Sections() {
     var form = new DefinePipelineHuooSectionsForm();
-    form.resetSectionPoints(0,  firstIdentLocation);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void resetSectionPoints_whenLessThanZero0Sections() {
-    var form = new DefinePipelineHuooSectionsForm();
-    form.resetSectionPoints(-1,  firstIdentLocation);
+    assertThrows(IllegalArgumentException.class, () ->
+      form.resetSectionPoints(0, firstIdentLocation));
   }
 
   @Test
-  public void resetSectionPoints_when1Sections() {
+  void resetSectionPoints_whenLessThanZero0Sections() {
+    var form = new DefinePipelineHuooSectionsForm();
+    assertThrows(IllegalArgumentException.class, () ->
+      form.resetSectionPoints(-1, firstIdentLocation));
+  }
+
+  @Test
+  void resetSectionPoints_when1Sections() {
     var form = new DefinePipelineHuooSectionsForm();
     form.resetSectionPoints(1,  firstIdentLocation);
 
@@ -41,7 +44,7 @@ public class DefinePipelineHuooSectionsFormTest {
   }
 
   @Test
-  public void resetSectionPoints_when3Sections() {
+  void resetSectionPoints_when3Sections() {
     var form = new DefinePipelineHuooSectionsForm();
     form.resetSectionPoints(3,  firstIdentLocation);
 

@@ -9,11 +9,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
@@ -31,8 +31,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSearchContextCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSearchContextCreatorTest {
 
   @Mock
   private UserTypeService userTypeService;
@@ -53,8 +53,8 @@ public class ApplicationSearchContextCreatorTest {
   private AuthenticatedUserAccount authenticatedUserAccount;
   private Person person;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     person = PersonTestUtil.createDefaultPerson();
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, person), Collections.emptyList());
 
@@ -66,7 +66,7 @@ public class ApplicationSearchContextCreatorTest {
   }
 
   @Test
-  public void createContext_contextContentSetAsExpected() {
+  void createContext_contextContentSetAsExpected() {
 
     var userType = UserType.INDUSTRY;
     when(userTypeService.getUserTypes(authenticatedUserAccount)).thenReturn(Set.of(userType));

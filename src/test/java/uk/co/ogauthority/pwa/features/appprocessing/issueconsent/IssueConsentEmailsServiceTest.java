@@ -1,15 +1,16 @@
 package uk.co.ogauthority.pwa.features.appprocessing.issueconsent;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
@@ -25,8 +26,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.ConsentEmailService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class IssueConsentEmailsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class IssueConsentEmailsServiceTest {
 
   @Mock
   private ConsentEmailService consentEmailService;
@@ -48,15 +49,15 @@ public class IssueConsentEmailsServiceTest {
   private final String consentReference = "1/W/89";
   private final String caseOfficerEmail = "case@officer.com";
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     issueConsentEmailsService = new IssueConsentEmailsService(consentEmailService, pwaContactService, pwaHolderTeamService, personService);
 
   }
 
   @Test
-  public void sendConsentIssuedEmails_allEmailsSent() {
+  void sendConsentIssuedEmails_allEmailsSent() {
 
     var consentReview = PwaConsentReviewTestUtil.createApprovedConsentReview(pwaApplicationDetail);
 
@@ -97,7 +98,7 @@ public class IssueConsentEmailsServiceTest {
   }
 
   @Test
-  public void sendConsentIssuedEmails_latestAppSubmitterNotInContacts_latestAppSubmitterIsStillSentEmail() {
+  void sendConsentIssuedEmails_latestAppSubmitterNotInContacts_latestAppSubmitterIsStillSentEmail() {
 
     var consentReview = PwaConsentReviewTestUtil.createApprovedConsentReview(pwaApplicationDetail);
 
@@ -129,17 +130,17 @@ public class IssueConsentEmailsServiceTest {
 
   }
 
-  @Test(expected = ActionNotAllowedException.class)
-  public void sendConsentIssuedEmails_latestAppSubmitterNotInContacts_appDetailIsNotLatest() {
-
+  @Test
+  void sendConsentIssuedEmails_latestAppSubmitterNotInContacts_appDetailIsNotLatest() {
     var consentReview = PwaConsentReviewTestUtil.createApprovedConsentReview(pwaApplicationDetail);
     pwaApplicationDetail.setTipFlag(false);
-    issueConsentEmailsService.sendConsentIssuedEmails(
-        pwaApplicationDetail,
-        consentReference,
-        consentReview.getCoverLetterText(),
-        caseOfficerEmail,
-        issuingUser.getFullName());
+    assertThrows(ActionNotAllowedException.class, () ->
+      issueConsentEmailsService.sendConsentIssuedEmails(
+          pwaApplicationDetail,
+          consentReference,
+          consentReview.getCoverLetterText(),
+          caseOfficerEmail,
+          issuingUser.getFullName()));
 
   }
 

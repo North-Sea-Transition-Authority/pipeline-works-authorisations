@@ -13,11 +13,13 @@ import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -38,8 +40,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HuooWriterTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class HuooWriterTest {
 
   @Mock
   private PwaConsentOrganisationRoleService consentOrganisationRoleService;
@@ -67,8 +70,8 @@ public class HuooWriterTest {
 
   private ConsentWriterDto consentWriterDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     masterPwa = detail.getMasterPwa();
@@ -122,7 +125,7 @@ public class HuooWriterTest {
   }
 
   @Test
-  public void write_initialPwa() {
+  void write_initialPwa() {
 
     pwaConsent.setVariationNumber(0);
 
@@ -158,7 +161,7 @@ public class HuooWriterTest {
   }
 
   @Test
-  public void write_variation_noChanges() {
+  void write_variation_noChanges() {
 
     pwaConsent.setVariationNumber(1);
 
@@ -193,7 +196,7 @@ public class HuooWriterTest {
   }
 
   @Test
-  public void write_variation_noAdditions_existingMigratedOrgRoles() {
+  void write_variation_noAdditions_existingMigratedOrgRoles() {
 
     var initialConsent = new PwaConsent();
     initialConsent.setVariationNumber(0);
@@ -238,7 +241,7 @@ public class HuooWriterTest {
   }
 
   @Test
-  public void write_variation_changes() {
+  void write_variation_changes() {
 
     pwaConsent.setVariationNumber(1);
 

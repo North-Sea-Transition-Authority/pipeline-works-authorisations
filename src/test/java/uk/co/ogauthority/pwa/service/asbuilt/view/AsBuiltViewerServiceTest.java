@@ -12,11 +12,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -45,8 +47,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.AsBuiltNotificationGroupStatusHistoryTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltViewerServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AsBuiltViewerServiceTest {
 
   private AsBuiltViewerService asBuiltViewerService;
 
@@ -101,8 +104,8 @@ public class AsBuiltViewerServiceTest {
       AsBuiltNotificationGroupStatusHistoryTestUtil.createAsBuiltStatusHistory_withNotificationGroup(asBuiltNotificationGroup,
           AsBuiltNotificationGroupStatus.COMPLETE);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltViewerService = new AsBuiltViewerService(asBuiltNotificationViewService, asBuiltNotificationSummaryService,
         asBuiltNotificationGroupService, asBuiltNotificationGroupDetailService, asBuiltNotificationSubmissionRepository,
         asBuiltNotificationGroupPipelineRepository, asBuiltNotificationGroupStatusHistoryRepository, pipelineDetailService);
@@ -131,25 +134,25 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void getAsBuiltNotificationGroupSummaryView_serviceCalledSuccessfully() {
+  void getAsBuiltNotificationGroupSummaryView_serviceCalledSuccessfully() {
     asBuiltViewerService.getAsBuiltNotificationGroupSummaryView(asBuiltNotificationGroup.getId());
     verify(asBuiltNotificationSummaryService).getAsBuiltNotificationGroupSummaryView(asBuiltNotificationGroupDetail);
   }
 
   @Test
-  public void getAsBuiltPipelineNotificationSubmissionViews_viewWithSubmission_callsCorrectMappingMethod() {
+  void getAsBuiltPipelineNotificationSubmissionViews_viewWithSubmission_callsCorrectMappingMethod() {
     asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(NOTIFICATION_GROUP_ID);
     verify(asBuiltNotificationViewService).mapToAsBuiltNotificationView(pipelineDetail, asBuiltNotificationSubmission);
   }
 
   @Test
-  public void getAsBuiltPipelineNotificationSubmissionViews_viewWithNoSubmission_callsCorrectMappingMethod() {
+  void getAsBuiltPipelineNotificationSubmissionViews_viewWithNoSubmission_callsCorrectMappingMethod() {
     asBuiltViewerService.getAsBuiltPipelineNotificationSubmissionViews(NOTIFICATION_GROUP_ID);
     verify(asBuiltNotificationViewService).mapToAsBuiltNotificationViewWithNoSubmission(NOTIFICATION_GROUP_ID, pipelineDetail2);
   }
 
   @Test
-  public void getOverviewsWithAsBuiltStatus() {
+  void getOverviewsWithAsBuiltStatus() {
     var overview = PipelineDetailTestUtil
         .createPipelineOverviewWithAsBuiltStatus("REF", PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT);
     var pipelineDetailFromOverview = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(overview.getPipelineId()), Instant.now());
@@ -169,20 +172,20 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void getHistoricAsBuiltSubmissionView() {
+  void getHistoricAsBuiltSubmissionView() {
     asBuiltViewerService.getHistoricAsBuiltSubmissionView(PIPELINE_ID);
     verify(asBuiltNotificationViewService).getSubmissionHistoryView(List.of(asBuiltNotificationSubmission,
         olderAsBuiltNotificationSubmission));
   }
 
   @Test
-  public void getNotificationGroup() {
+  void getNotificationGroup() {
     when(asBuiltNotificationGroupService.getAsBuiltNotificationGroup(NOTIFICATION_GROUP_ID)).thenReturn(Optional.of(asBuiltNotificationGroup));
     assertThat(asBuiltViewerService.getNotificationGroup(NOTIFICATION_GROUP_ID)).isEqualTo(asBuiltNotificationGroup);
   }
 
   @Test
-  public void getNotificationGroup_notFound_thowsAsBuiltNotificationGroupNotFoundException() {
+  void getNotificationGroup_notFound_thowsAsBuiltNotificationGroupNotFoundException() {
     when(asBuiltNotificationGroupService.getAsBuiltNotificationGroup(NOTIFICATION_GROUP_ID)).thenReturn(Optional.empty());
 
     Exception exception = assertThrows(AsBuiltNotificationGroupNotFoundException.class,
@@ -195,13 +198,13 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void getNotificationGroupOptionalFromConsent() {
+  void getNotificationGroupOptionalFromConsent() {
     when(asBuiltNotificationGroupService.getAsBuiltNotificationGroupPerConsent(pwaConsent)).thenReturn(Optional.of(asBuiltNotificationGroup));
     assertThat(asBuiltViewerService.getNotificationGroupOptionalFromConsent(pwaConsent)).isEqualTo(Optional.of(asBuiltNotificationGroup));
   }
 
   @Test
-  public void canGroupBeReopened_canReopen() {
+  void canGroupBeReopened_canReopen() {
     when(asBuiltNotificationGroupStatusHistoryRepository
         .findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE))
         .thenReturn(Optional.of(asBuiltNotificationGroupStatusHistory));
@@ -210,7 +213,7 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void canGroupBeReopened_noCompleteHistoryFound_cannotReopen() {
+  void canGroupBeReopened_noCompleteHistoryFound_cannotReopen() {
     when(asBuiltNotificationGroupStatusHistoryRepository
         .findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE))
         .thenReturn(Optional.empty());
@@ -219,7 +222,7 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void isGroupStatusComplete_complete() {
+  void isGroupStatusComplete_complete() {
     when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
         asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE))
         .thenReturn(Optional.of(asBuiltNotificationGroupStatusHistory));
@@ -227,7 +230,7 @@ public class AsBuiltViewerServiceTest {
   }
 
   @Test
-  public void isGroupStatusComplete_notComplete() {
+  void isGroupStatusComplete_notComplete() {
     when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
         asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE))
         .thenReturn(Optional.empty());

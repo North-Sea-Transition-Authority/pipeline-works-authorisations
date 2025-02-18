@@ -12,11 +12,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
@@ -35,8 +37,9 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.diff.DiffService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelinesSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelinesSummaryServiceTest {
 
 
   private static final int PIPELINE_ID = 1;
@@ -76,8 +79,8 @@ public class PipelinesSummaryServiceTest {
   private PipelinesSummaryService pipelinesSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     when(pipelineHeaderView.getPipelineId()).thenReturn(PIPELINE_ID);
 
@@ -95,7 +98,7 @@ public class PipelinesSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     assertThat(pipelinesSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
 
@@ -103,18 +106,18 @@ public class PipelinesSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
     assertThat(pipelinesSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(pipelinesSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var appSummary = pipelinesSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -134,7 +137,7 @@ public class PipelinesSummaryServiceTest {
   }
 
   @Test
-  public void getDiffedPipelineSummaryList_serviceInteractions_whenSingleAppPipelineAdded() {
+  void getDiffedPipelineSummaryList_serviceInteractions_whenSingleAppPipelineAdded() {
     var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd),
         new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
     var diffedSummaryList = pipelinesSummaryService.getDiffedPipelineSummaryList(List.of(appPipelineSummary), List.of());
@@ -160,7 +163,7 @@ public class PipelinesSummaryServiceTest {
   }
 
   @Test
-  public void getDiffedPipelineSummaryList_currentPipelineHasFootnote() {
+  void getDiffedPipelineSummaryList_currentPipelineHasFootnote() {
     when(pipelineHeaderView.getFootnote()).thenReturn("Some footnote information");
     var appPipelineSummary = PipelineDiffableSummary.from(pipelineHeaderView, List.of(identStart, identMid, identEnd),
         new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));

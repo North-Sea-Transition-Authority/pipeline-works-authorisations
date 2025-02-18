@@ -8,11 +8,11 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUt
 import uk.co.ogauthority.pwa.repository.search.consents.PwaHolderOrgUnitRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaHolderServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaHolderServiceTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -36,8 +36,8 @@ public class PwaHolderServiceTest {
   private PwaApplication pwaApplication;
   private MasterPwa masterPwa;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaHolderService = new PwaHolderService(portalOrganisationsAccessor, pwaHolderOrgUnitRepository);
 
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
@@ -46,7 +46,7 @@ public class PwaHolderServiceTest {
 
 
   @Test
-  public void getHolderOrgGroupsForMasterPwaIds_correctlyCreatesMultimap() {
+  void getHolderOrgGroupsForMasterPwaIds_correctlyCreatesMultimap() {
 
     var holderOrgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "O", "O");
     var holderOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "OO", holderOrgGroup);
@@ -63,7 +63,7 @@ public class PwaHolderServiceTest {
   }
 
   @Test
-  public void getPwaHolderOrgUnits() {
+  void getPwaHolderOrgUnits() {
 
     var ou = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
     var holderOu = PwaHolderOrgUnitTestUtil.createPwaHolderOrgUnit("h1", masterPwa.getId(), ou);

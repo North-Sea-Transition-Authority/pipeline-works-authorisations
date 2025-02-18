@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,9 +46,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles(profiles = { "integration-test", "test" })
+@ActiveProfiles(profiles = {"integration-test", "test"})
 @EnableConfigurationProperties(value = AnalyticsProperties.class)
-public class PwaApplicationDataCleanupServiceTest {
+class PwaApplicationDataCleanupServiceTest {
 
   @SpyBean
   private PwaApplicationDataCleanupService pwaApplicationDataCleanupService;
@@ -111,7 +111,7 @@ public class PwaApplicationDataCleanupServiceTest {
   private PadFileService padFileService;
 
   @Test
-  public void cleanupData() {
+  void cleanupData() {
 
     var detail = new PwaApplicationDetail();
 

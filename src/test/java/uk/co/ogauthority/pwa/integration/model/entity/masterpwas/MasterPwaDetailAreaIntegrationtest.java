@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -62,7 +62,7 @@ public class MasterPwaDetailAreaIntegrationtest {
 
   @Transactional
   @Test
-  public void testMappingAndRepositoryQuery_whenManualField(){
+  void mappingAndRepositoryQueryWhenManualField(){
     setup();
 
     var manualField = new MasterPwaDetailArea();
@@ -79,7 +79,7 @@ public class MasterPwaDetailAreaIntegrationtest {
 
   @Transactional
   @Test
-  public void testMappingAndRepositoryQuery_whenDevukField(){
+  void mappingAndRepositoryQueryWhenDevukField(){
     setup();
 
     var manualField = new MasterPwaDetailArea();

@@ -11,11 +11,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CaseHistoryTabContentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CaseHistoryTabContentServiceTest {
 
   @Mock
   private CaseHistoryService caseHistoryService;
@@ -34,8 +34,8 @@ public class CaseHistoryTabContentServiceTest {
 
   private WebUserAccount wua;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     caseHistoryTabContentService = new CaseHistoryTabContentService(caseHistoryService);
 
@@ -44,7 +44,7 @@ public class CaseHistoryTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_caseHistoryTab_populated() {
+  void getTabContentModelMap_caseHistoryTab_populated() {
 
     var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
 
@@ -64,7 +64,7 @@ public class CaseHistoryTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_differentTab_empty() {
+  void getTabContentModelMap_differentTab_empty() {
 
     var processingContext = createContextWithPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA);
 

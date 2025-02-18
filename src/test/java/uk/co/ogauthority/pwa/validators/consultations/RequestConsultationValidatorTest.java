@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RequestConsultationValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class RequestConsultationValidatorTest {
 
   @Mock
   private ConsultationRequestService consultationRequestService;
@@ -35,16 +35,15 @@ public class RequestConsultationValidatorTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new ConsultationRequestValidator();
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
 
-
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new ConsultationRequestForm();
     form.setDaysToRespond(null);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, 
@@ -56,7 +55,7 @@ public class RequestConsultationValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(5);
@@ -76,7 +75,7 @@ public class RequestConsultationValidatorTest {
   }
 
   @Test
-  public void validate_consultationAlreadyOpen_invalid() {
+  void validate_consultationAlreadyOpen_invalid() {
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(5);
@@ -99,7 +98,7 @@ public class RequestConsultationValidatorTest {
 
 
   @Test
-  public void validate_daysToRespondZero_invalid() {
+  void validate_daysToRespondZero_invalid() {
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(0);

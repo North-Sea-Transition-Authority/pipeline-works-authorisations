@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class FailedSendForApprovalCheckTest {
+class FailedSendForApprovalCheckTest {
 
   @Test
-  public void testEqualsAndHashCode() {
+  void equalsAndHashCode() {
     EqualsVerifier.forClass(FailedSendForApprovalCheck.class)
         .verify();
   }

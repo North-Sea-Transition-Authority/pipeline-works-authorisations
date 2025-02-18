@@ -10,11 +10,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadEnvironmentalDecommissioningServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadEnvironmentalDecommissioningServiceTest {
 
   @Mock
   private PadEnvironmentalDecommissioningRepository padEnvironmentalDecommissioningRepository;
@@ -39,15 +39,15 @@ public class PadEnvironmentalDecommissioningServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private Instant instant;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padEnvironmentalDecommissioningService = new PadEnvironmentalDecommissioningService(
         padEnvironmentalDecommissioningRepository, validator, entityCopyingService);
     instant = Instant.now();
   }
 
   @Test
-  public void testGetEnvDecomData_NoneSaved() {
+  void getEnvDecomDataNoneSaved() {
     when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.empty());
     PadEnvironmentalDecommissioning padEnvironmentalDecommissioning = padEnvironmentalDecommissioningService.getEnvDecomData(
@@ -57,7 +57,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void testGetEnvDecomData_PreExisting() {
+  void getEnvDecomDataPreExisting() {
     var existingData = new PadEnvironmentalDecommissioning();
     when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(existingData));
@@ -67,7 +67,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void mapEntityToForm() {
+  void mapEntityToForm() {
     var form = new EnvironmentalDecommissioningForm();
     var entity = buildEntity();
     padEnvironmentalDecommissioningService.mapEntityToForm(entity, form);
@@ -83,7 +83,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_AllExpanded() {
+  void saveEntityUsingForm_AllExpanded() {
     var form = buildForm();
     var entity = new PadEnvironmentalDecommissioning();
     padEnvironmentalDecommissioningService.saveEntityUsingForm(entity, form);
@@ -100,7 +100,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_NoneExpanded() {
+  void saveEntityUsingForm_NoneExpanded() {
     var form = buildForm();
     form.setEmtHasOutstandingPermits(false);
     form.setEmtHasSubmittedPermits(false);
@@ -117,7 +117,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_NullValues() {
+  void saveEntityUsingForm_NullValues() {
     var form = new EnvironmentalDecommissioningForm();
     var entity = new PadEnvironmentalDecommissioning();
     padEnvironmentalDecommissioningService.saveEntityUsingForm(entity, form);
@@ -132,7 +132,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getEnvironmentalDecommissioningView() {
+  void getEnvironmentalDecommissioningView() {
     var existingData = buildEntity();
     when(padEnvironmentalDecommissioningRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(existingData));
@@ -151,7 +151,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void validate_serviceInteractions() {
+  void validate_serviceInteractions() {
 
     var form = new EnvironmentalDecommissioningForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -192,7 +192,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  void cleanupData_hiddenData() {
 
     var envDecom = new PadEnvironmentalDecommissioning();
 
@@ -217,7 +217,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  void cleanupData_noHiddenData() {
 
     var envDecom = new PadEnvironmentalDecommissioning();
 
@@ -242,7 +242,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_allowed() {
+  void canShowInTaskList_allowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -261,7 +261,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notAllowed() {
+  void canShowInTaskList_notAllowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -273,7 +273,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_notCat2OrDepconOrDecom() {
+  void getAvailableQuestions_notCat2OrDepconOrDecom() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -294,7 +294,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_cat2() {
+  void getAvailableQuestions_cat2() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -307,7 +307,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_depcon() {
+  void getAvailableQuestions_depcon() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -320,7 +320,7 @@ public class PadEnvironmentalDecommissioningServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_decom() {
+  void getAvailableQuestions_decom() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();

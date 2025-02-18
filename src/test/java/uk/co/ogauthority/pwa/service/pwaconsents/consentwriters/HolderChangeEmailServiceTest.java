@@ -9,13 +9,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -41,8 +43,9 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HolderChangeEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class HolderChangeEmailServiceTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -82,8 +85,8 @@ public class HolderChangeEmailServiceTest {
   private PwaApplicationDetail detail;
   private MasterPwaDetail masterPwaDetail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     holderChangeEmailService = new HolderChangeEmailService(portalOrganisationsAccessor, teamService, notifyService, masterPwaService);
 
@@ -163,7 +166,7 @@ public class HolderChangeEmailServiceTest {
   }
 
   @Test
-  public void sendHolderChangeEmail_parentOrgIdentical() {
+  void sendHolderChangeEmail_parentOrgIdentical() {
 
     var shellUkOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell UK", shellOrgGroup);
     var shellClairOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell Clair", shellOrgGroup);
@@ -182,7 +185,7 @@ public class HolderChangeEmailServiceTest {
   }
 
   @Test
-  public void sendHolderChangeEmail_holderEnded_holderAdded() {
+  void sendHolderChangeEmail_holderEnded_holderAdded() {
 
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));
@@ -222,7 +225,7 @@ public class HolderChangeEmailServiceTest {
   }
 
   @Test
-  public void sendHolderChangeEmail_multipleHoldersEnded_holderAdded() {
+  void sendHolderChangeEmail_multipleHoldersEnded_holderAdded() {
 
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId(), wintershallOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit, wintershallOrgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));

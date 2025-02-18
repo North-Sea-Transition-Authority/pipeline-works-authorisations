@@ -8,20 +8,20 @@ import static org.mockito.Mockito.when;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PostAuthenticationRequestMdcFilterTest {
+@ExtendWith(MockitoExtension.class)
+class PostAuthenticationRequestMdcFilterTest {
 
   @Mock
   private MockFilterChain filterChain;
@@ -32,15 +32,15 @@ public class PostAuthenticationRequestMdcFilterTest {
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     request = new MockHttpServletRequest();
     response = new MockHttpServletResponse();
     MDC.remove(RequestLogFilter.MDC_WUA_ID);
   }
 
   @Test
-  public void doFilterInternal_noUser() throws ServletException, IOException {
+  void doFilterInternal_noUser() throws ServletException, IOException {
     PostAuthenticationRequestMdcFilter spy = spy(postAuthenticationRequestMdcFilter);
     when(spy.isUserLoggedIn()).thenReturn(false);
 
@@ -52,7 +52,7 @@ public class PostAuthenticationRequestMdcFilterTest {
   }
 
   @Test
-  public void doFilterInternal_userExistsNoProxy() throws ServletException, IOException {
+  void doFilterInternal_userExistsNoProxy() throws ServletException, IOException {
     var userWithoutProxyWuaId = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
 
     PostAuthenticationRequestMdcFilter spy = spy(postAuthenticationRequestMdcFilter);
@@ -68,7 +68,7 @@ public class PostAuthenticationRequestMdcFilterTest {
   }
 
   @Test
-  public void doFilterInternal_userExistsWithProxy() throws ServletException, IOException {
+  void doFilterInternal_userExistsWithProxy() throws ServletException, IOException {
     var userWithProxyWuaId = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
     userWithProxyWuaId.setProxyUserWuaId(1);
 

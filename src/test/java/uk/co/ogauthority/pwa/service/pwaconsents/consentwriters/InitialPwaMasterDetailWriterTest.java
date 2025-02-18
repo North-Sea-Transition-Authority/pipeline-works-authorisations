@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InitialPwaMasterDetailWriterTest {
+@ExtendWith(MockitoExtension.class)
+class InitialPwaMasterDetailWriterTest {
 
   @Mock
   private MasterPwaService masterPwaService;
@@ -36,8 +36,8 @@ public class InitialPwaMasterDetailWriterTest {
 
   private ConsentWriterDto consentWriterDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     masterPwa = new MasterPwa();
     pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);
@@ -50,24 +50,24 @@ public class InitialPwaMasterDetailWriterTest {
   }
 
   @Test
-  public void getExecutionOrder() {
+  void getExecutionOrder() {
     assertThat(initialPwaMasterDetailWriter.getExecutionOrder()).isEqualTo(1);
   }
 
   @Test
-  public void writerIsApplicable_whenInitialConsent() {
+  void writerIsApplicable_whenInitialConsent() {
     assertThat(initialPwaMasterDetailWriter.writerIsApplicable(Set.of(), pwaConsent)).isTrue();
   }
 
   @Test
-  public void writerIsApplicable_whenNotInitialConsent() {
+  void writerIsApplicable_whenNotInitialConsent() {
     pwaConsent.setConsentType(PwaConsentType.DEPOSIT_CONSENT);
 
     assertThat(initialPwaMasterDetailWriter.writerIsApplicable(Set.of(), pwaConsent)).isFalse();
   }
 
   @Test
-  public void write_serviceInteractions() {
+  void write_serviceInteractions() {
 
     var pwaAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     masterPwa = pwaAppDetail.getMasterPwa();

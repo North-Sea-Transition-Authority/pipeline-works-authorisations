@@ -1,17 +1,20 @@
 package uk.co.ogauthority.pwa.features.application.submission;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
@@ -24,8 +27,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationSubmissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaApplicationSubmissionServiceTest {
 
 
   private static final String SUBMISSION_DESC = "desc;";
@@ -55,8 +59,8 @@ public class PwaApplicationSubmissionServiceTest {
 
   private InOrder verifyOrder;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaApplicationSubmissionService = new PwaApplicationSubmissionService(
         pwaApplicationDetailService,
         camundaWorkflowService,
@@ -82,15 +86,16 @@ public class PwaApplicationSubmissionServiceTest {
   }
 
 
-  @Test(expected = IllegalArgumentException.class)
-  public void submitApplication_whenDetailIsNotTip() {
+  @Test
+  void submitApplication_whenDetailIsNotTip() {
     pwaApplicationDetail.setTipFlag(false);
-    pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC);
+    assertThrows(IllegalArgumentException.class, () ->
+      pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC));
   }
 
 
   @Test
-  public void submitApplication_throwsErrorWhenNotIndustryEditable() {
+  void submitApplication_throwsErrorWhenNotIndustryEditable() {
     var invalidSubmitStatuses = EnumSet.allOf(PwaApplicationStatus.class);
     invalidSubmitStatuses.removeAll(ApplicationState.INDUSTRY_EDITABLE.getStatuses());
 
@@ -111,7 +116,7 @@ public class PwaApplicationSubmissionServiceTest {
 
 
   @Test
-  public void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenNoSubmitResultProvided() {
+  void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenNoSubmitResultProvided() {
 
     pwaApplicationSubmissionService.submitApplication(user, pwaApplicationDetail, SUBMISSION_DESC);
 
@@ -134,7 +139,7 @@ public class PwaApplicationSubmissionServiceTest {
 
 
   @Test
-  public void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenSubmitResultProvided() {
+  void submitApplication_whenDetailIsTipDraft_serviceInteractions_whenSubmitResultProvided() {
 
     when(applicationSubmissionService.getSubmissionWorkflowResult())
         .thenReturn(Optional.of(SUBMISSION_RESULT));

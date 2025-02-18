@@ -1,15 +1,16 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.workflow;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -20,8 +21,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationDeleteServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationDeleteServiceTest {
 
   private PwaApplicationDeleteService pwaApplicationDeleteService;
 
@@ -32,8 +33,8 @@ public class PwaApplicationDeleteServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDeleteService = new PwaApplicationDeleteService(pwaApplicationDetailService, camundaWorkflowService);
 
     var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
@@ -42,7 +43,7 @@ public class PwaApplicationDeleteServiceTest {
 
 
   @Test
-  public void deleteApplication() {
+  void deleteApplication() {
     var deletingPerson = PersonTestUtil.createDefaultPerson();
     var deletingUser = new AuthenticatedUserAccount(new WebUserAccount(1, deletingPerson), List.of());
 
@@ -55,12 +56,13 @@ public class PwaApplicationDeleteServiceTest {
   }
 
 
-  @Test(expected = ApplicationDeletionException.class)
-  public void deleteApplication_cannotDelete() {
+  @Test
+  void deleteApplication_cannotDelete() {
     var deletingUser = new AuthenticatedUserAccount(new WebUserAccount(1, null), List.of());
     when(pwaApplicationDetailService.applicationDetailCanBeDeleted(pwaApplicationDetail)).thenReturn(false);
+    assertThrows(ApplicationDeletionException.class, () ->
 
-    pwaApplicationDeleteService.deleteApplication(deletingUser, pwaApplicationDetail);
+      pwaApplicationDeleteService.deleteApplication(deletingUser, pwaApplicationDetail));
   }
 
 

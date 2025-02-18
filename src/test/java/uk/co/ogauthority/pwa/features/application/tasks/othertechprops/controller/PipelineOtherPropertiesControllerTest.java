@@ -3,23 +3,20 @@ package uk.co.ogauthority.pwa.features.application.tasks.othertechprops.controll
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -39,9 +36,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelineOtherPropertiesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelineOtherPropertiesControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineOtherPropertiesControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -56,8 +52,8 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -73,10 +69,8 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
 
-
-
   @Test
-  public void renderAddPipelineOtherProperties_permissionSmokeTest() {
+  void renderAddPipelineOtherProperties_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
@@ -86,7 +80,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void renderAddPipelineOtherProperties_appTypeSmokeTest() {
+  void renderAddPipelineOtherProperties_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
@@ -97,7 +91,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void renderAddPipelineOtherProperties_appStatusSmokeTest() {
+  void renderAddPipelineOtherProperties_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineOtherPropertiesController.class)
@@ -108,9 +102,8 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
 
-
   @Test
-  public void postAddPipelineOtherProperties_appTypeSmokeTest() {
+  void postAddPipelineOtherProperties_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -122,7 +115,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void postAddPipelineOtherProperties_appStatusSmokeTest() {
+  void postAddPipelineOtherProperties_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -135,7 +128,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void postAddPipelineOtherProperties_permissionSmokeTest() {
+  void postAddPipelineOtherProperties_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -148,7 +141,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void postAddPipelineOtherProperties_failValidation() {
+  void postAddPipelineOtherProperties_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPipelineOtherPropertiesService, new PipelineOtherPropertiesForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -161,7 +154,7 @@ public class PipelineOtherPropertiesControllerTest extends PwaApplicationContext
   }
 
   @Test
-  public void postAddPipelineOtherProperties_minMaxFailValidation() throws Exception {
+  void postAddPipelineOtherProperties_minMaxFailValidation() throws Exception {
     var bindingResult = new BeanPropertyBindingResult(new PipelineOtherPropertiesForm(), "form");
     bindingResult.addError(new FieldError("form", "propertyDataFormMap[WAX_CONTENT].minMaxInput.minValue", "fake"));
     bindingResult.addError(new FieldError("form", "propertyDataFormMap[WAX_CONTENT].minMaxInput.maxValue", "fake"));

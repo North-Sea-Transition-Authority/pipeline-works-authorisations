@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.service.pwaconsents.pipelines;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineTestUtil;
@@ -16,15 +16,15 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineIdentMappingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineIdentMappingServiceTest {
 
   private PipelineIdentMappingService pipelineIdentMappingService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineIdentMappingService = new PipelineIdentMappingService();
@@ -32,7 +32,7 @@ public class PipelineIdentMappingServiceTest {
   }
 
   @Test
-  public void mapPadPipelineIdentToPipelineIdent() throws IllegalAccessException {
+  void mapPadPipelineIdentToPipelineIdent() throws IllegalAccessException {
 
     var padPipelineIdent = PadPipelineTestUtil
         .createPadPipeline(pwaApplicationDetail, PipelineType.GAS_LIFT_PIPELINE)

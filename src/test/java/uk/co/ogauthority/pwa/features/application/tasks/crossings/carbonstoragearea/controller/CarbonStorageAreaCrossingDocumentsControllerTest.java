@@ -8,16 +8,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -34,12 +32,11 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = CarbonStorageAreaCrossingDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
   private static final int APP_ID = 100;
   private static final String FILE_ID = "123";
 
@@ -58,8 +55,8 @@ public class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplica
 
   private String fileContents = "Testoutput";
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -83,7 +80,7 @@ public class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplica
   }
 
   @Test
-  public void renderEditCrossingDocuments_appTypeSmokeTest() {
+  void renderEditCrossingDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
@@ -101,7 +98,7 @@ public class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplica
   }
 
   @Test
-  public void renderEditCrossingDocuments_contactRoleSmokeTest() {
+  void renderEditCrossingDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
@@ -119,7 +116,7 @@ public class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplica
   }
 
   @Test
-  public void renderEditCrossingDocuments_appStatusSmokeTest() {
+  void renderEditCrossingDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)

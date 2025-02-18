@@ -4,7 +4,8 @@ package uk.co.ogauthority.pwa.features.pwapay;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,14 +22,16 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentRequest;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentResultTestUtil;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyDataTestUtil;
@@ -37,8 +40,9 @@ import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPayCardPaymentClient;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPayRequestFailure;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaPaymentServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaPaymentServiceTest {
 
   private static final int PENNY_AMOUNT = 150;
   private static final String PAYMENT_REFERENCE = "PAYMENT_REFERENCE";
@@ -73,8 +77,8 @@ public class PwaPaymentServiceTest {
 
   private PwaPaymentService pwaPaymentService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     paymentUuid = UUID.randomUUID();
     journeyReturnUrl = PWA_URL_BASE + CONTEXT_PATH + PwaPaymentServiceTest.fakeReturnUrlProducer(paymentUuid);
@@ -103,7 +107,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void createCardPayment_whenNewPaymentRequestSucceeds() {
+  void createCardPayment_whenNewPaymentRequestSucceeds() {
     var newPaymentResult = GovPayNewCardPaymentResultTestUtil.createFrom(
         GOV_PAY_ID,
         GovUkPaymentStatus.CREATED,
@@ -148,7 +152,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void createCardPayment_whenNewPaymentCannotBeCreated() {
+  void createCardPayment_whenNewPaymentCannotBeCreated() {
     var invalidPennyAmount = -10;
 
     var errorThrown = false;
@@ -184,7 +188,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void createCardPayment_whenGovPayClientThrowsError() {
+  void createCardPayment_whenGovPayClientThrowsError() {
     when(govUkPayCardPaymentClient.createCardPaymentJourney(any())).thenThrow(new RuntimeException("some error"));
 
     var errorThrown = false;
@@ -220,21 +224,22 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void getGovUkPaymentRequestOrError_whenPaymentFound() {
+  void getGovUkPaymentRequestOrError_whenPaymentFound() {
     var paymentRequest = new PwaPaymentRequest();
     when(pwaPaymentRequestRepository.findById(paymentUuid)).thenReturn(Optional.of(paymentRequest));
 
     assertThat(pwaPaymentService.getGovUkPaymentRequestOrError(paymentUuid)).isEqualTo(paymentRequest);
   }
 
-  @Test(expected = PwaPaymentsException.class)
-  public void getGovUkPaymentRequestOrError_whenPaymentNotFound() {
+  @Test
+  void getGovUkPaymentRequestOrError_whenPaymentNotFound() {
+    assertThrows(PwaPaymentsException.class, () ->
 
-    pwaPaymentService.getGovUkPaymentRequestOrError(paymentUuid);
+      pwaPaymentService.getGovUkPaymentRequestOrError(paymentUuid));
   }
 
   @Test
-  public void refreshPwaPaymentRequestData_whenPaymentFoundLocally_noGovPayId() {
+  void refreshPwaPaymentRequestData_whenPaymentFoundLocally_noGovPayId() {
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(paymentUuid, PaymentRequestStatus.PENDING, null);
 
     pwaPaymentService.refreshPwaPaymentRequestData(paymentRequest);
@@ -248,7 +253,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void refreshPwaPaymentRequestData_whenPaymentFoundLocally_withGovPayId_paymentInProgress() {
+  void refreshPwaPaymentRequestData_whenPaymentFoundLocally_withGovPayId_paymentInProgress() {
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
         PaymentRequestStatus.PENDING,
@@ -281,7 +286,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void refreshPwaPaymentRequestData_whenPaymentFoundLocally_withGovPayId_paymentFinished() {
+  void refreshPwaPaymentRequestData_whenPaymentFoundLocally_withGovPayId_paymentFinished() {
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
         PaymentRequestStatus.PAYMENT_COMPLETE,
@@ -294,7 +299,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void cancelPayment_withGovPayId_alreadyFinished() {
+  void cancelPayment_withGovPayId_alreadyFinished() {
 
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
@@ -308,7 +313,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void cancelPayment_withGovPayId_inProgress() {
+  void cancelPayment_withGovPayId_inProgress() {
 
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
@@ -342,7 +347,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void cancelPayment_withGovPayId_inProgress_govPayCancelRequestErrors() {
+  void cancelPayment_withGovPayId_inProgress_govPayCancelRequestErrors() {
 
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
@@ -367,7 +372,7 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void cancelPayment_withoutGovPayId() {
+  void cancelPayment_withoutGovPayId() {
 
     var paymentRequest = PwaPaymentRequestTestUtil.createFrom(
         paymentUuid,
@@ -386,28 +391,28 @@ public class PwaPaymentServiceTest {
   }
 
   @Test
-  public void decodeGovPayStatus_whenJourneyFailed() {
+  void decodeGovPayStatus_whenJourneyFailed() {
     assertThat(
         pwaPaymentService.decodeGovPayStatus(GovPayPaymentJourneyStateTestUtil.createFor(GovUkPaymentStatus.FAILED)))
         .isEqualTo(PaymentRequestStatus.COMPLETE_WITHOUT_PAYMENT);
   }
 
   @Test
-  public void decodeGovPayStatus_whenJourneyIsSuccess() {
+  void decodeGovPayStatus_whenJourneyIsSuccess() {
     assertThat(
         pwaPaymentService.decodeGovPayStatus(GovPayPaymentJourneyStateTestUtil.createFor(GovUkPaymentStatus.SUCCESS)))
         .isEqualTo(PaymentRequestStatus.PAYMENT_COMPLETE);
   }
 
   @Test
-  public void decodeGovPayStatus_whenJourneyIsCancelledByService() {
+  void decodeGovPayStatus_whenJourneyIsCancelledByService() {
     assertThat(
         pwaPaymentService.decodeGovPayStatus(GovPayPaymentJourneyStateTestUtil.createFor(GovUkPaymentStatus.CANCELLED)))
         .isEqualTo(PaymentRequestStatus.CANCELLED);
   }
 
   @Test
-  public void decodeGovPayStatus_whenJourneyIsOngoing() {
+  void decodeGovPayStatus_whenJourneyIsOngoing() {
     var journeyInProgressStatuses = Arrays.stream(GovUkPaymentStatus.values())
         .filter(govUkPaymentStatus -> !govUkPaymentStatus.isJourneyFinished())
         .collect(toSet());

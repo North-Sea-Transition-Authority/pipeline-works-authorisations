@@ -6,10 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSearchParamsValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSearchParamsValidatorTest {
 
   private static final int CASE_OFFICER_PERSON_ID = 1;
   private static final OrganisationUnitId HOLDER_ORG_UNIT_ID = new OrganisationUnitId(10);
@@ -28,8 +28,8 @@ public class ApplicationSearchParamsValidatorTest {
   private AuthenticatedUserAccount authenticatedUserAccount;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     applicationSearchParamsValidator = new ApplicationSearchParamsValidator();
 
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(),
@@ -37,7 +37,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_whenEmptyParams_userTypeSmokeText() {
+  void validate_whenEmptyParams_userTypeSmokeText() {
     var emptyParams = ApplicationSearchParametersBuilder.createEmptyParams();
 
     for (UserType userType : UserType.values()) {
@@ -58,17 +58,17 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void supports_whenTargetIsValid() {
+  void supports_whenTargetIsValid() {
     assertThat(applicationSearchParamsValidator.supports(ApplicationSearchParameters.class)).isTrue();
   }
 
   @Test
-  public void supports_whenTargetIsInvalid() {
+  void supports_whenTargetIsInvalid() {
     assertThat(applicationSearchParamsValidator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_caseOfficerIdProvided_nonOgaUserType() {
+  void validate_caseOfficerIdProvided_nonOgaUserType() {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.INDUSTRY);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
@@ -80,7 +80,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_caseOfficerIdProvided_ogaUserType() {
+  void validate_caseOfficerIdProvided_ogaUserType() {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.OGA);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
@@ -92,7 +92,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_holderOrgUnitId_ogaUserType() {
+  void validate_holderOrgUnitId_ogaUserType() {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.OGA);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
@@ -104,7 +104,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_holderOrgUnitId_combinedOgaIndustryUserType_selectedHolderOrgIdNotInIndustryOrgs() {
+  void validate_holderOrgUnitId_combinedOgaIndustryUserType_selectedHolderOrgIdNotInIndustryOrgs() {
     var context = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(authenticatedUserAccount, Set.of(HOLDER_ORG_UNIT_ID));
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
@@ -116,7 +116,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_holderOrgUnitId_IndustryUserTypeOnly_invalidOrgUnitSelected() {
+  void validate_holderOrgUnitId_IndustryUserTypeOnly_invalidOrgUnitSelected() {
     var context = ApplicationSearchContextTestUtil.emptyUserContext(authenticatedUserAccount, UserType.INDUSTRY);
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,
@@ -128,7 +128,7 @@ public class ApplicationSearchParamsValidatorTest {
   }
 
   @Test
-  public void validate_holderOrgUnitId_IndustryUserTypeOnly_validOrgUnitSelected() {
+  void validate_holderOrgUnitId_IndustryUserTypeOnly_validOrgUnitSelected() {
     var context = ApplicationSearchContextTestUtil.industryContext(authenticatedUserAccount, Set.of(HOLDER_ORG_UNIT_ID ));
     var validationErrors = ValidatorTestUtils.getFormValidationErrors(
         applicationSearchParamsValidator,

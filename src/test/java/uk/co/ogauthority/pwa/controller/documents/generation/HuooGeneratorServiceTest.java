@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HuooGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class HuooGeneratorServiceTest {
 
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
@@ -43,8 +43,8 @@ public class HuooGeneratorServiceTest {
 
   private HuooGeneratorService huooGeneratorService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1
@@ -76,7 +76,7 @@ public class HuooGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_validSectionName_containsGroupViewData() {
+  void getDocumentSectionData_validSectionName_containsGroupViewData() {
 
     var huooRolePipelineGroupsPadView = new AllOrgRolePipelineGroupsView(
         List.of(createOrgRolePipelineGroupView()),

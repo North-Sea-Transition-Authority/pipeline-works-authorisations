@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AddPwaContactFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class AddPwaContactFormValidatorTest {
 
   @Mock
   private OldTeamManagementService teamManagementService;
@@ -37,15 +37,15 @@ public class AddPwaContactFormValidatorTest {
   private AddPwaContactForm contactForm;
   private AddPwaContactFormValidator contactFormValidator;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
     contactForm = new AddPwaContactForm();
     contactFormValidator = new AddPwaContactFormValidator(teamManagementService, pwaContactService,
         pwaApplicationService);
   }
 
   @Test
-  public void validate_userIdentifier_noErrors() {
+  void validate_userIdentifier_noErrors() {
 
     var pwaApplication = new PwaApplication();
     var person = new Person();
@@ -64,7 +64,7 @@ public class AddPwaContactFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_blank() {
+  void validate_userIdentifier_blank() {
 
     contactForm.setPwaApplicationId(1);
 
@@ -77,7 +77,7 @@ public class AddPwaContactFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_userNotFound() {
+  void validate_userIdentifier_userNotFound() {
 
     when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
 
@@ -93,7 +93,7 @@ public class AddPwaContactFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_userAlreadyExists() {
+  void validate_userIdentifier_userAlreadyExists() {
 
     var pwaApplication = new PwaApplication();
     var person = new Person();

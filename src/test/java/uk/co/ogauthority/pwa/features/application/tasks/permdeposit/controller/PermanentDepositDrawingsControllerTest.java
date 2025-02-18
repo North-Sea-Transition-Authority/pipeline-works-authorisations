@@ -15,16 +15,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -51,9 +49,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PermanentDepositDrawingsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -79,8 +76,8 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   private AuthenticatedUserAccount user;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
@@ -104,11 +101,9 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
 
-
-
   //Overview endpoint tests
   @Test
-  public void renderDepositDrawingsOverview_permissionSmokeTest() {
+  void renderDepositDrawingsOverview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -119,7 +114,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDepositDrawingsOverview_appTypeSmokeTest() {
+  void renderDepositDrawingsOverview_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -131,7 +126,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDepositDrawingsOverview_appStatusSmokeTest() {
+  void renderDepositDrawingsOverview_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -143,7 +138,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postDepositDrawingsOverview_appTypeSmokeTest() {
+  void postDepositDrawingsOverview_appTypeSmokeTest() {
     when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -157,7 +152,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postDepositDrawingsOverview_appStatusSmokeTest() {
+  void postDepositDrawingsOverview_appStatusSmokeTest() {
     when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -171,7 +166,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postDepositDrawingsOverview_permissionSmokeTest() {
+  void postDepositDrawingsOverview_permissionSmokeTest() {
     when(depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(any(PwaApplicationDetail.class)))
         .thenReturn(SummaryScreenValidationResultTestUtils.completeResult());
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -185,11 +180,9 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
 
-
-
   //ADD endpoint tests
   @Test
-  public void renderAddDepositDrawing_permissionSmokeTest() {
+  void renderAddDepositDrawing_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -200,7 +193,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderAddDepositDrawing_appTypeSmokeTest() {
+  void renderAddDepositDrawing_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -212,7 +205,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderAddDepositDrawing_appStatusSmokeTest() {
+  void renderAddDepositDrawing_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -224,7 +217,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_appTypeSmokeTest() {
+  void postAddDepositDrawing_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -237,7 +230,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_appStatusSmokeTest() {
+  void postAddDepositDrawing_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -250,7 +243,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_permissionSmokeTest() {
+  void postAddDepositDrawing_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -263,7 +256,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_withInvalidForm() throws Exception {
+  void postAddDepositDrawing_withInvalidForm() throws Exception {
     ControllerTestUtils.failValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("reference"));
 
@@ -277,7 +270,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postAddDepositDrawing_withValidForm() throws Exception {
+  void postAddDepositDrawing_withValidForm() throws Exception {
     ControllerTestUtils.passValidationWhenPost(depositDrawingsService, new PermanentDepositDrawingForm(), ValidationType.FULL );
 
     mockMvc.perform(
@@ -295,7 +288,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
 
   //REMOVE end points
   @Test
-  public void renderRemovePermanentDeposits_success() throws Exception {
+  void renderRemovePermanentDeposits_success() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .renderRemoveDepositDrawing(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, 1, null)))
         .with(user(user))
@@ -305,7 +298,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderRemoveDepositDrawing_permissionSmokeTest() {
+  void renderRemoveDepositDrawing_permissionSmokeTest() {
     when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -316,7 +309,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderRemoveDepositDrawing_appTypeSmokeTest() {
+  void renderRemoveDepositDrawing_appTypeSmokeTest() {
     when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -328,7 +321,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderRemoveDepositDrawing_appStatusSmokeTest() {
+  void renderRemoveDepositDrawing_appStatusSmokeTest() {
     when(depositDrawingsService.getDepositDrawingView(any(), any())).thenReturn(buildDepositDrawingView());
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -340,7 +333,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postRemoveDepositDrawing_appTypeSmokeTest() {
+  void postRemoveDepositDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -352,7 +345,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postRemoveDepositDrawing_appStatusSmokeTest() {
+  void postRemoveDepositDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -364,7 +357,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postRemoveDepositDrawing_permissionSmokeTest() {
+  void postRemoveDepositDrawing_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -376,14 +369,9 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
 
-
-
-
-
-
   //EDIT endpoints
   @Test
-  public void renderEditDepositDrawing_permissionSmokeTest() {
+  void renderEditDepositDrawing_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -394,7 +382,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderEditDepositDrawing_appTypeSmokeTest() {
+  void renderEditDepositDrawing_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -406,7 +394,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderEditDepositDrawing_appStatusSmokeTest() {
+  void renderEditDepositDrawing_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -418,7 +406,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_appTypeSmokeTest() {
+  void postEditDepositDrawing_appTypeSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -431,7 +419,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_appStatusSmokeTest() {
+  void postEditDepositDrawing_appStatusSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -444,7 +432,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_permissionSmokeTest() {
+  void postEditDepositDrawing_permissionSmokeTest() {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -457,7 +445,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_withInvalidForm() throws Exception {
+  void postEditDepositDrawing_withInvalidForm() throws Exception {
     var bindingResult = new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form");
     bindingResult.addError(new ObjectError("fake", "fake"));
     when(depositDrawingsService.validateDrawingEdit(any(), any(), any(), any())).thenReturn(bindingResult);
@@ -472,7 +460,7 @@ public class PermanentDepositDrawingsControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void postEditDepositDrawing_withValidForm() throws Exception {
+  void postEditDepositDrawing_withValidForm() throws Exception {
     when(depositDrawingsService.validateDrawingEdit(any(), any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new PermanentDepositDrawingForm(), "form"));
 
     mockMvc.perform(

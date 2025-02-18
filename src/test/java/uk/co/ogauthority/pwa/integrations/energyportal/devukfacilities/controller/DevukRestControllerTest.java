@@ -10,14 +10,12 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -26,9 +24,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = DevukRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class DevukRestControllerTest extends PwaApplicationContextAbstractControllerTest {
+class DevukRestControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   private DevukFacilityService devukFacilityService;
@@ -38,20 +35,20 @@ public class DevukRestControllerTest extends PwaApplicationContextAbstractContro
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     when(devukFacilityService.getFacilities(any())).thenReturn(List.of());
     user = new AuthenticatedUserAccount(new WebUserAccount(), Set.of());
   }
 
   @Test
-  public void searchFacilities_unauthenticated() throws Exception {
+  void searchFacilities_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(DevukRestController.class).searchFacilities("Test"))))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void searchFacilities_authenticated() throws Exception {
+  void searchFacilities_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(DevukRestController.class).searchFacilities("Test")))
             .with(user(user))

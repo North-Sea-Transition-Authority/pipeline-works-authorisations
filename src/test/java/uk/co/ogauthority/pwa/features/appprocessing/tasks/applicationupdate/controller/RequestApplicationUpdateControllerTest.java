@@ -20,8 +20,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -52,9 +52,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = RequestApplicationUpdateController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class RequestApplicationUpdateControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class RequestApplicationUpdateControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final String REQUEST_REASON_ATTR = "requestReason";
   private static final String REQUEST_REASON_VALID = "requestReason";
@@ -82,8 +81,8 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   private Person person;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     person = new Person(100, "test", "person", "email", "telephone");
     user = new AuthenticatedUserAccount(
@@ -105,7 +104,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void renderRequestUpdate_processingPermissionSmokeTest() {
+  void renderRequestUpdate_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -117,7 +116,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void renderRequestUpdate_modelHasExpectedAttributes() throws Exception {
+  void renderRequestUpdate_modelHasExpectedAttributes() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
@@ -141,7 +140,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
+  void renderRequestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 
@@ -160,7 +159,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void requestUpdate_processingPermissionSmokeTest() {
+  void requestUpdate_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(REQUEST_REASON_ATTR, REQUEST_REASON_VALID)
@@ -173,7 +172,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void requestUpdate_validationFailsWithNullRequestReason() throws Exception {
+  void requestUpdate_validationFailsWithNullRequestReason() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
@@ -199,7 +198,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void requestUpdate_validationFailsWithTooLongRequestReason() throws Exception {
+  void requestUpdate_validationFailsWithTooLongRequestReason() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
@@ -225,7 +224,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void requestUpdate_redirectsWhenFormValid() throws Exception {
+  void requestUpdate_redirectsWhenFormValid() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, Set.of(PwaAppProcessingPermission.REQUEST_APPLICATION_UPDATE));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user))
@@ -254,7 +253,7 @@ public class RequestApplicationUpdateControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
+  void requestUpdate_whenApplicationHasOpenUpdateRequest() throws Exception {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail)).thenReturn(true);
 

@@ -9,11 +9,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -44,8 +44,8 @@ import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsulteeAdviceServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsulteeAdviceServiceTest {
 
   @Mock
   private ConsultationResponseService consultationResponseService;
@@ -70,8 +70,8 @@ public class ConsulteeAdviceServiceTest {
 
   private final String DOWNLOAD_URL = "/file/download";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     consulteeAdviceService = new ConsulteeAdviceService(consultationResponseService, consultationViewService, consultationResponseDataService,
         consultationFileService);
@@ -85,7 +85,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appEnded_hidden() {
+  void canShowInTaskList_appEnded_hidden() {
 
     detail.setStatus(PwaApplicationStatus.COMPLETE);
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
@@ -102,7 +102,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_noConsulteeAdvicePermission_hidden() {
+  void canShowInTaskList_appNotEnded_noConsulteeAdvicePermission_hidden() {
 
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(), false);
@@ -119,7 +119,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_consulteeAdvicePermission_shown() {
+  void canShowInTaskList_appNotEnded_consulteeAdvicePermission_shown() {
 
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var consultationInvolvement = new ConsultationInvolvementDto(consulteeGroupDetail, Set.of(), null, List.of(new ConsultationRequest()), false);
@@ -136,7 +136,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_oga_hidden() {
+  void canShowInTaskList_oga_hidden() {
 
     var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication());
 
@@ -150,7 +150,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry_hidden() {
+  void canShowInTaskList_industry_hidden() {
 
     var appInvolvement = PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(detail.getPwaApplication());
 
@@ -164,7 +164,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_default() {
+  void getTaskListEntry_default() {
 
 
     var context = new PwaAppProcessingContext(detail, user, Set.of(), null, null, Set.of());
@@ -179,7 +179,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void getConsulteeAdviceView_noActiveRequest() {
+  void getConsulteeAdviceView_noActiveRequest() {
 
     var historicalRequest = new ConsultationRequest();
     historicalRequest.setId(1);
@@ -228,7 +228,7 @@ public class ConsulteeAdviceServiceTest {
   }
 
   @Test
-  public void getConsulteeAdviceView_activeRequest() {
+  void getConsulteeAdviceView_activeRequest() {
 
     var historicalRequest = new ConsultationRequest();
     historicalRequest.setStatus(ConsultationRequestStatus.RESPONDED);

@@ -6,31 +6,31 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.email.emailproperties.feedback.FeedbackFailedToSendEmailProperties;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FeedbackEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FeedbackEmailServiceTest {
 
   @Mock
   private NotifyService notifyService;
 
   private FeedbackEmailService feedbackEmailService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     feedbackEmailService = new FeedbackEmailService(notifyService);
   }
 
   @Test
-  public void sendFeedbackFailedToSendEmail() {
+  void sendFeedbackFailedToSendEmail() {
     var feedbackContent = "testContent";
     var emailAddress = "test@test.com";
     var recipientName = "testRecipient";

@@ -8,13 +8,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDocumentUpdateController;
@@ -51,8 +51,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDocumentUpdateValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeDocumentUpdateServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeDocumentUpdateServiceTest {
 
   private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
 
@@ -104,9 +104,8 @@ public class PublicNoticeDocumentUpdateServiceTest {
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     publicNoticeDocumentUpdateService = new PublicNoticeDocumentUpdateService(publicNoticeService, validator, appFileService,
         publicNoticeDocumentRepository, publicNoticeDocumentLinkRepository, camundaWorkflowService,
@@ -119,7 +118,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
 
 
   @Test
-  public void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeExistsWithApp() {
+  void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeExistsWithApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(pwaApplication);
@@ -127,7 +126,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
   }
 
   @Test
-  public void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeExistsWithDifferentApp() {
+  void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeExistsWithDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(new PwaApplication());
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(pwaApplication);
@@ -135,21 +134,21 @@ public class PublicNoticeDocumentUpdateServiceTest {
   }
 
   @Test
-  public void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeDoesNotExist() {
+  void publicNoticeDocumentCanBeUpdated_updatablePublicNoticeDoesNotExist() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of());
     var publicNoticeExists = publicNoticeDocumentUpdateService.publicNoticeDocumentCanBeUpdated(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
   }
 
   @Test
-  public void getPublicNoticeUpdatePageBannerView_publicNoticeDocumentCanNotBeUpdated() {
+  void getPublicNoticeUpdatePageBannerView_publicNoticeDocumentCanNotBeUpdated() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of());
     var pageBannerViewOpt = publicNoticeDocumentUpdateService.getPublicNoticeUpdatePageBannerView(pwaApplication);
     assertThat(pageBannerViewOpt).isEmpty();
   }
 
   @Test
-  public void getPublicNoticeUpdatePageBannerView_publicNoticeDocumentCanBeUpdated() {
+  void getPublicNoticeUpdatePageBannerView_publicNoticeDocumentCanBeUpdated() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)).thenReturn(List.of(publicNotice));
@@ -175,7 +174,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
   }
 
   @Test
-  public void validate_verifyServiceInteractions() {
+  void validate_verifyServiceInteractions() {
 
     var form = new UpdatePublicNoticeDocumentForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -186,7 +185,7 @@ public class PublicNoticeDocumentUpdateServiceTest {
 
 
   @Test
-  public void updatePublicNoticeDocumentAndTransitionWorkflow_allDcoumentAndLinksAndFilesExistAndAreUpdated() {
+  void updatePublicNoticeDocumentAndTransitionWorkflow_allDcoumentAndLinksAndFilesExistAndAreUpdated() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))

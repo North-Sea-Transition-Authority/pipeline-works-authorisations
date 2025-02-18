@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.integrations.govukpay;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -13,11 +14,11 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,8 +27,8 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(MockitoJUnitRunner.class)
-public class GovukPayClientApiV1ImplTest {
+@ExtendWith(MockitoExtension.class)
+class GovukPayClientApiV1ImplTest {
 
   private static final String APPLICATION_BASE_URL = "http://pwa.local";
 
@@ -50,8 +51,8 @@ public class GovukPayClientApiV1ImplTest {
 
   private GovUkPayCardPaymentClient govukPayClient;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
 
     restTemplate = new RestTemplate();
@@ -70,7 +71,7 @@ public class GovukPayClientApiV1ImplTest {
   }
 
   @Test
-  public void getCardPaymentJourneyData_whenRequestOk_andValidJsonReturned() throws IOException {
+  void getCardPaymentJourneyData_whenRequestOk_andValidJsonReturned() throws IOException {
     var expectedApiUrl = GOV_UK_PAY_BASE_URL + PAYMENTS_ENDPOINT + "/" + GOV_PAY_ID;
     var mapperOutput = mock(GovPayPaymentJourneyData.class);
     when(apiV1RequestDataMapper.mapGetPaymentResult(any())).thenReturn(mapperOutput);
@@ -89,76 +90,81 @@ public class GovukPayClientApiV1ImplTest {
 
   }
 
-  @Test(expected = HttpServerErrorException.class)
-  public void getCardPaymentJourneyData_whenServerError() throws IOException {
+  @Test
+  void getCardPaymentJourneyData_whenServerError() {
     var expectedApiUrl = GOV_UK_PAY_BASE_URL + PAYMENTS_ENDPOINT + "/" + GOV_PAY_ID;
+    assertThrows(HttpServerErrorException.class, () -> {
 
-    try (InputStream jsonStream = this.getClass().getResourceAsStream("paymentErrorResponse.json")) {
-      var jsonResponse = IOUtils.toString(jsonStream);
+      try (InputStream jsonStream = this.getClass().getResourceAsStream("paymentErrorResponse.json")) {
+        var jsonResponse = IOUtils.toString(jsonStream);
 
-      mockServer.expect(requestTo(expectedApiUrl))
-          .andExpect(method(HttpMethod.GET))
-          .andRespond(withServerError()
-              .contentType(MediaType.APPLICATION_JSON)
-              .body(jsonResponse)
-          );
+        mockServer.expect(requestTo(expectedApiUrl))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withServerError()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonResponse)
+            );
 
-      govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
+        govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
 
-    }
+      }
+    });
   }
 
-  @Test(expected = HttpClientErrorException.class)
-  public void getCardPaymentJourneyData_whenNotFound() throws IOException {
+  @Test
+  void getCardPaymentJourneyData_whenNotFound() {
     var expectedApiUrl = GOV_UK_PAY_BASE_URL + PAYMENTS_ENDPOINT + "/" + GOV_PAY_ID;
+    assertThrows(HttpClientErrorException.class, () -> {
 
-    try (InputStream jsonStream = this.getClass().getResourceAsStream("paymentErrorResponse.json")) {
-      var jsonResponse = IOUtils.toString(jsonStream);
+      try (InputStream jsonStream = this.getClass().getResourceAsStream("paymentErrorResponse.json")) {
+        var jsonResponse = IOUtils.toString(jsonStream);
 
-      mockServer.expect(requestTo(expectedApiUrl))
-          .andExpect(method(HttpMethod.GET))
-          .andRespond(withStatus(HttpStatus.NOT_FOUND)
-              .contentType(MediaType.APPLICATION_JSON)
-              .body(jsonResponse)
-          );
+        mockServer.expect(requestTo(expectedApiUrl))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withStatus(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonResponse)
+            );
 
-      govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
+        govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
 
-    }
+      }
+    });
   }
 
-  @Test(expected = HttpClientErrorException.class)
-  public void getCardPaymentJourneyData_whenUnauthorised() throws IOException {
+  @Test
+  void getCardPaymentJourneyData_whenUnauthorised() {
     var expectedApiUrl = GOV_UK_PAY_BASE_URL + PAYMENTS_ENDPOINT + "/" + GOV_PAY_ID;
-
-
     mockServer.expect(requestTo(expectedApiUrl))
-        .andExpect(method(HttpMethod.GET))
-        .andRespond(withStatus(HttpStatus.FORBIDDEN)
-        );
+          .andExpect(method(HttpMethod.GET))
+          .andRespond(withStatus(HttpStatus.FORBIDDEN)
+          );
+    assertThrows(HttpClientErrorException.class, () ->
 
-    govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
+      govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID));
 
   }
 
-  @Test(expected = HttpClientErrorException.class)
-  public void getCardPaymentJourneyData_whenTooManyRequests() throws IOException {
+  @Test
+  void getCardPaymentJourneyData_whenTooManyRequests() {
     var expectedApiUrl = GOV_UK_PAY_BASE_URL + PAYMENTS_ENDPOINT + "/" + GOV_PAY_ID;
+    assertThrows(HttpClientErrorException.class, () -> {
 
 
-    try (InputStream jsonStream = this.getClass().getResourceAsStream("errorResponse.json")) {
-      var jsonResponse = IOUtils.toString(jsonStream);
+      try (InputStream jsonStream = this.getClass().getResourceAsStream("errorResponse.json")) {
+        var jsonResponse = IOUtils.toString(jsonStream);
 
-      mockServer.expect(requestTo(expectedApiUrl))
-          .andExpect(method(HttpMethod.GET))
-          .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
-              .contentType(MediaType.APPLICATION_JSON)
-              .body(jsonResponse)
-          );
+        mockServer.expect(requestTo(expectedApiUrl))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonResponse)
+            );
 
-      govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
+        govukPayClient.getCardPaymentJourneyData(GOV_PAY_ID);
 
-    }
+      }
+    });
   }
 
 }

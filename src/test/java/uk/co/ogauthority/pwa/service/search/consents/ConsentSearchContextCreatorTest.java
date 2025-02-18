@@ -9,11 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentSearchContextCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentSearchContextCreatorTest {
 
   @Mock
   private UserTypeService userTypeService;
@@ -36,8 +36,8 @@ public class ConsentSearchContextCreatorTest {
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of());
 
@@ -46,7 +46,7 @@ public class ConsentSearchContextCreatorTest {
   }
 
   @Test
-  public void createContext_industryUser() {
+  void createContext_industryUser() {
 
     int orgGroupId = 1;
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(orgGroupId, "OG", "OG");
@@ -66,7 +66,7 @@ public class ConsentSearchContextCreatorTest {
   }
 
   @Test
-  public void createContext_regulatorUser() {
+  void createContext_regulatorUser() {
 
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
 

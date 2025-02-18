@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,11 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -27,8 +28,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.orgs.PwaOrganisationAccessor;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TeamCreationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TeamCreationServiceTest {
 
   @Mock
   private SpringValidatorAdapter groupValidator;
@@ -47,8 +48,8 @@ public class TeamCreationServiceTest {
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     teamCreationService = new TeamCreationService(
         groupValidator,
         portalTeamAccessor,
@@ -61,9 +62,8 @@ public class TeamCreationServiceTest {
   static class NewTeamTestForm implements NewTeamForm {}
 
 
-
   @Test
-  public void validate() {
+  void validate() {
 
     final var form = new NewTeamTestForm();
     final var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -74,11 +74,8 @@ public class TeamCreationServiceTest {
   }
 
 
-
-
-
   @Test
-  public void getOrCreateOrganisationGroupTeam_whenTeamExists_thenReturnExistingTeam() {
+  void getOrCreateOrganisationGroupTeam_whenTeamExists_thenReturnExistingTeam() {
 
     final var organisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "name", "short name");
     final var portalTeamDto = PortalOrganisationTestUtils.createDefaultPortalOrgTeamDto();
@@ -95,7 +92,7 @@ public class TeamCreationServiceTest {
   }
 
   @Test
-  public void getOrCreateOrganisationGroupTeam_whenTeamDoesntExists_thenCreateNewTeam() {
+  void getOrCreateOrganisationGroupTeam_whenTeamDoesntExists_thenCreateNewTeam() {
 
     final var organisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "name", "short name");
 
@@ -108,24 +105,14 @@ public class TeamCreationServiceTest {
 
     assertThat(result).isNotNull();
     verify(portalTeamAccessor, times(1)).createOrganisationGroupTeam(organisationGroup, user);
-
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getOrCreateOrganisationGroupTeam_whenOrganisationGroupDoesntExist_thenException() {
-
+  @Test
+  void getOrCreateOrganisationGroupTeam_whenOrganisationGroupDoesntExist_thenException() {
     final var organisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "name", "short name");
-
     doThrow(new PwaEntityNotFoundException("test"))
-        .when(pwaOrganisationAccessor).getOrganisationGroupOrError(organisationGroup.getOrgGrpId());
-
+          .when(pwaOrganisationAccessor).getOrganisationGroupOrError(organisationGroup.getOrgGrpId());
     final var form = new AddOrganisationTeamForm(organisationGroup.getSelectionId());
-
-    teamCreationService.getOrCreateOrganisationGroupTeam(form, user);
-
-    verify(portalTeamAccessor, times(0)).createOrganisationGroupTeam(organisationGroup, user);
-
+    assertThrows(PwaEntityNotFoundException.class, () -> teamCreationService.getOrCreateOrganisationGroupTeam(form, user));
   }
-
-
 }

@@ -19,13 +19,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -49,8 +51,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.MasterPwaHolderDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OptionsCaseManagementEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class OptionsCaseManagementEmailServiceTest {
 
   private static final String CASE_LINK = "https://link.com";
 
@@ -97,8 +100,8 @@ public class OptionsCaseManagementEmailServiceTest {
   private PortalOrganisationUnit organisationUnit;
   private MasterPwaHolderDto masterPwaHolderDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     deadline = LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
@@ -132,7 +135,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
+  void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
     verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
@@ -151,7 +154,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendInitialOptionsApprovedEmail_whenNoRecipientsFound() {
+  void sendInitialOptionsApprovedEmail_whenNoRecipientsFound() {
     when(pwaContactService.getPeopleInRoleForPwaApplication(
         pwaApplicationDetail.getPwaApplication(),
         PwaContactRole.PREPARER
@@ -165,7 +168,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendInitialOptionsApprovedEmail_whenRecipientsFound_andMultipleHoldersFound() {
+  void sendInitialOptionsApprovedEmail_whenRecipientsFound_andMultipleHoldersFound() {
     var organisationUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(9, "XXX", null);
     var pwaConsent2 = new PwaConsent();
     var masterPwaHolderDto2 = new MasterPwaHolderDto(organisationUnit2, pwaConsent2);
@@ -186,7 +189,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendOptionsDeadlineChangedEmail_whenPwaContactsFound_andCaseOfficerFound() {
+  void sendOptionsDeadlineChangedEmail_whenPwaContactsFound_andCaseOfficerFound() {
     when(applicationInvolvementService.getCaseOfficerPerson(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Optional.of(caseOfficerPerson));
 
@@ -210,7 +213,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendOptionsCloseOutEmailsIfRequired_whenWorkCompletedAsPerOptions_noEmailsSent() {
+  void sendOptionsCloseOutEmailsIfRequired_whenWorkCompletedAsPerOptions_noEmailsSent() {
     when(padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail))
         .thenReturn(Optional.of(ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS));
 
@@ -224,7 +227,7 @@ public class OptionsCaseManagementEmailServiceTest {
   }
 
   @Test
-  public void sendOptionsCloseOutEmailsIfRequired_whenPwaContactsFound_emailsSentSuccessfully() {
+  void sendOptionsCloseOutEmailsIfRequired_whenPwaContactsFound_emailsSentSuccessfully() {
     when(padOptionConfirmedService.getConfirmedOptionType(pwaApplicationDetail))
         .thenReturn(Optional.of(ConfirmedOptionType.NO_WORK_DONE));
 

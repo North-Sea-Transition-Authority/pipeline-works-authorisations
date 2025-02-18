@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationPermissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationPermissionServiceTest {
 
   @Mock
   private PwaContactService pwaContactService;
@@ -49,8 +49,8 @@ public class PwaApplicationPermissionServiceTest {
   private PwaApplication app;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     permissionService = new PwaApplicationPermissionService(pwaContactService, pwaHolderTeamService, teamService, applicationInvolvementService);
 
@@ -62,7 +62,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_permissionAllowsContacts_userHasAContactRole_hasPermission() {
+  void getPermissions_permissionAllowsContacts_userHasAContactRole_hasPermission() {
 
     PwaApplicationPermission.stream()
         .filter(p -> !p.getContactRoles().isEmpty())
@@ -81,7 +81,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_permissionAllowsOrgRoles_userHasOrgRole_hasPermission() {
+  void getPermissions_permissionAllowsOrgRoles_userHasOrgRole_hasPermission() {
 
     PwaApplicationPermission.stream()
         .filter(p -> !p.getHolderTeamRoles().isEmpty())
@@ -100,7 +100,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_permissionAllowsRegRoles_userHasRegRole_hasPermission() {
+  void getPermissions_permissionAllowsRegRoles_userHasRegRole_hasPermission() {
 
     PwaApplicationPermission.stream()
         .filter(p -> !p.getRegulatorRoles().isEmpty())
@@ -119,7 +119,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_permissionAllowsConsulteeRoles_userHasConsulteeRole_hasPermission() {
+  void getPermissions_permissionAllowsConsulteeRoles_userHasConsulteeRole_hasPermission() {
 
     PwaApplicationPermission.stream()
         .filter(p -> !p.getConsulteeRoles().isEmpty())
@@ -138,7 +138,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_allRoles_allStandardPermissions() {
+  void getPermissions_allRoles_allStandardPermissions() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
@@ -153,7 +153,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_setPipelineReferencePermission_whenAppContact_andNotRegulator() {
+  void getPermissions_setPipelineReferencePermission_whenAppContact_andNotRegulator() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
@@ -163,7 +163,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_setPipelineReferencePermission_whenAppContactPreparer_andRegulator() {
+  void getPermissions_setPipelineReferencePermission_whenAppContactPreparer_andRegulator() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.of(PwaContactRole.PREPARER));
     var regTeam =TeamTestingUtils.getRegulatorTeam();
@@ -177,7 +177,7 @@ public class PwaApplicationPermissionServiceTest {
   }
 
   @Test
-  public void getPermissions_noRoles_noPermissions() {
+  void getPermissions_noRoles_noPermissions() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(Set.of());
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(Set.of());

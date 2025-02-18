@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WorkAreaContextServiceTest {
+@ExtendWith(MockitoExtension.class)
+class WorkAreaContextServiceTest {
 
   private WorkAreaContextService workAreaContextService;
 
@@ -42,15 +42,15 @@ public class WorkAreaContextServiceTest {
   @Mock
   private PwaContactService pwaContactService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     workAreaContextService = new WorkAreaContextService(userTypeService, teamService, pwaContactService);
 
   }
 
   @Test
-  public void getTabsAvailableToUser_regulatorOnly() {
+  void getTabsAvailableToUser_regulatorOnly() {
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
 
@@ -59,7 +59,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_industryOnly() {
+  void getTabsAvailableToUser_industryOnly() {
 
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
 
@@ -71,7 +71,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_consulteeOnly() {
+  void getTabsAvailableToUser_consulteeOnly() {
 
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
 
@@ -81,7 +81,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_regulatorAndConsultee() {
+  void getTabsAvailableToUser_regulatorAndConsultee() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.CONSULTEE, UserType.OGA));
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
@@ -92,7 +92,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_noTabs() {
+  void getTabsAvailableToUser_noTabs() {
 
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
 
@@ -101,7 +101,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_filterByPwaUserPriviledge_asBuiltNotifications() {
+  void getTabsAvailableToUser_filterByPwaUserPriviledge_asBuiltNotifications() {
 
     when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
@@ -115,7 +115,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_whenNoUserType_filterByPwaUserPrivilege_asBuiltNotifications() {
+  void getTabsAvailableToUser_whenNoUserType_filterByPwaUserPrivilege_asBuiltNotifications() {
     when(userTypeService.getUserTypes(any())).thenReturn(Set.of());
     when(userTypeService.getPriorityUserType(user)).thenReturn(null);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
@@ -127,7 +127,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_whenIndustry_allPwaUserPrivileges_assertIndustryAndAsBuilt() {
+  void getTabsAvailableToUser_whenIndustry_allPwaUserPrivileges_assertIndustryAndAsBuilt() {
     when(userTypeService.getPriorityUserType(any()))
         .thenReturn(UserType.INDUSTRY);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
@@ -143,7 +143,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void createWorkAreaContext_pwaManagerPriv() {
+  void createWorkAreaContext_pwaManagerPriv() {
     user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_MANAGER));
 
     var context = workAreaContextService.createWorkAreaContext(user);
@@ -154,7 +154,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void createWorkAreaContext_caseOfficerPriv() {
+  void createWorkAreaContext_caseOfficerPriv() {
     user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_CASE_OFFICER));
 
     var context = workAreaContextService.createWorkAreaContext(user);
@@ -165,7 +165,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void createWorkAreaContext_isAppContact() {
+  void createWorkAreaContext_isAppContact() {
 
     user = AuthenticatedUserAccountTestUtil.createNoPrivUserAccount(10);//    when(pwaContactService.isPersonApplicationContact(person)).thenReturn(true);
 
@@ -178,7 +178,7 @@ public class WorkAreaContextServiceTest {
   }
 
   @Test
-  public void createWorkAreaContext_isAppContact_andPwaManager_andCaseOfficer() {
+  void createWorkAreaContext_isAppContact_andPwaManager_andCaseOfficer() {
     user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_MANAGER));
     when(pwaContactService.isPersonApplicationContact(person)).thenReturn(true);
 

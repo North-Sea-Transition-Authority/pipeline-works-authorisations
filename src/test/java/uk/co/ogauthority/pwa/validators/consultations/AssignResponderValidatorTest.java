@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
@@ -19,22 +19,21 @@ import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AssignResponderValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class AssignResponderValidatorTest {
 
   @Mock
   private AssignResponderService assignResponderService;
   private AssignResponderValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new AssignResponderValidator();
   }
 
 
-
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new AssignResponderForm();
     var consultationRequest = new ConsultationRequest();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
@@ -44,7 +43,7 @@ public class AssignResponderValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new AssignResponderForm();
     form.setResponderPersonId(1);
     var consultationRequest = new ConsultationRequest();
@@ -57,7 +56,7 @@ public class AssignResponderValidatorTest {
   }
 
   @Test
-  public void validate_selectedResponder_invalid() {
+  void validate_selectedResponder_invalid() {
     var form = new AssignResponderForm();
     form.setResponderPersonId(1);
     var consultationRequest = new ConsultationRequest();

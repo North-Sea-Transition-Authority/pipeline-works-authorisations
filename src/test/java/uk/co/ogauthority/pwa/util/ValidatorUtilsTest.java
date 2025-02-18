@@ -10,8 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -24,19 +24,19 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-public class ValidatorUtilsTest {
+class ValidatorUtilsTest {
 
   private ProjectInformationForm projectInformationForm;
 
   private final String DATE_PICKER_FIELD_NAME = "deadlineTimestampStr";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     projectInformationForm = new ProjectInformationForm();
   }
 
   @Test
-  public void validateDate_WithNulls() {
+  void validateDate_WithNulls() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDate("proposedStart", "proposed start", null, null, null, errors);
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
@@ -49,7 +49,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_ValidDate() {
+  void validateDate_ValidDate() {
     var date = LocalDate.now();
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDate("proposedStart", "proposed start",
@@ -60,7 +60,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_yearHas1Digit() {
+  void validateDate_yearHas1Digit() {
     BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var isValid = ValidatorUtils.validateDate(
         "proposedStart", "proposed start",
@@ -80,7 +80,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_yearHas2DigitS() {
+  void validateDate_yearHas2DigitS() {
     BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var isValid = ValidatorUtils.validateDate(
         "proposedStart", "proposed start",
@@ -100,7 +100,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_yearHas3DigitS() {
+  void validateDate_yearHas3DigitS() {
     BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var isValid = ValidatorUtils.validateDate(
         "proposedStart", "proposed start",
@@ -120,7 +120,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDate_yearHas4DigitS() {
+  void validateDate_yearHas4DigitS() {
     BindingResult errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDate(
         "proposedStart", "proposed start",
@@ -133,7 +133,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPresentOrFuture_Past() {
+  void validateDateIsPresentOrFuture_Past() {
     var date = LocalDate.now().minusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
@@ -148,7 +148,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPresentOrFuture_Future() {
+  void validateDateIsPresentOrFuture_Future() {
     var date = LocalDate.now().plusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
@@ -159,7 +159,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPresentOrFuture_Present() {
+  void validateDateIsPresentOrFuture_Present() {
     var date = LocalDate.now();
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPresentOrFuture("proposedStart", "proposed start",
@@ -170,7 +170,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDatePickerDateIsPresentOrFuture_null() {
+  void validateDatePickerDateIsPresentOrFuture_null() {
 
     var form = new ApplicationUpdateRequestForm();
     Errors errors = new BeanPropertyBindingResult(form, "form");
@@ -182,9 +182,8 @@ public class ValidatorUtilsTest {
   }
 
 
-
   @Test
-  public void validateDatePickerDateIsPresentOrFuture_invalidDatePickerFormat() {
+  void validateDatePickerDateIsPresentOrFuture_invalidDatePickerFormat() {
 
     var form = new ApplicationUpdateRequestForm();
     form.setDeadlineTimestampStr("12th Jan 2021");
@@ -198,7 +197,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDatePickerDateIsPresentOrFuture_dateInThePast() {
+  void validateDatePickerDateIsPresentOrFuture_dateInThePast() {
 
     var form = new ApplicationUpdateRequestForm();
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().minusDays(1)));
@@ -212,7 +211,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDatePickerDateIsPresentOrFuture_dateIsToday() {
+  void validateDatePickerDateIsPresentOrFuture_dateIsToday() {
 
     var form = new ApplicationUpdateRequestForm();
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
@@ -230,7 +229,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDatePickerDateIsPresentOrFuture_dateIsInFuture() {
+  void validateDatePickerDateIsPresentOrFuture_dateIsInFuture() {
 
     var form = new ApplicationUpdateRequestForm();
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().plusDays(1)));
@@ -248,9 +247,8 @@ public class ValidatorUtilsTest {
   }
 
 
-
   @Test
-  public void validateDateIsPastOrPresent_Past() {
+  void validateDateIsPastOrPresent_Past() {
     var date = LocalDate.now().minusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
@@ -261,7 +259,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPastOrPresent_Future() {
+  void validateDateIsPastOrPresent_Future() {
     var date = LocalDate.now().plusDays(2);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
@@ -276,7 +274,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateIsPastOrPresent_Present() {
+  void validateDateIsPastOrPresent_Present() {
     var date = LocalDate.now();
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     var validationNoErrors = ValidatorUtils.validateDateIsPastOrPresent("proposedStart", "proposed start",
@@ -287,27 +285,27 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void isYearValid_validYear() {
+  void isYearValid_validYear() {
     var isYearValid = ValidatorUtils.isYearValid(1000);
     assertThat(isYearValid).isTrue();
   }
 
   @Test
-  public void isYearValid_yearTooBig() {
+  void isYearValid_yearTooBig() {
     var isYearValid = ValidatorUtils.isYearValid(4001);
     assertThat(isYearValid).isFalse();
   }
 
 
   @Test
-  public void isYearValid_yearTooSmall() {
+  void isYearValid_yearTooSmall() {
     var isYearValid = ValidatorUtils.isYearValid(999);
     assertThat(isYearValid).isFalse();
   }
 
 
   @Test
-  public void validateDateWhenPresent_notPresent() {
+  void validateDateWhenPresent_notPresent() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         null, null, null, errors);
@@ -318,7 +316,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_validDate() {
+  void validateDateWhenPresent_validDate() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         1, 1, 4000, errors);
@@ -329,7 +327,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_invalidDay_validMonthAndYear() {
+  void validateDateWhenPresent_invalidDay_validMonthAndYear() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         32, 12, 4000, errors);
@@ -338,7 +336,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_invalidMonth_validDayAndYear() {
+  void validateDateWhenPresent_invalidMonth_validDayAndYear() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         1, 13, 4000, errors);
@@ -347,7 +345,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_invalidYear_validDayAndMonth() {
+  void validateDateWhenPresent_invalidYear_validDayAndMonth() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         1, 1, 4001, errors);
@@ -356,7 +354,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_validFormat_invalidDayForMonth() {
+  void validateDateWhenPresent_validFormat_invalidDayForMonth() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         31, 2, 2020, errors);
@@ -365,7 +363,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_validValues_dataPartiallyEntered() {
+  void validateDateWhenPresent_validValues_dataPartiallyEntered() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         null, 2, 2020, errors);
@@ -374,7 +372,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateDateWhenPresent_inValidValue_dataPartiallyEntered() {
+  void validateDateWhenPresent_inValidValue_dataPartiallyEntered() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateDateWhenPresent("proposedStart", "proposed start",
         32, null, null, errors);
@@ -384,7 +382,7 @@ public class ValidatorUtilsTest {
 
 
   @Test
-  public void validateBoolean_Null() {
+  void validateBoolean_Null() {
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(), "usingCampaignApproach", "Err");
     assertThat(errors.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
@@ -392,7 +390,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateBoolean_False() {
+  void validateBoolean_False() {
     projectInformationForm.setUsingCampaignApproach(false);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
@@ -401,7 +399,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateBoolean_True() {
+  void validateBoolean_True() {
     projectInformationForm.setUsingCampaignApproach(true);
     Errors errors = new BeanPropertyBindingResult(projectInformationForm, "form");
     ValidatorUtils.validateBooleanTrue(errors, projectInformationForm.getUsingCampaignApproach(),"usingCampaignApproach", "Err");
@@ -410,7 +408,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLatitude_valid() {
+  void validateLatitude_valid() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
@@ -425,7 +423,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLatitude_invalid() {
+  void validateLatitude_invalid() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
@@ -446,7 +444,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLatitude_invalidSecondPrecision() {
+  void validateLatitude_invalidSecondPrecision() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLatitude(
@@ -465,7 +463,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLongitude_valid() {
+  void validateLongitude_valid() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
@@ -481,7 +479,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLongitude_invalid() {
+  void validateLongitude_invalid() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(
@@ -503,7 +501,7 @@ public class ValidatorUtilsTest {
   }
 
   @Test
-  public void validateLongitude_invalidSecondPrecision() {
+  void validateLongitude_invalidSecondPrecision() {
 
     var bindingResult = new BeanPropertyBindingResult(new CoordinateForm(), "form");
     ValidatorUtils.validateLongitude(

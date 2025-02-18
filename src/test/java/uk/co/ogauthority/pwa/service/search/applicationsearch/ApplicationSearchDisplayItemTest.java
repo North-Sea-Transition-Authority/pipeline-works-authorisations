@@ -7,10 +7,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSearchDisplayItemTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSearchDisplayItemTest {
 
   private static final int APP_ID = 100;
 
@@ -29,8 +29,8 @@ public class ApplicationSearchDisplayItemTest {
   private ApplicationDetailItemView applicationDetailItemView;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     applicationDetailItemView = new ApplicationDetailView();
     applicationDetailItemView.setApplicationType(PwaApplicationType.INITIAL);
@@ -58,7 +58,7 @@ public class ApplicationSearchDisplayItemTest {
 
 
   @Test
-  public void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
+  void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
     applicationDetailItemView.setCaseOfficerName(null);
 
     applicationSearchDisplayItem = new ApplicationSearchDisplayItem(applicationDetailItemView);
@@ -75,7 +75,7 @@ public class ApplicationSearchDisplayItemTest {
   }
 
   @Test
-  public void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
+  void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
     var caseOfficer = "NAME";
     applicationDetailItemView.setCaseOfficerName(caseOfficer);
     applicationDetailItemView.setCaseOfficerPersonId(1);
@@ -102,28 +102,28 @@ public class ApplicationSearchDisplayItemTest {
 
   /* Below are super type tests*/
   @Test
-  public void getAccessUrl_assertDefaultUrl(){
+  void getAccessUrl_assertDefaultUrl(){
     ApplicationWorkAreaItemTestUtil.test_getAccessUrl_assertDefaultAccessUrl(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }
 
   @Test
-  public void getSummaryColumn_whenFieldsExist() {
+  void getSummaryColumn_whenFieldsExist() {
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }
 
   @Test
-  public void getSummaryColumn_whenNoFields() {
+  void getSummaryColumn_whenNoFields() {
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }
 
   @Test
-  public void getHolderColumn_whenInitialType() {
+  void getHolderColumn_whenInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
@@ -131,14 +131,14 @@ public class ApplicationSearchDisplayItemTest {
   }
 
   @Test
-  public void getHolderColumn_whenNotInitialType() {
+  void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenApplicationNotComplete() {
+  void getApplicationColumn_whenApplicationNotComplete() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationNotCompleteOrInitial(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
@@ -146,14 +146,14 @@ public class ApplicationSearchDisplayItemTest {
   }
 
   @Test
-  public void getApplicationColumn_whenApplicationCompletee() {
+  void getApplicationColumn_whenApplicationCompletee() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationCompleteOrNotInitial(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenUpdate() {
+  void getApplicationColumn_whenUpdate() {
     ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestWithinDeadline(
         applicationDetailItemView,
         ApplicationSearchDisplayItem::new);

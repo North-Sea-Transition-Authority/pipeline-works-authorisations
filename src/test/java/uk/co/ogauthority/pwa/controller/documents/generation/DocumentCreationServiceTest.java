@@ -16,13 +16,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -52,8 +52,8 @@ import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentCreationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentCreationServiceTest {
 
   @Mock
   private ApplicationContext springApplicationContext;
@@ -94,8 +94,8 @@ public class DocumentCreationServiceTest {
 
   private DocgenRun docgenRun;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL,
@@ -123,14 +123,14 @@ public class DocumentCreationServiceTest {
   }
 
   @Test
-  public void generateConsentDocument_allDocSectionsProcessed_preview() {
+  void generateConsentDocument_allDocSectionsProcessed_preview() {
 
     testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef());
 
   }
 
   @Test
-  public void generateConsentDocument_errorWhileLogging_stillCompletes() {
+  void generateConsentDocument_errorWhileLogging_stillCompletes() {
 
     when(docgenRunSectionDataRepository.saveAll(any())).thenThrow(RuntimeException.class);
 
@@ -139,7 +139,7 @@ public class DocumentCreationServiceTest {
   }
 
   @Test
-  public void generateConsentDocument_full_consentRefPresent_noWatermark() {
+  void generateConsentDocument_full_consentRefPresent_noWatermark() {
 
     var consent = new PwaConsent();
     consent.setReference("consent/reference");
@@ -203,7 +203,7 @@ public class DocumentCreationServiceTest {
   }
 
   @Test
-  public void nbspSuccessfulGeneration() {
+  void nbspSuccessfulGeneration() {
     Map<String, Object> dataMap = Map.of("testing", "test\u00A0ing");
     when(templateRenderingService.render(anyString(), eq(dataMap), anyBoolean())).thenReturn("test\u00A0ing");
     testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef(), docGenType -> {

@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -25,6 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaRepository;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 
+// IJ seems to give spurious warnings when running with embedded H2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -32,8 +33,7 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-// IJ seems to give spurious warnings when running with embedded H2
-public class PipelineDetailDtoRepositoryImplTest {
+class PipelineDetailDtoRepositoryImplTest {
 
   @Autowired
   private PipelineDetailDtoRepositoryImpl pipelineDetailDtoRepositoryImpl;
@@ -60,8 +60,8 @@ public class PipelineDetailDtoRepositoryImplTest {
    * This method sets  up a PWA with two consents for a single pipeline, the first consent brings the pipeline into service, the second returns it to shore.
    * This data is then saved to the in-memory db for repo query testing.
    */
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     // Create or retrieve the MasterPwa entity
     masterPwa = getOrCreateMasterPwa(1);
@@ -145,7 +145,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atCurrentTime_pipelineNotFound() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atCurrentTime_pipelineNotFound() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, Instant.now());
@@ -156,7 +156,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atSecondConsentTime_pipelineNotFound() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atSecondConsentTime_pipelineNotFound() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, secondConsentReturnedToShore.getConsentInstant());
@@ -167,7 +167,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atFirstConsentTime_pipelineReturned() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_onSeabed_atFirstConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, ON_SEABED_STATUSES, firstConsentInService.getConsentInstant());
@@ -181,7 +181,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atCurrentTime_pipelineReturned() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atCurrentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), Instant.now());
@@ -195,7 +195,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atSecondConsentTime_pipelineReturned() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atSecondConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), secondConsentReturnedToShore.getConsentInstant());
@@ -209,7 +209,7 @@ public class PipelineDetailDtoRepositoryImplTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atFirstConsentTime_pipelineReturned() {
+  void getAllPipelineOverviewsForMasterPwaAndStatusAtInstant_allStatuses_atFirstConsentTime_pipelineReturned() {
 
     var details = pipelineDetailDtoRepositoryImpl
         .getAllPipelineOverviewsForMasterPwaAndStatusAtInstant(masterPwa, PipelineStatus.currentStatusSet(), firstConsentInService.getConsentInstant());

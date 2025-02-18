@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.mvc.argresolvers.AuthenticatedUserAccountArgumentRe
 import uk.co.ogauthority.pwa.mvc.argresolvers.PwaContextArgumentResolver;
 import uk.co.ogauthority.pwa.mvc.argresolvers.ValidationTypeArgumentResolver;
 import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
+import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterceptor;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterEnumToString;
 import uk.co.ogauthority.pwa.util.converters.PwaApplicationTypePathVariableConverterStringToEnum;
 import uk.co.ogauthority.pwa.util.converters.PwaResourceTypePathVariableConverterEnumToString;
@@ -43,6 +44,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final Optional<RequestLogger> requestLoggerOpt;
   private final AnalyticsService analyticsService;
   private final ConfigurableEnvironment configurableEnvironment;
+  private final TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
@@ -51,7 +53,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                       UserSessionPrivilegesService userSessionPrivilegesService,
                       Optional<RequestLogger> requestLoggerOpt,
                       AnalyticsService analyticsService,
-                      ConfigurableEnvironment configurableEnvironment) {
+                      ConfigurableEnvironment configurableEnvironment,
+                      TeamManagementHandlerInterceptor teamManagementHandlerInterceptor) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
@@ -59,6 +62,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     this.requestLoggerOpt = requestLoggerOpt;
     this.analyticsService = analyticsService;
     this.configurableEnvironment = configurableEnvironment;
+    this.teamManagementHandlerInterceptor = teamManagementHandlerInterceptor;
   }
 
   @Override
@@ -81,6 +85,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     registry.addInterceptor(new PwaApplicationRouteInterceptor(analyticsService))
         .addPathPatterns("/pwa-application/**");
+
+    registry.addInterceptor(teamManagementHandlerInterceptor)
+        .addPathPatterns("/team-management/**");
 
     requestLoggerOpt.ifPresent(requestLogger -> registry.addInterceptor(requestLogger)
           .excludePathPatterns("/assets/**"));

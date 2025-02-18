@@ -38,7 +38,7 @@ class MemberRolesFormValidatorTest {
 
   @Test
   void isValid() {
-    form.setRoles(List.of("MANAGE_TEAM"));
+    form.setRoles(List.of("TEAM_ADMINISTRATOR"));
 
     when(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(team, 1L, List.of(Role.TEAM_ADMINISTRATOR)))
         .thenReturn(true);
@@ -57,7 +57,7 @@ class MemberRolesFormValidatorTest {
 
   @Test
   void isValid_noTeamManagerLeft() {
-    form.setRoles(List.of("MANAGE_TEAM"));
+    form.setRoles(List.of("TEAM_ADMINISTRATOR"));
 
     when(teamManagementService.willManageTeamRoleBePresentAfterMemberRoleUpdate(team, 1L, List.of(Role.TEAM_ADMINISTRATOR)))
         .thenReturn(false);

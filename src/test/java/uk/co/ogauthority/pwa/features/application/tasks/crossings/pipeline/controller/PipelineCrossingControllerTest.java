@@ -11,16 +11,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -43,9 +41,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelineCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelineCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private int APP_ID = 100;
 
@@ -72,8 +69,8 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   @MockBean
   private PipelineCrossingFormValidator pipelineCrossingFormValidator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     allowedApplicationTypes = EnumSet.of(
         PwaApplicationType.INITIAL,
@@ -98,7 +95,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderOverview_appTypeSmokeTest() {
+  void renderOverview_appTypeSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
@@ -117,7 +114,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderOverview_appStatusSmokeTest() {
+  void renderOverview_appStatusSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
@@ -136,7 +133,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderOverview_appContactRoleSmokeTest() {
+  void renderOverview_appContactRoleSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.PIPELINE_CROSSINGS));
@@ -155,7 +152,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postOverview_appTypeSmokeTest() {
+  void postOverview_appTypeSmokeTest() {
 
     when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
 
@@ -168,7 +165,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postOverview_appStatusSmokeTest() {
+  void postOverview_appStatusSmokeTest() {
 
     when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
 
@@ -181,7 +178,7 @@ public class PipelineCrossingControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postOverview_appContactRoleSmokeTest() {
+  void postOverview_appContactRoleSmokeTest() {
 
     when(padPipelineCrossingService.isComplete(any())).thenReturn(true);
 

@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentV
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickableHuooPipelineServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PickableHuooPipelineServiceTest {
 
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
 
@@ -84,8 +84,8 @@ public class PickableHuooPipelineServiceTest {
 
   }
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     setupConsentedPipeline();
     setupApplicationPipelines();
@@ -107,7 +107,7 @@ public class PickableHuooPipelineServiceTest {
   }
 
   @Test
-  public void getAllPickablePipelinesForApplicationAndRole_removesWholePipelineWhenSplitsExist() {
+  void getAllPickablePipelinesForApplicationAndRole_removesWholePipelineWhenSplitsExist() {
 
     var appPipelineSplit1 = PipelineSection.from(
         APPLICATION_NEW_PIPELINE_ID,
@@ -142,13 +142,12 @@ public class PickableHuooPipelineServiceTest {
       assertThat(pickablePipelineOption.getSplitInfo()).isEqualToIgnoringCase(appPipelineSplit2.getDisplayString());
     });
 
-    assertThat(pickablePipelineOptions).noneSatisfy(pickablePipelineOption -> {
-      assertThat(pickablePipelineOption.getPickableString()).isEqualTo(applicationNewPipelinePickableId);
-    });
+    assertThat(pickablePipelineOptions).noneSatisfy(pickablePipelineOption ->
+      assertThat(pickablePipelineOption.getPickableString()).isEqualTo(applicationNewPipelinePickableId));
   }
 
   @Test
-  public void getPickedPipelinesFromStrings_allStringIdsReconciled_whenNoPipelinesSplit() {
+  void getPickedPipelinesFromStrings_allStringIdsReconciled_whenNoPipelinesSplit() {
     var pipelines = pickableHuooPipelineService.getPickedPipelinesFromStrings(
         pwaApplicationDetail,
         DEFAULT_ROLE,
@@ -165,7 +164,7 @@ public class PickableHuooPipelineServiceTest {
   }
 
   @Test
-  public void getPickedPipelinesFromStrings_noIdReconciled() {
+  void getPickedPipelinesFromStrings_noIdReconciled() {
     var pipelines = pickableHuooPipelineService.getPickedPipelinesFromStrings(
         pwaApplicationDetail,
         DEFAULT_ROLE,
@@ -180,7 +179,7 @@ public class PickableHuooPipelineServiceTest {
   }
 
   @Test
-  public void reconcilePickablePipelineIdentifiers_correctlyAssociatesPickableIdToPipelineId_whenNoPipelineSplits() {
+  void reconcilePickablePipelineIdentifiers_correctlyAssociatesPickableIdToPipelineId_whenNoPipelineSplits() {
 
     var newPipelineOption = PickablePipelineOptionTestUtil
         .createOption(APPLICATION_NEW_PIPELINE_ID, "new");

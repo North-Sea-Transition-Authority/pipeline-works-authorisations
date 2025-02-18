@@ -12,13 +12,11 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -31,10 +29,9 @@ import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(TermsAndConditionsManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class TermsAndConditionsManagementControllerTest  extends AbstractControllerTest{
+class TermsAndConditionsManagementControllerTest  extends AbstractControllerTest {
 
   @MockBean
   TermsAndConditionsService termsAndConditionsService;
@@ -45,8 +42,8 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   private AuthenticatedUserAccount userAccount;
   private AuthenticatedUserAccount userAccountNoAuth;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
         EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
@@ -56,7 +53,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   }
 
   @Test
-  public void renderTermsAndConditionsManagement() throws Exception {
+  void renderTermsAndConditionsManagement() throws Exception {
 
     when(termsAndConditionsService.getPwaManagementScreenPageView(0, ""))
         .thenReturn(new PageView<>(0, 1, List.of(), null, 2, 10));
@@ -74,7 +71,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   }
 
   @Test
-  public void renderTermsAndConditionsVariationForm_unauthenticated() throws Exception {
+  void renderTermsAndConditionsVariationForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .renderTermsAndConditionsManagement(null, null, userAccount)))
             .with(user(userAccountNoAuth)))
@@ -82,7 +79,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   }
 
   @Test
-  public void submitTermsAndConditionsVariationForm_post() throws Exception {
+  void submitTermsAndConditionsVariationForm_post() throws Exception {
     var form = new TermsAndConditionsFilterForm().setPwaReference("1/W/23");
 
     when(termsAndConditionsService.getPwaManagementScreenPageView(0, "1/W/23"))
@@ -96,7 +93,7 @@ public class TermsAndConditionsManagementControllerTest  extends AbstractControl
   }
 
   @Test
-  public void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
+  void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsManagementController.class)
             .filterTermsAndConditions(null, null , userAccountNoAuth)))
             .with(user(userAccountNoAuth)))

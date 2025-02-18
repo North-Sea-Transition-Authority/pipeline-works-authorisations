@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNotNull;
@@ -13,12 +14,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -59,8 +62,9 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelinesHuooServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadPipelinesHuooServiceTest {
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
 
   private static final String POINT_A = "A";
@@ -151,8 +155,8 @@ public class PadPipelinesHuooServiceTest {
 
   private PadPipelinesHuooService padPipelinesHuooService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     var orgGrp = PortalOrganisationTestUtils.generateOrganisationGroup(10, "ArbitraryOrgGroup", "ArbOrgGrp");
     organisationUnit1 = PortalOrganisationTestUtils.generateOrganisationUnit(100, "org1", orgGrp);
     organisationUnit2 = PortalOrganisationTestUtils.generateOrganisationUnit(200, "org2", orgGrp);
@@ -224,7 +228,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void validateAddPipelineHuooForm_serviceInteraction() {
+  void validateAddPipelineHuooForm_serviceInteraction() {
 
     var formBindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -246,7 +250,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAssignablePadOrganisationRolesFrom_noRolesFoundForOrgs() {
+  void getAssignablePadOrganisationRolesFrom_noRolesFoundForOrgs() {
 
     var foundRoles = padPipelinesHuooService.getAssignablePadOrganisationRolesFrom(
         pwaApplicationDetail,
@@ -258,7 +262,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAssignablePadOrganisationRolesFrom_rolesFoundForOrgs_treatyRoleNotFound() {
+  void getAssignablePadOrganisationRolesFrom_rolesFoundForOrgs_treatyRoleNotFound() {
     var org1HolderRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit1,
         HuooRole.HOLDER);
     var org2HolderRole = PadOrganisationRole.fromOrganisationUnit(pwaApplicationDetail, organisationUnit2,
@@ -281,7 +285,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAssignablePadOrganisationRolesFrom_onlyTreatyRoleFound() {
+  void getAssignablePadOrganisationRolesFrom_onlyTreatyRoleFound() {
     var treatyRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, treatyAgreement,
         HuooRole.HOLDER);
 
@@ -300,7 +304,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAssignablePadOrganisationRolesFrom_filterOutSplitPipelineHuooTypeRoles() {
+  void getAssignablePadOrganisationRolesFrom_filterOutSplitPipelineHuooTypeRoles() {
     var treatyRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, treatyAgreement,
         HuooRole.HOLDER);
 
@@ -321,7 +325,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void updatePipelineHuooLinks_everyPipelineGetsLinkedToEveryRole() {
+  void updatePipelineHuooLinks_everyPipelineGetsLinkedToEveryRole() {
     var org1HolderRole = PadOrganisationRole.fromOrganisationUnit(
         pwaApplicationDetail,
         organisationUnit1,
@@ -366,7 +370,7 @@ public class PadPipelinesHuooServiceTest {
 
 
   @Test
-  public void getAvailableOrgUnitDetailsForRole_filtersOrgRolesNotOfDesiredType() {
+  void getAvailableOrgUnitDetailsForRole_filtersOrgRolesNotOfDesiredType() {
     //noinspection unchecked
     ArgumentCaptor<List<PortalOrganisationUnit>> orgsforRoleCapture = ArgumentCaptor.forClass(List.class);
 
@@ -387,7 +391,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getAvailableTreatyAgreementsForRole_filtersTreatiesByRole() {
+  void getAvailableTreatyAgreementsForRole_filtersTreatiesByRole() {
     var holderRole = PadOrganisationRole.fromTreatyAgreement(pwaApplicationDetail, TreatyAgreement.ANY_TREATY_COUNTRY,
         HuooRole.HOLDER);
     var userRole = PadOrganisationRole.fromTreatyAgreement(
@@ -407,7 +411,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void reconcilePickablePipelinesFromPipelineIds_serviceInteractions_andInvalidPipelineIdProvided() {
+  void reconcilePickablePipelinesFromPipelineIds_serviceInteractions_andInvalidPipelineIdProvided() {
 
     var invalidPickablePipelineId = PickableHuooPipelineType.createPickableString(new PipelineId(NON_MASTER_PWA_PIPELINE_ID));
 
@@ -429,7 +433,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void reconcileOrganisationRoleOwnersFrom_serviceInteractions_andInvalidOrgProvided() {
+  void reconcileOrganisationRoleOwnersFrom_serviceInteractions_andInvalidOrgProvided() {
     var role = HuooRole.HOLDER;
     var validOrgUnitId = 1;
     var validTreaty = TreatyAgreement.ANY_TREATY_COUNTRY;
@@ -465,7 +469,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getSortedPickablePipelineOptionsForApplicationDetail_whenOnlyWholePipelines(){
+  void getSortedPickablePipelineOptionsForApplicationDetail_whenOnlyWholePipelines(){
 
     assertThat(padPipelinesHuooService.getSortedPickablePipelineOptionsForApplicationDetail(
         pwaApplicationDetail,
@@ -476,7 +480,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getSplitablePipelineOverviewForApplication_serviceInteractions() {
+  void getSplitablePipelineOverviewForApplication_serviceInteractions() {
 
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
@@ -499,7 +503,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getSplitablePipelinesForAppAndMasterPwa_stripsOutPipelinesWithZeroIdents() {
+  void getSplitablePipelinesForAppAndMasterPwa_stripsOutPipelinesWithZeroIdents() {
     when(consentedPipelineOverview.getNumberOfIdents()).thenReturn(0L);
 
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
@@ -518,7 +522,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getSplitablePipelinesForAppAndMasterPwa_containsPipelinesWithOneOrMoreIdents() {
+  void getSplitablePipelinesForAppAndMasterPwa_containsPipelinesWithOneOrMoreIdents() {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
 
@@ -533,27 +537,28 @@ public class PadPipelinesHuooServiceTest {
     assertThat(overviews).containsExactly(consentedPipelineOverview);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getSplitablePipelineForAppAndMasterPwaOrError_throwsErrorWhenPipelineNotFound() {
-
+  @Test
+  void getSplitablePipelineForAppAndMasterPwaOrError_throwsErrorWhenPipelineNotFound() {
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
-
     when(pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
-        pwaApplicationDetail,
-        PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
-    ))
-        .thenReturn(overviewMap);
+          pwaApplicationDetail,
+          PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES
+      ))
+          .thenReturn(overviewMap);
+    assertThrows(PwaEntityNotFoundException.class, () -> {
 
 
-    var overview = padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
-        pwaApplicationDetail,
-        new PipelineId(CONSENTED_PIPELINE_ID)
-    );
+      var overview = padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
+          pwaApplicationDetail,
+          new PipelineId(CONSENTED_PIPELINE_ID)
+      );
+
+    });
 
   }
 
   @Test
-  public void getSplitablePipelineForAppAndMasterPwaOrError_whenPipelineFound() {
+  void getSplitablePipelineForAppAndMasterPwaOrError_whenPipelineFound() {
 
     var overviewMap = new HashMap<PipelineId, PipelineOverview>();
     overviewMap.put(new PipelineId(CONSENTED_PIPELINE_ID), consentedPipelineOverview);
@@ -575,7 +580,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void removeSplitsForPipeline_removesTemporarySplitRole_whenNoPipelineLinksToRoleRemain(){
+  void removeSplitsForPipeline_removesTemporarySplitRole_whenNoPipelineLinksToRoleRemain(){
     var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
@@ -611,7 +616,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void removeSplitsForPipeline_doesNotremoveTemporarySplitRole_whenPipelineLinksToRoleRemain(){
+  void removeSplitsForPipeline_doesNotremoveTemporarySplitRole_whenPipelineLinksToRoleRemain(){
     var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
@@ -647,7 +652,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void removeSplitsForPipeline_doesNotRemovePortalOrgOrTreatyRoles(){
+  void removeSplitsForPipeline_doesNotRemovePortalOrgOrTreatyRoles(){
     var pipelineId =  new PipelineId(CONSENTED_PIPELINE_ID);
     var pipeline = new Pipeline();
     pipeline.setId(pipelineId.asInt());
@@ -683,7 +688,7 @@ public class PadPipelinesHuooServiceTest {
 
 
   @Test
-  public void replacePipelineSectionsForPipelineAndRole_createsRolesLinksAsExpected() {
+  void replacePipelineSectionsForPipelineAndRole_createsRolesLinksAsExpected() {
 
     when(padOrganisationRoleService.getOrCreateUnassignedPipelineSplitRole(pwaApplicationDetail, HuooRole.HOLDER))
         .thenReturn(PadOrganisationRole.forUnassignedSplitPipeline(pwaApplicationDetail, HuooRole.HOLDER));
@@ -730,7 +735,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void getPadPipelinesHuooSummaryView_verifyServiceInteractions() {
+  void getPadPipelinesHuooSummaryView_verifyServiceInteractions() {
     when(padPipelineOrganisationRoleLinkRepository.findOrganisationPipelineRoleDtoByPwaApplicationDetail(
         pwaApplicationDetail)).thenReturn(List.of());
 
@@ -742,7 +747,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void isComplete_whenValid() {
+  void isComplete_whenValid() {
     var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.HOLDER),
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.USER),
@@ -757,7 +762,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void isComplete_whenInValid() {
+  void isComplete_whenInValid() {
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
     var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
@@ -777,7 +782,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenHolderHasPipelineAndOrgRoleOwnersUnnassigned() {
+  void generatePipelineHuooValidationResult_whenHolderHasPipelineAndOrgRoleOwnersUnnassigned() {
     setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
@@ -804,7 +809,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenUnassignedPipelineSections_andSectionsValid() {
+  void generatePipelineHuooValidationResult_whenUnassignedPipelineSections_andSectionsValid() {
     setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
@@ -832,7 +837,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFinalSectionInvalid() {
+  void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFinalSectionInvalid() {
     setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
@@ -873,7 +878,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFirstSectionInvalid() {
+  void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andFirstSectionInvalid() {
     setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
@@ -914,7 +919,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andMiddleSectionInvalidLocationsForIdent() {
+  void generatePipelineHuooValidationResult_whenUnassignedAndAssignedPipelineSections_andMiddleSectionInvalidLocationsForIdent() {
     setupPipelineAndIdentView();
     var organisationRoleOwnerDto1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(ORGANISATION_UNIT_1_ID);
 
@@ -956,7 +961,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void generatePipelineHuooValidationResult_whenAllRolesAreValid() {
+  void generatePipelineHuooValidationResult_whenAllRolesAreValid() {
     setupPipelineAndIdentView();
     var rolesByView = PipelineAndOrgRoleGroupViewsByRoleTestUtil.createFrom(
         PipelineHuooRoleSummaryViewTestUtil.createEmptyGroupWithNoUnassigned(HuooRole.HOLDER),
@@ -977,7 +982,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notOptionsVariation() {
+  void canShowInTaskList_notOptionsVariation() {
     var notOptions = EnumSet.allOf(PwaApplicationType.class);
     notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -989,7 +994,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+  void canShowInTaskList_OptionsVariation_optionsNotComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(false);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -999,7 +1004,7 @@ public class PadPipelinesHuooServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsComplete() {
+  void canShowInTaskList_OptionsVariation_optionsComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).thenReturn(true);
 
     pwaApplicationDetail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);

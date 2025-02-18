@@ -6,38 +6,38 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.BlockLocation;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlock;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsLicence;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadCrossedBlockServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadCrossedBlockServiceTest {
 
   @Mock
   private PadCrossedBlockRepository padCrossedBlockRepository;
 
   private PadCrossedBlockService padCrossedBlockService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padCrossedBlockService = new PadCrossedBlockService(padCrossedBlockRepository);
   }
 
   @Test
-  public void save() {
+  void save() {
     var padBlock = new PadCrossedBlock();
     padCrossedBlockService.save(padBlock);
     verify(padCrossedBlockRepository, times(1)).save(padBlock);
   }
 
   @Test
-  public void getBlocksByDetail() {
+  void getBlocksByDetail() {
     var padBlock = new PadCrossedBlock();
     var blocks = List.of(padBlock);
     var detail = new PwaApplicationDetail();
@@ -47,7 +47,7 @@ public class PadCrossedBlockServiceTest {
   }
 
   @Test
-  public void createFromPearsBlock() {
+  void createFromPearsBlock() {
     var licence = new PearsLicence();
     var pearsBlock = new PearsBlock("Key", licence, "Ref", "BlockNo", "QuadNo", "Suffix",
         BlockLocation.OFFSHORE);

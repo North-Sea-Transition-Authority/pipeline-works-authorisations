@@ -7,10 +7,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationWorkAreaItemTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationWorkAreaItemTest {
 
   private PwaApplicationWorkAreaItem pwaApplicationWorkAreaItem;
   private WorkAreaApplicationDetailSearchItem workAreaApplicationDetailSearchItem;
@@ -28,8 +28,8 @@ public class PwaApplicationWorkAreaItemTest {
   private static final String VIEW_URL = "EXAMPLE_URL";
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     workAreaApplicationDetailSearchItem = new WorkAreaApplicationDetailSearchItem();
     workAreaApplicationDetailSearchItem.setApplicationType(PwaApplicationType.INITIAL);
     workAreaApplicationDetailSearchItem.setPwaApplicationId(100);
@@ -57,7 +57,7 @@ public class PwaApplicationWorkAreaItemTest {
 
 
   @Test
-  public void pwaApplicationWorkAreaItem() {
+  void pwaApplicationWorkAreaItem() {
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
 
     assertThat(pwaApplicationWorkAreaItem.getPwaApplicationId())
@@ -85,33 +85,33 @@ public class PwaApplicationWorkAreaItemTest {
 
 
   @Test
-  public void getFormattedProposedStartDate_whenSet() {
+  void getFormattedProposedStartDate_whenSet() {
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
     assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isEqualTo("02/01/2020");
   }
 
   @Test
-  public void getFormattedProposedStartDate_whenNull() {
+  void getFormattedProposedStartDate_whenNull() {
     workAreaApplicationDetailSearchItem.setPadProposedStart(null);
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
     assertThat(pwaApplicationWorkAreaItem.getProposedStartDateDisplay()).isNull();
   }
 
   @Test
-  public void getFormattedStatusSetDatetime_whenSet() {
+  void getFormattedStatusSetDatetime_whenSet() {
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime()).isEqualTo("03/02/2020 04:05");
   }
 
   @Test
-  public void getFormattedStatusSetDatetime_whenNull() {
+  void getFormattedStatusSetDatetime_whenNull() {
     workAreaApplicationDetailSearchItem.setPadStatusTimestamp(null);
     pwaApplicationWorkAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
     assertThat(pwaApplicationWorkAreaItem.getFormattedStatusSetDatetime()).isNull();
   }
 
   @Test
-  public void getFastTrackLabelText_notFastTrack() {
+  void getFastTrackLabelText_notFastTrack() {
 
     var workAreaItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
 
@@ -120,7 +120,7 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getFastTrackLabelText_fastTrack_notAccepted() {
+  void getFastTrackLabelText_fastTrack_notAccepted() {
 
     workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
     workAreaApplicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(null);
@@ -132,7 +132,7 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getFastTrackLabelText_fastTrack_accepted() {
+  void getFastTrackLabelText_fastTrack_accepted() {
 
     workAreaApplicationDetailSearchItem.setSubmittedAsFastTrackFlag(true);
     workAreaApplicationDetailSearchItem.setPadInitialReviewApprovedTimestamp(Instant.now());
@@ -146,7 +146,7 @@ public class PwaApplicationWorkAreaItemTest {
 
 
   @Test
-  public void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
+  void getApplicationStatusColumn_whenNoCaseOfficer_andNotFastTrack() {
     workAreaApplicationDetailSearchItem.setCaseOfficerName(null);
 
     var workAreItem = new PwaApplicationWorkAreaItem(workAreaApplicationDetailSearchItem);
@@ -163,7 +163,7 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
+  void getApplicationStatusColumn_whenCaseOfficer_andFastTrackApproved() {
     var caseOfficer = "NAME";
     workAreaApplicationDetailSearchItem.setCaseOfficerName(caseOfficer);
     workAreaApplicationDetailSearchItem.setCaseOfficerPersonId(1);
@@ -190,28 +190,28 @@ public class PwaApplicationWorkAreaItemTest {
 
   /* Below are super type tests*/
   @Test
-  public void getAccessUrl_assertDefaultUrl(){
+  void getAccessUrl_assertDefaultUrl(){
     ApplicationWorkAreaItemTestUtil.test_getAccessUrl_assertDefaultAccessUrl(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
-  
+
   @Test
-  public void getSummaryColumn_whenFieldsExist(){
+  void getSummaryColumn_whenFieldsExist(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenFieldsExist(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getSummaryColumn_whenNoFields(){
+  void getSummaryColumn_whenNoFields(){
     ApplicationWorkAreaItemTestUtil.test_getSummaryColumn_whenNoFields(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getHolderColumn_whenInitialType(){
+  void getHolderColumn_whenInitialType(){
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenInitialType(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
@@ -219,14 +219,14 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getHolderColumn_whenNotInitialType() {
+  void getHolderColumn_whenNotInitialType() {
     ApplicationWorkAreaItemTestUtil.test_getHolderColumn_whenNotInitialType(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenApplicationNotComplete(){
+  void getApplicationColumn_whenApplicationNotComplete(){
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationNotCompleteOrInitial(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
@@ -234,28 +234,28 @@ public class PwaApplicationWorkAreaItemTest {
   }
 
   @Test
-  public void getApplicationColumn_whenApplicationComplete() {
+  void getApplicationColumn_whenApplicationComplete() {
     ApplicationWorkAreaItemTestUtil.test_getApplicationColumn_whenApplicationCompleteOrNotInitial(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenUpdate_withinDeadline() {
+  void getApplicationColumn_whenUpdate_withinDeadline() {
     ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestWithinDeadline(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenUpdate_dueToday() {
+  void getApplicationColumn_whenUpdate_dueToday() {
     ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestDueToday(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);
   }
 
   @Test
-  public void getApplicationColumn_whenUpdate_overdue() {
+  void getApplicationColumn_whenUpdate_overdue() {
     ApplicationWorkAreaItemTestUtil.testGetApplicationColumnWhenUpdateRequestOverdue(
         workAreaApplicationDetailSearchItem,
         PwaApplicationWorkAreaItem::new);

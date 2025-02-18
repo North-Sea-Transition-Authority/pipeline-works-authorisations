@@ -3,23 +3,23 @@ package uk.co.ogauthority.pwa.service.markdown;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.util.MailMergeTestUtils;
 
-public class MarkdownServiceTest {
+class MarkdownServiceTest {
 
   private MarkdownService markdownService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     markdownService = new MarkdownService();
 
   }
 
   @Test
-  public void convertMarkdownToHtml_heading() {
+  void convertMarkdownToHtml_heading() {
 
     String html = markdownService.convertMarkdownToHtml("### heading level 3");
 
@@ -28,7 +28,7 @@ public class MarkdownServiceTest {
   }
 
   @Test
-  public void convertMarkdownToHtml_emptyMergeContainer_heading() {
+  void convertMarkdownToHtml_emptyMergeContainer_heading() {
 
     var container = new MailMergeContainer();
     String html = markdownService.convertMarkdownToHtml("### heading level 3", container);
@@ -38,7 +38,7 @@ public class MarkdownServiceTest {
   }
 
   @Test
-  public void convertMarkdownToHtml_mailMergeFields() {
+  void convertMarkdownToHtml_mailMergeFields() {
 
     var container = MailMergeTestUtils.getMergeContainerWithMergeFields(Map.of("PROJECT_NAME", "my proj"));
     String html = markdownService.convertMarkdownToHtml("((PROJECT_NAME))", container);
@@ -48,7 +48,7 @@ public class MarkdownServiceTest {
   }
 
   @Test
-  public void convertMarkdownToHtml_null_noError() {
+  void convertMarkdownToHtml_null_noError() {
 
     var container = new MailMergeContainer();
     String html = markdownService.convertMarkdownToHtml(null, container);

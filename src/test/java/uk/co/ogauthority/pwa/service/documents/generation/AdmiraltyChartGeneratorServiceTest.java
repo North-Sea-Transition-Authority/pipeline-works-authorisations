@@ -9,11 +9,11 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AdmiraltyChartGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AdmiraltyChartGeneratorServiceTest {
 
   @Mock
   private AdmiraltyChartFileService admiraltyChartFileService;
@@ -37,8 +37,8 @@ public class AdmiraltyChartGeneratorServiceTest {
 
   private PwaApplicationDetail detail = new PwaApplicationDetail();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     admiraltyChartGeneratorService = new AdmiraltyChartGeneratorService(admiraltyChartFileService, consentDocumentImageService);
 
@@ -47,13 +47,13 @@ public class AdmiraltyChartGeneratorServiceTest {
     when(admiraltyChartFileService.getAdmiraltyChartFile(detail))
         .thenReturn(Optional.of(chartFile));
 
-    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of("id1")))
-        .thenReturn(Map.of("id1", "fullChartUri"));
-
   }
 
   @Test
-  public void getDocumentSectionData_admiraltyChartAvailable() {
+  void getDocumentSectionData_admiraltyChartAvailable() {
+
+    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of("id1")))
+        .thenReturn(Map.of("id1", "fullChartUri"));
 
     var docSectionData = admiraltyChartGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
@@ -68,7 +68,7 @@ public class AdmiraltyChartGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_noAdmiraltyChart() {
+  void getDocumentSectionData_noAdmiraltyChart() {
 
     when(admiraltyChartFileService.getAdmiraltyChartFile(detail))
         .thenReturn(Optional.empty());

@@ -12,7 +12,7 @@ import java.util.function.Function;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class EnergyPortalQueryCounterTest {
+class EnergyPortalQueryCounterTest {
   private EnergyPortalQueryCounter energyPortalQueryCounter;
 
   @BeforeEach

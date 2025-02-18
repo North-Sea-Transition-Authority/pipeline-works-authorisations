@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
@@ -33,13 +33,13 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class SamlResponseParserTest {
+class SamlResponseParserTest {
 
   @Autowired
   private SamlResponseParser samlResponseParser;
 
   @Test
-  public void parseSamlResponse() {
+  void parseSamlResponse() {
 
     var attributes = samlAttributeBuilder()
         .withWebUserAccountId("1")
@@ -102,14 +102,14 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_missingAttributes() {
+  void parseSamlResponse_missingAttributes() {
     var samlResponse = createResponse(List.of());
     assertThatExceptionOfType(NullPointerException.class)
         .isThrownBy(() -> samlResponseParser.parseSamlResponse(samlResponse));
   }
 
   @Test
-  public void parseSamlResponse_whenWebUserAccountIdAttributeEmpty_thenException() {
+  void parseSamlResponse_whenWebUserAccountIdAttributeEmpty_thenException() {
     List<String> testValues = Arrays.asList(null, "");
     for (String webUserAccountId : testValues) {
       var attributes = samlAttributeBuilder()
@@ -124,7 +124,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenPersonIdAttributeEmpty_thenException() {
+  void parseSamlResponse_whenPersonIdAttributeEmpty_thenException() {
     List<String> testValues = Arrays.asList(null, "");
     for (String personId : testValues) {
       var attributes = samlAttributeBuilder()
@@ -139,7 +139,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenForenameAttributeEmpty_thenException() {
+  void parseSamlResponse_whenForenameAttributeEmpty_thenException() {
     List<String> testValues = Arrays.asList(null, "");
     for (String forename : testValues) {
       var attributes = samlAttributeBuilder()
@@ -154,7 +154,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenSurnameAttributeEmpty_thenException() {
+  void parseSamlResponse_whenSurnameAttributeEmpty_thenException() {
     List<String> testValues = Arrays.asList(null, "");
     for (String surname : testValues) {
       var attributes = samlAttributeBuilder()
@@ -169,7 +169,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenEmailAttributeEmpty_thenException() {
+  void parseSamlResponse_whenEmailAttributeEmpty_thenException() {
     List<String> testValues = Arrays.asList(null, "");
     for (String emailAddress : testValues) {
       var attributes = samlAttributeBuilder()
@@ -184,7 +184,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenPrivilegesNull_thenException() {
+  void parseSamlResponse_whenPrivilegesNull_thenException() {
 
     var attributes = samlAttributeBuilder()
         .withEmailAddress(null)
@@ -196,7 +196,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenProxyUser_assertValues() {
+  void parseSamlResponse_whenProxyUser_assertValues() {
     var attributes = samlAttributeBuilder()
         .withProxyWuaId("2")
         .build();
@@ -206,7 +206,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void parseSamlResponse_whenNullProxyValuesProvided_assertNulls() {
+  void parseSamlResponse_whenNullProxyValuesProvided_assertNulls() {
     var attributes = samlAttributeBuilder()
         .withProxyWuaId(null)
         .build();
@@ -216,7 +216,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void getAuthenticatedUserAccount_validInputs_returnsCorrectAccount() throws Exception {
+  void getAuthenticatedUserAccount_validInputs_returnsCorrectAccount() throws Exception {
     String personId = "123";
     String forename = "John";
     String surname = "Doe";
@@ -253,7 +253,7 @@ public class SamlResponseParserTest {
   }
 
   @Test
-  public void getAuthenticatedUserAccount_withInvalidPrivilege_ignoresInvalid() throws Exception {
+  void getAuthenticatedUserAccount_withInvalidPrivilege_ignoresInvalid() throws Exception {
     String personId = "123";
     String forename = "John";
     String surname = "Doe";

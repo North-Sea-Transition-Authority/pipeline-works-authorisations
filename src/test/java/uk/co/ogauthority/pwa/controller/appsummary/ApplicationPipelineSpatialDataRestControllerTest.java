@@ -14,16 +14,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -42,9 +40,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.shared.ApplicationVersionRe
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ApplicationPipelineSpatialDataRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -61,8 +58,8 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService,
         pwaAppProcessingPermissionService)
@@ -84,7 +81,7 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
   }
 
   @Test
-  public void getLatestAvailableAppPipelinesForUserAsGeoJson_permissionSmokeTest() {
+  void getLatestAvailableAppPipelinesForUserAsGeoJson_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -97,7 +94,7 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
   }
 
   @Test
-  public void getLatestAvailableAppPipelinesForUserAsGeoJson_responseCheck() throws Exception {
+  void getLatestAvailableAppPipelinesForUserAsGeoJson_responseCheck() throws Exception {
 
     var permissionsDto = new ProcessingPermissionsDto(null, EnumSet.allOf(PwaAppProcessingPermission.class));
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
@@ -116,7 +113,7 @@ public class ApplicationPipelineSpatialDataRestControllerTest extends PwaAppProc
   }
 
   @Test
-  public void getLatestAvailableAppPipelinesForUserAsGeoJson_pipelineDataUsesRequestedAppDetailVersion() throws Exception {
+  void getLatestAvailableAppPipelinesForUserAsGeoJson_pipelineDataUsesRequestedAppDetailVersion() throws Exception {
 
     var currentDraftDetail = new PwaApplicationDetail();
     when(applicationVersionAccessRequester.getPwaApplicationDetailWhenAvailable(any(), any())).thenReturn(Optional.of(currentDraftDetail));

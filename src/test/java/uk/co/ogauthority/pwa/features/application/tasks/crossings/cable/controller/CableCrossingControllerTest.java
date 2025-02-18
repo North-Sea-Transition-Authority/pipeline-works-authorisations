@@ -17,16 +17,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -51,9 +49,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CableCrossingController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class CableCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
+class CableCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private int APP_ID = 100;
 
@@ -75,8 +72,8 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     allowedApplicationTypes = EnumSet.of(
         PwaApplicationType.INITIAL,
@@ -102,7 +99,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddCableCrossing_authenticated_invalidAppType() {
+  void renderAddCableCrossing_authenticated_invalidAppType() {
 
     PwaApplicationType.stream()
         .filter(t -> !allowedApplicationTypes.contains(t))
@@ -125,7 +122,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditCableCrossing_authenticated_invalidAppType() {
+  void renderEditCableCrossing_authenticated_invalidAppType() {
 
     PwaApplicationType.stream()
         .filter(t -> !allowedApplicationTypes.contains(t))
@@ -148,7 +145,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderRemoveCableCrossing_authenticated_invalidAppType() {
+  void renderRemoveCableCrossing_authenticated_invalidAppType() {
 
     PwaApplicationType.stream()
         .filter(t -> !allowedApplicationTypes.contains(t))
@@ -171,7 +168,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddCableCrossing_authenticated() throws Exception {
+  void renderAddCableCrossing_authenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderAddCableCrossing(PwaApplicationType.INITIAL, 1, null, null)))
@@ -182,7 +179,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditCableCrossing_authenticated() throws Exception {
+  void renderEditCableCrossing_authenticated() throws Exception {
 
     var cableCrossing = new PadCableCrossing();
     when(padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1)).thenReturn(cableCrossing);
@@ -198,7 +195,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderRemoveCableCrossing_authenticated() throws Exception {
+  void renderRemoveCableCrossing_authenticated() throws Exception {
 
     var cableCrossing = new PadCableCrossing();
     cableCrossing.setCableName("name");
@@ -217,7 +214,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddCableCrossing_unauthenticated() throws Exception {
+  void renderAddCableCrossing_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderAddCableCrossing(PwaApplicationType.INITIAL, 1, null, null))))
@@ -225,7 +222,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditCableCrossing_unauthenticated() throws Exception {
+  void renderEditCableCrossing_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(
             on(CableCrossingController.class).renderEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null))))
@@ -233,7 +230,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postAddCableCrossings_unauthenticated() throws Exception {
+  void postAddCableCrossings_unauthenticated() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postAddCableCrossings(PwaApplicationType.INITIAL, 1, null, null, null))))
@@ -241,7 +238,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postEditCableCrossing_unauthenticated() throws Exception {
+  void postEditCableCrossing_unauthenticated() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null,
@@ -250,7 +247,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postRemoveCableCrossing_unauthenticated() throws Exception {
+  void postRemoveCableCrossing_unauthenticated() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postRemoveCableCrossing(PwaApplicationType.INITIAL, 1, 1, null))))
@@ -258,7 +255,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postAddCableCrossings_invalid() throws Exception {
+  void postAddCableCrossings_invalid() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postAddCableCrossings(PwaApplicationType.INITIAL, 1, null, null, null)))
@@ -269,7 +266,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postAddCableCrossings_valid() throws Exception {
+  void postAddCableCrossings_valid() throws Exception {
 
     MultiValueMap paramMap = new LinkedMultiValueMap<String, String>() {{
       add("cableName", "abc");
@@ -288,7 +285,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postEditCableCrossing_invalid() throws Exception {
+  void postEditCableCrossing_invalid() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postEditCableCrossing(PwaApplicationType.INITIAL, 1, 1, null, null,
@@ -300,7 +297,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postEditCableCrossing_valid() throws Exception {
+  void postEditCableCrossing_valid() throws Exception {
 
     MultiValueMap paramMap = new LinkedMultiValueMap<String, String>() {{
       add("cableName", "abc");
@@ -320,7 +317,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postRemoveCableCrossing() throws Exception {
+  void postRemoveCableCrossing() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(CableCrossingController.class).postRemoveCableCrossing(PwaApplicationType.INITIAL, 1, 1, null)))
@@ -331,7 +328,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderOverview_appTypeSmokeTest() {
+  void renderOverview_appTypeSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
@@ -351,7 +348,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderOverview_appStatusSmokeTest() throws Exception {
+  void renderOverview_appStatusSmokeTest() throws Exception {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
@@ -370,7 +367,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderOverview_appContactRoleSmokeTest() {
+  void renderOverview_appContactRoleSmokeTest() {
 
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.CABLE_CROSSINGS));
@@ -389,7 +386,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appTypeSmokeTest() {
+  void postOverview_appTypeSmokeTest() {
 
     when(padCableCrossingService.isComplete(any())).thenReturn(true);
 
@@ -402,7 +399,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appStatusSmokeTest() {
+  void postOverview_appStatusSmokeTest() {
 
     when(padCableCrossingService.isComplete(any())).thenReturn(true);
 
@@ -415,7 +412,7 @@ public class CableCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appContactRoleSmokeTest() {
+  void postOverview_appContactRoleSmokeTest() {
 
     when(padCableCrossingService.isComplete(any())).thenReturn(true);
 

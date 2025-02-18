@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.util.FieldUtils;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
@@ -11,10 +11,10 @@ import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 
-public class PadPipelineIdentTest {
+class PadPipelineIdentTest {
 
   @Test
-  public void updateCoordinateValues() throws IllegalAccessException {
+  void updateCoordinateValues() throws IllegalAccessException {
 
     var ident = new PadPipelineIdent();
 
@@ -51,7 +51,7 @@ public class PadPipelineIdentTest {
   }
 
   @Test
-  public void postLoad() throws IllegalAccessException {
+  void postLoad() throws IllegalAccessException {
 
     var ident = new PadPipelineIdent();
 

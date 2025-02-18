@@ -10,13 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
@@ -30,10 +28,9 @@ import uk.co.ogauthority.pwa.service.asbuilt.AsBuiltNotificationAuthService;
 import uk.co.ogauthority.pwa.service.asbuilt.view.AsBuiltViewerService;
 import uk.co.ogauthority.pwa.testutils.AsBuiltNotificationSummaryTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ReopenAsBuiltNotificationGroupController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTest {
+class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTest {
 
   @MockBean
   private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
@@ -51,8 +48,8 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
       .createGroupWithConsent_withApplication_fromNgId(NOTIFICATION_GROUP_ID);
   private final AsBuiltNotificationGroupSummaryView summaryView = AsBuiltNotificationSummaryTestUtil.getAsBuiltNotificationSummmary();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(true);
@@ -62,7 +59,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
   }
 
   @Test
-  public void renderReopenAsBuiltNotificationForm_unauthorizedUser_forbidden() throws Exception {
+  void renderReopenAsBuiltNotificationForm_unauthorizedUser_forbidden() throws Exception {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
@@ -75,7 +72,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
   }
 
   @Test
-  public void renderReopenAsBuiltNotificationForm_unauthorizedUser_groupCannotBeReopened_forbidden() throws Exception {
+  void renderReopenAsBuiltNotificationForm_unauthorizedUser_groupCannotBeReopened_forbidden() throws Exception {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
@@ -88,7 +85,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
   }
 
   @Test
-  public void renderReopenAsBuiltNotificationForm_authorizedUser_success() throws Exception {
+  void renderReopenAsBuiltNotificationForm_authorizedUser_success() throws Exception {
     mockMvc.perform(get(
         ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)
             .renderReopenAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, user)))
@@ -98,7 +95,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
   }
 
   @Test
-  public void reopenAsBuiltNotification_unauthorizedUser_forbidden() throws Exception {
+  void reopenAsBuiltNotification_unauthorizedUser_forbidden() throws Exception {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
@@ -111,7 +108,7 @@ public class ReopenAsBuiltNotificationGroupControllerTest extends AbstractContro
   }
 
   @Test
-  public void reopenAsBuiltNotification_authorizedUser_success() throws Exception {
+  void reopenAsBuiltNotification_authorizedUser_success() throws Exception {
     when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(true);

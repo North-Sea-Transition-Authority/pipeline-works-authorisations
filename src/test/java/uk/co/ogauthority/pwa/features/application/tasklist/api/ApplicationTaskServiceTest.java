@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationTaskServiceTest {
 
   private final ApplicationTask DEFAULT_APP_TASK = ApplicationTask.FIELD_INFORMATION;
 
@@ -39,8 +39,8 @@ public class ApplicationTaskServiceTest {
 
   private ApplicationTaskService applicationTaskService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> {
       Class clazz = invocation.getArgument(0);
@@ -60,7 +60,7 @@ public class ApplicationTaskServiceTest {
 
 
   @Test
-  public void canShowTask_byAppType_whenAllConditionalTasksShown() {
+  void canShowTask_byAppType_whenAllConditionalTasksShown() {
 
     when(applicationFormSectionService.canShowInTaskList(eq(pwaApplicationDetail))).thenReturn(true);
 
@@ -83,7 +83,7 @@ public class ApplicationTaskServiceTest {
   }
 
   @Test
-  public void isTaskComplete_serviceInteractions() {
+  void isTaskComplete_serviceInteractions() {
 
     when(applicationFormSectionService.isComplete(any())).thenReturn(true);
 
@@ -94,7 +94,7 @@ public class ApplicationTaskServiceTest {
   }
 
   @Test
-  public void getTaskInfoList_serviceInteractions() {
+  void getTaskInfoList_serviceInteractions() {
 
     var taskInfo = new TaskInfo("INFO", 1L);
 
@@ -225,7 +225,7 @@ public class ApplicationTaskServiceTest {
   }
 
   @Test
-  public void copyApplicationTaskDataToApplicationDetail_serviceInteractions() {
+  void copyApplicationTaskDataToApplicationDetail_serviceInteractions() {
 
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL

@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineCrossingsSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineCrossingsSummaryServiceTest {
 
 
 
@@ -49,8 +49,8 @@ public class PipelineCrossingsSummaryServiceTest {
   private PipelineCrossingsSummaryService pipelineCrossingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pipelineCrossingsSummaryService = new PipelineCrossingsSummaryService(padPipelineCrossingService, padFileService, taskListService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
@@ -58,7 +58,7 @@ public class PipelineCrossingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
 
     pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail);
@@ -73,26 +73,26 @@ public class PipelineCrossingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(padPipelineCrossingService.canShowInTaskList(any())).thenReturn(true);
     assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionNotShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andPipelineCrossingSectionNotShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(padPipelineCrossingService.canShowInTaskList(any())).thenReturn(false);
     assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void canSummarise_whenCrossingTaskNotShown() {
+  void canSummarise_whenCrossingTaskNotShown() {
     assertThat(pipelineCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var padPipelineCrossing = new PadPipelineCrossing();
     padPipelineCrossing.setId(1);

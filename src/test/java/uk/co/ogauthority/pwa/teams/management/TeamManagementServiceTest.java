@@ -77,7 +77,7 @@ class TeamManagementServiceTest {
   private static User user2;
 
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     regTeam = new Team(UUID.randomUUID());
     regTeam.setTeamType(TeamType.REGULATOR);
     regTeamUser1RoleManage = new TeamRole();

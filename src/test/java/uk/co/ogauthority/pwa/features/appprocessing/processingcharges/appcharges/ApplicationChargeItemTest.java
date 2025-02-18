@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ApplicationChargeItemTest {
+class ApplicationChargeItemTest {
 
   @Test
-  public void testEqualsAndHashCode() {
+  void equalsAndHashCode() {
     EqualsVerifier.forClass(ApplicationChargeItem.class)
         .verify();
   }

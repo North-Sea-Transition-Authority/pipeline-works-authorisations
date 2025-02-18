@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -13,11 +14,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -43,8 +44,8 @@ import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaView
 import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView;
 import uk.co.ogauthority.pwa.service.search.consents.testutil.PwaContextTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaViewTabServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaViewTabServiceTest {
 
   @Mock
   private PipelineDetailService pipelineDetailService;
@@ -69,8 +70,8 @@ public class PwaViewTabServiceTest {
   private final Instant clockTime = Instant.now();
   private final Clock clock = Clock.fixed(Instant.from(clockTime), ZoneId.systemDefault());
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaViewTabService = new PwaViewTabService(
         pipelineDetailService,
@@ -85,7 +86,7 @@ public class PwaViewTabServiceTest {
 
 
   @Test
-  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
+  void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_orderedByPipelineNumber() {
 
     var unOrderedPipelineOverviews = List.of(
         PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID2, PipelineStatus.DELETED),
@@ -125,7 +126,7 @@ public class PwaViewTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_containsAsBuiltStatus_andTransferredFrom() {
+  void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineViews_containsAsBuiltStatus_andTransferredFrom() {
 
     var overview = PipelineDetailTestUtil.createPipelineOverviewWithAsBuiltStatus(PIPELINE_REF_ID1,
         PipelineStatus.IN_SERVICE, AsBuiltNotificationStatus.PER_CONSENT);
@@ -168,7 +169,7 @@ public class PwaViewTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_consentTab_modelMapContainsConsentHistoryViews_orderedByConsentDateLatestFirst() {
+  void getTabContentModelMap_consentTab_modelMapContainsConsentHistoryViews_orderedByConsentDateLatestFirst() {
 
     var today = LocalDate.now();
     var unOrderedConsentAppDtos = List.of(
@@ -183,7 +184,7 @@ public class PwaViewTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineView_withTransferTo() {
+  void getTabContentModelMap_pipelinesTab_modelMapContainsPipelineView_withTransferTo() {
     var unOrderedPipelineOverviews = List.of(PipelineDetailTestUtil.createPipelineOverview(PIPELINE_REF_ID1, PipelineStatus.IN_SERVICE));
 
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
@@ -215,7 +216,7 @@ public class PwaViewTabServiceTest {
   }
 
   @Test
-  public void verifyConsentDocumentDownloadable_allOk() throws IllegalAccessException {
+  void verifyConsentDocumentDownloadable_allOk() throws IllegalAccessException {
 
     var docgenRun = new DocgenRun();
     docgenRun.setId(2L);
@@ -235,42 +236,38 @@ public class PwaViewTabServiceTest {
 
   }
 
-  @Test(expected = AccessDeniedException.class)
-  public void verifyConsentDocumentDownloadable_notFullRun_exception() throws IllegalAccessException {
-
+  @Test
+  void verifyConsentDocumentDownloadable_notFullRun_exception() throws IllegalAccessException {
     var docgenRun = new DocgenRun();
     docgenRun.setId(2L);
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);
     docgenRun.setDocGenType(DocGenType.PREVIEW);
-
     var pwaConsent = new PwaConsent();
     pwaConsent.setDocgenRunId(docgenRun.getId());
     pwaConsent.setId(3);
-
     var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), docgenRun);
     FieldUtils.writeField(dto, "consentId", pwaConsent.getId(), true);
     var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
     when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(dto, migratedDto));
+    assertThrows(AccessDeniedException.class, () ->
 
-    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
+      pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext()));
 
   }
 
-  @Test(expected = AccessDeniedException.class)
-  public void verifyConsentDocumentDownloadable_notLinkedToPwa_exception() {
-
+  @Test
+  void verifyConsentDocumentDownloadable_notLinkedToPwa_exception() {
     var docgenRun = new DocgenRun();
     docgenRun.setId(2L);
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);
     docgenRun.setDocGenType(DocGenType.FULL);
-
     var pwaConsent = new PwaConsent();
     pwaConsent.setDocgenRunId(docgenRun.getId());
-
     var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
     when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(migratedDto));
+    assertThrows(AccessDeniedException.class, () ->
 
-    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
+      pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext()));
 
   }
 

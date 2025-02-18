@@ -9,11 +9,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationDetailVersioningServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationDetailVersioningServiceTest {
 
   private final int APP_ID = 1;
 
@@ -44,8 +44,8 @@ public class PwaApplicationDetailVersioningServiceTest {
 
   private WebUserAccount webUserAccount;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     webUserAccount = new WebUserAccount(1);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 10);
@@ -56,7 +56,7 @@ public class PwaApplicationDetailVersioningServiceTest {
   }
 
   @Test
-  public void createNewApplicationVersion_serviceInteractions_whenMultipleTasksCanBeCopied() {
+  void createNewApplicationVersion_serviceInteractions_whenMultipleTasksCanBeCopied() {
 
     var copyableTasks = EnumSet.of(ApplicationTask.APPLICATION_USERS, ApplicationTask.PROJECT_INFORMATION, ApplicationTask.FIELD_INFORMATION);
 
@@ -108,7 +108,7 @@ public class PwaApplicationDetailVersioningServiceTest {
   }
 
   @Test
-  public void createNewApplicationVersion_serviceInteractions_whenZeroTasksCanBeCopied() {
+  void createNewApplicationVersion_serviceInteractions_whenZeroTasksCanBeCopied() {
 
     var fakeVersionedAppDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID, 11);
     when(pwaApplicationDetailService.createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, webUserAccount))
@@ -121,11 +121,9 @@ public class PwaApplicationDetailVersioningServiceTest {
     verify(pwaApplicationDetailService, times(1))
         .createNewTipDetail(pwaApplicationDetail, PwaApplicationStatus.UPDATE_REQUESTED, webUserAccount);
 
-    EnumSet.allOf(ApplicationTask.class).forEach(applicationTask -> {
+    EnumSet.allOf(ApplicationTask.class).forEach(applicationTask ->
       verify(applicationTaskService, times(1))
-          .taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail);
-
-    });
+          .taskAllowsCopySectionInformation(applicationTask, pwaApplicationDetail));
 
 
     verifyNoMoreInteractions(pwaApplicationDetailService, taskListService, applicationTaskService);

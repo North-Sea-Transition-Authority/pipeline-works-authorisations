@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,18 +10,18 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadCableCrossingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadCableCrossingServiceTest {
 
   @Mock
   private PadCableCrossingRepository padCableCrossingRepository;
@@ -38,8 +39,8 @@ public class PadCableCrossingServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PadCableCrossing padCableCrossing;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padCableCrossingService = new PadCableCrossingService(
         padCableCrossingRepository,
         cableCrossingFileService,
@@ -54,22 +55,23 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void getCableCrossing() {
+  void getCableCrossing() {
     when(padCableCrossingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(padCableCrossing));
     var result = padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1);
     assertThat(result).isEqualTo(padCableCrossing);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getCableCrossing_NotFound() {
+  @Test
+  void getCableCrossing_NotFound() {
     when(padCableCrossingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
-        .thenReturn(Optional.empty());
-    padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1);
+          .thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      padCableCrossingService.getCableCrossing(pwaApplicationDetail, 1));
   }
 
   @Test
-  public void getCableCrossingViews() {
+  void getCableCrossingViews() {
     when(padCableCrossingRepository.findAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(padCableCrossing));
     var result = padCableCrossingService.getCableCrossingViews(pwaApplicationDetail);
@@ -78,7 +80,7 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void setCrossingInformationFromForm() {
+  void setCrossingInformationFromForm() {
     var crossing = new PadCableCrossing();
     var form = new AddCableCrossingForm();
     form.setCableName("Name");
@@ -91,7 +93,7 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void createCableCrossing() {
+  void createCableCrossing() {
 
     when(padCableCrossingRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -107,7 +109,7 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void updateCableCrossing() {
+  void updateCableCrossing() {
     when(padCableCrossingRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(padCableCrossingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(padCableCrossing));
@@ -123,7 +125,7 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void removeCableCrossing() {
+  void removeCableCrossing() {
     when(padCableCrossingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(padCableCrossing));
     padCableCrossingService.removeCableCrossing(pwaApplicationDetail, 1);
@@ -131,7 +133,7 @@ public class PadCableCrossingServiceTest {
   }
 
   @Test
-  public void mapCrossingToForm() {
+  void mapCrossingToForm() {
     var form = new AddCableCrossingForm();
     padCableCrossingService.mapCrossingToForm(padCableCrossing, form);
     assertThat(form.getCableName()).isEqualTo(padCableCrossing.getCableName());

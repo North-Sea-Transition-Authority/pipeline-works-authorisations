@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class VariationIntroductionGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class VariationIntroductionGeneratorServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
@@ -44,14 +44,14 @@ public class VariationIntroductionGeneratorServiceTest {
 
   private DocumentView docView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     variationIntroductionGeneratorService = new VariationIntroductionGeneratorService(documentInstanceService, mailMergeService);
   }
 
   @Test
-  public void getDocumentSectionData_dataPresent_Petroleum() {
+  void getDocumentSectionData_dataPresent_Petroleum() {
     docView = setupDocView(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
     var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
@@ -68,8 +68,9 @@ public class VariationIntroductionGeneratorServiceTest {
         entry("sectionType", DocumentSection.VARIATION_INTRO)
     );
   }
+
   @Test
-  public void getDocumentSectionData_dataPresent_Hydrogen() {
+  void getDocumentSectionData_dataPresent_Hydrogen() {
     docView = setupDocView(DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT);
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
     var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
@@ -86,8 +87,9 @@ public class VariationIntroductionGeneratorServiceTest {
         entry("sectionType", DocumentSection.VARIATION_INTRO)
     );
   }
+
   @Test
-  public void getDocumentSectionData_dataPresent_Ccus() {
+  void getDocumentSectionData_dataPresent_Ccus() {
     docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
     when(documentInstanceService.getDocumentView(documentInstance, DocumentSection.VARIATION_INTRO)).thenReturn(docView);
     var docSectionData = variationIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);

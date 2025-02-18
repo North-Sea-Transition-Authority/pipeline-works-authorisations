@@ -18,8 +18,8 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -59,7 +59,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = IndustryPaymentCallbackController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingContextAbstractControllerTest {
   private static final int APP_ID = 1;
@@ -89,8 +88,8 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   public IndustryPaymentCallbackControllerTest() {
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     uuid = UUID.randomUUID();
     payPerson = PersonTestUtil.createPersonFrom(new PersonId(1));
     pwaManagerPerson = PersonTestUtil.createPersonFrom(new PersonId(2));
@@ -133,7 +132,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasNotChangedStatusOfChargeRequest() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasNotChangedStatusOfChargeRequest() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenReturn(paymentAttempt);
@@ -154,7 +153,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasChangedStatusOfChargeRequest() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasChangedStatusOfChargeRequest() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenReturn(paymentAttempt);
@@ -175,7 +174,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestNotFound() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestNotFound() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenThrow(new PwaEntityNotFoundException("some error"));
@@ -187,7 +186,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderPaymentResult_whenPaidChargeRequestFound() throws Exception {
+  void renderPaymentResult_whenPaidChargeRequestFound() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).renderPaymentResult(APP_ID, APP_TYPE, null)))
@@ -201,7 +200,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderPaymentResult_whenPaidChargeNotRequestFound() throws Exception {
+  void renderPaymentResult_whenPaidChargeNotRequestFound() throws Exception {
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createCancelledReport(
         100,
@@ -229,7 +228,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
 
   @Test
-  public void renderPaymentResult_processingPermissionSmokeTest() {
+  void renderPaymentResult_processingPermissionSmokeTest() {
     endpointTester.setAllowedProcessingPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     endpointTester.setRequestMethod(HttpMethod.GET)

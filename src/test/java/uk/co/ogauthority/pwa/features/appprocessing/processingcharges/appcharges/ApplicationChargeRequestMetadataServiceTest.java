@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationChargeRequestMetadataServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationChargeRequestMetadataServiceTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -39,8 +39,8 @@ public class ApplicationChargeRequestMetadataServiceTest {
   private final PortalOrganisationUnit organisationUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "SHELL U.K. LIMITED");
   private final PadProjectInformation projectInfo = ProjectInformationTestUtils.buildEntity(LocalDate.now());
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     applicationChargeRequestMetadataService = new ApplicationChargeRequestMetadataService(
         portalOrganisationsAccessor,
@@ -56,7 +56,7 @@ public class ApplicationChargeRequestMetadataServiceTest {
   }
 
   @Test
-  public void getMetadataMapForDetail() {
+  void getMetadataMapForDetail() {
 
     var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
 
@@ -78,7 +78,7 @@ public class ApplicationChargeRequestMetadataServiceTest {
   }
 
   @Test
-  public void getMetadataMapForDetail_longValuesTruncated() throws IllegalAccessException {
+  void getMetadataMapForDetail_longValuesTruncated() throws IllegalAccessException {
 
     projectInfo.setProjectName(getRepeatedValue("test"));
     FieldUtils.writeField(organisationUnit, "name", getRepeatedValue("name"), true);
@@ -94,9 +94,8 @@ public class ApplicationChargeRequestMetadataServiceTest {
 
     assertThat(resultMap).isEqualTo(expectedMap);
 
-    assertThat(resultMap).allSatisfy((key, value) -> {
-      assertThat(value.length()).isEqualTo(100);
-    });
+    assertThat(resultMap).allSatisfy((key, value) ->
+      assertThat(value.length()).isEqualTo(100));
 
   }
 

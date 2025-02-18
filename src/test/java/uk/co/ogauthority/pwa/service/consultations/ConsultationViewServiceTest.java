@@ -10,11 +10,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationViewServiceTest {
 
   private ConsultationViewService consultationViewService;
 
@@ -56,8 +56,8 @@ public class ConsultationViewServiceTest {
   @Mock
   private ConsultationFileService consultationFileService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     consultationViewService = new ConsultationViewService(
         consultationRequestService,
         consultationResponseService,
@@ -71,7 +71,7 @@ public class ConsultationViewServiceTest {
   // and ordered by the consultee group name.
   //Where multiple same group requests should be stored each as a requestView in a nested list within each parent requestView
   @Test
-  public void getConsultationRequestViews() {
+  void getConsultationRequestViews() {
     var consulteeGroup1 = new ConsulteeGroup();
     consulteeGroup1.setId(1);
     var consulteeGroup2 = new ConsulteeGroup();
@@ -178,7 +178,7 @@ public class ConsultationViewServiceTest {
 
   //Single Request View Tests
   @Test
-  public void getConsultationRequestView_allocation() {
+  void getConsultationRequestView_allocation() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
 
@@ -210,7 +210,7 @@ public class ConsultationViewServiceTest {
 
 
   @Test
-  public void getConsultationRequestView_responseRejected() {
+  void getConsultationRequestView_responseRejected() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
 
@@ -260,7 +260,7 @@ public class ConsultationViewServiceTest {
 
 
   @Test
-  public void getConsultationRequestViewsRespondedOnly() {
+  void getConsultationRequestViewsRespondedOnly() {
     //group and detail
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
@@ -357,7 +357,7 @@ public class ConsultationViewServiceTest {
   }
 
   @Test
-  public void requestViewRequestDateDisplayCreation_noResponseDataConstructor() {
+  void requestViewRequestDateDisplayCreation_noResponseDataConstructor() {
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
         instantTime.atZone(ZoneOffset.UTC).withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS),
@@ -367,7 +367,7 @@ public class ConsultationViewServiceTest {
   }
 
   @Test
-  public void requestViewRequestDateDisplayCreation_withResponseDataConstructor() {
+  void requestViewRequestDateDisplayCreation_withResponseDataConstructor() {
     var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
@@ -380,7 +380,7 @@ public class ConsultationViewServiceTest {
   }
 
   @Test
-  public void requestViewResponseDateDisplayCreation_noResponseDataConstructor() {
+  void requestViewResponseDateDisplayCreation_noResponseDataConstructor() {
     var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,
@@ -390,7 +390,7 @@ public class ConsultationViewServiceTest {
   }
 
   @Test
-  public void requestViewResponseDateDisplayCreation_withResponseDataConstructor() {
+  void requestViewResponseDateDisplayCreation_withResponseDataConstructor() {
     var fileView = new UploadedFileView("id", "name", 1L, "desc", Instant.now(), "#id");
     var instantTime = Instant.now();
     var consultationRequest = new ConsultationRequestView(null, null,

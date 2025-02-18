@@ -12,11 +12,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailMigratio
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ViewablePipelineHuooVersionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ViewablePipelineHuooVersionServiceTest {
 
 
   @Mock
@@ -58,8 +58,8 @@ public class ViewablePipelineHuooVersionServiceTest {
   private static final String  CONSENT_REFERENCE = "4/V/21";
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     viewablePipelineHuooVersionService = new ViewablePipelineHuooVersionService(pwaConsentService,
         pipelineDetailMigrationHuooDataService, pipelineDetailService, pwaHuooHistoryViewService);
 
@@ -73,7 +73,7 @@ public class ViewablePipelineHuooVersionServiceTest {
 
 
   @Test
-  public void getHuooHistorySearchSelectorItems_onlyPipelineDetailsWithMigratedHuoosAreUsed() {
+  void getHuooHistorySearchSelectorItems_onlyPipelineDetailsWithMigratedHuoosAreUsed() {
 
     var pipelineDetailWithNoMigration = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, YESTERDAY);
     var pipelineDetailWithMigration2 = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
@@ -100,7 +100,7 @@ public class ViewablePipelineHuooVersionServiceTest {
   }
 
   @Test
-  public void getHuooHistorySearchSelectorItems_onlyHuooSelectorItemsWithVersionChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
+  void getHuooHistorySearchSelectorItems_onlyHuooSelectorItemsWithVersionChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
     var consentCreatedTodayAfternoon = PwaConsentTestUtil.createPwaConsent(1, "5/V/21", TODAY, 2);
     var consentCreatedTodayMorning = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
@@ -131,7 +131,7 @@ public class ViewablePipelineHuooVersionServiceTest {
 
 
   @Test
-  public void getHuooHistorySearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestHuooSelectorItemHasLatestVersionText() {
+  void getHuooHistorySearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestHuooSelectorItemHasLatestVersionText() {
 
     var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY, 1);
     var consentWithoutRef = PwaConsentTestUtil.createPwaConsent(1, null, TODAY, 0);
@@ -152,7 +152,7 @@ public class ViewablePipelineHuooVersionServiceTest {
 
 
   @Test
-  public void getHuooHistorySearchSelectorItems_consentAndPipelineDetailBothHaveRef_consentRefDisplayedForConsentItemsOnly() {
+  void getHuooHistorySearchSelectorItems_consentAndPipelineDetailBothHaveRef_consentRefDisplayedForConsentItemsOnly() {
 
     var consentWithRef = PwaConsentTestUtil.createPwaConsent(2, CONSENT_REFERENCE, TODAY);
 
@@ -177,9 +177,8 @@ public class ViewablePipelineHuooVersionServiceTest {
   }
 
 
-
   @Test
-  public void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForConsent() {
+  void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForConsent() {
 
     var huooVersionId = PWA_CONSENT.getItemPrefix() + HUOO_VERSION_ENTITY_ID;
     viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(
@@ -190,7 +189,7 @@ public class ViewablePipelineHuooVersionServiceTest {
   }
 
   @Test
-  public void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForMigratedHuoos() {
+  void getDiffableOrgRolePipelineGroupsFromHuooVersionString_huooVersionIdIsForMigratedHuoos() {
 
     var huooVersionId = PIPELINE_DETAIL_MIGRATED_HUOO.getItemPrefix() + HUOO_VERSION_ENTITY_ID;
     viewablePipelineHuooVersionService.getDiffableOrgRolePipelineGroupsFromHuooVersionString(

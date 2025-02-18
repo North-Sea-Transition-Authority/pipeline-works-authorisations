@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -10,13 +11,13 @@ import static org.mockito.Mockito.when;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -26,8 +27,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineIdentDataServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineIdentDataServiceTest {
 
   @Mock
   private PadPipelineIdentDataRepository repository;
@@ -37,13 +38,13 @@ public class PadPipelineIdentDataServiceTest {
   @Captor
   private ArgumentCaptor<PadPipelineIdentData> identDataCaptor;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     identDataService = new PadPipelineIdentDataService(repository);
   }
 
   @Test
-  public void addIdentData() {
+  void addIdentData() {
 
     var ident = new PadPipelineIdent();
 
@@ -85,7 +86,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void getDataFromIdentList_valid() {
+  void getDataFromIdentList_valid() {
     var ident = new PadPipelineIdent();
     ident.setIdentNo(1);
 
@@ -100,7 +101,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void getDataFromIdentList_emptyList() {
+  void getDataFromIdentList_emptyList() {
     var ident = new PadPipelineIdent();
     ident.setIdentNo(1);
 
@@ -113,7 +114,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void getIdentData_valid() {
+  void getIdentData_valid() {
     var ident = new PadPipelineIdent();
     var data = new PadPipelineIdentData();
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(data));
@@ -121,15 +122,16 @@ public class PadPipelineIdentDataServiceTest {
     assertThat(result).isEqualTo(data);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getIdentData_invalid() {
+  @Test
+  void getIdentData_invalid() {
     var ident = new PadPipelineIdent();
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
-    identDataService.getIdentData(ident);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      identDataService.getIdentData(ident));
   }
 
   @Test
-  public void removeIdentData_validData() {
+  void removeIdentData_validData() {
     var ident = new PadPipelineIdent();
     var identData = new PadPipelineIdentData();
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.of(identData));
@@ -137,15 +139,16 @@ public class PadPipelineIdentDataServiceTest {
     verify(repository, times(1)).delete(identData);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void removeIdentData_noData() {
+  @Test
+  void removeIdentData_noData() {
     var ident = new PadPipelineIdent();
     when(repository.getByPadPipelineIdent(ident)).thenReturn(Optional.empty());
-    identDataService.removeIdentData(ident);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      identDataService.removeIdentData(ident));
   }
 
   @Test
-  public void saveEntityUsingForm_singleCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
+  void saveEntityUsingForm_singleCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
 
     var form = new PipelineIdentDataForm();
     form.setProductsToBeConveyed("text");
@@ -171,7 +174,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_multiCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
+  void saveEntityUsingForm_multiCore_isDefiningStructure_singleAndMultiCoreFieldsSetAccordingly() throws IllegalAccessException {
 
     var form = new PipelineIdentDataForm();
     form.setProductsToBeConveyedMultiCore("text");
@@ -197,7 +200,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_singleCore() {
+  void saveEntityUsingForm_singleCore() {
     var form = new PipelineIdentDataForm();
     form.setInsulationCoatingType("test");
     form.setComponentPartsDescription("test");
@@ -250,7 +253,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_multicore() {
+  void saveEntityUsingForm_multicore() {
     var form = new PipelineIdentDataForm();
     form.setComponentPartsDescription("comp");
     form.setExternalDiameterMultiCore("test");
@@ -303,7 +306,7 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void updateIdentData_verifyRepositoryInteraction() {
+  void updateIdentData_verifyRepositoryInteraction() {
     var pipeline = new PadPipeline();
     pipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     var ident = new PadPipelineIdent();
@@ -320,13 +323,13 @@ public class PadPipelineIdentDataServiceTest {
   }
 
   @Test
-  public void saveAll_serviceInteraction() {
+  void saveAll_serviceInteraction() {
     identDataService.saveAll(List.of());
     verify(repository, times(1)).saveAll(List.of());
   }
 
   @Test
-  public void removeIdentDataForPipeline_serviceInteraction() {
+  void removeIdentDataForPipeline_serviceInteraction() {
     var pipeline = new PadPipeline();
     var identData = new PadPipelineIdentData();
     when(repository.getAllByPadPipelineIdent_PadPipeline(pipeline))

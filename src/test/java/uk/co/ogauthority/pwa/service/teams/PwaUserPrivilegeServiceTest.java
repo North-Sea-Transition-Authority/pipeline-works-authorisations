@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaUserPrivilegeServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaUserPrivilegeServiceTest {
 
   @Mock
   private ConsulteeGroupTeamService groupTeamService;
@@ -38,13 +38,13 @@ public class PwaUserPrivilegeServiceTest {
   private ConsulteeGroupDetail groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup(
       "Environmental Management Team", "EMT");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     userPrivilegeService = new PwaUserPrivilegeService(groupTeamService, pwaContactService);
   }
 
   @Test
-  public void getPwaUserPrivilegesForPerson_noConsulteeGroupMembership() {
+  void getPwaUserPrivilegesForPerson_noConsulteeGroupMembership() {
 
     when(groupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.empty());
 
@@ -55,7 +55,7 @@ public class PwaUserPrivilegeServiceTest {
   }
 
   @Test
-  public void getPwaUserPrivilegesForPerson_consulteeGroupMember_notAccessManager() {
+  void getPwaUserPrivilegesForPerson_consulteeGroupMember_notAccessManager() {
 
     var member = new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), person,
         Set.of(ConsulteeGroupMemberRole.RECIPIENT));
@@ -73,7 +73,7 @@ public class PwaUserPrivilegeServiceTest {
   }
 
   @Test
-  public void getPwaUserPrivilegesForPerson_consulteeGroupMember_isAccessManager() {
+  void getPwaUserPrivilegesForPerson_consulteeGroupMember_isAccessManager() {
 
     var member = new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), person,
         Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
@@ -93,7 +93,7 @@ public class PwaUserPrivilegeServiceTest {
 
 
   @Test
-  public void getPwaUserPrivilegesForPerson_pwaContact_isInAnyContactTeamRole() {
+  void getPwaUserPrivilegesForPerson_pwaContact_isInAnyContactTeamRole() {
 
     var contactRoleDto = new PwaApplicationContactRoleDto(person.getId().asInt(), 1, PwaContactRole.PREPARER);
 
@@ -110,7 +110,7 @@ public class PwaUserPrivilegeServiceTest {
   }
 
   @Test
-  public void getPwaUserPrivilegesForPerson_pwaContact_isNotInAnyContactTeamRole() {
+  void getPwaUserPrivilegesForPerson_pwaContact_isNotInAnyContactTeamRole() {
 
     when(pwaContactService.getPwaContactRolesForPerson(person, EnumSet.allOf(PwaContactRole.class)))
         .thenReturn(Set.of());
@@ -122,7 +122,7 @@ public class PwaUserPrivilegeServiceTest {
   }
 
   @Test
-  public void getPwaUserPrivilegesForPerson_pwaContact_and_consultee() {
+  void getPwaUserPrivilegesForPerson_pwaContact_and_consultee() {
 
     var contactRoleDto = new PwaApplicationContactRoleDto(person.getId().asInt(), 1, PwaContactRole.PREPARER);
     when(pwaContactService.getPwaContactRolesForPerson(person, EnumSet.allOf(PwaContactRole.class)))

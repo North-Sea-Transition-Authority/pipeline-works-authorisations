@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
@@ -20,18 +20,18 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.generalcase.pipelinehuooview.PipelineNumberAndSplitsService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineNumberAndSplitsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineNumberAndSplitsServiceTest {
 
   private PipelineNumberAndSplitsService pipelineNumberAndSplitsService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pipelineNumberAndSplitsService = new PipelineNumberAndSplitsService();
   }
 
   @Test
-  public void getAllPipelineNumbersAndSplitsRole() {
+  void getAllPipelineNumbersAndSplitsRole() {
 
     Map<PipelineId, PipelineOverview> pipelineIdAndSummaryMap = new HashMap<>();
     pipelineIdAndSummaryMap.put(new PipelineId(1), getPipelineOverview(1));
@@ -56,7 +56,7 @@ public class PipelineNumberAndSplitsServiceTest {
   }
 
   @Test
-  public void getAllPipelineNumbersAndSplitsRole_splitsTakePriority() {
+  void getAllPipelineNumbersAndSplitsRole_splitsTakePriority() {
 
     Map<PipelineId, PipelineOverview> pipelineIdAndSummaryMap = new HashMap<>();
     var id1 = new PipelineId(1);

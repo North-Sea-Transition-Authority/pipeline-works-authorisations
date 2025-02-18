@@ -7,11 +7,11 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UmbilicalCrossSectionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UmbilicalCrossSectionServiceTest {
 
   @Spy
   private SpringValidatorAdapter groupValidator;
@@ -36,8 +36,8 @@ public class UmbilicalCrossSectionServiceTest {
   private BindingResult bindingResult;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     crossSectionService = new UmbilicalCrossSectionService(groupValidator);
     form = new UmbilicalCrossSectionForm();
     bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -45,20 +45,20 @@ public class UmbilicalCrossSectionServiceTest {
   }
 
   @Test
-  public void validate_noFiles() {
+  void validate_noFiles() {
     var result = crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     assertThat(result.hasErrors()).isFalse();
   }
 
   @Test
-  public void validate_oneFile() {
+  void validate_oneFile() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var result = crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     assertThat(result.hasErrors()).isFalse();
   }
 
   @Test
-  public void validate_twoFiles() {
+  void validate_twoFiles() {
     form.setUploadedFileWithDescriptionForms(List.of(
         new UploadFileWithDescriptionForm("1", "desc", Instant.now()),
         new UploadFileWithDescriptionForm("2", "desc 2", Instant.now())
@@ -70,7 +70,7 @@ public class UmbilicalCrossSectionServiceTest {
   }
 
   @Test
-  public void validate_fileDescriptionOverMaxCharLength_invalid() {
+  void validate_fileDescriptionOverMaxCharLength_invalid() {
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
 
@@ -82,7 +82,7 @@ public class UmbilicalCrossSectionServiceTest {
   }
 
   @Test
-  public void validate_emptyFileDescription_invalid() {
+  void validate_emptyFileDescription_invalid() {
     FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
     crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
 
@@ -94,7 +94,7 @@ public class UmbilicalCrossSectionServiceTest {
   }
 
   @Test
-  public void canUploadDocuments_allowed() {
+  void canUploadDocuments_allowed() {
     Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION)
         .forEach(pwaApplicationType -> {
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
@@ -103,7 +103,7 @@ public class UmbilicalCrossSectionServiceTest {
   }
 
   @Test
-  public void canUploadDocuments_notAllowed() {
+  void canUploadDocuments_notAllowed() {
     var typeSet = EnumSet.allOf(PwaApplicationType.class);
     typeSet.removeAll(Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION));
     typeSet.forEach(pwaApplicationType -> {

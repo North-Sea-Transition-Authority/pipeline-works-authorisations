@@ -19,15 +19,13 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -50,9 +48,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = EnvironmentalDecomController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractControllerTest {
+class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -74,8 +71,8 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
       PwaApplicationType.DEPOSIT_CONSENT
   );
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     person = new Person();
     wua = new WebUserAccount(1, person);
@@ -92,7 +89,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void render_authenticated_validAppType() {
+  void render_authenticated_validAppType() {
 
 
     allowedApplicationTypes.forEach(validAppType -> {
@@ -114,7 +111,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void render_authenticated_invalidAppType() {
+  void render_authenticated_invalidAppType() {
 
 
     PwaApplicationType.stream()
@@ -140,7 +137,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testUnauthenticated() throws Exception {
+  void unauthenticated() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1))))
@@ -161,7 +158,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testRenderAdminDetails() throws Exception {
+  void renderAdminDetails() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1)))
@@ -172,7 +169,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testPostAdminDetails_partial() throws Exception {
+  void postAdminDetailsPartial() throws Exception {
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
@@ -190,7 +187,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testPostAdminDetails_full_invalid() throws Exception {
+  void postAdminDetailsFullInvalid() throws Exception {
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     bindingResult.addError(new ObjectError("fake error", "fake"));
@@ -211,7 +208,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testPostAdminDetails_full_valid() throws Exception {
+  void postAdminDetailsFullValid() throws Exception {
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
       add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());

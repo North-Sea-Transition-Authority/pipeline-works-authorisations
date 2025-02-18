@@ -7,11 +7,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.documents.SectionDto;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.entity.documents.templates.DocumentTemplate;
@@ -21,16 +21,16 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentDtoFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentDtoFactoryTest {
 
   @Mock
   private Clock clock;
 
   private DocumentDtoFactory factory;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var ins = Instant.now();
     when(clock.instant()).thenReturn(ins);
@@ -40,7 +40,7 @@ public class DocumentDtoFactoryTest {
   }
 
   @Test
-  public void create_whenDocumentHasMultipleSections_andMultipleClausesPerSection() {
+  void create_whenDocumentHasMultipleSections_andMultipleClausesPerSection() {
 
     var template = new DocumentTemplate();
     template.setId(1);

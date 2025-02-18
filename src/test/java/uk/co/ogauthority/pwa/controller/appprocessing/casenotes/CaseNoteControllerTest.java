@@ -14,15 +14,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -40,9 +38,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.casenotes.CaseNoteService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CaseNoteController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class CaseNoteControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private CaseNoteService caseNoteService;
@@ -54,8 +51,8 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.ADD_CASE_NOTE);
@@ -67,7 +64,7 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   }
 
   @Test
-  public void renderAddCaseNote_permissionSmokeTest() {
+  void renderAddCaseNote_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -79,7 +76,7 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   }
 
   @Test
-  public void postAddCaseNote_permissionSmokeTest() {
+  void postAddCaseNote_permissionSmokeTest() {
 
     when(caseNoteService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new AddCaseNoteForm(), "form"));
 
@@ -94,7 +91,7 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   }
 
   @Test
-  public void postAddCaseNote() throws Exception {
+  void postAddCaseNote() throws Exception {
 
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -119,7 +116,7 @@ public class CaseNoteControllerTest extends PwaAppProcessingContextAbstractContr
   }
 
   @Test
-  public void postAddCaseNote_validationFail() throws Exception {
+  void postAddCaseNote_validationFail() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);

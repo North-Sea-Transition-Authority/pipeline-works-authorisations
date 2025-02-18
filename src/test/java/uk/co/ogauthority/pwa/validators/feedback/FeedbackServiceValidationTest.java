@@ -4,29 +4,29 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.features.feedback.FeedbackService;
 import uk.co.ogauthority.pwa.features.feedback.FeedbackTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class FeedbackServiceValidationTest {
+@ExtendWith(MockitoExtension.class)
+class FeedbackServiceValidationTest {
 
 
   private FeedbackValidator validator;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     validator = new FeedbackValidator();
   }
 
   @Test
-  public void validate_whenNoServiceRating_thenValidationErrorExpected() {
+  void validate_whenNoServiceRating_thenValidationErrorExpected() {
 
     var form = FeedbackTestUtil.getValidFeedbackForm();
     form.setServiceRating(null);
@@ -39,7 +39,7 @@ public class FeedbackServiceValidationTest {
   }
 
   @Test
-  public void validate_whenNoFeedback_thenNoValidationErrorExpected() {
+  void validate_whenNoFeedback_thenNoValidationErrorExpected() {
 
     var form = FeedbackTestUtil.getValidFeedbackForm();
     form.setFeedback(null);
@@ -50,7 +50,7 @@ public class FeedbackServiceValidationTest {
   }
 
   @Test
-  public void validate_whenFeedbackExceedsCharacterLimit_thenValidationErrorExpected() {
+  void validate_whenFeedbackExceedsCharacterLimit_thenValidationErrorExpected() {
 
     var feedbackOverLimit = ValidatorTestUtils.overCharLength(
         FeedbackService.FEEDBACK_CHARACTER_LIMIT + 1
@@ -67,7 +67,7 @@ public class FeedbackServiceValidationTest {
   }
 
   @Test
-  public void validate_whenValidFeedbackForm_thenNoValidationErrorExpected() {
+  void validate_whenValidFeedbackForm_thenNoValidationErrorExpected() {
     var form = FeedbackTestUtil.getValidFeedbackForm();
 
     var fieldErrors = ValidatorTestUtils.getFormValidationErrors(validator, form);

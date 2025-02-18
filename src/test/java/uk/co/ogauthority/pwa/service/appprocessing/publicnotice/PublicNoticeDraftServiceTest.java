@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,13 +15,13 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -46,8 +49,8 @@ import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeDraftServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeDraftServiceTest {
 
   private PublicNoticeDraftService publicNoticeDraftService;
 
@@ -95,8 +98,8 @@ public class PublicNoticeDraftServiceTest {
   @Captor
   private ArgumentCaptor<PublicNoticeRequest> publicNoticeRequestArgumentCaptor;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
     publicNoticeDraftService = new PublicNoticeDraftService(
@@ -111,10 +114,8 @@ public class PublicNoticeDraftServiceTest {
   }
 
 
-
-
   @Test
-  public void submitPublicNoticeDraft_noPublicNoticeExists_newEntitiesCreatedAndSaved() {
+  void submitPublicNoticeDraft_noPublicNoticeExists_newEntitiesCreatedAndSaved() {
 
     when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.empty());
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
@@ -162,9 +163,8 @@ public class PublicNoticeDraftServiceTest {
   }
 
 
-
   @Test
-  public void submitPublicNoticeDraft_emailSent() {
+  void submitPublicNoticeDraft_emailSent() {
 
     when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.empty());
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
@@ -214,7 +214,7 @@ public class PublicNoticeDraftServiceTest {
 
 
   @Test
-  public void submitPublicNoticeDraft_firstDraftRejected_submittingSecondDraft_entitiesUpdatedAndSaved() {
+  void submitPublicNoticeDraft_firstDraftRejected_submittingSecondDraft_entitiesUpdatedAndSaved() {
 
     var publicNotice = PublicNoticeTestUtil.createDraftPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.of(publicNotice));
@@ -228,19 +228,19 @@ public class PublicNoticeDraftServiceTest {
     latestPublicNoticeDocument = PublicNoticeTestUtil.createArchivedPublicNoticeDocument(publicNotice);
     var newPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     newPublicNoticeDocument.setVersion(latestPublicNoticeDocument.getVersion() + 1);
-    when(publicNoticeService.savePublicNoticeDocument(newPublicNoticeDocument)).thenReturn(newPublicNoticeDocument);
 
     var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
         FILE_ID, "desc", clock.instant());
     var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
     var publicNoticeAppFile = new AppFile();
-    var publicNoticeDocumentLink = new PublicNoticeDocumentLink(newPublicNoticeDocument, publicNoticeAppFile);
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, newPublicNoticeDocument))
-        .thenReturn(publicNoticeDocumentLink);
 
+    when(publicNoticeService.savePublicNoticeDocument(any(PublicNoticeDocument.class)))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(eq(pwaApplication), any(UploadFileWithDescriptionForm.class), any(PublicNoticeDocument.class)))
+        .thenAnswer(invocation -> new PublicNoticeDocumentLink(invocation.getArgument(2), publicNoticeAppFile));
 
     publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
-
 
     verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
@@ -267,7 +267,7 @@ public class PublicNoticeDraftServiceTest {
   }
 
   @Test
-  public void submitPublicNoticeDraft_firstDraftRejected_submittingSecondDraft_noErrorWhenNoDocAssociatedWithPublicNotice() {
+  void submitPublicNoticeDraft_firstDraftRejected_submittingSecondDraft_noErrorWhenNoDocAssociatedWithPublicNotice() {
 
     var publicNotice = PublicNoticeTestUtil.createDraftPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.of(publicNotice));
@@ -316,7 +316,7 @@ public class PublicNoticeDraftServiceTest {
   }
 
   @Test
-  public void submitPublicNoticeDraft_firstVersionEnded_submittingSecondVersion_firstDraft() {
+  void submitPublicNoticeDraft_firstVersionEnded_submittingSecondVersion_firstDraft() {
 
     var publicNotice = PublicNoticeTestUtil.createEndedPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNoticeOpt(pwaApplication)).thenReturn(Optional.of(publicNotice));

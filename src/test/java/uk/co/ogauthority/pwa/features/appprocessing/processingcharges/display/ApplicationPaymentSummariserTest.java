@@ -4,15 +4,15 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeReportTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationPaymentSummariserTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationPaymentSummariserTest {
 
   private static final String HEADLINE_FEE_DESC = "FEE_HEAD";
   private static final String FEE_ITEM_DESC = "FEE_ITEM";
@@ -23,14 +23,14 @@ public class ApplicationPaymentSummariserTest {
 
   private PwaApplication pwaApplication;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaApplication = new PwaApplication();
     applicationPaymentSummariser = new ApplicationPaymentSummariser();
   }
 
   @Test
-  public void summarise_feeReport_mappedAsExpected() {
+  void summarise_feeReport_mappedAsExpected() {
 
     var feeReport = ApplicationFeeReportTestUtil.createReport(
         pwaApplication,

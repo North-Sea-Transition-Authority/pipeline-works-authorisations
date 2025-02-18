@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.core;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -14,10 +14,10 @@ import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeCoordinate;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class PadPipelineTest {
+class PadPipelineTest {
 
   @Test
-  public void updateCoordinateValues() throws IllegalAccessException {
+  void updateCoordinateValues() throws IllegalAccessException {
 
     var pipeline = new PadPipeline();
 
@@ -54,7 +54,7 @@ public class PadPipelineTest {
   }
 
   @Test
-  public void postLoad() throws IllegalAccessException {
+  void postLoad() throws IllegalAccessException {
 
     var pipeline = new PadPipeline();
 

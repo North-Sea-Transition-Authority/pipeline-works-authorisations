@@ -10,13 +10,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
@@ -24,8 +26,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadFacilityServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadFacilityServiceTest {
 
   @Mock
   private PadFacilityRepository padFacilityRepository;
@@ -40,8 +43,8 @@ public class PadFacilityServiceTest {
   private PadFacility padFacility;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padFacilityService = new PadFacilityService(padFacilityRepository, devukFacilityService, searchSelectorService);
     padFacility = new PadFacility();
     pwaApplicationDetail = new PwaApplicationDetail();
@@ -49,20 +52,20 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void getFacilities() {
+  void getFacilities() {
     var result = padFacilityService.getFacilities(pwaApplicationDetail);
     assertThat(result).containsExactly(padFacility);
   }
 
   @Test
-  public void setFacilities_NullForm() {
+  void setFacilities_NullForm() {
     var form = new LocationDetailsForm();
     padFacilityService.setFacilities(pwaApplicationDetail, form);
     verify(padFacilityRepository, never()).save(any());
   }
 
   @Test
-  public void setFacilities_WithinZone_No() {
+  void setFacilities_WithinZone_No() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.NO);
     padFacilityService.setFacilities(pwaApplicationDetail, form);
@@ -70,7 +73,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void setFacilities_WithinZone_Partially() {
+  void setFacilities_WithinZone_Partially() {
     var facility = new DevukFacility();
     var facilityIds = List.of("1");
     var form = new LocationDetailsForm();
@@ -89,7 +92,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void setFacilities_WithinZone_Yes() {
+  void setFacilities_WithinZone_Yes() {
     var facility = new DevukFacility();
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
@@ -107,7 +110,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_WithinZone_Null() {
+  void mapFacilitiesToView_WithinZone_Null() {
     var devukFacility = new DevukFacility();
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
@@ -118,7 +121,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_WithinZone_No() {
+  void mapFacilitiesToView_WithinZone_No() {
     var devukFacility = new DevukFacility(1, "test");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
@@ -130,7 +133,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_WithinZone_Partially() {
+  void mapFacilitiesToView_WithinZone_Partially() {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
@@ -144,7 +147,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_WithinZone_Yes() {
+  void mapFacilitiesToView_WithinZone_Yes() {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacility(devukFacility);
     var form = new LocationDetailsForm();
@@ -158,7 +161,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void setFacilities_FreeText_WithinZone_Partially() {
+  void setFacilities_FreeText_WithinZone_Partially() {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
@@ -174,7 +177,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void setFacilities__FreeText_WithinZone_Yes() {
+  void setFacilities__FreeText_WithinZone_Yes() {
     var facilityIds = List.of(SearchSelectable.FREE_TEXT_PREFIX + "1");
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
@@ -190,7 +193,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_FreeText_WithinZone_Partially() {
+  void mapFacilitiesToView_FreeText_WithinZone_Partially() {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacilityNameManualEntry("freeText");
     var form = new LocationDetailsForm();
@@ -205,7 +208,7 @@ public class PadFacilityServiceTest {
   }
 
   @Test
-  public void mapFacilitiesToView_FreeText_WithinZone_Yes() {
+  void mapFacilitiesToView_FreeText_WithinZone_Yes() {
     var devukFacility = new DevukFacility(1, "facility");
     padFacility.setFacilityNameManualEntry("freeText");
     var form = new LocationDetailsForm();

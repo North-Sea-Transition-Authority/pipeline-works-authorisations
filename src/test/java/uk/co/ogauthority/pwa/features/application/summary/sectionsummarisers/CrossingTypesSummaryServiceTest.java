@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTaskService;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CrossingTypesSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CrossingTypesSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -49,8 +49,8 @@ public class CrossingTypesSummaryServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     crossingTypesSummaryService = new CrossingTypesSummaryService(
         crossingTypesService,
@@ -60,7 +60,7 @@ public class CrossingTypesSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
 
     crossingTypesSummaryService.canSummarise(pwaApplicationDetail);
@@ -76,26 +76,26 @@ public class CrossingTypesSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andCrossingTypesSectionShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andCrossingTypesSectionShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(applicationTaskService.canShowTask(any(), any())).thenReturn(true);
     assertThat(crossingTypesSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andCrossingTypesSectionNotShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andCrossingTypesSectionNotShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(applicationTaskService.canShowTask(any(), any())).thenReturn(false);
     assertThat(crossingTypesSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void canSummarise_whenCrossingTaskNotShown() {
+  void canSummarise_whenCrossingTaskNotShown() {
     assertThat(crossingTypesSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var crossingTypesView = new CrossingTypesView(null, null, null);
     when(crossingTypesService.getCrossingTypesView(pwaApplicationDetail)).thenReturn(crossingTypesView);

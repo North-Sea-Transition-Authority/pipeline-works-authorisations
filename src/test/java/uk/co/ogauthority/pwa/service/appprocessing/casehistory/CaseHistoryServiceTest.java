@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -64,8 +64,8 @@ public class CaseHistoryServiceTest {
   private Person person1;
   private Person person2;
 
-  @Before
-  public void setup(){
+  @BeforeEach
+  void setup(){
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL)
         .getPwaApplication();
 
@@ -102,7 +102,7 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
-  public void getCaseHistory_whenHistoryItemsReturned_verifyServiceInteractions() {
+  void getCaseHistory_whenHistoryItemsReturned_verifyServiceInteractions() {
 
     var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
 
@@ -114,7 +114,7 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
-  public void getCaseHistory_whenHistoryItemsReturned_thenItemIndexesAreInOrder() {
+  void getCaseHistory_whenHistoryItemsReturned_thenItemIndexesAreInOrder() {
 
     when(caseNoteService.getCaseHistoryItemViews(any())).thenReturn(List.of(
         firstCaseHistory,
@@ -130,7 +130,7 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
-  public void getCaseHistory_whenHistoryItemsReturned_thenPersonNameIsSet_andNotesInOrderOfDate() {
+  void getCaseHistory_whenHistoryItemsReturned_thenPersonNameIsSet_andNotesInOrderOfDate() {
 
     var caseHistoryItemViews = caseHistoryService.getCaseHistory(pwaApplication);
 
@@ -147,7 +147,7 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
-  public void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsSet() {
+  void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsSet() {
     firstCaseHistory = new CaseHistoryItemView.Builder(HISTORY_ITEM_HEADER, firstCaseHistoryInstant, person1.getId())
         .setPersonEmailLabel("Email")
         .addDataItem(NOTE_LABEL, NOTE_NO_FILES_TEXT)
@@ -173,7 +173,7 @@ public class CaseHistoryServiceTest {
   }
 
   @Test
-  public void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsNotSet() {
+  void getCaseHistory_whenHistoryItemsReturned_andPersonEmailLabelIsNotSet() {
     firstCaseHistory = new CaseHistoryItemView.Builder(HISTORY_ITEM_HEADER, firstCaseHistoryInstant, person1.getId())
         .addDataItem(NOTE_LABEL, NOTE_NO_FILES_TEXT)
         .build();

@@ -5,24 +5,24 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-public class LocationDetailsSafetyZoneValidatorTest {
+class LocationDetailsSafetyZoneValidatorTest {
 
   private LocationDetailsSafetyZoneValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new LocationDetailsSafetyZoneValidator();
   }
 
 
   @Test
-  public void validate_noFacilities() {
+  void validate_noFacilities() {
     var form = new LocationDetailsSafetyZoneForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(result).contains(
@@ -30,7 +30,7 @@ public class LocationDetailsSafetyZoneValidatorTest {
   }
 
   @Test
-  public void validate_containsFacilities() {
+  void validate_containsFacilities() {
     var form = new LocationDetailsSafetyZoneForm();
     form.setFacilities(List.of("1"));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);

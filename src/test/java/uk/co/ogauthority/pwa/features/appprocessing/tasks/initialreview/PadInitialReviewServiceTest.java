@@ -13,13 +13,15 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -30,8 +32,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadInitialReviewServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadInitialReviewServiceTest {
 
   @Mock
   private PadInitialReviewRepository padInitialReviewRepository;
@@ -54,8 +57,8 @@ public class PadInitialReviewServiceTest {
   private WebUserAccount webUserAccount;
   private final Person wua1Person = new Person(WUA_1_PERSON_ID.asInt(), "Industry", "Person", "industry@pwa.co.uk", null);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
@@ -70,7 +73,7 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void addApprovedInitialReview_verifyRepoInteraction() {
+  void addApprovedInitialReview_verifyRepoInteraction() {
 
     padInitialReviewService.addApprovedInitialReview(pwaApplicationDetail, authenticatedUser);
     verify(padInitialReviewRepository).save(
@@ -78,7 +81,7 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void revokeLatestInitialReview_latestReviewSetAsRevoked() {
+  void revokeLatestInitialReview_latestReviewSetAsRevoked() {
 
     var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
 
@@ -98,21 +101,21 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void isInitialReviewComplete_latestInitialReviewIsRevokedOrDoesNotExist_notComplete() {
+  void isInitialReviewComplete_latestInitialReviewIsRevokedOrDoesNotExist_notComplete() {
 
     when(padInitialReviewRepository.findByPwaApplicationDetail_pwaApplicationAndApprovalRevokedTimestampIsNull(pwaApplication)).thenReturn(List.of());
     assertThat(padInitialReviewService.isInitialReviewComplete(pwaApplication)).isFalse();
   }
 
   @Test
-  public void isInitialReviewComplete_latestInitialReviewExistsAndIsNotRevoked_complete() {
+  void isInitialReviewComplete_latestInitialReviewExistsAndIsNotRevoked_complete() {
 
     when(padInitialReviewRepository.findByPwaApplicationDetail_pwaApplicationAndApprovalRevokedTimestampIsNull(pwaApplication)).thenReturn(List.of(new PadInitialReview()));
     assertThat(padInitialReviewService.isInitialReviewComplete(pwaApplication)).isTrue();
   }
 
   @Test
-  public void getLatestInitialReviewer_present() {
+  void getLatestInitialReviewer_present() {
 
     var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
 
@@ -124,7 +127,7 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void getLatestInitialReviewer_empty() {
+  void getLatestInitialReviewer_empty() {
 
     when(padInitialReviewRepository.findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(
         pwaApplicationDetail)).thenReturn(Optional.empty());
@@ -134,7 +137,7 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void carryForwardInitialReview_noExistingInitialReview() {
+  void carryForwardInitialReview_noExistingInitialReview() {
     when(padInitialReviewRepository
         .findFirstByPwaApplicationDetailOrderByInitialReviewApprovedTimestampDesc(pwaApplicationDetail))
         .thenReturn(Optional.empty());
@@ -146,7 +149,7 @@ public class PadInitialReviewServiceTest {
   }
 
   @Test
-  public void carryForwardInitialReview_savesNewReview() {
+  void carryForwardInitialReview_savesNewReview() {
     var initialReview = new PadInitialReview(pwaApplicationDetail, authenticatedUser.getWuaId(), clock.instant());
     var newApplicationDetail = new PwaApplicationDetail();
 

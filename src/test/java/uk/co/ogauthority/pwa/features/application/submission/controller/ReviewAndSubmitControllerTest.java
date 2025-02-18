@@ -22,9 +22,8 @@ import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -35,7 +34,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -67,9 +65,8 @@ import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 import uk.co.ogauthority.pwa.validators.appprocessing.PwaApplicationValidationService;
 import uk.co.ogauthority.pwa.validators.pwaapplications.shared.submission.ReviewAndSubmitApplicationFormValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ReviewAndSubmitController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstractControllerTest {
+class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 99;
 
@@ -119,8 +116,8 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
       EnumSet.allOf(PwaUserPrivilege.class)
   );
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(breadcrumbService).fromTaskList(any(), any(), any());
 
     editEndpointTester = getEndpointTesterWithPermissions(PwaApplicationPermission.EDIT);
@@ -146,7 +143,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void review_roleChecks() {
+  void review_roleChecks() {
 
     viewEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -158,7 +155,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void review_statusChecks() {
+  void review_statusChecks() {
 
     viewEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -169,7 +166,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void review_typeChecks() {
+  void review_typeChecks() {
 
     viewEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -180,7 +177,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_roleChecks() {
+  void submit_roleChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -193,7 +190,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_statusChecks() {
+  void submit_statusChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -205,7 +202,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_typeChecks() {
+  void submit_typeChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -217,7 +214,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_noValidationErrors_redirectsToConfirmation() throws Exception {
+  void submit_noValidationErrors_redirectsToConfirmation() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
@@ -237,7 +234,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_failsValidation_backToReviewScreen() throws Exception {
+  void submit_failsValidation_backToReviewScreen() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
     doAnswer(invocation -> {
@@ -259,7 +256,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_validationPass_applicationTasksNotComplete() throws Exception {
+  void submit_validationPass_applicationTasksNotComplete() throws Exception {
     when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
@@ -276,7 +273,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_hasOpenUpdate_validationPass_formDataPassedToSubmissionService() throws Exception {
+  void submit_hasOpenUpdate_validationPass_formDataPassedToSubmissionService() throws Exception {
 
     var description = "OTHER DESC";
 
@@ -300,7 +297,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_hasOpenUpdate_validationPass_doesNotPassDescriptionWhenHidden() throws Exception {
+  void submit_hasOpenUpdate_validationPass_doesNotPassDescriptionWhenHidden() throws Exception {
 
     var description = "OTHER DESC";
 
@@ -323,7 +320,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_roleChecks() {
+  void sendToSubmitter_roleChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -335,7 +332,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_statusChecks() {
+  void sendToSubmitter_statusChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -347,7 +344,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_typeChecks() {
+  void sendToSubmitter_typeChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((detail, appType) ->
@@ -359,7 +356,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_noUpdateTextProvided() throws Exception {
+  void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_noUpdateTextProvided() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
@@ -377,7 +374,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_updateTextProvided() throws Exception {
+  void sendToSubmitter_noValidationErrors_redirectsToSendToSubmitterConfirmation_updateTextProvided() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
@@ -397,7 +394,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_applicationTasksNotComplete() throws Exception {
+  void sendToSubmitter_applicationTasksNotComplete() throws Exception {
     when(pwaApplicationValidationService.isApplicationValid(detail)).thenReturn(false);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
@@ -414,7 +411,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void sendToSubmitter_failsValidation_backToReviewScreen() throws Exception {
+  void sendToSubmitter_failsValidation_backToReviewScreen() throws Exception {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
     doAnswer(invocation -> {
@@ -452,7 +449,7 @@ public class ReviewAndSubmitControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void submit_timerMetricStarted_timeRecordedAndLogged() {
+  void submit_timerMetricStarted_timeRecordedAndLogged() {
 
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 

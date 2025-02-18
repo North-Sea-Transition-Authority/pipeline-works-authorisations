@@ -15,12 +15,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -32,10 +30,9 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaResourceTypeController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class PwaResourceTypeControllerTest extends AbstractControllerTest {
+class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
   @MockBean
   PwaResourceTypeFormValidator validator;
@@ -48,7 +45,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
       Collections.emptyList());
 
   @Test
-  public void renderResourceScreen_withAuthenticatedUser() throws Exception {
+  void renderResourceScreen_withAuthenticatedUser() throws Exception {
     var resourceOptions = Arrays.stream(PwaResourceType.values())
         .sorted(Comparator.comparingInt(PwaResourceType::getDisplayOrder))
         .collect(Collectors.toList());
@@ -61,7 +58,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderResourceScreen_noPrivileges() throws Exception {
+  void renderResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
         .renderResourceTypeForm(null, null)))
         .with(user(userNoPrivs)))
@@ -69,7 +66,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_noPrivileges() throws Exception {
+  void postResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(null, null, null)))
         .with(user(userNoPrivs)))
@@ -77,7 +74,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_validHydrogen() throws Exception {
+  void postResourceScreen_validHydrogen() throws Exception {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.HYDROGEN);
 
@@ -93,7 +90,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_validPetroleum() throws Exception {
+  void postResourceScreen_validPetroleum() throws Exception {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.PETROLEUM);
 
@@ -109,7 +106,7 @@ public class PwaResourceTypeControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postResourceScreen_validCCUS() throws Exception {
+  void postResourceScreen_validCCUS() throws Exception {
     var form = new PwaResourceTypeForm();
     form.setResourceType(PwaResourceType.CCUS);
 

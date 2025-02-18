@@ -5,19 +5,19 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataRepository;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelinePersisterServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelinePersisterServiceTest {
 
   @Mock
   private PadPipelineRepository padPipelineRepository;
@@ -30,14 +30,14 @@ public class PadPipelinePersisterServiceTest {
 
   private PadPipelinePersisterService padPipelinePersisterService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padPipelinePersisterService = new PadPipelinePersisterService(padPipelineRepository, padPipelineIdentRepository, padPipelineIdentDataRepository);
   }
 
 
   @Test
-  public void setMaxEternalDiameter_singleCore_multipleIdents() {
+  void setMaxEternalDiameter_singleCore_multipleIdents() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     padPipeline.setPipelineInBundle(false);
@@ -57,7 +57,7 @@ public class PadPipelinePersisterServiceTest {
   }
 
   @Test
-  public void setMaxEternalDiameter_singleCore_zeroIdents() {
+  void setMaxEternalDiameter_singleCore_zeroIdents() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.PRODUCTION_FLOWLINE);
     padPipeline.setPipelineInBundle(false);
@@ -67,7 +67,7 @@ public class PadPipelinePersisterServiceTest {
   }
 
   @Test
-  public void setMaxEternalDiameter_multiCore() {
+  void setMaxEternalDiameter_multiCore() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);

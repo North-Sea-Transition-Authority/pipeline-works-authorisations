@@ -4,18 +4,18 @@ package uk.co.ogauthority.pwa.service.search.applicationsearch;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailItemView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.workarea.ApplicationWorkAreaItemTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSearchDisplayItemCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSearchDisplayItemCreatorTest {
   private static final int APP_ID = 100;
   private static final PwaApplicationType TYPE = PwaApplicationType.INITIAL;
 
@@ -23,8 +23,8 @@ public class ApplicationSearchDisplayItemCreatorTest {
 
   private ApplicationDetailItemView applicationDetailItemView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     applicationSearchDisplayItemCreator = new ApplicationSearchDisplayItemCreator();
 
     applicationDetailItemView = new ApplicationDetailView();
@@ -51,7 +51,7 @@ public class ApplicationSearchDisplayItemCreatorTest {
   }
 
   @Test
-  public void createDisplayItem_usesDefaultAccessUrl() {
+  void createDisplayItem_usesDefaultAccessUrl() {
     // simple test to make sure we use the expected access url on results. Object construction done and tested as
     // part of ApplicationSearchDisplayItem.
 

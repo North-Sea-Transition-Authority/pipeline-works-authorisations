@@ -11,16 +11,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -43,12 +41,11 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = TechnicalDrawingsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -73,8 +70,8 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
@@ -96,7 +93,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderOverview_appTypeSmokeTest() {
+  void renderOverview_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -113,7 +110,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderOverview_appStatusSmokeTest() {
+  void renderOverview_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -130,7 +127,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderOverview_contactRoleSmokeTest() {
+  void renderOverview_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(TechnicalDrawingsController.class)
@@ -147,7 +144,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postHuooSummary_Invalid() throws Exception {
+  void postHuooSummary_Invalid() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
@@ -171,7 +168,7 @@ public class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void postHuooSummary_Valid() throws Exception {
+  void postHuooSummary_Valid() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 

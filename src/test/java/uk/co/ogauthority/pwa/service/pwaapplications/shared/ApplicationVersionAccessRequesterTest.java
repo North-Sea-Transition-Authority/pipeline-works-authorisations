@@ -11,11 +11,13 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
@@ -26,8 +28,9 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.search.PadVersionLookupR
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationVersionAccessRequesterTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationVersionAccessRequesterTest {
 
   @Mock
   private PadVersionLookupRepository padVersionLookupRepository;
@@ -42,8 +45,8 @@ public class ApplicationVersionAccessRequesterTest {
 
   private ApplicationVersionAccessRequester applicationVersionAccessRequester;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     padVersionLookup = new PadVersionLookup();
@@ -60,7 +63,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_noPermissions() {
+  void getAvailableAppVersionRequestTypesBy_noPermissions() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of());
 
     assertThat(applicationVersionAccessRequester.getAvailableAppVersionRequestTypesBy(context)).isEmpty();
@@ -68,7 +71,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_consulteePriv_hasConfirmedSatisfactoryVersion() {
+  void getAvailableAppVersionRequestTypesBy_consulteePriv_hasConfirmedSatisfactoryVersion() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
     padVersionLookup.setLatestConfirmedSatisfactoryVersionNo(1);
 
@@ -78,7 +81,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_consulteePriv_noConfirmedSatisfactoryVersion() {
+  void getAvailableAppVersionRequestTypesBy_consulteePriv_noConfirmedSatisfactoryVersion() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_CONSULTEE));
 
     assertThat(applicationVersionAccessRequester.getAvailableAppVersionRequestTypesBy(context)).isEmpty();
@@ -86,7 +89,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_updateAppPriv_noDraftVersion() {
+  void getAvailableAppVersionRequestTypesBy_updateAppPriv_noDraftVersion() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(PwaAppProcessingPermission.UPDATE_APPLICATION));
 
     assertThat(applicationVersionAccessRequester.getAvailableAppVersionRequestTypesBy(context)).isEmpty();
@@ -94,7 +97,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_ogaOrIndustryPermissions_hasSubmittedVersion() {
+  void getAvailableAppVersionRequestTypesBy_ogaOrIndustryPermissions_hasSubmittedVersion() {
     var lastSubmittedPermissions =  Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_OGA, PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
     for (PwaAppProcessingPermission permission : lastSubmittedPermissions) {
       context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(permission));
@@ -107,7 +110,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_ogaOrIndustryPermissions_noSubmittedVersion() {
+  void getAvailableAppVersionRequestTypesBy_ogaOrIndustryPermissions_noSubmittedVersion() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(PwaAppProcessingPermission.UPDATE_APPLICATION));
 
     assertThat(applicationVersionAccessRequester.getAvailableAppVersionRequestTypesBy(context)).isEmpty();
@@ -115,7 +118,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getAvailableAppVersionRequestTypesBy_updateAppPriv_hasDraftVersion() {
+  void getAvailableAppVersionRequestTypesBy_updateAppPriv_hasDraftVersion() {
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, Set.of(PwaAppProcessingPermission.UPDATE_APPLICATION));
     padVersionLookup.setMaxDraftVersionNo(1);
 
@@ -125,7 +128,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionCurrentDraftRequest() {
+  void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionCurrentDraftRequest() {
     padVersionLookup.setMaxDraftVersionNo(4);
 
     var allPermissions = EnumSet.allOf(PwaAppProcessingPermission.class);
@@ -138,7 +141,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionLastSubmittedRequest() {
+  void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionLastSubmittedRequest() {
 
     padVersionLookup.setLatestSubmittedVersionNo(3);
 
@@ -151,7 +154,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionLastSatisfactoryRequest() {
+  void getPwaApplicationDetailWhenAvailable_retrievesExpectedVersionLastSatisfactoryRequest() {
 
     padVersionLookup.setLatestConfirmedSatisfactoryVersionNo(2);
 
@@ -164,7 +167,7 @@ public class ApplicationVersionAccessRequesterTest {
   }
 
   @Test
-  public void getPwaApplicationDetailWhenAvailable_noPermissionsForRequestedVersion() {
+  void getPwaApplicationDetailWhenAvailable_noPermissionsForRequestedVersion() {
 
     context = PwaAppProcessingContextTestUtil.withPermissions(pwaApplicationDetail, EnumSet.noneOf(PwaAppProcessingPermission.class));
 

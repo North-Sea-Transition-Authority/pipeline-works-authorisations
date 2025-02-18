@@ -9,11 +9,11 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonSer
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSummaryFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSummaryFactoryTest {
 
   private static final String FORENAME = "FORENAME";
   private static final String SURNAME = "SURNAME";
@@ -40,8 +40,8 @@ public class ApplicationSummaryFactoryTest {
   private LocalDateTime submitDateTime;
   private Instant submitInstant;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     person = new Person(SUBMITTER_PERSON_ID.asInt(), FORENAME, SURNAME, "email", "tel");
     applicationSummaryFactory = new ApplicationSummaryFactory(personService);
 
@@ -58,14 +58,14 @@ public class ApplicationSummaryFactoryTest {
 
 
   @Test
-  public void createSubmissionSummary_verifyServiceInteractions_() {
+  void createSubmissionSummary_verifyServiceInteractions_() {
     var summary = applicationSummaryFactory.createSubmissionSummary(detail);
     verify(personService, times(1)).getPersonById(SUBMITTER_PERSON_ID);
 
   }
 
   @Test
-  public void createSubmissionSummary_summaryCreatedAsExpected() {
+  void createSubmissionSummary_summaryCreatedAsExpected() {
     var summary = applicationSummaryFactory.createSubmissionSummary(detail);
     assertThat(summary.getApplicationReference()).isEqualTo(detail.getPwaApplicationRef());
     assertThat(summary.getIsFirstVersion()).isEqualTo(true);

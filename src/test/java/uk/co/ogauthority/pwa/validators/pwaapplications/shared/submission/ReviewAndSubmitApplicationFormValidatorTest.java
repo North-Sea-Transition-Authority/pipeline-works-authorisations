@@ -6,11 +6,11 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ReviewAndSubmitApplicationFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ReviewAndSubmitApplicationFormValidatorTest {
 
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -42,8 +42,8 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   private static final String OTHER_CHANGES_DESCRIPTION = "otherChangesDescription";
   private static final String SUBMITTER_PERSON_ID = "submitterPersonId";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     validator = new ReviewAndSubmitApplicationFormValidator(pwaHolderTeamService, applicationUpdateRequestService);
     form = new ReviewAndSubmitApplicationForm();
@@ -53,7 +53,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_openUpdateRequest_editPermission_blank_allErrors() {
+  void validate_openUpdateRequest_editPermission_blank_allErrors() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);
@@ -67,7 +67,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_noUpdateRequest_editPermission_blank_submitterErrorOnly() {
+  void validate_noUpdateRequest_editPermission_blank_submitterErrorOnly() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(false);
@@ -81,7 +81,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_openUpdateRequest_editAndSubmitPermission_blank_updateErrorOnly() {
+  void validate_openUpdateRequest_editAndSubmitPermission_blank_updateErrorOnly() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);
@@ -97,7 +97,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_noUpdateRequest_editAndSubmitPermission_blank_noErrors() {
+  void validate_noUpdateRequest_editAndSubmitPermission_blank_noErrors() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(false);
@@ -111,7 +111,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_noUpdateRequest_editPermission_submitterPersonIdValid_noErrors() {
+  void validate_noUpdateRequest_editPermission_submitterPersonIdValid_noErrors() {
 
     var person = PersonTestUtil.createDefaultPerson();
 
@@ -127,7 +127,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_noUpdateRequest_editPermission_submitterPersonIdNotValid_submitterErrorOnly() {
+  void validate_noUpdateRequest_editPermission_submitterPersonIdNotValid_submitterErrorOnly() {
 
     when(pwaHolderTeamService.getPeopleWithHolderTeamRole(applicationContext.getApplicationDetail(), PwaOrganisationRole.APPLICATION_SUBMITTER))
         .thenReturn(Set.of());
@@ -143,7 +143,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_openUpdateRequest_isSubmitterOnly_blank_noErrors() {
+  void validate_openUpdateRequest_isSubmitterOnly_blank_noErrors() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);
@@ -158,7 +158,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
 
 
   @Test
-  public void validate_openUpdateRequest_editPermission_whenExtraChanges_noDesc() {
+  void validate_openUpdateRequest_editPermission_whenExtraChanges_noDesc() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);
@@ -174,7 +174,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_openUpdateRequest_editPermission_whenExtraChanges_tooLong() {
+  void validate_openUpdateRequest_editPermission_whenExtraChanges_tooLong() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);
@@ -191,7 +191,7 @@ public class ReviewAndSubmitApplicationFormValidatorTest {
   }
 
   @Test
-  public void validate_openUpdateRequest_editPermission_onlyRequestedChanges() {
+  void validate_openUpdateRequest_editPermission_onlyRequestedChanges() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(applicationContext.getApplicationDetail()))
         .thenReturn(true);

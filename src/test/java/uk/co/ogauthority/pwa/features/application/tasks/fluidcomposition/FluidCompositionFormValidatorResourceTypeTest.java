@@ -7,10 +7,9 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -20,26 +19,27 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 
-@RunWith(Parameterized.class)
 public class FluidCompositionFormValidatorResourceTypeTest {
 
   private FluidCompositionFormValidator validator;
   private FluidCompositionForm fluidCompositionForm;
 
-  private final PwaResourceType resourceType;
+  private PwaResourceType resourceType;
 
-  public FluidCompositionFormValidatorResourceTypeTest(PwaResourceType resourceType) {
+  public void initFluidCompositionFormValidatorResourceTypeTest(PwaResourceType resourceType) {
     this.resourceType = resourceType;
   }
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     validator  = new FluidCompositionFormValidator();
     fluidCompositionForm = new FluidCompositionForm();
   }
 
-  @Test
-  public void validateForm_whenMeasurementsOutOfRange_thenHasErrors() {
+  @MethodSource("getParameters")
+  @ParameterizedTest(name = "{0}")
+  public void validateForm_whenMeasurementsOutOfRange_thenHasErrors(PwaResourceType resourceType) {
+    initFluidCompositionFormValidatorResourceTypeTest(resourceType);
     var expectedFluidCompositionLimits = validator.getFluidCompositionLimits(resourceType);
 
     var compositionDataForm1 = new FluidCompositionDataForm();
@@ -72,7 +72,6 @@ public class FluidCompositionFormValidatorResourceTypeTest {
     );
   }
 
-  @Parameterized.Parameters(name = "{0}")
   public static Collection getParameters() {
    return PwaResourceType.getAll();
   }

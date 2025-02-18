@@ -7,11 +7,11 @@ import static uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProces
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ChangeOptionsApprovalDeadlineTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ChangeOptionsApprovalDeadlineTaskServiceTest {
 
   @Mock
   private ApproveOptionsService approveOptionsService;
@@ -34,8 +34,8 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
 
   private PwaAppProcessingContext pwaAppProcessingContext;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -48,7 +48,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_hasPermission_true() {
+  void canShowInTaskList_appNotEnded_hasPermission_true() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
@@ -59,7 +59,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
+  void canShowInTaskList_appNotEnded_doesNotHavePermission_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
@@ -71,7 +71,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appEnded_false() {
+  void canShowInTaskList_appEnded_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
@@ -83,7 +83,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenOptionsApproved() {
+  void getTaskListEntry_whenOptionsApproved() {
 
     when(approveOptionsService.optionsApproved(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(true);
@@ -102,7 +102,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenOptionsNotApproved() {
+  void getTaskListEntry_whenOptionsNotApproved() {
 
     when(approveOptionsService.optionsApproved(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(false);
@@ -121,7 +121,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenHasPermissions_andOptionsApproved() {
+  void taskAccessible_whenHasPermissions_andOptionsApproved() {
     when(approveOptionsService.optionsApproved(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(true);
 
@@ -129,7 +129,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenHasPermissions_andOptionsNotApproved() {
+  void taskAccessible_whenHasPermissions_andOptionsNotApproved() {
     when(approveOptionsService.optionsApproved(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(false);
 
@@ -137,7 +137,7 @@ public class ChangeOptionsApprovalDeadlineTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenNoPermissions() {
+  void taskAccessible_whenNoPermissions() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.noneOf(PwaAppProcessingPermission.class)

@@ -6,11 +6,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
@@ -26,28 +26,28 @@ import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineIdentFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineIdentFormValidatorTest {
 
   private PipelineIdentFormValidator validator;
 
   @Spy
   private DecimalInputValidator decimalInputValidator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineIdentFormValidator(new PipelineIdentDataFormValidator(decimalInputValidator), new CoordinateFormValidator(),
         decimalInputValidator);
   }
 
   @Test
-  public void valid() {
+  void valid() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, buildForm(), (Object) null, PipelineCoreType.SINGLE_CORE);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void failed_mandatory_definingStructure() {
+  void failed_mandatory_definingStructure() {
     var form = new PipelineIdentForm();
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
@@ -64,7 +64,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void failed_mandatory_notDefiningStructure() {
+  void failed_mandatory_notDefiningStructure() {
 
     var form = createEmptyForm();
     form.setDefiningStructure(false);
@@ -85,7 +85,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_tooLong() {
+  void fromLocation_tooLong() {
 
     var form = buildForm();
     form.setFromLocation(StringUtils.repeat("a", 201));
@@ -97,7 +97,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_charBoundary() {
+  void fromLocation_charBoundary() {
 
     var form = buildForm();
     form.setFromLocation(StringUtils.repeat("a", 200));
@@ -109,7 +109,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_unwantedChars() {
+  void fromLocation_unwantedChars() {
 
     var form = buildForm();
     form.setFromLocation("bad##");
@@ -121,7 +121,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_notEqualWithToLocation_definingStructure() {
+  void fromLocation_notEqualWithToLocation_definingStructure() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -133,7 +133,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void toLocation_tooLong() {
+  void toLocation_tooLong() {
 
     var form = buildForm();
     form.setToLocation(StringUtils.repeat("a", 201));
@@ -145,7 +145,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void toLocation_charBoundary() {
+  void toLocation_charBoundary() {
 
     var form = buildForm();
     form.setToLocation(StringUtils.repeat("a", 200));
@@ -157,7 +157,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void toLocation_unwantedChars() {
+  void toLocation_unwantedChars() {
 
     var form = buildForm();
     form.setToLocation("bad##");
@@ -169,7 +169,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLatitudeNotEqualWithToLatitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
+  void fromLatitudeNotEqualWithToLatitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -187,7 +187,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLatitudeNotEqualWithToLatitude_definingStructure() {
+  void fromLatitudeNotEqualWithToLatitude_definingStructure() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -204,7 +204,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLongitudeNotEqualWithToLongitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
+  void fromLongitudeNotEqualWithToLongitude_definingStructure_noEqualityErrorWhenCoordinatesInvalid() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -222,7 +222,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void fromLongitudeNotEqualWithToLongitude_definingStructure() {
+  void fromLongitudeNotEqualWithToLongitude_definingStructure() {
 
     var form = buildForm();
     form.setDefiningStructure(true);
@@ -240,7 +240,7 @@ public class PipelineIdentFormValidatorTest {
 
 
   @Test
-  public void length_notPositive() {
+  void length_notPositive() {
 
     var form = buildForm();
 
@@ -253,7 +253,7 @@ public class PipelineIdentFormValidatorTest {
   }
 
   @Test
-  public void length_over2Dp() {
+  void length_over2Dp() {
 
     var form = buildForm();
 
@@ -265,10 +265,10 @@ public class PipelineIdentFormValidatorTest {
 
   }
 
-  @Test
   //covers a unique edge-case where 'defining structure' selected & invalid optional length entered,
   // switch to 'not defining structure' and submit. We should ignore the invalid length from 'defining structure' nested field
-  public void validate_notDefiningStructureOptionSelected_invalidDefiningStructureLength_noError() {
+  @Test
+  void validate_notDefiningStructureOptionSelected_invalidDefiningStructureLength_noError() {
 
     var form = buildForm();
 

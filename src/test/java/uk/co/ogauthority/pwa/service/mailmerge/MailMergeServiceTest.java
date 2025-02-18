@@ -13,11 +13,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -36,8 +38,9 @@ import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MailMergeServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class MailMergeServiceTest {
 
   @Mock
   private MarkdownService markdownService;
@@ -62,8 +65,8 @@ public class MailMergeServiceTest {
       MailMergeFieldMnem.PROJECT_NAME.name(), "project name"
   );
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     when(pwaApplicationMailMergeResolver.supportsDocumentSource(any())).thenCallRealMethod();
 
@@ -81,7 +84,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void getMailMergeFieldsForDocumentSource() {
+  void getMailMergeFieldsForDocumentSource() {
 
     var mnems = List.of(MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE, MailMergeFieldMnem.PROJECT_NAME);
 
@@ -95,7 +98,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void resolveMergeFields_preview() {
+  void resolveMergeFields_preview() {
 
     var resolvedMergeFields = Map.of(
         MailMergeFieldMnem.PROPOSED_START_OF_WORKS_DATE.name(), DateUtils.formatDate(Instant.now()),
@@ -117,7 +120,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void resolveMergeFields_full() {
+  void resolveMergeFields_full() {
 
     var container = mailMergeService.resolveMergeFields(detail.getPwaApplication(), DocGenType.FULL);
 
@@ -126,7 +129,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void mailMerge_preview() {
+  void mailMerge_preview() {
 
     var docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
 
@@ -161,7 +164,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void mailMerge_preview_petroleum() {
+  void mailMerge_preview_petroleum() {
 
     var docView = setupDocView(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
@@ -196,7 +199,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void mailMerge_preview_hydrogen() {
+  void mailMerge_preview_hydrogen() {
 
     var docView = setupDocView(DocumentTemplateMnem.HYDROGEN_CONSENT_DOCUMENT);
 
@@ -231,7 +234,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void mailMerge_full_Ccus() {
+  void mailMerge_full_Ccus() {
 
     var docView = setupDocView(DocumentTemplateMnem.CCUS_CONSENT_DOCUMENT);
 
@@ -264,7 +267,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void validateMailMergeFields_noInvalid() {
+  void validateMailMergeFields_noInvalid() {
 
     var text = "((PROPOSED_START_OF_WORKS_DATE)) here";
 
@@ -290,7 +293,7 @@ public class MailMergeServiceTest {
   }
 
   @Test
-  public void validateMailMergeFields_invalid() {
+  void validateMailMergeFields_invalid() {
 
     var text = "((PROPOSED_START_OF_WORKS_DATE)) here ((arrr)) ((badfieldshere))";
 
@@ -365,7 +368,7 @@ public class MailMergeServiceTest {
 
     var list = new ArrayList<SectionClauseVersionView>();
 
-    documentView.getSections().forEach(s -> {
+    documentView.getSections().forEach(s ->
 
       s.getClauses().forEach(level1 -> {
 
@@ -379,9 +382,7 @@ public class MailMergeServiceTest {
 
         });
 
-      });
-
-    });
+      }));
 
     return list;
 

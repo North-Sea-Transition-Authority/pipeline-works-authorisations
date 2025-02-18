@@ -8,25 +8,22 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.EnergyPortalConfiguration;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.IncludeEnergyPortalConfigurationProperties;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = LogoutRestController.class)
 @ContextConfiguration(classes = LogoutRestController.class)
 @IncludeEnergyPortalConfigurationProperties
-public class LogoutRestControllerTest extends AbstractControllerTest {
+class LogoutRestControllerTest extends AbstractControllerTest {
 
   private static final Class<LogoutRestController> CONTROLLER = LogoutRestController.class;
   private static final String UNAUTHORIZED_KEY = "Bearer INVALID_KEY";
@@ -39,7 +36,7 @@ public class LogoutRestControllerTest extends AbstractControllerTest {
   private LogoutService logoutService;
 
   @Test
-  public void logoutService() throws Exception {
+  void logoutService() throws Exception {
     mockMvc
         .perform(post(ReverseRouter.route(on(CONTROLLER).logoutOfService(null, WUA_ID)))
             .header("Authorization", "Bearer " + energyPortalConfiguration.portalLogoutPreSharedKey()))
@@ -48,7 +45,7 @@ public class LogoutRestControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void logoutService_unauthorized() throws Exception {
+  void logoutService_unauthorized() throws Exception {
     mockMvc
         .perform(post(ReverseRouter.route(on(CONTROLLER).logoutOfService(null, WUA_ID)))
             .header("Authorization", UNAUTHORIZED_KEY))

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.orgs;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -8,11 +9,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -27,8 +30,9 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaOrganisationAccessorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaOrganisationAccessorTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -45,8 +49,8 @@ public class PwaOrganisationAccessorTest {
 
   private PortalOrganisationGroup organisationGroup1;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonFrom(new PersonId(1))), Set.of());
     ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(2))), Set.of());
@@ -62,7 +66,7 @@ public class PwaOrganisationAccessorTest {
   }
 
   @Test
-  public void industryUser_getOrgGrps_restricted() {
+  void industryUser_getOrgGrps_restricted() {
 
     var team = TeamTestingUtils.getOrganisationTeam(organisationGroup1);
 
@@ -76,13 +80,14 @@ public class PwaOrganisationAccessorTest {
   }
 
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getOrganisationGroupOrError_orgGroupNotFound() {
-    pwaOrganisationAccessor.getOrganisationGroupOrError(1);
+  @Test
+  void getOrganisationGroupOrError_orgGroupNotFound() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      pwaOrganisationAccessor.getOrganisationGroupOrError(1));
   }
 
   @Test
-  public void getOrganisationGroupOrError_orgGroupFound() {
+  void getOrganisationGroupOrError_orgGroupFound() {
     var portalOrgGroup = new PortalOrganisationGroup();
     when(portalOrganisationsAccessor.getOrganisationGroupById(1)).thenReturn(Optional.of(portalOrgGroup));
     assertThat(pwaOrganisationAccessor.getOrganisationGroupOrError(1)).isEqualTo(portalOrgGroup);
@@ -90,7 +95,7 @@ public class PwaOrganisationAccessorTest {
 
 
   @Test
-  public void industryUser_getOrgUnits_restricted() {
+  void industryUser_getOrgUnits_restricted() {
 
     var team = TeamTestingUtils.getOrganisationTeam(organisationGroup1);
 
@@ -104,7 +109,7 @@ public class PwaOrganisationAccessorTest {
   }
 
   @Test
-  public void ogaUser_getOrgGrps_all() {
+  void ogaUser_getOrgGrps_all() {
 
     pwaOrganisationAccessor.getOrgGroupsUserCanAccess(ogaUser);
 
@@ -113,7 +118,7 @@ public class PwaOrganisationAccessorTest {
   }
 
   @Test
-  public void ogaUser_getOrgUnits_all() {
+  void ogaUser_getOrgUnits_all() {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(ogaUser);
 

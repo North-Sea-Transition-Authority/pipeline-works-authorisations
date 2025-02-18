@@ -20,11 +20,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -41,8 +43,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentVi
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineAndIdentViewFactoryTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelineAndIdentViewFactoryTest {
 
   private static final PipelineId PIPELINE_ID = new PipelineId(100);
 
@@ -98,8 +101,8 @@ public class PipelineAndIdentViewFactoryTest {
 
   private PwaConsent pwaConsent;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pipelineAndIdentViewFactory = new PipelineAndIdentViewFactory(
         padPipelineService,
@@ -125,7 +128,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenBothAppAndConsentedModelHavePipelineData_andNoAppIdentsExist() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenBothAppAndConsentedModelHavePipelineData_andNoAppIdentsExist() {
     // Make sure that if a pipeline is imported into app, but has all idents removed, we still return app version of pipeline.
     setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
@@ -171,7 +174,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenBothAppAndConsentedModelHavePipelineData() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenBothAppAndConsentedModelHavePipelineData() {
 
     setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
@@ -216,7 +219,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenAppHasNoConsentedPipelineData() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenAppHasNoConsentedPipelineData() {
 
     setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
 
@@ -272,7 +275,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenOnlyConsentedPipeline() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenOnlyConsentedPipeline() {
 
     setupPipelines(ONLY_CONSENTED_PIPELINE_EXISTS);
 
@@ -303,7 +306,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenConsentFilterIsAllPipelines() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenConsentFilterIsAllPipelines() {
 
    setupOnlyConsentedPipeline();
 
@@ -321,7 +324,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllAppAndMasterPwaPipelineAndIdentViews_whenConsentFilterIsOnSeabedPipelines() {
+  void getAllAppAndMasterPwaPipelineAndIdentViews_whenConsentFilterIsOnSeabedPipelines() {
 
     setupOnlyConsentedPipeline();
 
@@ -340,7 +343,7 @@ public class PipelineAndIdentViewFactoryTest {
 
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwa_returnsApplicationVersionOfImportedPipeline() {
+  void getAllPipelineOverviewsFromAppAndMasterPwa_returnsApplicationVersionOfImportedPipeline() {
     setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
     var allPipelinesMap = pipelineAndIdentViewFactory.getAllPipelineOverviewsFromAppAndMasterPwa(
@@ -359,7 +362,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwa_containsConsentedPipelineDetails_whenNoAppPipeline_andNoImportedPipeline() {
+  void getAllPipelineOverviewsFromAppAndMasterPwa_containsConsentedPipelineDetails_whenNoAppPipeline_andNoImportedPipeline() {
 
     setupPipelines(ONLY_CONSENTED_PIPELINE_EXISTS);
 
@@ -376,7 +379,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwa_containsAppPipelineDetails_whenNoConsentedPipeline() {
+  void getAllPipelineOverviewsFromAppAndMasterPwa_containsAppPipelineDetails_whenNoConsentedPipeline() {
 
     setupPipelines(ONLY_APPLICATION_PIPELINE_EXISTS);
 
@@ -393,7 +396,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwa_usesConsentTimestampForPwaPipelines_whenApplicationConsented() {
+  void getAllPipelineOverviewsFromAppAndMasterPwa_usesConsentTimestampForPwaPipelines_whenApplicationConsented() {
 
     setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
     var consentedPipelineFilter = PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES;
@@ -411,7 +414,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwa_usesCurrentTimeForPwaPipelines_whenApplicationNotConsented() {
+  void getAllPipelineOverviewsFromAppAndMasterPwa_usesCurrentTimeForPwaPipelines_whenApplicationNotConsented() {
 
     setupPipelines(CONSENTED_PIPELINE_EXISTS_NOT_IMPORTED);
     var consentedPipelineFilter = PipelineAndIdentViewFactory.ConsentedPipelineFilter.ONLY_ON_SEABED_PIPELINES;
@@ -427,7 +430,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds() {
+  void getAllPipelineOverviewsFromAppAndMasterPwaByPipelineIds() {
 
     setupPipelines(CONSENTED_PIPELINE_EXISTS_AND_IMPORTED);
 
@@ -443,7 +446,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getPipelineSortedIdentViews_whenApplicationPipelineFound() {
+  void getPipelineSortedIdentViews_whenApplicationPipelineFound() {
     when(padPipelineService.findByPwaApplicationDetailAndPipelineId(detail, PIPELINE_ID))
         .thenReturn(Optional.of(padPipeline));
 
@@ -459,7 +462,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getPipelineSortedIdentViews_whenConsentedPipelineOnlyFound() {
+  void getPipelineSortedIdentViews_whenConsentedPipelineOnlyFound() {
     when(padPipelineService.findByPwaApplicationDetailAndPipelineId(detail, PIPELINE_ID))
         .thenReturn(Optional.empty());
 
@@ -475,7 +478,7 @@ public class PipelineAndIdentViewFactoryTest {
   }
 
   @Test
-  public void getPipelineSortedIdentViews_whenPipelineNotFound() {
+  void getPipelineSortedIdentViews_whenPipelineNotFound() {
 
     var options = pipelineAndIdentViewFactory.getPipelineSortedIdentViews(detail, PIPELINE_ID);
 

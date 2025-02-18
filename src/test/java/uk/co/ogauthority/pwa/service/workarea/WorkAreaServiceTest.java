@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,8 +40,9 @@ import uk.co.ogauthority.pwa.service.workarea.consultations.ConsultationWorkArea
 import uk.co.ogauthority.pwa.testutils.WorkAreaTestUtils;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WorkAreaServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class WorkAreaServiceTest {
 
   private static final int DEFAULT_PAGE = 0;
 
@@ -69,8 +72,8 @@ public class WorkAreaServiceTest {
   private Pageable regulatorAppTabPageable = WorkAreaUtils.getWorkAreaPageRequest(DEFAULT_PAGE, ApplicationWorkAreaSort.PROPOSED_START_DATE_ASC);
   private Pageable industryAppTabPageable = WorkAreaUtils.getWorkAreaPageRequest(DEFAULT_PAGE, ApplicationWorkAreaSort.SUBMITTED_APP_START_ASC_THEN_DRAFT_APP_START_ASC);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     this.workAreaService = new WorkAreaService(
         asBuiltWorkAreaPageService,
@@ -94,7 +97,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_regAttentionTab_noResults() {
+  void getWorkAreaResult_regAttentionTab_noResults() {
 
     var tab = WorkAreaTab.REGULATOR_REQUIRES_ATTENTION;
 
@@ -112,7 +115,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_regBackgroundGroundTab_noResults() {
+  void getWorkAreaResult_regBackgroundGroundTab_noResults() {
 
     var tab = WorkAreaTab.REGULATOR_WAITING_ON_OTHERS;
 
@@ -131,7 +134,7 @@ public class WorkAreaServiceTest {
 
 
   @Test
-  public void getWorkAreaResult_regAttentionTab_resultsExist() {
+  void getWorkAreaResult_regAttentionTab_resultsExist() {
 
    var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var tab = WorkAreaTab.REGULATOR_REQUIRES_ATTENTION;
@@ -154,7 +157,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_regBackgroundTab_resultsExist() {
+  void getWorkAreaResult_regBackgroundTab_resultsExist() {
 
     var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var tab = WorkAreaTab.REGULATOR_WAITING_ON_OTHERS;
@@ -177,7 +180,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_industryAttentionTab_noResults() {
+  void getWorkAreaResult_industryAttentionTab_noResults() {
 
     var tab = WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS;
 
@@ -195,7 +198,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_industryBackgroundGroundTab_noResults() {
+  void getWorkAreaResult_industryBackgroundGroundTab_noResults() {
 
     var tab = WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS;
 
@@ -214,7 +217,7 @@ public class WorkAreaServiceTest {
 
 
   @Test
-  public void getWorkAreaResult_industryAttentionTab_resultsExist() {
+  void getWorkAreaResult_industryAttentionTab_resultsExist() {
 
     var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var tab = WorkAreaTab.INDUSTRY_OPEN_APPLICATIONS;
@@ -237,7 +240,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_industryBackgroundTab_resultsExist() {
+  void getWorkAreaResult_industryBackgroundTab_resultsExist() {
 
     var workAreaItem = WorkAreaApplicationSearchTestUtil.getSearchDetailItem(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var tab = WorkAreaTab.INDUSTRY_SUBMITTED_APPLICATIONS;
@@ -260,7 +263,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_asBuiltNotificationsTab_resultsExist() {
+  void getWorkAreaResult_asBuiltNotificationsTab_resultsExist() {
 
     var workAreaResult = workAreaService.getWorkAreaResult(workAreaContext, WorkAreaTab.AS_BUILT_NOTIFICATIONS, DEFAULT_PAGE);
 
@@ -273,7 +276,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_consultationsTab_resultsExist() {
+  void getWorkAreaResult_consultationsTab_resultsExist() {
 
     var consultationWorkflowSubject = new GenericWorkflowSubject(3, WorkflowType.PWA_APPLICATION_CONSULTATION);
     var consultationWorkflowSubject2 = new GenericWorkflowSubject(4, WorkflowType.PWA_APPLICATION_CONSULTATION);
@@ -300,7 +303,7 @@ public class WorkAreaServiceTest {
   }
 
   @Test
-  public void getWorkAreaResult_consultationsTab_noAssignedTasks() {
+  void getWorkAreaResult_consultationsTab_noAssignedTasks() {
 
     when(assignmentService.getAssignmentsForPerson(authenticatedUserAccount.getLinkedPerson())).thenReturn(Map.of());
 

@@ -18,15 +18,13 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -47,9 +45,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = FastTrackController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class FastTrackControllerTest extends PwaApplicationContextAbstractControllerTest {
+class FastTrackControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -65,8 +62,8 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   private AuthenticatedUserAccount user;
   private PadProjectInformation padProjectInformation;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -86,7 +83,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void authenticated_renderFastTrack() throws Exception {
+  void authenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
@@ -95,7 +92,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void authenticated_postComplete() throws Exception {
+  void authenticated_postComplete() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.FULL);
 
@@ -109,7 +106,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void authenticated_postContinue() throws Exception {
+  void authenticated_postContinue() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(padFastTrackService, new FastTrackForm(), ValidationType.PARTIAL);
 
@@ -123,7 +120,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void unauthenticated_renderFastTrack() throws Exception {
+  void unauthenticated_renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
@@ -131,7 +128,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void unauthenticated_postComplete() throws Exception {
+  void unauthenticated_postComplete() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
@@ -140,7 +137,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void unauthenticated_postContinue() throws Exception {
+  void unauthenticated_postContinue() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(FastTrackController.class)
             .postFastTrack(PwaApplicationType.INITIAL, 1, null, null, null, null, null)))
@@ -149,7 +146,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void fastTrackNotAllowed() throws Exception {
+  void fastTrackNotAllowed() throws Exception {
     when(padFastTrackService.isFastTrackRequired(pwaApplicationDetail)).thenReturn(false);
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
@@ -175,7 +172,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderFastTrack() throws Exception {
+  void renderFastTrack() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FastTrackController.class)
             .renderFastTrack(PwaApplicationType.INITIAL, 1, null, null, null)))
@@ -185,7 +182,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postCompleteFastTrack_EmptyData() throws Exception {
+  void postCompleteFastTrack_EmptyData() throws Exception {
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
@@ -212,7 +209,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postCompleteFastTrack_WithData() throws Exception {
+  void postCompleteFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>() {{
       add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
       add("avoidEnvironmentalDisaster", "true");
@@ -238,7 +235,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postFastTrack_EmptyData() throws Exception {
+  void postFastTrack_EmptyData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("avoidEnvironmentalDisaster", null);
@@ -264,7 +261,7 @@ public class FastTrackControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postFastTrack_WithData() throws Exception {
+  void postFastTrack_WithData() throws Exception {
     MultiValueMap<String, String> continueParams = new LinkedMultiValueMap<>() {{
       add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
       add("avoidEnvironmentalDisaster", "true");

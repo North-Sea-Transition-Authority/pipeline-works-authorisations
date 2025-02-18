@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelines.importconsented;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -10,11 +11,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.assertj.core.groups.Tuple;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipeline;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
@@ -30,8 +31,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDa
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ModifyPipelineServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ModifyPipelineServiceTest {
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -52,8 +53,8 @@ public class ModifyPipelineServiceTest {
 
   private PadPipeline consentedPadPipeline;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     modifyPipelineService = new ModifyPipelineService(
         padPipelineService,
         pipelineDetailService,
@@ -73,7 +74,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getConsentedPipelinesNotOnApplication_consentedPipelineAvailable() {
+  void getConsentedPipelinesNotOnApplication_consentedPipelineAvailable() {
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
@@ -83,7 +84,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked() {
+  void getConsentedPipelinesNotOnApplication_consentedPipelineAlreadyLinked() {
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
@@ -95,14 +96,14 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getConsentedPipelinesNotOnApplication_noConsentedPipelines() {
+  void getConsentedPipelinesNotOnApplication_noConsentedPipelines() {
     var result = modifyPipelineService.getConsentedPipelinesNotOnApplication(detail);
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail() {
+  void getConsentedPipelinesNotOnApplication_noPipelinesOnAppDetail() {
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
@@ -112,7 +113,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getSelectableConsentedPipelines_consentedPipelineAvailable() {
+  void getSelectableConsentedPipelines_consentedPipelineAvailable() {
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
@@ -124,7 +125,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getSelectableConsentedPipelines_consentedReturnedToShorePipelineAvailable() {
+  void getSelectableConsentedPipelines_consentedReturnedToShorePipelineAvailable() {
     var rtsPipeline = new Pipeline(detail.getPwaApplication());
     rtsPipeline.setId(1);
 
@@ -147,13 +148,13 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getSelectableConsentedPipelines_noConsentedPipelines() {
+  void getSelectableConsentedPipelines_noConsentedPipelines() {
     var result = modifyPipelineService.getSelectableConsentedPipelines(detail);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void getSelectableConsentedPipelines_consentedPipelineAlreadyLinked() {
+  void getSelectableConsentedPipelines_consentedPipelineAlreadyLinked() {
     when(pipelineDetailService.getNonDeletedPipelineDetailsForApplicationMasterPwa(detail.getMasterPwa()))
         .thenReturn(List.of(consentedPipelineDetail));
 
@@ -164,7 +165,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void importPipeline_serviceInteraction() {
+  void importPipeline_serviceInteraction() {
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
     var pipelineDetail = new PipelineDetail();
@@ -175,19 +176,19 @@ public class ModifyPipelineServiceTest {
     verify(pipelineDetailIdentDataImportService, times(1)).importIdentsAndData(eq(pipelineDetail), any());
   }
 
-  @Test(expected = ActionNotAllowedException.class)
-  public void importPipeline_modifyingTransferredPipeline_errorThrown() {
+  @Test
+  void importPipeline_modifyingTransferredPipeline_errorThrown() {
     var form = new ModifyPipelineForm();
     form.setPipelineId("1");
     var pipelineDetail = new PipelineDetail();
     pipelineDetail.setPipelineStatus(PipelineStatus.TRANSFERRED);
-
     when(pipelineDetailService.getLatestByPipelineId(1)).thenReturn(pipelineDetail);
-    modifyPipelineService.importPipeline(detail, form);
+    assertThrows(ActionNotAllowedException.class, () ->
+      modifyPipelineService.importPipeline(detail, form));
   }
 
   @Test
-  public void getPipelineServiceStatusesForAppType_validAppTypesForTransferredPipelineStatus() {
+  void getPipelineServiceStatusesForAppType_validAppTypesForTransferredPipelineStatus() {
 
     var validAppTypesForTransferredPipelineStatus = List.of(
         PwaApplicationType.CAT_1_VARIATION, PwaApplicationType.CAT_2_VARIATION, PwaApplicationType.DECOMMISSIONING);
@@ -199,7 +200,7 @@ public class ModifyPipelineServiceTest {
   }
 
   @Test
-  public void getPipelineServiceStatusesForAppType_nonValidAppTypesForTransferredPipelineStatus() {
+  void getPipelineServiceStatusesForAppType_nonValidAppTypesForTransferredPipelineStatus() {
 
     var actualPipelineStatuses = modifyPipelineService.getPipelineServiceStatusesForAppType(PwaApplicationType.OPTIONS_VARIATION);
     var expectedPipelineStatuses = PipelineStatus.toOrderedListWithoutHistorical().stream()

@@ -7,20 +7,20 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadTechnicalDrawingLinkServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadTechnicalDrawingLinkServiceTest {
 
   @Mock
   private PadTechnicalDrawingLinkRepository padTechnicalDrawingLinkRepository;
@@ -31,15 +31,15 @@ public class PadTechnicalDrawingLinkServiceTest {
   private PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padTechnicalDrawingLinkService = new PadTechnicalDrawingLinkService(padTechnicalDrawingLinkRepository,
         padPipelineService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
   @Test
-  public void getLinksFromDrawingList() {
+  void getLinksFromDrawingList() {
     var resultList = List.of(new PadTechnicalDrawingLink());
     var argList = List.of(new PadTechnicalDrawing());
 
@@ -49,7 +49,7 @@ public class PadTechnicalDrawingLinkServiceTest {
   }
 
   @Test
-  public void linkDrawing() {
+  void linkDrawing() {
 
     var pipelineA = new PadPipeline(pwaApplicationDetail);
     pipelineA.setId(1);
@@ -81,7 +81,7 @@ public class PadTechnicalDrawingLinkServiceTest {
   }
 
   @Test
-  public void unlinkDrawing() {
+  void unlinkDrawing() {
     var drawing = new PadTechnicalDrawing();
     var link = new PadTechnicalDrawingLink();
     var linkList = List.of(link);
@@ -92,7 +92,7 @@ public class PadTechnicalDrawingLinkServiceTest {
   }
 
   @Test
-  public void getLinkedPipelineIds() {
+  void getLinkedPipelineIds() {
     var dto = new PadPipelineKeyDto(1, 1);
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(dto));
     var result = padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail);
@@ -100,7 +100,7 @@ public class PadTechnicalDrawingLinkServiceTest {
   }
 
   @Test
-  public void removeAllPipelineLinks_serviceInteraction() {
+  void removeAllPipelineLinks_serviceInteraction() {
     var padPipeline = new PadPipeline();
     var link = new PadTechnicalDrawingLink();
     when(padTechnicalDrawingLinkRepository.getAllByTechnicalDrawing_PwaApplicationDetailAndPipeline(pwaApplicationDetail, padPipeline))

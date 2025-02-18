@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.controller.asbuilt.ReopenAsBuiltNotificationGroupController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeApplicantViewController;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
@@ -57,8 +59,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TasksTabContentServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TasksTabContentServiceTest {
 
   @Mock
   private PwaAppProcessingTaskListService taskListService;
@@ -107,8 +110,8 @@ public class TasksTabContentServiceTest {
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
       .createGroupWithConsent_fromNgId(10);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     taskTabContentService = new TasksTabContentService(
         taskListService,
@@ -137,7 +140,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_industryOnlyPermission() {
+  void getTabContentModelMap_tasksTab_populated_industryOnlyPermission() {
 
     var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
         ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
@@ -167,7 +170,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_industryAndRegulatorPermission() {
+  void getTabContentModelMap_tasksTab_populated_industryAndRegulatorPermission() {
 
     processingContext = createContextFromInvolvementAndPermissions(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(null),
@@ -190,7 +193,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenOptionsApproved() {
+  void getTabContentModelMap_tasksTab_populated_whenOptionsApproved() {
 
     var optionsApprovedBanner = new PageBannerView.PageBannerViewBuilder().build();
     when(approveOptionsService.getOptionsApprovalPageBannerView(any(PwaApplicationDetail.class)))
@@ -209,7 +212,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenPublicNoticeUpdateRequested() {
+  void getTabContentModelMap_tasksTab_populated_whenPublicNoticeUpdateRequested() {
 
     processingContext = createContextWithPermissions(
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC);
@@ -233,9 +236,8 @@ public class TasksTabContentServiceTest {
   }
 
 
-
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenPaymentPermission() {
+  void getTabContentModelMap_tasksTab_populated_whenPaymentPermission() {
 
     processingContext = createContextWithPermissions(
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY,
@@ -262,7 +264,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenManageAppContactsPermission() {
+  void getTabContentModelMap_tasksTab_populated_whenManageAppContactsPermission() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -290,7 +292,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenCaseManagementIndustryPermissionOnly() {
+  void getTabContentModelMap_tasksTab_populated_whenCaseManagementIndustryPermissionOnly() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -312,9 +314,8 @@ public class TasksTabContentServiceTest {
   }
 
 
-
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenViewPublicNoticePermissionAndApplicantCanView() {
+  void getTabContentModelMap_tasksTab_populated_whenViewPublicNoticePermissionAndApplicantCanView() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -340,9 +341,8 @@ public class TasksTabContentServiceTest {
   }
 
 
-
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userTypeIsOga() {
+  void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userTypeIsOga() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -373,7 +373,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userInHolderTeam() {
+  void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userInHolderTeam() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -401,7 +401,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsNotAsBuiltAdmin_notificationGroupCannotBeReopened() {
+  void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsNotAsBuiltAdmin_notificationGroupCannotBeReopened() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -430,7 +430,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsAsBuiltAdmin_notificationGroupCanBeReopened() {
+  void getTabContentModelMap_tasksTab_populated_whenAppIsConsented_userIsAsBuiltAdmin_notificationGroupCanBeReopened() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -463,7 +463,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenUserHasViewPaymentPriv_andAppIsPaidFor() {
+  void getTabContentModelMap_tasksTab_populated_whenUserHasViewPaymentPriv_andAppIsPaidFor() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -480,7 +480,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_tasksTab_populated_whenUserDoesNotHaveViewPaymentPriv() {
+  void getTabContentModelMap_tasksTab_populated_whenUserDoesNotHaveViewPaymentPriv() {
 
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
@@ -496,7 +496,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_differentTab_empty() {
+  void getTabContentModelMap_differentTab_empty() {
 
     var involvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(null, Set.of(
         ApplicationInvolvementDtoTestUtil.InvolvementFlag.INDUSTRY_INVOLVEMENT_ONLY));
@@ -520,7 +520,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_pipelineTransfer_empty() {
+  void getTabContentModelMap_pipelineTransfer_empty() {
 
     when(pipelineTransferService.findUnclaimedByDonorApplication(processingContext.getApplicationDetail()))
         .thenReturn(Collections.emptyList());
@@ -530,7 +530,7 @@ public class TasksTabContentServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_pipelineTransfer_uncompletedTransfers() {
+  void getTabContentModelMap_pipelineTransfer_uncompletedTransfers() {
     //Setup Pipeline Transfer
     var pipelineNumber = "PL111";
     var piplineTransfers = List.of(new PadPipelineTransfer());

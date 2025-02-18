@@ -12,16 +12,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -42,9 +40,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = OptionsTemplateController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControllerTest {
+class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -60,8 +57,8 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -75,7 +72,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderOptionsTemplate_permissionSmokeTest() {
+  void renderOptionsTemplate_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(OptionsTemplateController.class)
@@ -85,7 +82,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderOptionsTemplate_appTypeSmokeTest() {
+  void renderOptionsTemplate_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(OptionsTemplateController.class)
@@ -96,7 +93,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderOptionsTemplate_appStatusSmokeTest() {
+  void renderOptionsTemplate_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(OptionsTemplateController.class)
@@ -107,7 +104,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_appTypeSmokeTest() {
+  void postOptionsTemplate_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -119,7 +116,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_appStatusSmokeTest() {
+  void postOptionsTemplate_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -132,7 +129,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_permissionSmokeTest() {
+  void postOptionsTemplate_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -145,7 +142,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_passValidation() throws Exception {
+  void postOptionsTemplate_passValidation() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
 
@@ -180,7 +177,7 @@ public class OptionsTemplateControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postOptionsTemplate_failValidation() throws Exception {
+  void postOptionsTemplate_failValidation() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(optionsTemplateService, new OptionsTemplateForm(), ValidationType.FULL);
 

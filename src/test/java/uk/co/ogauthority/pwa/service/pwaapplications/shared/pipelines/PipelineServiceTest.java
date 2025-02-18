@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailRepository;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineServiceTest {
 
   @Mock
   private PipelineRepository pipelineRepository;
@@ -32,25 +32,25 @@ public class PipelineServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pipelineService = new PipelineService(pipelineRepository);
-
-    when(pipelineRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
 
   @Test
-  public void createApplicationPipeline_associatesPipelineWithAppPwa() {
+  void createApplicationPipeline_associatesPipelineWithAppPwa() {
+
+    when(pipelineRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var newPipeline = pipelineService.createApplicationPipeline(pwaApplicationDetail.getPwaApplication());
     assertThat(newPipeline.getMasterPwa()).isEqualTo(pwaApplicationDetail.getPwaApplication().getMasterPwa());
   }
 
   @Test
-  public void getPipelinesFromIds_serviceInteraction(){
+  void getPipelinesFromIds_serviceInteraction(){
     var ids = Set.of(new PipelineId(1), new PipelineId(2));
     pipelineService.getPipelinesFromIds(ids);
     verify(pipelineRepository, times(1)).findAllById(Set.of(1,2));

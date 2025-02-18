@@ -12,8 +12,8 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,9 +42,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = SupplementaryDocumentsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -60,8 +59,8 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -75,7 +74,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void renderSupplementaryDocuments_permissionSmokeTest() {
+  void renderSupplementaryDocuments_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(SupplementaryDocumentsController.class)
@@ -85,7 +84,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void renderSupplementaryDocuments_appTypeSmokeTest() {
+  void renderSupplementaryDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(SupplementaryDocumentsController.class)
@@ -96,7 +95,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void renderSupplementaryDocuments_appStatusSmokeTest() {
+  void renderSupplementaryDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(SupplementaryDocumentsController.class)
@@ -107,7 +106,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void postSupplementaryDocuments_appTypeSmokeTest() {
+  void postSupplementaryDocuments_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(supplementaryDocumentsService, new SupplementaryDocumentsForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -119,7 +118,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void postSupplementaryDocuments_appStatusSmokeTest() {
+  void postSupplementaryDocuments_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(supplementaryDocumentsService, new SupplementaryDocumentsForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -132,7 +131,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void postSupplementaryDocuments_permissionSmokeTest() {
+  void postSupplementaryDocuments_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(supplementaryDocumentsService, new SupplementaryDocumentsForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -145,7 +144,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void postSupplementaryDocuments_passValidation() throws Exception {
+  void postSupplementaryDocuments_passValidation() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(supplementaryDocumentsService, new SupplementaryDocumentsForm(), ValidationType.FULL);
 
@@ -183,7 +182,7 @@ public class SupplementaryDocumentsControllerTest extends PwaApplicationContextA
   }
 
   @Test
-  public void postSupplementaryDocuments_failValidation() throws Exception {
+  void postSupplementaryDocuments_failValidation() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(supplementaryDocumentsService, new SupplementaryDocumentsForm(), ValidationType.FULL);
 

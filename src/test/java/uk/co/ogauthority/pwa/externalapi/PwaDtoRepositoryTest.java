@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 @ActiveProfiles("integration-test")
 @DirtiesContext
 @Transactional
-public class PwaDtoRepositoryTest {
+class PwaDtoRepositoryTest {
 
   @Autowired
   private TestEntityManager entityManager;
@@ -34,8 +34,8 @@ public class PwaDtoRepositoryTest {
   @Autowired
   PwaDtoRepository pwaDtoRepository;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
@@ -53,7 +53,7 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByPwaId() {
+  void searchPwas_searchByPwaId() {
     var searchedIds = List.of(pwaDetail.getMasterPwaId());
     var resultingPwaDtos = pwaDtoRepository.searchPwas(searchedIds, null, null);
 
@@ -63,7 +63,7 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByPwaReference_caseSensitive() {
+  void searchPwas_searchByPwaReference_caseSensitive() {
     var pwaReference = "W";
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, pwaReference, null);
 
@@ -80,7 +80,7 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_searchByStatus() {
+  void searchPwas_searchByStatus() {
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, MasterPwaDetailStatus.CONSENTED);
 
     assertThat(resultingPwaDtos)
@@ -89,7 +89,7 @@ public class PwaDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwas_whenAllNull_assertAllPwasReturned() {
+  void searchPwas_whenAllNull_assertAllPwasReturned() {
     var resultingPwaDtos = pwaDtoRepository.searchPwas(null, null, null);
 
     assertThat(resultingPwaDtos)

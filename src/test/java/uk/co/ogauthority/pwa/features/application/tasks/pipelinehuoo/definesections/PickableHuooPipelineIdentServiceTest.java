@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
@@ -19,8 +21,9 @@ import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentV
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickableHuooPipelineIdentServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PickableHuooPipelineIdentServiceTest {
   private static final PipelineId PIPELINE_ID = new PipelineId(1);
 
   private static final String POINT_A = "POINT A";
@@ -44,8 +47,8 @@ public class PickableHuooPipelineIdentServiceTest {
 
   private PickableHuooPipelineIdentService pickableHuooPipelineIdentService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pickableHuooPipelineIdentService = new PickableHuooPipelineIdentService(pipelineAndIdentViewFactory);
 
    setupIdentViewMock(ident1View, POINT_A, POINT_B, 1);
@@ -57,7 +60,7 @@ public class PickableHuooPipelineIdentServiceTest {
   }
 
   @Test
-  public void getSortedPickableIdentLocationOptions_whenPipelineFound() {
+  void getSortedPickableIdentLocationOptions_whenPipelineFound() {
     var identViewList = List.of(ident3View, ident2View, ident1View);
     when(pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, PIPELINE_ID))
         .thenReturn(identViewList);
@@ -76,7 +79,7 @@ public class PickableHuooPipelineIdentServiceTest {
 
 
   @Test
-  public void getSortedPickableIdentLocationOptions_whenPipelineNotFound() {
+  void getSortedPickableIdentLocationOptions_whenPipelineNotFound() {
 
     var options = pickableHuooPipelineIdentService.getSortedPickableIdentLocationOptions(pwaApplicationDetail, PIPELINE_ID);
 
@@ -94,7 +97,7 @@ public class PickableHuooPipelineIdentServiceTest {
   }
 
   @Test
-  public void generatePipelineSectionsFromForm_whenSectionConsistsOnlyOfOnePoint() {
+  void generatePipelineSectionsFromForm_whenSectionConsistsOnlyOfOnePoint() {
     var identViewList = List.of(ident3View, ident2View, ident1View);
     when(pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, PIPELINE_ID))
         .thenReturn(identViewList);
@@ -118,7 +121,7 @@ public class PickableHuooPipelineIdentServiceTest {
   }
 
   @Test
-  public void generatePipelineSectionsFromForm_whenSectionCoversMultipleIdentLocation() {
+  void generatePipelineSectionsFromForm_whenSectionCoversMultipleIdentLocation() {
     var identViewList = List.of(ident3View, ident2View, ident1View);
     when(pipelineAndIdentViewFactory.getPipelineSortedIdentViews(pwaApplicationDetail, PIPELINE_ID))
         .thenReturn(identViewList);

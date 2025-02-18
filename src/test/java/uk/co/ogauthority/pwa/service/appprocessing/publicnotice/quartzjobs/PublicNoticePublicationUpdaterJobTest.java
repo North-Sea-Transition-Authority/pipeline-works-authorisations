@@ -8,19 +8,19 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.FinalisePublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticePublicationUpdaterJobTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticePublicationUpdaterJobTest {
 
   @Mock
   private PublicNoticeService publicNoticeService;
@@ -33,15 +33,15 @@ public class PublicNoticePublicationUpdaterJobTest {
 
   private PublicNoticePublicationUpdaterJob publicNoticePublicationUpdaterJob;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     publicNoticePublicationUpdaterJob = new PublicNoticePublicationUpdaterJob(
         publicNoticeService, finalisePublicNoticeService);
 
   }
 
   @Test
-  public void executeInternal_whenNoPublicNoticesToPublish() throws JobExecutionException {
+  void executeInternal_whenNoPublicNoticesToPublish() throws JobExecutionException {
 
     publicNoticePublicationUpdaterJob.executeInternal(jobExecutionContext);
 
@@ -49,7 +49,7 @@ public class PublicNoticePublicationUpdaterJobTest {
   }
 
   @Test
-  public void executeInternal_whenPublicNoticesDueToPublish() throws JobExecutionException {
+  void executeInternal_whenPublicNoticesDueToPublish() throws JobExecutionException {
 
     var publicNotices = List.of(PublicNoticeTestUtil.createWaitingPublicNotice(null),
         PublicNoticeTestUtil.createWaitingPublicNotice(null));
@@ -62,14 +62,14 @@ public class PublicNoticePublicationUpdaterJobTest {
   }
 
   @Test
-  public void executeInternal_whenNoPublicNoticesToEnd() throws JobExecutionException {
+  void executeInternal_whenNoPublicNoticesToEnd() throws JobExecutionException {
 
     publicNoticePublicationUpdaterJob.executeInternal(jobExecutionContext);
     verify(publicNoticeService, never()).endPublicNotices(any());
   }
 
   @Test
-  public void executeInternal_whenPublicNoticesToEndIsDue() throws JobExecutionException {
+  void executeInternal_whenPublicNoticesToEndIsDue() throws JobExecutionException {
 
     var publicNotices = List.of(PublicNoticeTestUtil.createPublishedPublicNotice(null),
         PublicNoticeTestUtil.createPublishedPublicNotice(null));

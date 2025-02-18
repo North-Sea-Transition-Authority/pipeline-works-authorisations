@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaAppProcessingTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaAppProcessingTaskServiceTest {
 
   @Mock
   private ApplicationContext springApplicationContext;
@@ -37,8 +37,8 @@ public class PwaAppProcessingTaskServiceTest {
 
   private PwaAppProcessingTaskService processingTaskService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> {
       Class clazz = invocation.getArgument(0);
@@ -64,7 +64,7 @@ public class PwaAppProcessingTaskServiceTest {
   }
 
   @Test
-  public void canShowTask() {
+  void canShowTask() {
 
     PwaAppProcessingTask.stream().forEach(task -> {
       when(processingTaskService.canShowTask(task, processingContext)).thenReturn(true);
@@ -74,7 +74,7 @@ public class PwaAppProcessingTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry() {
+  void getTaskListEntry() {
 
     PwaAppProcessingTask.stream().forEach(task -> {
 

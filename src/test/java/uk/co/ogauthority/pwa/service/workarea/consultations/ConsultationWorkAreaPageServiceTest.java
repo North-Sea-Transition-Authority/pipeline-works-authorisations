@@ -11,11 +11,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,8 +38,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationC
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationWorkAreaPageServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationWorkAreaPageServiceTest {
 
   private static final int REQUESTED_PAGE = 0;
 
@@ -57,8 +57,8 @@ public class ConsultationWorkAreaPageServiceTest {
 
   private ConsulteeGroupDetail groupDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     consultationWorkAreaPageService = new ConsultationWorkAreaPageService(consultationRequestSearcher, consulteeGroupTeamService);
 
@@ -67,7 +67,7 @@ public class ConsultationWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getPageView_zeroResults_userIsNotConsultee() {
+  void getPageView_zeroResults_userIsNotConsultee() {
 
     var fakePage = new PageImpl<ConsultationRequestSearchItem>(List.of(), getDefaultWorkAreaViewPageable(REQUESTED_PAGE), 0);
     when(consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(any(),
@@ -95,7 +95,7 @@ public class ConsultationWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getPageView_unassignedConsultations_userIsRecipient() {
+  void getPageView_unassignedConsultations_userIsRecipient() {
 
     setupFakeConsultationSearchResultPage(List.of(), REQUESTED_PAGE);
 
@@ -115,7 +115,7 @@ public class ConsultationWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getPageView_assignedConsultations_userIsResponder() {
+  void getPageView_assignedConsultations_userIsResponder() {
 
     setupFakeConsultationSearchResultPage(List.of(), REQUESTED_PAGE);
     var assignedTask = new AssignedTaskInstance(
@@ -135,7 +135,7 @@ public class ConsultationWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getPageView_assignedAndUnassignedConsultations_userIsRecipientAndResponder() {
+  void getPageView_assignedAndUnassignedConsultations_userIsRecipientAndResponder() {
 
     setupFakeConsultationSearchResultPage(List.of(), REQUESTED_PAGE);
 

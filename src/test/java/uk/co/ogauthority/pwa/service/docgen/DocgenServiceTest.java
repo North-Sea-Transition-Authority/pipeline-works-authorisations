@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.docgen;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,13 +13,13 @@ import static org.quartz.JobKey.jobKey;
 import java.sql.SQLException;
 import java.util.Optional;
 import javax.sql.rowset.serial.SerialBlob;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -32,8 +33,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.repository.docgen.DocgenRunRepository;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocgenServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DocgenServiceTest {
 
   @Mock
   private Scheduler scheduler;
@@ -55,8 +56,8 @@ public class DocgenServiceTest {
   private final Person person = PersonTestUtil.createDefaultPerson();
   private DocumentInstance documentInstance;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     docgenService = new DocgenService(scheduler, docgenRunRepository, documentCreationService);
 
@@ -65,7 +66,7 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void scheduleDocumentGeneration() throws SchedulerException {
+  void scheduleDocumentGeneration() throws SchedulerException {
 
     var docInstance = new DocumentInstance();
     var run = new DocgenRun();
@@ -90,7 +91,7 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void createDocgenRun() {
+  void createDocgenRun() {
 
     docgenService.createDocgenRun(documentInstance, DocGenType.FULL, person);
 
@@ -110,7 +111,7 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void getDocgenRunStatus() {
+  void getDocgenRunStatus() {
 
     var docgenRun = new DocgenRun();
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);
@@ -127,7 +128,7 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void getDocgenRun_found() {
+  void getDocgenRun_found() {
 
     var docgenRun = new DocgenRun();
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);
@@ -139,17 +140,17 @@ public class DocgenServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getDocgenRun_notFound() {
-
+  @Test
+  void getDocgenRun_notFound() {
     when(docgenRunRepository.findById(anyLong())).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    docgenService.getDocgenRun(1L);
+      docgenService.getDocgenRun(1L));
 
   }
 
   @Test
-  public void processDocgenRun_complete() throws SQLException {
+  void processDocgenRun_complete() throws SQLException {
 
     var run = new DocgenRun();
     run.setDocGenType(DocGenType.FULL);
@@ -177,7 +178,7 @@ public class DocgenServiceTest {
   }
 
   @Test
-  public void processDocgenRun_failed() {
+  void processDocgenRun_failed() {
 
     var run = new DocgenRun();
     var docInstance = new DocumentInstance();

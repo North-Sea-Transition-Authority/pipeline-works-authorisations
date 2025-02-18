@@ -3,10 +3,10 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePair;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinateUtils;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeCoordinate;
@@ -17,14 +17,14 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PermanentDepositEntityMappingServiceTest {
 
   private PermanentDepositEntityMappingService permanentDepositEntityMappingService;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
 
@@ -172,7 +172,7 @@ public class PermanentDepositEntityMappingServiceTest {
   //TESTS
 
   @Test
-  public void mapDepositInformationDataToForm_materialTypeConcrete() {
+  void mapDepositInformationDataToForm_materialTypeConcrete() {
     PadPermanentDeposit entity = buildBaseEntity();
     setEntityConcreteProperties(entity);
     var actualForm = new PermanentDepositsForm();
@@ -184,7 +184,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void mapDepositInformationDataToForm_materialTypeRocks() {
+  void mapDepositInformationDataToForm_materialTypeRocks() {
     PadPermanentDeposit entity = buildBaseEntity();
     setEntityRockProperties(entity);
     var actualForm = new PermanentDepositsForm();
@@ -196,7 +196,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void mapDepositInformationDataToForm_materialTypeGroutBags() {
+  void mapDepositInformationDataToForm_materialTypeGroutBags() {
     PadPermanentDeposit entity = buildBaseEntity();
     setEntityGroutBagProperties(entity);
     var actualForm = new PermanentDepositsForm();
@@ -208,7 +208,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void mapDepositInformationDataToForm_materialTypeOther() {
+  void mapDepositInformationDataToForm_materialTypeOther() {
     PadPermanentDeposit entity = buildBaseEntity();
     setEntityOtherProperties(entity);
     var actualForm = new PermanentDepositsForm();
@@ -221,7 +221,7 @@ public class PermanentDepositEntityMappingServiceTest {
 
 
   @Test
-  public void setEntityValuesUsingForm_materialTypeConcrete() {
+  void setEntityValuesUsingForm_materialTypeConcrete() {
     PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormConcreteProperties(form);
@@ -234,7 +234,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_materialTypeRocks() {
+  void setEntityValuesUsingForm_materialTypeRocks() {
     PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormRocksProperties(form);
@@ -247,7 +247,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_materialTypeGroutBags() {
+  void setEntityValuesUsingForm_materialTypeGroutBags() {
     PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormGroutBagsProperties(form);
@@ -260,7 +260,7 @@ public class PermanentDepositEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_materialTypeOther() {
+  void setEntityValuesUsingForm_materialTypeOther() {
     PadPermanentDeposit expectedEntity = buildBaseEntity();
     PermanentDepositsForm form = buildBaseForm(expectedEntity);
     setFormOtherMaterialProperties(form);

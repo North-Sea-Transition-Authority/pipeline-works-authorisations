@@ -1,9 +1,10 @@
 package uk.co.ogauthority.pwa.model.entity.pipelines;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.math.BigDecimal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,7 +18,7 @@ import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 public class PipelineDetailTest {
 
   @Test
-  public void updateCoordinateValues() throws IllegalAccessException {
+  void updateCoordinateValues() throws IllegalAccessException {
 
     var pipelineDetail = new PipelineDetail();
 
@@ -54,7 +55,7 @@ public class PipelineDetailTest {
   }
 
   @Test
-  public void postLoad() throws IllegalAccessException {
+  void postLoad() throws IllegalAccessException {
 
     var pipeline = new PipelineDetail();
 
@@ -100,10 +101,11 @@ public class PipelineDetailTest {
 
   }
 
-  @Test(expected = NullPointerException.class)
-  public void getPipelineDetailId_whenIdIsNull() {
+  @Test
+  void getPipelineDetailId_whenIdIsNull() {
     var pd = new PipelineDetail();
-    pd.getPipelineDetailId();
+    assertThrows(NullPointerException.class, () ->
+      pd.getPipelineDetailId());
   }
 
   public void getPipelineDetailId_whenIdIsNotNull() {

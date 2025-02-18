@@ -7,11 +7,11 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.ApplicantOrganisationForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicantOrganisationFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicantOrganisationFormValidatorTest {
 
   @Mock
   private ApplicantOrganisationService applicantOrganisationService;
@@ -32,18 +32,16 @@ public class ApplicantOrganisationFormValidatorTest {
   private final MasterPwa masterPwa = new MasterPwa();
   private final WebUserAccount webUserAccount = new WebUserAccount();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     validator = new ApplicantOrganisationFormValidator(applicantOrganisationService);
-
-    when(applicantOrganisationService.getPotentialApplicantOrganisations(masterPwa, webUserAccount)).thenReturn(Set.of(applicantOrganisation));
 
   }
 
   @Test
-  public void validate_validOrgSelected() {
-
+  void validate_validOrgSelected() {
+    when(applicantOrganisationService.getPotentialApplicantOrganisations(masterPwa, webUserAccount)).thenReturn(Set.of(applicantOrganisation));
     var form = new ApplicantOrganisationForm();
     form.setApplicantOrganisationOuId(applicantOrganisation.getOuId());
 
@@ -54,8 +52,8 @@ public class ApplicantOrganisationFormValidatorTest {
   }
 
   @Test
-  public void validate_invalidOrgSelected() {
-
+  void validate_invalidOrgSelected() {
+    when(applicantOrganisationService.getPotentialApplicantOrganisations(masterPwa, webUserAccount)).thenReturn(Set.of(applicantOrganisation));
     var form = new ApplicantOrganisationForm();
     form.setApplicantOrganisationOuId(2);
 
@@ -68,7 +66,7 @@ public class ApplicantOrganisationFormValidatorTest {
   }
 
   @Test
-  public void validate_noOrgSelected() {
+  void validate_noOrgSelected() {
 
     var form = new ApplicantOrganisationForm();
 

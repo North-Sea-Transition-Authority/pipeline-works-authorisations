@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.service.search.applicationsearch;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ApplicationSearchContextTest {
+class ApplicationSearchContextTest {
 
   @Test
-  public void testEquals() {
+  void equals() {
 
     EqualsVerifier.forClass(ApplicationSearchContext.class)
         .verify();

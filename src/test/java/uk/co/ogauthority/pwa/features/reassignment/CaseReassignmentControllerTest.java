@@ -20,8 +20,8 @@ import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,10 +42,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(CaseReassignmentController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class CaseReassignmentControllerTest extends AbstractControllerTest {
+class CaseReassignmentControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount userAccount;
 
@@ -64,15 +63,15 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @MockBean
   AssignCaseOfficerService assignCaseOfficerService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
         EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
   }
 
   @Test
-  public void caseReasignmentService_renderTopBarScreen_authenticatedTest() throws Exception {
+  void caseReasignmentService_renderTopBarScreen_authenticatedTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null, null, null)))
@@ -80,7 +79,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void caseReasignmentService_renderTopBarScreen_unauthenticatedTest() throws Exception {
+  void caseReasignmentService_renderTopBarScreen_unauthenticatedTest() throws Exception {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
 
@@ -91,7 +90,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderTopBarScreen_SmokeTest() throws Exception {
+  void renderTopBarScreen_SmokeTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null, null, null)))
@@ -116,7 +115,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void filterByCaseOfficer() throws Exception {
+  void filterByCaseOfficer() throws Exception {
     var form = new CaseReassignmentFilterForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
@@ -128,7 +127,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postSubmitCaseReassignment_validationPasses() throws Exception {
+  void postSubmitCaseReassignment_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
@@ -147,7 +146,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postSubmitCaseReassignment_validationFails() throws Exception {
+  void postSubmitCaseReassignment_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
@@ -169,7 +168,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderReassignCaseOfficer() throws Exception {
+  void renderReassignCaseOfficer() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .renderSelectNewAssignee(null, userAccount, null, null, null, null)))
@@ -181,7 +180,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postReassignCaseOfficer_validationPasses() throws Exception {
+  void postReassignCaseOfficer_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(applicationDetail);
 
@@ -203,7 +202,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postReassignCaseOfficer_validationFails() throws Exception {
+  void postReassignCaseOfficer_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 

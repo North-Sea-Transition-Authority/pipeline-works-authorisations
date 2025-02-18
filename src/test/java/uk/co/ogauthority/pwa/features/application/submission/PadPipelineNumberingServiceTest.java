@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineNumberingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineNumberingServiceTest {
 
   private static final ApplicationTask APP_TASK = ApplicationTask.PIPELINES;
 
@@ -37,8 +37,8 @@ public class PadPipelineNumberingServiceTest {
   private PadPipelineNumberingService padPipelineNumberingService;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     padPipelineNumberingService = new PadPipelineNumberingService(padPipelineSubmissionRepository, applicationTaskService);
 
@@ -47,7 +47,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void assignPipelineReferences_canShow_noPipelines() {
+  void assignPipelineReferences_canShow_noPipelines() {
     when(applicationTaskService.canShowTask(APP_TASK, detail)).thenReturn(true);
     when(padPipelineSubmissionRepository.getNonConsentedPipelines(detail)).thenReturn(List.of());
 
@@ -56,7 +56,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void assignPipelineReferences_canShow_withPipeline_noTemporaryRefSet() {
+  void assignPipelineReferences_canShow_withPipeline_noTemporaryRefSet() {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.CABLE);
     when(applicationTaskService.canShowTask(APP_TASK, detail)).thenReturn(true);
@@ -67,7 +67,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void assignPipelineReferences_canShow_withPipeline_temporaryRefSet() {
+  void assignPipelineReferences_canShow_withPipeline_temporaryRefSet() {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.CABLE);
     padPipeline.setTemporaryRef("temp ref");
@@ -79,14 +79,14 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void assignPipelineReferences_cannotShow() {
+  void assignPipelineReferences_cannotShow() {
     when(applicationTaskService.canShowTask(APP_TASK, detail)).thenReturn(false);
     padPipelineNumberingService.assignPipelineReferences(detail);
     verify(padPipelineSubmissionRepository, never()).saveAll(any());
   }
 
   @Test
-  public void attachNewReference_singleCore() {
+  void attachNewReference_singleCore() {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.CABLE);
     when(padPipelineSubmissionRepository.getNextPipelineReferenceNumber()).thenReturn(1L);
@@ -96,7 +96,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void attachNewReference_multiCore() {
+  void attachNewReference_multiCore() {
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineType(PipelineType.UMBILICAL_JUMPER);
     when(padPipelineSubmissionRepository.getNextPipelineReferenceNumber()).thenReturn(1L);
@@ -106,7 +106,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void nonConsentedPadPipelineRequiresFullReference_whenHasTemporaryRef() {
+  void nonConsentedPadPipelineRequiresFullReference_whenHasTemporaryRef() {
     var padPipeline = new PadPipeline();
     padPipeline.setTemporaryRef("something");
     assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isFalse();
@@ -114,7 +114,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void nonConsentedPadPipelineRequiresFullReference_whenHasNoTemporaryRef() {
+  void nonConsentedPadPipelineRequiresFullReference_whenHasNoTemporaryRef() {
     var padPipeline = new PadPipeline();
 
     assertThat(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(padPipeline)).isTrue();
@@ -122,7 +122,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void setManualPipelineReference_temporaryRefAlreadySet() {
+  void setManualPipelineReference_temporaryRefAlreadySet() {
 
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("123");
@@ -135,7 +135,7 @@ public class PadPipelineNumberingServiceTest {
   }
 
   @Test
-  public void setManualPipelineReference_temporaryNotSet() {
+  void setManualPipelineReference_temporaryNotSet() {
 
     var padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("123");

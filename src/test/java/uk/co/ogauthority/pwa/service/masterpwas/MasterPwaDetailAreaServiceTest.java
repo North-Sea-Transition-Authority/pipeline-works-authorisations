@@ -9,13 +9,13 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.model.view.Tag;
 import uk.co.ogauthority.pwa.repository.masterpwas.MasterPwaDetailAreaRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MasterPwaDetailAreaServiceTest {
+@ExtendWith(MockitoExtension.class)
+class MasterPwaDetailAreaServiceTest {
 
   private static final int FIELD_ID = 1;
   private static final String DEVUK_FIELD_NAME = "DEVUK FIELD";
@@ -62,8 +62,8 @@ public class MasterPwaDetailAreaServiceTest {
 
   private DevukField devukField;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     masterPwaDetailAreaService = new MasterPwaDetailAreaService(
         devukFieldService,
@@ -75,15 +75,15 @@ public class MasterPwaDetailAreaServiceTest {
     masterPwa = pwaApplication.getMasterPwa();
     masterPwaDetail = new MasterPwaDetail(masterPwa, MasterPwaDetailStatus.CONSENTED, "ref", Instant.now(), PwaResourceType.PETROLEUM);
 
-    when(masterPwaService.getCurrentDetailOrThrow(masterPwa))
-        .thenReturn(masterPwaDetail);
-
     devukField = new DevukField(FIELD_ID, DEVUK_FIELD_NAME, 100);
 
   }
 
   @Test
-  public void getCurrentMasterPwaDetailFieldLinksView_whenNoFieldInfoSet() {
+  void getCurrentMasterPwaDetailFieldLinksView_whenNoFieldInfoSet() {
+
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa))
+        .thenReturn(masterPwaDetail);
 
     var fieldLinkView = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplication);
 
@@ -94,7 +94,10 @@ public class MasterPwaDetailAreaServiceTest {
   }
 
   @Test
-  public void getCurrentMasterPwaDetailFieldLinksView_whenNotLinkedToFields() {
+  void getCurrentMasterPwaDetailFieldLinksView_whenNotLinkedToFields() {
+
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa))
+        .thenReturn(masterPwaDetail);
 
     masterPwaDetail.setLinkedToFields(false);
     masterPwaDetail.setPwaLinkedToDescription("DESC");
@@ -107,7 +110,10 @@ public class MasterPwaDetailAreaServiceTest {
   }
 
   @Test
-  public void getCurrentMasterPwaDetailFieldLinksView_whenIsLinkedToFields() {
+  void getCurrentMasterPwaDetailFieldLinksView_whenIsLinkedToFields() {
+
+    when(masterPwaService.getCurrentDetailOrThrow(masterPwa))
+        .thenReturn(masterPwaDetail);
 
     var manualFieldLink = new MasterPwaDetailArea();
     manualFieldLink.setManualFieldName(MANUAL_FIELD_NAME);
@@ -136,7 +142,7 @@ public class MasterPwaDetailAreaServiceTest {
   }
 
   @Test
-  public void createMasterPwaFieldsFromPadFields() {
+  void createMasterPwaFieldsFromPadFields() {
 
     var devukField = new PadLinkedArea();
     devukField.setDevukField(new DevukField(1, "FNAME", 400));

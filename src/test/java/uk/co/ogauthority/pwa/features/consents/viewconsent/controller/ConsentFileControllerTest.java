@@ -17,8 +17,8 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,10 +46,9 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsentFileController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
     PwaContextService.class}))
-public class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
+class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
   private PwaEndpointTestBuilder endpointTester;
 
@@ -74,8 +73,8 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   private PwaConsent consent;
   private DocgenRun docgenRun;
 
-  @Before
-  public void setup() throws SQLException {
+  @BeforeEach
+  void setup() throws SQLException {
     endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
         .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA);
 
@@ -102,7 +101,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_processingPermissionSmokeTest() {
+  void downloadConsentDocument_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -114,7 +113,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_success() throws Exception {
+  void downloadConsentDocument_success() throws Exception {
 
     var blob = docgenRun.getGeneratedDocument();
 
@@ -130,7 +129,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_notAllowed() throws Exception {
+  void downloadConsentDocument_notAllowed() throws Exception {
 
     doThrow(new AccessDeniedException(""))
         .when(pwaViewTabService).verifyConsentDocumentDownloadable(eq(docgenRun), eq(consent), any());

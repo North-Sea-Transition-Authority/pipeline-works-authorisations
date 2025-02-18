@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
@@ -37,8 +37,8 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentEmailServiceTest {
 
   @Mock
   private NotifyService notifyService;
@@ -72,17 +72,18 @@ public class ConsentEmailServiceTest {
   private final String consentReference = "1/W/90";
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     consentEmailService = new ConsentEmailService(notifyService, caseLinkService, personService, assignmentService);
-
-    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
 
   }
 
   @Test
-  public void sendConsentReviewReturnedEmail() {
+  void sendConsentReviewReturnedEmail() {
+
+    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
+
     consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
         caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), "return reason");
     verify(notifyService).sendEmail(consentReviewReturnedEmailCaptor.capture(),
@@ -98,7 +99,7 @@ public class ConsentEmailServiceTest {
   }
 
   @Test
-  public void sendCaseOfficerConsentIssuedEmail() {
+  void sendCaseOfficerConsentIssuedEmail() {
     when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
     when(assignmentService.getAssignmentsForWorkflowAssignment(pwaApplicationDetail.getPwaApplication(), WorkflowAssignment.CASE_OFFICER))
         .thenReturn(Optional.of(assignment));
@@ -114,7 +115,9 @@ public class ConsentEmailServiceTest {
   }
 
   @Test
-  public void sendHolderAndSubmitterConsentIssuedEmail() {
+  void sendHolderAndSubmitterConsentIssuedEmail() {
+
+    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
 
     PwaApplicationType.stream().forEach(pwaApplicationType -> {
 
@@ -154,7 +157,9 @@ public class ConsentEmailServiceTest {
   }
 
   @Test
-  public void sendNonHolderConsentIssuedEmail() {
+  void sendNonHolderConsentIssuedEmail() {
+
+    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
 
     PwaApplicationType.stream().forEach(pwaApplicationType -> {
 

@@ -5,29 +5,29 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CrossingTypesFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class CrossingTypesFormValidatorTest {
 
   private CrossingTypesFormValidator validator;
 
   private CrossingTypesForm form;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     validator = new CrossingTypesFormValidator();
     form = new CrossingTypesForm();
   }
 
   @Test
-  public void valid_petroleum() {
+  void valid_petroleum() {
     form.setCablesCrossed(false);
     form.setPipelinesCrossed(false);
     form.setMedianLineCrossed(false);
@@ -38,7 +38,7 @@ public class CrossingTypesFormValidatorTest {
   }
 
   @Test
-  public void valid_ccus() {
+  void valid_ccus() {
     form.setCablesCrossed(false);
     form.setPipelinesCrossed(false);
     form.setMedianLineCrossed(false);
@@ -48,7 +48,7 @@ public class CrossingTypesFormValidatorTest {
   }
 
   @Test
-  public void invalid_petroleum() {
+  void invalid_petroleum() {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, PwaResourceType.PETROLEUM);
     assertThat(errorsMap).hasSize(4);
     assertThat(errorsMap).contains(
@@ -59,7 +59,7 @@ public class CrossingTypesFormValidatorTest {
   }
 
   @Test
-  public void invalid_ccus() {
+  void invalid_ccus() {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, PwaResourceType.CCUS);
     assertThat(errorsMap).hasSize(3);
     assertThat(errorsMap).contains(

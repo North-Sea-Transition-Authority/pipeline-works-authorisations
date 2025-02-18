@@ -10,21 +10,21 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.events.PwaApplicationEventRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationEventServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationEventServiceTest {
 
   @Mock
   private PwaApplicationEventRepository pwaApplicationEventRepository;
@@ -45,10 +45,8 @@ public class PwaApplicationEventServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private final WebUserAccount user = new WebUserAccount(1);
 
-  @Before
-  public void setUp() throws Exception {
-
-    when(clock.instant()).thenReturn(fixedInstant);
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -57,7 +55,9 @@ public class PwaApplicationEventServiceTest {
   }
 
   @Test
-  public void handleConsentIssueFailure() {
+  void handleConsentIssueFailure() {
+
+    when(clock.instant()).thenReturn(fixedInstant);
 
     var ex = mock(Exception.class);
 
@@ -81,7 +81,7 @@ public class PwaApplicationEventServiceTest {
   }
 
   @Test
-  public void getUnclearedEventsByApplicationAndType() {
+  void getUnclearedEventsByApplicationAndType() {
 
     pwaApplicationEventService.getUnclearedEventsByApplicationAndType(pwaApplicationDetail.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED);
 
@@ -91,7 +91,9 @@ public class PwaApplicationEventServiceTest {
   }
 
   @Test
-  public void clearEvents() {
+  void clearEvents() {
+
+    when(clock.instant()).thenReturn(fixedInstant);
 
     var event1 = new PwaApplicationEvent(pwaApplicationDetail.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED, clock.instant(), user);
     var event2 = new PwaApplicationEvent(pwaApplicationDetail.getPwaApplication(), PwaApplicationEventType.CONSENT_ISSUE_FAILED, clock.instant().minusSeconds(60), user);
@@ -106,9 +108,8 @@ public class PwaApplicationEventServiceTest {
 
     assertThat(pwaApplicationEventListArgumentCaptor.getValue()).containsExactlyInAnyOrder(event1, event2);
 
-    assertThat(pwaApplicationEventListArgumentCaptor.getValue()).allSatisfy(event -> {
-      assertThat(event.getEventClearedInstant()).isEqualTo(clock.instant());
-    });
+    assertThat(pwaApplicationEventListArgumentCaptor.getValue()).allSatisfy(event ->
+      assertThat(event.getEventClearedInstant()).isEqualTo(clock.instant()));
 
   }
 

@@ -15,11 +15,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ProjectInformationValidatorTest {
 
   private ProjectInformationValidator validator;
@@ -44,8 +44,8 @@ public class ProjectInformationValidatorTest {
   @Mock
   private PearsLicenceTransactionService pearsLicenceTransactionService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new ProjectInformationValidator(new TwoFieldDateInputValidator(), pearsLicenceTransactionService);
 
     partialDateValidationQuestions = Set.of(ProjectInformationQuestion.PROPOSED_START_DATE,
@@ -60,7 +60,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_projectName_null() {
+  void validate_projectName_null() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_NAME), false));
@@ -69,7 +69,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectName_tooBig() {
+  void validate_projectName_tooBig() {
     var form = new ProjectInformationForm();
     form.setProjectName(StringUtils.repeat("a", 151));
 
@@ -85,7 +85,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectName_rightSize() {
+  void validate_projectName_rightSize() {
     var form = new ProjectInformationForm();
     form.setProjectName(StringUtils.repeat("a", 150));
 
@@ -100,7 +100,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectOverview_null() {
+  void validate_projectOverview_null() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_OVERVIEW), false));
@@ -109,7 +109,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_methodOfPipelineDeployment_null_mandatory() {
+  void validate_methodOfPipelineDeployment_null_mandatory() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
@@ -123,7 +123,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_methodOfPipelineDeployment_null_optional() {
+  void validate_methodOfPipelineDeployment_null_optional() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.CAT_2_VARIATION, PwaResourceType.PETROLEUM,ValidationType.FULL, Set.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT), false));
@@ -137,7 +137,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_methodOfPipelineDeployment_tooLong_optional() {
+  void validate_methodOfPipelineDeployment_tooLong_optional() {
     var form = new ProjectInformationForm();
     form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
@@ -164,7 +164,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialDates_yearTooBig() {
+  void validate_partialDates_yearTooBig() {
     var form = new ProjectInformationForm();
     int invalidLargeYear = 4001;
     setYearOnFormPartialDateQuestions(form, invalidLargeYear);
@@ -198,7 +198,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialDates_yearTooSmall() {
+  void validate_partialDates_yearTooSmall() {
     var form = new ProjectInformationForm();
     int invalidSmallYear = 999;
     setYearOnFormPartialDateQuestions(form, invalidSmallYear);
@@ -233,7 +233,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_ProposedStartNull() {
+  void validate_ProposedStartNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROPOSED_START_DATE), false));
@@ -241,7 +241,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_ProposedStartInPast() {
+  void validate_ProposedStartInPast() {
     var date = LocalDate.now().minusDays(2);
     var form = new ProjectInformationForm();
     form.setProposedStartDay(date.getDayOfMonth());
@@ -253,7 +253,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_ProposedStartValid() {
+  void validate_ProposedStartValid() {
     var date = LocalDate.now().plusDays(2);
     var form = new ProjectInformationForm();
     form.setProposedStartDay(date.getDayOfMonth());
@@ -265,7 +265,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationNull() {
+  void validate_MobilisationNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.MOBILISATION_DATE), false));
@@ -273,7 +273,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationInPast() {
+  void validate_MobilisationInPast() {
     var date = LocalDate.now().minusDays(2);
     var form = new ProjectInformationForm();
     form.setMobilisationDay(date.getDayOfMonth());
@@ -285,7 +285,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationValid() {
+  void validate_MobilisationValid() {
     var date = LocalDate.now().plusDays(2);
     var form = new ProjectInformationForm();
 
@@ -302,7 +302,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationBeforeProposedStartDate_ok() {
+  void validate_MobilisationBeforeProposedStartDate_ok() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
@@ -321,7 +321,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationOnProposedStartDate_ok() {
+  void validate_MobilisationOnProposedStartDate_ok() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
@@ -340,7 +340,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_MobilisationAfterProposedStartDate_invalid() {
+  void validate_MobilisationAfterProposedStartDate_invalid() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(5);
@@ -362,7 +362,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionNull() {
+  void validate_EarliestCompletionNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.EARLIEST_COMPLETION_DATE), false));
@@ -370,7 +370,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionInPast() {
+  void validate_EarliestCompletionInPast() {
     var date = LocalDate.now().minusDays(2);
     var form = new ProjectInformationForm();
     form.setEarliestCompletionDay(date.getDayOfMonth());
@@ -382,7 +382,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionValid() {
+  void validate_EarliestCompletionValid() {
     var date = LocalDate.now().plusDays(2);
     var form = new ProjectInformationForm();
 
@@ -399,7 +399,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionBeforeProposedStartDate_invalid() {
+  void validate_EarliestCompletionBeforeProposedStartDate_invalid() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
@@ -418,7 +418,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionOnProposedStartDate_ok() {
+  void validate_EarliestCompletionOnProposedStartDate_ok() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
@@ -437,7 +437,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestCompletionAfterProposedStartDate_ok() {
+  void validate_EarliestCompletionAfterProposedStartDate_ok() {
 
     var form = new ProjectInformationForm();
     form.setProposedStartDay(7);
@@ -456,7 +456,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_LatestCompletionNull() {
+  void validate_LatestCompletionNull() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.LATEST_COMPLETION_DATE), false));
@@ -464,7 +464,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_LatestCompletionInPast() {
+  void validate_LatestCompletionInPast() {
     var date = LocalDate.now().minusDays(2);
     var form = new ProjectInformationForm();
     form.setLatestCompletionDay(date.getDayOfMonth());
@@ -476,7 +476,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_LatestCompletionValid() {
+  void validate_LatestCompletionValid() {
     var date = LocalDate.now().plusDays(2);
     var form = new ProjectInformationForm();
     form.setLatestCompletionDay(date.getDayOfMonth());
@@ -488,7 +488,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionPastMaxFutureDate_NonExtendableAppTypes_invalid() {
+  void validate_latestCompletionPastMaxFutureDate_NonExtendableAppTypes_invalid() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -525,7 +525,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionPastMaxFutureDate_ExtendableAppTypes_valid() {
+  void validate_latestCompletionPastMaxFutureDate_ExtendableAppTypes_valid() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -616,7 +616,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionOnMaxFutureDate_allAppTypesExceptOptions_ok() {
+  void validate_latestCompletionOnMaxFutureDate_allAppTypesExceptOptions_ok() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -647,7 +647,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionBeforeMaxFutureDate_allAppTypesExceptOptions_ok() {
+  void validate_latestCompletionBeforeMaxFutureDate_allAppTypesExceptOptions_ok() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -678,7 +678,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionPastMaxFutureDate_optionsAppType_invalid() {
+  void validate_latestCompletionPastMaxFutureDate_optionsAppType_invalid() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -712,7 +712,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionOnMaxFutureDate_optionsAppType_ok() {
+  void validate_latestCompletionOnMaxFutureDate_optionsAppType_ok() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(5);
@@ -743,7 +743,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_latestCompletionBeforeMaxFutureDate_optionsAppType_ok() {
+  void validate_latestCompletionBeforeMaxFutureDate_optionsAppType_ok() {
 
     var form = new ProjectInformationForm();
     var proposedStartDate = LocalDate.now().plusDays(1);
@@ -774,7 +774,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_EarliestAndLatestCompletionSwap() {
+  void validate_EarliestAndLatestCompletionSwap() {
     var date = LocalDate.now().plusDays(2);
     var form = new ProjectInformationForm();
 
@@ -802,7 +802,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_licenceTransferPlanned_noDatesProvided() {
+  void validate_licenceTransferPlanned_noDatesProvided() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -830,7 +830,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_validCommercialAgreementDate() {
+  void validate_licenceTransferPlanned_validCommercialAgreementDate() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -850,7 +850,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_invalidCommercialAgreementDate() {
+  void validate_licenceTransferPlanned_invalidCommercialAgreementDate() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -870,7 +870,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_validLicenceTransferDate() {
+  void validate_licenceTransferPlanned_validLicenceTransferDate() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -890,7 +890,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_invalidLicenceTransferDate() {
+  void validate_licenceTransferPlanned_invalidLicenceTransferDate() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -910,7 +910,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_validTransferReference() {
+  void validate_licenceTransferPlanned_validTransferReference() {
 
     when(pearsLicenceTransactionService.getApplicationsByIds(any())).thenReturn(List.of(new PearsLicenceTransaction()));
     var form = new ProjectInformationForm();
@@ -924,7 +924,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_licenceTransferPlanned_invalidTransferReference() {
+  void validate_licenceTransferPlanned_invalidTransferReference() {
 
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
@@ -946,7 +946,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_permanentDepositType_noValidationRequired() {
+  void validate_permanentDepositType_noValidationRequired() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(), false));
@@ -954,7 +954,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_permanentDepositType_Null() {
+  void validate_permanentDepositType_Null() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PERMANENT_DEPOSITS_BEING_MADE), false));
@@ -964,7 +964,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_permanentDepositType_LaterApp_noDate() {
+  void validate_permanentDepositType_LaterApp_noDate() {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput());
@@ -977,7 +977,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_permanentDepositType_LaterApp_pastDate() {
+  void validate_permanentDepositType_LaterApp_pastDate() {
     var form = new ProjectInformationForm();
     form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 2));
@@ -990,7 +990,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_temporaryDeposit_noDescription() {
+  void validate_temporaryDeposit_noDescription() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
@@ -1001,7 +1001,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partial_temporaryDepositDescriptionOverMaxLength() {
+  void validate_partial_temporaryDepositDescriptionOverMaxLength() {
     var form = new ProjectInformationForm();
     form.setTemporaryDepositsMade(true);
     form.setTemporaryDepDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -1014,7 +1014,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_temporaryDeposit_Null() {
+  void validate_temporaryDeposit_Null() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.TEMPORARY_DEPOSITS_BEING_MADE), false));
@@ -1025,7 +1025,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_noFdpQuestionRequired() {
+  void validate_noFdpQuestionRequired() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(), false));
@@ -1037,7 +1037,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_fdpQuestionRequired_valid() {
+  void validate_fdpQuestionRequired_valid() {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(true);
     form.setFdpConfirmationFlag(true);
@@ -1051,7 +1051,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_fdpQuestionRequired_noFdpOptionSelected() {
+  void validate_fdpQuestionRequired_noFdpOptionSelected() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.FIELD_DEVELOPMENT_PLAN), true));
@@ -1061,7 +1061,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_fdpQuestionRequired_fdpOptionSelected_fdpConfirmationFlagNotChecked() {
+  void validate_fdpQuestionRequired_fdpOptionSelected_fdpConfirmationFlagNotChecked() {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
@@ -1072,7 +1072,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_fdpQuestionRequired_fdpOptionSelectedIsNo_fdpNotSelectedReasonEmpty() {
+  void validate_fdpQuestionRequired_fdpOptionSelectedIsNo_fdpNotSelectedReasonEmpty() {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
@@ -1083,7 +1083,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partial_fdpNotSelectedReasonOverMaxLength() {
+  void validate_partial_fdpNotSelectedReasonOverMaxLength() {
     var form = new ProjectInformationForm();
     form.setFdpOptionSelected(false);
     form.setFdpNotSelectedReason(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -1096,7 +1096,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_oneProjectLayoutDiagramFile() {
+  void validate_oneProjectLayoutDiagramFile() {
     var form = new ProjectInformationForm();
     form.setUploadedFileWithDescriptionForms(List.of(
         new UploadFileWithDescriptionForm("1", "2", Instant.now())
@@ -1107,7 +1107,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectLayoutDiagramFileNotUploaded() {
+  void validate_projectLayoutDiagramFileNotUploaded() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
@@ -1118,7 +1118,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_tooManyProjectLayoutDiagramFiles() {
+  void validate_tooManyProjectLayoutDiagramFiles() {
     var form = new ProjectInformationForm();
     form.setUploadedFileWithDescriptionForms(List.of(
         new UploadFileWithDescriptionForm("1", "2", Instant.now()),
@@ -1130,7 +1130,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectLayoutDiagramFile_noDescription() {
+  void validate_projectLayoutDiagramFile_noDescription() {
     var form = new ProjectInformationForm();
     form.setUploadedFileWithDescriptionForms(List.of(
         new UploadFileWithDescriptionForm("1", null, Instant.now())
@@ -1143,7 +1143,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_projectLayoutDiagramFile_descriptionOverMaxCharLength() {
+  void validate_projectLayoutDiagramFile_descriptionOverMaxCharLength() {
     var form = new ProjectInformationForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
 
@@ -1157,7 +1157,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_noFullValidationErrorsPresent() {
+  void validate_partialValidation_noFullValidationErrorsPresent() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
@@ -1165,7 +1165,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_stringLengthOverMaxDefaultCharLength() {
+  void validate_partialValidation_stringLengthOverMaxDefaultCharLength() {
     var form = new ProjectInformationForm();
     form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setProjectOverview(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -1183,7 +1183,7 @@ public class ProjectInformationValidatorTest {
 
 
   @Test
-  public void validate_validationNotRequired_whenQuestionNotProvided() {
+  void validate_validationNotRequired_whenQuestionNotProvided() {
     var form = new ProjectInformationForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(), false));
@@ -1191,7 +1191,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_noCspQuestionRequired() {
+  void validate_noCspQuestionRequired() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.CCUS, ValidationType.FULL, Set.of(), false));
@@ -1203,7 +1203,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_cspQuestionRequired_valid() {
+  void validate_cspQuestionRequired_valid() {
     var form = new ProjectInformationForm();
     form.setCspOptionSelected(true);
     form.setCspConfirmationFlag(true);
@@ -1217,7 +1217,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_cspQuestionRequired_noCspOptionSelected() {
+  void validate_cspQuestionRequired_noCspOptionSelected() {
     var form = new ProjectInformationForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
         PwaApplicationType.INITIAL, PwaResourceType.CCUS, ValidationType.FULL, Set.of(ProjectInformationQuestion.CARBON_STORAGE_PERMIT), true));
@@ -1227,7 +1227,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_cspQuestionRequired_cspOptionSelected_cspConfirmationFlagNotChecked() {
+  void validate_cspQuestionRequired_cspOptionSelected_cspConfirmationFlagNotChecked() {
     var form = new ProjectInformationForm();
     form.setCspOptionSelected(true);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(
@@ -1238,7 +1238,7 @@ public class ProjectInformationValidatorTest {
   }
 
   @Test
-  public void validate_cspQuestionRequired_cspOptionSelectedIsNo_cspNotSelectedReasonEmpty() {
+  void validate_cspQuestionRequired_cspOptionSelectedIsNo_cspNotSelectedReasonEmpty() {
     var form = new ProjectInformationForm();
     form.setCspOptionSelected(false);
     Map<String, Set<String>> errorsMap = getErrorMap(form, new ProjectInformationFormValidationHints(

@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -36,10 +36,9 @@ import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(FeeManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class FeeManagementControllerTest extends AbstractControllerTest {
+class FeeManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
   FeePeriodDisplayService displayService;
@@ -55,8 +54,8 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
 
   AuthenticatedUserAccount userAccount;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
         EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
@@ -73,7 +72,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void feeManagementController_authenticatedTest() throws Exception {
+  void feeManagementController_authenticatedTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeeManagementOverview(userAccount)))
@@ -81,7 +80,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void feeManagementController_unauthenticatedTest() throws Exception {
+  void feeManagementController_unauthenticatedTest() throws Exception {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
 
@@ -92,7 +91,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderOverview_smokeTest() throws Exception {
+  void renderOverview_smokeTest() throws Exception {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeeManagementOverview(userAccount)))
@@ -109,7 +108,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderPeriodDetail_smokeTest() throws Exception {
+  void renderPeriodDetail_smokeTest() throws Exception {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderFeePeriodDetail(userAccount, 1000)))
@@ -122,7 +121,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderNewPeriodForm_smokeTest() throws Exception {
+  void renderNewPeriodForm_smokeTest() throws Exception {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderNewPeriodForm(userAccount, new FeePeriodForm())))
@@ -137,7 +136,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderNewPeriodForm_NotAllowedPendingPeriodExists() throws Exception {
+  void renderNewPeriodForm_NotAllowedPendingPeriodExists() throws Exception {
     when(feePeriodService.pendingPeriodExists()).thenReturn(true);
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(
@@ -148,7 +147,7 @@ public class FeeManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderEditPeriodForm_smokeTest() throws Exception {
+  void renderEditPeriodForm_smokeTest() throws Exception {
     var mvc = mockMvc.perform(get(ReverseRouter.route(
         on(FeeManagementController.class)
             .renderEditPeriodForm(userAccount, 1000, new FeePeriodForm())))

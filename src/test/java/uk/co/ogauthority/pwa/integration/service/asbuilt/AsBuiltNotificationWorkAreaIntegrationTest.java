@@ -7,8 +7,8 @@ import jakarta.persistence.EntityManager;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -43,7 +43,7 @@ import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTe
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-public class AsBuiltNotificationWorkAreaIntegrationTest {
+class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @Autowired
   private AsBuiltNotificationDtoRepositoryImpl asBuiltNotificationDtoRepository;
@@ -77,8 +77,8 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
   PwaHolderOrgUnit pwaHolderOrgUnit3;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     setupViews();
     setupPwaHolderUnits();
     persistItems();
@@ -88,7 +88,7 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @Transactional
   @Test
-  public void getAsBuiltNotifications_adminUser_getsAllNonCompleteAsBuiltNotifications() {
+  void getAsBuiltNotifications_adminUser_getsAllNonCompleteAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(adminUser,
         PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1, group2));
 
@@ -104,7 +104,7 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @Transactional
   @Test
-  public void getAsBuiltNotifications_industryUser_getsOnlyOwnOrganisationNonCompleteAsBuiltNotifications() {
+  void getAsBuiltNotifications_industryUser_getsOnlyOwnOrganisationNonCompleteAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(industryUser,
         PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1));
 
@@ -118,7 +118,7 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @Transactional
   @Test
-  public void getAsBuiltNotifications_unrelatedUser_getsNoAsBuiltNotifications() {
+  void getAsBuiltNotifications_unrelatedUser_getsNoAsBuiltNotifications() {
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(unrelatedUser, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER))
         .thenReturn(List.of());
 

@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ClauseFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ClauseFormValidatorTest {
 
   @Mock
   private MailMergeService mailMergeService;
@@ -31,8 +31,8 @@ public class ClauseFormValidatorTest {
 
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     validator = new ClauseFormValidator(mailMergeService);
 
@@ -41,7 +41,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_emptyForm() {
+  void validate_emptyForm() {
 
     var form = new ClauseForm();
 
@@ -52,7 +52,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_noText() {
+  void validate_noText() {
 
     var form = new ClauseForm();
     form.setName("name");
@@ -64,7 +64,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_withText() {
+  void validate_withText() {
 
     ClauseForm form = getClauseForm(null);
 
@@ -75,7 +75,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_noInvalidMergeFields_noManualMergeDelims_noErrors() {
+  void validate_noInvalidMergeFields_noManualMergeDelims_noErrors() {
 
     ClauseForm form = getClauseForm("text");
 
@@ -88,7 +88,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_invalidMergeFields_noManualMergeDelims_error() {
+  void validate_invalidMergeFields_noManualMergeDelims_error() {
 
     ClauseForm form = getClauseForm("text");
 
@@ -102,7 +102,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeNotAllowed_error() {
+  void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeNotAllowed_error() {
 
     var form = getClauseForm(String.format("text %soptional thing here%s",
         MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));
@@ -116,7 +116,7 @@ public class ClauseFormValidatorTest {
   }
 
   @Test
-  public void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeAllowed_ok() {
+  void validate_noInvalidMergeFields_manualMergeDelimsPresent_manualMergeAllowed_ok() {
 
     var form = getClauseForm(String.format("text %soptional thing here%s",
         MailMergeFieldType.MANUAL.getOpeningDelimiter(), MailMergeFieldType.MANUAL.getClosingDelimiter()));

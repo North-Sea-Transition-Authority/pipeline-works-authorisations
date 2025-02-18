@@ -1,42 +1,43 @@
 package uk.co.ogauthority.pwa.service.users;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserTypeServiceTest {
+@ExtendWith(MockitoExtension.class)
+class UserTypeServiceTest {
 
   private UserTypeService userTypeService;
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     userTypeService = new UserTypeService();
   }
 
 
-  @Test(expected = IllegalStateException.class)
-  public void getPriorityUserType_whenNoPriv() {
-
+  @Test
+  void getPriorityUserType_whenNoPriv() {
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.noneOf(PwaUserPrivilege.class));
+    assertThrows(IllegalStateException.class, () ->
 
-    userTypeService.getPriorityUserType(user);
+      userTypeService.getPriorityUserType(user));
 
   }
 
   @Test
-  public void getPriorityUserType_whenIndustryPrivOnly() {
+  void getPriorityUserType_whenIndustryPrivOnly() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_INDUSTRY));
 
@@ -45,7 +46,7 @@ public class UserTypeServiceTest {
   }
 
   @Test
-  public void getPriorityUserType_whenRegulatorPrivOnly() {
+  void getPriorityUserType_whenRegulatorPrivOnly() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_REGULATOR));
 
@@ -54,7 +55,7 @@ public class UserTypeServiceTest {
   }
 
   @Test
-  public void getPriorityUserType_whenConsulteePrivOnly() {
+  void getPriorityUserType_whenConsulteePrivOnly() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_CONSULTEE));
 
@@ -63,7 +64,7 @@ public class UserTypeServiceTest {
   }
 
   @Test
-  public void getPriorityUserType_whenAllPrivs() {
+  void getPriorityUserType_whenAllPrivs() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -72,7 +73,7 @@ public class UserTypeServiceTest {
   }
 
   @Test
-  public void getUserTypes_whenAllPrivs() {
+  void getUserTypes_whenAllPrivs() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -81,7 +82,7 @@ public class UserTypeServiceTest {
   }
 
   @Test
-  public void getUserTypes_whenNoPrivs() {
+  void getUserTypes_whenNoPrivs() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.noneOf(PwaUserPrivilege.class));
 

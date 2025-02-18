@@ -10,8 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import jakarta.persistence.EntityManager;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -49,6 +49,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 
+// IJ seems to give spurious warnings when running with embedded H2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -57,8 +58,7 @@ import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 @Transactional
-// IJ seems to give spurious warnings when running with embedded H2
-public class TaskListServiceIntegrationTest {
+class TaskListServiceIntegrationTest {
 
   private TaskListService taskListService;
 
@@ -110,8 +110,8 @@ public class TaskListServiceIntegrationTest {
 
   private PortalOrganisationUnit applicantOrganisationUnit;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     var person = PersonTestUtil.createDefaultPerson();
     entityManager.persist(person);
@@ -133,7 +133,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_forEveryAppType_assertAllTasksWithNoCrossSectionDependencies() {
+  void getApplicationTasks_forEveryAppType_assertAllTasksWithNoCrossSectionDependencies() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
@@ -258,7 +258,7 @@ public class TaskListServiceIntegrationTest {
 
 
   @Test
-  public void getApplicationTasks_campaignWorksNotInTaskList_whenCampaignWorksServiceAnswersNo() {
+  void getApplicationTasks_campaignWorksNotInTaskList_whenCampaignWorksServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
@@ -274,7 +274,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_campaignWorksInTaskList_forValidAppTypes_whenCampaignWorksServiceAnswersYes() {
+  void getApplicationTasks_campaignWorksInTaskList_forValidAppTypes_whenCampaignWorksServiceAnswersYes() {
 
     when(campaignWorksService.canShowInTaskList(any())).thenReturn(true);
 
@@ -294,7 +294,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_campaignWorksNotInTaskList_forInvalidAppTypes_whenCampaignWorksServiceAnswersYes() {
+  void getApplicationTasks_campaignWorksNotInTaskList_forInvalidAppTypes_whenCampaignWorksServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(campaignWorksService.canShowInTaskList(any())).thenReturn(true);
 
@@ -315,7 +315,7 @@ public class TaskListServiceIntegrationTest {
 
 
   @Test
-  public void getApplicationTasks_fastTrackNotInTaskList_whenFastTrackServiceAnswersNo() {
+  void getApplicationTasks_fastTrackNotInTaskList_whenFastTrackServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
@@ -331,7 +331,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_fastTrackInTaskList_forValidAppTypes_whenFastTrackServiceAnswersYes() {
+  void getApplicationTasks_fastTrackInTaskList_forValidAppTypes_whenFastTrackServiceAnswersYes() {
 
     when(padFastTrackService.canShowInTaskList(any())).thenReturn(true);
 
@@ -351,7 +351,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_fastTrackNotInTaskList_forInvalidAppTypes_whenFastTrackServiceAnswersYes() {
+  void getApplicationTasks_fastTrackNotInTaskList_forInvalidAppTypes_whenFastTrackServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(padFastTrackService.canShowInTaskList(any())).thenReturn(true);
 
@@ -371,7 +371,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_permDepositsNotInTaskList_whenPermDepositsServiceAnswersNo() {
+  void getApplicationTasks_permDepositsNotInTaskList_whenPermDepositsServiceAnswersNo() {
 
     PwaApplicationType.stream().forEach(appType -> {
       try {
@@ -387,7 +387,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_permDepositsInTaskList_forValidAppTypes_whenPermDepositsServiceAnswersYes() {
+  void getApplicationTasks_permDepositsInTaskList_forValidAppTypes_whenPermDepositsServiceAnswersYes() {
 
     when(permanentDepositService.canShowInTaskList(any())).thenReturn(true);
 
@@ -407,7 +407,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getApplicationTasks_permDepositsNotInTaskList_forInvalidAppTypes_whenPermDepositsServiceAnswersYes() {
+  void getApplicationTasks_permDepositsNotInTaskList_forInvalidAppTypes_whenPermDepositsServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(permanentDepositService.canShowInTaskList(any())).thenReturn(true);
 
@@ -442,7 +442,7 @@ public class TaskListServiceIntegrationTest {
   }
 
   @Test
-  public void getTaskListGroups_whenAllTasksShown_confirmOrderingOfGroupsAndTasksMatchesEnumDefinition() {
+  void getTaskListGroups_whenAllTasksShown_confirmOrderingOfGroupsAndTasksMatchesEnumDefinition() {
     setupConditionalTaskServices(true);
 
     PwaApplicationType.stream().forEach(applicationType -> {

@@ -2,13 +2,14 @@ package uk.co.ogauthority.pwa.integration.energyportal.teams;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -33,14 +34,15 @@ import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.Por
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
+// IJ seems to give spurious warnings when running with embedded H2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
-@SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"}) // IJ seems to give spurious warnings when running with embedded H2
-public class PortalTeamAccessorIntegrationTest {
+@SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
+class PortalTeamAccessorIntegrationTest {
 
 
   private final String WITH_SCOPE_SCOPED_WITHIN = "PARENT";
@@ -89,8 +91,8 @@ public class PortalTeamAccessorIntegrationTest {
   private Person scopedTeamMemberPerson_2Roles;
   private Person scopedTeamMemberPerson_1Role;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     portalTeamAccessor = new PortalTeamAccessor(portalTeamRepository, entityManager);
 
     insertPerson(10);
@@ -112,14 +114,14 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void findPortalTeamById_whenTeamNotFound() {
+  void findPortalTeamById_whenTeamNotFound() {
     Optional<PortalTeamDto> portalTeamDto = portalTeamAccessor.findPortalTeamById(UNKNOWN_RES_ID);
     assertThat(portalTeamDto.isPresent()).isFalse();
   }
 
   @Test
   @Transactional
-  public void findPortalTeamById_whenTeamFound_andIsScoped() {
+  void findPortalTeamById_whenTeamFound_andIsScoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     PortalTeamDto portalTeamDto = portalTeamAccessor.findPortalTeamById(SCOPED_TEAM_RES_ID)
         .orElseThrow(() -> new RuntimeException("Expected To find PwaTeam"));
@@ -136,7 +138,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void findPortalTeamById_whenTeamFound_andIsNotScoped() {
+  void findPortalTeamById_whenTeamFound_andIsNotScoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     PortalTeamDto portalTeamDto = portalTeamAccessor.findPortalTeamById(UNSCOPED_TEAM_RES_ID)
         .orElseThrow(() -> new RuntimeException("Expected To find PwaTeam"));
@@ -151,22 +153,23 @@ public class PortalTeamAccessorIntegrationTest {
     );
   }
 
-  @Test(expected = PortalTeamNotFoundException.class)
+  @Test
   @Transactional
-  public void getPortalTeamMembers_whenTeamNotFound() {
-    portalTeamAccessor.getPortalTeamMembers(UNKNOWN_RES_ID);
+  void getPortalTeamMembers_whenTeamNotFound() {
+    assertThrows(PortalTeamNotFoundException.class, () ->
+      portalTeamAccessor.getPortalTeamMembers(UNKNOWN_RES_ID));
   }
 
   @Test
   @Transactional
-  public void getPortalTeamMembers_whenTeamFound_andZeroTeamMembers() {
+  void getPortalTeamMembers_whenTeamFound_andZeroTeamMembers() {
     List<PortalTeamMemberDto> foundMembers = portalTeamAccessor.getPortalTeamMembers(NO_MEMBER_SCOPED_TEAM_RES_ID);
     assertThat(foundMembers).isEmpty();
   }
 
   @Test
   @Transactional
-  public void getPortalTeamMembers_whenTeamFound_andHasTeamMembers() {
+  void getPortalTeamMembers_whenTeamFound_andHasTeamMembers() {
     List<PortalTeamMemberDto> foundTeamMembers = portalTeamAccessor.getPortalTeamMembers(SCOPED_TEAM_RES_ID);
 
     // expected number of team members?
@@ -193,13 +196,13 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getPersonTeamMembership_whenNotATeamMember() {
+  void getPersonTeamMembership_whenNotATeamMember() {
     assertThat(portalTeamAccessor.getPersonTeamMembership(unscopedTeamMemberPerson_2Roles, SCOPED_TEAM_RES_ID)).isEmpty();
   }
 
   @Test
   @Transactional
-  public void getPersonTeamMembership_whenATeamMember_dtoMappedAsExpected() {
+  void getPersonTeamMembership_whenATeamMember_dtoMappedAsExpected() {
     PortalTeamMemberDto unscopedTeamMember_2RolesDto = portalTeamAccessor.getPersonTeamMembership(
         unscopedTeamMemberPerson_2Roles,
         UNSCOPED_TEAM_RES_ID
@@ -221,13 +224,13 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getPortalTeamsByPortalTeamType_whenNoTeamsWithTypeFound() {
+  void getPortalTeamsByPortalTeamType_whenNoTeamsWithTypeFound() {
     assertThat(portalTeamAccessor.getPortalTeamsByPortalTeamType(NO_TEAMS_OF_PORTAL_TEAM_TYPE)).isEmpty();
   }
 
   @Test
   @Transactional
-  public void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsScoped() {
+  void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsScoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeamsOfType = portalTeamAccessor.getPortalTeamsByPortalTeamType(SCOPED_TEAM_PORTAL_TYPE);
 
@@ -265,7 +268,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsUnscoped() {
+  void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsUnscoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeamsOfType = portalTeamAccessor.getPortalTeamsByPortalTeamType(UNSCOPED_TEAM_PORTAL_TYPE);
 
@@ -283,7 +286,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonNotATeamMember() {
+  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonNotATeamMember() {
     List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
         scopedTeamMemberPerson_1Role,
         UNSCOPED_TEAM_PORTAL_TYPE,
@@ -296,7 +299,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamScoped() {
+  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamScoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
         scopedTeamMemberPerson_1Role,
@@ -318,7 +321,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamUnscoped() {
+  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamUnscoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
         unscopedTeamMemberPerson_2Roles,
@@ -341,7 +344,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getTeamsWhereRoleMatching_hasSearchForRole_andTeamScoped() {
+  void getTeamsWhereRoleMatching_hasSearchForRole_andTeamScoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
         SCOPED_TEAM_PORTAL_TYPE,
@@ -362,7 +365,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getTeamsWhereRoleMatching_hasSearchForRole_andTeamUnscoped() {
+  void getTeamsWhereRoleMatching_hasSearchForRole_andTeamUnscoped() {
     // tests for scoped and unscoped required because construction of team dto is done within method
     List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
         UNSCOPED_TEAM_PORTAL_TYPE,
@@ -382,10 +385,9 @@ public class PortalTeamAccessorIntegrationTest {
   }
 
 
-
   @Test
   @Transactional
-  public void getAllPortalSystemPrivilegesForPerson_returnsExpectedSystemPrivs_whenPersonIsRoleWithPriv(){
+  void getAllPortalSystemPrivilegesForPerson_returnsExpectedSystemPrivs_whenPersonIsRoleWithPriv(){
     List<PortalSystemPrivilegeDto> privilegeDtoList = portalTeamAccessor.getAllPortalSystemPrivilegesForPerson(unscopedTeamMemberPerson_2Roles);
 
     assertThat(privilegeDtoList).isNotEmpty().allMatch(dto -> {
@@ -399,7 +401,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void personIsAMemberOfTeam_returnsTrueWhenPersonIsMember(){
+  void personIsAMemberOfTeam_returnsTrueWhenPersonIsMember(){
     assertThat(
         portalTeamAccessor.personIsAMemberOfTeam(UNSCOPED_TEAM_RES_ID, unscopedTeamMemberPerson_2Roles)
     ).isTrue();
@@ -408,7 +410,7 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void personIsAMemberOfTeam_returnsFalseWhenPersonIsNotMember(){
+  void personIsAMemberOfTeam_returnsFalseWhenPersonIsNotMember(){
     assertThat(
         portalTeamAccessor.personIsAMemberOfTeam(NO_MEMBER_SCOPED_TEAM_RES_ID, unscopedTeamMemberPerson_2Roles)
     ).isFalse();
@@ -417,14 +419,14 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Test
   @Transactional
-  public void getAllPortalRolesForTeam_getsAllExpectedRoles(){
+  void getAllPortalRolesForTeam_getsAllExpectedRoles(){
     List<PortalRoleDto> roles = portalTeamAccessor.getAllPortalRolesForTeam(UNSCOPED_TEAM_RES_ID);
     assertThat(roles).hasSize(2);
   }
 
-@Test
-@Transactional
-public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasDoesntHaveRole() {
+  @Test
+  @Transactional
+  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasDoesntHaveRole() {
   // Tests for scoped and unscoped, required because construction of team dto is done within method
   List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
       scopedTeamMemberPerson_1Role,
@@ -708,11 +710,9 @@ public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTe
   }
 
 
-
-
   @Test
   @Transactional
-  public void findPortalTeamByOrganisationGroup_whenNotFound_thenEmptyOptionalReturned() {
+  void findPortalTeamByOrganisationGroup_whenNotFound_thenEmptyOptionalReturned() {
 
     var nonPersistedOrganisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(
         123,
@@ -727,7 +727,7 @@ public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTe
 
   @Test
   @Transactional
-  public void findPortalTeamByOrganisationGroup_whenFound_thenReturn() {
+  void findPortalTeamByOrganisationGroup_whenFound_thenReturn() {
     var result = portalTeamAccessor.findPortalTeamByOrganisationGroup(PORTAL_ORGANISATION_GROUP);
     assertThat(result).isPresent();
     assertPortalTeamInstanceDtoMappingAsExpected(

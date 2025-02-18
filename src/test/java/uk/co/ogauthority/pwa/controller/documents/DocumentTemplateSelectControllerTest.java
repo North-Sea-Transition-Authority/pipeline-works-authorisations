@@ -6,27 +6,24 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(DocumentTemplateSelectController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class DocumentTemplateSelectControllerTest extends AbstractControllerTest {
+class DocumentTemplateSelectControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount templateClauseManager, caseOfficer, pwaManager;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     templateClauseManager = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE));
     caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_CASE_OFFICER));
@@ -34,7 +31,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void getTemplatesForSelect_hasPriv() throws Exception {
+  void getTemplatesForSelect_hasPriv() throws Exception {
 
     mockMvc.perform(get("/document-templates/select")
         .with(user(templateClauseManager)))
@@ -43,7 +40,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void getTemplatesForSelect_doesntHavePriv() throws Exception {
+  void getTemplatesForSelect_doesntHavePriv() throws Exception {
 
     mockMvc.perform(get("/document-templates/select")
         .with(user(caseOfficer)))
@@ -52,7 +49,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void getTemplatesForSelect_doesntHaveTcPriv() throws Exception {
+  void getTemplatesForSelect_doesntHaveTcPriv() throws Exception {
     mockMvc.perform(get("/document-templates/select")
             .with(user(templateClauseManager)))
         .andExpect(status().isOk())
@@ -60,7 +57,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void getTemplatesForSelect_HasTcPriv() throws Exception {
+  void getTemplatesForSelect_HasTcPriv() throws Exception {
     mockMvc.perform(get("/document-templates/select")
             .with(user(pwaManager)))
         .andExpect(status().isOk())
@@ -68,7 +65,7 @@ public class DocumentTemplateSelectControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void getTemplatesForSelect_SmokeTest() throws Exception {
+  void getTemplatesForSelect_SmokeTest() throws Exception {
     mockMvc.perform(get("/document-templates/select")
             .with(user(templateClauseManager)))
         .andExpect(status().isOk())

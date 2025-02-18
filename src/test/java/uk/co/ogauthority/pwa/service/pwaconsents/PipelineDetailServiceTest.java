@@ -15,13 +15,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
@@ -41,8 +43,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingServic
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelineDetailServiceTest {
 
   @Mock
   private PipelineDetailRepository pipelineDetailRepository;
@@ -70,8 +73,8 @@ public class PipelineDetailServiceTest {
 
   private Instant clockTime;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     clockTime = Instant.now();
     when(clock.instant()).thenReturn(clockTime);
@@ -83,14 +86,14 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getSimilarPipelineBundleNamesByDetailAndNameLike_serviceInteraction() {
+  void getSimilarPipelineBundleNamesByDetailAndNameLike_serviceInteraction() {
     when(pipelineDetailRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(List.of());
     var result = pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail);
     assertThat(result).isEqualTo(List.of());
   }
 
   @Test
-  public void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
+  void getNonDeletedPipelineDetailsForApplicationMasterPwaWithTipFlag_serviceInteraction() {
     var master = detail.getMasterPwa();
     var pipelineDetail = new PipelineDetail();
     when(pipelineDetailRepository.findAllByPipeline_MasterPwaAndPipelineStatusIsNotInAndTipFlagIsTrue(master,
@@ -101,14 +104,14 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getActivePipelineDetailsForApplicationMasterPwa_serviceInteraction() {
+  void getActivePipelineDetailsForApplicationMasterPwa_serviceInteraction() {
     pipelineDetailService.getActivePipelineDetailsForApplicationMasterPwa(detail.getPwaApplication());
     verify(pipelineDetailRepository, times(1)).findAllByPipeline_MasterPwaAndEndTimestampIsNull(
         detail.getPwaApplication().getMasterPwa());
   }
 
   @Test
-  public void isPipelineConsented_consented() {
+  void isPipelineConsented_consented() {
     var pipelineDetail = new PipelineDetail();
     var pipeline = new Pipeline();
     pipeline.setId(1);
@@ -118,7 +121,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void isPipelineConsented_notConsented() {
+  void isPipelineConsented_notConsented() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
     when(pipelineDetailRepository.getByPipeline_IdAndTipFlagIsTrue(pipeline.getId())).thenReturn(Optional.empty());
@@ -127,7 +130,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void createNewPipelineDetails() {
+  void createNewPipelineDetails() {
 
     // set up a current detail that we can check has been ended
     var pipelineDtoMap = PipelineWriterTestUtils.createPipelineToPadPipelineDtoMap();
@@ -190,7 +193,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void createNewPipelineDetails_transferOut() {
+  void createNewPipelineDetails_transferOut() {
 
     // set up a current detail that we can check has been ended
     var pipelineDtoMap = PipelineWriterTestUtils.createPipelineToPadPipelineDtoMap();
@@ -227,7 +230,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
+  void getAllPipelineOverviewsForMasterPwa_getsOverviewsSuccessfully() {
     var pipelineStatusFilter = EnumSet.allOf(PipelineStatus.class);
     var overview = PipelineDetailTestUtil
         .createPipelineOverview("REF", PipelineStatus.IN_SERVICE);
@@ -241,7 +244,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getLatestPipelineDetailsForIds() {
+  void getLatestPipelineDetailsForIds() {
     var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
 
     when(pipelineDetailRepository.findAllByPipeline_IdInAndTipFlagIsTrue(List.of(pipelineDetail.getPipeline().getId())))
@@ -252,7 +255,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void getPipelineDetailsBeforePwaConsentCreated() {
+  void getPipelineDetailsBeforePwaConsentCreated() {
     var pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(20, new PipelineId(10), Instant.now());
     var consentCreationTs = Instant.now();
 
@@ -264,7 +267,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void setTransferredToPipeline_exists() {
+  void setTransferredToPipeline_exists() {
 
     var pipeDetail = new PipelineDetail();
     var pipe = new Pipeline();
@@ -285,7 +288,7 @@ public class PipelineDetailServiceTest {
   }
 
   @Test
-  public void setTransferredToPipeline_doesntExist() {
+  void setTransferredToPipeline_doesntExist() {
 
     var pipe = new Pipeline();
     var pipe2 = new Pipeline();

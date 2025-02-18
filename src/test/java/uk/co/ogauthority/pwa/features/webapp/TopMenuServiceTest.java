@@ -4,16 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.model.TopMenuItem;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TopMenuServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TopMenuServiceTest {
 
   @Mock
   private SystemAreaAccessService systemAreaAccessService;
@@ -23,13 +23,13 @@ public class TopMenuServiceTest {
 
   private TopMenuService topMenuService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     topMenuService = new TopMenuService(systemAreaAccessService);
   }
 
   @Test
-  public void getTopMenuItems_all() {
+  void getTopMenuItems_all() {
     when(systemAreaAccessService.canAccessWorkArea(any())).thenReturn(true);
     when(systemAreaAccessService.canAccessTeamManagement(any())).thenReturn(true);
 
@@ -39,7 +39,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_none() {
+  void getTopMenuItems_none() {
     when(systemAreaAccessService.canAccessWorkArea(any())).thenReturn(false);
     when(systemAreaAccessService.canAccessTeamManagement(any())).thenReturn(false);
 
@@ -47,7 +47,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_workAreaOnly() {
+  void getTopMenuItems_workAreaOnly() {
     when(systemAreaAccessService.canAccessWorkArea(any())).thenReturn(true);
     when(systemAreaAccessService.canAccessTeamManagement(any())).thenReturn(false);
 
@@ -57,7 +57,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_teamManagementOnly() {
+  void getTopMenuItems_teamManagementOnly() {
     when(systemAreaAccessService.canAccessWorkArea(any())).thenReturn(false);
     when(systemAreaAccessService.canAccessTeamManagement(any())).thenReturn(true);
 
@@ -67,7 +67,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_consentSearchOnly() {
+  void getTopMenuItems_consentSearchOnly() {
     when(systemAreaAccessService.canAccessConsentSearch(any())).thenReturn(true);
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
@@ -76,7 +76,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_caseReassignmentOnly() {
+  void getTopMenuItems_caseReassignmentOnly() {
     when(systemAreaAccessService.isManagement(any())).thenReturn(true);
 
     assertThat(topMenuService.getTopMenuItems(userAccount))
@@ -85,7 +85,7 @@ public class TopMenuServiceTest {
   }
 
   @Test
-  public void getTopMenuItems_templateClauseManagementOnly() {
+  void getTopMenuItems_templateClauseManagementOnly() {
 
     when(systemAreaAccessService.canAccessTemplateClauseManagement(any())).thenReturn(true);
 

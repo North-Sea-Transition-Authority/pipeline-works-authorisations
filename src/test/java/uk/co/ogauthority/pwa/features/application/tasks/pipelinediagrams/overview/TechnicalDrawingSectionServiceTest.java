@@ -13,11 +13,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -36,8 +36,8 @@ import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TechnicalDrawingSectionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TechnicalDrawingSectionServiceTest {
 
   @Mock
   private AdmiraltyChartFileService admiraltyChartFileService;
@@ -57,8 +57,8 @@ public class TechnicalDrawingSectionServiceTest {
   private TechnicalDrawingSectionService technicalDrawingSectionService;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     technicalDrawingSectionService = new TechnicalDrawingSectionService(
         admiraltyChartFileService,
         padTechnicalDrawingService,
@@ -69,7 +69,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void validate_serviceInteraction_cantUploadAdmiraltyDocuments() {
+  void validate_serviceInteraction_cantUploadAdmiraltyDocuments() {
     var form = new AdmiraltyChartDocumentForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -80,7 +80,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void validate_serviceInteraction_canUploadAdmiraltyDocuments() {
+  void validate_serviceInteraction_canUploadAdmiraltyDocuments() {
     var form = new AdmiraltyChartDocumentForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
 
@@ -91,7 +91,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void getValidationSummary_noError() {
+  void getValidationSummary_noError() {
 
     var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
     var validationSummary = technicalDrawingSectionService.getValidationSummary(bindingResult);
@@ -100,7 +100,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void getValidationSummary_technicalDrawingError() {
+  void getValidationSummary_technicalDrawingError() {
 
     var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
     String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode()};
@@ -111,7 +111,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void getValidationSummary_admiraltyChartError() {
+  void getValidationSummary_admiraltyChartError() {
 
     var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
     String[] errorCodes = {PipelineSchematicsErrorCode.ADMIRALTY_CHART.getErrorCode()};
@@ -122,7 +122,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void getValidationSummary_technicalDrawingAndAdmiraltyChartError() {
+  void getValidationSummary_technicalDrawingAndAdmiraltyChartError() {
 
     var bindingResult = new BeanPropertyBindingResult(new SummaryForm(), "form");
     String[] errorCodes = {PipelineSchematicsErrorCode.TECHNICAL_DRAWINGS.getErrorCode(),
@@ -135,14 +135,14 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void cleanupData_serviceInteractions() {
+  void cleanupData_serviceInteractions() {
     technicalDrawingSectionService.cleanupData(detail);
     verify(padTechnicalDrawingService, times(1)).cleanupData(detail);
 
   }
 
   @Test
-  public void canShowInTaskList_notOptionsVariation() {
+  void canShowInTaskList_notOptionsVariation() {
     var notOptions = EnumSet.allOf(PwaApplicationType.class);
     notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -154,7 +154,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+  void canShowInTaskList_OptionsVariation_optionsNotComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(false);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -164,7 +164,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsComplete() {
+  void canShowInTaskList_OptionsVariation_optionsComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(true);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -174,7 +174,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void getAvailableMailMergeFields() {
+  void getAvailableMailMergeFields() {
 
     PwaApplicationType.stream().forEach(appType -> {
 
@@ -199,7 +199,7 @@ public class TechnicalDrawingSectionServiceTest {
   }
 
   @Test
-  public void resolveMailMergeFields() {
+  void resolveMailMergeFields() {
 
     var drawing1 = new PadTechnicalDrawing();
     drawing1.setReference("draw1");

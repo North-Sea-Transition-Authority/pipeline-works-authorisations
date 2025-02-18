@@ -16,16 +16,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import org.apache.commons.lang3.Range;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -49,9 +47,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = SetPipelineNumberController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstractControllerTest {
+class SetPipelineNumberControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 20;
   private static final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
@@ -69,8 +66,8 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   private AuthenticatedUserAccount user;
   private PadPipeline padPipeline;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -123,7 +120,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderSetPipelineReference_permissionSmokeTest() {
+  void renderSetPipelineReference_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -136,7 +133,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderSetPipelineReference_appTypeSmokeTest() {
+  void renderSetPipelineReference_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -149,7 +146,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void renderSetPipelineReference_appStatusSmokeTest() {
+  void renderSetPipelineReference_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -162,7 +159,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void setPipelineReference_permissionSmokeTest() {
+  void setPipelineReference_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -175,7 +172,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void setPipelineReference_appTypeSmokeTest() {
+  void setPipelineReference_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -188,7 +185,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void setPipelineReference_appStatusSmokeTest() {
+  void setPipelineReference_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -201,7 +198,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
   }
 
   @Test
-  public void setPipelineReference_failValidation() throws Exception {
+  void setPipelineReference_failValidation() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(on(SetPipelineNumberController.class)
             .setPipelineReference(APP_TYPE, APP_ID, PAD_PIPELINE_ID, null, null, null)
@@ -217,7 +214,7 @@ public class SetPipelineNumberControllerTest extends PwaApplicationContextAbstra
 
 
   @Test
-  public void setPipelineReference_passValidation() throws Exception {
+  void setPipelineReference_passValidation() throws Exception {
     doAnswer(invocation -> invocation).when(regulatorPipelineNumberTaskService).validateForm(any(), any(), any());
 
     mockMvc.perform(

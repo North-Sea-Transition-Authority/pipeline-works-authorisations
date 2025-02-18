@@ -13,11 +13,13 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -28,8 +30,9 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadConfirmationOfOptionServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadConfirmationOfOptionServiceTest {
 
   @Mock
   private ApproveOptionsService approveOptionsService;
@@ -47,8 +50,8 @@ public class PadConfirmationOfOptionServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -66,14 +69,14 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_whenOptionsNotApproved() {
+  void canShowInTaskList_whenOptionsNotApproved() {
 
     assertThat(padConfirmationOfOptionService.canShowInTaskList(pwaApplicationDetail)).isFalse();
 
   }
 
   @Test
-  public void canShowInTaskList_whenOptionsApproved() {
+  void canShowInTaskList_whenOptionsApproved() {
     when(approveOptionsService.optionsApproved(pwaApplicationDetail.getPwaApplication())).thenReturn(true);
 
     assertThat(padConfirmationOfOptionService.canShowInTaskList(pwaApplicationDetail)).isTrue();
@@ -81,7 +84,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void isComplete_whenValidationPasses() {
+  void isComplete_whenValidationPasses() {
 
     var confirmation = new PadConfirmationOfOption();
     when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
@@ -95,7 +98,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void isComplete_whenValidationFails() {
+  void isComplete_whenValidationFails() {
 
     var confirmation = new PadConfirmationOfOption();
     when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
@@ -112,7 +115,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_whenWorkCompleteAsPerOptions() {
+  void mapEntityToForm_whenWorkCompleteAsPerOptions() {
     var form = new ConfirmOptionForm();
     var confirmation = new PadConfirmationOfOption();
     confirmation.setChosenOptionDesc("SOMETHING");
@@ -125,7 +128,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void mapFormToEntity_whenWorkCompleteAsPerOptions() {
+  void mapFormToEntity_whenWorkCompleteAsPerOptions() {
     var confirmation = new PadConfirmationOfOption();
     var form = new ConfirmOptionForm();
     form.setOptionCompletedDescription("SOMETHING");
@@ -139,7 +142,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void mapFormToEntity_whenOtherWorkDone() {
+  void mapFormToEntity_whenOtherWorkDone() {
     var confirmation = new PadConfirmationOfOption();
     var form = new ConfirmOptionForm();
     form.setOtherWorkDescription("SOMETHING");
@@ -153,7 +156,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void mapFormToEntity_whenDescriptionNotCollected() {
+  void mapFormToEntity_whenDescriptionNotCollected() {
     var noDescriptionOptions = EnumSet.complementOf(
         EnumSet.of(
             ConfirmedOptionType.WORK_COMPLETE_AS_PER_OPTIONS,
@@ -178,7 +181,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void findPadConfirmationOfOption_whenFound() {
+  void findPadConfirmationOfOption_whenFound() {
     var confirmation = new PadConfirmationOfOption();
     when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(confirmation));
@@ -188,13 +191,13 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void findPadConfirmationOfOption_whenNotFound() {
+  void findPadConfirmationOfOption_whenNotFound() {
 
     assertThat(padConfirmationOfOptionService.findPadConfirmationOfOption(pwaApplicationDetail)).isEmpty();
   }
 
   @Test
-  public void getOrCreatePadConfirmationOfOption_whenFound() {
+  void getOrCreatePadConfirmationOfOption_whenFound() {
     var confirmation = new PadConfirmationOfOption();
     when(padConfirmationOfOptionRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(confirmation));
@@ -205,12 +208,12 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void getOrCreatePadConfirmationOfOption_whenNotFound() {
+  void getOrCreatePadConfirmationOfOption_whenNotFound() {
     assertThat(padConfirmationOfOptionService.getOrCreatePadConfirmationOfOption(pwaApplicationDetail)).isNotNull();
   }
 
   @Test
-  public void savePadConfirmation_serviceInteractions() {
+  void savePadConfirmation_serviceInteractions() {
     var confirmation = new PadConfirmationOfOption();
 
     padConfirmationOfOptionService.savePadConfirmation(confirmation);
@@ -221,7 +224,7 @@ public class PadConfirmationOfOptionServiceTest {
 
 
   @Test
-  public void validate_whenValidationPasses() {
+  void validate_whenValidationPasses() {
     var form = new ConfirmOptionForm();
 
     var sourceBindingResult = new BeanPropertyBindingResult(form, "form");
@@ -236,7 +239,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void validate_whenValidationFails() {
+  void validate_whenValidationFails() {
     var form = new ConfirmOptionForm();
 
     var sourceBindingResult = new BeanPropertyBindingResult(form, "form");
@@ -252,7 +255,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void getPadConfirmationOfOptionView_notApproved(){
+  void getPadConfirmationOfOptionView_notApproved(){
     var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
 
     assertThat(view.getWorkDescription()).isNull();
@@ -261,7 +264,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void getPadConfirmationOfOptionView_noConfirmationFound(){
+  void getPadConfirmationOfOptionView_noConfirmationFound(){
     var view = padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail);
 
     assertThat(view.getWorkDescription()).isNull();
@@ -270,7 +273,7 @@ public class PadConfirmationOfOptionServiceTest {
   }
 
   @Test
-  public void getPadConfirmationOfOptionView_confirmationFound(){
+  void getPadConfirmationOfOptionView_confirmationFound(){
     var confirmation = new PadConfirmationOfOption();
     confirmation.setConfirmedOptionType(WORK_COMPLETE_AS_PER_OPTIONS);
     confirmation.setChosenOptionDesc("DESC");

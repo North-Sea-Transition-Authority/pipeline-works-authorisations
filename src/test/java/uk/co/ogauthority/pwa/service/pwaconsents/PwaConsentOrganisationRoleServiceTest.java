@@ -17,14 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -54,8 +56,9 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaConsentOrganisationRoleServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaConsentOrganisationRoleServiceTest {
 
   private static final int ORG_UNIT_ID_1 = 100;
   private static final int ORG_UNIT_ID_2 = 200;
@@ -105,8 +108,8 @@ public class PwaConsentOrganisationRoleServiceTest {
 
   private PwaConsentOrganisationRole pwaConsentHolderOrgRole;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     when(organisationUnit1.getPortalOrganisationGroup()).thenReturn(Optional.of(organisationGroup1));
     when(organisationUnit1.getOuId()).thenReturn(ORG_UNIT_ID_1);
@@ -145,7 +148,7 @@ public class PwaConsentOrganisationRoleServiceTest {
 
 
   @Test
-  public void getPwaConsentsWhereCurrentHolderWasAdded_whenGivenOrgUnitIsHolder() {
+  void getPwaConsentsWhereCurrentHolderWasAdded_whenGivenOrgUnitIsHolder() {
 
     when(pwaConsentOrganisationRoleRepository.findByOrganisationUnitIdInAndRoleInAndEndTimestampIsNull(
         Set.of(ORG_UNIT_ID_1), Set.of(HuooRole.HOLDER)))
@@ -157,7 +160,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getPwaConsentsWhereCurrentHolderWasAdded_whenGivenOrgUnitIsNotAHolder() {
+  void getPwaConsentsWhereCurrentHolderWasAdded_whenGivenOrgUnitIsNotAHolder() {
 
     assertThat(
         pwaConsentOrganisationRoleService.getPwaConsentsWhereCurrentHolderWasAdded(Set.of(organisationUnit1))
@@ -165,12 +168,12 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenZeroHolders() {
+  void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenZeroHolders() {
     assertThat(pwaConsentOrganisationRoleService.getCurrentConsentedHoldersOrgRolesForMasterPwa(masterPwa)).isEmpty();
   }
 
   @Test
-  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenOneHolder() {
+  void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenOneHolder() {
 
     when(pwaConsentOrganisationRoleRepository.findByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
         List.of(pwaConsent),
@@ -189,7 +192,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_overMultipleConsents() {
+  void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_overMultipleConsents() {
     var secondConsent = mock(PwaConsent.class);
     when(secondConsent.getMasterPwa()).thenReturn(masterPwa);
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(List.of(pwaConsent, secondConsent));
@@ -220,7 +223,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_whereOneHolderIsNotCurrentOrgUnit() {
+  void getCurrentConsentedHoldersOrgRolesForMasterPwa_whenMultipleHolders_whereOneHolderIsNotCurrentOrgUnit() {
     var secondConsent = mock(PwaConsent.class);
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(List.of(pwaConsent, secondConsent));
 
@@ -244,14 +247,14 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getOrganisationRoleSummary_findByMasterPwa_serviceInteractions(){
+  void getOrganisationRoleSummary_findByMasterPwa_serviceInteractions(){
     assertThat(pwaConsentOrganisationRoleService.getActiveOrganisationRoleSummaryForSeabedPipelines(masterPwa)).isNotNull();
     verify(pwaConsentPipelineOrganisationRoleLinkRepository, times(1)).findActiveOrganisationPipelineRolesByMasterPwa(masterPwa);
 
   }
 
   @Test
-  public void getOrganisationRoleSummaryForConsentsAndPipeline_serviceInteractions(){
+  void getOrganisationRoleSummaryForConsentsAndPipeline_serviceInteractions(){
 
     var consents = List.of(new PwaConsent());
     var pipeline =  new Pipeline();
@@ -262,7 +265,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getNumberOfHolders_variationPwa() {
+  void getNumberOfHolders_variationPwa() {
     var consents = List.of(new PwaConsent(), new PwaConsent());
     when(pwaConsentRepository.findByMasterPwa(masterPwa)).thenReturn(consents);
     when(pwaConsentOrganisationRoleRepository.countByAddedByPwaConsentInAndRoleInAndEndTimestampIsNull(
@@ -275,7 +278,7 @@ public class PwaConsentOrganisationRoleServiceTest {
 
 
   @Test
-  public void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
+  void getAllOrganisationRolePipelineGroupView_includesPortalOrgsAndTreaty() {
 
     var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwa();
 
@@ -378,7 +381,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getAllOrganisationRolePipelineGroupView_forConsents() {
+  void getAllOrganisationRolePipelineGroupView_forConsents() {
 
     var masterPwa = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getMasterPwa();
     var initialConsent = PwaConsentTestUtil.createInitial(masterPwa);
@@ -484,7 +487,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void getActiveOrgRolesAddedByConsents() {
+  void getActiveOrgRolesAddedByConsents() {
 
     var consents = List.of(new PwaConsent());
 
@@ -495,7 +498,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void endConsentOrgRoles() {
+  void endConsentOrgRoles() {
 
     var orgRole1 = PwaConsentOrganisationRoleTestUtil
         .createOrganisationRole(pwaConsent, new OrganisationUnitId(organisationUnit1.getOuId()), HuooRole.HOLDER);
@@ -516,7 +519,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void createNewConsentOrgUnitRoles() {
+  void createNewConsentOrgUnitRoles() {
 
     Multimap<OrganisationUnitId, HuooRole> newRoleMultiMap = HashMultimap.create();
     newRoleMultiMap.putAll(new OrganisationUnitId(1), Set.of(HuooRole.HOLDER, HuooRole.USER));
@@ -557,7 +560,7 @@ public class PwaConsentOrganisationRoleServiceTest {
   }
 
   @Test
-  public void createNewConsentTreatyRoles() {
+  void createNewConsentTreatyRoles() {
 
     Multimap<TreatyAgreement, HuooRole> newRoleMultiMap = HashMultimap.create();
     newRoleMultiMap.put(TreatyAgreement.ANY_TREATY_COUNTRY, HuooRole.USER);

@@ -5,27 +5,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class MinMaxInputValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class MinMaxInputValidatorTest {
 
   private MinMaxInputValidator validator;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     validator = new MinMaxInputValidator();
   }
 
   @Test
-  public void validate_notEmpty() {
+  void validate_notEmpty() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(), "My Property", List.of(), List.of());
 
@@ -36,7 +36,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_minSmallerOrEqualToMax() {
+  void validate_minSmallerOrEqualToMax() {
     var validationRequiredHints = List.of();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(5), String.valueOf(4)), "My Property", List.of(), validationRequiredHints);
@@ -48,7 +48,7 @@ public class MinMaxInputValidatorTest {
 
 
   @Test
-  public void validate_minSmallerOrEqualToMax_noRestriction() {
+  void validate_minSmallerOrEqualToMax_noRestriction() {
     var validationRequiredHints = List.of();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(5), String.valueOf(4)), "My Property", List.of(DefaultValidationRule.MIN_SMALLER_THAN_MAX), validationRequiredHints);
@@ -59,7 +59,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_inputSizeLargerThanMax() {
+  void validate_inputSizeLargerThanMax() {
     var validationRequiredHints = List.of();
     var inputWithNumberOfDigitsAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH);
     var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
@@ -74,7 +74,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_positiveNumber() {
+  void validate_positiveNumber() {
     var validationRequiredHints = List.of(new PositiveNumberHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(-2), String.valueOf(-1)), "My Property", List.of(), validationRequiredHints);
@@ -85,7 +85,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_integer() {
+  void validate_integer() {
     var validationRequiredHints = List.of(new IntegerHint());
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(3.6), String.valueOf(5.6)), "My Property", List.of(), validationRequiredHints);
@@ -96,7 +96,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_decimalPlaces_2dp() {
+  void validate_decimalPlaces_2dp() {
     var validationRequiredHints = List.of(new DecimalPlacesHint(2));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(3.444), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
@@ -108,7 +108,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_positiveAndDecimalPlaces_2dp() {
+  void validate_positiveAndDecimalPlaces_2dp() {
     var validationRequiredHints = List.of(new PositiveNumberHint(), new DecimalPlacesHint(2));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator, new MinMaxInput(String.valueOf(-3.122), String.valueOf(5.644)), "My Property", List.of(), validationRequiredHints);
@@ -120,7 +120,7 @@ public class MinMaxInputValidatorTest {
   }
 
   @Test
-  public void validate_validationTypeIsPartial_onlyValidateInputLength() {
+  void validate_validationTypeIsPartial_onlyValidateInputLength() {
     var validationRequiredHints = List.of(new DecimalPlacesHint(2), new PositiveNumberHint());
     var inputWithMoreDigitsThanAllowed = "9".repeat(MinMaxInputValidator.MAX_INPUT_LENGTH + 1);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(

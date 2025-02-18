@@ -7,13 +7,13 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentPipelineOrganisationRoleLink;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentPipelineOrganisationRoleLinkRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaConsentPipelineOrganisationRoleServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaConsentPipelineOrganisationRoleServiceTest {
 
   @Mock
   private PwaConsentPipelineOrganisationRoleLinkRepository repository;
@@ -43,18 +43,17 @@ public class PwaConsentPipelineOrganisationRoleServiceTest {
 
   private Instant clockTime;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     clockTime = Instant.now();
-    when(clock.instant()).thenReturn(clockTime);
 
     pwaConsentPipelineOrganisationRoleService = new PwaConsentPipelineOrganisationRoleService(repository, clock);
 
   }
 
   @Test
-  public void getActiveConsentedPipelineOrgRoleLinks() {
+  void getActiveConsentedPipelineOrgRoleLinks() {
 
     var pwa = new MasterPwa();
 
@@ -65,7 +64,8 @@ public class PwaConsentPipelineOrganisationRoleServiceTest {
   }
 
   @Test
-  public void endRoleLinks() {
+  void endRoleLinks() {
+    when(clock.instant()).thenReturn(clockTime);
 
     var link1 = new PwaConsentPipelineOrganisationRoleLink();
     var link2 = new PwaConsentPipelineOrganisationRoleLink();
@@ -85,7 +85,8 @@ public class PwaConsentPipelineOrganisationRoleServiceTest {
   }
 
   @Test
-  public void createRoleLinks() {
+  void createRoleLinks() {
+    when(clock.instant()).thenReturn(clockTime);
 
     var consent = new PwaConsent();
     var pipeline = new Pipeline();

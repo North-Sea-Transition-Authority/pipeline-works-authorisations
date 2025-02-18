@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationGroupDetailServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationGroupDetailServiceTest {
 
   private AsBuiltNotificationGroupDetailService asBuiltNotificationGroupDetailService;
 
@@ -32,8 +32,8 @@ public class AsBuiltNotificationGroupDetailServiceTest {
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = new AsBuiltNotificationGroup(pwaConsent, "APP_REF", Instant.now());
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationGroupDetailService = new AsBuiltNotificationGroupDetailService(asBuiltNotificationGroupDetailRepository);
     when(asBuiltNotificationGroupDetailRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(any(
         AsBuiltNotificationGroup.class))).thenReturn(
@@ -42,7 +42,7 @@ public class AsBuiltNotificationGroupDetailServiceTest {
   }
 
   @Test
-  public void getAsBuiltNotificationGroupDetail_repositoryCalled() {
+  void getAsBuiltNotificationGroupDetail_repositoryCalled() {
     asBuiltNotificationGroupDetailService.getAsBuiltNotificationGroupDetail(asBuiltNotificationGroup);
     verify(asBuiltNotificationGroupDetailRepository).findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup);
   }

@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.feeproviders;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ApplicationFeeItemTest {
+class ApplicationFeeItemTest {
 
   @Test
-  public void testEqualsAndHashcode() {
+  void equalsAndHashcode() {
 
     EqualsVerifier.forClass(ApplicationFeeItem.class)
         .verify();

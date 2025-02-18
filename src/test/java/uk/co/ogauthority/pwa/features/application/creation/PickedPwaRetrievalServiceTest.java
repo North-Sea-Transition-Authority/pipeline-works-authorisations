@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.creation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,11 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -23,8 +24,8 @@ import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
 import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickedPwaRetrievalServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PickedPwaRetrievalServiceTest {
 
   private static final int MASTER_PWA_ID = 1;
 
@@ -42,8 +43,8 @@ public class PickedPwaRetrievalServiceTest {
 
   private PickedPwaRetrievalService pickedPwaRetrievalService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pickedPwaRetrievalService = new PickedPwaRetrievalService(
         consentedMasterPwaService,
         nonConsentedPwaService,
@@ -52,7 +53,7 @@ public class PickedPwaRetrievalServiceTest {
   }
 
   @Test
-  public void getPickablePwaOptions_UserNotInOrganisation() {
+  void getPickablePwaOptions_UserNotInOrganisation() {
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(Collections.emptyList());
 
@@ -62,20 +63,22 @@ public class PickedPwaRetrievalServiceTest {
   }
 
   @Test
-  public void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
+  void getPickablePwasWhereAuthorised_whenNoPickablePwasExist() {
     var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount, PwaResourceType.PETROLEUM);
     assertThat(options.getConsentedPickablePwas()).isEmpty();
     assertThat(options.getNonconsentedPickablePwas()).isEmpty();
     verify(consentedMasterPwaService, times(1)).getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(any());
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void getPickedConsentedPwa_whenUnknownPwaSource() {
-    var masterPwa = pickedPwaRetrievalService.getPickedConsentedPwa(MASTER_PWA_ID, webUserAccount);
+  @Test
+  void getPickedConsentedPwa_whenUnknownPwaSource() {
+    assertThrows(IllegalStateException.class, () -> {
+      var masterPwa = pickedPwaRetrievalService.getPickedConsentedPwa(MASTER_PWA_ID, webUserAccount);
+    });
   }
 
   @Test
-  public void getPickablePwaOptions_filterByResourceType_Petroleum() {
+  void getPickablePwaOptions_filterByResourceType_Petroleum() {
     var orgUnit = new PortalOrganisationUnit();
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of(orgUnit));
@@ -97,7 +100,7 @@ public class PickedPwaRetrievalServiceTest {
   }
 
   @Test
-  public void getPickablePwaOptions_filterByResourceType_Hydrogen() {
+  void getPickablePwaOptions_filterByResourceType_Hydrogen() {
     var orgUnit = new PortalOrganisationUnit();
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of(orgUnit));

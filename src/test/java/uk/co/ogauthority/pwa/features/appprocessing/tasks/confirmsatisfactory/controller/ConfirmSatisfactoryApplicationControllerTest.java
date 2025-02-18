@@ -15,8 +15,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -45,9 +45,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConfirmSatisfactoryApplicationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final int APP_ID = 5;
   private static final int APP_DETAIL_ID = 50;
@@ -68,8 +67,8 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   private AuthenticatedUserAccount user;
   private Person person;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     person = PersonTestUtil.createPersonFrom(new PersonId(1));
     user = new AuthenticatedUserAccount(
@@ -98,7 +97,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void renderConfirmSatisfactory_appStatusSmokeTest() {
+  void renderConfirmSatisfactory_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
@@ -108,7 +107,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void renderConfirmSatisfactory_processingPermissionSmokeTest() {
+  void renderConfirmSatisfactory_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -120,7 +119,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
 
 
   @Test
-  public void confirmSatisfactory_appStatusSmokeTest() {
+  void confirmSatisfactory_appStatusSmokeTest() {
     mockConfirmSatisfactoryValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -131,7 +130,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void confirmSatisfactory_processingPermissionSmokeTest() {
+  void confirmSatisfactory_processingPermissionSmokeTest() {
     mockConfirmSatisfactoryValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -143,7 +142,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void confirmSatisfactory_whenTaskNotAccessible() throws Exception {
+  void confirmSatisfactory_whenTaskNotAccessible() throws Exception {
     when(confirmSatisfactoryApplicationService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
@@ -153,7 +152,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void renderConfirmSatisfactory_whenTaskNotAccessible() throws Exception {
+  void renderConfirmSatisfactory_whenTaskNotAccessible() throws Exception {
     when(confirmSatisfactoryApplicationService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
@@ -163,7 +162,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void confirmSatisfactory_whenTaskAccessible_andfailsValidation() throws Exception {
+  void confirmSatisfactory_whenTaskAccessible_andfailsValidation() throws Exception {
     mockConfirmSatisfactoryValidationFail();
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
@@ -177,7 +176,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void confirmSatisfactory_whenTaskAccessible_andPassesValidation() throws Exception {
+  void confirmSatisfactory_whenTaskAccessible_andPassesValidation() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .confirmSatisfactory(APP_ID, APP_TYPE, null, null, null, null, null)))
@@ -195,7 +194,7 @@ public class ConfirmSatisfactoryApplicationControllerTest extends PwaAppProcessi
   }
 
   @Test
-  public void renderConfirmSatisfactory_whenTaskAccessible() throws Exception {
+  void renderConfirmSatisfactory_whenTaskAccessible() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ConfirmSatisfactoryApplicationController.class)
         .renderConfirmSatisfactory(APP_ID, APP_TYPE, null, null, null)))

@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -33,12 +31,11 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = MedianLineDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class MedianLineDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
   private static final int APP_ID = 100;
   private static final String FILE_ID = "123";
 
@@ -57,8 +54,8 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
 
   private String fileContents = "Testoutput";
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -78,7 +75,7 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_appTypeSmokeTest() {
+  void renderEditMedianLineCrossingDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineDocumentsController.class)
@@ -96,7 +93,7 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_contactRoleSmokeTest() {
+  void renderEditMedianLineCrossingDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineDocumentsController.class)
@@ -114,7 +111,7 @@ public class MedianLineDocumentsControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderEditMedianLineCrossingDocuments_appStatusSmokeTest() {
+  void renderEditMedianLineCrossingDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(MedianLineDocumentsController.class)

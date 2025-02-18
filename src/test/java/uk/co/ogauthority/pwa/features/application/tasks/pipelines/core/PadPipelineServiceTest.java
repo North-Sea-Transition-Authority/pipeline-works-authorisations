@@ -13,13 +13,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -56,8 +58,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineMappingServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadPipelineServiceTest {
 
   private static final int PIPELINE_ID = 100;
 
@@ -120,8 +123,8 @@ public class PadPipelineServiceTest {
   private PadPipelineIdent ident;
   private ModifyPipelineForm modifyPipelineForm;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     modifyPipelineForm = new ModifyPipelineForm();
 
@@ -166,7 +169,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void addPipeline_alreadyExists_inUse() throws IllegalAccessException {
+  void addPipeline_alreadyExists_inUse() throws IllegalAccessException {
     var form = new PipelineHeaderForm();
 
     form.setFromLocation("from");
@@ -257,7 +260,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void addPipeline_otherMaterialSelected() {
+  void addPipeline_otherMaterialSelected() {
     var form = new PipelineHeaderForm();
 
     form.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
@@ -291,7 +294,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void addPipeline_pipelineReference_isSequential() {
+  void addPipeline_pipelineReference_isSequential() {
     PipelineHeaderForm form = createBaseHeaderForm();
 
     when(padPipelineRepository.getMaxTemporaryNumberByPwaApplicationDetail(detail)).thenReturn(2);
@@ -312,7 +315,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void addPipeline_alreadyExists_notInUse() {
+  void addPipeline_alreadyExists_notInUse() {
 
     var form = createBaseHeaderForm();
     form.setAlreadyExistsOnSeabed(true);
@@ -325,7 +328,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void updatePipeline_whenStatusIsOutOfUse() {
+  void updatePipeline_whenStatusIsOutOfUse() {
     var form = new PipelineHeaderForm();
     form.setWhyNotReturnedToShore("reason");
     form.setFromCoordinateForm(new CoordinateForm());
@@ -342,7 +345,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void updatePipeline_nonConsented_whenPipelineAlreadyExistsOnSeabedQuestionRequired() {
+  void updatePipeline_nonConsented_whenPipelineAlreadyExistsOnSeabedQuestionRequired() {
     var form = new PipelineHeaderForm();
     form.setAlreadyExistsOnSeabed(true);
     form.setPipelineInUse(true);
@@ -360,7 +363,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void updatePipeline_nonConsented_pipelineChangedFromInUseToNotInUse() {
+  void updatePipeline_nonConsented_pipelineChangedFromInUseToNotInUse() {
     var form = createBaseHeaderForm();
     form.setAlreadyExistsOnSeabed(true);
     form.setPipelineInUse(false);
@@ -377,7 +380,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void updatePipeline_nonConsented_pipelineChangedFromNotInUseToInUse() {
+  void updatePipeline_nonConsented_pipelineChangedFromNotInUseToInUse() {
     var form = createBaseHeaderForm();
     form.setAlreadyExistsOnSeabed(true);
     form.setPipelineInUse(true);
@@ -394,7 +397,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getPipelines() {
+  void getPipelines() {
     var pipelinesMocked = new ArrayList<PadPipeline>();
     var PadPipeline = new PadPipeline();
     PadPipeline.setId(1);
@@ -416,7 +419,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getAvailableBundleNamesForApplication_noImportedBundles() {
+  void getAvailableBundleNamesForApplication_noImportedBundles() {
     var consentedBundlePairDto = new PipelineBundlePairDto(1, "bundle");
     var applicationBundlePairDto = new PipelineBundlePairDto(2, "other bundle");
     when(pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail))
@@ -428,7 +431,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getAvailableBundleNamesForApplication_hasImportedBundles() {
+  void getAvailableBundleNamesForApplication_hasImportedBundles() {
     var consentedBundlePairDto = new PipelineBundlePairDto(1, "bundle");
     var importedApplicationBundlePairDto = new PipelineBundlePairDto(1, "other bundle");
     var applicationBundlePairDto = new PipelineBundlePairDto(2, "test bundle");
@@ -441,7 +444,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getAvailableBundleNamesForApplication_noBundles() {
+  void getAvailableBundleNamesForApplication_noBundles() {
     when(pipelineDetailService.getSimilarPipelineBundleNamesByDetail(detail)).thenReturn(List.of());
     when(padPipelineRepository.getBundleNamesByPwaApplicationDetail(detail)).thenReturn(List.of());
     var result = padPipelineService.getAvailableBundleNamesForApplication(detail);
@@ -450,7 +453,7 @@ public class PadPipelineServiceTest {
 
 
   @Test
-  public void getMasterPipelineIds_serviceInteraction() {
+  void getMasterPipelineIds_serviceInteraction() {
     var pipelineId = new PipelineId(1);
     when(padPipelineRepository.getMasterPipelineIdsOnApplication(detail)).thenReturn(Set.of(pipelineId));
     Set<PipelineId> result = padPipelineService.getMasterPipelineIds(detail);
@@ -458,7 +461,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void copyDataToNewPadPipeline_verifyDataMatches() {
+  void copyDataToNewPadPipeline_verifyDataMatches() {
     var pipelineDetail = new PipelineDetail();
     var pipeline = new Pipeline();
 
@@ -499,7 +502,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void copyDataToNewPadPipeline_verifyPadPipelineAssociatedWithCorrectPipeline() {
+  void copyDataToNewPadPipeline_verifyPadPipelineAssociatedWithCorrectPipeline() {
     var pipeline = new Pipeline();
     pipeline.setId(10);
     var pipelineDetail = new PipelineDetail(pipeline);
@@ -513,7 +516,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void copyDataToNewPadPipeline_transferredStatus_verifyPadPipelineHasTransferredData() {
+  void copyDataToNewPadPipeline_transferredStatus_verifyPadPipelineHasTransferredData() {
     var pipeline = new Pipeline();
     pipeline.setId(10);
     var pipelineDetail = new PipelineDetail(pipeline);
@@ -531,7 +534,7 @@ public class PadPipelineServiceTest {
 
 
   @Test
-  public void copyDataToNewPadPipeline_noReason_notOnSeabed() {
+  void copyDataToNewPadPipeline_noReason_notOnSeabed() {
     var pipelineDetail = new PipelineDetail();
     modifyPipelineForm.setPipelineStatus(PipelineStatus.IN_SERVICE);
     var pipelineWithCopiedData = padPipelineService.copyDataToNewPadPipeline(detail, pipelineDetail,
@@ -541,7 +544,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void copyDataToNewPadPipeline_verifySaved() {
+  void copyDataToNewPadPipeline_verifySaved() {
     var pipelineDetail = new PipelineDetail();
 
     var fromCoordinatePair = new CoordinatePair(
@@ -565,7 +568,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void getPipelineOverviewMap_correctGrouping() {
+  void getPipelineOverviewMap_correctGrouping() {
     when(padPipelineRepository.getAllByPwaApplicationDetailAndIdIn(detail, List.of(padPipe1.getId())))
         .thenReturn(List.of(padPipe1));
     padPipe1.setPipelineStatus(PipelineStatus.IN_SERVICE);
@@ -576,7 +579,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void isValidationRequiredByStatus_statusSmokeTest() {
+  void isValidationRequiredByStatus_statusSmokeTest() {
     PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       switch (pipelineStatus) {
@@ -591,7 +594,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void isPadPipelineValid_valid() {
+  void isPadPipelineValid_valid() {
     PipelineStatus.stream().forEach(pipelineStatus -> {
       padPipe1.setPipelineStatus(pipelineStatus);
       assertThat(padPipelineService.isPadPipelineValid(padPipe1, detail.getPwaApplicationType())).isTrue();
@@ -599,7 +602,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void isPadPipelineValid_withError_invalid() {
+  void isPadPipelineValid_withError_invalid() {
 
     doAnswer(invocation -> {
       var bindingResult = (BindingResult) invocation.getArgument(1);
@@ -622,7 +625,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void updatePipeline_setPipelineMaterial_assertOtherMaterialDescriptionCleared() {
+  void updatePipeline_setPipelineMaterial_assertOtherMaterialDescriptionCleared() {
     padPipe1.setPipelineMaterial(PipelineMaterial.OTHER);
     padPipe1.setOtherPipelineMaterialUsed("concrete");
     var pipelineHeaderForm = createBaseHeaderForm();
@@ -636,7 +639,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void createTransferredPipeline_newPipelineNumber() {
+  void createTransferredPipeline_newPipelineNumber() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(true);
@@ -660,7 +663,7 @@ public class PadPipelineServiceTest {
   }
 
   @Test
-  public void createTransferredPipeline_retainedPipelineNumber() {
+  void createTransferredPipeline_retainedPipelineNumber() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false);

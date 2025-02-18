@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummaryType;
@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ProjectExtensionSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ProjectExtensionSummaryServiceTest {
 
   @Mock
   TaskListService taskListService;
@@ -31,20 +31,20 @@ public class ProjectExtensionSummaryServiceTest {
 
   private ProjectExtensionSummaryService projectExtensionSummaryService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     projectExtensionSummaryService = new ProjectExtensionSummaryService(taskListService, padFileService);
   }
 
   @Test
-  public void canSummariseTest() {
+  void canSummariseTest() {
     when(taskListService.anyTaskShownForApplication(eq(Set.of(ApplicationTask.PROJECT_EXTENSION)),
         any(PwaApplicationDetail.class))).thenReturn(true);
     assertTrue(projectExtensionSummaryService.canSummarise(new PwaApplicationDetail()));
   }
 
   @Test
-  public void summariseService_verifyServiceInteractions() {
+  void summariseService_verifyServiceInteractions() {
     projectExtensionSummaryService.summariseSection(new PwaApplicationDetail(),
         ApplicationSectionSummaryType.PROJECT_EXTENSION.getTemplatePath());
 

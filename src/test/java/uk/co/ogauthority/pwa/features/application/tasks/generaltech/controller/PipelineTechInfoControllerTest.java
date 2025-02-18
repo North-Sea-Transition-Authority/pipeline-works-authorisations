@@ -8,16 +8,14 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Collections;
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -39,9 +37,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelineTechInfoController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineTechInfoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -58,8 +55,8 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   private PwaApplicationContext pwaApplicationContext;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -82,10 +79,8 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
-
   @Test
-  public void renderAddPipelineTechInfo_permissionSmokeTest() {
+  void renderAddPipelineTechInfo_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
@@ -95,7 +90,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderAddPipelineTechInfo_appTypeSmokeTest() {
+  void renderAddPipelineTechInfo_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
@@ -106,7 +101,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void renderAddPipelineTechInfo_appStatusSmokeTest() {
+  void renderAddPipelineTechInfo_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineTechInfoController.class)
@@ -117,9 +112,8 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
 
-
   @Test
-  public void postAddPipelineTechInfo_appTypeSmokeTest() {
+  void postAddPipelineTechInfo_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -131,7 +125,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postAddPipelineTechInfo_appStatusSmokeTest() {
+  void postAddPipelineTechInfo_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -144,7 +138,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postAddPipelineTechInfo_permissionSmokeTest() {
+  void postAddPipelineTechInfo_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -157,7 +151,7 @@ public class PipelineTechInfoControllerTest extends PwaApplicationContextAbstrac
   }
 
   @Test
-  public void postAddPipelineTechInfo_failValidation() {
+  void postAddPipelineTechInfo_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPipelineTechInfoService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())

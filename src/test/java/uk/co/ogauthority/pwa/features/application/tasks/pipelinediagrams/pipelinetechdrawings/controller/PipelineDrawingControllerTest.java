@@ -16,16 +16,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -51,12 +49,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = PipelineDrawingController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class PipelineDrawingControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineDrawingControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
   private PwaApplicationEndpointTestBuilder endpointTester;
@@ -76,8 +73,8 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
     // set default checks for entire controller
@@ -116,7 +113,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderAddDrawing_appTypeSmokeTest() {
+  void renderAddDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -133,7 +130,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderAddDrawing_appStatusSmokeTest() {
+  void renderAddDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -150,7 +147,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderAddDrawing_contactRoleSmokeTest() {
+  void renderAddDrawing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -167,7 +164,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_appTypeSmokeTest() {
+  void postAddDrawing_appTypeSmokeTest() {
 
     var form = new PipelineDrawingForm();
 
@@ -188,7 +185,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_appStatusSmokeTest() {
+  void postAddDrawing_appStatusSmokeTest() {
 
     var form = new PipelineDrawingForm();
 
@@ -209,7 +206,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_contactRoleSmokeTest() {
+  void postAddDrawing_contactRoleSmokeTest() {
 
     var form = new PipelineDrawingForm();
 
@@ -230,7 +227,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_failValidation() {
+  void postAddDrawing_failValidation() {
 
     var form = new PipelineDrawingForm();
 
@@ -259,7 +256,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postAddDrawing_passValidation() throws Exception {
+  void postAddDrawing_passValidation() throws Exception {
 
     var form = new PipelineDrawingForm();
 
@@ -277,7 +274,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderRemoveDrawing_appTypeSmokeTest() {
+  void renderRemoveDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -294,7 +291,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderRemoveDrawing_appStatusSmokeTest() {
+  void renderRemoveDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -311,7 +308,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderRemoveDrawing_contactRoleSmokeTest() {
+  void renderRemoveDrawing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -328,7 +325,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postRemoveDrawing_appTypeSmokeTest() {
+  void postRemoveDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -349,7 +346,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postRemoveDrawing_appStatusSmokeTest() {
+  void postRemoveDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -369,7 +366,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postRemoveDrawing_contactRoleSmokeTest() {
+  void postRemoveDrawing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -389,7 +386,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditDrawing_appTypeSmokeTest() {
+  void renderEditDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -407,7 +404,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditDrawing_appStatusSmokeTest() {
+  void renderEditDrawing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -425,7 +422,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void renderEditDrawing_contactRoleSmokeTest() {
+  void renderEditDrawing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -443,7 +440,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postEditDrawing_appTypeSmokeTest() {
+  void postEditDrawing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)
@@ -466,7 +463,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postEditDrawing_appStatusSmokeTest() {
+  void postEditDrawing_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -489,7 +486,7 @@ public class PipelineDrawingControllerTest extends PwaApplicationContextAbstract
   }
 
   @Test
-  public void postEditDrawing_contactRoleSmokeTest() {
+  void postEditDrawing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineDrawingController.class)

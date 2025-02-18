@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.domain.pwa.application.service;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -9,13 +10,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -24,8 +25,8 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationServiceTest {
 
   @Mock
   private PwaApplicationRepository pwaApplicationRepository;
@@ -37,40 +38,41 @@ public class PwaApplicationServiceTest {
 
   private PwaApplication pwaApplication;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationService = new PwaApplicationService(
         pwaApplicationRepository
     );
 
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
-    when(pwaApplicationRepository.findById(any())).thenReturn(Optional.of(pwaApplication));
 
   }
 
   @Test
-  public void getApplicationFromId_verifyServiceInteraction() {
-
+  void getApplicationFromId_verifyServiceInteraction() {
+    when(pwaApplicationRepository.findById(any())).thenReturn(Optional.of(pwaApplication));
     pwaApplicationService.getApplicationFromId(1);
     verify(pwaApplicationRepository, times(1)).findById(1);
   }
 
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getApplicationFromId_noApplicationFound() {
+  @Test
+  void getApplicationFromId_noApplicationFound() {
+    when(pwaApplicationRepository.findById(any())).thenReturn(Optional.of(pwaApplication));
     when(pwaApplicationRepository.findById(any())).thenReturn(Optional.empty());
-    pwaApplicationService.getApplicationFromId(1);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      pwaApplicationService.getApplicationFromId(1));
 
   }
 
   @Test
-  public void getAllApplicationsForMasterPwa() {
+  void getAllApplicationsForMasterPwa() {
     when(pwaApplicationRepository.findAllByMasterPwa(pwaApplication.getMasterPwa())).thenReturn(List.of(pwaApplication));
     assertThat(pwaApplicationService.getAllApplicationsForMasterPwa(pwaApplication.getMasterPwa())).isEqualTo(List.of(pwaApplication));
   }
 
   @Test
-  public void updateApplicantOrganisationUnitId() {
+  void updateApplicantOrganisationUnitId() {
 
     var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
 

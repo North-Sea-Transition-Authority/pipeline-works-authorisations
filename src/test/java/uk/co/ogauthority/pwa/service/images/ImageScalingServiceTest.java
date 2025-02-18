@@ -13,21 +13,21 @@ import java.sql.SQLException;
 import javax.imageio.ImageIO;
 import javax.sql.rowset.serial.SerialBlob;
 import org.imgscalr.Scalr;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ImageScalingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ImageScalingServiceTest {
 
   @Mock
   private MetricsProvider metricsProvider;
@@ -42,8 +42,8 @@ public class ImageScalingServiceTest {
 
   private Timer timer;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     timer = TimerMetricTestUtils.setupTimerMetric(
         ImageScalingService.class, "pwa.imageScalingTimer", appender);
@@ -54,7 +54,7 @@ public class ImageScalingServiceTest {
   }
 
   @Test
-  public void scaleImage_small_portrait_noTransform() throws IOException, SQLException {
+  void scaleImage_small_portrait_noTransform() throws IOException, SQLException {
 
     var imageRes = new ClassPathResource("test-image-small-portrait.png");
 
@@ -81,7 +81,7 @@ public class ImageScalingServiceTest {
   }
 
   @Test
-  public void scaleImage_small_landscape_rotated() throws IOException, SQLException {
+  void scaleImage_small_landscape_rotated() throws IOException, SQLException {
 
     var imageRes = new ClassPathResource("test-image-small-landscape.jpg");
 
@@ -108,7 +108,7 @@ public class ImageScalingServiceTest {
   }
 
   @Test
-  public void scaleImage_large_landscape_rotatedAndResized() throws IOException, SQLException {
+  void scaleImage_large_landscape_rotatedAndResized() throws IOException, SQLException {
 
     var imageRes = new ClassPathResource("test-image-large-landscape.jpg");
 

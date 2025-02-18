@@ -10,15 +10,15 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentTestUtil;
 import uk.co.ogauthority.pwa.model.form.asbuilt.AsBuiltNotificationSubmissionForm;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltInteractorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltInteractorServiceTest {
 
   private static final String AS_BUILT_REFERENCE = "AS/BUILT/REFERENCE";
   private static final LocalDate DEADLINE_DATE = LocalDate.of(2021, 1, 1);
@@ -75,8 +75,8 @@ public class AsBuiltInteractorServiceTest {
     };
   }
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     asBuiltInteractorService = new AsBuiltInteractorService(
         asBuiltNotificationGroupRepository,
@@ -88,13 +88,13 @@ public class AsBuiltInteractorServiceTest {
 
     pwaConsent = PwaConsentTestUtil.createInitial(null);
 
-    when(asBuiltNotificationGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
   }
 
 
   @Test
-  public void createAsBuiltNotification_serviceInteractions() {
+  void createAsBuiltNotification_serviceInteractions() {
+
+    when(asBuiltNotificationGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var pipelineSpecs = List.of(
         new AsBuiltPipelineNotificationSpec(new PipelineDetailId(1), PipelineChangeCategory.NEW_PIPELINE)
@@ -118,7 +118,9 @@ public class AsBuiltInteractorServiceTest {
   }
 
   @Test
-  public void createAsBuiltNotification_asBuiltGroupValuesSetAsExpected() {
+  void createAsBuiltNotification_asBuiltGroupValuesSetAsExpected() {
+
+    when(asBuiltNotificationGroupRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var pipelineSpecs = List.of(
         new AsBuiltPipelineNotificationSpec(new PipelineDetailId(1), PipelineChangeCategory.NEW_PIPELINE)
@@ -139,7 +141,7 @@ public class AsBuiltInteractorServiceTest {
   }
 
   @Test
-  public void submitAsBuiltNotification_callsSubmissionService() {
+  void submitAsBuiltNotification_callsSubmissionService() {
     var abngPipeline = new AsBuiltNotificationGroupPipeline();
     var form = new AsBuiltNotificationSubmissionForm();
     asBuiltInteractorService.submitAsBuiltNotification(abngPipeline, form, user);
@@ -147,13 +149,13 @@ public class AsBuiltInteractorServiceTest {
   }
 
   @Test
-  public void notifyHoldersOfAsBuiltGroupDeadlines_callsDeadlineService() {
+  void notifyHoldersOfAsBuiltGroupDeadlines_callsDeadlineService() {
     asBuiltInteractorService.notifyHoldersOfAsBuiltGroupDeadlines();
     verify(asBuiltGroupDeadlineService).notifyHoldersOfAsBuiltGroupDeadlines();
   }
 
   @Test
-  public void reopenAsBuiltNotificationGroup() {
+  void reopenAsBuiltNotificationGroup() {
     asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS,
         user.getLinkedPerson());
     verify(asBuiltNotificationGroupStatusService).setGroupStatusIfNewOrChanged(asBuiltNotificationGroup,

@@ -2,19 +2,19 @@ package uk.co.ogauthority.pwa.mvc.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.TechnicalSupportContactProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ErrorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ErrorServiceTest {
 
   @Mock
   private TechnicalSupportContactProperties technicalSupportContactProperties;
@@ -27,14 +27,14 @@ public class ErrorServiceTest {
 
   private ErrorService errorService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     errorService = new ErrorService(technicalSupportContactProperties, serviceProperties,
         analyticsConfigurationProperties);
   }
 
   @Test
-  public void addErrorAttributesToModel_whenThrowableError_assertExpectedModelAttributes() {
+  void addErrorAttributesToModel_whenThrowableError_assertExpectedModelAttributes() {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         new NullPointerException()
@@ -54,7 +54,7 @@ public class ErrorServiceTest {
   }
 
   @Test
-  public void addErrorAttributesToModel_whenNoThrowableError_assertExpectedModelAttributes() {
+  void addErrorAttributesToModel_whenNoThrowableError_assertExpectedModelAttributes() {
     final var resultingModelMap =  errorService.addErrorAttributesToModel(
         new ModelAndView(),
         null

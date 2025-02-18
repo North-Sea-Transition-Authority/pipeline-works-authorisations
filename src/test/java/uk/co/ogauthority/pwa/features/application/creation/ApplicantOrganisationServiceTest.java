@@ -5,11 +5,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicantOrganisationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicantOrganisationServiceTest {
 
   @Mock
   private PwaHolderService pwaHolderService;
@@ -34,8 +34,8 @@ public class ApplicantOrganisationServiceTest {
   private final MasterPwa masterPwa = new MasterPwa();
   private final WebUserAccount webUserAccount = new WebUserAccount();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     applicantOrganisationService = new ApplicantOrganisationService(pwaHolderService, pwaHolderTeamService);
 
@@ -48,7 +48,7 @@ public class ApplicantOrganisationServiceTest {
   }
 
   @Test
-  public void getPotentialApplicantOrganisations_userIsInAHolderTeam_onlyRelevantOrgsReturned() {
+  void getPotentialApplicantOrganisations_userIsInAHolderTeam_onlyRelevantOrgsReturned() {
 
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of(linkedOrg1, linkedOrg2));
@@ -60,7 +60,7 @@ public class ApplicantOrganisationServiceTest {
   }
 
   @Test
-  public void getPotentialApplicantOrganisations_userNotInAnyRelevantTeams_nothingReturned() {
+  void getPotentialApplicantOrganisations_userNotInAnyRelevantTeams_nothingReturned() {
 
     when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
         .thenReturn(List.of());

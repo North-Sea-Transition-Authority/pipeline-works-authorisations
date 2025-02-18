@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,13 +14,15 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -51,8 +53,9 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationRequestServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ConsultationRequestServiceTest {
 
   private ConsultationRequestService consultationRequestService;
 
@@ -89,8 +92,8 @@ public class ConsultationRequestServiceTest {
 
   private AuthenticatedUserAccount authenticatedUserAccount;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var webUserAccount = new WebUserAccount(1, new Person(1, "", "", "", ""));
     authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, List.of());
@@ -116,7 +119,7 @@ public class ConsultationRequestServiceTest {
 
 
   @Test
-  public void saveEntitiesUsingForm_consulteeGroupSelected() {
+  void saveEntitiesUsingForm_consulteeGroupSelected() {
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(22);
@@ -179,7 +182,7 @@ public class ConsultationRequestServiceTest {
 
 
   @Test
-  public void getConsultationRecipients() {
+  void getConsultationRecipients() {
 
     var consultationRequest = new ConsultationRequest();
     var consulteeGroup = new ConsulteeGroup();
@@ -200,7 +203,7 @@ public class ConsultationRequestServiceTest {
   }
 
   @Test
-  public void getAssignedResponderForConsultation_responderExists() {
+  void getAssignedResponderForConsultation_responderExists() {
 
     var assignedResponderPersonId = new PersonId(1);
         var consultationRequest = new ConsultationRequest();
@@ -215,14 +218,14 @@ public class ConsultationRequestServiceTest {
   }
 
   @Test
-  public void getAssignedResponderForConsultation_noAssignedResponder() {
+  void getAssignedResponderForConsultation_noAssignedResponder() {
     var responder = consultationRequestService.getAssignedResponderForConsultation(new ConsultationRequest());
     assertThat(responder).isNull();
   }
 
 
   @Test
-  public void validate_valid() {
+  void validate_valid() {
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(22);
@@ -240,7 +243,7 @@ public class ConsultationRequestServiceTest {
   }
 
   @Test
-  public void validate_invalid() {
+  void validate_invalid() {
     var form = new ConsultationRequestForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     consultationRequestService.validate(form, bindingResult, pwaApplicationDetail.getPwaApplication());
@@ -249,7 +252,7 @@ public class ConsultationRequestServiceTest {
 
 
   @Test
-  public void isConsultationRequestOpen() {
+  void isConsultationRequestOpen() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
     consultationRequestService.isConsultationRequestOpen(consulteeGroup, pwaApplicationDetail.getPwaApplication());
@@ -258,7 +261,7 @@ public class ConsultationRequestServiceTest {
   }
 
   @Test
-  public void getGroupDetailsForConsulteeGroups() {
+  void getGroupDetailsForConsulteeGroups() {
 
     var consulteeGroup1 = new ConsulteeGroup();
     consulteeGroup1.setId(1);
@@ -283,7 +286,7 @@ public class ConsultationRequestServiceTest {
   }
 
   @Test
-  public void getAllRequestsByAppAndGroupRespondedOnly() {
+  void getAllRequestsByAppAndGroupRespondedOnly() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
     consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(pwaApplicationDetail.getPwaApplication(), consulteeGroup);

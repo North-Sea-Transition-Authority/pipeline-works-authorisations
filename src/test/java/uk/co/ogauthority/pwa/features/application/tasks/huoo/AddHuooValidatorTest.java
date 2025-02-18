@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
@@ -22,8 +24,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AddHuooValidatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AddHuooValidatorTest {
 
   @Mock
   private PadOrganisationRoleService organisationRoleService;
@@ -33,8 +36,8 @@ public class AddHuooValidatorTest {
   private PwaApplicationDetail detail;
   private List<PadOrganisationRole> orgRoles;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     detail = new PwaApplicationDetail();
     detail.setNumOfHolders(2);
@@ -47,7 +50,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void valid_portalOrg_dataPresent() {
+  void valid_portalOrg_dataPresent() {
 
     var form = buildForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
@@ -59,7 +62,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void valid_treaty_dataPresent() {
+  void valid_treaty_dataPresent() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
@@ -72,7 +75,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void invalid_mandatory_huooTypeNotPresent() {
+  void invalid_mandatory_huooTypeNotPresent() {
 
     var form = new HuooForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, detail);
@@ -84,7 +87,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void invalid_mandatory_huooType_portalOrg() {
+  void invalid_mandatory_huooType_portalOrg() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
@@ -99,7 +102,7 @@ public class AddHuooValidatorTest {
 
 
   @Test
-  public void validate_orgUnitIdIsInvalid_invalid() {
+  void validate_orgUnitIdIsInvalid_invalid() {
 
     var form = buildForm();
 
@@ -122,7 +125,7 @@ public class AddHuooValidatorTest {
 
 
   @Test
-  public void invalid_huooType_portalOrg_duplicate() {
+  void invalid_huooType_portalOrg_duplicate() {
 
     var form = buildForm();
 
@@ -143,7 +146,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void invalid_huooType_treaty_addSecond() {
+  void invalid_huooType_treaty_addSecond() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
@@ -164,7 +167,7 @@ public class AddHuooValidatorTest {
   }
 
   @Test
-  public void invalid_huooType_portalOrg_holderNotAllowed() {
+  void invalid_huooType_portalOrg_holderNotAllowed() {
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -189,7 +192,7 @@ public class AddHuooValidatorTest {
 
 
   @Test
-  public void validateHolderCountLessThanOverallPwa_invalid() {
+  void validateHolderCountLessThanOverallPwa_invalid() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -208,7 +211,7 @@ public class AddHuooValidatorTest {
 
 
   @Test
-  public void validateHolderCountLessThanOverallPwa_valid() {
+  void validateHolderCountLessThanOverallPwa_valid() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));

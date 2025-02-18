@@ -14,11 +14,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates.OrganisationRolesSummaryDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.aggregates.AllOrgRolePipelineGroupsView;
@@ -34,8 +34,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailMigrati
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaHuooHistoryViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaHuooHistoryViewServiceTest {
 
   @Mock
   private HuooSummaryService huooSummaryService;
@@ -64,8 +64,8 @@ public class PwaHuooHistoryViewServiceTest {
   private static Instant EARLIEST_TIME;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaHuooHistoryViewService = new PwaHuooHistoryViewService(huooSummaryService,
         pwaConsentOrganisationRoleService, pipelineDetailMigrationHuooDataService, pwaConsentService, pipelineService,
         pipelineDetailService);
@@ -80,7 +80,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_previousConsentsPresent_verifyServiceInteractions() {
+  void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_previousConsentsPresent_verifyServiceInteractions() {
 
     var pipelineId = new PipelineId(1);
     var pipeline = new Pipeline();
@@ -127,7 +127,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_noPreviousConsents_noDiff_verifyServiceInteractions() {
+  void getDiffedHuooSummaryAtTimeOfConsentAndPipeline_diffedSummaryCreated_noPreviousConsents_noDiff_verifyServiceInteractions() {
 
     var pipelineId = new PipelineId(1);
     var pipeline = new Pipeline();
@@ -165,7 +165,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getAllConsentsOnOrAfterFirstConsentOfPipeline_latestConsentsUpToAndIncludingFirstConsentOfPipelineReturned() {
+  void getAllConsentsOnOrAfterFirstConsentOfPipeline_latestConsentsUpToAndIncludingFirstConsentOfPipelineReturned() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(3, "19/W/06", LATEST_TIME, 2),
@@ -183,7 +183,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getAllConsentsOnOrAfterFirstConsentOfPipeline_migratedConsentsExcludedExceptForLatest() {
+  void getAllConsentsOnOrAfterFirstConsentOfPipeline_migratedConsentsExcludedExceptForLatest() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(5, "19/W/05", LATEST_TIME, 4),
@@ -203,7 +203,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_consentsUnOrdered_returnedConsentsAreSorted_consentsAfterPipeStartReturned() {
+  void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_consentsUnOrdered_returnedConsentsAreSorted_consentsAfterPipeStartReturned() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(1, "1/W/1", EARLIEST_TIME),
@@ -228,7 +228,7 @@ public class PwaHuooHistoryViewServiceTest {
   }
 
   @Test
-  public void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_firstPipeDetailConsentDifferent_noError() {
+  void getAllNonMigratedConsentsPlusLatestMigratedOnOrAfterFirstConsentOfPipeline_firstPipeDetailConsentDifferent_noError() {
 
     var allConsents = new ArrayList<>(Arrays.asList(
         PwaConsentTestUtil.createPwaConsent(1, "1/W/1", EARLIEST_TIME),
@@ -250,7 +250,7 @@ public class PwaHuooHistoryViewServiceTest {
 
 
   @Test
-  public void getOrganisationRoleSummaryForHuooMigratedData_diffedSummaryCreated_verifyServiceInteractions() {
+  void getOrganisationRoleSummaryForHuooMigratedData_diffedSummaryCreated_verifyServiceInteractions() {
 
     var selectedPipelineDetailId = 1;
     var selectedPipelineDetail = PipelineDetailTestUtil.createPipelineDetail(selectedPipelineDetailId, new PipelineId(1), Instant.now());

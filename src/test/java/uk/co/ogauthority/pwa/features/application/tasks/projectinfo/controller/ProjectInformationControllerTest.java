@@ -20,15 +20,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -53,9 +51,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ProjectInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ProjectInformationControllerTest extends PwaApplicationContextAbstractControllerTest {
+class ProjectInformationControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -88,8 +85,8 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   private PwaApplicationDetail pwaApplicationDetail;
   private PadProjectInformation padProjectInformation;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     webUserAccount = new WebUserAccount(1);
     user = new AuthenticatedUserAccount(webUserAccount, Set.of());
 
@@ -112,7 +109,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+  void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
     for (var appType : PwaApplicationType.values()) {
       try {
         pwaApplication.setApplicationType(appType);
@@ -135,7 +132,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_authenticatedUser_validPermanentDepositMadeForAppType() throws Exception {
+  void renderProjectInformation_authenticatedUser_validPermanentDepositMadeForAppType() throws Exception {
     for (var appType : PwaApplicationType.values()) {
       try {
         pwaApplication.setApplicationType(appType);
@@ -161,7 +158,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_authenticatedUser_licenceApplicationsSmokeTest() throws Exception {
+  void renderProjectInformation_authenticatedUser_licenceApplicationsSmokeTest() throws Exception {
     var form = new ProjectInformationForm();
     form.setPearsApplicationList(new String[]{"5555"});
 
@@ -184,7 +181,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postCompleteProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+  void postCompleteProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
 
@@ -210,7 +207,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
+  void postProjectInformation_continue_authenticatedUser_appTypeSmokeTest() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
 
@@ -238,7 +235,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_unauthenticated() throws Exception {
+  void renderProjectInformation_unauthenticated() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(PwaApplicationType.INITIAL, null, null, null))))
@@ -247,7 +244,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation_complete_unauthenticated() throws Exception {
+  void postProjectInformation_complete_unauthenticated() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
@@ -257,7 +254,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation_continue_unauthenticated() throws Exception {
+  void postProjectInformation_continue_unauthenticated() throws Exception {
     mockMvc.perform(
         post(ReverseRouter.route(
             on(ProjectInformationController.class)
@@ -267,7 +264,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderProjectInformation_serviceInteractions() throws Exception {
+  void renderProjectInformation_serviceInteractions() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(ProjectInformationController.class)
             .renderProjectInformation(PwaApplicationType.INITIAL, 1, null, null)))
@@ -279,7 +276,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation__continue_validForm() throws Exception {
+  void postProjectInformation__continue_validForm() throws Exception {
 
     ControllerTestUtils.passValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.PARTIAL);
 
@@ -295,7 +292,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation__continue_formValidationFailed() throws Exception {
+  void postProjectInformation__continue_formValidationFailed() throws Exception {
 
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{
       add(ValidationType.PARTIAL.getButtonText(), ValidationType.PARTIAL.getButtonText());
@@ -316,7 +313,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation__complete_noData() throws Exception {
+  void postProjectInformation__complete_noData() throws Exception {
 
     ControllerTestUtils.failValidationWhenPost(padProjectInformationService, new ProjectInformationForm(), ValidationType.FULL);
 
@@ -333,7 +330,7 @@ public class ProjectInformationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postProjectInformation_complete_valid() throws Exception {
+  void postProjectInformation_complete_valid() throws Exception {
 
     LocalDate date = LocalDate.now().plusDays(2);
     MultiValueMap<String, String> params = new LinkedMultiValueMap<>() {{

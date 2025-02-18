@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -32,9 +30,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ModifyPipelineController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractControllerTest {
+class ModifyPipelineControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -51,8 +48,8 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   private PwaApplicationEndpointTestBuilder endpointTester;
   private static final int APP_ID = 1;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
@@ -73,7 +70,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderImportConsentedPipeline_permissionSmokeTest() {
+  void renderImportConsentedPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -85,7 +82,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderImportConsentedPipeline_appTypeSmokeTest() {
+  void renderImportConsentedPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -97,7 +94,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderImportConsentedPipeline_appStatusSmokeTest() {
+  void renderImportConsentedPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -109,7 +106,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postImportConsentedPipeline_permissionSmokeTest() {
+  void postImportConsentedPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -122,7 +119,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postImportConsentedPipeline_appTypeSmokeTest() {
+  void postImportConsentedPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -135,7 +132,7 @@ public class ModifyPipelineControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postImportConsentedPipeline_appStatusSmokeTest() {
+  void postImportConsentedPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

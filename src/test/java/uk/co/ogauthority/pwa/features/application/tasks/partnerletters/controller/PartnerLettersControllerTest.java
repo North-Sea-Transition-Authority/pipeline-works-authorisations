@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -33,9 +31,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PartnerLettersController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PartnerLettersControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PartnerLettersControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -50,8 +47,8 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -69,10 +66,8 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
 
-
-
   @Test
-  public void renderAddPartnerLetters_permissionSmokeTest() {
+  void renderAddPartnerLetters_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
@@ -82,7 +77,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddPartnerLetters_appTypeSmokeTest() {
+  void renderAddPartnerLetters_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
@@ -93,7 +88,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddPartnerLetters_appStatusSmokeTest() {
+  void renderAddPartnerLetters_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PartnerLettersController.class)
@@ -104,9 +99,8 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
 
-
   @Test
-  public void postAddPartnerLetters_appTypeSmokeTest() {
+  void postAddPartnerLetters_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -118,7 +112,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddPartnerLetters_appStatusSmokeTest() {
+  void postAddPartnerLetters_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -131,7 +125,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddPartnerLetters_permissionSmokeTest() {
+  void postAddPartnerLetters_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")
@@ -144,7 +138,7 @@ public class PartnerLettersControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddPartnerLetters_failValidation() {
+  void postAddPartnerLetters_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padPartnerLettersService, new PartnerLettersForm(), ValidationType.FULL);
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), "")

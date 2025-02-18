@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -117,7 +117,7 @@ public abstract class AbstractControllerTest {
   @Autowired
   protected TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
-  @Before
+  @BeforeEach
   public void commonControllerTestSetup() {
 
     when(pwaApplicationRedirectService.getTaskListRedirect(any())).thenCallRealMethod();

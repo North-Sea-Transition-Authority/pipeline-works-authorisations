@@ -11,15 +11,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -40,9 +38,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PublicNoticeApplicantViewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -55,8 +52,8 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.VIEW_PUBLIC_NOTICE);
@@ -92,7 +89,7 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
 
 
   @Test
-  public void renderViewPublicNotice_processingPermissionSmokeTest() {
+  void renderViewPublicNotice_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -104,7 +101,7 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderViewPublicNotice_noSatisfactoryVersions() throws Exception {
+  void renderViewPublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
@@ -119,7 +116,7 @@ public class ViewPublicNoticeControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderViewPublicNotice_noViewablePublicNoticeDocument() throws Exception {
+  void renderViewPublicNotice_noViewablePublicNoticeDocument() throws Exception {
 
     when(publicNoticeService.canApplicantViewLatestPublicNotice(any())).thenReturn(false);
 

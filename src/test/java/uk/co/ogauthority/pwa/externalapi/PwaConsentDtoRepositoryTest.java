@@ -7,8 +7,8 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 @ActiveProfiles("integration-test")
 @DirtiesContext
 @Transactional
-public class PwaConsentDtoRepositoryTest {
+class PwaConsentDtoRepositoryTest {
 
   @Autowired
   private TestEntityManager entityManager;
@@ -41,8 +41,8 @@ public class PwaConsentDtoRepositoryTest {
   @Autowired
   private PwaConsentDtoRepository pwaConsentDtoRepository;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     var currentDate = Instant.now();
 
     var firstPwa = new MasterPwa();
@@ -80,7 +80,7 @@ public class PwaConsentDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwaConsents_searchByPwaIds() {
+  void searchPwaConsents_searchByPwaIds() {
     var searchedIds = List.of(firstPwaDetail.getMasterPwaId(), secondPwaDetail.getMasterPwaId());
     var resultingConsentDtos = pwaConsentDtoRepository.searchPwaConsents(searchedIds);
 
@@ -90,7 +90,7 @@ public class PwaConsentDtoRepositoryTest {
   }
 
   @Test
-  public void searchPwaConsents_whenNoPwaIds_thenReturnEmptyList() {
+  void searchPwaConsents_whenNoPwaIds_thenReturnEmptyList() {
     var resultingConsentDtos = pwaConsentDtoRepository.searchPwaConsents(Collections.emptyList());
     assertThat(resultingConsentDtos).isEmpty();
   }

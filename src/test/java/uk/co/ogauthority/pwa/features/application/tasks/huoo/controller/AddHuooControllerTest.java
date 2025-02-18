@@ -16,16 +16,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -51,12 +49,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = AddHuooController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class AddHuooControllerTest extends PwaApplicationContextAbstractControllerTest {
+class AddHuooControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -83,8 +80,8 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
@@ -114,7 +111,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderAddHuoo_appTypeSmokeTest() {
+  void renderAddHuoo_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -132,7 +129,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderAddHuoo_appStatusSmokeTest() {
+  void renderAddHuoo_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -150,7 +147,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderAddHuoo_contactRoleSmokeTest() {
+  void renderAddHuoo_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -168,7 +165,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderAddHuoo_modelContentsAsExpected() throws Exception {
+  void renderAddHuoo_modelContentsAsExpected() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -190,7 +187,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postAddHuoo_appTypeSmokeTest() {
+  void postAddHuoo_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -209,7 +206,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderEditOrgHuoo_appTypeSmokeTest() {
+  void renderEditOrgHuoo_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -228,7 +225,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderEditOrgHuoo_appStatusSmokeTest() {
+  void renderEditOrgHuoo_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -247,7 +244,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderEditOrgHuoo_contactRoleSmokeTest() {
+  void renderEditOrgHuoo_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -266,7 +263,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postEditOrgHuoo_appTypeSmokeTest() {
+  void postEditOrgHuoo_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -286,7 +283,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postEditOrgHuoo_notIncludingTreatyFields() throws Exception {
+  void postEditOrgHuoo_notIncludingTreatyFields() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -306,7 +303,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderRemoveOrgHuoo_appStatusSmokeTest() {
+  void renderRemoveOrgHuoo_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -324,7 +321,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderRemoveTreatyHuoo_appStatusSmokeTest() {
+  void renderRemoveTreatyHuoo_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(AddHuooController.class)
@@ -342,7 +339,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderRemoveOrgHuoo() throws Exception {
+  void renderRemoveOrgHuoo() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -359,7 +356,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void renderRemoveTreatyHuoo() throws Exception {
+  void renderRemoveTreatyHuoo() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -379,7 +376,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postRemoveTreatyHuoo() throws Exception {
+  void postRemoveTreatyHuoo() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -393,7 +390,7 @@ public class AddHuooControllerTest extends PwaApplicationContextAbstractControll
   }
 
   @Test
-  public void postRemoveOrgHuoo() throws Exception {
+  void postRemoveOrgHuoo() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 

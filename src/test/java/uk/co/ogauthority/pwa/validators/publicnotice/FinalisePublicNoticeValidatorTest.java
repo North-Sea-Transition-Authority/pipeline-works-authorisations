@@ -5,28 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FinalisePublicNoticeValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class FinalisePublicNoticeValidatorTest {
 
   private FinalisePublicNoticeValidator validator;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new FinalisePublicNoticeValidator();
   }
 
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new FinalisePublicNoticeForm();
     form.setDaysToBePublishedFor(null);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, false);
@@ -38,7 +38,7 @@ public class FinalisePublicNoticeValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new FinalisePublicNoticeForm();
     form.setStartDay(1);
     form.setStartMonth(1);
@@ -50,7 +50,7 @@ public class FinalisePublicNoticeValidatorTest {
   }
 
   @Test
-  public void validate_changeFromPublish_reasonMissing() {
+  void validate_changeFromPublish_reasonMissing() {
     var form = new FinalisePublicNoticeForm();
     form.setStartDay(1);
     form.setStartMonth(1);
@@ -63,7 +63,7 @@ public class FinalisePublicNoticeValidatorTest {
   }
 
   @Test
-  public void validate_changeFromPublish_valid() {
+  void validate_changeFromPublish_valid() {
     var form = new FinalisePublicNoticeForm();
     form.setStartDay(1);
     form.setStartMonth(1);

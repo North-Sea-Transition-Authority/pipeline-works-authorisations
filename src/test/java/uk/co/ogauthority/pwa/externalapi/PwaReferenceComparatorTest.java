@@ -6,18 +6,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class PwaReferenceComparatorTest {
 
-  private final String firstPwaReference;
-  private final String secondPwaReference;
-  private final String thirdPwaReference;
+  private String firstPwaReference;
+  private String secondPwaReference;
+  private String thirdPwaReference;
 
-  public PwaReferenceComparatorTest(String firstPwaReference,
+  public void initPwaReferenceComparatorTest(String firstPwaReference,
                                     String secondPwaReference,
                                     String thirdPwaReference) {
     this.firstPwaReference = firstPwaReference;
@@ -25,8 +23,10 @@ public class PwaReferenceComparatorTest {
     this.thirdPwaReference = thirdPwaReference;
   }
 
-  @Test
-  public void compare() {
+  @MethodSource("getPwasToCompare")
+  @ParameterizedTest(name = "{0} {1} {2}")
+  public void compare(String firstPwaReference, String secondPwaReference, String thirdPwaReference) {
+    initPwaReferenceComparatorTest(firstPwaReference, secondPwaReference, thirdPwaReference);
     var firstPwaDto = PwaDtoTestUtil.builder()
         .withReference(firstPwaReference)
         .build();
@@ -52,7 +52,6 @@ public class PwaReferenceComparatorTest {
         );
   }
 
-  @Parameterized.Parameters(name = "{0} {1} {2}")
   public static Collection getPwasToCompare() {
     return Arrays.asList(new Object[][] {
         {"1/W/01", "2/W/01", "10/W/01"},

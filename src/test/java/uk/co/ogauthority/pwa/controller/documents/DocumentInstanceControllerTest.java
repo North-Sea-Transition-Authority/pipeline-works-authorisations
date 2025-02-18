@@ -14,16 +14,14 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -47,9 +45,8 @@ import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = DocumentInstanceController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private PwaAppProcessingPermissionService pwaAppProcessingPermissionService;
@@ -67,8 +64,8 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW)
@@ -84,7 +81,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddClauseAfter_permissionSmokeTest() {
+  void renderAddClauseAfter_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -96,7 +93,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddClauseAfter_statusSmokeTest() {
+  void renderAddClauseAfter_statusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DocumentInstanceController.class)
@@ -120,7 +117,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseAfter_permissionSmokeTest() {
+  void postAddClauseAfter_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -134,7 +131,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseAfter_statusSmokeTest() {
+  void postAddClauseAfter_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -164,7 +161,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseAfter_success() throws Exception {
+  void postAddClauseAfter_success() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -202,7 +199,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseAfter_validationFail() throws Exception {
+  void postAddClauseAfter_validationFail() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -224,7 +221,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddClauseBefore_permissionSmokeTest() {
+  void renderAddClauseBefore_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -236,7 +233,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddClauseBefore_statusSmokeTest() {
+  void renderAddClauseBefore_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -248,7 +245,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseBefore_permissionSmokeTest() {
+  void postAddClauseBefore_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -262,7 +259,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseBefore_statusSmokeTest() {
+  void postAddClauseBefore_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -276,7 +273,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseBefore_success() throws Exception {
+  void postAddClauseBefore_success() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -314,7 +311,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddClauseBefore_validationFail() throws Exception {
+  void postAddClauseBefore_validationFail() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -336,7 +333,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddSubClauseFor_permissionSmokeTest() {
+  void renderAddSubClauseFor_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -348,7 +345,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderAddSubClauseFor_statusSmokeTest() {
+  void renderAddSubClauseFor_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -360,7 +357,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddSubClauseFor_permissionSmokeTest() {
+  void postAddSubClauseFor_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -374,7 +371,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddSubClauseFor_statusSmokeTest() {
+  void postAddSubClauseFor_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -388,7 +385,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddSubClauseFor_success() throws Exception {
+  void postAddSubClauseFor_success() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -426,7 +423,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postAddSubClauseFor_validationFail() throws Exception {
+  void postAddSubClauseFor_validationFail() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -448,7 +445,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderEditClause_statusSmokeTest() {
+  void renderEditClause_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -460,7 +457,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderEditClause_permissionSmokeTest() {
+  void renderEditClause_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -472,7 +469,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postEditClause_permissionSmokeTest() {
+  void postEditClause_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -486,7 +483,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postEditClause_statusSmokeTest() {
+  void postEditClause_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -500,7 +497,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postEditClause_success() throws Exception {
+  void postEditClause_success() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -538,7 +535,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postEditClause_validationFail() throws Exception {
+  void postEditClause_validationFail() throws Exception {
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -570,7 +567,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderRemoveClause_statusSmokeTest() {
+  void renderRemoveClause_statusSmokeTest() {
 
     var docView = mock(DocumentView.class);
     when(documentInstanceService.getDocumentView(any())).thenReturn(docView);
@@ -596,7 +593,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void renderRemoveClause_permissionSmokeTest() {
+  void renderRemoveClause_permissionSmokeTest() {
 
     var docView = mock(DocumentView.class);
     when(documentInstanceService.getDocumentView(any())).thenReturn(docView);
@@ -622,7 +619,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postRemoveClause_permissionSmokeTest() {
+  void postRemoveClause_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -634,7 +631,7 @@ public class DocumentInstanceControllerTest extends PwaAppProcessingContextAbstr
   }
 
   @Test
-  public void postRemoveClause_statusSmokeTest() {
+  void postRemoveClause_statusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

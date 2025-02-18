@@ -13,8 +13,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -45,9 +45,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CaseManagementController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class CaseManagementControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class CaseManagementControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -68,8 +67,8 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
 
   private PwaApplicationEvent consentIssueFailedEvent;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedProcessingPermissions(
@@ -82,9 +81,9 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
     consentIssueFailedEvent = new PwaApplicationEvent(app, PwaApplicationEventType.CONSENT_ISSUE_FAILED, Instant.now(), user);
 
   }
-  
+
   @Test
-  public void renderCaseManagement_appStatusSmokeTest() {
+  void renderCaseManagement_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -96,7 +95,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderCaseManagement_permissionSmokeTest() {
+  void renderCaseManagement_permissionSmokeTest() {
 
     when(appProcessingTabService.getTabsAvailableToUser(any())).thenReturn(List.of(AppProcessingTab.TASKS));
 
@@ -118,7 +117,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderCaseManagement_taskGroupNameWarningMessageMap_hasWarningMsgForCaseOfficer() {
+  void renderCaseManagement_taskGroupNameWarningMessageMap_hasWarningMsgForCaseOfficer() {
 
     var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -149,7 +148,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderCaseManagement_taskGroupNameWarningMessageMap_userIsNotAssignedCaseOfficer_noWarningMessage() {
+  void renderCaseManagement_taskGroupNameWarningMessageMap_userIsNotAssignedCaseOfficer_noWarningMessage() {
 
     var user = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_INDUSTRY));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -177,7 +176,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_isOga_hasWarningMessage() {
+  void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_isOga_hasWarningMessage() {
 
     var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -214,7 +213,7 @@ public class CaseManagementControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_userNotOga_noWarningMessage() {
+  void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_userNotOga_noWarningMessage() {
 
     var user = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_INDUSTRY));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

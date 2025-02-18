@@ -13,17 +13,17 @@ import java.util.List;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
 import org.apache.commons.codec.binary.Base64;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
 import uk.co.ogauthority.pwa.service.enums.documents.DocumentImageMethod;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentDocumentImageServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentDocumentImageServiceTest {
 
   @Mock
   private FileUploadService fileUploadService;
@@ -37,8 +37,8 @@ public class ConsentDocumentImageServiceTest {
   private File file1;
   private File file2;
 
-  @Before
-  public void setUp() throws SQLException {
+  @BeforeEach
+  void setUp() throws SQLException {
 
     base64ImageService = new ConsentDocumentImageService(fileUploadService, DocumentImageMethod.BASE_64);
     tempFileImageService = new ConsentDocumentImageService(fileUploadService, DocumentImageMethod.TEMP_FILE);
@@ -56,13 +56,10 @@ public class ConsentDocumentImageServiceTest {
     file1 = new File(uploadedFile1.getFileName() + uploadedFile1.getContentType().replace("image/", ""));
     file2 = new File(uploadedFile2.getFileName() + uploadedFile2.getContentType().replace("image/", ""));
 
-    when(fileUploadService.createTempFile(uploadedFile1)).thenReturn(file1);
-    when(fileUploadService.createTempFile(uploadedFile2)).thenReturn(file2);
-
   }
 
   @Test
-  public void convertFilesToImageSourceMap_base64() throws SQLException {
+  void convertFilesToImageSourceMap_base64() throws SQLException {
 
     var fileIdToBaseUriMap = base64ImageService.convertFilesToImageSourceMap(Set.of("id1", "id2"));
 
@@ -81,7 +78,10 @@ public class ConsentDocumentImageServiceTest {
   }
 
   @Test
-  public void convertFilesToImageSourceMap_tempFile() {
+  void convertFilesToImageSourceMap_tempFile() {
+
+    when(fileUploadService.createTempFile(uploadedFile1)).thenReturn(file1);
+    when(fileUploadService.createTempFile(uploadedFile2)).thenReturn(file2);
 
     var fileIdToFileUriMap = tempFileImageService.convertFilesToImageSourceMap(Set.of("id1", "id2"));
 

@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -32,12 +30,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = PipelineCrossingDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class PipelineCrossingDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineCrossingDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -54,8 +51,8 @@ public class PipelineCrossingDocumentsControllerTest extends PwaApplicationConte
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -75,7 +72,7 @@ public class PipelineCrossingDocumentsControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderEditPipelineCrossingDocuments_appTypeSmokeTest() {
+  void renderEditPipelineCrossingDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
@@ -93,7 +90,7 @@ public class PipelineCrossingDocumentsControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderEditPipelineCrossingDocuments_contactRoleSmokeTest() {
+  void renderEditPipelineCrossingDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
@@ -111,7 +108,7 @@ public class PipelineCrossingDocumentsControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderEditPipelineCrossingDocuments_appStatusSmokeTest() {
+  void renderEditPipelineCrossingDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineCrossingDocumentsController.class)

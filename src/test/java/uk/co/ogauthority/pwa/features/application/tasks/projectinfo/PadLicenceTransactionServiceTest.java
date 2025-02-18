@@ -7,18 +7,18 @@ import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadLicenceTransactionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadLicenceTransactionServiceTest {
 
   @Mock
   private PadProjectInformationLicenceApplicationRepository repository;
@@ -37,14 +37,15 @@ public class PadLicenceTransactionServiceTest {
 
   private PadLicenceTransactionService service;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     service = new PadLicenceTransactionService(repository, applicationService, entityManager);
-    when(applicationService.getApplicationsByIds(any())).thenReturn(List.of(generateApplication()));
   }
 
   @Test
-  public void saveApplicationsToPad() {
+  void saveApplicationsToPad() {
+    when(applicationService.getApplicationsByIds(any())).thenReturn(List.of(generateApplication()));
+
     var form = new ProjectInformationForm();
     form.setLicenceTransferPlanned(true);
     form.setPearsApplicationList(new String[]{"555", "666"});
@@ -57,7 +58,7 @@ public class PadLicenceTransactionServiceTest {
   }
 
   @Test
-  public void mapEntityToForm() {
+  void mapEntityToForm() {
     var projectInformation = new PadProjectInformation();
     projectInformation.setId(1);
 
@@ -72,7 +73,7 @@ public class PadLicenceTransactionServiceTest {
   }
 
   @Test
-  public void copyEntities() {
+  void copyEntities() {
     var oldProjectInformation = new PadProjectInformation();
     oldProjectInformation.setId(2222);
     var newProjectInformation = new PadProjectInformation();

@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -9,11 +10,11 @@ import jakarta.persistence.EntityManager;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -23,8 +24,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 /**
  * Majority of service tests should be in the integration test {@link uk.co.ogauthority.pwa.integration.energyportal.teams.PortalTeamAccessorIntegrationTest}
  */
-@RunWith(MockitoJUnitRunner.class)
-public class PortalTeamAccessorTest {
+@ExtendWith(MockitoExtension.class)
+class PortalTeamAccessorTest {
 
   private final int TEAM_RES_ID = 12345;
 
@@ -41,8 +42,8 @@ public class PortalTeamAccessorTest {
   private PortalTeamAccessor portalTeamAccessor;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     portalTeamAccessor = new PortalTeamAccessor(portalTeamRepository, entityManager);
 
     targetPerson = new Person(1, "fname", "sname", "email", "0");
@@ -52,7 +53,7 @@ public class PortalTeamAccessorTest {
 
 
   @Test
-  public void removePersonFromTeam_verifyRepositoryInteraction() {
+  void removePersonFromTeam_verifyRepositoryInteraction() {
     portalTeamAccessor.removePersonFromTeam(TEAM_RES_ID, targetPerson, actionPerformedBy);
     verify(portalTeamRepository, times(1)).removeUserFromTeam(
         TEAM_RES_ID,
@@ -62,14 +63,15 @@ public class PortalTeamAccessorTest {
   }
 
 
-  @Test(expected = RuntimeException.class)
-  public void removePersonFromTeam_caughtErrorsAreRethrown() {
+  @Test
+  void removePersonFromTeam_caughtErrorsAreRethrown() {
     doThrow(new NullPointerException()).when(portalTeamRepository).removeUserFromTeam(any(), any(), any());
-    portalTeamAccessor.removePersonFromTeam(TEAM_RES_ID, targetPerson, actionPerformedBy);
+    assertThrows(RuntimeException.class, () ->
+      portalTeamAccessor.removePersonFromTeam(TEAM_RES_ID, targetPerson, actionPerformedBy));
   }
 
   @Test
-  public void addPersonToTeamWithRoles_verifyRepositoryInteraction() {
+  void addPersonToTeamWithRoles_verifyRepositoryInteraction() {
     Collection<String> roles = Arrays.asList("ROLE1", "ROLE2");
 
     portalTeamAccessor.addPersonToTeamWithRoles(TEAM_RES_ID, targetPerson, roles, actionPerformedBy);
@@ -81,22 +83,24 @@ public class PortalTeamAccessorTest {
     );
   }
 
-  @Test(expected = RuntimeException.class)
-  public void addPersonToTeamWithRoles_caughtErrorsAreRethrown() {
+  @Test
+  void addPersonToTeamWithRoles_caughtErrorsAreRethrown() {
     doThrow(new NullPointerException()).when(portalTeamRepository).updateUserRoles(any(), any(), any(), any());
     Collection<String> roles = Arrays.asList("ROLE1", "ROLE2");
-    portalTeamAccessor.addPersonToTeamWithRoles(TEAM_RES_ID, targetPerson, roles, actionPerformedBy);
+    assertThrows(RuntimeException.class, () ->
+      portalTeamAccessor.addPersonToTeamWithRoles(TEAM_RES_ID, targetPerson, roles, actionPerformedBy));
 
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void createOrganisationGroupTeam_caughtExceptionIsRethrown() {
-    doThrow(new NullPointerException()).when(portalTeamRepository).createTeam(any(), any(), any(), any(), any());
-    portalTeamAccessor.createOrganisationGroupTeam(new PortalOrganisationGroup(), user);
   }
 
   @Test
-  public void createOrganisationGroupTeam_verifyRepositoryInteraction() {
+  void createOrganisationGroupTeam_caughtExceptionIsRethrown() {
+    doThrow(new NullPointerException()).when(portalTeamRepository).createTeam(any(), any(), any(), any(), any());
+    assertThrows(RuntimeException.class, () ->
+      portalTeamAccessor.createOrganisationGroupTeam(new PortalOrganisationGroup(), user));
+  }
+
+  @Test
+  void createOrganisationGroupTeam_verifyRepositoryInteraction() {
     portalTeamAccessor.createOrganisationGroupTeam(new PortalOrganisationGroup(), user);
     verify(portalTeamRepository, times(1)).createTeam(any(), any(), any(), any(), any());
   }

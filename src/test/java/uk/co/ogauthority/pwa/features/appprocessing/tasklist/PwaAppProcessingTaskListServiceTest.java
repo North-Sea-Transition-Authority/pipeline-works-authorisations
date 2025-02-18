@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -38,10 +38,10 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles(profiles = { "integration-test", "test" })
+@ActiveProfiles(profiles = {"integration-test", "test"})
 @EnableConfigurationProperties(value = AnalyticsProperties.class)
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-public class PwaAppProcessingTaskListServiceTest {
+class PwaAppProcessingTaskListServiceTest {
 
   @Autowired
   private PwaAppProcessingTaskService processingTaskService;
@@ -56,8 +56,8 @@ public class PwaAppProcessingTaskListServiceTest {
 
   private PwaAppProcessingContext processingContext;
 
-  @Before
-  public void setUp() throws IllegalAccessException {
+  @BeforeEach
+  void setUp() throws IllegalAccessException {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -80,7 +80,7 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_caseManagementIndustry_andPwaManager() {
+  void getTaskListGroups_caseManagementIndustry_andPwaManager() {
 
     var taskListGroups = taskListService.getTaskListGroups(processingContext);
 
@@ -146,7 +146,7 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_noOptional() {
+  void getTaskListGroups_noOptional() {
 
     var request = new ConsultationRequest();
     entityManager.persist(request);
@@ -186,7 +186,7 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_entriesLockedWhenOpenConsentReview_andIsCaseOfficer() {
+  void getTaskListGroups_entriesLockedWhenOpenConsentReview_andIsCaseOfficer() {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         pwaApplicationDetail.getPwaApplication(),
@@ -222,7 +222,7 @@ public class PwaAppProcessingTaskListServiceTest {
 
   @Test
   @Transactional
-  public void getTaskListGroups_entriesLockedWhenIndustry_appContact() {
+  void getTaskListGroups_entriesLockedWhenIndustry_appContact() {
 
     processingContext = new PwaAppProcessingContext(
         pwaApplicationDetail,

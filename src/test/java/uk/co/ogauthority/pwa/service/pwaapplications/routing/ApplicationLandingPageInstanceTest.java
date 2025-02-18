@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.routing;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ApplicationLandingPageInstanceTest {
+class ApplicationLandingPageInstanceTest {
 
   @Test
-  public void testEqualsAndHashCode() {
+  void equalsAndHashCode() {
     EqualsVerifier.forClass(ApplicationLandingPageInstance.class)
         .verify();
   }

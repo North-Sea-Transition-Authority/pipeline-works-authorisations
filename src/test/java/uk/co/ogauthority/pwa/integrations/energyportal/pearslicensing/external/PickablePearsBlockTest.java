@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PickablePearsBlockTest {
+class PickablePearsBlockTest {
 
   private PearsLicence licence = new PearsLicence(1, "P", 1, "P1", LicenceStatus.EXTANT);
 
@@ -29,7 +29,7 @@ public class PickablePearsBlockTest {
 
 
   @Test
-  public void pickablePearsBlock_constructedWithLicensedBlock() {
+  void pickablePearsBlock_constructedWithLicensedBlock() {
 
     var pb = new PickablePearsBlock(licensedBlock);
     assertThat(pb.getData()).isEqualTo(licensedBlock.getCompositeKey());
@@ -37,7 +37,7 @@ public class PickablePearsBlockTest {
   }
 
   @Test
-  public void pickablePearsBlock_constructedWithUnlicensedBlock() {
+  void pickablePearsBlock_constructedWithUnlicensedBlock() {
 
     var pb = new PickablePearsBlock(unlicensedBlock);
     assertThat(pb.getData()).isEqualTo(unlicensedBlock.getCompositeKey());

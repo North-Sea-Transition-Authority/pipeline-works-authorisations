@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadHuooSummaryViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadHuooSummaryViewServiceTest {
 
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
@@ -44,8 +44,8 @@ public class PadHuooSummaryViewServiceTest {
   private PortalOrganisationUnit orgUnit2;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     padHuooSummaryViewService = new PadHuooSummaryViewService(padOrganisationRoleService, portalOrganisationsAccessor);
 
@@ -69,7 +69,7 @@ public class PadHuooSummaryViewServiceTest {
   }
 
   @Test
-  public void canShowHolderGuidance_appTypes() {
+  void canShowHolderGuidance_appTypes() {
     EnumSet.allOf(PwaApplicationType.class).forEach(pwaApplicationType -> {
       detail.getPwaApplication().setApplicationType(pwaApplicationType);
       boolean result = padHuooSummaryViewService.canShowHolderGuidance(detail);
@@ -84,7 +84,7 @@ public class PadHuooSummaryViewServiceTest {
   }
 
   @Test
-  public void getHuooOrganisationUnitRoleViews() {
+  void getHuooOrganisationUnitRoleViews() {
 
     var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padAnyTreatyCountryRole);
 
@@ -118,7 +118,7 @@ public class PadHuooSummaryViewServiceTest {
   }
 
   @Test
-  public void getHuooOrganisationUnitRoleViews_sorting_holderTakesPrecedence() {
+  void getHuooOrganisationUnitRoleViews_sorting_holderTakesPrecedence() {
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
         org1Detail,
@@ -146,7 +146,7 @@ public class PadHuooSummaryViewServiceTest {
   }
 
   @Test
-  public void getHuooOrganisationUnitRoleViews_sorting_orgNameBreaksTie() {
+  void getHuooOrganisationUnitRoleViews_sorting_orgNameBreaksTie() {
 
     when(portalOrganisationsAccessor.getOrganisationUnitDetails(any())).thenReturn(List.of(
         org1Detail,
@@ -175,7 +175,7 @@ public class PadHuooSummaryViewServiceTest {
   }
 
   @Test
-  public void getTreatyAgreementViews() {
+  void getTreatyAgreementViews() {
 
     var rolesList = List.of(padOrgUnit1UserRole, padOrgUnit2OwnerRole, padAnyTreatyCountryRole);
 

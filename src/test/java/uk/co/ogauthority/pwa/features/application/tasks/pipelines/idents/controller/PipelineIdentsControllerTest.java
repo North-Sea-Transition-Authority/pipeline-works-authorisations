@@ -25,16 +25,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -68,9 +66,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelineIdentsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineIdentsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final Set<PipelineStatus> allowedPipelineStatuses = Set.of(
@@ -96,8 +93,8 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   private PadPipeline padPipeline;
   private PadPipelineIdent ident;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -167,7 +164,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_permissionSmokeTest() {
+  void renderAddIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -179,7 +176,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_appTypeSmokeTest() {
+  void renderAddIdent_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -191,7 +188,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_appStatusSmokeTest() {
+  void renderAddIdent_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -203,7 +200,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_previousIdentAvailable() throws Exception {
+  void renderAddIdent_previousIdentAvailable() throws Exception {
 
     var prevIdent = new PadPipelineIdent();
     prevIdent.setPadPipeline(padPipeline);
@@ -245,7 +242,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_noPreviousIdent() throws Exception {
+  void renderAddIdent_noPreviousIdent() throws Exception {
 
     when(pipelineIdentService.getMaxIdent(padPipeline)).thenReturn(Optional.empty());
 
@@ -270,7 +267,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_pipelineStatusAllowed() {
+  void renderAddIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -284,7 +281,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderAddIdent_pipelineStatusNotAllowed() {
+  void renderAddIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -298,7 +295,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_permissionSmokeTest() {
+  void postAddIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -310,7 +307,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_appTypeSmokeTest() {
+  void postAddIdent_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -322,7 +319,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_appStatusSmokeTest() {
+  void postAddIdent_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -334,7 +331,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_validationFailed() throws Exception {
+  void postAddIdent_validationFailed() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromLocation"));
 
@@ -357,7 +354,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_valid() throws Exception {
+  void postAddIdent_valid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
         .postAddIdent(
@@ -376,7 +373,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_pipelineStatusAllowed() {
+  void postAddIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -390,7 +387,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postAddIdent_pipelineStatusNotAllowed() {
+  void postAddIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -404,7 +401,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_permissionSmokeTest() {
+  void renderIdentOverview_permissionSmokeTest() {
 
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
@@ -422,7 +419,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_appTypeSmokeTest() {
+  void renderIdentOverview_appTypeSmokeTest() {
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
     padPipeline.setPipelineInBundle(false);
@@ -439,7 +436,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_appStatusSmokeTest() {
+  void renderIdentOverview_appStatusSmokeTest() {
 
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
@@ -457,7 +454,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_pipelineStatusAllowed() {
+  void renderIdentOverview_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -471,7 +468,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderIdentOverview_pipelineStatusNotAllowed() {
+  void renderIdentOverview_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -485,7 +482,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_permissionSmokeTest() {
+  void renderRemoveIdent_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -495,7 +492,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_appTypeSmokeTest() {
+  void renderRemoveIdent_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -505,7 +502,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_appStatusSmokeTest() {
+  void renderRemoveIdent_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -515,7 +512,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_pipelineStatusAllowed() {
+  void renderRemoveIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -529,7 +526,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderRemoveIdent_pipelineStatusNotAllowed() {
+  void renderRemoveIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -543,7 +540,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_appTypeSmokeTest() {
+  void postRemoveIdent_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PipelineIdentsController.class)
@@ -554,7 +551,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_appStatusSmokeTest() {
+  void postRemoveIdent_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -566,7 +563,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_permissionSmokeTest() {
+  void postRemoveIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -578,7 +575,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_verifyRemove() throws Exception {
+  void postRemoveIdent_verifyRemove() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
@@ -593,7 +590,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_pipelineStatusAllowed() {
+  void postRemoveIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -607,7 +604,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postRemoveIdent_pipelineStatusNotAllowed() {
+  void postRemoveIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -646,7 +643,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_appTypeSmokeTest() {
+  void postIdentOverview_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -658,7 +655,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_appStatusSmokeTest() {
+  void postIdentOverview_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -670,7 +667,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_permissionSmokeTest() {
+  void postIdentOverview_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -682,7 +679,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_failValidation() {
+  void postIdentOverview_failValidation() {
 
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
@@ -703,7 +700,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_pipelineStatusAllowed() {
+  void postIdentOverview_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -717,7 +714,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postIdentOverview_pipelineStatusNotAllowed() {
+  void postIdentOverview_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -731,7 +728,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_permissionSmokeTest() {
+  void renderEditIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -743,7 +740,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_appTypeSmokeTest() {
+  void renderEditIdent_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -755,7 +752,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_appStatusSmokeTest() {
+  void renderEditIdent_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -767,7 +764,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_pipelineStatusAllowed() {
+  void renderEditIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -781,7 +778,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderEditIdent_pipelineStatusNotAllowed() {
+  void renderEditIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -795,7 +792,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_appTypeSmokeTest() {
+  void postEditIdent_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -807,7 +804,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_appStatusSmokeTest() {
+  void postEditIdent_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -819,7 +816,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_permissionSmokeTest() {
+  void postEditIdent_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -831,7 +828,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_failValidation() {
+  void postEditIdent_failValidation() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -849,7 +846,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_pipelineStatusAllowed() {
+  void postEditIdent_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -863,7 +860,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postEditIdent_pipelineStatusNotAllowed() {
+  void postEditIdent_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -877,7 +874,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_permissionSmokeTest() {
+  void renderInsertIdentAbove_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -889,7 +886,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_appTypeSmokeTest() {
+  void renderInsertIdentAbove_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -901,7 +898,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_appStatusSmokeTest() {
+  void renderInsertIdentAbove_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -913,7 +910,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_previousIdentAvailable() throws Exception {
+  void renderInsertIdentAbove_previousIdentAvailable() throws Exception {
 
     var prevIdent = new PadPipelineIdent();
     prevIdent.setPadPipeline(padPipeline);
@@ -957,7 +954,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_noPreviousIdent() throws Exception {
+  void renderInsertIdentAbove_noPreviousIdent() throws Exception {
 
     var identForm = (PipelineIdentForm) Objects.requireNonNull(
         mockMvc.perform(get(ReverseRouter.route(on(PipelineIdentsController.class)
@@ -988,7 +985,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_pipelineStatusAllowed() {
+  void renderInsertIdentAbove_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -1002,7 +999,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void renderInsertIdentAbove_pipelineStatusNotAllowed() {
+  void renderInsertIdentAbove_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -1016,7 +1013,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_permissionSmokeTest() {
+  void postInsertIdentAbove_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -1029,7 +1026,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_appTypeSmokeTest() {
+  void postInsertIdentAbove_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -1042,7 +1039,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_appStatusSmokeTest() {
+  void postInsertIdentAbove_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -1055,7 +1052,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_validationFailed() throws Exception {
+  void postInsertIdentAbove_validationFailed() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromLocation"));
 
@@ -1079,7 +1076,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_valid() throws Exception {
+  void postInsertIdentAbove_valid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelineIdentsController.class)
         .postInsertIdentAbove(
@@ -1099,7 +1096,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_pipelineStatusAllowed() {
+  void postInsertIdentAbove_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -1113,7 +1110,7 @@ public class PipelineIdentsControllerTest extends PwaApplicationContextAbstractC
   }
 
   @Test
-  public void postInsertIdentAbove_pipelineStatusNotAllowed() {
+  void postInsertIdentAbove_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {

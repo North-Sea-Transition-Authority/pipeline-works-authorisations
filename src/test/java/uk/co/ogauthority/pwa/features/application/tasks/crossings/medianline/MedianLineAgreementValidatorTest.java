@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
-public class MedianLineAgreementValidatorTest {
+class MedianLineAgreementValidatorTest {
 
   private final String VALID_EMAIL = "test@tester.london";
   private final String INVALID_EMAIL = "email @ email . com";
@@ -17,21 +17,21 @@ public class MedianLineAgreementValidatorTest {
   private MedianLineAgreementValidator validator;
   private MedianLineAgreementsForm form = new MedianLineAgreementsForm();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new MedianLineAgreementValidator();
     form.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
   }
 
   @Test
-  public void validate_partial_NoData() {
+  void validate_partial_NoData() {
     form.setAgreementStatus(null);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void validate_full_NoData() {
+  void validate_full_NoData() {
     form.setAgreementStatus(null);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);
     assertThat(result).containsOnly(
@@ -40,7 +40,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_partial_lengthValidation() {
+  void validate_partial_lengthValidation() {
 
     form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setNegotiatorNameIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -57,7 +57,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_lengthValidation() {
+  void validate_full_lengthValidation() {
 
     form.setNegotiatorEmailIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setNegotiatorNameIfCompleted(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -76,7 +76,7 @@ public class MedianLineAgreementValidatorTest {
 
 
   @Test
-  public void validate_full_validEmailNoErrors() {
+  void validate_full_validEmailNoErrors() {
 
     form.setNegotiatorEmailIfCompleted(VALID_EMAIL);
     form.setNegotiatorEmailIfOngoing(VALID_EMAIL);
@@ -86,7 +86,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_invalidEmailThenErrors() {
+  void validate_full_invalidEmailThenErrors() {
 
     form.setNegotiatorEmailIfCompleted(INVALID_EMAIL);
     form.setNegotiatorEmailIfOngoing(INVALID_EMAIL);
@@ -98,7 +98,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_OngoingEmptyFields() {
+  void validate_full_OngoingEmptyFields() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);
@@ -109,7 +109,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_CompletedEmptyFields() {
+  void validate_full_CompletedEmptyFields() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);
@@ -120,7 +120,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_ValidOngoing() {
+  void validate_full_ValidOngoing() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     form.setNegotiatorNameIfOngoing("Name");
@@ -130,7 +130,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_ValidCompleted() {
+  void validate_full_ValidCompleted() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     form.setNegotiatorNameIfCompleted("Name");
@@ -140,7 +140,7 @@ public class MedianLineAgreementValidatorTest {
   }
 
   @Test
-  public void validate_full_ValidNotCrossed() {
+  void validate_full_ValidNotCrossed() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, FullValidation.class);

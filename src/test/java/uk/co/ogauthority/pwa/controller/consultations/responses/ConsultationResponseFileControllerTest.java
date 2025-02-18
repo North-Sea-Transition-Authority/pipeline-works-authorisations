@@ -20,16 +20,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -56,9 +54,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationResponseFileController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private ConsultationResponseService consultationResponseService;
@@ -95,8 +92,8 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
 
   private static final String FILE_ID = "FILE_ID";
 
-  @Before
-  public void setup() throws SQLException {
+  @BeforeEach
+  void setup() throws SQLException {
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
@@ -138,7 +135,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleUpload_success() throws Exception {
+  void handleUpload_success() throws Exception {
     mockMvc.perform(multipart(
         RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class)
             .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
@@ -149,7 +146,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleUpload_noActiveConsultation_forbidden() throws Exception {
+  void handleUpload_noActiveConsultation_forbidden() throws Exception {
     var noPermissionsDto = new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class));
@@ -166,7 +163,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkTemporary_success() throws Exception {
+  void handleDownload_fileLinkTemporary_success() throws Exception {
     var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RESPONDER));
 
@@ -182,7 +179,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkTemporary_userNotOriginalUploader_forbidden() throws Exception {
+  void handleDownload_fileLinkTemporary_userNotOriginalUploader_forbidden() throws Exception {
     uploadedFile.setUploadedByWuaId(999);
 
     when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
@@ -197,7 +194,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkNotTemporary_userIsInConsulteeTeam_success() throws Exception {
+  void handleDownload_fileLinkNotTemporary_userIsInConsulteeTeam_success() throws Exception {
     var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RESPONDER));
 
@@ -216,7 +213,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkNotTemporary_userCanViewAllConsultations_success() throws Exception {
+  void handleDownload_fileLinkNotTemporary_userCanViewAllConsultations_success() throws Exception {
     appFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
     permissionsDto = new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.appInvolvementWithConsultationRequest("nme", consultationRequest),
@@ -235,7 +232,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkNotTemporary_appIsConsented_userInHolderTeam_success() throws Exception {
+  void handleDownload_fileLinkNotTemporary_appIsConsented_userInHolderTeam_success() throws Exception {
     appFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
 
     when(consultationResponseService.getConsultationResponseFileLink(appFile)).thenReturn(Optional.of(consultationResponseFileLink));
@@ -252,7 +249,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDownload_fileLinkNotTemporary_noPermissionsUser_forbidden() throws Exception {
+  void handleDownload_fileLinkNotTemporary_noPermissionsUser_forbidden() throws Exception {
     appFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
 
     when(consultationResponseService.getConsultationResponseFileLink(appFile)).thenReturn(Optional.of(consultationResponseFileLink));
@@ -269,7 +266,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDelete_fileLinkTemporary_success() throws Exception {
+  void handleDelete_fileLinkTemporary_success() throws Exception {
     var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RESPONDER));
 
@@ -288,7 +285,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDelete_fileLinkTemporary_userNotOriginalUploader_forbidden() throws Exception {
+  void handleDelete_fileLinkTemporary_userNotOriginalUploader_forbidden() throws Exception {
     uploadedFile.setUploadedByWuaId(999);
 
     when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
@@ -306,7 +303,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDelete_fileLinkNotTemporary_userIsInConsulteeTeam_success() throws Exception {
+  void handleDelete_fileLinkNotTemporary_userIsInConsulteeTeam_success() throws Exception {
     var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RESPONDER));
 
@@ -328,7 +325,7 @@ public class ConsultationResponseFileControllerTest extends PwaAppProcessingCont
   }
 
   @Test
-  public void handleDelete_fileLinkNotTemporary_userNotInConsulteeTeam_forbidden() throws Exception {
+  void handleDelete_fileLinkNotTemporary_userNotInConsulteeTeam_forbidden() throws Exception {
     appFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
 
     when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))

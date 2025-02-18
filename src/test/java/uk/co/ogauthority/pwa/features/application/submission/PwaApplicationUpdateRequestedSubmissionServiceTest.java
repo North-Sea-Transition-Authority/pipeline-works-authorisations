@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationUpdateRequestedSubmissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationUpdateRequestedSubmissionServiceTest {
 
   private static final PersonId PERSON_ID = new PersonId(10);
   private static final String SUBMISSION_DESC = "desc";
@@ -44,8 +44,8 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
 
   private Person person;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -59,18 +59,18 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmissionWorkflowResult_returnsExpected() {
+  void getSubmissionWorkflowResult_returnsExpected() {
     assertThat(pwaApplicationUpdateRequestedSubmissionService.getSubmissionWorkflowResult()).isEmpty();
   }
 
   @Test
-  public void getTaskToComplete_returnsExpected() {
+  void getTaskToComplete_returnsExpected() {
     assertThat(pwaApplicationUpdateRequestedSubmissionService.getTaskToComplete())
         .isEqualTo(PwaApplicationWorkflowTask.UPDATE_APPLICATION);
   }
 
   @Test
-  public void doBeforeSubmit_serviceInteractions() {
+  void doBeforeSubmit_serviceInteractions() {
     pwaApplicationUpdateRequestedSubmissionService.doBeforeSubmit(pwaApplicationDetail, person, SUBMISSION_DESC);
 
     verify(applicationUpdateRequestService)
@@ -84,15 +84,14 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
   }
 
 
-
   @Test
-  public void doAfterSubmit_serviceInteractions() {
+  void doAfterSubmit_serviceInteractions() {
     pwaApplicationUpdateRequestedSubmissionService.doAfterSubmit(pwaApplicationDetail);
     verifyNoInteractions(applicationInvolvementService, applicationUpdateRequestService);
   }
 
   @Test
-  public void getSubmittedApplicationDetailStatus_caseOfficerAssigned() {
+  void getSubmittedApplicationDetailStatus_caseOfficerAssigned() {
     when(applicationInvolvementService.getCaseOfficerPersonId(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Optional.of(PERSON_ID));
 
@@ -102,13 +101,13 @@ public class PwaApplicationUpdateRequestedSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmittedApplicationDetailStatus_noCaseOfficer() {
+  void getSubmittedApplicationDetailStatus_noCaseOfficer() {
     assertThat(pwaApplicationUpdateRequestedSubmissionService.getSubmittedApplicationDetailStatus(pwaApplicationDetail))
         .isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
   }
 
   @Test
-  public void getSubmissionType() {
+  void getSubmissionType() {
     assertThat(pwaApplicationUpdateRequestedSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.UPDATE);
   }
 

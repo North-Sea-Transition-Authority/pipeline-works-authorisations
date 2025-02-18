@@ -26,15 +26,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -64,9 +62,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ModifyPipelineHuooJourneyController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationContextAbstractControllerTest {
+class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationContextAbstractControllerTest {
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
   private final int APP_ID = 10;
   private final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
@@ -94,8 +91,8 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   private WebUserAccount wua = new WebUserAccount(1);
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(wua, EnumSet.allOf(PwaUserPrivilege.class));
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pipeline1 = new Pipeline();
     pipeline1.setId(1);
     pipeline2 = new Pipeline();
@@ -122,7 +119,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderPipelinesForHuooAssignment_smokeCheckRolesAccess() {
+  void renderPipelinesForHuooAssignment_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -135,7 +132,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderPipelinesForHuooAssignment_smokeCheckAppStatus() {
+  void renderPipelinesForHuooAssignment_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -148,7 +145,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderPipelinesForHuooAssignment_smokeCheckAppType() {
+  void renderPipelinesForHuooAssignment_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -161,7 +158,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectPipelinesForHuooAssignment_smokeCheckRolesAccess() {
+  void selectPipelinesForHuooAssignment_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -174,7 +171,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectPipelinesForHuooAssignment_smokeCheckAppStatus() {
+  void selectPipelinesForHuooAssignment_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -187,7 +184,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectPipelinesForHuooAssignment_smokeCheckAppType() {
+  void selectPipelinesForHuooAssignment_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -200,7 +197,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectPipelinesForHuooAssignment_validForm_setsJourneyDataAndRedirects_thenLoadsJourneyDataIntoForm() throws Exception {
+  void selectPipelinesForHuooAssignment_validForm_setsJourneyDataAndRedirects_thenLoadsJourneyDataIntoForm() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .selectPipelinesForHuooAssignment(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null
@@ -226,7 +223,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectPipelinesForHuooAssignment_invalidForm() throws Exception {
+  void selectPipelinesForHuooAssignment_invalidForm() throws Exception {
 
     doAnswer(invocation -> {
       // add error to binding result
@@ -247,7 +244,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderOrganisationsForPipelineHuooAssignment_smokeCheckRolesAccess() {
+  void renderOrganisationsForPipelineHuooAssignment_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -261,7 +258,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderOrganisationsForPipelineHuooAssignment_smokeCheckAppStatus() {
+  void renderOrganisationsForPipelineHuooAssignment_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -275,7 +272,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderOrganisationsForPipelineHuooAssignment_smokeCheckAppType() {
+  void renderOrganisationsForPipelineHuooAssignment_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -289,7 +286,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectOrganisationsForPipelineHuooAssignment_smokeCheckRolesAccess() {
+  void selectOrganisationsForPipelineHuooAssignment_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -304,7 +301,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectOrganisationsForPipelineHuooAssignment_smokeCheckAppStatus() {
+  void selectOrganisationsForPipelineHuooAssignment_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -319,7 +316,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void selectOrganisationsForPipelineHuooAssignment_smokeCheckAppType() {
+  void selectOrganisationsForPipelineHuooAssignment_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -334,7 +331,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void completeValidJourney_journeyCompleteSubmitServiceInteraction() throws Exception {
+  void completeValidJourney_journeyCompleteSubmitServiceInteraction() throws Exception {
 
     Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
@@ -377,7 +374,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void completeValidJourney_journeyDataGetsClearedOnCompletion() throws Exception {
+  void completeValidJourney_journeyDataGetsClearedOnCompletion() throws Exception {
 
     Set<PipelineIdentifier> pickedPipelines = Set.of(pipeline1.getPipelineId(), pipeline2.getPipelineId());
     var foundPadOrgRoles = List.of(new PadOrganisationRole(), new PadOrganisationRole());
@@ -414,7 +411,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
 
   @Test
-  public void selectOrganisationsForPipelineHuooAssignment_invalidForm() throws Exception {
+  void selectOrganisationsForPipelineHuooAssignment_invalidForm() throws Exception {
 
     doAnswer(invocation -> {
       // add error to binding result
@@ -438,7 +435,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void returnToPipelineSelection_smokeCheckRolesAccess() {
+  void returnToPipelineSelection_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -452,7 +449,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void returnToPipelineSelection_smokeCheckAppStatus() {
+  void returnToPipelineSelection_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -466,7 +463,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void returnToPipelineSelection_smokeCheckAppType() {
+  void returnToPipelineSelection_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -480,7 +477,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void returnToPipelineSelection_selectedOrganisationsPersisted_andSelectedTreatiesPersisted() throws Exception {
+  void returnToPipelineSelection_selectedOrganisationsPersisted_andSelectedTreatiesPersisted() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
         .returnToPipelineSelection(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
@@ -510,7 +507,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
 
   @Test
-  public void editGroupRouter_smokeCheckRolesAccess() {
+  void editGroupRouter_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -530,7 +527,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void editGroupRouter_smokeCheckAppStatus() {
+  void editGroupRouter_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -550,7 +547,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void editGroupRouter_smokeCheckAppType() {
+  void editGroupRouter_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -579,7 +576,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
 
 
   @Test
-  public void editGroupRouter_pipelineSelectionPage_preventsInvalidPipelinesPopulatingJourney() throws Exception {
+  void editGroupRouter_pipelineSelectionPage_preventsInvalidPipelinesPopulatingJourney() throws Exception {
     var pipelineId = new PipelineId(1);
     var pickablePipelineStrings = Set.of(
         "INVALID ID STRING",
@@ -626,9 +623,8 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
 
-
   @Test
-  public void editGroupRouter_pipelineJourneyPageParam_redirect() throws Exception {
+  void editGroupRouter_pipelineJourneyPageParam_redirect() throws Exception {
 
     // check redirect target as expected
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)
@@ -650,7 +646,7 @@ public class ModifyPipelineHuooJourneyControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void editGroupRouter_organisationJourneyPageParam_redirect() throws Exception {
+  void editGroupRouter_organisationJourneyPageParam_redirect() throws Exception {
 
     // check redirect target as expected
     mockMvc.perform(post(ReverseRouter.route(on(ModifyPipelineHuooJourneyController.class)

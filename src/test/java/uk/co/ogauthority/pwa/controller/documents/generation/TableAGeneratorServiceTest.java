@@ -10,11 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
@@ -46,8 +46,8 @@ import uk.co.ogauthority.pwa.service.documents.views.tablea.TableAView;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TableAGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class TableAGeneratorServiceTest {
 
   @Mock
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
@@ -89,8 +89,8 @@ public class TableAGeneratorServiceTest {
 
   private PadProjectInformation projectInfo;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
@@ -104,11 +104,6 @@ public class TableAGeneratorServiceTest {
     projectInfo = new PadProjectInformation();
     projectInfo.setProjectName("project name");
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(projectInfo);
-
-    doAnswer(invocation -> {
-      var passedArg = (String) invocation.getArgument(0);
-      return passedArg + "markdownconverted";
-    }).when(markdownService).convertMarkdownToHtml(any());
 
   }
 
@@ -171,9 +166,13 @@ public class TableAGeneratorServiceTest {
   }
 
 
-
   @Test
-  public void getDocumentSectionData_2DrawingsWithMultiplePipelines_unSortedPipelineNumbers() {
+  void getDocumentSectionData_2DrawingsWithMultiplePipelines_unSortedPipelineNumbers() {
+
+    doAnswer(invocation -> {
+      var passedArg = (String) invocation.getArgument(0);
+      return passedArg + "markdownconverted";
+    }).when(markdownService).convertMarkdownToHtml(any());
 
     //2 pipeline summaries for drawing 1
     var padPipeline4 = createPadPipeline(PIPILINE_REF4);
@@ -258,7 +257,7 @@ public class TableAGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_noPipelines() {
+  void getDocumentSectionData_noPipelines() {
 
     when(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).thenReturn(List.of());
 

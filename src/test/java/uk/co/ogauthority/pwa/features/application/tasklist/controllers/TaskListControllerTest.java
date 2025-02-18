@@ -6,7 +6,7 @@ import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.when;
 
 import ch.qos.logback.core.Appender;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -98,7 +98,7 @@ public abstract class TaskListControllerTest extends AbstractControllerTest {
   @Mock
   private PwaAppNotificationBannerService pwaAppNotificationBannerService;
 
-  @Before
+  @BeforeEach
   public void taskListControllerTestSetup() {
 
     when(masterPwaView.getReference()).thenReturn("EXAMPLE_REFERENCE");

@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PadPipelineDto;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailIdentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineDetailIdentServiceTest {
 
   @Mock
   private PipelineDetailIdentRepository pipelineDetailIdentRepository;
@@ -44,8 +44,8 @@ public class PipelineDetailIdentServiceTest {
 
   private Map<PipelineDetail, PadPipelineDto> pipelineDetailToPadPipelineDtoMap;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pipelineDetailToPadPipelineDtoMap = PipelineWriterTestUtils.createPipelineDetailToPadPipelineDtoMap();
     pipelineDetailIdentService = new PipelineDetailIdentService(pipelineDetailIdentRepository, pipelineIdentMappingService, pipelineDetailIdentDataService);
@@ -53,7 +53,7 @@ public class PipelineDetailIdentServiceTest {
   }
 
   @Test
-  public void createPipelineDetailIdents() {
+  void createPipelineDetailIdents() {
 
     pipelineDetailIdentService.createPipelineDetailIdents(pipelineDetailToPadPipelineDtoMap);
 
@@ -67,11 +67,9 @@ public class PipelineDetailIdentServiceTest {
 
     assertThat(identDataCreationMapCaptor.getValue().keySet()).containsAll(newIdents);
 
-    identDataCreationMapCaptor.getValue().forEach((newIdent, dataSet) -> {
+    identDataCreationMapCaptor.getValue().forEach((newIdent, dataSet) ->
 
-      verify(pipelineIdentMappingService, times(1)).mapIdent(newIdent, dataSet.iterator().next().getPadPipelineIdent());
-
-    });
+      verify(pipelineIdentMappingService, times(1)).mapIdent(newIdent, dataSet.iterator().next().getPadPipelineIdent()));
 
   }
 

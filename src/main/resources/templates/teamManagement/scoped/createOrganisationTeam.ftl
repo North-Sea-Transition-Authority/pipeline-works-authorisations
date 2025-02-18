@@ -3,8 +3,7 @@
 <@defaultPage
 htmlTitle="Select an organisation"
 pageHeading=""
-
-pageSize=PageSize.TWO_THIRDS_COLUMN
+twoThirdsColumn=true
 >
     <@fdsForm.htmlForm>
         <@fdsSearchSelector.searchSelectorRest

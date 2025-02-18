@@ -19,9 +19,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -30,7 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
@@ -50,10 +48,9 @@ import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
 import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAreaItem;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(WorkAreaController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class WorkAreaControllerTest extends AbstractControllerTest {
+class WorkAreaControllerTest extends AbstractControllerTest {
 
   @MockBean
   private WorkAreaService workAreaService;
@@ -79,8 +76,8 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
   private WorkAreaContext pwaManagerWorkAreaContext = WorkAreaContextTestUtil.createPwaManagerContext(pwaManagerUser);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     var emptyResultPageView = setupFakeWorkAreaResultPageView(0);
     when(workAreaService.getWorkAreaResult(any(), eq(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION), anyInt()))
@@ -98,7 +95,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkArea_noWorkAreaPriv() throws Exception {
+  void renderWorkArea_noWorkAreaPriv() throws Exception {
     var unauthorisedUserAccount = new AuthenticatedUserAccount(
         new WebUserAccount(),
         EnumSet.noneOf(PwaUserPrivilege.class));
@@ -109,7 +106,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkArea_noDefaultTab() throws Exception {
+  void renderWorkArea_noDefaultTab() throws Exception {
 
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
         .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
@@ -121,7 +118,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkArea_defaultTab() throws Exception {
+  void renderWorkArea_defaultTab() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkArea(null, null, null)))
         .with(user(pwaManagerUser)))
@@ -130,7 +127,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_whenUserDoesNotHaveWorkAreaPriv() throws Exception {
+  void renderWorkAreaTab_whenUserDoesNotHaveWorkAreaPriv() throws Exception {
     var unauthorisedUserAccount = new AuthenticatedUserAccount(
         new WebUserAccount(),
         EnumSet.noneOf(PwaUserPrivilege.class));
@@ -142,7 +139,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_forAttentionTab() throws Exception {
+  void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_forAttentionTab() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, null, Optional.empty())))
         .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
@@ -155,7 +152,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_backgroundTab() throws Exception {
+  void renderWorkAreaTab_whenNoPageParamProvided_defaultsApplied_backgroundTab() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class).renderWorkAreaTab(null, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, null, Optional.empty())))
             .with(user(pwaManagerUser)))
@@ -170,7 +167,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_whenPageParamProvided() throws Exception {
+  void renderWorkAreaTab_whenPageParamProvided() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(WorkAreaController.class)
         .renderWorkAreaTab(null, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100, Optional.empty())))
         .with(user(pwaManagerUser)))
@@ -181,7 +178,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderWorkAreaTab_notAllowedToAccessTab() throws Exception {
+  void renderWorkAreaTab_notAllowedToAccessTab() throws Exception {
 
     when(workAreaContextService.createWorkAreaContext(pwaManagerUser))
         .thenReturn(WorkAreaContextTestUtil.createContextWithZeroUserTabs(pwaManagerUser));
@@ -208,7 +205,7 @@ public class WorkAreaControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void getWorkAreaModelAndView_timerMetricStarted_timeRecordedAndLogged() {
+  void getWorkAreaModelAndView_timerMetricStarted_timeRecordedAndLogged() {
 
     var controller = new WorkAreaController(workAreaService, workAreaContextService,
         Mockito.mock(SystemAreaAccessService.class), metricsProvider, analyticsService);

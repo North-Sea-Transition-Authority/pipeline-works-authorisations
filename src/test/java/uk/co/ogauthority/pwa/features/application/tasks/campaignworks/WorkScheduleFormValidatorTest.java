@@ -9,11 +9,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -27,8 +29,9 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WorkScheduleFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class WorkScheduleFormValidatorTest {
 
   private TwoFieldDateInputValidator twoFieldDateInputValidator = new TwoFieldDateInputValidator();
 
@@ -51,8 +54,8 @@ public class WorkScheduleFormValidatorTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL);
@@ -88,7 +91,7 @@ public class WorkScheduleFormValidatorTest {
 
 
   @Test
-  public void validate_emptyForm() {
+  void validate_emptyForm() {
     var form = new WorkScheduleForm();
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -111,7 +114,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_validPipelineIdsAdded() {
+  void validate_validPipelineIdsAdded() {
     var bindingResult = new BeanPropertyBindingResult(validForm, "form");
     ValidationUtils.invokeValidator(validator, validForm, bindingResult, defaultHints);
 
@@ -122,7 +125,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_invalidPipelineIdsAdded() {
+  void validate_invalidPipelineIdsAdded() {
     var form = new WorkScheduleForm();
     form.setPadPipelineIds(List.of(9999999));
 
@@ -136,7 +139,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workEndBeforeWorkStart() {
+  void validate_workEndBeforeWorkStart() {
     var form = new WorkScheduleForm();
     form.setWorkStart(new TwoFieldDateInput(2019, 6));
     form.setWorkEnd(new TwoFieldDateInput(2019, 5));
@@ -160,7 +163,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workEndDateBeyondLimit() {
+  void validate_workEndDateBeyondLimit() {
     var form = new WorkScheduleForm();
     var latestValidEndDate = campaignWorkScheduleValidationHint.getLatestWorkEndDateHint().getDate();
     var validStartDate = latestValidEndDate.minusMonths(1);
@@ -187,7 +190,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workEndAfter_ShorterProposedWorks() {
+  void validate_workEndAfter_ShorterProposedWorks() {
     var form = new WorkScheduleForm();
     var latestValidEndDate = campaignWorkScheduleValidationHint.getLatestWorkEndDateHint().getDate();
     var validStartDate = latestValidEndDate.minusMonths(1);
@@ -222,7 +225,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workEndAfter_OptionsVariation() {
+  void validate_workEndAfter_OptionsVariation() {
     var form = new WorkScheduleForm();
     var latestValidEndDate = campaignWorkScheduleValidationHint.getLatestWorkEndDateHint().getDate();
     var validStartDate = latestValidEndDate.minusMonths(1);
@@ -258,7 +261,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workStartDateBeforeEarliestStartDate() {
+  void validate_workStartDateBeforeEarliestStartDate() {
     var form = new WorkScheduleForm();
     var earliest = campaignWorkScheduleValidationHint.getEarliestDate();
     var invalidStartDate = earliest.minusMonths(1);
@@ -287,7 +290,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workStartAndWorkEndYearTooLarge() {
+  void validate_workStartAndWorkEndYearTooLarge() {
     var form = new WorkScheduleForm();
     form.setWorkStart(new TwoFieldDateInput(4001, 6));
     form.setWorkEnd(new TwoFieldDateInput(4001, 7));
@@ -304,7 +307,7 @@ public class WorkScheduleFormValidatorTest {
   }
 
   @Test
-  public void validate_workStartAndWorkEndYearTooSmall() {
+  void validate_workStartAndWorkEndYearTooSmall() {
     var form = new WorkScheduleForm();
     form.setWorkStart(new TwoFieldDateInput(999, 6));
     form.setWorkEnd(new TwoFieldDateInput(999, 7));

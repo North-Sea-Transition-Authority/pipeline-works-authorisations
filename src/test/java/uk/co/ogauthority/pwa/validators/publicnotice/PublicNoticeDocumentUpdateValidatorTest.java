@@ -7,32 +7,32 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeDocumentUpdateValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeDocumentUpdateValidatorTest {
 
   private PublicNoticeDocumentUpdateValidator validator;
 
   private UploadFileWithDescriptionForm uploadedFileForm;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PublicNoticeDocumentUpdateValidator();
     uploadedFileForm = FileUploadTestUtil.createDefaultUploadFileForm();
   }
 
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new UpdatePublicNoticeDocumentForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).containsOnly(
@@ -41,7 +41,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new UpdatePublicNoticeDocumentForm();
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
 
@@ -50,7 +50,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
   }
 
   @Test
-  public void validate_form_fileCountExceeded() {
+  void validate_form_fileCountExceeded() {
     var form = new UpdatePublicNoticeDocumentForm();
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm, uploadedFileForm));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -61,7 +61,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
 
 
   @Test
-  public void validate_documentUploaded_noDescription() {
+  void validate_documentUploaded_noDescription() {
     var form = new UpdatePublicNoticeDocumentForm();
     form.setUploadedFileWithDescriptionForms(List.of(
         new UploadFileWithDescriptionForm("1", null, Instant.now())
@@ -73,7 +73,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
   }
 
   @Test
-  public void validate_form_fileDescriptionNull_invalid() {
+  void validate_form_fileDescriptionNull_invalid() {
     var form = new UpdatePublicNoticeDocumentForm();
     FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -84,7 +84,7 @@ public class PublicNoticeDocumentUpdateValidatorTest {
   }
 
   @Test
-  public void validate_form_fileDescriptionOverMaxCharLength_invalid() {
+  void validate_form_fileDescriptionOverMaxCharLength_invalid() {
     var form = new UpdatePublicNoticeDocumentForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);

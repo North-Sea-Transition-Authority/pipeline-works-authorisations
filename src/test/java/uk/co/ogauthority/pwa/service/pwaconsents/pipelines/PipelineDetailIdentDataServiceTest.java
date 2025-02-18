@@ -8,21 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdent;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetailIdentData;
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.PipelineWriterTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailIdentDataServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineDetailIdentDataServiceTest {
 
   @Mock
   private PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository;
@@ -37,8 +37,8 @@ public class PipelineDetailIdentDataServiceTest {
 
   private Map<PipelineDetailIdent, Set<PadPipelineIdentData>> pipelineIdentToDataSetMap;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pipelineIdentToDataSetMap = PipelineWriterTestUtils.createIdentToDataSetMap();
 
@@ -47,7 +47,7 @@ public class PipelineDetailIdentDataServiceTest {
   }
 
   @Test
-  public void createPipelineDetailIdentData() {
+  void createPipelineDetailIdentData() {
 
     pipelineDetailIdentDataService.createPipelineDetailIdentData(pipelineIdentToDataSetMap);
 

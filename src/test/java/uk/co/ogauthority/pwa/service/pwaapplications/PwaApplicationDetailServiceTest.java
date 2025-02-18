@@ -1,10 +1,11 @@
 package uk.co.ogauthority.pwa.service.pwaapplications;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,13 +28,15 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -56,8 +59,9 @@ import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationDetailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaApplicationDetailServiceTest {
 
   private static final int WUA_ID_1 = 1;
   private static final int WUA_ID_2 = 2;
@@ -99,8 +103,8 @@ public class PwaApplicationDetailServiceTest {
 
   private Clock clock;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, APP_ID);
     webUserAccount1 = new WebUserAccount(WUA_ID_1, wua1Person);
     webUserAccount2 = new WebUserAccount(WUA_ID_2, wua2Person);
@@ -120,7 +124,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setLinkedToFields_isLinked() {
+  void setLinkedToFields_isLinked() {
 
     when(applicationDetailRepository.save(pwaApplicationDetail)).thenReturn(pwaApplicationDetail);
 
@@ -131,7 +135,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setLinkedToFields_notLinked() {
+  void setLinkedToFields_notLinked() {
     pwaApplicationDetail.setNotLinkedDescription("test description");
     when(applicationDetailRepository.save(pwaApplicationDetail)).thenReturn(pwaApplicationDetail);
 
@@ -142,7 +146,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void createFirstDetail_attributesSetAsExpected() {
+  void createFirstDetail_attributesSetAsExpected() {
 
     var master = new PwaApplication();
     var detail = pwaApplicationDetailService.createFirstDetail(master, user, 1L);
@@ -160,7 +164,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void updateStatus_statusModifiedDataSet() {
+  void updateStatus_statusModifiedDataSet() {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     detail.setStatus(PwaApplicationStatus.DRAFT);
 
@@ -178,7 +182,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setSubmitted_allStatusColumnsSetAsExpected() {
+  void setSubmitted_allStatusColumnsSetAsExpected() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     detail.setStatus(PwaApplicationStatus.DRAFT);
@@ -204,7 +208,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setInitialReviewApproved_paymentWaived() {
+  void setInitialReviewApproved_paymentWaived() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -218,7 +222,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setInitialReviewApproved_paymentRequired() {
+  void setInitialReviewApproved_paymentRequired() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -232,7 +236,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void updatePartnerLetters_lettersRequired() {
+  void updatePartnerLetters_lettersRequired() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
@@ -242,7 +246,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void updatePartnerLetters_lettersNotRequired() {
+  void updatePartnerLetters_lettersNotRequired() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(false);
     pwaApplicationDetailService.updatePartnerLetters(pwaApplicationDetail, form);
@@ -251,7 +255,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setWithdrawn() {
+  void setWithdrawn() {
 
     var withdrawalTimestamp = Instant.now(clock);
     pwaApplicationDetail.setWithdrawalTimestamp(withdrawalTimestamp);
@@ -270,7 +274,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setDeleted() {
+  void setDeleted() {
 
     var deletedTimestamp = Instant.now(clock);
     Person deletingUser = PersonTestUtil.createDefaultPerson();
@@ -286,7 +290,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setNotLinkedFieldDescription() {
+  void setNotLinkedFieldDescription() {
 
     assertThat(pwaApplicationDetail.getNotLinkedDescription()).isNull();
 
@@ -299,7 +303,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void createNewTipDetail_setsOldValueAsNotTip_andSetsAttributesOnNewDetailAsExpected() {
+  void createNewTipDetail_setsOldValueAsNotTip_andSetsAttributesOnNewDetailAsExpected() {
 
     setAllPwaAppDetailFields(pwaApplicationDetail, PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW, webUserAccount2);
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
@@ -355,7 +359,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setSupplementaryDocumentsFlag() {
+  void setSupplementaryDocumentsFlag() {
 
     var detail = new PwaApplicationDetail();
     assertThat(detail.getSupplementaryDocumentsFlag()).isNull();
@@ -371,7 +375,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setSupplementaryDocumentsFlag_nullValue_doesntError() {
+  void setSupplementaryDocumentsFlag_nullValue_doesntError() {
 
     var detail = new PwaApplicationDetail();
     assertThat(detail.getSupplementaryDocumentsFlag()).isNull();
@@ -436,7 +440,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_firstDraft() {
+  void getLatestDetailForUser_industry_firstDraft() {
 
     var draftDetail = new PwaApplicationDetail();
     draftDetail.setStatus(PwaApplicationStatus.DRAFT);
@@ -463,7 +467,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_submitted() {
+  void getLatestDetailForUser_industry_submitted() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -485,7 +489,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_submittedVersionExists() {
+  void getLatestDetailForUser_industry_andOga_submittedVersionExists() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -507,7 +511,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_submittedVersions_draftVersionIsTip() {
+  void getLatestDetailForUser_industry_andOga_submittedVersions_draftVersionIsTip() {
 
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 1);
     var submittedDetail2 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -528,7 +532,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_industry_andOga_firstDraftVersionIsTip() {
+  void getLatestDetailForUser_industry_andOga_firstDraftVersionIsTip() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     draftDetail.setTipFlag(true);
@@ -545,7 +549,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_oga_submitted() {
+  void getLatestDetailForUser_oga_submitted() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var submittedDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -567,7 +571,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestDetailForUser_consultee_satisfactory() {
+  void getLatestDetailForUser_consultee_satisfactory() {
 
     var draftDetail = createDetail(PwaApplicationStatus.DRAFT, 1);
     var satisfactoryDetail1 = createDetail(PwaApplicationStatus.CASE_OFFICER_REVIEW, 2);
@@ -593,7 +597,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setConfirmedSatisfactoryData_allProvided() {
+  void setConfirmedSatisfactoryData_allProvided() {
 
     var detail = new PwaApplicationDetail();
 
@@ -610,7 +614,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void setConfirmedSatisfactoryData_noReason() {
+  void setConfirmedSatisfactoryData_noReason() {
 
     var detail = new PwaApplicationDetail();
 
@@ -636,7 +640,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getAllWithdrawnApplicationDetailsForApplication() {
+  void getAllWithdrawnApplicationDetailsForApplication() {
     pwaApplicationDetailService.getAllWithdrawnApplicationDetailsForApplication(
         pwaApplicationDetail.getPwaApplication());
     verify(applicationDetailRepository, times(1))
@@ -644,7 +648,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getOpenApplicationIds() {
+  void getOpenApplicationIds() {
     var pwaAppId1 = 1;
     var pwaAppId2 = 2;
     var detail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, pwaAppId1);
@@ -660,7 +664,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getAllDetailsForApplication() {
+  void getAllDetailsForApplication() {
 
     var app = new PwaApplication();
     pwaApplicationDetailService.getAllDetailsForApplication(app);
@@ -669,7 +673,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getAllSubmittedApplicationDetailsForApplication() {
+  void getAllSubmittedApplicationDetailsForApplication() {
 
     var app = new PwaApplication();
     pwaApplicationDetailService.getAllSubmittedApplicationDetailsForApplication(app);
@@ -678,7 +682,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestSubmittedDetail_detailsFound() {
+  void getLatestSubmittedDetail_detailsFound() {
 
     var app = new PwaApplication();
     var subFirst = new PwaApplicationDetail();
@@ -696,7 +700,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getLatestSubmittedDetail_noDetailsFound() {
+  void getLatestSubmittedDetail_noDetailsFound() {
 
     var app = new PwaApplication();
 
@@ -709,19 +713,20 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void getDetailById_verifyRepoInteraction() {
+  void getDetailById_verifyRepoInteraction() {
     when(applicationDetailRepository.findById(1)).thenReturn(Optional.of(pwaApplicationDetail));
     pwaApplicationDetailService.getDetailByDetailId(1);
     verify(applicationDetailRepository).findById(1);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getDetailById_entityNotFound() {
-    pwaApplicationDetailService.getDetailByDetailId(1);
+  @Test
+  void getDetailById_entityNotFound() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      pwaApplicationDetailService.getDetailByDetailId(1));
   }
 
   @Test
-  public void getLatestDetailsForApplications() {
+  void getLatestDetailsForApplications() {
     when(applicationDetailRepository.findByPwaApplicationIsInAndTipFlagIsTrue(
         List.of(pwaApplicationDetail.getPwaApplication())))
         .thenReturn(List.of(pwaApplicationDetail));
@@ -734,7 +739,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void transferTipFlag_existingTipDetailIsNoLongerTip_otherTipDetailIsNowTip() {
+  void transferTipFlag_existingTipDetailIsNoLongerTip_otherTipDetailIsNowTip() {
 
     var currentTipDetail = new PwaApplicationDetail();
     currentTipDetail.setTipFlag(true);
@@ -753,7 +758,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void doWithLastSubmittedDetailIfExists_lastSubmittedDetailExists_verifyDetailHandlingFunctionCalled() {
+  void doWithLastSubmittedDetailIfExists_lastSubmittedDetailExists_verifyDetailHandlingFunctionCalled() {
 
     var pwaApplication = new PwaApplication();
     var lastSubmittedDetail = new PwaApplicationDetail();
@@ -766,7 +771,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void doWithLastSubmittedDetailIfExists_firstDraft_lastSubmittedDetailDoesNotExists_noDetailProcessingDone() {
+  void doWithLastSubmittedDetailIfExists_firstDraft_lastSubmittedDetailDoesNotExists_noDetailProcessingDone() {
 
     var pwaApplication = new PwaApplication();
     pwaApplicationDetailService.doWithLastSubmittedDetailIfExists(pwaApplication, detailHandlerFunction);
@@ -774,7 +779,7 @@ public class PwaApplicationDetailServiceTest {
   }
 
   @Test
-  public void doWithCurrentUpdateRequestedDetailIfExists_tipDetailHasUpdateRequest_verifyDetailHandlingFunctionCalled() {
+  void doWithCurrentUpdateRequestedDetailIfExists_tipDetailHasUpdateRequest_verifyDetailHandlingFunctionCalled() {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);
@@ -790,7 +795,7 @@ public class PwaApplicationDetailServiceTest {
 
 
   @Test
-  public void doWithCurrentUpdateRequestedDetailIfExists_tipDetailDoesNotHaveUpdateRequest_noDetailProcessingDone() {
+  void doWithCurrentUpdateRequestedDetailIfExists_tipDetailDoesNotHaveUpdateRequest_noDetailProcessingDone() {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);

@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -17,14 +17,14 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadDesignOpConditionsValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PadDesignOpConditionsValidatorTest {
 
   private MinMaxInputValidator minMaxInputValidator;
   private PadDesignOpConditionsValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     minMaxInputValidator = new MinMaxInputValidator();
     validator = new PadDesignOpConditionsValidator(minMaxInputValidator);
   }
@@ -41,7 +41,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = createBlankForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator,
@@ -62,7 +62,7 @@ public class PadDesignOpConditionsValidatorTest {
 
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new DesignOpConditionsForm();
     form.setTemperatureOpMinMax(new MinMaxInput("1", "2"));
     form.setTemperatureDesignMinMax(new MinMaxInput("3", "4"));
@@ -81,7 +81,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_temperatureOp_invalid() {
+  void validate_temperatureOp_invalid() {
     var form = createBlankForm();
     form.setTemperatureOpMinMax(new MinMaxInput("1.2", "2.2"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -96,7 +96,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_temperatureDesign_invalid() {
+  void validate_temperatureDesign_invalid() {
     var form = createBlankForm();
     form.setTemperatureDesignMinMax(new MinMaxInput("3.1", "4.1"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -111,7 +111,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_pressureOp_invalid() {
+  void validate_pressureOp_invalid() {
     var form = createBlankForm();
     form.setPressureOpMinMax(new MinMaxInput("-5.2", "-6.2"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -132,7 +132,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_pressureDesign_invalid() {
+  void validate_pressureDesign_invalid() {
     var form = createBlankForm();
     form.setPressureDesignMax("-5.2");
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -146,7 +146,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_co2Density_required() {
+  void validate_co2Density_required() {
     var form = createBlankForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
         validator,
@@ -159,7 +159,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_co2Density_invalid() {
+  void validate_co2Density_invalid() {
     var form = createBlankForm();
     form.setCo2Density(new MinMaxInput("-9", "5.333"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -173,7 +173,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_flowrateOp_invalid() {
+  void validate_flowrateOp_invalid() {
     var form = createBlankForm();
     form.setFlowrateOpMinMax(new MinMaxInput("-9", "5.333"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -187,7 +187,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_flowrateDesign_invalid() {
+  void validate_flowrateDesign_invalid() {
     var form = createBlankForm();
     form.setFlowrateDesignMinMax(new MinMaxInput("-9", "5.333"));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -202,7 +202,7 @@ public class PadDesignOpConditionsValidatorTest {
 
 
   @Test
-  public void validate_uvalueDesign_invalid() {
+  void validate_uvalueDesign_invalid() {
     var form = createBlankForm();
     form.setUvalueDesign("-13.22");
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(
@@ -217,7 +217,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_invalidInputAccepted() {
+  void validate_partialValidation_invalidInputAccepted() {
     var form = createBlankForm();
     form.setPressureDesignMax("abcs");
     form.setUvalueDesign("");
@@ -230,7 +230,7 @@ public class PadDesignOpConditionsValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_inputWithTooManyCharactersNotAccepted() {
+  void validate_partialValidation_inputWithTooManyCharactersNotAccepted() {
     var form = createBlankForm();
     form.setPressureDesignMax("9".repeat(PadDesignOpConditionsValidator.MAX_INPUT_LENGTH + 1));
     form.setUvalueDesign("9".repeat(PadDesignOpConditionsValidator.MAX_INPUT_LENGTH));

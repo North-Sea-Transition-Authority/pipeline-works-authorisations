@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationOptionConfirmationSubmissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationOptionConfirmationSubmissionServiceTest {
 
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
@@ -35,8 +35,8 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private static final PersonId PERSON_ID = new PersonId(10);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     pwaApplicationOptionConfirmationSubmissionService = new PwaApplicationOptionConfirmationSubmissionService(
@@ -45,18 +45,18 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmissionWorkflowResult() {
+  void getSubmissionWorkflowResult() {
     assertThat(pwaApplicationOptionConfirmationSubmissionService.getSubmissionWorkflowResult()).isEmpty();
   }
 
   @Test
-  public void getTaskToComplete() {
+  void getTaskToComplete() {
     assertThat(pwaApplicationOptionConfirmationSubmissionService.getTaskToComplete())
         .isEqualTo(PwaApplicationWorkflowTask.UPDATE_APPLICATION);
   }
 
   @Test
-  public void getSubmittedApplicationDetailStatus_caseOfficerAssigned() {
+  void getSubmittedApplicationDetailStatus_caseOfficerAssigned() {
     when(applicationInvolvementService.getCaseOfficerPersonId(pwaApplicationDetail.getPwaApplication()))
         .thenReturn(Optional.of(PERSON_ID));
 
@@ -66,13 +66,13 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmittedApplicationDetailStatus_noCaseOfficer() {
+  void getSubmittedApplicationDetailStatus_noCaseOfficer() {
     assertThat(pwaApplicationOptionConfirmationSubmissionService.getSubmittedApplicationDetailStatus(pwaApplicationDetail))
         .isEqualTo(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
   }
 
   @Test
-  public void doBeforeSubmit_triesToAssignPipelineNumbers() {
+  void doBeforeSubmit_triesToAssignPipelineNumbers() {
 
     pwaApplicationOptionConfirmationSubmissionService.doBeforeSubmit(pwaApplicationDetail, null ,null);
 
@@ -82,12 +82,12 @@ public class PwaApplicationOptionConfirmationSubmissionServiceTest {
   }
 
   @Test
-  public void doAfterSubmit_doesNothing() {
+  void doAfterSubmit_doesNothing() {
     verifyNoInteractions(applicationInvolvementService, padPipelineNumberingService);
   }
 
   @Test
-  public void getSubmissionType() {
+  void getSubmissionType() {
     assertThat(pwaApplicationOptionConfirmationSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.OPTIONS_CONFIRMATION);
   }
 

@@ -10,13 +10,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
@@ -31,8 +31,8 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationFirstDraftSubmissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationFirstDraftSubmissionServiceTest {
 
   private static final PersonId PERSON_ID = new PersonId(10);
   private static final String SUBMISSION_DESC = "desc";
@@ -58,8 +58,8 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
 
   private Person person;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -73,26 +73,26 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmissionWorkflowResult_returnsAsExpected() {
+  void getSubmissionWorkflowResult_returnsAsExpected() {
     assertThat(pwaApplicationFirstDraftSubmissionService.getSubmissionWorkflowResult())
         .contains(PwaApplicationSubmitResult.SUBMIT_PREPARED_APPLICATION);
   }
 
   @Test
-  public void getTaskToComplete_returnsExpectedTask() {
+  void getTaskToComplete_returnsExpectedTask() {
     assertThat(pwaApplicationFirstDraftSubmissionService.getTaskToComplete())
         .isEqualTo(PwaApplicationWorkflowTask.PREPARE_APPLICATION);
   }
 
   @Test
-  public void doBeforeSubmit_verifyServiceInteractions() {
+  void doBeforeSubmit_verifyServiceInteractions() {
     pwaApplicationFirstDraftSubmissionService.doBeforeSubmit(pwaApplicationDetail, person, SUBMISSION_DESC);
       verify(padPipelineNumberingService, times(1)).assignPipelineReferences(pwaApplicationDetail);
       verifyNoMoreInteractions(padPipelineNumberingService, notifyService, pwaTeamService);
   }
 
   @Test
-  public void doAfterSubmit_pwaManagersSentEmail() {
+  void doAfterSubmit_pwaManagersSentEmail() {
 
     var pwaManager1 = new Person(1, "PWA", "Manager1", "manager1@pwa.co.uk", null);
     var pwaManager2 = new Person(2, "PWA", "Manager2", "manager2@pwa.co.uk", null);
@@ -126,7 +126,7 @@ public class PwaApplicationFirstDraftSubmissionServiceTest {
   }
 
   @Test
-  public void getSubmissionType() {
+  void getSubmissionType() {
     assertThat(pwaApplicationFirstDraftSubmissionService.getSubmissionType()).isEqualTo(ApplicationSubmissionType.FIRST_DRAFT);
   }
 

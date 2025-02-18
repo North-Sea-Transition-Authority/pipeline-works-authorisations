@@ -13,15 +13,13 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -42,9 +40,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = WithdrawApplicationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class WithdrawApplicationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -60,8 +57,8 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -80,7 +77,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   }
 
   @Test
-  public void renderWithdrawApplication_processingPermissionSmokeTest() {
+  void renderWithdrawApplication_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -92,7 +89,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   }
 
   @Test
-  public void postWithdrawApplication_processingPermissionSmokeTest() {
+  void postWithdrawApplication_processingPermissionSmokeTest() {
 
     when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form"));
 
@@ -106,7 +103,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   }
 
   @Test
-  public void postWithdrawApplication() throws Exception {
+  void postWithdrawApplication() throws Exception {
 
     when(withdrawApplicationService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form"));
 
@@ -124,7 +121,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   }
 
   @Test
-  public void postWithdrawApplication_validationFail() throws Exception {
+  void postWithdrawApplication_validationFail() throws Exception {
 
     var failedBindingResult = new BeanPropertyBindingResult(new WithdrawApplicationForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
@@ -143,7 +140,7 @@ public class WithdrawApplicationControllerTest extends PwaAppProcessingContextAb
   }
 
   @Test
-  public void postWithdrawApplication_openPublicNoticeExists() throws Exception {
+  void postWithdrawApplication_openPublicNoticeExists() throws Exception {
 
     when(withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(any())).thenReturn(true);
 

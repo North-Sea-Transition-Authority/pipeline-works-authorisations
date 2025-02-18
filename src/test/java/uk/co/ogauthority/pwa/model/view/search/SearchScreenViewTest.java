@@ -6,17 +6,17 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.stream.IntStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SearchScreenViewTest {
+class SearchScreenViewTest {
 
   @Test
-  public void haveResultsBeenLimited_fullCountEqualsResultsSize_no() {
+  void haveResultsBeenLimited_fullCountEqualsResultsSize_no() {
 
     var bigList = new ArrayList<ConsentSearchResultView>();
 
@@ -33,7 +33,7 @@ public class SearchScreenViewTest {
   }
 
   @Test
-  public void haveResultsBeenLimited_fullCountMoreThanResults_yes() {
+  void haveResultsBeenLimited_fullCountMoreThanResults_yes() {
 
     var bigList = new ArrayList<ConsentSearchResultView>();
 

@@ -16,9 +16,8 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -52,12 +50,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = BlockCrossingController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class BlockCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
+class BlockCrossingControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int BLOCK_CROSSING_ID = 1;
   private static final int APP_ID = 100;
@@ -97,8 +94,8 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -128,7 +125,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void addBlockCrossingFormSave_appTypeSmokeTest() {
+  void addBlockCrossingFormSave_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -146,7 +143,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void addBlockCrossingFormSave_appStatusSmokeTest() {
+  void addBlockCrossingFormSave_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -164,7 +161,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void addBlockCrossingFormSave_contactRoleSmokeTest() {
+  void addBlockCrossingFormSave_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -197,7 +194,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void addBlockCrossingFormSave_whenFormValid() throws Exception {
+  void addBlockCrossingFormSave_whenFormValid() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(BlockCrossingController.class)
@@ -218,7 +215,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void addBlockCrossingFormSave_whenFormInvalid() throws Exception {
+  void addBlockCrossingFormSave_whenFormInvalid() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(BlockCrossingController.class)
@@ -238,7 +235,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddBlockCrossing_appTypeSmokeTest() {
+  void renderAddBlockCrossing_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -256,7 +253,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddBlockCrossing_appStatusSmokeTest() {
+  void renderAddBlockCrossing_appStatusSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -272,7 +269,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderAddBlockCrossing_contactRoleSmokeTest() {
+  void renderAddBlockCrossing_contactRoleSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -288,7 +285,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void removeBlockCrossing_whenBlockCrossingNotFound() throws Exception {
+  void removeBlockCrossing_whenBlockCrossingNotFound() throws Exception {
 
     when(blockCrossingService.getCrossedBlockByIdAndApplicationDetail(BLOCK_CROSSING_ID, pwaApplicationDetail))
         .thenThrow(new PwaEntityNotFoundException("BANG"));
@@ -307,7 +304,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void removeBlockCrossing_appTypeSmokeTest() {
+  void removeBlockCrossing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -324,7 +321,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void removeBlockCrossing_appStatusSmokeTest() {
+  void removeBlockCrossing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -341,7 +338,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void removeBlockCrossing_contactRoleSmokeTest() {
+  void removeBlockCrossing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -359,7 +356,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
 
 
   @Test
-  public void editBlockCrossingFormSave_whenFormValid() throws Exception {
+  void editBlockCrossingFormSave_whenFormValid() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(BlockCrossingController.class)
@@ -381,7 +378,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void editBlockCrossingFormSave_whenFormInvalid() throws Exception {
+  void editBlockCrossingFormSave_whenFormInvalid() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(BlockCrossingController.class)
@@ -402,7 +399,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void editBlockCrossingFormSave_appTypeSmokeTest() {
+  void editBlockCrossingFormSave_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -422,7 +419,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void editBlockCrossingFormSave_appStatusSmokeTest() {
+  void editBlockCrossingFormSave_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -443,7 +440,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void editBlockCrossingFormSave_contactRoleSmokeTest() {
+  void editBlockCrossingFormSave_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(BlockCrossingController.class)
@@ -463,7 +460,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditBlockCrossing_appTypeSmokeTest() {
+  void renderEditBlockCrossing_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -481,7 +478,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditBlockCrossing_appStatusSmokeTest() {
+  void renderEditBlockCrossing_appStatusSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -498,7 +495,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderEditBlockCrossing_contactRoleSmokeTest() {
+  void renderEditBlockCrossing_contactRoleSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -515,7 +512,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderRemoveBlockCrossing_appTypeSmokeTest() {
+  void renderRemoveBlockCrossing_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -532,7 +529,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderRemoveBlockCrossing_appStatusSmokeTest() {
+  void renderRemoveBlockCrossing_appStatusSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -548,7 +545,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderRemoveBlockCrossing_contactRoleSmokeTest() {
+  void renderRemoveBlockCrossing_contactRoleSmokeTest() {
 
     endpointTester.setEndpointUrlProducer((applicationDetail, type) ->
         ReverseRouter.route(on(BlockCrossingController.class)
@@ -564,7 +561,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderBlockCrossingOverview_appTypeSmokeTest() {
+  void renderBlockCrossingOverview_appTypeSmokeTest() {
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
@@ -582,7 +579,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderBlockCrossingOverview_appStatusSmokeTest() {
+  void renderBlockCrossingOverview_appStatusSmokeTest() {
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
@@ -600,7 +597,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderBlockCrossingOverview_appContactRoleSmokeTest() {
+  void renderBlockCrossingOverview_appContactRoleSmokeTest() {
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
@@ -618,7 +615,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appTypeSmokeTest() {
+  void postOverview_appTypeSmokeTest() {
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
@@ -631,7 +628,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appStatusSmokeTest() {
+  void postOverview_appStatusSmokeTest() {
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 
@@ -644,7 +641,7 @@ public class BlockCrossingControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postOverview_appContactRoleSmokeTest() {
+  void postOverview_appContactRoleSmokeTest() {
 
     when(blockCrossingFileService.isComplete(any())).thenReturn(true);
 

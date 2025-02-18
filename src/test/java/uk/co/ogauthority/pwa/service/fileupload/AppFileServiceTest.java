@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.fileupload;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -12,13 +13,15 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
@@ -36,8 +39,9 @@ import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.AppFileRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AppFileServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AppFileServiceTest {
 
   private final String FILE_ID = "1234567890qwertyuiop";
 
@@ -70,8 +74,8 @@ public class AppFileServiceTest {
       Instant.now(),
       "");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     appFileService = new AppFileService(fileUploadService, appFileRepository);
 
@@ -93,7 +97,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void mapFilesToForm() {
+  void mapFilesToForm() {
 
     var form = new AddCaseNoteForm();
 
@@ -113,7 +117,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void processInitialUpload_success() {
+  void processInitialUpload_success() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -138,7 +142,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void processInitialUpload_failed() {
+  void processInitialUpload_failed() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -157,7 +161,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenFilesNotOnForm_thenFilesAreDeleted() {
+  void updateFiles_whenFilesNotOnForm_thenFilesAreDeleted() {
 
     var form = new AddCaseNoteForm();
     appFileService.updateFiles(
@@ -174,7 +178,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
+  void updateFiles_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
 
     var form = new AddCaseNoteForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
@@ -202,7 +206,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenNoExistingFiles() {
+  void updateFiles_whenNoExistingFiles() {
 
     when(appFileRepository.findAllByPwaApplicationAndPurpose(application, AppFilePurpose.CASE_NOTES))
         .thenReturn(List.of());
@@ -218,24 +222,24 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
+  void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
     appFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
     verify(appFileRepository).deleteAll(List.of(file));
   }
 
-  @Test(expected = RuntimeException.class)
-  public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveFail() {
-
+  @Test
+  void deleteFileLinksAndUploadedFiles_uploadedFileRemoveFail() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
-        FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
-    );
+          FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
+      );
+    assertThrows(RuntimeException.class, () ->
 
-    appFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
+      appFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua));
 
   }
 
   @Test
-  public void processFileDeletion_verifyServiceInteractions() {
+  void processFileDeletion_verifyServiceInteractions() {
 
     appFileService.processFileDeletion(file, wua);
 
@@ -245,7 +249,7 @@ public class AppFileServiceTest {
   }
 
   @Test
-  public void getFilesLinkedToForm() {
+  void getFilesLinkedToForm() {
 
     var form = new AddCaseNoteForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());

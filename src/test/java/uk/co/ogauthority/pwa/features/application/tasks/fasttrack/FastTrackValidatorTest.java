@@ -6,17 +6,17 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-public class FastTrackValidatorTest {
+class FastTrackValidatorTest {
 
   private FastTrackValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new FastTrackValidator();
   }
 
@@ -31,24 +31,24 @@ public class FastTrackValidatorTest {
 
 
   @Test
-  public void validate_full_allFieldsEnteredCorrectly_valid() {
+  void validate_full_allFieldsEnteredCorrectly_valid() {
    assertThat(getFullValidationErrors(buildForm())).isEmpty();
   }
 
   @Test
-  public void validate_full_emptyForm_invalid() {
+  void validate_full_emptyForm_invalid() {
     assertThat(getFullValidationErrors(new FastTrackForm())).containsOnly(
         entry("avoidEnvironmentalDisaster", Set.of("avoidEnvironmentalDisaster.noneSelected"))
     );
   }
 
   @Test
-  public void validate_partial_emptyForm_valid() {
+  void validate_partial_emptyForm_valid() {
     assertThat(getPartialValidationErrors(new FastTrackForm())).isEmpty();
   }
 
   @Test
-  public void validate_full_reasonsSelected_descriptionsEmpty_invalid() {
+  void validate_full_reasonsSelected_descriptionsEmpty_invalid() {
     var form = buildForm();
     form.setEnvironmentalDisasterReason("");
     form.setSavingBarrelsReason("");
@@ -64,7 +64,7 @@ public class FastTrackValidatorTest {
   }
 
   @Test
-  public void validate_partial_reasonsSelected_descriptionsEmpty_valid() {
+  void validate_partial_reasonsSelected_descriptionsEmpty_valid() {
     var form = buildForm();
     form.setEnvironmentalDisasterReason("");
     form.setSavingBarrelsReason("");
@@ -75,7 +75,7 @@ public class FastTrackValidatorTest {
   }
 
   @Test
-  public void validate_partial_reasonDescriptionFieldsCharLengthOverMax_invalid() {
+  void validate_partial_reasonDescriptionFieldsCharLengthOverMax_invalid() {
     var form = buildForm();
     form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -92,7 +92,7 @@ public class FastTrackValidatorTest {
   }
 
   @Test
-  public void validate_full_reasonDescriptionFieldsCharLengthOverMax_invalid() {
+  void validate_full_reasonDescriptionFieldsCharLengthOverMax_invalid() {
     var form = buildForm();
     form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setSavingBarrelsReason(ValidatorTestUtils.overMaxDefaultCharLength());

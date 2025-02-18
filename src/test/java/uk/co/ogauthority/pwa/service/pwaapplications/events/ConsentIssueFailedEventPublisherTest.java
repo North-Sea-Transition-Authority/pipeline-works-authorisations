@@ -5,13 +5,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentIssueFailedEventPublisherTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentIssueFailedEventPublisherTest {
 
   @Mock
   private ApplicationEventPublisher applicationEventPublisher;
@@ -33,8 +33,8 @@ public class ConsentIssueFailedEventPublisherTest {
   private PwaApplicationDetail detail;
   private WebUserAccount issuingUser = new WebUserAccount(1, PersonTestUtil.createDefaultPerson());
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     consentIssueFailedEventPublisher = new ConsentIssueFailedEventPublisher(applicationEventPublisher);
 
@@ -43,7 +43,7 @@ public class ConsentIssueFailedEventPublisherTest {
   }
 
   @Test
-  public void publishConsentIssueFailedEvent() {
+  void publishConsentIssueFailedEvent() {
 
     var ex = mock(Exception.class);
 

@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineOverviewTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineOverviewTest {
 
   private PadPipelineOverview padPipelineOverview;
 
   @Test
-  public void getPipelineName_singleDiameter() {
+  void getPipelineName_singleDiameter() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
@@ -28,7 +28,7 @@ public class PadPipelineOverviewTest {
   }
 
   @Test
-  public void getPipelineName_multipleDiameters() {
+  void getPipelineName_multipleDiameters() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setPipelineType(PipelineType.HYDRAULIC_JUMPER_MULTI_CORE);
@@ -40,7 +40,7 @@ public class PadPipelineOverviewTest {
   }
 
   @Test
-  public void getPipelineName_singleDiameter_partOfBundle() {
+  void getPipelineName_singleDiameter_partOfBundle() {
     PadPipeline padPipeline = new PadPipeline();
     padPipeline.setPipelineRef("my ref");
     padPipeline.setMaxExternalDiameter(BigDecimal.valueOf(5));
@@ -54,7 +54,7 @@ public class PadPipelineOverviewTest {
   }
 
   @Test
-  public void getRelevantQuestions_all() throws IllegalAccessException {
+  void getRelevantQuestions_all() throws IllegalAccessException {
 
     var pipe = new PadPipeline();
     pipe.setAlreadyExistsOnSeabed(true);
@@ -70,7 +70,7 @@ public class PadPipelineOverviewTest {
   }
 
   @Test
-  public void getRelevantQuestions_outOfUseReason() throws IllegalAccessException {
+  void getRelevantQuestions_outOfUseReason() throws IllegalAccessException {
 
     var pipe = new PadPipeline();
 
@@ -82,7 +82,7 @@ public class PadPipelineOverviewTest {
   }
 
   @Test
-  public void getRelevantQuestions_alreadyExists() throws IllegalAccessException {
+  void getRelevantQuestions_alreadyExists() throws IllegalAccessException {
 
     var pipe = new PadPipeline();
 

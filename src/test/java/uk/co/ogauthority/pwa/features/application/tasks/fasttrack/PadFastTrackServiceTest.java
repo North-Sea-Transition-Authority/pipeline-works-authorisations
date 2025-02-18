@@ -14,11 +14,13 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -33,8 +35,9 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadFastTrackServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadFastTrackServiceTest {
 
   @Mock
   private PadFastTrackRepository padFastTrackRepository;
@@ -57,8 +60,8 @@ public class PadFastTrackServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PadProjectInformation projectInformation;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     groupValidator = new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
 
@@ -79,14 +82,14 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void save() {
+  void save() {
     var fastTrack = new PadFastTrack();
     padFastTrackService.save(fastTrack);
     verify(padFastTrackRepository, times(1)).save(fastTrack);
   }
 
   @Test
-  public void getFastTrackForDraft_Existing() {
+  void getFastTrackForDraft_Existing() {
     var fastTrack = new PadFastTrack();
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(fastTrack));
@@ -95,7 +98,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void getFastTrackForDraft_NotExisting() {
+  void getFastTrackForDraft_NotExisting() {
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.empty());
     var result = padFastTrackService.getFastTrackForDraft(pwaApplicationDetail);
@@ -103,13 +106,13 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_NoProposedStart() {
+  void isFastTrackRequired_NoProposedStart() {
     var result = padFastTrackService.isFastTrackRequired(pwaApplicationDetail);
     assertThat(result).isFalse();
   }
 
   @Test
-  public void isFastTrackRequired_BeforeMinPeriod_NoMedianLine() {
+  void isFastTrackRequired_BeforeMinPeriod_NoMedianLine() {
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMinProcessingPeriod()).minusDays(1);
       assertFastTrackRequired(type, start, true);
@@ -117,7 +120,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_AtMinPeriod_NoMedianLine() {
+  void isFastTrackRequired_AtMinPeriod_NoMedianLine() {
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMinProcessingPeriod());
       assertFastTrackRequired(type, start, false);
@@ -125,7 +128,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_PastMinPeriod_NoMedianLine() {
+  void isFastTrackRequired_PastMinPeriod_NoMedianLine() {
 
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       var start = LocalDate.now().plus(type.getMinProcessingPeriod()).plusDays(1);
@@ -134,7 +137,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
+  void isFastTrackRequired_BeforeMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
@@ -146,7 +149,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
+  void isFastTrackRequired_AtMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
@@ -158,7 +161,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
+  void isFastTrackRequired_PastMaxPeriod_WithMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
@@ -183,7 +186,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void isFastTrackRequired_BeforeAndAfterMedianLine() {
+  void isFastTrackRequired_BeforeAndAfterMedianLine() {
     var medianLine = new PadMedianLineAgreement();
     medianLine.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     when(padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail)).thenReturn(medianLine);
@@ -208,7 +211,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void mapEntityToForm() {
+  void mapEntityToForm() {
     var entity = buildEntity();
     var form = new FastTrackForm();
     var expectedForm = buildForm();
@@ -224,7 +227,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm() {
+  void saveEntityUsingForm() {
     var entity = new PadFastTrack();
     var expectedEntity = buildEntity();
     var form = buildForm();
@@ -241,7 +244,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_EnvironmentalUnchecked() {
+  void saveEntityUsingForm_EnvironmentalUnchecked() {
     var entity = new PadFastTrack();
     var expectedEntity = buildEntity();
     var form = buildForm();
@@ -254,7 +257,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_SavingBarrelsUnchecked() {
+  void saveEntityUsingForm_SavingBarrelsUnchecked() {
     var entity = new PadFastTrack();
     var expectedEntity = buildEntity();
     var form = buildForm();
@@ -267,7 +270,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_ProjectPlanningUnchecked() {
+  void saveEntityUsingForm_ProjectPlanningUnchecked() {
     var entity = new PadFastTrack();
     var expectedEntity = buildEntity();
     var form = buildForm();
@@ -280,7 +283,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_OtherReasonUnchecked() {
+  void saveEntityUsingForm_OtherReasonUnchecked() {
     var entity = new PadFastTrack();
     var expectedEntity = buildEntity();
     var form = buildForm();
@@ -293,7 +296,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void getFastTrackView_dataExists() {
+  void getFastTrackView_dataExists() {
     var fastTrack = buildEntity();
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
 
@@ -314,7 +317,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void getFastTrackView_noFastTrackData() {
+  void getFastTrackView_noFastTrackData() {
     var fastTrack = new PadFastTrack();
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.of(fastTrack));
 
@@ -323,7 +326,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void validate_verifyValidatorInteraction() {
+  void validate_verifyValidatorInteraction() {
 
     var form = new FastTrackForm();
     form.setEnvironmentalDisasterReason(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -337,7 +340,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void copySectionInformation_dataPresent_dataCopied() {
+  void copySectionInformation_dataPresent_dataCopied() {
 
     var newDetail = new PwaApplicationDetail();
     var fastTrackData = new PadFastTrack();
@@ -350,7 +353,7 @@ public class PadFastTrackServiceTest {
   }
 
   @Test
-  public void copySectionInformation_dataNotPresent_noError() {
+  void copySectionInformation_dataNotPresent_noError() {
 
     var newDetail = new PwaApplicationDetail();
     when(padFastTrackRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());

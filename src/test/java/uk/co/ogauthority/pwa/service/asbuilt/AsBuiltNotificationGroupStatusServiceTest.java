@@ -8,13 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUt
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupStatusHistoryRepository;
 import uk.co.ogauthority.pwa.testutils.AsBuiltNotificationGroupStatusHistoryTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationGroupStatusServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationGroupStatusServiceTest {
 
   @Mock
   private AsBuiltNotificationGroupStatusHistoryRepository asBuiltNotificationGroupStatusHistoryRepository;
@@ -42,16 +42,14 @@ public class AsBuiltNotificationGroupStatusServiceTest {
       AsBuiltNotificationGroupStatusHistoryTestUtil.createAsBuiltStatusHistory_withNotificationGroup(asBuiltNotificationGroup,
           AsBuiltNotificationGroupStatus.IN_PROGRESS);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationGroupStatusService = new AsBuiltNotificationGroupStatusService(asBuiltNotificationGroupStatusHistoryRepository);
-
-    when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup))
-        .thenReturn(Optional.of(asBuiltNotificationGroupStatusHistory));
   }
 
   @Test
-  public void setInitialGroupStatus_createsNotStartedStatus() {
+  void setInitialGroupStatus_createsNotStartedStatus() {
+
     when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup))
         .thenReturn(Optional.empty());
 
@@ -69,13 +67,21 @@ public class AsBuiltNotificationGroupStatusServiceTest {
   }
 
   @Test
-  public void setGroupStatus_alreadyInProgress_statusNotChanged() {
+  void setGroupStatus_alreadyInProgress_statusNotChanged() {
+
+    when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup))
+        .thenReturn(Optional.of(asBuiltNotificationGroupStatusHistory));
+
     asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.IN_PROGRESS, person);
     verify(asBuiltNotificationGroupStatusHistoryRepository, never()).save(any());
   }
 
   @Test
-  public void setGroupStatus_alreadyInProgress_statusToComplete() {
+  void setGroupStatus_alreadyInProgress_statusToComplete() {
+
+    when(asBuiltNotificationGroupStatusHistoryRepository.findByAsBuiltNotificationGroupAndEndedTimestampIsNull(asBuiltNotificationGroup))
+        .thenReturn(Optional.of(asBuiltNotificationGroupStatusHistory));
+
     asBuiltNotificationGroupStatusService.setGroupStatusIfNewOrChanged(asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE, person);
     verify(asBuiltNotificationGroupStatusHistoryRepository, times(2)).save(asBuiltNotificationGroupStatusHistoryArgumentCaptor.capture());
     var savedHistory = asBuiltNotificationGroupStatusHistoryArgumentCaptor.getValue();
@@ -86,13 +92,13 @@ public class AsBuiltNotificationGroupStatusServiceTest {
   }
 
   @Test
-  public void getAllNonCompleteAsBuiltNotificationGroups_correctlyCallsRepository() {
+  void getAllNonCompleteAsBuiltNotificationGroups_correctlyCallsRepository() {
     asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups();
     verify(asBuiltNotificationGroupStatusHistoryRepository).findAllByEndedTimestampIsNullAndStatusIsNot(AsBuiltNotificationGroupStatus.COMPLETE);
   }
 
   @Test
-  public void isGroupStatusComplete_correctlyCallsRepository() {
+  void isGroupStatusComplete_correctlyCallsRepository() {
     asBuiltNotificationGroupStatusService.isGroupStatusComplete(asBuiltNotificationGroup);
     verify(asBuiltNotificationGroupStatusHistoryRepository).findByAsBuiltNotificationGroupAndStatusAndEndedTimestampIsNull(
         asBuiltNotificationGroup, AsBuiltNotificationGroupStatus.COMPLETE);

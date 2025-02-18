@@ -2,19 +2,19 @@ package uk.co.ogauthority.pwa.features.application.tasks.generaltech;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineTechInfoMappingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineTechInfoMappingServiceTest {
 
   private PipelineTechInfoMappingService pipelineTechInfoMappingService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pipelineTechInfoMappingService = new PipelineTechInfoMappingService();
   }
 
@@ -41,7 +41,7 @@ public class PipelineTechInfoMappingServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_full() {
+  void mapEntityToForm_full() {
     var actualForm = new PipelineTechInfoForm();
     var entity = createFullEntity();
     pipelineTechInfoMappingService.mapEntityToForm(actualForm, entity);
@@ -49,7 +49,7 @@ public class PipelineTechInfoMappingServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_partial() {
+  void mapEntityToForm_partial() {
     var actualForm = new PipelineTechInfoForm();
     var entity = createFullEntity();
     entity.setPipelineDesignedToStandards(false);
@@ -66,7 +66,7 @@ public class PipelineTechInfoMappingServiceTest {
 
 
   @Test
-  public void mapFormToEntity_full() {
+  void mapFormToEntity_full() {
     var actualEntity = new PadPipelineTechInfo();
     var form = createFullForm();
     pipelineTechInfoMappingService.mapFormToEntity(form, actualEntity);
@@ -74,7 +74,7 @@ public class PipelineTechInfoMappingServiceTest {
   }
 
   @Test
-  public void mapFormToEntity_partial() {
+  void mapFormToEntity_partial() {
     var actualEntity = new PadPipelineTechInfo();
     var form = createFullForm();
     form.setPipelineDesignedToStandards(false);

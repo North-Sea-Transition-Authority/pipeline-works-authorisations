@@ -104,6 +104,7 @@ public class WebSecurityConfig {
 
             .anyRequest()
             .authenticated()
+
         )
         .csrf(csrf -> csrf
             .ignoringRequestMatchers(NO_AUTH_ENDPOINTS)

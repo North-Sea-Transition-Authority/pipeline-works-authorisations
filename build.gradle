@@ -51,6 +51,7 @@ dependencies {
   implementation 'uk.co.fivium.energyportalapi:client:v12.4.0'
 
   implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
+  implementation "org.hamcrest:hamcrest:2.2"
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
@@ -99,13 +100,14 @@ dependencies {
 
   testImplementation 'com.h2database:h2:1.4.200'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.16.1'
-  testImplementation(
+  testImplementation "org.junit.jupiter:junit-jupiter-params:5.11.4"
+    testImplementation "org.mockito:mockito-junit-jupiter:4.11.0"
+    testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
       'com.squareup.okhttp3:mockwebserver:4.12.0',
       'com.squareup.okhttp3:okhttp:4.12.0' // Required otherwise MockWebServer gives ClassNotFoundException
   )
-  testImplementation 'junit:junit:4.13.1'
 
 }
 
@@ -120,8 +122,9 @@ checkstyle {
 }
 
 test {
-  minHeapSize = "5g" // initial heap size
-  maxHeapSize = "10g" // maximum heap size
+    minHeapSize = "5g" // initial heap size
+    maxHeapSize = "10g" // maximum heap size
+    useJUnitPlatform()
 }
 
 tasks.jacocoTestReport {

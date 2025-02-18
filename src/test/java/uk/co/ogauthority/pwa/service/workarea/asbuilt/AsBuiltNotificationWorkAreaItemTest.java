@@ -8,17 +8,17 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationWorkAreaItem;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaColumnItemView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationWorkAreaItemTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationWorkAreaItemTest {
 
   private AsBuiltNotificationWorkAreaItem asBuiltNotificationWorkAreaItem;
   private AsBuiltNotificationWorkareaView asBuiltNotificationWorkareaView;
@@ -26,8 +26,8 @@ public class AsBuiltNotificationWorkAreaItemTest {
   private static final String ACCESS_URL = "EXAMPLE_URL";
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationWorkareaView = new AsBuiltNotificationWorkareaView();
     setAsBuiltNotificationWorkAreaViewValues(asBuiltNotificationWorkareaView);
     asBuiltNotificationWorkAreaItem = new AsBuiltNotificationWorkAreaItem(asBuiltNotificationWorkareaView, ACCESS_URL);
@@ -48,7 +48,7 @@ public class AsBuiltNotificationWorkAreaItemTest {
   }
 
   @Test
-  public void asBuiltNotificationWorkAreaItem_correctConversionFromView() {
+  void asBuiltNotificationWorkAreaItem_correctConversionFromView() {
     assertThat(asBuiltNotificationWorkAreaItem.getAsBuiltNotificationGroupId()).isEqualTo(asBuiltNotificationWorkareaView.getNgId());
     assertThat(asBuiltNotificationWorkAreaItem.getAsBuiltNotificationGroupReference()).isEqualTo(asBuiltNotificationWorkareaView.getNgReference());
     assertThat(asBuiltNotificationWorkAreaItem.getProjectName()).isEqualTo(asBuiltNotificationWorkareaView.getProjectName());
@@ -59,13 +59,13 @@ public class AsBuiltNotificationWorkAreaItemTest {
   }
 
   @Test
-  public void setAsBuiltNotificationWorkAreaItem_correctDisplayDateConversion() {
+  void setAsBuiltNotificationWorkAreaItem_correctDisplayDateConversion() {
     assertThat(asBuiltNotificationWorkAreaItem.getAsBuiltNotificationDeadlineDateDisplay()).isEqualTo("01/04/2020");
     assertThat(asBuiltNotificationWorkAreaItem.getProjectCompletionDateDisplay()).isEqualTo("02/01/2020");
   }
 
   @Test
-  public void getAsBuiltNotificationStatusColumn() {
+  void getAsBuiltNotificationStatusColumn() {
     assertThat(asBuiltNotificationWorkAreaItem.getStatusColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
             STATUS_LABEL,
@@ -74,7 +74,7 @@ public class AsBuiltNotificationWorkAreaItemTest {
   }
 
   @Test
-  public void getAsBuiltNotificationSummaryColumn() {
+  void getAsBuiltNotificationSummaryColumn() {
     assertThat(asBuiltNotificationWorkAreaItem.getSummaryColumn()).containsExactly(
         WorkAreaColumnItemView.createLabelledItem(
             "Project name", asBuiltNotificationWorkAreaItem.getProjectName()
@@ -88,13 +88,13 @@ public class AsBuiltNotificationWorkAreaItemTest {
   }
 
   @Test
-  public void getAsBuiltNotificationHolderColumn() {
+  void getAsBuiltNotificationHolderColumn() {
     assertThat(asBuiltNotificationWorkAreaItem.getHolderColumn()).containsExactly(
         WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.NONE, "SHELL"));
   }
 
   @Test
-  public void getApplicationColumn() {
+  void getApplicationColumn() {
     assertThat(asBuiltNotificationWorkAreaItem.getApplicationColumn()).containsExactly(
         WorkAreaColumnItemView.createLinkItem(asBuiltNotificationWorkAreaItem.getAsBuiltNotificationGroupReference(),
             asBuiltNotificationWorkAreaItem.getAccessUrl()

@@ -18,16 +18,14 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -54,9 +52,8 @@ import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelinesControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelinesControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final Set<PipelineStatus> allowedPipelineStatuses = Set.of(
@@ -85,8 +82,8 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
 
   private static final Set<PipelineHeaderQuestion> REQUIRED_QUESTIONS = PipelineHeaderQuestion.stream().collect(Collectors.toSet());
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
@@ -136,7 +133,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderAddPipeline_permissionSmokeTest() {
+  void renderAddPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -148,7 +145,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderAddPipeline_appTypeSmokeTest() {
+  void renderAddPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -160,7 +157,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderAddPipeline_appStatusSmokeTest() {
+  void renderAddPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -172,7 +169,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postAddPipeline_permissionSmokeTest() {
+  void postAddPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -184,7 +181,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postAddPipeline_appTypeSmokeTest() {
+  void postAddPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -196,7 +193,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postAddPipeline_appStatusSmokeTest() {
+  void postAddPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -208,7 +205,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postAddPipeline_validationFailed() throws Exception {
+  void postAddPipeline_validationFailed() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(validator, List.of("fromLocation"));
 
@@ -226,7 +223,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postAddPipeline_valid() throws Exception {
+  void postAddPipeline_valid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(PipelinesController.class)
         .postAddPipeline(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
@@ -240,7 +237,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderRemovePipeline_permissionSmokeTest() {
+  void renderRemovePipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -254,7 +251,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderRemovePipeline_appTypeSmokeTest() {
+  void renderRemovePipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -268,7 +265,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderRemovePipeline_appStatusSmokeTest() {
+  void renderRemovePipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -282,7 +279,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postRemovePipeline_permissionSmokeTest() {
+  void postRemovePipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -298,7 +295,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postRemovePipeline_appTypeSmokeTest() {
+  void postRemovePipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -314,7 +311,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postRemovePipeline_appStatusSmokeTest() {
+  void postRemovePipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -330,7 +327,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderEditPipeline_permissionSmokeTest() {
+  void renderEditPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -344,7 +341,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderEditPipeline_appTypeSmokeTest() {
+  void renderEditPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -358,7 +355,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderEditPipeline_appStatusSmokeTest() {
+  void renderEditPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -372,7 +369,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderEditPipeline_pipelineStatusAllowed() {
+  void renderEditPipeline_pipelineStatusAllowed() {
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -387,7 +384,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void renderEditPipeline_pipelineStatusNotAllowed() {
+  void renderEditPipeline_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.GET)
           .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -402,7 +399,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postEditPipeline_permissionSmokeTest() {
+  void postEditPipeline_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -418,7 +415,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postEditPipeline_appTypeSmokeTest() {
+  void postEditPipeline_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -434,7 +431,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postEditPipeline_appStatusSmokeTest() {
+  void postEditPipeline_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) -> {
@@ -450,7 +447,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postEditPipeline_pipelineStatusAllowed() {
+  void postEditPipeline_pipelineStatusAllowed() {
 
     allowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
@@ -466,7 +463,7 @@ public class PipelinesControllerTest extends PwaApplicationContextAbstractContro
   }
 
   @Test
-  public void postEditPipeline_pipelineStatusNotAllowed() {
+  void postEditPipeline_pipelineStatusNotAllowed() {
     disallowedPipelineStatuses.forEach(pipelineStatus -> {
       endpointTester.setRequestMethod(HttpMethod.POST)
           .setEndpointUrlProducer((applicationDetail, type) -> {

@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.entry;
 
 import java.time.LocalDate;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -21,20 +21,20 @@ import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrBeforeDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TwoFieldDateInputValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class TwoFieldDateInputValidatorTest {
 
   private TwoFieldDateInputValidator validator;
   private TwoFieldDateInput twoFieldDateInput;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     validator = new TwoFieldDateInputValidator();
     twoFieldDateInput = new TwoFieldDateInput();
   }
 
   @Test
-  public void validate_noHints_emptyDateValues() {
+  void validate_noHints_emptyDateValues() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
     ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, new Object[0]);
     var fieldErrors = ValidatorTestUtils.extractErrors(errors);
@@ -52,7 +52,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_inputLabelHint_invalidDate() {
+  void validate_inputLabelHint_invalidDate() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
     Object[] hints = {new FormInputLabel("Work start")};
     ValidationUtils.invokeValidator(validator, twoFieldDateInput, errors, hints);
@@ -67,7 +67,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_inputLabelHint_beforeDateHint_afterDateHint_emptyDate() {
+  void validate_inputLabelHint_beforeDateHint_afterDateHint_emptyDate() {
     var errors = new BeanPropertyBindingResult(twoFieldDateInput, "form");
     Object[] hints = {
         new FormInputLabel("Some date"),
@@ -89,7 +89,7 @@ public class TwoFieldDateInputValidatorTest {
 
 
   @Test
-  public void validate_validDate() {
+  void validate_validDate() {
     twoFieldDateInput.setMonth(6);
     twoFieldDateInput.setYear(2020);
 
@@ -109,7 +109,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_afterDateFail() {
+  void validate_afterDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2019);
 
@@ -138,7 +138,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_beforeDateFail() {
+  void validate_beforeDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2021);
 
@@ -167,7 +167,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_onOrBeforeDateFail() {
+  void validate_onOrBeforeDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2021);
 
@@ -195,7 +195,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_onOrBeforeDatePass_sameMonth() {
+  void validate_onOrBeforeDatePass_sameMonth() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2020);
 
@@ -214,7 +214,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_onOrAfterDateFail() {
+  void validate_onOrAfterDateFail() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2020);
 
@@ -242,7 +242,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_onOrAfterDatePass_sameMonth() {
+  void validate_onOrAfterDatePass_sameMonth() {
     twoFieldDateInput.setMonth(12);
     twoFieldDateInput.setYear(2020);
 
@@ -261,9 +261,8 @@ public class TwoFieldDateInputValidatorTest {
   }
 
 
-
   @Test
-  public void validate_dateWithinRange_withinRange() {
+  void validate_dateWithinRange_withinRange() {
 
     var fromDate = LocalDate.now();
     var toDate = fromDate.plusMonths(12);
@@ -282,7 +281,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_dateWithinRange_pastMaxRange() {
+  void validate_dateWithinRange_pastMaxRange() {
 
     var maxMonthRange = 12;
     var fromDate = LocalDate.now();
@@ -310,7 +309,7 @@ public class TwoFieldDateInputValidatorTest {
   }
 
   @Test
-  public void validate_dateWithinRange_beforeFromDate() {
+  void validate_dateWithinRange_beforeFromDate() {
 
     var maxMonthRange = 12;
     var fromDate = LocalDate.now();
@@ -339,7 +338,7 @@ public class TwoFieldDateInputValidatorTest {
 
 
   @Test
-  public void dateRequired_formatValidationMessage_messageContainsDateTextTwiceAdjacent_formattedToOnly1DateText() {
+  void dateRequired_formatValidationMessage_messageContainsDateTextTwiceAdjacent_formattedToOnly1DateText() {
 
     Object[] hints = {new FormInputLabel("Deposit start date")};
     twoFieldDateInput = new TwoFieldDateInput();
@@ -356,7 +355,7 @@ public class TwoFieldDateInputValidatorTest {
 
 
   @Test
-  public void dateRequired_formatValidationMessage_messageDoesNotContainDateTextTwiceAdjacent_noFormattingApplied() {
+  void dateRequired_formatValidationMessage_messageDoesNotContainDateTextTwiceAdjacent_noFormattingApplied() {
 
     Object[] hints = {new FormInputLabel("Deposit start")};
     twoFieldDateInput = new TwoFieldDateInput();

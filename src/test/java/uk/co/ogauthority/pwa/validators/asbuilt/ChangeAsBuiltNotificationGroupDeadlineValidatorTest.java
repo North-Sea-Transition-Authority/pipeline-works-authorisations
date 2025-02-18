@@ -6,27 +6,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.asbuilt.ChangeAsBuiltNotificationGroupDeadlineForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ChangeAsBuiltNotificationGroupDeadlineValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ChangeAsBuiltNotificationGroupDeadlineValidatorTest {
 
   private ChangeAsBuiltNotificationGroupDeadlineValidator changeAsBuiltNotificationGroupDeadlineValidator;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     changeAsBuiltNotificationGroupDeadlineValidator = new ChangeAsBuiltNotificationGroupDeadlineValidator();
   }
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new ChangeAsBuiltNotificationGroupDeadlineForm();
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(changeAsBuiltNotificationGroupDeadlineValidator,
@@ -37,7 +37,7 @@ public class ChangeAsBuiltNotificationGroupDeadlineValidatorTest {
   }
 
   @Test
-  public void validate_form_dateNotInFuture_validationFails() {
+  void validate_form_dateNotInFuture_validationFails() {
     var form = new ChangeAsBuiltNotificationGroupDeadlineForm();
     form.setNewDeadlineDateTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().minusDays(1L)));
 
@@ -51,7 +51,7 @@ public class ChangeAsBuiltNotificationGroupDeadlineValidatorTest {
   }
 
   @Test
-  public void validate_form_validationPasses() {
+  void validate_form_validationPasses() {
     var form = new ChangeAsBuiltNotificationGroupDeadlineForm();
     form.setNewDeadlineDateTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
 

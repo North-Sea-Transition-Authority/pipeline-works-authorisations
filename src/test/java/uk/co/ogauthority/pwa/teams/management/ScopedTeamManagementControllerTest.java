@@ -20,13 +20,15 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.context.annotation.Import;
 import uk.co.fivium.energyportalapi.client.organisation.OrganisationApi;
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
@@ -34,7 +36,8 @@ import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.form.NewOrganisationTeamFormValidator;
 
-@ContextConfiguration(classes = ScopedTeamManagementController.class)
+@WebMvcTest(ScopedTeamManagementController.class)
+@Import(PwaMvcTestConfiguration.class)
 class ScopedTeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
@@ -46,7 +49,7 @@ class ScopedTeamManagementControllerTest extends AbstractControllerTest {
   private static AuthenticatedUserAccount invokingUser;
 
   @BeforeAll
-  public static void setUp() {
+  static void setUp() {
     invokingUser = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
   }
 

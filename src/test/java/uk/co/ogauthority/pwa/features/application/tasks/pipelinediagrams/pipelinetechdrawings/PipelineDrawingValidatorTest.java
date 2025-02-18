@@ -8,11 +8,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
@@ -24,8 +24,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDrawingValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineDrawingValidatorTest {
 
   @Mock
   private PadPipelineService padPipelineService;
@@ -45,8 +45,8 @@ public class PipelineDrawingValidatorTest {
   private PadPipeline pipeline;
   private UploadFileWithDescriptionForm fileForm;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineDrawingValidator(padPipelineService, padTechnicalDrawingRepository,
         padTechnicalDrawingLinkService, padTechnicalDrawingService);
     form = new PipelineDrawingForm();
@@ -70,13 +70,13 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_emptyForm() {
+  void validate_emptyForm() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
     assertThat(result).containsOnlyKeys("reference", "padPipelineIds", "uploadedFileWithDescriptionForms");
   }
 
   @Test
-  public void validate_referenceWhitespace() {
+  void validate_referenceWhitespace() {
     form.setReference(" ");
     form.getUploadedFileWithDescriptionForms().add(fileForm);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
@@ -84,7 +84,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_invalidPipelineId() {
+  void validate_invalidPipelineId() {
     form.setPadPipelineIds(List.of(1));
     form.setReference("Test");
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
@@ -92,7 +92,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_existingReference_add() {
+  void validate_existingReference_add() {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
@@ -117,7 +117,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_valid() {
+  void validate_valid() {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("Test");
@@ -133,7 +133,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_duplicateReference_edit() {
+  void validate_duplicateReference_edit() {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
@@ -158,7 +158,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_duplicateReference_sameDrawing_edit() {
+  void validate_duplicateReference_sameDrawing_edit() {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
@@ -181,7 +181,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_pipelineNotAdded() {
+  void validate_pipelineNotAdded() {
     form.setPadPipelineIds(List.of(1));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of());
 
@@ -197,7 +197,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_pipelineAlreadyAdded() {
+  void validate_pipelineAlreadyAdded() {
     form.setPadPipelineIds(List.of(1));
     when(padTechnicalDrawingLinkService.getLinkedPipelineIds(pwaApplicationDetail)).thenReturn(List.of(
         new PadPipelineKeyDto(1, 1)
@@ -210,7 +210,7 @@ public class PipelineDrawingValidatorTest {
   }
 
   @Test
-  public void validate_uploadedDrawingFileDescriptionOverMaxCharLength() {
+  void validate_uploadedDrawingFileDescriptionOverMaxCharLength() {
     form.setPadPipelineIds(List.of(1));
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
 

@@ -10,25 +10,27 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
-import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DepositDrawingsGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DepositDrawingsGeneratorServiceTest {
 
   @Mock
   private DepositDrawingsService depositDrawingsService;
@@ -47,8 +49,8 @@ public class DepositDrawingsGeneratorServiceTest {
 
   private PwaApplicationDetail detail = new PwaApplicationDetail();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     drawing1 = new PadDepositDrawing();
     drawing1.setReference("drawing1Ref");
@@ -68,7 +70,7 @@ public class DepositDrawingsGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData() {
+  void getDocumentSectionData() {
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(true);
 
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
@@ -85,7 +87,7 @@ public class DepositDrawingsGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_noDrawings() {
+  void getDocumentSectionData_noDrawings() {
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(true);
     when(depositDrawingsService.getAllDepositDrawingsForDetail(detail)).thenReturn(List.of());
 
@@ -96,7 +98,7 @@ public class DepositDrawingsGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_notIncludingPermanentDeposits() {
+  void getDocumentSectionData_notIncludingPermanentDeposits() {
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(false);
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
     assertThat(docSectionData).isNull();

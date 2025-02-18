@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -17,12 +18,14 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItem;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.feeproviders.ApplicationFeeItemTestUtil;
@@ -32,8 +35,9 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.in
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationFeeServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationFeeServiceTest {
   private static final String FEE_DESC = "FEE_1";
   private static final int FEE_AMOUNT = 100;
   private static final String APP_REF = "APP_REF";
@@ -56,8 +60,8 @@ public class ApplicationFeeServiceTest {
   private FeePeriodDetail feePeriodDetail;
   private ApplicationFeeItem applicationFeeItem;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
 
     feePeriodDetail = FeePeriodTestUtil.createDefaultFeePeriodDetail();
@@ -80,7 +84,7 @@ public class ApplicationFeeServiceTest {
   }
 
   @Test
-  public void getApplicationFeeReport_currentFeePeriodExists_providerCanProvideFeeItems() {
+  void getApplicationFeeReport_currentFeePeriodExists_providerCanProvideFeeItems() {
 
     when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
 
@@ -107,7 +111,7 @@ public class ApplicationFeeServiceTest {
   }
 
   @Test
-  public void getApplicationFeeReport_currentFeePeriodExists_providerCannotProvideFeeItems() {
+  void getApplicationFeeReport_currentFeePeriodExists_providerCannotProvideFeeItems() {
 
     when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
     when(feeItemProvider.canProvideFeeItems(any())).thenReturn(false);
@@ -122,7 +126,7 @@ public class ApplicationFeeServiceTest {
   }
 
   @Test
-  public void getApplicationFeeReport_currentFeePeriodExists_fastTrack() {
+  void getApplicationFeeReport_currentFeePeriodExists_fastTrack() {
     when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.FAST_TRACK);
 
     var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
@@ -141,7 +145,7 @@ public class ApplicationFeeServiceTest {
   }
 
   @Test
-  public void getApplicationFeeReport_combinesAppFeesFromMultipleProviders() {
+  void getApplicationFeeReport_combinesAppFeesFromMultipleProviders() {
 
     when(feeItemProvider.getApplicationFeeType()).thenReturn(PwaApplicationFeeType.DEFAULT);
 
@@ -169,13 +173,16 @@ public class ApplicationFeeServiceTest {
 
   }
 
-  @Test(expected = FeeException.class)
-  public void getApplicationFeeReport_currentFeePeriodNotFound() {
-
+  @Test
+  void getApplicationFeeReport_currentFeePeriodNotFound() {
     when(feePeriodDetailRepository.findByTipFlagIsTrueAndPeriodStartTimestampIsBeforeAndPeriodEndTimestampIsAfter(any(),
-        any()))
-        .thenReturn(Optional.empty());
-    var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
+          any()))
+          .thenReturn(Optional.empty());
+    assertThrows(FeeException.class, () -> {
+      var report = applicationFeeService.getApplicationFeeReport(pwaApplicationDetail);
+
+
+    });
 
 
   }

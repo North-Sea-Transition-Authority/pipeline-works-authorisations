@@ -7,26 +7,26 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaConsentReferencingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaConsentReferencingServiceTest {
 
   @Mock
   private PwaConsentReferenceNumberGenerator numberGenerator;
 
   private PwaConsentReferencingService pwaConsentReferencingService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaConsentReferencingService = new PwaConsentReferencingService(numberGenerator);
 
@@ -35,7 +35,7 @@ public class PwaConsentReferencingServiceTest {
   }
 
   @Test
-  public void createConsentReference_initial() {
+  void createConsentReference_initial() {
 
     var consent = new PwaConsent();
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -52,7 +52,7 @@ public class PwaConsentReferencingServiceTest {
   }
 
   @Test
-  public void createConsentReference_variation() {
+  void createConsentReference_variation() {
 
     var consent = new PwaConsent();
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
@@ -69,7 +69,7 @@ public class PwaConsentReferencingServiceTest {
   }
 
   @Test
-  public void createConsentReference_depcon() {
+  void createConsentReference_depcon() {
 
     var consent = new PwaConsent();
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);

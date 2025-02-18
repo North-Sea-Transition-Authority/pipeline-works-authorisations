@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,11 +26,13 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
+import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 @ExtendWith(MockitoExtension.class)
 class TeamManagementHandlerInterceptorTest {
@@ -51,6 +55,12 @@ class TeamManagementHandlerInterceptorTest {
   @Mock
   private HandlerMethod handlerMethod;
 
+  @Mock
+  private SecurityContext securityContext;
+
+  @Mock
+  private AuthenticatedUserToken existingAuthentication;
+
   private final AuthenticatedUserAccount invokingUser = new AuthenticatedUserAccount();
 
 
@@ -60,6 +70,11 @@ class TeamManagementHandlerInterceptorTest {
     invokingUser.setForename("Test");
     invokingUser.setSurname("User");
     invokingUser.setEmailAddress("test@example.com");
+
+    SecurityContextHolder.setContext(securityContext);
+    when(existingAuthentication.getPrincipal()).thenReturn(invokingUser);
+    when(securityContext.getAuthentication()).thenReturn(existingAuthentication);
+
   }
 
   @Test
