@@ -31,21 +31,15 @@ public class PwaPermissionService {
   public Set<PwaPermission> getPwaPermissions(MasterPwa masterPwa,
                                               AuthenticatedUserAccount user) {
     return Arrays.stream(PwaPermission.values())
-        .filter(permission -> {
-          switch (permission) {
-            case VIEW_PWA_PIPELINE:
-              return pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
-                  || userHasRegulatorRole(user.getLinkedPerson())
-                  || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW);
-            case VIEW_PWA:
-            case SHOW_PWA_NAVIGATION:
+        .filter(permission -> switch (permission) {
+          case VIEW_PWA_PIPELINE -> pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
+              || userHasRegulatorRole(user.getLinkedPerson())
+              || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW);
+          case VIEW_PWA, SHOW_PWA_NAVIGATION ->
               // split out show nav priv so users with external access only do not see other system areas they cannot access.
-              return pwaHolderTeamService.isPersonInHolderTeam(masterPwa,
-                  user.getLinkedPerson()) || userHasRegulatorRole(
-                  user.getLinkedPerson());
-            default:
-              return false;
-          }
+              pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
+              || userHasRegulatorRole(user.getLinkedPerson());
+          default -> false;
         })
         .collect(Collectors.toSet());
   }
