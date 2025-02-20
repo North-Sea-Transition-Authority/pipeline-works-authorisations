@@ -92,6 +92,8 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
+  implementation 'uk.co.fivium:ftss-client-spring-boot-starter:v1.0.2'
+
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
   implementation 'net.logstash.logback:logstash-logback-encoder:7.2'

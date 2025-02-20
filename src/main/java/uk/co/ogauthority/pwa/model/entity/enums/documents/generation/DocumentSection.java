@@ -4,6 +4,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.AdmiraltyChartGenerato
 import uk.co.ogauthority.pwa.service.documents.generation.DepconIntroductionGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.DepositDrawingsGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.DepositsGeneratorService;
+import uk.co.ogauthority.pwa.service.documents.generation.DigitalSignatureGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.HuooIntroductionGeneratorService;
@@ -15,7 +16,7 @@ public enum DocumentSection {
 
   INITIAL_INTRO("Introduction", InitialIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
-  INITIAL_TERMS_AND_CONDITIONS("Terms and conditions", SectionType.CLAUSE_LIST),
+  INITIAL_TERMS_AND_CONDITIONS("Terms and conditions", SectionType.CLAUSE_LIST, ClauseDisplay.HIDE_HEADING),
 
   DEPCON_INTRO("Introduction", DepconIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
@@ -33,7 +34,9 @@ public enum DocumentSection {
 
   DEPOSIT_DRAWINGS("Deposit drawings", DepositDrawingsGeneratorService.class),
 
-  ADMIRALTY_CHART("Admiralty chart", AdmiraltyChartGeneratorService.class);
+  ADMIRALTY_CHART("Admiralty chart", AdmiraltyChartGeneratorService.class),
+
+  DIGITAL_SIGNATURE("Digital signature", DigitalSignatureGeneratorService.class, SectionType.DIGITAL_SIGNATURE);
 
   private final String displayName;
   private final SectionType sectionType;
@@ -55,14 +58,6 @@ public enum DocumentSection {
     this.sectionType = sectionType;
     this.clauseDisplay = ClauseDisplay.HIDE_HEADING;
     this.sectionGenerator = sectionGenerator;
-  }
-
-  DocumentSection(String displayName,
-                  SectionType sectionType) {
-    this.displayName = displayName;
-    this.sectionType = sectionType;
-    this.clauseDisplay = ClauseDisplay.HIDE_HEADING;
-    this.sectionGenerator = null;
   }
 
   DocumentSection(String displayName,

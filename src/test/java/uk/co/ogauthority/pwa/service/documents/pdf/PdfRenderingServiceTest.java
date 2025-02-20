@@ -46,9 +46,9 @@ public class PdfRenderingServiceTest {
 
 
   @Test
-  public void renderToBlob_timerMetricStarted_timeRecordedAndLogged() {
+  public void render_timerMetricStarted_timeRecordedAndLogged() {
 
-    pdfRenderingService.renderToBlob("data");
+    pdfRenderingService.render("data");
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "PDF generated");
   }
 
