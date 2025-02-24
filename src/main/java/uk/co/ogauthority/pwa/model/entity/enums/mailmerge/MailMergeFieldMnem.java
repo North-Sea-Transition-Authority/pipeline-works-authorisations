@@ -75,7 +75,11 @@ public enum MailMergeFieldMnem {
         DocumentSpec.HUOO_HYDROGEN_CONSENT_DOCUMENT,
         DocumentSpec.INITIAL_CCUS_CONSENT_DOCUMENT,
         DocumentSpec.VARIATION_CCUS_CONSENT_DOCUMENT,
-        DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT));
+        DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT)),
+
+  // Digital signature
+  DIGITAL_SIGNATURE,
+  ;
 
   private final Set<PwaApplicationType> permittedAppTypes;
 

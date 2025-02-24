@@ -45,6 +45,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationServic
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.documents.signing.DocumentSigningService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
@@ -79,6 +80,9 @@ class DocumentCreationServiceTest {
   @Mock
   private DocgenRunSectionDataRepository docgenRunSectionDataRepository;
 
+  @Mock
+  private DocumentSigningService documentSigningService;
+
   @Captor
   private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
 
@@ -110,7 +114,9 @@ class DocumentCreationServiceTest {
         mailMergeService,
         pwaApplicationDetailService,
         pwaConsentService,
-        docgenRunSectionDataRepository);
+        docgenRunSectionDataRepository,
+        documentSigningService
+    );
 
     documentInstance = new DocumentInstance();
     documentInstance.setPwaApplication(pwaApplicationDetail.getPwaApplication());
@@ -182,8 +188,9 @@ class DocumentCreationServiceTest {
     int numberOfCustomSections = sectionTypeToCountMap.get(SectionType.CUSTOM).intValue();
     int numberOfOpeningParagraphSections = sectionTypeToCountMap.get(SectionType.OPENING_PARAGRAPH).intValue();
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
+    int numberOfDigitalSignatureSections = sectionTypeToCountMap.get(SectionType.DIGITAL_SIGNATURE).intValue();
 
-    verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections))
+    verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections + numberOfDigitalSignatureSections))
         .getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
     verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, docGenType);
@@ -198,7 +205,7 @@ class DocumentCreationServiceTest {
 
     verify(docgenRunSectionDataRepository).saveAll(docgenRunSectionDataCaptor.capture());
 
-    assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections);
+    assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections + numberOfDigitalSignatureSections);
 
   }
 

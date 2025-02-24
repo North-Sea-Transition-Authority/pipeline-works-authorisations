@@ -201,6 +201,12 @@
       margin-top: 15px;
     }
 
+    .no-bullet {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
     .multi-line-text {
       white-space: pre-line;
       margin-bottom: 20px;

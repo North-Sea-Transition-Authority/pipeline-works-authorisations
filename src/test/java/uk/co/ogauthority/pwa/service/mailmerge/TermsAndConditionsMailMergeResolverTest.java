@@ -21,19 +21,15 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 class TermsAndConditionsMailMergeResolverTest {
 
   @Mock
-  private PwaApplicationDetailService pwaApplicationDetailService;
-
-  @Mock
   private TermsAndConditionsService termsAndConditionsService;
+
   private TermsAndConditionsMailMergeResolver termsAndConditionsMailMergeResolver;
 
   private List<MailMergeFieldMnem> mailMergeFields;
 
   @BeforeEach
   void setup() {
-    termsAndConditionsMailMergeResolver = new TermsAndConditionsMailMergeResolver(
-        pwaApplicationDetailService,
-        termsAndConditionsService);
+    termsAndConditionsMailMergeResolver = new TermsAndConditionsMailMergeResolver(termsAndConditionsService);
 
     mailMergeFields = Arrays.stream(MailMergeFieldMnem.values())
         .collect(Collectors.toList());

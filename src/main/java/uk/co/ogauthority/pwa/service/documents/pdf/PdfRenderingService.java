@@ -3,9 +3,6 @@ package uk.co.ogauthority.pwa.service.documents.pdf;
 import com.google.common.base.Stopwatch;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import java.io.ByteArrayOutputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
-import javax.sql.rowset.serial.SerialBlob;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -28,7 +25,7 @@ public class PdfRenderingService {
   }
 
 
-  private ByteArrayResource render(String html) {
+  public ByteArrayResource render(String html) {
 
     try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
 
@@ -50,21 +47,6 @@ public class PdfRenderingService {
     } catch (Exception e) {
       throw new RuntimeException("Error rendering template to PDF", e);
     }
-
-  }
-
-  public Blob renderToBlob(String html) {
-
-    var pdf = render(html);
-
-    Blob blob;
-    try {
-      blob = new SerialBlob(pdf.getByteArray());
-    } catch (SQLException e) {
-      throw new RuntimeException("Error serialising PDF blob", e);
-    }
-
-    return blob;
 
   }
 

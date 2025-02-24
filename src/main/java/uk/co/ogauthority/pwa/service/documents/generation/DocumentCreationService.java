@@ -1,15 +1,19 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.sql.Blob;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
+import javax.sql.rowset.serial.SerialBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.documents.generation.DocgenRunSectionData;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
@@ -22,6 +26,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.docgen.DocgenRunSectionDataRepository;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.documents.signing.DocumentSigningService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
@@ -39,6 +44,7 @@ public class DocumentCreationService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PwaConsentService pwaConsentService;
   private final DocgenRunSectionDataRepository docgenRunSectionDataRepository;
+  private final DocumentSigningService documentSigningService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(DocumentCreationService.class);
 
@@ -52,7 +58,8 @@ public class DocumentCreationService {
                                  MailMergeService mailMergeService,
                                  PwaApplicationDetailService pwaApplicationDetailService,
                                  PwaConsentService pwaConsentService,
-                                 DocgenRunSectionDataRepository docgenRunSectionDataRepository) {
+                                 DocgenRunSectionDataRepository docgenRunSectionDataRepository,
+                                 DocumentSigningService documentSigningService) {
     this.springApplicationContext = springApplicationContext;
     this.templateRenderingService = templateRenderingService;
     this.pdfRenderingService = pdfRenderingService;
@@ -61,6 +68,7 @@ public class DocumentCreationService {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.pwaConsentService = pwaConsentService;
     this.docgenRunSectionDataRepository = docgenRunSectionDataRepository;
+    this.documentSigningService = documentSigningService;
   }
 
   public Blob createConsentDocument(DocgenRun docgenRun) {
@@ -68,6 +76,8 @@ public class DocumentCreationService {
     var documentInstance = docgenRun.getDocumentInstance();
     var docGenType = docgenRun.getDocGenType();
     var app = documentInstance.getPwaApplication();
+
+    var isPreview = docGenType == DocGenType.PREVIEW;
 
     var latestSubmittedDetail = pwaApplicationDetailService
         .getLatestSubmittedDetail(app)
@@ -132,14 +142,25 @@ public class DocumentCreationService {
     Map<String, Object> docModelAndView = Map.of(
         "sectionHtml", htmlString,
         "consentRef", consentRef,
-        "showWatermark", docGenType == DocGenType.PREVIEW,
+        "showWatermark", isPreview,
         "issueDate", DateUtils.formatDate(LocalDate.now())
     );
 
     var docHtml = templateRenderingService.render("documents/consents/consentDocument.ftl", docModelAndView, false);
 
-    return pdfRenderingService.renderToBlob(docHtml);
+    var unsignedPdf = pdfRenderingService.render(docHtml);
 
+    return signPdf(isPreview, unsignedPdf, docgenRun.getScheduledByPerson());
+
+  }
+
+  @VisibleForTesting
+  SerialBlob signPdf(boolean isPreview, ByteArrayResource unsignedPdf, Person user) {
+    if (isPreview) {
+      return documentSigningService.previewPdfSignature(unsignedPdf);
+    } else {
+      return documentSigningService.signPdf(unsignedPdf, user);
+    }
   }
 
   private DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,

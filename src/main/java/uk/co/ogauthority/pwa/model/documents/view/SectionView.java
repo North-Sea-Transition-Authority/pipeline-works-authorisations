@@ -62,7 +62,7 @@ public class SectionView {
   }
 
   public boolean addAndRemoveClauseAllowed() {
-    return sectionType != SectionType.OPENING_PARAGRAPH;
+    return sectionType != SectionType.OPENING_PARAGRAPH && sectionType != SectionType.DIGITAL_SIGNATURE;
   }
 
 }
