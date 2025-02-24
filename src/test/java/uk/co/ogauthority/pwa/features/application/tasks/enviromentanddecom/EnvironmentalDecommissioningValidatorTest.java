@@ -11,11 +11,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EnvironmentalDecommissioningValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class EnvironmentalDecommissioningValidatorTest {
 
   @Mock
   private PadEnvironmentalDecommissioningService environmentalDecommissioningService;
@@ -36,8 +36,8 @@ public class EnvironmentalDecommissioningValidatorTest {
 
   List<PwaApplicationDetail> details;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     validator = new EnvironmentalDecommissioningValidator(environmentalDecommissioningService);
 
@@ -51,7 +51,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void initial_mandatoryDataNotProvided_failed() {
+  void initial_mandatoryDataNotProvided_failed() {
 
     var form = new EnvironmentalDecommissioningForm();
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, initialAppDetail, ValidationType.FULL);
@@ -69,7 +69,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void cat2_mandatoryDataNotProvided_failed() {
+  void cat2_mandatoryDataNotProvided_failed() {
 
     var form = new EnvironmentalDecommissioningForm();
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, cat2AppDetail, ValidationType.FULL);
@@ -84,7 +84,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void initial_mandatoryDataProvided_passed() {
+  void initial_mandatoryDataProvided_passed() {
 
     var form = buildForm();
 
@@ -95,7 +95,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void cat2_mandatoryDataProvided_passed() {
+  void cat2_mandatoryDataProvided_passed() {
 
     var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(true);
@@ -108,7 +108,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void all_partial_noFieldsMandatory() {
+  void all_partial_noFieldsMandatory() {
 
     details.forEach(detail -> {
 
@@ -123,7 +123,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void all_partial_someDataEntered_newlyVisibleFieldsNotMand() {
+  void all_partial_someDataEntered_newlyVisibleFieldsNotMand() {
 
     details.forEach(detail -> {
 
@@ -140,7 +140,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void all_partial_datePartiallyProvided_validatedFully() {
+  void all_partial_datePartiallyProvided_validatedFully() {
 
     details.forEach(detail -> {
 
@@ -158,7 +158,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_EmptyPermitsSubmittedField_full() {
+  void validateEmptyPermitsSubmittedFieldFull() {
 
     details.forEach(detail -> {
 
@@ -173,7 +173,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_ValidPermitsSubmittedField_full() {
+  void validateValidPermitsSubmittedFieldFull() {
 
     details.forEach(detail -> {
 
@@ -188,7 +188,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_permitsSubmitted_maxLengthExceeded() {
+  void validatePermitsSubmittedMaxLengthExceeded() {
 
     details.forEach(detail -> {
 
@@ -208,7 +208,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_bothPermitQuestionsAnsweredNo() {
+  void validateBothPermitQuestionsAnsweredNo() {
     var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(false);
     form.setEmtHasOutstandingPermits(false);
@@ -218,7 +218,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_hasSubmittedPermitQuestionAnsweredYes() {
+  void validateHasSubmittedPermitQuestionAnsweredYes() {
     var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(true);
     form.setEmtHasOutstandingPermits(false);
@@ -230,7 +230,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_hasOutstandingPermitQuestionAnsweredYes() {
+  void validateHasOutstandingPermitQuestionAnsweredYes() {
     var form = new EnvironmentalDecommissioningForm();
     form.setEmtHasSubmittedPermits(false);
     form.setEmtHasOutstandingPermits(true);
@@ -242,7 +242,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_NullPermitsPendingSubmissionField_full() {
+  void validateNullPermitsPendingSubmissionFieldFull() {
 
     details.forEach(detail -> {
 
@@ -256,7 +256,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_EmptyPermitsPendingSubmissionField_full() {
+  void validateEmptyPermitsPendingSubmissionFieldFull() {
 
     details.forEach(detail -> {
 
@@ -271,7 +271,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_ValidPermitsPendingSubmissionField_full() {
+  void validateValidPermitsPendingSubmissionFieldFull() {
 
     details.forEach(detail -> {
 
@@ -286,7 +286,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_permitsPendingSubmission_maxLengthExceeded() {
+  void validatePermitsPendingSubmissionMaxLengthExceeded() {
 
     details.forEach(detail -> {
 
@@ -306,7 +306,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_EmptyDate_full() {
+  void validateEmptyDateFull() {
 
     details.forEach(detail -> {
 
@@ -322,7 +322,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_invalidDate_full() {
+  void validateInvalidDateFull() {
 
     details.forEach(detail -> {
 
@@ -341,7 +341,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_yearTooBig() {
+  void validateYearTooBig() {
 
     details.forEach(detail -> {
 
@@ -354,7 +354,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_yearTooSmall() {
+  void validateYearTooSmall() {
 
     details.forEach(detail -> {
 
@@ -367,7 +367,7 @@ public class EnvironmentalDecommissioningValidatorTest {
   }
 
   @Test
-  public void testValidate_ValidDate_full() {
+  void validateValidDateFull() {
 
     details.forEach(detail -> {
 

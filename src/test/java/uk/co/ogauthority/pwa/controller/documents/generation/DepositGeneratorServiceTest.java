@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -39,8 +39,8 @@ import uk.co.ogauthority.pwa.service.documents.views.DepositTableRowView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DepositGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DepositGeneratorServiceTest {
 
   @Mock
   private PipelineAndIdentViewFactory pipelineAndIdentViewFactory;
@@ -59,8 +59,8 @@ public class DepositGeneratorServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, 1, 1);
   }
@@ -96,7 +96,7 @@ public class DepositGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData() {
+  void getDocumentSectionData() {
 
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(true);
 
@@ -246,7 +246,7 @@ public class DepositGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_noDeposits() {
+  void getDocumentSectionData_noDeposits() {
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(true);
     when(permanentDepositService.getDepositForDepositPipelinesMap(pwaApplicationDetail)).thenReturn(Map.of());
     when(permanentDepositService.getAllDepositsWithPipelinesFromOtherApps(pwaApplicationDetail)).thenReturn(List.of());
@@ -258,7 +258,7 @@ public class DepositGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_notIncludingPermanentDeposits() {
+  void getDocumentSectionData_notIncludingPermanentDeposits() {
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)).thenReturn(false);
     var docSectionData = depositsGeneratorService.getDocumentSectionData(pwaApplicationDetail, null, DocGenType.PREVIEW);
     assertThat(docSectionData).isNull();

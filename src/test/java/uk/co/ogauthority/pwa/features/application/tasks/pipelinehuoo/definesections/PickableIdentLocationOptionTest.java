@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickableIdentLocationOptionTest {
+@ExtendWith(MockitoExtension.class)
+class PickableIdentLocationOptionTest {
 
   private static final String POINT_A = "A";
   private static final String POINT_B = "B";
@@ -30,8 +30,8 @@ public class PickableIdentLocationOptionTest {
   private IdentView ident3View;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     setupIdentViewMock(ident1View, POINT_A, POINT_B, 1);
     setupIdentViewMock(ident2View, POINT_B, POINT_C, 2);
     setupIdentViewMock(ident3View, POINT_C, POINT_D, 3);
@@ -48,7 +48,7 @@ public class PickableIdentLocationOptionTest {
   }
 
   @Test
-  public void createSortedPickableIdentLocationOptionList() {
+  void createSortedPickableIdentLocationOptionList() {
 
     var options = PickableIdentLocationOption.createSortedPickableIdentLocationOptionList(
         List.of(ident1View, ident2View, ident3View));

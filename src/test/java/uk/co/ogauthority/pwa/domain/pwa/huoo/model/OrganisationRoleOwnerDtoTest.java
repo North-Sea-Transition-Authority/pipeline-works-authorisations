@@ -4,16 +4,16 @@ package uk.co.ogauthority.pwa.domain.pwa.huoo.model;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OrganisationRoleOwnerDtoTest {
+@ExtendWith(MockitoExtension.class)
+class OrganisationRoleOwnerDtoTest {
 
   @Test
-  public void organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenPortalOrg() {
+  void organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenPortalOrg() {
 
     var orgRoleOwner =  new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, new OrganisationUnitId(1), null, null);
 
@@ -24,7 +24,7 @@ public class OrganisationRoleOwnerDtoTest {
   }
 
   @Test
-  public void  organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenTreatyAgreement() {
+  void organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenTreatyAgreement() {
 
     var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.TREATY_AGREEMENT, null, null, TreatyAgreement.ANY_TREATY_COUNTRY);
 
@@ -35,7 +35,7 @@ public class OrganisationRoleOwnerDtoTest {
   }
 
   @Test
-  public void  organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenMigratedOrg() {
+  void organisationRoleOwnerDto_setsAttributesAsExpected_whenGivenMigratedOrg() {
 
     var orgRoleOwner = new OrganisationRoleOwnerDto(HuooType.PORTAL_ORG, null, "MigratedOrg",null);
 
@@ -46,7 +46,7 @@ public class OrganisationRoleOwnerDtoTest {
   }
 
   @Test
-  public void testEquals(){
+  void equals(){
 
     EqualsVerifier.forClass(OrganisationRoleOwnerDto.class)
         .withPrefabValues(OrganisationUnitId.class, new OrganisationUnitId(1), new OrganisationUnitId(2))

@@ -14,14 +14,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -42,10 +42,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(CaseReassignmentController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class CaseReassignmentControllerTest extends AbstractControllerTest {
+class CaseReassignmentControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount userAccount;
 
@@ -64,38 +63,38 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   @MockBean
   AssignCaseOfficerService assignCaseOfficerService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
   }
 
   @Test
-  public void caseReasignmentService_renderTopBarScreen_authenticatedTest() throws Exception {
+  void caseReasignmentService_renderTopBarScreen_authenticatedTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null, null, null)))
-        .with(authenticatedUserAndSession(userAccount))).andExpect(status().isOk());
+        .with(user(userAccount))).andExpect(status().isOk());
   }
 
   @Test
-  public void caseReasignmentService_renderTopBarScreen_unauthenticatedTest() throws Exception {
+  void caseReasignmentService_renderTopBarScreen_unauthenticatedTest() throws Exception {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
 
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null, null, null)))
-        .with(authenticatedUserAndSession(userAccount))).andExpect(status().isForbidden());
+        .with(user(userAccount))).andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderTopBarScreen_SmokeTest() throws Exception {
+  void renderTopBarScreen_SmokeTest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
         on(CaseReassignmentController.class)
             .renderCaseReassignment(null, userAccount, null, null, null, null)))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("filterForm"))
         .andExpect(model().attributeExists("form"))
@@ -116,19 +115,19 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void filterByCaseOfficer() throws Exception {
+  void filterByCaseOfficer() throws Exception {
     var form = new CaseReassignmentFilterForm();
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .filterCaseReassignment(null, userAccount, form, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("caseOfficerPersonId", "5000"))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void postSubmitCaseReassignment_validationPasses() throws Exception {
+  void postSubmitCaseReassignment_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
@@ -140,14 +139,14 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .submitCaseReassignment(null, userAccount, null, null, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000"))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void postSubmitCaseReassignment_validationFails() throws Exception {
+  void postSubmitCaseReassignment_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
@@ -160,7 +159,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .submitCaseReassignment(null, userAccount, null, null, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000"))
         .andExpect(status().is2xxSuccessful())
@@ -169,11 +168,11 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderReassignCaseOfficer() throws Exception {
+  void renderReassignCaseOfficer() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .renderSelectNewAssignee(null, userAccount, null, null, null, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000"))
         .andExpect(status().isOk())
@@ -181,7 +180,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postReassignCaseOfficer_validationPasses() throws Exception {
+  void postReassignCaseOfficer_validationPasses() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(applicationDetail);
 
@@ -193,7 +192,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .submitSelectNewAssignee(null, userAccount, null, null, null, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
             .param("assignedCaseOfficerPersonId", "1111"))
@@ -203,7 +202,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void postReassignCaseOfficer_validationFails() throws Exception {
+  void postReassignCaseOfficer_validationFails() throws Exception {
     var applicationDetail = new PwaApplicationDetail();
     when(pwaApplicationDetailService.getDetailByDetailId(any())).thenReturn(applicationDetail);
 
@@ -216,7 +215,7 @@ public class CaseReassignmentControllerTest extends AbstractControllerTest {
     mockMvc.perform(post(ReverseRouter.route(
             on(CaseReassignmentController.class)
                 .submitSelectNewAssignee(null, userAccount, null,null, null, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf())
             .param("selectedApplicationIds", "5000", "3000")
             .param("assignedCaseOfficerPersonId", "1111"))

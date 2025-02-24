@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
@@ -18,15 +19,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.internal.PwaAppChargePaymentAttempt;
@@ -60,8 +63,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationChargeRequestServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationChargeRequestServiceTest {
 
   private static final String CANCEL_REASON = "CANCEL_REASON";
 
@@ -133,8 +137,8 @@ public class ApplicationChargeRequestServiceTest {
       "Project name", "New field development"
   );
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaManagerPerson = PersonTestUtil.createPersonFrom(new PersonId(10));
     pwaManagerWua = new WebUserAccount(10, pwaManagerPerson);
@@ -181,7 +185,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void createPwaAppChargeRequest_withValidSpec_createsExpectedData() {
+  void createPwaAppChargeRequest_withValidSpec_createsExpectedData() {
 
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.OPEN)
         .setChargeSummary("CHARGE_SUMMARY")
@@ -244,7 +248,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void createPwaAppChargeRequest_withValidSpec_emailsAppContacts() {
+  void createPwaAppChargeRequest_withValidSpec_emailsAppContacts() {
 
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.OPEN)
         .setChargeSummary("CHARGE_SUMMARY")
@@ -259,7 +263,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void createPwaAppChargeRequest_withValidSpec_andWaivedStatus_setsExpectedData() {
+  void createPwaAppChargeRequest_withValidSpec_andWaivedStatus_setsExpectedData() {
 
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
         .setChargeWaivedReason("WAIVED_REASON")
@@ -288,97 +292,97 @@ public class ApplicationChargeRequestServiceTest {
     verify(appChargeEmailService, never()).sendChargeRequestIssuedEmail(pwaApplication);
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenNotWaived_andWaivedReasonProvided() {
-
+  @Test
+  void createPwaAppChargeRequest_whenNotWaived_andWaivedReasonProvided() {
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.OPEN)
-        .setChargeWaivedReason("WAIVED_REASON")
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setTotalPennies(100)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 25);
+          .setChargeWaivedReason("WAIVED_REASON")
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setTotalPennies(100)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", 25);
+    assertThrows(UnsupportedOperationException.class, () ->
 
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenWaived_andWaivedNotReasonProvided() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setTotalPennies(100)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 25);
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenNoChargeItems() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setTotalPennies(100)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId());
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenChargeItems_negativePennyAmount() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setTotalPennies(100)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", -1);
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenMissingChargeSummary() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setTotalPennies(100)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 100);
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenMissingTotalPennies() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 100);
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
-
-  }
-
-  @Test(expected = UnsupportedOperationException.class)
-  public void createPwaAppChargeRequest_whenNegativeTotalPennies() {
-
-    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
-        .setChargeSummary("CHARGE_SUMMARY")
-        .setTotalPennies(-10)
-        .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 100);
-
-    applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
 
   }
 
   @Test
-  public void getOpenRequestAsApplicationChargeRequestReport_whenNoOpenChargeRequestFound() {
+  void createPwaAppChargeRequest_whenWaived_andWaivedNotReasonProvided() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setTotalPennies(100)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", 25);
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void createPwaAppChargeRequest_whenNoChargeItems() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setTotalPennies(100)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId());
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void createPwaAppChargeRequest_whenChargeItems_negativePennyAmount() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setTotalPennies(100)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", -1);
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void createPwaAppChargeRequest_whenMissingChargeSummary() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setTotalPennies(100)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", 100);
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void createPwaAppChargeRequest_whenMissingTotalPennies() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", 100);
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void createPwaAppChargeRequest_whenNegativeTotalPennies() {
+    var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
+          .setChargeSummary("CHARGE_SUMMARY")
+          .setTotalPennies(-10)
+          .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
+          .addChargeItem("CHARGE_1", 100);
+    assertThrows(UnsupportedOperationException.class, () ->
+
+      applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
+
+  }
+
+  @Test
+  void getOpenRequestAsApplicationChargeRequestReport_whenNoOpenChargeRequestFound() {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(any(), any()))
         .thenReturn(Optional.empty());
     assertThat(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(pwaApplication)).isEmpty();
@@ -386,7 +390,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void getOpenRequestAsApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems() {
+  void getOpenRequestAsApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems() {
 
     var chargeItem = new PwaAppChargeRequestItem(null, "Item 1", 150);
     when(
@@ -409,19 +413,20 @@ public class ApplicationChargeRequestServiceTest {
     ));
   }
 
-  @Test(expected = ApplicationChargeException.class)
-  public void startChargeRequestPaymentAttempt_noTipRequestDetail() {
+  @Test
+  void startChargeRequestPaymentAttempt_noTipRequestDetail() {
     when(pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
-        pwaApplication, PwaAppChargeRequestStatus.OPEN
-    )).thenReturn(Optional.empty());
+          pwaApplication, PwaAppChargeRequestStatus.OPEN
+      )).thenReturn(Optional.empty());
+    assertThrows(ApplicationChargeException.class, () ->
 
-    applicationChargeRequestService.startChargeRequestPaymentAttempt(
-        pwaApplication, paymentAttemptWua
-    );
+      applicationChargeRequestService.startChargeRequestPaymentAttempt(
+          pwaApplication, paymentAttemptWua
+      ));
   }
 
   @Test
-  public void startChargeRequestPaymentAttempt_noActiveAttempts_paymentServiceSuccess() {
+  void startChargeRequestPaymentAttempt_noActiveAttempts_paymentServiceSuccess() {
 
     var newPaymentRequest = PwaPaymentRequestTestUtil.createFrom(UUID.randomUUID(), PaymentRequestStatus.PENDING,
         "someId");
@@ -461,23 +466,23 @@ public class ApplicationChargeRequestServiceTest {
         .isEqualTo(CreatePaymentAttemptResult.AttemptOutcome.PAYMENT_CREATED);
   }
 
-  @Test(expected = ApplicationChargeException.class)
-  public void startChargeRequestPaymentAttempt_noActiveAttempts_paymentServiceFailure() {
+  @Test
+  void startChargeRequestPaymentAttempt_noActiveAttempts_paymentServiceFailure() {
     var paymentRequest = PwaPaymentRequestTestUtil
-        .createFrom(UUID.randomUUID(), PaymentRequestStatus.FAILED_TO_CREATE, null);
+          .createFrom(UUID.randomUUID(), PaymentRequestStatus.FAILED_TO_CREATE, null);
     var createCardPaymentResult = CreateCardPaymentResultTestUtil.createWithoutUrl(paymentRequest);
-
     when(pwaPaymentService.createCardPayment(any(), any(), any(), any(), any()))
-        .thenReturn(createCardPaymentResult);
+          .thenReturn(createCardPaymentResult);
+    assertThrows(ApplicationChargeException.class, () ->
 
-    applicationChargeRequestService.startChargeRequestPaymentAttempt(
-        pwaApplication, paymentAttemptWua
-    );
+      applicationChargeRequestService.startChargeRequestPaymentAttempt(
+          pwaApplication, paymentAttemptWua
+      ));
 
   }
 
   @Test
-  public void startChargeRequestPaymentAttempt_inProgressActiveAttempt_notCompleted() {
+  void startChargeRequestPaymentAttempt_inProgressActiveAttempt_notCompleted() {
     /*
      * Ensure existing active attempts get refreshed and cancelled if possible
      */
@@ -518,7 +523,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void startChargeRequestPaymentAttempt_inProgressActiveAttempt_completedAndPaid() {
+  void startChargeRequestPaymentAttempt_inProgressActiveAttempt_completedAndPaid() {
     /*
      * Ensure existing active attempts get refreshed and if paid we dont create a new attempt.
      */
@@ -553,7 +558,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void startChargeRequestPaymentAttempt_chargeRequestAlreadyPaid() {
+  void startChargeRequestPaymentAttempt_chargeRequestAlreadyPaid() {
 
     chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.PAID);
 
@@ -565,21 +570,21 @@ public class ApplicationChargeRequestServiceTest {
 
   }
 
-  @Test(expected = ApplicationChargeException.class)
-  public void startChargeRequestPaymentAttempt_chargeRequestWaived() {
-
+  @Test
+  void startChargeRequestPaymentAttempt_chargeRequestWaived() {
     chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.WAIVED);
+    assertThrows(ApplicationChargeException.class, () ->
 
-    applicationChargeRequestService.startChargeRequestPaymentAttempt(
-        pwaApplication, paymentAttemptWua
-    );
+      applicationChargeRequestService.startChargeRequestPaymentAttempt(
+          pwaApplication, paymentAttemptWua
+      ));
 
 
   }
 
 
   @Test
-  public void processPaymentAttempt_paymentAttemptStillInProgress() {
+  void processPaymentAttempt_paymentAttemptStillInProgress() {
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
 
     var processPaymentAttemptResult = applicationChargeRequestService.processPaymentAttempt(attempt, paymentAttemptWua);
@@ -591,7 +596,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void processPaymentAttempt_paymentRequestNotOpen_butPaymentAttemptUpdatesAsPaid() {
+  void processPaymentAttempt_paymentRequestNotOpen_butPaymentAttemptUpdatesAsPaid() {
     chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.PAID);
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
@@ -612,7 +617,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid() {
+  void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid() {
     chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.OPEN);
     chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
 
@@ -660,7 +665,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid_caseOfficerFailsToAssign() {
+  void processPaymentAttempt_paymentRequestOpen_paymentAttemptUpdatesAsPaid_caseOfficerFailsToAssign() {
     chargeRequestDetail.setPwaAppChargeRequestStatus(PwaAppChargeRequestStatus.OPEN);
     chargeRequestDetail.setAutoCaseOfficerPersonId(caseOfficerPerson.getId());
 
@@ -685,7 +690,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void applicationHasOpenChargeRequest_whenNoOpenRequest() {
+  void applicationHasOpenChargeRequest_whenNoOpenRequest() {
 
     when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication, PwaAppChargeRequestStatus.OPEN
@@ -696,7 +701,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void applicationHasOpenChargeRequest_whenOpenRequest() {
+  void applicationHasOpenChargeRequest_whenOpenRequest() {
 
     when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication, PwaAppChargeRequestStatus.OPEN
@@ -707,7 +712,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void applicationChargeRequestCompleteAndPaid_whenNoPaidRequest() {
+  void applicationChargeRequestCompleteAndPaid_whenNoPaidRequest() {
 
     when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication, PwaAppChargeRequestStatus.PAID
@@ -718,7 +723,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void applicationChargeRequestCompleteAndPaid_whenPaidRequest() {
+  void applicationChargeRequestCompleteAndPaid_whenPaidRequest() {
 
     when(pwaAppChargeRequestDetailRepository.countByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
         pwaApplication, PwaAppChargeRequestStatus.PAID
@@ -730,7 +735,7 @@ public class ApplicationChargeRequestServiceTest {
 
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_emailSent(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_emailSent(){
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
@@ -742,7 +747,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_workflowUpdated(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_workflowUpdated(){
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
@@ -761,7 +766,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_chargeRequestStatusUpdated(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_chargeRequestStatusUpdated(){
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
@@ -787,7 +792,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_applicationDetailUpdated(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_applicationDetailUpdated(){
 
     var cancelOutcome = applicationChargeRequestService.cancelPaymentRequest(
         pwaApplication, pwaManagerWua, CANCEL_REASON);
@@ -799,7 +804,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_andIncompletePaymentAttempts_attemptsCancelled(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_andIncompletePaymentAttempts_attemptsCancelled(){
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
     when(pwaAppChargePaymentAttemptRepository.findAllByPwaAppChargeRequestAndActiveFlagIsTrue(chargeRequest))
@@ -821,7 +826,7 @@ public class ApplicationChargeRequestServiceTest {
   }
 
   @Test
-  public void cancelAppPaymentOutcome_whenChargeRequestOpen_andCompletePaymentAttempt_doNotCancelRequest(){
+  void cancelAppPaymentOutcome_whenChargeRequestOpen_andCompletePaymentAttempt_doNotCancelRequest(){
 
     var attempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(chargeRequest, PaymentRequestStatus.PENDING, paymentAttemptPerson);
     when(pwaAppChargePaymentAttemptRepository.findAllByPwaAppChargeRequestAndActiveFlagIsTrue(chargeRequest))

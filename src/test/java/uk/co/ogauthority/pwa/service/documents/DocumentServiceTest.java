@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentServiceTest {
 
   @Mock
   private DocumentTemplateService documentTemplateService;
@@ -34,15 +34,15 @@ public class DocumentServiceTest {
 
   private DocumentService documentService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     documentService = new DocumentService(documentTemplateService, documentInstanceService);
 
   }
 
   @Test
-  public void createDocumentInstance_noExistingDocInstance() {
+  void createDocumentInstance_noExistingDocInstance() {
 
     var app = new PwaApplication();
     app.setApplicationType(PwaApplicationType.INITIAL);
@@ -63,7 +63,7 @@ public class DocumentServiceTest {
   }
 
   @Test
-  public void reloadDocumentInstance_docInstanceExists() {
+  void reloadDocumentInstance_docInstanceExists() {
 
     var app = new PwaApplication();
     app.setResourceType(PwaResourceType.PETROLEUM);
@@ -76,7 +76,7 @@ public class DocumentServiceTest {
   }
 
   @Test
-  public void documentInstanceExists_true() {
+  void documentInstanceExists_true() {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.of(new DocumentInstance()));
 
@@ -85,7 +85,7 @@ public class DocumentServiceTest {
   }
 
   @Test
-  public void documentInstanceExists_false() {
+  void documentInstanceExists_false() {
 
     when(documentInstanceService.getDocumentInstance(any(), any())).thenReturn(Optional.empty());
 

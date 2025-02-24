@@ -11,11 +11,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
@@ -52,8 +54,9 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationInvolvementServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationInvolvementServiceTest {
 
   private static final PersonId PERSON_ID = new PersonId(10);
 
@@ -102,8 +105,8 @@ public class ApplicationInvolvementServiceTest {
   private PwaApplication application;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     applicationInvolvementService = new ApplicationInvolvementService(
         consulteeGroupTeamService,
@@ -130,7 +133,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_industryUser_isContact_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_industryUser_isContact_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(
@@ -148,7 +151,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_industryUser_notContact_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_industryUser_notContact_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
@@ -165,7 +168,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_industryUser_inHolderTeam() {
+  void getApplicationInvolvementDto_industryUser_inHolderTeam() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
@@ -184,7 +187,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_industryUser_notInHolderTeam() {
+  void getApplicationInvolvementDto_industryUser_notInHolderTeam() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
@@ -203,7 +206,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_assignedCo_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_regulatorUser_assignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
     var assignment = new Assignment(application.getBusinessKey(), application.getWorkflowType(), WorkflowAssignment.CASE_OFFICER, user.getLinkedPerson().getId());
@@ -222,7 +225,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_notAssignedCo_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_regulatorUser_notAssignedCo_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
 
@@ -239,7 +242,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_pwaManagerStage_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_regulatorUser_pwaManagerStage_onlyRelevantInteractionsAndDataPopulated() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA));
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
@@ -258,7 +261,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeam_butNotForApp() {
+  void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeam_butNotForApp() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
@@ -278,7 +281,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeamForApp() {
+  void getApplicationInvolvementDto_regulatorUser_andInSomeIndustryHolderTeamForApp() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
@@ -301,7 +304,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_regulatorUser_andInAppContactRoleForApp() {
+  void getApplicationInvolvementDto_regulatorUser_andInAppContactRoleForApp() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.OGA, UserType.INDUSTRY));
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
@@ -325,7 +328,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_consulteeUser_notConsulted_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_consulteeUser_notConsulted_onlyRelevantInteractionsAndDataPopulated() {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
@@ -359,7 +362,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_consulteeUser_wasConsulted_notAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_consulteeUser_wasConsulted_notAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
@@ -405,7 +408,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getApplicationInvolvementDto_consulteeUser_wasConsulted_isAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
+  void getApplicationInvolvementDto_consulteeUser_wasConsulted_isAssignedResponder_onlyRelevantInteractionsAndDataPopulated() {
 
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
@@ -451,7 +454,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getCaseOfficerPersonId_whenAssigned() {
+  void getCaseOfficerPersonId_whenAssigned() {
     when(camundaWorkflowService.getAssignedPersonId(
         new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW))
     ).thenReturn(Optional.of(PERSON_ID));
@@ -463,7 +466,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getCaseOfficerPersonId_whenNot() {
+  void getCaseOfficerPersonId_whenNot() {
 
     var caseOfficerPersonIdOpt = applicationInvolvementService.getCaseOfficerPersonId(application);
 
@@ -472,7 +475,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void atLeastOneSatisfactoryVersion_whenTrue() {
+  void atLeastOneSatisfactoryVersion_whenTrue() {
 
     when(confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application)).thenReturn(true);
 
@@ -483,7 +486,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void atLeastOneSatisfactoryVersion_whenFalse() {
+  void atLeastOneSatisfactoryVersion_whenFalse() {
 
     when(confirmSatisfactoryApplicationService.atLeastOneSatisfactoryVersion(application)).thenReturn(false);
 
@@ -494,7 +497,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void getCaseOfficersAssignedToOpenApps() {
+  void getCaseOfficersAssignedToOpenApps() {
 
     var inProgressApplicationIds = List.of(1, 2, 3);
     when(pwaApplicationDetailService.getInProgressApplicationIds()).thenReturn(inProgressApplicationIds);
@@ -505,7 +508,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void openConsentReview_whenTrue() {
+  void openConsentReview_whenTrue() {
 
     var consentReview = new ConsentReview();
     when(consentReviewService.getOpenConsentReview(detail)).thenReturn(Optional.of(consentReview));
@@ -517,7 +520,7 @@ public class ApplicationInvolvementServiceTest {
   }
 
   @Test
-  public void openConsentReview_whenFalse() {
+  void openConsentReview_whenFalse() {
 
     when(consentReviewService.getOpenConsentReview(detail)).thenReturn(Optional.empty());
 

@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDeta
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.ApplicationDetailViewRepository;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CaseSummaryViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CaseSummaryViewServiceTest {
 
   @Mock
   private ApplicationDetailViewRepository applicationDetailViewRepository;
@@ -30,8 +30,8 @@ public class CaseSummaryViewServiceTest {
   private ApplicationDetailView applicationDetailView;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     caseSummaryViewService = new CaseSummaryViewService(applicationDetailViewRepository);
 
@@ -45,7 +45,7 @@ public class CaseSummaryViewServiceTest {
   }
 
   @Test
-  public void getCaseSummaryViewForAppDetail_variationApplication_present() {
+  void getCaseSummaryViewForAppDetail_variationApplication_present() {
 
     var caseSummaryViewOpt = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail);
 
@@ -71,7 +71,7 @@ public class CaseSummaryViewServiceTest {
   }
 
   @Test
-  public void getCaseSummaryViewForAppDetail_initialApplication_present() {
+  void getCaseSummaryViewForAppDetail_initialApplication_present() {
     applicationDetailView.setApplicationType(PwaApplicationType.INITIAL);
 
     var caseSummaryViewOpt = caseSummaryViewService.getCaseSummaryViewForAppDetail(detail);
@@ -98,7 +98,7 @@ public class CaseSummaryViewServiceTest {
   }
 
   @Test
-  public void getCaseSummaryViewForAppDetail_notPresent() {
+  void getCaseSummaryViewForAppDetail_notPresent() {
 
     when(applicationDetailViewRepository.findByPwaApplicationDetailId(anyInt())).thenReturn(Optional.empty());
 

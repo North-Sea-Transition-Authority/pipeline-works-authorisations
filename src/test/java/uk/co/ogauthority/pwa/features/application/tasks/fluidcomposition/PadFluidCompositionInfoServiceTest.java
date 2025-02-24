@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadFluidCompositionInfoServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadFluidCompositionInfoServiceTest {
 
   private PadFluidCompositionInfoService padFluidCompositionInfoService;
 
@@ -47,8 +47,8 @@ public class PadFluidCompositionInfoServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new FluidCompositionValidator(new FluidCompositionDataValidator(new DecimalInputValidator()), new FluidCompositionFormValidator());
     padFluidCompositionInfoService = new PadFluidCompositionInfoService(
         padFluidCompositionInfoRepository,
@@ -96,7 +96,7 @@ public class PadFluidCompositionInfoServiceTest {
 
   // Entity/Form  Retrieval/Mapping Tests
   @Test
-  public void getPadFluidCompositionInfoEntities_existingEntitiesReturned() {
+  void getPadFluidCompositionInfoEntities_existingEntitiesReturned() {
     var expectedEntityList = List.of(
         createValidEntity(Chemical.H2O, ChemicalMeasurementType.NONE),
         createValidEntity(Chemical.AR, ChemicalMeasurementType.PPMV_100K),
@@ -107,7 +107,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void getPadFluidCompositionInfoEntities_newPetroleumEntitiesReturned() {
+  void getPadFluidCompositionInfoEntities_newPetroleumEntitiesReturned() {
     var expectedEntityList = new ArrayList<>();
     for (Chemical chemical: Chemical.getAllByResourceType(PwaResourceType.PETROLEUM)) {
       var padFluidCompositionInfo = new PadFluidCompositionInfo(pwaApplicationDetail, chemical);
@@ -119,7 +119,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void getPadFluidCompositionInfoEntities_newHydrogenEntitiesReturned() {
+  void getPadFluidCompositionInfoEntities_newHydrogenEntitiesReturned() {
     var application = pwaApplicationDetail.getPwaApplication();
     application.setResourceType(PwaResourceType.HYDROGEN);
     pwaApplicationDetail.setPwaApplication(application);
@@ -135,7 +135,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void getPadFluidCompositionInfoEntities_newCCUSEntitiesReturned() {
+  void getPadFluidCompositionInfoEntities_newCCUSEntitiesReturned() {
     var application = pwaApplicationDetail.getPwaApplication();
     application.setResourceType(PwaResourceType.CCUS);
     pwaApplicationDetail.setPwaApplication(application);
@@ -151,7 +151,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void mapEntityToForm() {
+  void mapEntityToForm() {
     var form = new FluidCompositionForm();
     padFluidCompositionInfoService.mapEntitiesToForm(form, List.of(createValidEntity(Chemical.H2O, ChemicalMeasurementType.NONE),
         createValidEntity(Chemical.N2, ChemicalMeasurementType.TRACE), createValidEntityWithMoleValue(Chemical.C1,
@@ -161,7 +161,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void getFluidCompositionView() {
+  void getFluidCompositionView() {
 
     var higherAmountFluidComp = createValidEntity(Chemical.C2, ChemicalMeasurementType.MOLE_PERCENTAGE);
     higherAmountFluidComp.setMoleValue(BigDecimal.valueOf(0.1));
@@ -183,7 +183,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void saveEntitiesUsingForm() {
+  void saveEntitiesUsingForm() {
     var form = new FluidCompositionForm();
     var h20Form = new FluidCompositionDataForm();
     h20Form.setChemicalMeasurementType(ChemicalMeasurementType.NONE);
@@ -229,7 +229,7 @@ public class PadFluidCompositionInfoServiceTest {
 
   //Validation / Checking Tests
   @Test
-  public void validate_valid() {
+  void validate_valid() {
     var form = createValidForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     padFluidCompositionInfoService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -237,7 +237,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void validate_invalid() {
+  void validate_invalid() {
     var form = createValidForm();
     form.getChemicalDataFormMap().get(Chemical.H2O).setChemicalMeasurementType(null);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -246,7 +246,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void isComplete_valid() {
+  void isComplete_valid() {
     when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(createValidEntityWithMoleValue(Chemical.H2O, BigDecimal.valueOf(100))));
     var isValid = padFluidCompositionInfoService.isComplete(pwaApplicationDetail);
@@ -254,14 +254,14 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void isComplete_invalid() {
+  void isComplete_invalid() {
     when(padFluidCompositionInfoRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(new ArrayList<>());
     var isValid = padFluidCompositionInfoService.isComplete(pwaApplicationDetail);
     assertFalse(isValid);
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  void cleanupData_hiddenData() {
 
     var co2 = new PadFluidCompositionInfo();
     co2.setMoleValue(BigDecimal.TEN);
@@ -286,7 +286,7 @@ public class PadFluidCompositionInfoServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  void cleanupData_noHiddenData() {
 
     var co2 = new PadFluidCompositionInfo();
     co2.setMoleValue(BigDecimal.TEN);

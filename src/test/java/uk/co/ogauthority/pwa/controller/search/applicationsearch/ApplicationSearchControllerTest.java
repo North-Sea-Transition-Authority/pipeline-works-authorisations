@@ -12,20 +12,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -58,10 +56,9 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ApplicationSearchController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ApplicationSearchControllerTest extends AbstractControllerTest {
+class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   private static final String APP_REF_SEARCH = "SEARCH_REF";
 
@@ -97,8 +94,8 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
   private ApplicationSearchController applicationSearchController;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     applicationSearchController = new ApplicationSearchController(
         applicationDetailSearchService,
         applicationSearchContextCreator,
@@ -115,12 +112,12 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-    public void getSearchResults_whenPermitted_landingEntry() throws Exception {
+  void getSearchResults_whenPermitted_landingEntry() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("userTypes", permittedUserSearchContext.getUserTypes()))
         .andExpect(model().attribute("searchUrl", ApplicationSearchController.routeToBlankSearchUrl()))
@@ -130,7 +127,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_whenPermitted_landingEntry_industryOnlyUserType() throws Exception {
+  void getSearchResults_whenPermitted_landingEntry_industryOnlyUserType() throws Exception {
 
     var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
     permittedUserSearchContext = ApplicationSearchContextTestUtil.industryContext(permittedUser, Set.of(orgUnitId));
@@ -140,12 +137,13 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("useLimitedOrgSearch", true));
   }
+
   @Test
-  public void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType() throws Exception {
+  void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType() throws Exception {
 
     var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
     permittedUserSearchContext = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(permittedUser, Set.of(orgUnitId));
@@ -155,13 +153,13 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("useLimitedOrgSearch", false));
   }
 
   @Test
-  public void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType_selectedHolderOrg() throws Exception {
+  void getSearchResults_whenPermitted_landingEntry_notIndustryOnlyUserType_selectedHolderOrg() throws Exception {
 
     var orgUnitId = new OrganisationUnitId(portalOrganisationUnit.getOuId());
     permittedUserSearchContext = ApplicationSearchContextTestUtil.combinedIndustryOgaContext(permittedUser, Set.of(orgUnitId));
@@ -173,7 +171,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
-        .with(authenticatedUserAndSession(permittedUser))
+        .with(user(permittedUser))
         .param("holderOrgUnitId", portalOrganisationUnit.getSelectionId()))
         .andExpect(status().isOk())
         .andExpect(model().attribute("useLimitedOrgSearch", false))
@@ -182,7 +180,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void getSearchResults_openAppsAssignedCaseOfficersMapping() {
+  void getSearchResults_openAppsAssignedCaseOfficersMapping() {
 
     var pwaApplication1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1).getPwaApplication();
     var pwaApplication2 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 2).getPwaApplication();
@@ -210,18 +208,18 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_whenProhibited() throws Exception {
+  void getSearchResults_whenProhibited() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
-        .with(authenticatedUserAndSession(prohibitedUser)))
+        .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void getSearchResults_whenNotLoggedIn() throws Exception {
+  void getSearchResults_whenNotLoggedIn() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.LANDING, null
@@ -231,7 +229,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_runSearchWithParams() throws Exception {
+  void getSearchResults_runSearchWithParams() throws Exception {
 
     var screenView = new SearchScreenView<ApplicationDetailItemView>(0, List.of());
     when(applicationDetailSearchService.search(any(), any())).thenReturn(screenView);
@@ -244,7 +242,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         null, ApplicationSearchController.AppSearchEntryState.SEARCH, null
     ), paramsAsMap(params)
         ))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk());
 
     verify(applicationDetailSearchService, times(1)).search(params, permittedUserSearchContext);
@@ -252,7 +250,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_searchParamsInvalid() throws Exception {
+  void getSearchResults_searchParamsInvalid() throws Exception {
 
     var params = new ApplicationSearchParametersBuilder()
         .setAppReference(APP_REF_SEARCH)
@@ -269,7 +267,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
         null, ApplicationSearchController.AppSearchEntryState.SEARCH, null
         ), paramsAsMap(params)
     ))
-        .with(authenticatedUserAndSession(permittedUser)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk());
 
     verify(applicationDetailSearchService, times(0)).search(any(), any());
@@ -283,7 +281,7 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void getSearchResults_whenProhibited_withSearchParams() throws Exception {
+  void getSearchResults_whenProhibited_withSearchParams() throws Exception {
     var params = new ApplicationSearchParametersBuilder()
         .setAppReference(APP_REF_SEARCH)
         .createApplicationSearchParameters();
@@ -291,31 +289,31 @@ public class ApplicationSearchControllerTest extends AbstractControllerTest {
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
         null, ApplicationSearchController.AppSearchEntryState.SEARCH, params
     )))
-        .with(authenticatedUserAndSession(prohibitedUser)))
+        .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void submitSearchParams_whenPermitted() throws Exception {
+  void submitSearchParams_whenPermitted() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty())))
-        .with(authenticatedUserAndSession(permittedUser))
+        .with(user(permittedUser))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void submitSearchParams_whenProhibited() throws Exception {
+  void submitSearchParams_whenProhibited() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty())))
-        .with(authenticatedUserAndSession(prohibitedUser))
+        .with(user(prohibitedUser))
         .with(csrf()))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void submitSearchParams_whenNotLoggedIn() throws Exception {
+  void submitSearchParams_whenNotLoggedIn() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(ApplicationSearchController.class).submitSearchParams(null, Optional.empty()))))
         .andExpect(status().isForbidden());

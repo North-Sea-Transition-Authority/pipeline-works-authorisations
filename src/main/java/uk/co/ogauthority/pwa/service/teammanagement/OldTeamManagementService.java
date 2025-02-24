@@ -41,9 +41,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
-public class TeamManagementService {
+public class OldTeamManagementService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(TeamManagementService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OldTeamManagementService.class);
 
   private final TeamService teamService;
   private final PersonRepository personRepository;
@@ -51,7 +51,7 @@ public class TeamManagementService {
 
   private final NotifyService notifyService;
 
-  public TeamManagementService(TeamService teamService,
+  public OldTeamManagementService(TeamService teamService,
                                PersonRepository personRepository,
                                WebUserAccountRepository webUserAccountRepository, NotifyService notifyService) {
     this.teamService = teamService;

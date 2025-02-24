@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.P
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EditBlockCrossingFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class EditBlockCrossingFormValidatorTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -28,16 +28,15 @@ public class EditBlockCrossingFormValidatorTest {
 
   private PearsLicence pearsLicence;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pearsLicence = new PearsLicence();
     validator = new EditBlockCrossingFormValidator(portalOrganisationsAccessor);
   }
 
 
-
   @Test
-  public void validate_blockNotOwnedByHolder_selectedOwnerOrgIsActive_valid() {
+  void validate_blockNotOwnedByHolder_selectedOwnerOrgIsActive_valid() {
 
     var form = new AddBlockCrossingForm();
     form.setPickedBlock("ref");
@@ -57,7 +56,7 @@ public class EditBlockCrossingFormValidatorTest {
 
 
   @Test
-  public void validate_blockNotOwnedByHolder_selectedOwnerOrgIsInActive_invalid() {
+  void validate_blockNotOwnedByHolder_selectedOwnerOrgIsInActive_invalid() {
 
     var form = new AddBlockCrossingForm();
     form.setPickedBlock("ref");
@@ -77,7 +76,7 @@ public class EditBlockCrossingFormValidatorTest {
   }
 
   @Test
-  public void validate_blockOwnerLicensedBlock_MarkedAsUnlicensed() {
+  void validate_blockOwnerLicensedBlock_MarkedAsUnlicensed() {
     var form = new AddBlockCrossingForm();
     form.setPickedBlock("licensedBlock");
     form.setCrossingOwner(CrossingOwner.UNLICENSED);

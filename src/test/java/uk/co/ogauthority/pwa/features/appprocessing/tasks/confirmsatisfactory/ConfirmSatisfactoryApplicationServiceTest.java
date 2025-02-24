@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.appprocessing.tasks.confirmsatisfactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -12,11 +13,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
@@ -42,8 +43,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConfirmSatisfactoryApplicationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConfirmSatisfactoryApplicationServiceTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -60,14 +61,14 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   @Mock
   private PadPipelineTransferService pipelineTransferService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
         consultationRequestService, caseLinkService, notifyService, pipelineTransferService);
   }
 
   @Test
-  public void canShowInTaskList_confirmSatisfactoryApplicationPermission_true() {
+  void canShowInTaskList_confirmSatisfactoryApplicationPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CONFIRM_SATISFACTORY_APPLICATION), null, null,
         Set.of());
@@ -79,7 +80,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_caseManagementIndustryPermission_true() {
+  void canShowInTaskList_caseManagementIndustryPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
         Set.of());
@@ -91,7 +92,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermission_true() {
+  void canShowInTaskList_showAllTasksPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY), null, null,
         Set.of());
@@ -103,7 +104,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasCaseManagementOgaPermission_appCompleted_true() {
+  void canShowInTaskList_hasCaseManagementOgaPermission_appCompleted_true() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
@@ -117,7 +118,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasCaseManagementOgaPermission_appNotCompleted_false() {
+  void canShowInTaskList_hasCaseManagementOgaPermission_appNotCompleted_false() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -130,7 +131,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermissions_false() {
+  void canShowInTaskList_noPermissions_false() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
@@ -141,7 +142,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_confirmSatisfactoryApplicationNotCompleted() {
+  void getTaskListEntry_confirmSatisfactoryApplicationNotCompleted() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -159,7 +160,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_confirmSatisfactoryApplicationCompleted() {
+  void getTaskListEntry_confirmSatisfactoryApplicationCompleted() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
@@ -177,7 +178,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_showAllTasksPermission_taskStateLocked() {
+  void getTaskListEntry_showAllTasksPermission_taskStateLocked() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -195,7 +196,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_invalidAppStatus_taskStateLocked() {
+  void getTaskListEntry_invalidAppStatus_taskStateLocked() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
@@ -209,7 +210,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_validAppStatus_taskStateEditable() {
+  void getTaskListEntry_validAppStatus_taskStateEditable() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -223,7 +224,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void taskAccessible_notSatisfactory_true() {
+  void taskAccessible_notSatisfactory_true() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -235,7 +236,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void taskAccessible_satisfactory_false() {
+  void taskAccessible_satisfactory_false() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
@@ -248,7 +249,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void atLeastOneSatisfactoryVersion_true() {
+  void atLeastOneSatisfactoryVersion_true() {
 
     var firstVersionSatisfactory = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     firstVersionSatisfactory.setConfirmedSatisfactoryTimestamp(Instant.now());
@@ -263,7 +264,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void atLeastOneSatisfactoryVersion_false() {
+  void atLeastOneSatisfactoryVersion_false() {
 
     var firstVersionNotSatisfactory = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -277,14 +278,14 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void confirmSatisfactoryTaskRequired_detailIsFirstVersion_taskNotRequired() {
+  void confirmSatisfactoryTaskRequired_detailIsFirstVersion_taskNotRequired() {
 
     var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     assertThat(confirmSatisfactoryApplicationService.confirmSatisfactoryTaskRequired(firstVersionDetail)).isFalse();
   }
 
   @Test
-  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsSatisfactory_taskNotRequired() {
+  void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsSatisfactory_taskNotRequired() {
 
     var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     firstVersionDetail.setConfirmedSatisfactoryTimestamp(Instant.now());
@@ -292,7 +293,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsNotSatisfactory_taskRequired() {
+  void confirmSatisfactoryTaskRequired_detailIsNotFirstVersion_detailIsNotSatisfactory_taskRequired() {
 
     var firstVersionDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     firstVersionDetail.setVersionNo(2);
@@ -300,7 +301,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void confirmSatisfactory_notAlreadyCompleted_success_hasAssignedResponder() {
+  void confirmSatisfactory_notAlreadyCompleted_success_hasAssignedResponder() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var person = PersonTestUtil.createDefaultPerson();
@@ -339,7 +340,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void confirmSatisfactory_notAlreadyCompleted_success_noAssignedResponder() {
+  void confirmSatisfactory_notAlreadyCompleted_success_noAssignedResponder() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var person = PersonTestUtil.createDefaultPerson();
@@ -385,20 +386,19 @@ public class ConfirmSatisfactoryApplicationServiceTest {
 
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void confirmSatisfactory_alreadyCompleted_error() {
-
+  @Test
+  void confirmSatisfactory_alreadyCompleted_error() {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
-
     var person = PersonTestUtil.createDefaultPerson();
+    assertThrows(IllegalStateException.class, () ->
 
-    confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person);
+      confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person));
 
   }
 
   @Test
-  public void getTaskStatus_NotTransferNotStarted() {
+  void getTaskStatus_NotTransferNotStarted() {
     var detail = new PwaApplicationDetail();
     var applicationContext = new PwaAppProcessingContext(
         detail,
@@ -414,7 +414,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskStatus_NotTransferStatisfactory() {
+  void getTaskStatus_NotTransferStatisfactory() {
     var detail = new PwaApplicationDetail();
     detail.setConfirmedSatisfactoryTimestamp(Instant.now());
     var applicationContext = new PwaAppProcessingContext(
@@ -431,7 +431,7 @@ public class ConfirmSatisfactoryApplicationServiceTest {
   }
 
   @Test
-  public void getTaskStatus_AwaitingTransfer() {
+  void getTaskStatus_AwaitingTransfer() {
     var detail = new PwaApplicationDetail();
 
     when(pipelineTransferService.findUnclaimedByDonorApplication(detail)).thenReturn(List.of(new PadPipelineTransfer()));

@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.NamedPipelineDto;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ModifyPipelineValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ModifyPipelineValidatorTest {
 
   @Mock
   private ModifyPipelineService modifyPipelineService;
@@ -30,14 +30,14 @@ public class ModifyPipelineValidatorTest {
   private ModifyPipelineValidator modifyPipelineValidator;
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     modifyPipelineValidator = new ModifyPipelineValidator(modifyPipelineService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
   }
 
   @Test
-  public void validate_formValid() {
+  void validate_formValid() {
     var pipelineDetail = new PipelineDetail();
     var pipeline = new Pipeline();
     pipeline.setId(1);
@@ -53,7 +53,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_idNotSelectable() {
+  void validate_idNotSelectable() {
     var pipelineDetail = new PipelineDetail();
     var pipeline = new Pipeline();
     pipeline.setId(2);
@@ -70,7 +70,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatus_notSelected() {
+  void validate_pipelineStatus_notSelected() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     var errors = ValidatorTestUtils.getFormValidationErrors(modifyPipelineValidator, form, detail);
@@ -80,7 +80,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatus_historical() {
+  void validate_pipelineStatus_historical() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.PENDING);
@@ -91,7 +91,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatus_selected() {
+  void validate_pipelineStatus_selected() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.IN_SERVICE);
@@ -102,7 +102,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatusReason_invalid() {
+  void validate_pipelineStatusReason_invalid() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
@@ -113,7 +113,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatusReason_over4k() {
+  void validate_pipelineStatusReason_over4k() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
@@ -125,7 +125,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_pipelineStatusReason_valid() {
+  void validate_pipelineStatusReason_valid() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.OUT_OF_USE_ON_SEABED);
@@ -137,7 +137,7 @@ public class ModifyPipelineValidatorTest {
   }
 
   @Test
-  public void validate_transferStatusSelected_confirmationNull_valid() {
+  void validate_transferStatusSelected_confirmationNull_valid() {
     when(modifyPipelineService.getSelectableConsentedPipelines(detail)).thenReturn(List.of());
     var form = new ModifyPipelineForm();
     form.setPipelineStatus(PipelineStatus.TRANSFERRED);

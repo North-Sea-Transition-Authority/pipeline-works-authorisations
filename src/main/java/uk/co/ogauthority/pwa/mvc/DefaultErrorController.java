@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.ModelAndView;
@@ -52,6 +53,12 @@ public class DefaultErrorController implements ErrorController {
     errorService.addErrorAttributesToModel(modelAndView, throwable);
 
     return modelAndView;
+  }
+
+  @GetMapping("/error/unauthorised")
+  public ModelAndView getUnauthorisedErrorPage() {
+
+    return new ModelAndView(getViewName(SC_UNAUTHORIZED));
   }
 
   private String getViewName(int statusCode) {

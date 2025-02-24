@@ -8,20 +8,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDateTime;
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -37,9 +35,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = SubmitConfirmationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstractControllerTest {
+class SubmitConfirmationControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 99;
 
@@ -59,8 +56,8 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
 
   private MockHttpSession session;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     editEndpointTester = new PwaApplicationEndpointTestBuilder(
         this.mockMvc,
@@ -113,7 +110,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSubmission_permissionChecks() {
+  void confirmSubmission_permissionChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -125,7 +122,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSubmission_statusChecks() {
+  void confirmSubmission_statusChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -136,7 +133,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSubmission_typeChecks() {
+  void confirmSubmission_typeChecks() {
 
     submitEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -147,13 +144,13 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSubmission_hasSubmissionSummaryObject() throws Exception {
+  void confirmSubmission_hasSubmissionSummaryObject() throws Exception {
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getMasterPwaApplicationId())).thenReturn(detail);
 
     mockMvc.perform(get(ReverseRouter.route(on(SubmitConfirmationController.class)
             .confirmSubmission(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null))
         )
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(result -> result.getModelAndView().getViewName().equals(
@@ -164,7 +161,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSentToSubmitter_permissionChecks() {
+  void confirmSentToSubmitter_permissionChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -177,7 +174,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSentToSubmitter_statusChecks() {
+  void confirmSentToSubmitter_statusChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->
@@ -189,7 +186,7 @@ public class SubmitConfirmationControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void confirmSentToSubmitter_typeChecks() {
+  void confirmSentToSubmitter_typeChecks() {
 
     editEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((detail, appType) ->

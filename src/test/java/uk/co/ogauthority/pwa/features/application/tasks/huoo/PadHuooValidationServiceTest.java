@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadHuooValidationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadHuooValidationServiceTest {
 
   @Mock
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
@@ -38,8 +38,8 @@ public class PadHuooValidationServiceTest {
   private PortalOrganisationUnit activeOrganisation;
   private PortalOrganisationUnit inactiveOrganisation;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     padHuooValidationService = new PadHuooValidationService(padOrganisationRolesRepository, padHuooRoleMetadataProvider);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     activeOrganisation = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Active organisation");
@@ -47,7 +47,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void getInactiveOrganisationNamesWithRole_when_treatyRoleExists_andInactiveOrgRoleExists(){
+  void getInactiveOrganisationNamesWithRole_when_treatyRoleExists_andInactiveOrgRoleExists(){
 
     var inactivePortalOrgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
 
@@ -67,7 +67,7 @@ public class PadHuooValidationServiceTest {
 
 
   @Test
-  public void doesApplicationHaveValidUsers_invalid() {
+  void doesApplicationHaveValidUsers_invalid() {
 
     when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
         detail, HuooRole.USER, HuooType.PORTAL_ORG))
@@ -82,7 +82,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void doesApplicationHaveValidUsers_valid_treatyAndNoOrg() {
+  void doesApplicationHaveValidUsers_valid_treatyAndNoOrg() {
 
     when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
         detail, HuooRole.USER, HuooType.PORTAL_ORG))
@@ -97,7 +97,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void doesApplicationHaveValidUsers_valid_orgAndNoTreaty() {
+  void doesApplicationHaveValidUsers_valid_orgAndNoTreaty() {
 
     when(padOrganisationRolesRepository.countPadOrganisationRoleByPwaApplicationDetailAndRoleAndType(
         detail, HuooRole.USER, HuooType.PORTAL_ORG))
@@ -113,7 +113,7 @@ public class PadHuooValidationServiceTest {
 
   // getHuooSummaryValidationResult tests adapted from previous task section isComplete tests during rafactor.
   @Test
-  public void getHuooSummaryValidationResult_valid() {
+  void getHuooSummaryValidationResult_valid() {
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, activeOrganisation),
@@ -135,7 +135,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void getHuooSummaryValidationResult_invalid_missingRoleInstance() {
+  void getHuooSummaryValidationResult_invalid_missingRoleInstance() {
 
     // for each role, create a map where the role is has zero instances
     for (HuooRole role : HuooRole.values()) {
@@ -154,7 +154,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void getHuooSummaryValidationResult_invalid_inactiveOrgUnitHasRole() {
+  void getHuooSummaryValidationResult_invalid_inactiveOrgUnitHasRole() {
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, activeOrganisation),
@@ -168,7 +168,7 @@ public class PadHuooValidationServiceTest {
   }
 
   @Test
-  public void getHuooSummaryValidationResult_invalid_invalidUsers() {
+  void getHuooSummaryValidationResult_invalid_invalidUsers() {
 
     when(padOrganisationRolesRepository.getAllByPwaApplicationDetail(detail)).thenReturn(List.of(
         PadOrganisationRoleTestUtil.createOrgRole(HuooRole.HOLDER, activeOrganisation),

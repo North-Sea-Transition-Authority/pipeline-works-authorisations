@@ -2,10 +2,10 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrgRoleInstanceType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.IdentLocationInclusionMode;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -13,8 +13,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineOrganisationRoleLinkTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineOrganisationRoleLinkTest {
   private final int PIPELINE_ID = 1;
   private final String FROM_LOCATION = "FROM";
   private final String TO_LOCATION = "TO";
@@ -22,8 +22,8 @@ public class PadPipelineOrganisationRoleLinkTest {
 
   private PadPipelineOrganisationRoleLink padPipelineOrganisationRoleLink;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     var pipeline = new Pipeline();
     pipeline.setId(PIPELINE_ID);
     padPipelineOrganisationRoleLink = new PadPipelineOrganisationRoleLink();
@@ -32,12 +32,12 @@ public class PadPipelineOrganisationRoleLinkTest {
 
 
   @Test
-  public void getOrgRoleInstanceType_whenNoSplitDetailsSet() {
+  void getOrgRoleInstanceType_whenNoSplitDetailsSet() {
     assertThat(padPipelineOrganisationRoleLink.getOrgRoleInstanceType()).isEqualTo(OrgRoleInstanceType.FULL_PIPELINE);
   }
 
   @Test
-  public void getOrgRoleInstanceType_whenSplitDetailsSet() {
+  void getOrgRoleInstanceType_whenSplitDetailsSet() {
     padPipelineOrganisationRoleLink.setFromLocation(FROM_LOCATION);
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
@@ -48,7 +48,7 @@ public class PadPipelineOrganisationRoleLinkTest {
   }
 
   @Test
-  public void getPipelineIdentifier_whenSplitDetailsSet() {
+  void getPipelineIdentifier_whenSplitDetailsSet() {
     padPipelineOrganisationRoleLink.setFromLocation(FROM_LOCATION);
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
@@ -67,7 +67,7 @@ public class PadPipelineOrganisationRoleLinkTest {
 
 
   @Test
-  public void visit_whenPipelineId(){
+  void visit_whenPipelineId(){
     padPipelineOrganisationRoleLink.setFromLocation(FROM_LOCATION);
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(IdentLocationInclusionMode.INCLUSIVE);
     padPipelineOrganisationRoleLink.setToLocation(TO_LOCATION);
@@ -86,7 +86,7 @@ public class PadPipelineOrganisationRoleLinkTest {
   }
 
   @Test
-  public void visit_whenPipelineSection(){
+  void visit_whenPipelineSection(){
     padPipelineOrganisationRoleLink.setFromLocation(null);
     padPipelineOrganisationRoleLink.setFromLocationIdentInclusionMode(null);
     padPipelineOrganisationRoleLink.setToLocation(null);

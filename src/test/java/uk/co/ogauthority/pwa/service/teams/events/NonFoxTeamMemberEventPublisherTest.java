@@ -4,19 +4,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class NonFoxTeamMemberEventPublisherTest {
+@ExtendWith(MockitoExtension.class)
+class NonFoxTeamMemberEventPublisherTest {
 
   @Mock
   private ApplicationEventPublisher applicationEventPublisher;
@@ -28,15 +28,15 @@ public class NonFoxTeamMemberEventPublisherTest {
 
   private final Person person = PersonTestUtil.createDefaultPerson();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     nonFoxTeamMemberEventPublisher = new NonFoxTeamMemberEventPublisher(applicationEventPublisher);
 
   }
 
   @Test
-  public void publishNonFoxTeamMemberAddedEvent() {
+  void publishNonFoxTeamMemberAddedEvent() {
 
     nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
 
@@ -50,7 +50,7 @@ public class NonFoxTeamMemberEventPublisherTest {
   }
 
   @Test
-  public void publishNonFoxTeamMemberRemovedEvent() {
+  void publishNonFoxTeamMemberRemovedEvent() {
 
     nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberRemovedEvent(person);
 

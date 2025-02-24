@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -20,8 +22,9 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationAuthServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AsBuiltNotificationAuthServiceTest {
 
   private AsBuiltNotificationAuthService asBuiltNotificationAuthService;
 
@@ -43,8 +46,8 @@ public class AsBuiltNotificationAuthServiceTest {
   private static final int NOTIFICATION_GROUP_ID = 10;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationAuthService = new AsBuiltNotificationAuthService(asBuiltNotificationGroupService, pwaTeamService, pwaHolderTeamService);
 
     when(asBuiltNotificationGroupService.getMasterPwaForAsBuiltNotificationGroup(NOTIFICATION_GROUP_ID)).thenReturn(masterPwa);
@@ -54,27 +57,27 @@ public class AsBuiltNotificationAuthServiceTest {
   }
 
   @Test
-  public void canPersonAccessAsbuiltNotificationGroup_personIsRegulator_canAccess() {
+  void canPersonAccessAsbuiltNotificationGroup_personIsRegulator_canAccess() {
     assertTrue(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(regulator, NOTIFICATION_GROUP_ID));
   }
 
   @Test
-  public void canPersonAccessAsbuiltNotificationGroup_personIsAsBuiltSubmitter_canAccess() {
+  void canPersonAccessAsbuiltNotificationGroup_personIsAsBuiltSubmitter_canAccess() {
     assertTrue(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(industryAsBuiltSubmitter, NOTIFICATION_GROUP_ID));
   }
 
   @Test
-  public void canPersonAccessAsbuiltNotificationGroup_personIsOtherIndustryUser_cannotAccess() {
+  void canPersonAccessAsbuiltNotificationGroup_personIsOtherIndustryUser_cannotAccess() {
     assertFalse(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(industryUnauthorized, NOTIFICATION_GROUP_ID));
   }
 
   @Test
-  public void isPersonAsBuiltNotificationAdmin_industryUser() {
+  void isPersonAsBuiltNotificationAdmin_industryUser() {
     assertFalse(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(industryAsBuiltSubmitter));
   }
 
   @Test
-  public void isPersonAsBuiltNotificationAdmin_OgaUser() {
+  void isPersonAsBuiltNotificationAdmin_OgaUser() {
     assertTrue(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(regulator));
   }
 

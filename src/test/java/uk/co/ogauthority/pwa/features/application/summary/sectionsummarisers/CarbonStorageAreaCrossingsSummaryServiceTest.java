@@ -8,11 +8,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -26,8 +26,8 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CarbonStorageAreaCrossingsSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CarbonStorageAreaCrossingsSummaryServiceTest {
 
 
 
@@ -45,8 +45,8 @@ public class CarbonStorageAreaCrossingsSummaryServiceTest {
   private CarbonStorageAreaCrossingSummaryService summaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     summaryService = new CarbonStorageAreaCrossingSummaryService(crossingService, padFileService, taskListService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
@@ -54,7 +54,7 @@ public class CarbonStorageAreaCrossingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     assertThat(summaryService.canSummarise(pwaApplicationDetail)).isTrue();
 
@@ -62,18 +62,18 @@ public class CarbonStorageAreaCrossingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
     assertThat(summaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(summaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var crossingView = new CarbonStorageCrossingView(1, null, null,  true);
     when(crossingService.getCrossedAreaViews(pwaApplicationDetail)).thenReturn(List.of(crossingView));

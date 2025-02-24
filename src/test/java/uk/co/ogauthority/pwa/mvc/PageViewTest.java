@@ -6,19 +6,19 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
-public class PageViewTest {
+class PageViewTest {
 
   private Page<String> page;
   private List<String> pageContent = Arrays.asList("a", "b", "c");
   private List<String> mappedPageContent = Arrays.asList("mapped_a", "mapped_b", "mapped_c");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     page = mock(Page.class);
     when(page.stream()).then(a -> pageContent.stream());
     when(page.getNumber()).thenReturn(1);
@@ -27,7 +27,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithDefaultPageParamName() {
+  void createWithDefaultPageParamName() {
     PageView withParamName = PageView.fromPage(page, "/endpoint?page=x");
     assertThat(withParamName.urlForPage(1)).isEqualTo("/endpoint?page=1");
     assertThat(withParamName.getCurrentPage()).isEqualTo(1);
@@ -42,7 +42,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithDefaultPageParamNameAndMappingFunction() {
+  void createWithDefaultPageParamNameAndMappingFunction() {
     PageView withParamName = PageView.fromPage(page, "/endpoint?page=x", e -> "mapped_" + e);
     assertThat(withParamName.urlForPage(1)).isEqualTo("/endpoint?page=1");
     assertThat(withParamName.getCurrentPage()).isEqualTo(1);
@@ -51,7 +51,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithPageParamName() {
+  void createWithPageParamName() {
     PageView withParamName = PageView.fromPage(page, "/endpoint?somePage=x", "somePage");
     assertThat(withParamName.urlForPage(1)).isEqualTo("/endpoint?somePage=1");
     assertThat(withParamName.getCurrentPage()).isEqualTo(1);
@@ -66,7 +66,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithPageParamNameAndMappingFunction() {
+  void createWithPageParamNameAndMappingFunction() {
     PageView withParamName = PageView.fromPage(page, "/endpoint?somePage=x", "somePage", e -> "mapped_" + e);
     assertThat(withParamName.urlForPage(1)).isEqualTo("/endpoint?somePage=1");
     assertThat(withParamName.getCurrentPage()).isEqualTo(1);
@@ -75,7 +75,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithPageUriFunction() {
+  void createWithPageUriFunction() {
     PageView view = PageView.fromPage(page, pageNum -> "/endpoint/" + pageNum);
     assertThat(view.urlForPage(1)).isEqualTo("/endpoint/1");
     assertThat(view.getCurrentPage()).isEqualTo(1);
@@ -84,7 +84,7 @@ public class PageViewTest {
   }
 
   @Test
-  public void testCreateWithPageUriFunctionAndMappingFunction() {
+  void createWithPageUriFunctionAndMappingFunction() {
     PageView view = PageView.fromPage(page, pageNum -> "/endpoint/" + pageNum, e -> "mapped_" + e);
     assertThat(view.urlForPage(1)).isEqualTo("/endpoint/1");
     assertThat(view.getCurrentPage()).isEqualTo(1);

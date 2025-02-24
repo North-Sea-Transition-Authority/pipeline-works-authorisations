@@ -10,11 +10,11 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaAreaFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PwaAreaFormValidatorTest {
 
   @Mock
   private DevukFieldService devukFieldService;
@@ -34,8 +34,8 @@ public class PwaAreaFormValidatorTest {
 
   private PwaApplicationDetail applicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     var serviceNameAcronym = "PWA";
     validator = new PwaAreaFormValidator(devukFieldService, serviceNameAcronym);
     form = new PwaAreaForm();
@@ -49,7 +49,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_null_fail() {
+  void full_linkedToField_null_fail() {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, applicationDetail);
 
@@ -59,7 +59,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_null_pass() {
+  void partial_linkedToField_null_pass() {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL, applicationDetail);
 
@@ -68,7 +68,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_true_fieldId_null_fail() {
+  void full_linkedToField_true_fieldId_null_fail() {
 
     form.setLinkedToArea(true);
 
@@ -80,7 +80,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_true_fieldId_null_pass() {
+  void partial_linkedToField_true_fieldId_null_pass() {
 
     form.setLinkedToArea(true);
 
@@ -91,7 +91,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_true_fieldId_valid_pass() {
+  void full_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToArea(true);
     form.setLinkedAreas(List.of("1"));
@@ -103,7 +103,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_true_fieldId_valid_pass() {
+  void partial_linkedToField_true_fieldId_valid_pass() {
 
     form.setLinkedToArea(true);
     form.setLinkedAreas(List.of("1"));
@@ -115,7 +115,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_true_fieldId_invalid_fail() {
+  void full_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToArea(true);
     form.setLinkedAreas(List.of("1"));
@@ -130,7 +130,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_true_fieldId_invalid_fail() {
+  void partial_linkedToField_true_fieldId_invalid_fail() {
 
     form.setLinkedToArea(true);
     form.setLinkedAreas(List.of("1"));
@@ -145,7 +145,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_false_noLinkedFieldDescription_null_fail() {
+  void full_linkedToField_false_noLinkedFieldDescription_null_fail() {
 
     form.setLinkedToArea(false);
 
@@ -157,7 +157,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_false_noLinkedFieldDescription_null_pass() {
+  void partial_linkedToField_false_noLinkedFieldDescription_null_pass() {
 
     form.setLinkedToArea(false);
 
@@ -168,7 +168,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_false_noLinkedFieldDescription_pass() {
+  void full_linkedToField_false_noLinkedFieldDescription_pass() {
 
     form.setLinkedToArea(false);
     form.setNoLinkedAreaDescription("description");
@@ -180,7 +180,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void full_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
+  void full_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
     form.setLinkedToArea(false);
     form.setNoLinkedAreaDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -193,7 +193,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
+  void partial_linkedToField_false_noLinkedFieldDescriptionOverMaxCharLength_fail() {
 
     form.setLinkedToArea(false);
     form.setNoLinkedAreaDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -206,7 +206,7 @@ public class PwaAreaFormValidatorTest {
   }
 
   @Test
-  public void partial_linkedToField_false_noLinkedFieldDescription_pass() {
+  void partial_linkedToField_false_noLinkedFieldDescription_pass() {
 
     form.setLinkedToArea(false);
     form.setNoLinkedAreaDescription("description");

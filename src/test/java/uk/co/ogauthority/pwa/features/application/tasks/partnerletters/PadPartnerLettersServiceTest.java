@@ -1,19 +1,19 @@
 package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPartnerLettersServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPartnerLettersServiceTest {
 
   private PadPartnerLettersService padPartnerLettersService;
 
@@ -46,8 +46,8 @@ public class PadPartnerLettersServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PartnerLettersValidator();
     padPartnerLettersService = new PadPartnerLettersService(applicationDetailService,
         validator, padFileService);
@@ -70,10 +70,8 @@ public class PadPartnerLettersServiceTest {
   }
 
 
-
-
   @Test
-  public void mapEntityToForm_partnerLettersRequired() {
+  void mapEntityToForm_partnerLettersRequired() {
     var actualForm = new PartnerLettersForm();
     padPartnerLettersService.mapEntityToForm(createValidEntity(), actualForm);
     var expectedForm = createValidForm();
@@ -82,7 +80,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_partnerLettersNotRequired() {
+  void mapEntityToForm_partnerLettersNotRequired() {
     var actualForm = new PartnerLettersForm();
     var entity = new PwaApplicationDetail();
     entity.setPartnerLettersRequired(false);
@@ -95,15 +93,14 @@ public class PadPartnerLettersServiceTest {
   }
 
 
-
   @Test
-  public void saveEntityUsingForm_partnerLettersRequired() {
+  void saveEntityUsingForm_partnerLettersRequired() {
     padPartnerLettersService.saveEntityUsingForm(new PwaApplicationDetail(), createValidForm(), new WebUserAccount());
     verify(padFileService, times(1)).updateFiles(any(), any() ,any(), any(), any());
   }
 
   @Test
-  public void saveEntityUsingForm_partnerLettersNotRequired() {
+  void saveEntityUsingForm_partnerLettersNotRequired() {
     when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS))
         .thenReturn(List.of(new PadFile(), new PadFile(), new PadFile()));
     var form = new PartnerLettersForm();
@@ -113,7 +110,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void getPartnerLettersView_lettersRequired() {
+  void getPartnerLettersView_lettersRequired() {
     var appDetail = createValidEntity();
     var uploadedFileViews = List.of(
         new UploadedFileView(null,null,1L,null,null,null),
@@ -129,7 +126,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void getPartnerLettersView_noData() {
+  void getPartnerLettersView_noData() {
     var partnerLettersView = padPartnerLettersService.getPartnerLettersView(pwaApplicationDetail);
 
     assertThat(partnerLettersView.getPartnerLettersRequired()).isNull();
@@ -138,7 +135,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void getPartnerLettersView_lettersNotRequired() {
+  void getPartnerLettersView_lettersNotRequired() {
     pwaApplicationDetail.setPartnerLettersRequired(false);
     var partnerLettersView = padPartnerLettersService.getPartnerLettersView(pwaApplicationDetail);
 
@@ -149,21 +146,21 @@ public class PadPartnerLettersServiceTest {
 
 
   @Test
-  public void validate_isComplete_valid() {
+  void validate_isComplete_valid() {
     pwaApplicationDetail.setPartnerLettersRequired(false);
     var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
     assertTrue(isComplete);
   }
 
   @Test
-  public void validate_isComplete_invalid() {
+  void validate_isComplete_invalid() {
     pwaApplicationDetail.setPartnerLettersRequired(true);
     var isComplete = padPartnerLettersService.isComplete(pwaApplicationDetail);
     assertFalse(isComplete);
   }
 
   @Test
-  public void validate_partialValidation() {
+  void validate_partialValidation() {
     var inCompleteForm = new PartnerLettersForm();
     var bindingResult = new BeanPropertyBindingResult(inCompleteForm, "empty");
     padPartnerLettersService.validate(inCompleteForm, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
@@ -171,7 +168,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void validate_fullValidation_valid() {
+  void validate_fullValidation_valid() {
     var validForm = createValidForm();
     var bindingResult = new BeanPropertyBindingResult(validForm, "empty");
     padPartnerLettersService.validate(validForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -179,7 +176,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void validate_fullValidation_invalid() {
+  void validate_fullValidation_invalid() {
     var invalidForm = new PartnerLettersForm();
     var bindingResult = new BeanPropertyBindingResult(invalidForm, "empty");
     padPartnerLettersService.validate(invalidForm, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -187,7 +184,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_allowed() {
+  void canShowInTaskList_allowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -206,7 +203,7 @@ public class PadPartnerLettersServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notAllowed() {
+  void canShowInTaskList_notAllowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();

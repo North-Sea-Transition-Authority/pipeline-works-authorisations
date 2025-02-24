@@ -9,11 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PickHuooPipelinesFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PickHuooPipelinesFormValidatorTest {
 
   private final String FORM_PIPELINES_ATTR = "pickedPipelineStrings";
   private final String FORM_ORG_UNIT_ATTR = "organisationUnitIds";
@@ -59,8 +59,8 @@ public class PickHuooPipelinesFormValidatorTest {
 
   private BindingResult bindingResult;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     form = new PickHuooPipelinesForm();
 
@@ -73,7 +73,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenPipelineValidationHint_andNoPipelinesPicked() {
+  void validate_whenPipelineValidationHint_andNoPipelinesPicked() {
     bindingResult = new BeanPropertyBindingResult(form, "form");
     ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.PIPELINES);
     var errorCodeMap = ValidatorTestUtils.extractErrors(bindingResult);
@@ -85,7 +85,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenPipelineValidationHint_andSomePipelinePicked() {
+  void validate_whenPipelineValidationHint_andSomePipelinePicked() {
     form.setPickedPipelineStrings(Set.of(VALID_PICKED_PIPELINE_STRING));
     bindingResult = new BeanPropertyBindingResult(form, "form");
     ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.PIPELINES);
@@ -96,7 +96,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andBothRolesAndTreatiesAvailable() {
+  void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andBothRolesAndTreatiesAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
@@ -113,7 +113,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andOnlyTreatiesAvailable() {
+  void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andOnlyTreatiesAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(false);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
@@ -130,7 +130,7 @@ public class PickHuooPipelinesFormValidatorTest {
 
 
   @Test
-  public void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andOnlyOrgUnitsAvailable() {
+  void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andOnlyOrgUnitsAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(false);
@@ -146,7 +146,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenOrganisationValidationHint_andOrgUnitPicked_andBothRolesAndTreatiesAvailable() {
+  void validate_whenOrganisationValidationHint_andOrgUnitPicked_andBothRolesAndTreatiesAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
@@ -162,7 +162,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenOrganisationValidationHint_andOrgTreatyPicked_andBothRolesAndTreatiesAvailable() {
+  void validate_whenOrganisationValidationHint_andOrgTreatyPicked_andBothRolesAndTreatiesAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
@@ -178,7 +178,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andNoOrgRolesAvailable() {
+  void validate_whenOrganisationValidationHint_andNoOrgUnitsPicked_andNoTreatiesPicked_andNoOrgRolesAvailable() {
 
     bindingResult = new BeanPropertyBindingResult(form, "form");
     ValidationUtils.invokeValidator( validator, form, bindingResult, pwaApplicationDetail, HUOO_ROLE, PickHuooPipelineValidationType.ORGANISATIONS);
@@ -192,7 +192,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFullValidationHint_andNothingPicked_andOrgUnitsAndTreatyAvailable() {
+  void validate_whenFullValidationHint_andNothingPicked_andOrgUnitsAndTreatyAvailable() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     when(padOrganisationRoleService.hasTreatyRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
@@ -211,7 +211,7 @@ public class PickHuooPipelinesFormValidatorTest {
 
 
   @Test
-  public void validate_whenFullValidationHint_andInvalidOrgUnitPicked() {
+  void validate_whenFullValidationHint_andInvalidOrgUnitPicked() {
 
     when(padOrganisationRoleService.hasOrganisationUnitRoleOwnersInRole(pwaApplicationDetail, HUOO_ROLE)).thenReturn(true);
     var validPortalOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(VALID_ORG_UNIT_ID, "name", null);
@@ -240,7 +240,7 @@ public class PickHuooPipelinesFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFullValidationHint_andInvalidPipelinePicked_whereTheStringFormatIsValid_andPickedPipelineInvalid() {
+  void validate_whenFullValidationHint_andInvalidPipelinePicked_whereTheStringFormatIsValid_andPickedPipelineInvalid() {
     var invalidPickedPipelineStringWithValidFormat = PickableHuooPipelineType.createPickableString(new PipelineId(999));
 
     form.setTreatyAgreements(Set.of(VALID_TREATY));

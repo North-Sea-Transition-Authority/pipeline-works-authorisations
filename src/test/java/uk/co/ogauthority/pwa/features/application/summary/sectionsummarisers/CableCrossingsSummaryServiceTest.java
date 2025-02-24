@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CableCrossingsSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CableCrossingsSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -47,8 +47,8 @@ public class CableCrossingsSummaryServiceTest {
   private CableCrossingsSummaryService cableCrossingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     cableCrossingsSummaryService = new CableCrossingsSummaryService(padCableCrossingService, taskListService, padFileService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
@@ -56,7 +56,7 @@ public class CableCrossingsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
 
     cableCrossingsSummaryService.canSummarise(pwaApplicationDetail);
@@ -70,26 +70,26 @@ public class CableCrossingsSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andCableCrossingSectionShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andCableCrossingSectionShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(padCableCrossingService.canShowInTaskList(any())).thenReturn(true);
     assertThat(cableCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenHasCrossingsTaskShown_andCableCrossingSectionNotShown() {
+  void canSummarise_whenHasCrossingsTaskShown_andCableCrossingSectionNotShown() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     when(padCableCrossingService.canShowInTaskList(any())).thenReturn(false);
     assertThat(cableCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void canSummarise_whenCrossingTaskNotShown() {
+  void canSummarise_whenCrossingTaskNotShown() {
     assertThat(cableCrossingsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var cableCrossing = new PadCableCrossing();
     var cableCrossingViews = List.of(new CableCrossingView(cableCrossing));

@@ -12,11 +12,13 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
@@ -36,8 +38,9 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EditHuooValidatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class EditHuooValidatorTest {
   
   private static final OrganisationUnitId ORG_UNIT_1_ID = OrganisationUnitId.fromInt(1);
 
@@ -59,8 +62,8 @@ public class EditHuooValidatorTest {
 
   private AuthenticatedUserAccount authenticatedUserAccount;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var person = PersonTestUtil.createDefaultPerson();
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, person), EnumSet.allOf(PwaUserPrivilege.class));
@@ -90,7 +93,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void invalid_appIsInitialPwa_portalOrgAccessibleForUser_organisationIsActive() {
+  void invalid_appIsInitialPwa_portalOrgAccessibleForUser_organisationIsActive() {
     detail.getPwaApplication().setApplicationType(PwaApplicationType.INITIAL);
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));
@@ -108,7 +111,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void invalid_appIsInitialPwa_portalOrgAccessibleForUser_organisationIsNotActive() {
+  void invalid_appIsInitialPwa_portalOrgAccessibleForUser_organisationIsNotActive() {
     detail.getPwaApplication().setApplicationType(PwaApplicationType.INITIAL);
     var portalOrgRole = new PadOrganisationRole();
     portalOrgRole.setType(HuooType.PORTAL_ORG);
@@ -133,7 +136,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void valid_treaty_dataPresent() {
+  void valid_treaty_dataPresent() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
@@ -148,7 +151,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void invalid_mandatory_huooType_portalOrg() {
+  void invalid_mandatory_huooType_portalOrg() {
 
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
@@ -166,7 +169,7 @@ public class EditHuooValidatorTest {
 
 
   @Test
-  public void invalid_huooType_portalOrg_duplicateOrgUnitAlreadyHasRoleOnPwa() {
+  void invalid_huooType_portalOrg_duplicateOrgUnitAlreadyHasRoleOnPwa() {
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -197,7 +200,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void invalid_huooType_portalOrg_lastHolder() {
+  void invalid_huooType_portalOrg_lastHolder() {
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.OWNER));
@@ -214,7 +217,7 @@ public class EditHuooValidatorTest {
 
 
   @Test
-  public void unitSelectedIsPartOfUsersOrg_valid() {
+  void unitSelectedIsPartOfUsersOrg_valid() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -244,7 +247,7 @@ public class EditHuooValidatorTest {
    *  Validation error
    */
   @Test
-  public void unitSelectedIsPartOfUsersOrg_invalid_stillHolder() {
+  void unitSelectedIsPartOfUsersOrg_invalid_stillHolder() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -275,7 +278,7 @@ public class EditHuooValidatorTest {
    *  Validation error
    */
   @Test
-  public void unitSelectedIsPartOfUsersOrg_invalid_wasHolder() {
+  void unitSelectedIsPartOfUsersOrg_invalid_wasHolder() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -306,7 +309,7 @@ public class EditHuooValidatorTest {
    *  Validation error
    */
   @Test
-  public void unitSelectedIsPartOfUsersOrg_invalid_nonHolder() {
+  void unitSelectedIsPartOfUsersOrg_invalid_nonHolder() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -325,7 +328,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void unitSelectedIsPartOfUsersOrg_variationPwa() {
+  void unitSelectedIsPartOfUsersOrg_variationPwa() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -344,7 +347,7 @@ public class EditHuooValidatorTest {
 
 
   @Test
-  public void validateHolderCountLessThanOverallPwa_invalid() {
+  void validateHolderCountLessThanOverallPwa_invalid() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -367,7 +370,7 @@ public class EditHuooValidatorTest {
 
 
   @Test
-  public void validateHolderCountLessThanOverallPwa_valid() {
+  void validateHolderCountLessThanOverallPwa_valid() {
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -388,7 +391,7 @@ public class EditHuooValidatorTest {
   }
 
   @Test
-  public void validate_orgUnitIsInvalid_invalid() {
+  void validate_orgUnitIsInvalid_invalid() {
     detail.getPwaApplication().setApplicationType(PwaApplicationType.INITIAL);
     var portalOrgRole = new PadOrganisationRole();
     portalOrgRole.setType(HuooType.PORTAL_ORG);

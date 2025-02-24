@@ -6,18 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleOwnerDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineHuooRoleSummaryViewTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineHuooRoleSummaryViewTest {
 
 
   private PipelinesAndOrgRoleGroupView group1;
@@ -27,8 +27,8 @@ public class PipelineHuooRoleSummaryViewTest {
   private OrganisationRoleOwnerDto orgUnitRoleOwner2;
   private OrganisationRoleOwnerDto orgTreatyRoleOwner;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     orgUnitRoleOwner1 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(1);
     orgUnitRoleOwner2 = OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(2);
@@ -52,7 +52,7 @@ public class PipelineHuooRoleSummaryViewTest {
   }
 
   @Test
-  public void pipelineHuooRoleSummaryView_sortsGroupsOnConstructionByPipelineNumbersInGroup() {
+  void pipelineHuooRoleSummaryView_sortsGroupsOnConstructionByPipelineNumbersInGroup() {
     var view = new PipelineHuooRoleSummaryView(
         HuooRole.HOLDER,
         // groups given to view out of desired order
@@ -69,7 +69,7 @@ public class PipelineHuooRoleSummaryViewTest {
 
 
   @Test
-  public void getTotalOrganisationRoleOwners_combinesUnassignedAndAssignedRoles() {
+  void getTotalOrganisationRoleOwners_combinesUnassignedAndAssignedRoles() {
     var view = new PipelineHuooRoleSummaryView(
         HuooRole.HOLDER,
         // groups given to view out of desired order
@@ -83,7 +83,7 @@ public class PipelineHuooRoleSummaryViewTest {
   }
 
   @Test
-  public void getTotalOrganisationRoleOwners_whenNoRoles() {
+  void getTotalOrganisationRoleOwners_whenNoRoles() {
     var view = new PipelineHuooRoleSummaryView(
         HuooRole.HOLDER,
         // groups given to view out of desired order

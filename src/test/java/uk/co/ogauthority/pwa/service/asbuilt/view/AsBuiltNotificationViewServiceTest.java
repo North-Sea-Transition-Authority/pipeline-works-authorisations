@@ -7,11 +7,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.asbuilt.AsBuiltNotificationSubmissionController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationViewServiceTest {
 
   private AsBuiltNotificationViewService asBuiltNotificationViewService;
 
@@ -44,15 +44,16 @@ public class AsBuiltNotificationViewServiceTest {
       .createAsBuiltNotificationSubmission_withPerson_withStatus(asBuiltNotificationGroupPipeline, person,
           AsBuiltNotificationStatus.PER_CONSENT);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationViewService = new AsBuiltNotificationViewService(personService);
-
-    when(personService.getPersonById(any(PersonId.class))).thenReturn(person);
   }
 
   @Test
-  public void mapToAsBuiltNotificationView_withExistingSubmission() {
+  void mapToAsBuiltNotificationView_withExistingSubmission() {
+
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(person);
+
     assertThat(asBuiltNotificationViewService.mapToAsBuiltNotificationView(pipelineDetail, asBuiltNotificationSubmission))
     .extracting(
         AsBuiltNotificationView::getAsBuiltGroupReference,
@@ -84,7 +85,7 @@ public class AsBuiltNotificationViewServiceTest {
   }
 
   @Test
-  public void mapToAsBuiltNotificationView_noExistingSubmission() {
+  void mapToAsBuiltNotificationView_noExistingSubmission() {
     assertThat(asBuiltNotificationViewService
         .mapToAsBuiltNotificationViewWithNoSubmission(asBuiltNotificationGroupPipeline.getAsBuiltNotificationGroup().getId(),
             pipelineDetail))
@@ -117,14 +118,17 @@ public class AsBuiltNotificationViewServiceTest {
   }
 
   @Test
-  public void getSubmissionHistoryView_noPreviousHistory() {
+  void getSubmissionHistoryView_noPreviousHistory() {
     assertThat(asBuiltNotificationViewService.getSubmissionHistoryView(List.of()))
         .extracting(AsBuiltSubmissionHistoryView::getLatestSubmissionView, AsBuiltSubmissionHistoryView::getHistoricalSubmissionViews)
     .containsExactly(null, List.of());
   }
 
   @Test
-  public void getSubmissionHistoryView_onlyOneHistory() {
+  void getSubmissionHistoryView_onlyOneHistory() {
+
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(person);
+
     var asBuiltNotificationView = AsBuiltNotificationViewUtil
         .createHistoricAsBuiltNotificationView(asBuiltNotificationSubmission, person);
     assertThat(asBuiltNotificationViewService.getSubmissionHistoryView(List.of(asBuiltNotificationSubmission)))
@@ -138,7 +142,10 @@ public class AsBuiltNotificationViewServiceTest {
   }
 
   @Test
-  public void getSubmissionHistoryView_latestAndPreviousHistory() {
+  void getSubmissionHistoryView_latestAndPreviousHistory() {
+
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(person);
+
     var olderSubmission = AsBuiltNotificationSubmissionUtil
         .createDefaultAsBuiltNotificationSubmission_fromStatusAndDatetime(AsBuiltNotificationStatus.NOT_PER_CONSENT,
             Instant.now().minusSeconds(100L));

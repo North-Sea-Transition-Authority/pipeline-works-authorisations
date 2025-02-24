@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
@@ -21,22 +21,22 @@ import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.SectionClauseVersionDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentViewTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentViewTest {
 
   @Mock
   private Clock clock;
 
   private final DocumentViewService documentViewService = new DocumentViewService();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     var instant = Instant.now();
     when(clock.instant()).thenReturn(instant);
   }
 
   @Test
-  public void getSectionClauseView() {
+  void getSectionClauseView() {
 
     var person = PersonTestUtil.createDefaultPerson();
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

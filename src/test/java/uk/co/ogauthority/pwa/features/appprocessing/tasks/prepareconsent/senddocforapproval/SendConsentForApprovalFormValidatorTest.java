@@ -6,19 +6,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SendConsentForApprovalFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class SendConsentForApprovalFormValidatorTest {
 
   private static final String CONSENTS_REVIEWED_ATTR = "parallelConsentsReviewedIfApplicable";
   private static final String COVER_LETTER_ATTR = "coverLetterText";
@@ -30,25 +30,25 @@ public class SendConsentForApprovalFormValidatorTest {
 
   private final PwaApplication pwaApplication = new PwaApplication();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     validator = new SendConsentForApprovalFormValidator(mailMergeService);
 
   }
 
   @Test
-  public void supports_supportedClass() {
+  void supports_supportedClass() {
     assertThat(validator.supports(SendConsentForApprovalForm.class)).isTrue();
   }
 
   @Test
-  public void supports_notSupportedClass() {
+  void supports_notSupportedClass() {
     assertThat(validator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_allNull_noParallelConsents() {
+  void validate_allNull_noParallelConsents() {
 
     var form = new SendConsentForApprovalForm();
     var preApprovalChecks = PreSendForApprovalChecksViewTestUtil.createNoFailedChecksView();
@@ -61,7 +61,7 @@ public class SendConsentForApprovalFormValidatorTest {
   }
 
   @Test
-  public void validate_allNull_parallelConsent() {
+  void validate_allNull_parallelConsent() {
 
     var form = new SendConsentForApprovalForm();
     var preApprovalChecks = PreSendForApprovalChecksViewTestUtil.createParallelConsentsChecksView();
@@ -75,7 +75,7 @@ public class SendConsentForApprovalFormValidatorTest {
   }
 
   @Test
-  public void validate_formHasValues_parallelConsent() {
+  void validate_formHasValues_parallelConsent() {
 
     var form = new SendConsentForApprovalForm();
     form.setParallelConsentsReviewedIfApplicable(true);
@@ -90,7 +90,7 @@ public class SendConsentForApprovalFormValidatorTest {
   }
 
   @Test
-  public void validate_manualMergeFieldsPresent_fail() {
+  void validate_manualMergeFieldsPresent_fail() {
 
     var form = new SendConsentForApprovalForm();
     form.setParallelConsentsReviewedIfApplicable(false);
@@ -109,7 +109,7 @@ public class SendConsentForApprovalFormValidatorTest {
   }
 
   @Test
-  public void validate_invalidMergeFieldsPresent_fail() {
+  void validate_invalidMergeFieldsPresent_fail() {
 
     var form = new SendConsentForApprovalForm();
     form.setParallelConsentsReviewedIfApplicable(false);

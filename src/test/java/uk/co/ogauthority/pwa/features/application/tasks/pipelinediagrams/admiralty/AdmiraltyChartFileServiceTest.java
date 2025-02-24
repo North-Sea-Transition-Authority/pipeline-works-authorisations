@@ -8,11 +8,11 @@ import jakarta.validation.Validation;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AdmiraltyChartFileServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AdmiraltyChartFileServiceTest {
 
   @Mock
   private PadFileService padFileService;
@@ -43,8 +43,8 @@ public class AdmiraltyChartFileServiceTest {
 
   private final AdmiraltyChartDocumentForm form = new AdmiraltyChartDocumentForm();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     admiraltyChartFileService = new AdmiraltyChartFileService(padFileService, springValidatorAdapter);
 
@@ -52,7 +52,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_full_whenNoDocumentRequired_andDocumentProvidedWithDescription() {
+  void validate_full_whenNoDocumentRequired_andDocumentProvidedWithDescription() {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "2", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -62,7 +62,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_full_whenNoDocumentRequired_andDocumentProvidedWithoutDescription() {
+  void validate_full_whenNoDocumentRequired_andDocumentProvidedWithoutDescription() {
 
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -72,7 +72,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_full_whenDocumentRequired_andZeroDocuments() {
+  void validate_full_whenDocumentRequired_andZeroDocuments() {
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -81,7 +81,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
+  void validate_full_whenDocumentRequired_andDocumentWithDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -90,7 +90,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_partial_whenDocumentWithoutDescriptionProvided() {
+  void validate_partial_whenDocumentWithoutDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
@@ -99,7 +99,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_partial_whenDocumentWithDescriptionProvided() {
+  void validate_partial_whenDocumentWithDescriptionProvided() {
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
@@ -108,7 +108,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_partial_whenDocumentDescriptionOverMaxCharLength() {
+  void validate_partial_whenDocumentDescriptionOverMaxCharLength() {
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
@@ -121,7 +121,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void validate_full_whenDocumentDescriptionOverMaxCharLength() {
+  void validate_full_whenDocumentDescriptionOverMaxCharLength() {
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     admiraltyChartFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -134,7 +134,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void getAdmiraltyChartFile_present() {
+  void getAdmiraltyChartFile_present() {
 
     var fullPadFile = new PadFile();
     fullPadFile.setFileLinkStatus(ApplicationFileLinkStatus.FULL);
@@ -147,7 +147,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void getAdmiraltyChartFile_notFull_empty() {
+  void getAdmiraltyChartFile_notFull_empty() {
 
     var tempPadFile = new PadFile();
     tempPadFile.setFileLinkStatus(ApplicationFileLinkStatus.TEMPORARY);
@@ -160,7 +160,7 @@ public class AdmiraltyChartFileServiceTest {
   }
 
   @Test
-  public void getAdmiraltyChartFile_no_empty() {
+  void getAdmiraltyChartFile_no_empty() {
 
     when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART))
         .thenReturn(List.of());

@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -18,8 +18,8 @@ import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -59,7 +59,6 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = IndustryPaymentCallbackController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingContextAbstractControllerTest {
   private static final int APP_ID = 1;
@@ -89,8 +88,8 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   public IndustryPaymentCallbackControllerTest() {
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     uuid = UUID.randomUUID();
     payPerson = PersonTestUtil.createPersonFrom(new PersonId(1));
     pwaManagerPerson = PersonTestUtil.createPersonFrom(new PersonId(2));
@@ -133,7 +132,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasNotChangedStatusOfChargeRequest() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasNotChangedStatusOfChargeRequest() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenReturn(paymentAttempt);
@@ -143,7 +142,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/case-management/TASKS"))
@@ -154,7 +153,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasChangedStatusOfChargeRequest() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestFound_andProcessingHasChangedStatusOfChargeRequest() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenReturn(paymentAttempt);
@@ -164,7 +163,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is3xxRedirection())
         // cannot use reverse router as app type conversion using url String not done outside of app context
         .andExpect(view().name("redirect:/pwa-application/huoo/1/payment-result"))
@@ -175,23 +174,23 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void reconcilePaymentRequestAndRedirect_whenRequestNotFound() throws Exception {
+  void reconcilePaymentRequestAndRedirect_whenRequestNotFound() throws Exception {
 
     when(applicationChargeRequestService.reconcilePaymentRequestCallbackUuidToPaymentAttempt(uuid))
         .thenThrow(new PwaEntityNotFoundException("some error"));
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is4xxClientError());
   }
 
   @Test
-  public void renderPaymentResult_whenPaidChargeRequestFound() throws Exception {
+  void renderPaymentResult_whenPaidChargeRequestFound() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).renderPaymentResult(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().isOk())
         .andExpect(model().hasNoErrors())
         .andExpect(model().attributeExists("workAreaUrl"))
@@ -201,7 +200,7 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderPaymentResult_whenPaidChargeNotRequestFound() throws Exception {
+  void renderPaymentResult_whenPaidChargeNotRequestFound() throws Exception {
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createCancelledReport(
         100,
@@ -222,14 +221,14 @@ public class IndustryPaymentCallbackControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(
         on(IndustryPaymentCallbackController.class).renderPaymentResult(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(paymentUser)))
+        .with(user(paymentUser)))
         .andExpect(status().is5xxServerError());
 
   }
 
 
   @Test
-  public void renderPaymentResult_processingPermissionSmokeTest() {
+  void renderPaymentResult_processingPermissionSmokeTest() {
     endpointTester.setAllowedProcessingPermissions(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     endpointTester.setRequestMethod(HttpMethod.GET)

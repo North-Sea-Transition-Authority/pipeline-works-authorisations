@@ -7,13 +7,13 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -43,8 +43,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationP
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeApprovalValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeApprovalServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeApprovalServiceTest {
 
   private PublicNoticeApprovalService publicNoticeApprovalService;
 
@@ -87,9 +87,8 @@ public class PublicNoticeApprovalServiceTest {
   private AuthenticatedUserAccount user;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     publicNoticeApprovalService = new PublicNoticeApprovalService(publicNoticeService, validator,
         camundaWorkflowService, clock, notifyService, caseLinkService, pwaContactService,
@@ -102,7 +101,7 @@ public class PublicNoticeApprovalServiceTest {
 
 
   @Test
-  public void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithApp() {
+  void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
@@ -110,7 +109,7 @@ public class PublicNoticeApprovalServiceTest {
   }
 
   @Test
-  public void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithDifferentApp() {
+  void openPublicNoticeCanBeApproved_approvablePublicNoticeExistsWithDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(new PwaApplication());
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
@@ -118,7 +117,7 @@ public class PublicNoticeApprovalServiceTest {
   }
 
   @Test
-  public void openPublicNoticeCanBeApproved_approvablePublicNoticeDoesNotExist() {
+  void openPublicNoticeCanBeApproved_approvablePublicNoticeDoesNotExist() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.MANAGER_APPROVAL)).thenReturn(List.of());
     var publicNoticeExists = publicNoticeApprovalService.openPublicNoticeCanBeApproved(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
@@ -126,7 +125,7 @@ public class PublicNoticeApprovalServiceTest {
 
 
   @Test
-  public void updatePublicNoticeRequest_requestApproved() {
+  void updatePublicNoticeRequest_requestApproved() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -170,7 +169,7 @@ public class PublicNoticeApprovalServiceTest {
   }
 
   @Test
-  public void updatePublicNoticeRequest_requestRejected() {
+  void updatePublicNoticeRequest_requestRejected() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -221,7 +220,7 @@ public class PublicNoticeApprovalServiceTest {
 
 
   @Test
-  public void validate_verifyServiceInteractions() {
+  void validate_verifyServiceInteractions() {
 
     var form = new PublicNoticeApprovalForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

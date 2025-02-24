@@ -7,7 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -15,8 +15,8 @@ import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,9 +51,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ViewApplicationPaymentInformationController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ViewApplicationPaymentInformationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ViewApplicationPaymentInformationControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final int APP_DETAIL_ID = 30;
@@ -84,8 +83,8 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
 
   private SimplePersonView personView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -135,7 +134,7 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
   }
 
   @Test
-  public void renderPaymentInformation_permissionSmokeTest() {
+  void renderPaymentInformation_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ViewApplicationPaymentInformationController.class)
@@ -145,20 +144,20 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
   }
 
   @Test
-  public void renderPaymentInformation_noChargeRequestReportFound() throws Exception {
+  void renderPaymentInformation_noChargeRequestReportFound() throws Exception {
     when(applicationChargeRequestService.getLatestRequestAsApplicationChargeRequestReport(any()))
         .thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(ViewApplicationPaymentInformationController.class)
         .renderPaymentInformation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isNotFound());
 
   }
 
   @Test
-  public void renderPaymentInformation_LatestChargeRequestReportNotPaid() throws Exception {
+  void renderPaymentInformation_LatestChargeRequestReportNotPaid() throws Exception {
 
     applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createOpenReport(
         100,
@@ -170,18 +169,18 @@ public class ViewApplicationPaymentInformationControllerTest extends PwaAppProce
 
     mockMvc.perform(get(ReverseRouter.route(on(ViewApplicationPaymentInformationController.class)
         .renderPaymentInformation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isNotFound());
 
   }
 
   @Test
-  public void renderPaymentInformation_LatestChargeRequestReportPaid() throws Exception {
+  void renderPaymentInformation_LatestChargeRequestReportPaid() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ViewApplicationPaymentInformationController.class)
         .renderPaymentInformation(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseSummaryView"))

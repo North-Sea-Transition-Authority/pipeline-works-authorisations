@@ -4,13 +4,13 @@ package uk.co.ogauthority.pwa.model.entity.pwaapplications;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
-public class PwaApplicationDetailTest {
+class PwaApplicationDetailTest {
 
   @Test
-  public void isFirstDraft_whenFirstDraft() {
+  void isFirstDraft_whenFirstDraft() {
 
     var detail = new PwaApplicationDetail();
     detail.setVersionNo(1);
@@ -21,7 +21,7 @@ public class PwaApplicationDetailTest {
   }
 
   @Test
-  public void isFirstDraft_whenFirstVersion_andNotDraft() {
+  void isFirstDraft_whenFirstVersion_andNotDraft() {
 
     var detail = new PwaApplicationDetail();
     detail.setVersionNo(1);
@@ -32,7 +32,7 @@ public class PwaApplicationDetailTest {
   }
 
   @Test
-  public void isFirstDraft_whenNotFirstVersion_andDraft() {
+  void isFirstDraft_whenNotFirstVersion_andDraft() {
 
     var detail = new PwaApplicationDetail();
     detail.setVersionNo(2);

@@ -2,15 +2,15 @@ package uk.co.ogauthority.pwa.model.view;
 
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class StringWithTagItemTest {
+@ExtendWith(MockitoExtension.class)
+class StringWithTagItemTest {
 
   @Test
-  public void equalsAndHashcode(){
+  void equalsAndHashcode(){
     EqualsVerifier.forClass(StringWithTagItem.class)
         .withNonnullFields("stringWithTag")
         .verify();

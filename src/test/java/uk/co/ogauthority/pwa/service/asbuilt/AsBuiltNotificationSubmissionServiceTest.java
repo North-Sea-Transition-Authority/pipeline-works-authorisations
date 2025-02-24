@@ -12,13 +12,13 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -36,8 +36,8 @@ import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationSubmissionRep
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationSubmissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationSubmissionServiceTest {
 
   @Mock
   private AsBuiltNotificationSubmissionRepository asBuiltNotificationSubmissionRepository;
@@ -70,8 +70,8 @@ public class AsBuiltNotificationSubmissionServiceTest {
   private final AsBuiltNotificationSubmissionForm form = getAsBuiltNotificationSubmissionForm();
   private final AsBuiltNotificationSubmission asBuiltNotificationSubmission = getAsBuiltNotificationSubmission();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationSubmissionService = new AsBuiltNotificationSubmissionService(asBuiltNotificationSubmissionRepository,
         asBuiltNotificationGroupStatusService, asBuiltPipelineNotificationService, asBuiltNotificationEmailService,
         "consents@oga.co.uk");
@@ -84,7 +84,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
   }
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_noPriorSubmissions_savesCurrent() {
+  void submitAsBuiltNotification_submitsSuccessfully_noPriorSubmissions_savesCurrent() {
     when(asBuiltNotificationSubmissionRepository.findByAsBuiltNotificationGroupPipelineAndTipFlagIsTrue(asBuiltNotificationGroupPipeline))
         .thenReturn(Optional.empty());
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
@@ -92,7 +92,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
   }
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsInProgressStatusToCurrent() {
+  void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsInProgressStatusToCurrent() {
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
     verify(asBuiltNotificationSubmissionRepository, times(2)).save(asBuiltSubmissionArgumentCaptor.capture());
 
@@ -114,7 +114,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
   }
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsCompleteStatusToCurrent() {
+  void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_setsCompleteStatusToCurrent() {
     asBuiltNotificationSubmission.setAsBuiltNotificationStatus(AsBuiltNotificationStatus.PER_CONSENT);
     asBuiltNotificationSubmissionService.submitAsBuiltNotification(asBuiltNotificationGroupPipeline, form, user);
     verify(asBuiltNotificationSubmissionRepository, times(2)).save(asBuiltSubmissionArgumentCaptor.capture());
@@ -138,7 +138,7 @@ public class AsBuiltNotificationSubmissionServiceTest {
 
 
   @Test
-  public void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_sendsOgaEmail() {
+  void submitAsBuiltNotification_submitsSuccessfully_withPriorSubmissions_savesBothLastAndCurrent_sendsOgaEmail() {
     when(asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetail.getPipelineDetailId().asInt()))
         .thenReturn(pipelineDetail);
 

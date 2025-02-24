@@ -17,11 +17,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -38,8 +38,8 @@ import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadLocationDetailsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadLocationDetailsServiceTest {
 
   @Mock
   private PadLocationDetailsRepository padLocationDetailsRepository;
@@ -68,8 +68,8 @@ public class PadLocationDetailsServiceTest {
   private PadLocationDetails padLocationDetails;
   private static final Instant SURVEY_CONCLUDED_DATE = LocalDate.of(2020, 1, 1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     padLocationDetailsService = new PadLocationDetailsService(
         padLocationDetailsRepository,
@@ -85,7 +85,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsForDraft_WhenNull() {
+  void getLocationDetailsForDraft_WhenNull() {
     when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.empty());
     var result = padLocationDetailsService.getLocationDetailsForDraft(pwaApplicationDetail);
@@ -94,7 +94,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsForDraft_WhenExists() {
+  void getLocationDetailsForDraft_WhenExists() {
     when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(padLocationDetails));
     var result = padLocationDetailsService.getLocationDetailsForDraft(pwaApplicationDetail);
@@ -102,7 +102,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_WithNulls() {
+  void mapEntityToForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
     padLocationDetailsService.mapEntityToForm(entity, form);
@@ -121,7 +121,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_WithData() {
+  void mapEntityToForm_WithData() {
     var form = new LocationDetailsForm();
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.NO);
     padLocationDetailsService.mapEntityToForm(padLocationDetails, form);
@@ -143,7 +143,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_psrSubmitted() {
+  void mapEntityToForm_psrSubmitted() {
     var form = new LocationDetailsForm();
     padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.YES);
     padLocationDetails.setPsrNotificationSubmittedMonth(5);
@@ -159,7 +159,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_psrNotSubmitted() {
+  void mapEntityToForm_psrNotSubmitted() {
     var form = new LocationDetailsForm();
     padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.NO);
     padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
@@ -174,7 +174,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_psrNotRequired() {
+  void mapEntityToForm_psrNotRequired() {
     var form = new LocationDetailsForm();
     padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     padLocationDetails.setPsrNotificationNotRequiredReason("reason");
@@ -187,7 +187,7 @@ public class PadLocationDetailsServiceTest {
 
 
   @Test
-  public void saveEntityUsingForm_WithNulls() {
+  void saveEntityUsingForm_WithNulls() {
     var form = new LocationDetailsForm();
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
@@ -205,7 +205,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_WithData() {
+  void saveEntityUsingForm_WithData() {
     var form = buildForm();
     var entity = new PadLocationDetails();
     padLocationDetailsService.saveEntityUsingForm(entity, form);
@@ -226,7 +226,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_psrSubmitted_saved() {
+  void saveEntityUsingForm_psrSubmitted_saved() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.YES);
     var twoFieldDate = new TwoFieldDateInput(2020, 5);
@@ -243,7 +243,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_psrNotSubmitted_saved() {
+  void saveEntityUsingForm_psrNotSubmitted_saved() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NO);
     var twoFieldDate = new TwoFieldDateInput(2020, 5);
@@ -260,7 +260,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_psrNotRequired_saved() {
+  void saveEntityUsingForm_psrNotRequired_saved() {
     var form = new LocationDetailsForm();
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     form.setPsrNotificationNotRequiredReason("reason");
@@ -273,7 +273,7 @@ public class PadLocationDetailsServiceTest {
 
 
   @Test
-  public void saveEntityUsingForm_ashoreLocation_saved() {
+  void saveEntityUsingForm_ashoreLocation_saved() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(false);
     form.setPipelineAshoreLocation("test");
@@ -283,7 +283,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_ashoreLocation_notSaved() {
+  void saveEntityUsingForm_ashoreLocation_notSaved() {
     var form = new LocationDetailsForm();
     form.setFacilitiesOffshore(true);
     form.setPipelineAshoreLocation("test");
@@ -293,7 +293,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_routeSurveyUndertakenAnsweredNo() {
+  void saveEntityUsingForm_routeSurveyUndertakenAnsweredNo() {
     var form = new LocationDetailsForm();
     form.setRouteSurveyUndertaken(false);
     form.setRouteSurveyNotUndertakenReason("test");
@@ -303,7 +303,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsView_withFacilitiesAndFiles() {
+  void getLocationDetailsView_withFacilitiesAndFiles() {
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
     when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(padLocationDetails));
@@ -333,7 +333,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsView_noFacilities() {
+  void getLocationDetailsView_noFacilities() {
     when(padLocationDetailsRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(padLocationDetails));
 
@@ -344,7 +344,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsView_withinSafetyZone_notificationSubmitted() {
+  void getLocationDetailsView_withinSafetyZone_notificationSubmitted() {
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
     padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.YES);;
     padLocationDetails.setPsrNotificationSubmittedMonth(5);
@@ -362,7 +362,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getLocationDetailsView_withinSafetyZone_notificationNotSubmitted() {
+  void getLocationDetailsView_withinSafetyZone_notificationNotSubmitted() {
     padLocationDetails.setWithinSafetyZone(HseSafetyZone.YES);
     padLocationDetails.setPsrNotificationSubmittedOption(PsrNotification.NO);;
     padLocationDetails.setPsrNotificationExpectedSubmissionMonth(5);
@@ -387,7 +387,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_depconAppType() {
+  void getRequiredQuestions_depconAppType() {
     var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnly(
         LocationDetailsQuestion.APPROXIMATE_PROJECT_LOCATION_FROM_SHORE,
@@ -398,7 +398,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_decomAppType() {
+  void getRequiredQuestions_decomAppType() {
     var requiredQuestions = padLocationDetailsService.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING, PwaResourceType.PETROLEUM);
     var expectedQuestions = EnumSet.allOf(LocationDetailsQuestion.class);
     expectedQuestions.remove(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION);
@@ -407,7 +407,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_appTypesResourceTypeThatRequireAllQuestions() {
+  void getRequiredQuestions_appTypesResourceTypeThatRequireAllQuestions() {
     PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
       .forEach(appType -> {
         var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.HYDROGEN);
@@ -416,7 +416,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void getRequiredQuestions_appTypesPetroleumThatRequireAllQuestions() {
+  void getRequiredQuestions_appTypesPetroleumThatRequireAllQuestions() {
     PwaApplicationType.stream().filter(appType -> !getAppTypesWithCustomQuestionSets().contains(appType))
         .forEach(appType -> {
           var requiredQuestions = padLocationDetailsService.getRequiredQuestions(appType, PwaResourceType.PETROLEUM);
@@ -425,7 +425,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  void cleanupData_hiddenData() {
 
     var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail.setPwaApplication(pwaApplication);
@@ -458,7 +458,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  void cleanupData_noHiddenData() {
 
     var pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail.setPwaApplication(pwaApplication);
@@ -491,7 +491,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void reapplyFacilitySelections_serviceInteraction_noSelection() {
+  void reapplyFacilitySelections_serviceInteraction_noSelection() {
     var form = new LocationDetailsForm();
     padLocationDetailsService.reapplyFacilitySelections(form);
     verifyNoInteractions(devukFacilityService);
@@ -499,7 +499,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Yes() {
+  void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Yes() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("yes"));
@@ -511,7 +511,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Partially() {
+  void reapplyFacilitySelections_serviceInteraction_inSafetyZone_Partially() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.PARTIALLY);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("yes"));
@@ -523,7 +523,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void reapplyFacilitySelections_fullRun() {
+  void reapplyFacilitySelections_fullRun() {
     var form = new LocationDetailsForm();
     form.setWithinSafetyZone(HseSafetyZone.YES);
     form.getCompletelyWithinSafetyZoneForm().setFacilities(List.of("1", SearchSelectable.FREE_TEXT_PREFIX + "yes"));
@@ -540,7 +540,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_allowed() {
+  void canShowInTaskList_allowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -559,7 +559,7 @@ public class PadLocationDetailsServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notAllowed() {
+  void canShowInTaskList_notAllowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();

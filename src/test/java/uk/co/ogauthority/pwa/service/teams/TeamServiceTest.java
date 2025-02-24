@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -13,13 +14,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -37,8 +40,9 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TeamServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TeamServiceTest {
 
   @Mock
   private PortalTeamAccessor portalTeamAccessor;
@@ -67,8 +71,8 @@ public class TeamServiceTest {
   private PwaGlobalTeam globalTeam;
   private WebUserAccount someWebUserAccount = new WebUserAccount(99);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     regulatorPerson = new Person(1, "reg", "person", "reg@person.com", "0");
     organisationPerson = new Person(2, "org", "person", "org@person.com", "0");
 
@@ -108,63 +112,68 @@ public class TeamServiceTest {
         .thenReturn(List.of(organisationTeamAsPortalTeamDto1));
   }
 
-  @Test(expected = RuntimeException.class)
-  public void getRegulatorTeam_errorWhenMultipleTeamsFound() {
+  @Test
+  void getRegulatorTeam_errorWhenMultipleTeamsFound() {
     when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.REGULATOR.getPortalTeamType()))
-        .thenReturn(List.of(regulatorTeamAsPortalTeamDto, regulatorTeamAsPortalTeamDto));
+          .thenReturn(List.of(regulatorTeamAsPortalTeamDto, regulatorTeamAsPortalTeamDto));
+    assertThrows(RuntimeException.class, () ->
 
-    teamService.getRegulatorTeam();
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void getRegulatorTeam_errorWhenZeroTeamsFound() {
-    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.REGULATOR.getPortalTeamType()))
-        .thenReturn(List.of());
-
-    teamService.getRegulatorTeam();
+      teamService.getRegulatorTeam());
   }
 
   @Test
-  public void getRegulatorTeam_callsExpectedFactoryMethod() {
+  void getRegulatorTeam_errorWhenZeroTeamsFound() {
+    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.REGULATOR.getPortalTeamType()))
+          .thenReturn(List.of());
+    assertThrows(RuntimeException.class, () ->
+
+      teamService.getRegulatorTeam());
+  }
+
+  @Test
+  void getRegulatorTeam_callsExpectedFactoryMethod() {
     teamService.getRegulatorTeam();
     verify(pwaTeamsDtoFactory, times(1)).createRegulatorTeam(regulatorTeamAsPortalTeamDto);
   }
 
-  @Test(expected = RuntimeException.class)
-  public void getGlobalTeam_errorWhenMultipleTeamsFound() {
+  @Test
+  void getGlobalTeam_errorWhenMultipleTeamsFound() {
     when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
-        .thenReturn(List.of(globalTeamAsPortalTeamDto, globalTeamAsPortalTeamDto));
+          .thenReturn(List.of(globalTeamAsPortalTeamDto, globalTeamAsPortalTeamDto));
+    assertThrows(RuntimeException.class, () ->
 
-    teamService.getGlobalTeam();
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void getGlobalTeam_errorWhenZeroTeamsFound() {
-    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
-        .thenReturn(List.of());
-
-    teamService.getGlobalTeam();
+      teamService.getGlobalTeam());
   }
 
   @Test
-  public void getGlobalTeam_callsExpectedFactoryMethod() {
+  void getGlobalTeam_errorWhenZeroTeamsFound() {
+    when(portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.GLOBAL.getPortalTeamType()))
+          .thenReturn(List.of());
+    assertThrows(RuntimeException.class, () ->
+
+      teamService.getGlobalTeam());
+  }
+
+  @Test
+  void getGlobalTeam_callsExpectedFactoryMethod() {
     teamService.getGlobalTeam();
     verify(pwaTeamsDtoFactory, times(1)).createGlobalTeam(globalTeamAsPortalTeamDto);
   }
 
   @Test
-  public void getAllOrganisationTeams_callsExpectedFactoryMethod() {
+  void getAllOrganisationTeams_callsExpectedFactoryMethod() {
     teamService.getAllOrganisationTeams();
     verify(pwaTeamsDtoFactory, times(1)).createOrganisationTeamList(List.of(organisationTeamAsPortalTeamDto1));
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getTeamByResId_errorThrownWhenTeamNotFound() {
-    teamService.getTeamByResId(999);
+  @Test
+  void getTeamByResId_errorThrownWhenTeamNotFound() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      teamService.getTeamByResId(999));
   }
 
   @Test
-  public void getTeamByResId_callsExpectedFactoryMethodWhenTeamFound() {
+  void getTeamByResId_callsExpectedFactoryMethodWhenTeamFound() {
     when(pwaTeamsDtoFactory.createPwaTeam(regulatorTeamAsPortalTeamDto)).thenReturn(regulatorTeam);
 
     teamService.getTeamByResId(regulatorTeam.getId());
@@ -173,7 +182,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getTeamMembers_callsServiceMethodsWithExpectedValues() {
+  void getTeamMembers_callsServiceMethodsWithExpectedValues() {
     teamService.getTeamMembers(regulatorTeam);
 
     verify(portalTeamAccessor, times(1)).getPortalTeamMembers(regulatorTeam.getId());
@@ -181,12 +190,12 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getMembershipOfPersonInTeam_emptyOptionalWhenNotATeamMember() {
+  void getMembershipOfPersonInTeam_emptyOptionalWhenNotATeamMember() {
     assertThat(teamService.getMembershipOfPersonInTeam(regulatorTeam, organisationPerson).isPresent()).isFalse();
   }
 
   @Test
-  public void getMembershipOfPersonInTeam_populatedOptionalWhenTeamMember() {
+  void getMembershipOfPersonInTeam_populatedOptionalWhenTeamMember() {
     when(portalTeamAccessor.getPersonTeamMembership(eq(regulatorPerson), eq(regulatorTeam.getId())))
         .thenReturn(Optional.of(regulatorTeamMemberDto));
     when(pwaTeamsDtoFactory.createPwaTeamMember(eq(regulatorTeamMemberDto), eq(regulatorPerson), eq(regulatorTeam)))
@@ -195,13 +204,14 @@ public class TeamServiceTest {
     assertThat(teamService.getMembershipOfPersonInTeam(regulatorTeam, regulatorPerson)).isNotEmpty();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getRegulatorTeamIfPersonInRole_whenNoRolesProvided() {
-    teamService.getRegulatorTeamIfPersonInRole(regulatorPerson, Set.of());
+  @Test
+  void getRegulatorTeamIfPersonInRole_whenNoRolesProvided() {
+    assertThrows(IllegalArgumentException.class, () ->
+      teamService.getRegulatorTeamIfPersonInRole(regulatorPerson, Set.of()));
   }
 
   @Test
-  public void getRegulatorTeamIfPersonInRole_whenNotInProvidedRoles() {
+  void getRegulatorTeamIfPersonInRole_whenNotInProvidedRoles() {
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
       eq(regulatorPerson),
       eq(PwaTeamType.REGULATOR.getPortalTeamType()),
@@ -213,7 +223,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getRegulatorTeamIfPersonInRole_whenPersonInRoles() {
+  void getRegulatorTeamIfPersonInRole_whenPersonInRoles() {
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
       eq(regulatorPerson),
       eq(PwaTeamType.REGULATOR.getPortalTeamType()),
@@ -239,7 +249,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_andSingleTeamMatched() {
+  void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_andSingleTeamMatched() {
     List<PortalTeamDto> foundOrganisationTeams = List.of(organisationTeamAsPortalTeamDto1);
 
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
@@ -270,7 +280,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_andMultipleTeamsMatched() {
+  void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_andMultipleTeamsMatched() {
     List<PortalTeamDto> foundOrganisationTeams = List.of(organisationTeamAsPortalTeamDto1, organisationTeamAsPortalTeamDto2);
 
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
@@ -289,18 +299,19 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_anNoTeamsMatched() {
+  void getOrganisationTeamListIfPersonInRole_whenPersonInRoles_anNoTeamsMatched() {
     assertThat(teamService.getOrganisationTeamListIfPersonInRole(regulatorPerson, EnumSet.allOf(PwaOrganisationRole.class)))
         .isEmpty();
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getOrganisationTeamListIfPersonInRole_errorWhenNoRolesProvided() {
-    teamService.getOrganisationTeamListIfPersonInRole(regulatorPerson, Set.of());
+  @Test
+  void getOrganisationTeamListIfPersonInRole_errorWhenNoRolesProvided() {
+    assertThrows(IllegalArgumentException.class, () ->
+      teamService.getOrganisationTeamListIfPersonInRole(regulatorPerson, Set.of()));
   }
 
   @Test
-  public void addPersonToTeamInRoles_verifyServiceInteraction() {
+  void addPersonToTeamInRoles_verifyServiceInteraction() {
     var roles = List.of("some_role_1", "some_role_2");
     teamService.addPersonToTeamInRoles(regulatorTeam, organisationPerson, roles, someWebUserAccount);
 
@@ -309,7 +320,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void isUserInHolderTeam_userInTeam() {
+  void isUserInHolderTeam_userInTeam() {
 
     List<PortalTeamDto> foundOrganisationTeams = List.of(organisationTeamAsPortalTeamDto1);
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
@@ -327,7 +338,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void isUserInHolderTeam_userNotInTeam() {
+  void isUserInHolderTeam_userNotInTeam() {
 
     when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
         eq(organisationPerson),
@@ -341,19 +352,19 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void removePersonFromTeam_verifyServiceInteraction() {
+  void removePersonFromTeam_verifyServiceInteraction() {
     teamService.removePersonFromTeam(regulatorTeam, regulatorPerson, someWebUserAccount);
     verify(portalTeamAccessor, times(1)).removePersonFromTeam(regulatorTeam.getId(), regulatorPerson, someWebUserAccount);
   }
 
   @Test
-  public void personIsMemberOfTeam_verifyServiceInteractions() {
+  void personIsMemberOfTeam_verifyServiceInteractions() {
     teamService.isPersonMemberOfTeam(regulatorPerson, regulatorTeam);
     verify(portalTeamAccessor, times(1)).personIsAMemberOfTeam(regulatorTeam.getId(), regulatorPerson);
   }
 
   @Test
-  public void getAllRolesForTeam_whenMultipleRolesReturned() {
+  void getAllRolesForTeam_whenMultipleRolesReturned() {
     var mockRole = mock(PwaRole.class);
     when(pwaTeamsDtoFactory.createPwaRole(any())).thenReturn(mockRole);
     when(portalTeamAccessor.getAllPortalRolesForTeam(eq(regulatorTeam.getId())))
@@ -363,7 +374,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getOrganisationTeamsPersonIsMemberOf_verifyServiceInteractions() {
+  void getOrganisationTeamsPersonIsMemberOf_verifyServiceInteractions() {
     teamService.getOrganisationTeamsPersonIsMemberOf(organisationPerson);
 
     verify(portalTeamAccessor, times(1)).getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
@@ -380,7 +391,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getAllUserPrivilegesForPerson_portalPrivs_noAppPrivs() {
+  void getAllUserPrivilegesForPerson_portalPrivs_noAppPrivs() {
 
     when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
@@ -393,7 +404,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_noOverlap() {
+  void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_noOverlap() {
 
     when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
 
@@ -406,7 +417,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_overlap() {
+  void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_overlap() {
 
     when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_WORKAREA));
 
@@ -419,7 +430,7 @@ public class TeamServiceTest {
   }
 
   @Test
-  public void getAllUserPrivilegesForPerson_NoPortalPrivs_appPrivs() {
+  void getAllUserPrivilegesForPerson_NoPortalPrivs_appPrivs() {
 
     when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of());
 

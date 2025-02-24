@@ -6,13 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -35,8 +35,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationP
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDocumentUpdateRequestValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeDocumentUpdateRequestServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeDocumentUpdateRequestServiceTest {
 
   private PublicNoticeDocumentUpdateRequestService publicNoticeDocumentUpdateRequestService;
 
@@ -72,9 +72,8 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     publicNoticeDocumentUpdateRequestService = new PublicNoticeDocumentUpdateRequestService(publicNoticeService, validator,
         publicNoticeDocumentRepository, camundaWorkflowService, caseLinkService, pwaContactService, notifyService);
@@ -85,7 +84,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
 
 
   @Test
-  public void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeExistsForApp() {
+  void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeExistsForApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeDocumentUpdateRequestService.publicNoticeDocumentUpdateCanBeRequested(pwaApplication);
@@ -93,7 +92,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   }
 
   @Test
-  public void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeExistsForDifferentApp() {
+  void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeExistsForDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(new PwaApplication());
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = publicNoticeDocumentUpdateRequestService.publicNoticeDocumentUpdateCanBeRequested(pwaApplication);
@@ -101,7 +100,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
   }
 
   @Test
-  public void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeDoesNotExist() {
+  void publicNoticeDocumentUpdateCanBeRequested_updatablePublicNoticeDoesNotExist() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of());
     var publicNoticeExists = publicNoticeDocumentUpdateRequestService.publicNoticeDocumentUpdateCanBeRequested(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
@@ -109,7 +108,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
 
 
   @Test
-  public void validate_verifyServiceInteractions() {
+  void validate_verifyServiceInteractions() {
     var form = new PublicNoticeDocumentUpdateRequestForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     publicNoticeDocumentUpdateRequestService.validate(form, bindingResult);
@@ -118,7 +117,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
 
 
   @Test
-  public void updatePublicNoticeDocumentAndTransitionWorkflow_publicNoticeAndDocumentIsUpdated_workflowTransitioned() {
+  void updatePublicNoticeDocumentAndTransitionWorkflow_publicNoticeAndDocumentIsUpdated_workflowTransitioned() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -147,7 +146,7 @@ public class PublicNoticeDocumentUpdateRequestServiceTest {
 
 
   @Test
-  public void updatePublicNoticeDocumentAndTransitionWorkflow_emailSentToApplicant() {
+  void updatePublicNoticeDocumentAndTransitionWorkflow_emailSentToApplicant() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);

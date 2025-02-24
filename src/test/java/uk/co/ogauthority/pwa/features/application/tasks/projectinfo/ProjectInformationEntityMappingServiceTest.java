@@ -1,20 +1,20 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ProjectInformationEntityMappingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ProjectInformationEntityMappingServiceTest {
 
   private LocalDate baseDate;
 
@@ -24,8 +24,8 @@ public class ProjectInformationEntityMappingServiceTest {
   private ProjectInformationForm expectedForm;
   private PadProjectInformation entity;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     projectInformationEntityMappingService = new ProjectInformationEntityMappingService();
     baseDate = LocalDate.of(2020, 12, 1);
 
@@ -37,7 +37,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void mapProjectInformationDataToForm_basicFieldMapping_whenAllDateFieldsHaveValues() {
+  void mapProjectInformationDataToForm_basicFieldMapping_whenAllDateFieldsHaveValues() {
 
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
 
@@ -76,7 +76,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_whenEntityHasNoMissingData() {
+  void setEntityValuesUsingForm_whenEntityHasNoMissingData() {
 
     var dateAsInstant = baseDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
@@ -122,7 +122,7 @@ public class ProjectInformationEntityMappingServiceTest {
 
 
   @Test
-  public void setEntityValuesUsingForm_whenLicenceTransferIsNotPlanned() {
+  void setEntityValuesUsingForm_whenLicenceTransferIsNotPlanned() {
 
     form.setLicenceTransferPlanned(false);
     // below values dont matter but proves entity values are not set
@@ -142,7 +142,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_permanentDepositsTypeIsThisApp(){
+  void setEntityValuesUsingForm_permanentDepositsTypeIsThisApp(){
     form.setPermanentDepositsMadeType(PermanentDepositMade.THIS_APP);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
     assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositMade.THIS_APP);
@@ -151,7 +151,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_noPermanentDeposits(){
+  void setEntityValuesUsingForm_noPermanentDeposits(){
     form.setPermanentDepositsMadeType(PermanentDepositMade.NONE);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
     assertThat(entity.getPermanentDepositsMade()).isEqualTo(PermanentDepositMade.NONE);
@@ -160,21 +160,21 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_TemporaryDeposits(){
+  void setEntityValuesUsingForm_TemporaryDeposits(){
     form.setTemporaryDepositsMade(false);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
     assertThat(entity.getTemporaryDepDescription()).isNull();
   }
 
   @Test
-  public void mapProjectInformationDataToForm_noPermanentDeposits() {
+  void mapProjectInformationDataToForm_noPermanentDeposits() {
     entity.setPermanentDepositsMade(PermanentDepositMade.NONE);
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
     assertThat(form.getPermanentDepositsMadeType()).isEqualTo(PermanentDepositMade.NONE);
   }
 
   @Test
-  public void mapProjectInformationDataToForm_permanentDepositsTypeIsThisApp() {
+  void mapProjectInformationDataToForm_permanentDepositsTypeIsThisApp() {
     entity.setPermanentDepositsMade(PermanentDepositMade.THIS_APP);
     entity.setFutureAppSubmissionMonth(null);
     entity.setFutureAppSubmissionYear(null);
@@ -184,7 +184,7 @@ public class ProjectInformationEntityMappingServiceTest {
 
 
   @Test
-  public void mapProjectInformationDataToForm_TemporaryDeposits() {
+  void mapProjectInformationDataToForm_TemporaryDeposits() {
     entity.setTemporaryDepositsMade(true);
     entity.setTemporaryDepDescription("foo");
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
@@ -194,7 +194,7 @@ public class ProjectInformationEntityMappingServiceTest {
 
 
   @Test
-  public void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelected() {
+  void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelected() {
     form.setFdpOptionSelected(true);
     form.setFdpConfirmationFlag(true);
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
@@ -203,7 +203,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
+  void setEntityValuesUsingForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
     form.setFdpOptionSelected(false);
     form.setFdpNotSelectedReason("my reason");
     projectInformationEntityMappingService.setEntityValuesUsingForm(entity, form);
@@ -212,7 +212,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelected() {
+  void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelected() {
     entity.setFdpOptionSelected(true);
     entity.setFdpConfirmationFlag(true);
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);
@@ -221,7 +221,7 @@ public class ProjectInformationEntityMappingServiceTest {
   }
 
   @Test
-  public void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
+  void mapProjectInformationDataToForm_fdpQuestionRequired_fdpOptionSelectedIsNo() {
     entity.setFdpOptionSelected(false);
     entity.setFdpNotSelectedReason("my reason");
     projectInformationEntityMappingService.mapProjectInformationDataToForm(entity, form);

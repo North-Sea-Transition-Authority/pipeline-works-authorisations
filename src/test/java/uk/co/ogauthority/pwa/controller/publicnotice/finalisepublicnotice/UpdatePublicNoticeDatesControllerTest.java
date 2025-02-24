@@ -10,21 +10,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -50,9 +48,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = FinalisePublicNoticeController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -65,8 +62,8 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
@@ -96,7 +93,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
+  void renderUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -108,7 +105,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_processingPermissionSmokeTest() {
+  void renderUpdatePublicNoticePublicationDates_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -120,7 +117,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
+  void renderUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
@@ -128,27 +125,27 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class).renderUpdatePublicNoticePublicationDates(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_noPublicationDatesToUpdate() throws Exception {
+  void renderUpdatePublicNoticePublicationDates_noPublicationDatesToUpdate() throws Exception {
 
     when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .renderUpdatePublicNoticePublicationDates(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_publicNoticePublished_ReasonRequired() throws Exception {
+  void renderUpdatePublicNoticePublicationDates_publicNoticePublished_ReasonRequired() throws Exception {
 
     when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(true);
     var localDate = LocalDate.now().minus(1, ChronoUnit.DAYS);
@@ -156,7 +153,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
             .renderUpdatePublicNoticePublicationDates(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("startDay", String.valueOf(localDate.getDayOfMonth()))
             .param("startMonth", String.valueOf(localDate.getMonthValue()))
@@ -165,7 +162,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void renderUpdatePublicNoticePublicationDates_publicNoticeWaiting_ReasonNotRequired() throws Exception {
+  void renderUpdatePublicNoticePublicationDates_publicNoticeWaiting_ReasonNotRequired() throws Exception {
 
     when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(true);
     var localDate = LocalDate.now().plus(5, ChronoUnit.DAYS);
@@ -173,7 +170,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
     mockMvc.perform(get(ReverseRouter.route(on(FinalisePublicNoticeController.class)
             .renderUpdatePublicNoticePublicationDates(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("startDay", String.valueOf(localDate.getDayOfMonth()))
             .param("startMonth", String.valueOf(localDate.getMonthValue()))
@@ -183,7 +180,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
 
   @Test
-  public void postUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
+  void postUpdatePublicNoticePublicationDates_appStatusSmokeTest() {
 
     when(finalisePublicNoticeService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
@@ -197,7 +194,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void postUpdatePublicNoticePublicationDates_permissionSmokeTest() {
+  void postUpdatePublicNoticePublicationDates_permissionSmokeTest() {
 
     when(finalisePublicNoticeService.validate(any(), any(), any())).thenReturn(new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form"));
 
@@ -211,7 +208,7 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
   }
 
   @Test
-  public void postUpdatePublicNoticePublicationDates_validationFail() throws Exception {
+  void postUpdatePublicNoticePublicationDates_validationFail() throws Exception {
 
     var failedBindingResult = new BeanPropertyBindingResult(new FinalisePublicNoticeForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
@@ -219,14 +216,14 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("publicNotice/finalisePublicNotice"));
   }
 
   @Test
-  public void postUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
+  void postUpdatePublicNoticePublicationDates_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplicationDetail.getPwaApplication()),
@@ -234,20 +231,20 @@ public class UpdatePublicNoticeDatesControllerTest extends PwaAppProcessingConte
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class).postUpdatePublicNoticePublicationDates(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void publicNoticeInValidStateForUpdate_noPublicNoticeInWaitingStage() throws Exception {
+  void publicNoticeInValidStateForUpdate_noPublicNoticeInWaitingStage() throws Exception {
 
     when(finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(FinalisePublicNoticeController.class)
         .postUpdatePublicNoticePublicationDates(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }

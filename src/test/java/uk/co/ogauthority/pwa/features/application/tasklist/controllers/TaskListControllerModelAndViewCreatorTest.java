@@ -11,11 +11,13 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -34,8 +36,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TaskListControllerModelAndViewCreatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TaskListControllerModelAndViewCreatorTest {
 
   @Mock
   private ApplicationBreadcrumbService breadcrumbService;
@@ -67,8 +70,8 @@ public class TaskListControllerModelAndViewCreatorTest {
 
   private List<TaskListGroup> taskListGroups;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     taskListGroups = List.of(new TaskListGroup("Group 1", 1, Collections.emptyList()));
 
@@ -84,7 +87,7 @@ public class TaskListControllerModelAndViewCreatorTest {
 
 
   @Test
-  public void getTaskListModelAndView_generic_firstVersion() {
+  void getTaskListModelAndView_generic_firstVersion() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");
@@ -126,7 +129,7 @@ public class TaskListControllerModelAndViewCreatorTest {
   }
 
   @Test
-  public void getTaskListModelAndView_notFirstVersion_appUpdateOpen() {
+  void getTaskListModelAndView_notFirstVersion_appUpdateOpen() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");
@@ -171,7 +174,7 @@ public class TaskListControllerModelAndViewCreatorTest {
   }
 
   @Test
-  public void getTaskListModelAndView_notFirstVersion_noAppUpdateOpen() {
+  void getTaskListModelAndView_notFirstVersion_noAppUpdateOpen() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");
@@ -215,7 +218,7 @@ public class TaskListControllerModelAndViewCreatorTest {
   }
 
   @Test
-  public void getTaskListModelAndView_optionsApprovedBannerProvided() {
+  void getTaskListModelAndView_optionsApprovedBannerProvided() {
 
     var masterPwaView = mock(MasterPwaView.class);
     when(masterPwaView.getReference()).thenReturn("PWA-Example");

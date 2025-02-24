@@ -6,30 +6,30 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Set;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.Set;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.service.UserSessionService;
+import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-public class UserPrivReloadInterceptorTest {
+@ExtendWith(MockitoExtension.class)
+class UserPrivReloadInterceptorTest {
 
   @Mock
-  private UserSessionService userSessionService;
+  private UserSessionPrivilegesService userSessionPrivilegesService;
 
   @Mock
   private SecurityContext securityContext;
@@ -43,10 +43,10 @@ public class UserPrivReloadInterceptorTest {
 
   private static final String SESSION_ID = "my-sesh";
 
-  @Before
-  public void setup(){
+  @BeforeEach
+  void setup(){
 
-    userPrivReloadInterceptor = new UserPrivReloadInterceptor(userSessionService);
+    userPrivReloadInterceptor = new UserPrivReloadInterceptor(userSessionPrivilegesService);
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
         PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE, PwaUserPrivilege.PWA_CONSENT_SEARCH));
 
@@ -58,12 +58,12 @@ public class UserPrivReloadInterceptorTest {
   }
 
   @Test
-  public void prehandle_verifySecurityContextAuthSetupAsExpected() throws Exception {
+  void prehandle_verifySecurityContextAuthSetupAsExpected() throws Exception {
 
     ArgumentCaptor<? extends Authentication> newAuthCaptor = ArgumentCaptor.forClass(Authentication.class);
     userPrivReloadInterceptor.preHandle(mock(HttpServletRequest.class), mock(HttpServletResponse.class), new Object());
 
-    verify(userSessionService, times(1)).populateUserPrivileges(user);
+    verify(userSessionPrivilegesService, times(1)).populateUserPrivileges(user);
     verify(securityContext).setAuthentication(newAuthCaptor.capture());
 
     assertThat(newAuthCaptor.getValue()).satisfies(auth -> {

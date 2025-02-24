@@ -10,12 +10,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DecimalInputValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class DecimalInputValidatorTest {
 
   @Spy
   private DecimalInputValidator validator;
@@ -34,8 +34,8 @@ public class DecimalInputValidatorTest {
   private static final String VALUE_REQUIRED_CODE = VALUE + FieldValidationErrorCodes.REQUIRED.getCode();
   private static final String VALUE_INVALID_CODE = VALUE + FieldValidationErrorCodes.INVALID.getCode();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     decimalInput = new DecimalInput();
   }
 
@@ -60,7 +60,7 @@ public class DecimalInputValidatorTest {
 
   //Value required and validity tests
   @Test
-  public void validate_nullValue_fieldRequired_error() {
+  void validate_nullValue_fieldRequired_error() {
     var fieldErrors = getValidationErrors();
     assertThat(fieldErrors).containsExactly(
         entry(VALUE, Set.of(VALUE_REQUIRED_CODE))
@@ -68,7 +68,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldRequired_blankValue_error() {
+  void validate_fieldRequired_blankValue_error() {
 
     decimalInput.setValue("");
     var fieldErrors = getValidationErrors();
@@ -79,7 +79,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldRequired_invalidValue_error() {
+  void validate_fieldRequired_invalidValue_error() {
 
     decimalInput.setValue("invalid num");
     var fieldErrors = getValidationErrors();
@@ -90,7 +90,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldRequired_validValueProvided_noError() {
+  void validate_fieldRequired_validValueProvided_noError() {
 
     decimalInput.setValue("1.1");
     var fieldErrors = getValidationErrors();
@@ -102,7 +102,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldOptional_invalidValue_error() {
+  void validate_fieldOptional_invalidValue_error() {
 
     decimalInput.setValue("invalid num");
     var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
@@ -113,7 +113,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldOptional_noValueProvided_noError() {
+  void validate_fieldOptional_noValueProvided_noError() {
 
     var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
 
@@ -124,7 +124,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldOptional_blankValueProvided_noError() {
+  void validate_fieldOptional_blankValueProvided_noError() {
 
     decimalInput.setValue("");
     var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
@@ -136,7 +136,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_fieldOptional_validValueProvided_noError() {
+  void validate_fieldOptional_validValueProvided_noError() {
 
     decimalInput.setValue("1.1");
     var fieldErrors = getValidationErrors(List.of(new FieldIsOptionalHint()));
@@ -150,7 +150,7 @@ public class DecimalInputValidatorTest {
 
   //Decimal Place Hint tests
   @Test
-  public void validate_validBigDecimal_decimalPlaceHintProvided_valueDpExceedsMaxDp_error() {
+  void validate_validBigDecimal_decimalPlaceHintProvided_valueDpExceedsMaxDp_error() {
 
     decimalInput.setValue("1.222");
     var errors = new BeanPropertyBindingResult(decimalInput, "form");
@@ -165,7 +165,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_decimalPlaceHintProvided_valueDpEqualsMaxDp_noError() {
+  void validate_validBigDecimal_decimalPlaceHintProvided_valueDpEqualsMaxDp_noError() {
 
     decimalInput.setValue("1.22");
     var fieldErrors = getValidationErrors(List.of(new DecimalPlaceHint(2)));
@@ -176,7 +176,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_decimalPlaceHintProvided_valueActualDpEqualsMaxDp_trailingZeroExceedMaxDp_noError() {
+  void validate_validBigDecimal_decimalPlaceHintProvided_valueActualDpEqualsMaxDp_trailingZeroExceedMaxDp_noError() {
 
     decimalInput.setValue("1.220");
     var fieldErrors = getValidationErrors(List.of(new DecimalPlaceHint(2)));
@@ -187,7 +187,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_decimalPlaceHintProvided_valueDpLessThanMaxDp_noError() {
+  void validate_validBigDecimal_decimalPlaceHintProvided_valueDpLessThanMaxDp_noError() {
 
     decimalInput.setValue("1.2");
     var fieldErrors = getValidationErrors(List.of(new DecimalPlaceHint(2)));
@@ -200,7 +200,7 @@ public class DecimalInputValidatorTest {
 
   //Positive Number Hint tests
   @Test
-  public void validate_validBigDecimal_positiveNumberHintProvided_negativeValue_error() {
+  void validate_validBigDecimal_positiveNumberHintProvided_negativeValue_error() {
 
     decimalInput.setValue("-1");
 
@@ -216,7 +216,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_positiveNumberHintProvided_0Value_error() {
+  void validate_validBigDecimal_positiveNumberHintProvided_0Value_error() {
 
     decimalInput.setValue("0");
 
@@ -228,7 +228,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_positiveNumberHintProvided_positiveValue_noError() {
+  void validate_validBigDecimal_positiveNumberHintProvided_positiveValue_noError() {
 
     decimalInput.setValue("1");
 
@@ -242,7 +242,7 @@ public class DecimalInputValidatorTest {
 
   //Non Negative Number Hint tests
   @Test
-  public void validate_validBigDecimal_nonNegativeNumberHintProvided_negativeValue_error() {
+  void validate_validBigDecimal_nonNegativeNumberHintProvided_negativeValue_error() {
 
     decimalInput.setValue("-1");
 
@@ -258,7 +258,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_nonNegativeNumberHintProvided_0Value_noError() {
+  void validate_validBigDecimal_nonNegativeNumberHintProvided_0Value_noError() {
 
     decimalInput.setValue("0");
 
@@ -270,7 +270,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_nonNegativeNumberHintProvided_positiveValue_noError() {
+  void validate_validBigDecimal_nonNegativeNumberHintProvided_positiveValue_noError() {
 
     decimalInput.setValue("1");
 
@@ -284,7 +284,7 @@ public class DecimalInputValidatorTest {
 
   //Smaller Than Field Hint tests
   @Test
-  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueLargerThanMaxAllowed_error() {
+  void validate_validBigDecimal_smallerThanFieldHintProvided_valueLargerThanMaxAllowed_error() {
 
     var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("6");
@@ -301,7 +301,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueEqualsMaxAllowed_error() {
+  void validate_validBigDecimal_smallerThanFieldHintProvided_valueEqualsMaxAllowed_error() {
 
     var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("5");
@@ -314,7 +314,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanFieldHintProvided_valueLessThanMaxAllowed_noError() {
+  void validate_validBigDecimal_smallerThanFieldHintProvided_valueLessThanMaxAllowed_noError() {
 
     var smallerThanNumberHint = new SmallerThanFieldHint(new BigDecimal("5"), "My label");
     decimalInput.setValue("4");
@@ -328,7 +328,7 @@ public class DecimalInputValidatorTest {
 
   //Smaller Than Number Hint Hint tests
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLargerThanMaxAllowed_error() {
+  void validate_validBigDecimal_smallerThanNumberHintProvided_valueLargerThanMaxAllowed_error() {
 
     var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
     decimalInput.setValue("6");
@@ -345,7 +345,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueEqualsMaxAllowed_error() {
+  void validate_validBigDecimal_smallerThanNumberHintProvided_valueEqualsMaxAllowed_error() {
 
     var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
     decimalInput.setValue("6");
@@ -358,7 +358,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_smallerThanNumberHintProvided_valueLessThanMaxAllowed_noError() {
+  void validate_validBigDecimal_smallerThanNumberHintProvided_valueLessThanMaxAllowed_noError() {
 
     var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
     decimalInput.setValue("4");
@@ -371,7 +371,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_equalToNumberHintProvided_valueLessThanMaxAllowed_noError() {
+  void validate_validBigDecimal_equalToNumberHintProvided_valueLessThanMaxAllowed_noError() {
 
     var smallerThanNumberHint = new LessThanEqualToHint(new BigDecimal("5"));
     decimalInput.setValue("5");
@@ -384,14 +384,14 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_validBigDecimal_exponentsPrevented() {
+  void validate_validBigDecimal_exponentsPrevented() {
 
     var errorsExpectedToValuesMap = Map.of(
         true, List.of("1.23E3", "1.23E+3", "12.3E+7", "-1.23E-12", "1234.5E-4", "0E+7", "0e+7"),
         false, List.of("0", "0.00", "123", "-123", "12.0", "12.3", "0.00123", "-0")
     );
 
-    errorsExpectedToValuesMap.forEach((errorsExpected, values) -> {
+    errorsExpectedToValuesMap.forEach((errorsExpected, values) ->
 
       values.forEach(value -> {
 
@@ -405,14 +405,12 @@ public class DecimalInputValidatorTest {
           assertThat(fieldErrors).isEmpty();
         }
 
-      });
-
-    });
+      }));
 
   }
 
   @Test
-  public void validate_valueEnteredHasTooManyDigits_invalidError() {
+  void validate_valueEnteredHasTooManyDigits_invalidError() {
 
     var inputWithMoreDigitsThanAllowed = "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH + 1);
     decimalInput.setValue(inputWithMoreDigitsThanAllowed);
@@ -424,7 +422,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_valueEnteredHasMaxDigits_noErrors() {
+  void validate_valueEnteredHasMaxDigits_noErrors() {
 
     var inputWithNumberOfDigitsAllowed  = "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH);
     decimalInput.setValue(inputWithNumberOfDigitsAllowed );
@@ -436,7 +434,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_allowsEmptyInput() {
+  void validate_partialValidation_allowsEmptyInput() {
   decimalInput.setValue("");
   var fieldErrors = getValidationErrors(List.of(new PartialValidateHint(), new PositiveNumberHint()));
 
@@ -444,7 +442,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_validatesLength() {
+  void validate_partialValidation_validatesLength() {
     decimalInput.setValue("-" + "9".repeat(DecimalInputValidator.MAX_INPUT_LENGTH));
     var fieldErrors = getValidationErrors(List.of(new PartialValidateHint()));
 
@@ -454,7 +452,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void validate_partialValidation_validatesHintsPassedIn() {
+  void validate_partialValidation_validatesHintsPassedIn() {
     decimalInput.setValue("-35");
     var fieldErrors = getValidationErrors(List.of(new PartialValidateHint(), new PositiveNumberHint()));
 
@@ -464,7 +462,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void testBuilder_allFunctions() {
+  void builderAllFunctions() {
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");
 
@@ -494,7 +492,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void testBuilder_oneFunction() {
+  void builderOneFunction() {
 
     var errors = new BeanPropertyBindingResult(decimalInput, "form");
 
@@ -516,7 +514,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void nullDecimalInput_optionalField() {
+  void nullDecimalInput_optionalField() {
 
     DecimalInputForm decimalInputForm = new DecimalInputForm();
     var errors = new BeanPropertyBindingResult(decimalInputForm, "form");
@@ -531,7 +529,7 @@ public class DecimalInputValidatorTest {
   }
 
   @Test
-  public void nullDecimalInput_notOptional() {
+  void nullDecimalInput_notOptional() {
 
     DecimalInputForm decimalInputForm = new DecimalInputForm();
     var errors = new BeanPropertyBindingResult(decimalInputForm, "form");

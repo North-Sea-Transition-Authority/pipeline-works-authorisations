@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.documents.templates.TemplateSectionClauseVersionDto;
@@ -19,16 +19,16 @@ import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SectionClauseCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class SectionClauseCreatorTest {
 
   @Mock
   private Clock clock;
 
   private SectionClauseCreator sectionClauseCreator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var ins = Instant.now();
 
@@ -39,7 +39,7 @@ public class SectionClauseCreatorTest {
   }
 
   @Test
-  public void createInstanceClauseVersionFromTemplate() {
+  void createInstanceClauseVersionFromTemplate() {
 
     var templateClauseVersion = DocumentDtoTestUtils.createTemplateClauseVersion(2, clock);
     var dtoVersion = TemplateSectionClauseVersionDto.from(templateClauseVersion);
@@ -62,7 +62,7 @@ public class SectionClauseCreatorTest {
   }
 
   @Test
-  public void setCommonData_allData() {
+  void setCommonData_allData() {
 
     var emptyInstanceClause = new DocumentInstanceSectionClauseVersion();
 

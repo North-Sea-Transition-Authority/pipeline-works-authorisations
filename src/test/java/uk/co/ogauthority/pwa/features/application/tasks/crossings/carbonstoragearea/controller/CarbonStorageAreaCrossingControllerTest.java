@@ -10,14 +10,13 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,7 +24,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -53,7 +51,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = CarbonStorageAreaCrossingController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
@@ -94,8 +91,8 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     doCallRealMethod().when(applicationBreadcrumbService).fromCrossings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -127,7 +124,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderBlockCrossingOverview_appTypeSmokeTest() {
+  void renderBlockCrossingOverview_appTypeSmokeTest() {
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.CARBON_STORAGE_AREA_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
@@ -142,7 +139,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void renderBlockCrossingOverview_appStatusSmokeTest() {
+  void renderBlockCrossingOverview_appStatusSmokeTest() {
     var crossingAgreementsValidationResult = new CrossingAgreementsValidationResult(
         Set.of(CrossingAgreementsSection.CARBON_STORAGE_AREA_CROSSINGS));
     when(crossingAgreementsService.getValidationResult(any()))
@@ -171,7 +168,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void actionAddAreaCrossing_whenFormValid() throws Exception {
+  void actionAddAreaCrossing_whenFormValid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(CarbonStorageAreaCrossingController.class)
                 .actionAddAreaCrossing(
@@ -181,7 +178,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
                     null
                     , null)
             ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getValidAddFormAsMap()))
         .andExpect(status().is3xxRedirection());
@@ -189,7 +186,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void actionEditAreaCrossing_whenFormValid() throws Exception {
+  void actionEditAreaCrossing_whenFormValid() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(CarbonStorageAreaCrossingController.class)
             .actionEditAreaCrossing(
                 pwaApplicationDetail.getPwaApplicationType(),
@@ -199,7 +196,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
                 null,
                 null)
         ))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(getValidAddFormAsMap()))
         .andExpect(status().is3xxRedirection());
@@ -214,7 +211,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void removeCrossing_whenCrossingNotFound() throws Exception {
+  void removeCrossing_whenCrossingNotFound() throws Exception {
     when(storageAreaCrossingService.getById(CROSSING_ID))
         .thenThrow(new PwaEntityNotFoundException("BANG"));
     mockMvc.perform(
@@ -224,14 +221,14 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
                     pwaApplicationDetail.getMasterPwaApplicationId(),
                     null,
                     null)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
         .andExpect(status().isNotFound());
 
   }
 
   @Test
-  public void removeCrossing_appTypeSmokeTest() {
+  void removeCrossing_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingController.class)
@@ -247,7 +244,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void removeBlockCrossing_appStatusSmokeTest() {
+  void removeBlockCrossing_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingController.class)
@@ -263,7 +260,7 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
   }
 
   @Test
-  public void removeBlockCrossing_contactRoleSmokeTest() {
+  void removeBlockCrossing_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CarbonStorageAreaCrossingController.class)

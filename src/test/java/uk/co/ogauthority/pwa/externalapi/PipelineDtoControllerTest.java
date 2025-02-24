@@ -16,24 +16,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelineDtoController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 @Import(ExternalApiWebSecurityConfiguration.class)
-public class PipelineDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelineDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   private PipelineDtoRepository pipelineDtoRepository;
@@ -42,7 +39,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Test
-  public void searchPipelines() throws Exception {
+  void searchPipelines() throws Exception {
     var pipelineId  = 1;
     var pipelineNumber = "PL123";
     var pwaId = 2;
@@ -75,7 +72,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   }
 
   @Test
-  public void searchPipelines_assertSort() throws Exception {
+  void searchPipelines_assertSort() throws Exception {
     var firstPipeline = PipelineDtoTestUtil.builder()
         .withId(1)
         .withNumber("PL1")
@@ -119,7 +116,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   }
 
   @Test
-  public void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
+  void searchPipelines_NoBearerToken_AssertForbidden() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PipelineDtoController.class)
                 .searchPipelines(null, null, null))))
@@ -128,7 +125,7 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
   }
 
   @Test
-  public void searchPipelines_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
+  void searchPipelines_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
     mockMvc.perform(get(
             ReverseRouter.route(on(PipelineDtoController.class).searchPipelines(
                 null,

@@ -13,12 +13,12 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -31,8 +31,8 @@ import uk.co.ogauthority.pwa.repository.pwaapplications.PwaApplicationDetailRepo
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.feedback.FeedbackValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FeedbackServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FeedbackServiceTest {
 
   private static final Instant DATETIME = Instant.parse("2020-04-29T10:15:30Z");
   private static final String SERVICE_NAME = "PWA";
@@ -56,8 +56,8 @@ public class FeedbackServiceTest {
   
   private Person person;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     Clock fixedClock = Clock.fixed(DATETIME, ZoneId.of("UTC"));
 
@@ -75,7 +75,7 @@ public class FeedbackServiceTest {
   }
 
   @Test
-  public void saveFeedback_whenNoApplicationDetailId_thenTransactionIdIsNull() throws CannotSendFeedbackException {
+  void saveFeedback_whenNoApplicationDetailId_thenTransactionIdIsNull() throws CannotSendFeedbackException {
     var form = FeedbackTestUtil.getValidFeedbackForm();
 
     ArgumentCaptor<Feedback> feedbackArgumentCaptor = ArgumentCaptor.forClass(Feedback.class);
@@ -91,7 +91,7 @@ public class FeedbackServiceTest {
   }
 
   @Test
-  public void saveFeedback_whenApplicationDetailId_thenTransactionIdIsNotNull() throws CannotSendFeedbackException {
+  void saveFeedback_whenApplicationDetailId_thenTransactionIdIsNotNull() throws CannotSendFeedbackException {
     var appId = 10;
     var appDetailId = 20;
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(

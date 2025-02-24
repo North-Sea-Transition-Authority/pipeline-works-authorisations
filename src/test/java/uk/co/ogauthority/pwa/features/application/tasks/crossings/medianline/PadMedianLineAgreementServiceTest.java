@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadMedianLineAgreementServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadMedianLineAgreementServiceTest {
 
   @Mock
   private PadMedianLineAgreementRepository padMedianLineAgreementRepository;
@@ -49,8 +49,8 @@ public class PadMedianLineAgreementServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padMedianLineAgreementService = new PadMedianLineAgreementService(
         padMedianLineAgreementRepository,
         medianLineAgreementValidator,
@@ -62,7 +62,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void getMedianLineAgreementForDraft_WithExisting() {
+  void getMedianLineAgreementForDraft_WithExisting() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
@@ -71,7 +71,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void getMedianLineAgreementForDraft_NoneExisting() {
+  void getMedianLineAgreementForDraft_NoneExisting() {
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.empty());
     var result = padMedianLineAgreementService.getMedianLineAgreement(pwaApplicationDetail);
@@ -79,14 +79,14 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void save() {
+  void save() {
     var agreement = new PadMedianLineAgreement();
     padMedianLineAgreementService.save(agreement);
     verify(padMedianLineAgreementRepository, times(1)).save(agreement);
   }
 
   @Test
-  public void mapEntityToForm_Nulls() {
+  void mapEntityToForm_Nulls() {
     var form = new MedianLineAgreementsForm();
     var entity = new PadMedianLineAgreement();
     padMedianLineAgreementService.mapEntityToForm(entity, form);
@@ -98,7 +98,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_NotCrossed() {
+  void mapEntityToForm_NotCrossed() {
     var form = new MedianLineAgreementsForm();
     var entity = new PadMedianLineAgreement();
     entity.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
@@ -113,7 +113,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_Ongoing() {
+  void mapEntityToForm_Ongoing() {
     var form = new MedianLineAgreementsForm();
     var entity = new PadMedianLineAgreement();
     entity.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
@@ -128,7 +128,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_Completed() {
+  void mapEntityToForm_Completed() {
     var form = new MedianLineAgreementsForm();
     var entity = new PadMedianLineAgreement();
     entity.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
@@ -143,7 +143,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_Nulls() {
+  void saveEntityUsingForm_Nulls() {
     var form = new MedianLineAgreementsForm();
     var entity = new PadMedianLineAgreement();
     padMedianLineAgreementService.saveEntityUsingForm(entity, form);
@@ -153,7 +153,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_NotCrossed() {
+  void saveEntityUsingForm_NotCrossed() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NOT_CROSSED);
     form.setNegotiatorNameIfOngoing("Ongoing name");
@@ -168,7 +168,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_Ongoing() {
+  void saveEntityUsingForm_Ongoing() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_ONGOING);
     form.setNegotiatorNameIfOngoing("Ongoing name");
@@ -183,7 +183,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_Completed() {
+  void saveEntityUsingForm_Completed() {
     var form = new MedianLineAgreementsForm();
     form.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
     form.setNegotiatorNameIfOngoing("Ongoing name");
@@ -198,7 +198,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isComplete_serviceInteractions_whenAgreementValid() {
+  void isComplete_serviceInteractions_whenAgreementValid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
@@ -210,7 +210,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isComplete_serviceInteractions_whenAgreementInvalid() {
+  void isComplete_serviceInteractions_whenAgreementInvalid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
@@ -228,7 +228,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isMedianLineAgreementFormComplete_whenAgreementInvalid() {
+  void isMedianLineAgreementFormComplete_whenAgreementInvalid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
@@ -245,7 +245,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void isMedianLineAgreementFormComplete_whenAgreementValid() {
+  void isMedianLineAgreementFormComplete_whenAgreementValid() {
     var agreement = new PadMedianLineAgreement();
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));
@@ -257,7 +257,7 @@ public class PadMedianLineAgreementServiceTest {
 
 
   @Test
-  public void validate_serviceInteractions_whenFullValidation() {
+  void validate_serviceInteractions_whenFullValidation() {
     var form = new MedianLineAgreementsForm();
     var errors = new BeanPropertyBindingResult(form, "form");
     padMedianLineAgreementService.validate(form, errors, ValidationType.FULL, pwaApplicationDetail);
@@ -266,7 +266,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void validate_serviceInteractions_whenPartialValidation() {
+  void validate_serviceInteractions_whenPartialValidation() {
     var form = new MedianLineAgreementsForm();
     var errors = new BeanPropertyBindingResult(form, "form");
     padMedianLineAgreementService.validate(form, errors, ValidationType.PARTIAL, pwaApplicationDetail);
@@ -275,7 +275,7 @@ public class PadMedianLineAgreementServiceTest {
   }
 
   @Test
-  public void getMedianLineCrossingView_whenPadMedianLineAgreementFound_mapsData() {
+  void getMedianLineCrossingView_whenPadMedianLineAgreementFound_mapsData() {
 
     var agreement = new PadMedianLineAgreement();
     agreement.setNegotiatorName("NAME");

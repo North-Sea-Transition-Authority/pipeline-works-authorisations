@@ -6,10 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
@@ -17,22 +17,22 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PublicNoticeDraftValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PublicNoticeDraftValidatorTest {
 
   private PublicNoticeDraftValidator validator;
 
   private UploadFileWithDescriptionForm uploadedFileForm;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PublicNoticeDraftValidator();
     uploadedFileForm = FileUploadTestUtil.createDefaultUploadFileForm();
   }
 
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new PublicNoticeDraftForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).containsOnly(
@@ -43,7 +43,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new PublicNoticeDraftForm();
     form.setCoverLetterText("text");
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
@@ -54,7 +54,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_fileCountExceeded() {
+  void validate_form_fileCountExceeded() {
     var form = new PublicNoticeDraftForm();
     form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm, uploadedFileForm));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -64,7 +64,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_fileDescriptionNull_invalid() {
+  void validate_form_fileDescriptionNull_invalid() {
     var form = new PublicNoticeDraftForm();
     FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -75,7 +75,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_fileDescriptionOverMaxCharLength_invalid() {
+  void validate_form_fileDescriptionOverMaxCharLength_invalid() {
     var form = new PublicNoticeDraftForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -86,7 +86,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_reasonIsNotContent_reasonDescriptionNull() {
+  void validate_form_reasonIsNotContent_reasonDescriptionNull() {
     var form = new PublicNoticeDraftForm();
     form.setReason(PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -96,7 +96,7 @@ public class PublicNoticeDraftValidatorTest {
   }
 
   @Test
-  public void validate_form_textAreaLengthExceeded() {
+  void validate_form_textAreaLengthExceeded() {
     var form = new PublicNoticeDraftForm();
     form.setCoverLetterText(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setReason(PublicNoticeRequestReason.CONSULTEES_NOT_ALL_CONTENT);

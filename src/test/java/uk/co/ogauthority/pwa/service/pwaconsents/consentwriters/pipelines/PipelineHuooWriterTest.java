@@ -11,13 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -43,8 +45,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentPipelineOrganisationRoleService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineHuooWriterTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelineHuooWriterTest {
 
   @Mock
   private PadPipelinesHuooService padPipelinesHuooService;
@@ -76,8 +79,8 @@ public class PipelineHuooWriterTest {
 
   private ConsentWriterDto consentWriterDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     masterPwa = detail.getMasterPwa();
@@ -153,7 +156,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void writerIsApplicable_hasPipelineHuooTask() {
+  void writerIsApplicable_hasPipelineHuooTask() {
 
     boolean isApplicable = pipelineHuooWriter.writerIsApplicable(Set.of(ApplicationTask.PIPELINES_HUOO), new PwaConsent());
 
@@ -162,7 +165,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void writerIsApplicable_doesNotHavePipelineHuooTask() {
+  void writerIsApplicable_doesNotHavePipelineHuooTask() {
 
     boolean isApplicable = pipelineHuooWriter.writerIsApplicable(Set.of(ApplicationTask.HUOO), new PwaConsent());
 
@@ -171,7 +174,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_initialPwa() {
+  void write_initialPwa() {
 
     var consent = new PwaConsent();
 
@@ -187,7 +190,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_variation_changes() {
+  void write_variation_changes() {
 
     var consent = new PwaConsent();
     pipelineHuooWriter.write(detail, consent, consentWriterDto);
@@ -201,7 +204,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_variation_noChanges() {
+  void write_variation_noChanges() {
 
     var consent = new PwaConsent();
 
@@ -225,7 +228,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_variation_splitsAppear() {
+  void write_variation_splitsAppear() {
 
     var consent = new PwaConsent();
 
@@ -267,7 +270,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_variation_splitsChange() {
+  void write_variation_splitsChange() {
 
     var consent = new PwaConsent();
 
@@ -319,7 +322,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_rts_linksEnded() {
+  void write_rts_linksEnded() {
 
     var consent = new PwaConsent();
 
@@ -362,7 +365,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_nl_linksEnded() {
+  void write_nl_linksEnded() {
 
     var consent = new PwaConsent();
 
@@ -405,7 +408,7 @@ public class PipelineHuooWriterTest {
   }
 
   @Test
-  public void write_singlePipeOnApp_rts_noError() {
+  void write_singlePipeOnApp_rts_noError() {
 
     var consent = new PwaConsent();
 

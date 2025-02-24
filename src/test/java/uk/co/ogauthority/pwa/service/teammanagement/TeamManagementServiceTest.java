@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.teammanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -15,12 +16,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
@@ -49,8 +52,9 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TeamManagementServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class TeamManagementServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -80,7 +84,7 @@ public class TeamManagementServiceTest {
   private AuthenticatedUserAccount manageAllTeamsUser;
   private WebUserAccount someWebUserAccount = new WebUserAccount(99);
   private UserRolesForm userRolesForm;
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   /**
    * This creates:
@@ -89,10 +93,10 @@ public class TeamManagementServiceTest {
    * - 2 organisation teams in separate org groupsL organisationTeam1 and organisationTeam2
    * - Several AuthenticatedUserAccount with various privileges
    */
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
-    teamManagementService = new TeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
+    teamManagementService = new OldTeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
 
@@ -157,25 +161,26 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getTeamOrError_verifyServiceInteraction() {
+  void getTeamOrError_verifyServiceInteraction() {
     PwaTeam regTeam = teamManagementService.getTeamOrError(regulatorTeam.getId());
     assertThat(regTeam).isEqualTo(regulatorTeam);
     verify(teamService, times(1)).getTeamByResId(eq(regulatorTeam.getId()));
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getTeamOrError_throwErrorWhenTeamNotFound() {
+  @Test
+  void getTeamOrError_throwErrorWhenTeamNotFound() {
     when(teamService.getTeamByResId(anyInt())).thenThrow(new PwaEntityNotFoundException(""));
-    teamManagementService.getTeamOrError(999);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      teamManagementService.getTeamOrError(999));
   }
 
   @Test
-  public void getTeamMemberViewForTeamAndPerson_whenNotATeamMember() {
+  void getTeamMemberViewForTeamAndPerson_whenNotATeamMember() {
     assertThat(teamManagementService.getTeamMemberViewForTeamAndPerson(regulatorTeam, organisationPerson)).isEmpty();
   }
 
   @Test
-  public void getTeamMemberViewForTeamAndPerson_whenATeamMember_basicPersonPropertiesMappedAsExpected() {
+  void getTeamMemberViewForTeamAndPerson_whenATeamMember_basicPersonPropertiesMappedAsExpected() {
     var teamMemberView = teamManagementService.getTeamMemberViewForTeamAndPerson(regulatorTeam,
         regulatorTeamAdminPerson).get();
     assertTeamUserViewHasExpectedSimpleProperties(regulatorTeam, regulatorTeamAdminPerson, teamMemberView);
@@ -183,7 +188,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getTeamMemberViewForTeamAndPerson_whenATeamMember_memberRolesMappedAsExpected() {
+  void getTeamMemberViewForTeamAndPerson_whenATeamMember_memberRolesMappedAsExpected() {
 
     var teamMemberView = teamManagementService.getTeamMemberViewForTeamAndPerson(regulatorTeam,
         regulatorTeamAdminPerson).get();
@@ -193,7 +198,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getTeamMemberViewsForTeam_whenSingleTeamMemberIsAdmin() {
+  void getTeamMemberViewsForTeam_whenSingleTeamMemberIsAdmin() {
     PwaRole expectedRole = TeamTestingUtils.getTeamAdminRole();
     List<TeamMemberView> teamMemberViewsForTeam = teamManagementService.getTeamMemberViewsForTeam(regulatorTeam);
 
@@ -203,7 +208,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getRolesForTeam_orderedByDisplaySequenceValue() {
+  void getRolesForTeam_orderedByDisplaySequenceValue() {
     var firstRole = TeamTestingUtils.generatePwaRole("FIRST_ROLE", 10);
     var secondRole = TeamTestingUtils.generatePwaRole("SECOND_ROLE", 20);
     var thirdRole = TeamTestingUtils.generatePwaRole("THIRD_ROLE", 30);
@@ -223,7 +228,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void canManageTeam_whenUserIsMemberOfTeam_andIsTeamAdministrator() {
+  void canManageTeam_whenUserIsMemberOfTeam_andIsTeamAdministrator() {
     var teamMember = new PwaTeamMember(organisationTeam1, organisationPerson, Set.of(TeamTestingUtils.getTeamAdminRole()));
     when(teamService.getMembershipOfPersonInTeam(organisationTeam1, organisationPerson))
         .thenReturn(Optional.of(teamMember));
@@ -232,7 +237,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void canManageTeam_whenUserIsMemberOfTeam_andNotTeamAdministrator() {
+  void canManageTeam_whenUserIsMemberOfTeam_andNotTeamAdministrator() {
     var teamMember = new PwaTeamMember(
         organisationTeam1,
         organisationPerson,
@@ -246,40 +251,40 @@ public class TeamManagementServiceTest {
 
 
   @Test
-  public void canManageTeam_whenUserCanManageAnyOrgTeamOnly_AndTeamIsRegulator() {
+  void canManageTeam_whenUserCanManageAnyOrgTeamOnly_AndTeamIsRegulator() {
     assertThat(teamManagementService.canManageTeam(regulatorTeam, manageAnyOrgRegulatorUser)).isFalse();
   }
 
   @Test
-  public void canManageTeam_whenUserCanManageAnyOrgTeamOnly_AndTeamIsOrganisation() {
+  void canManageTeam_whenUserCanManageAnyOrgTeamOnly_AndTeamIsOrganisation() {
     assertThat(teamManagementService.canManageTeam(organisationTeam1, manageAnyOrgRegulatorUser)).isTrue();
   }
 
   @Test
-  public void getAllPwaTeamsUserCanManage_userCannotManageAnyTeams() {
+  void getAllPwaTeamsUserCanManage_userCannotManageAnyTeams() {
     assertThat(teamManagementService.getAllPwaTeamsUserCanManage(workareaOnlyUser)).isEmpty();
   }
 
   @Test
-  public void getAllPwaTeamsUserCanManage_userCanManageRegulatorTeamOnly() {
+  void getAllPwaTeamsUserCanManage_userCanManageRegulatorTeamOnly() {
     List<PwaTeam> manageableTeams = teamManagementService.getAllPwaTeamsUserCanManage(manageRegTeamRegulatorUser);
     assertThat(manageableTeams).containsExactly(regulatorTeam);
   }
 
   @Test
-  public void getAllPwaTeamsUserCanManage_userCanManageAllOrgTeamsOnly() {
+  void getAllPwaTeamsUserCanManage_userCanManageAllOrgTeamsOnly() {
     List<PwaTeam> manageableTeams = teamManagementService.getAllPwaTeamsUserCanManage(manageAnyOrgRegulatorUser);
     assertThat(manageableTeams).containsExactly(organisationTeam1, organisationTeam2);
   }
 
   @Test
-  public void getAllIrsTeamsUserCanManage_userCanManageRegulatorTeamAndAllOrgs() {
+  void getAllIrsTeamsUserCanManage_userCanManageRegulatorTeamAndAllOrgs() {
     List<PwaTeam> manageableTeams = teamManagementService.getAllPwaTeamsUserCanManage(manageAllTeamsUser);
     assertThat(manageableTeams).containsExactly(regulatorTeam, organisationTeam1, organisationTeam2);
   }
 
   @Test
-  public void populateExistingRoles_personHasNoRolesInTeam() {
+  void populateExistingRoles_personHasNoRolesInTeam() {
     when(teamService.getMembershipOfPersonInTeam(organisationTeam1, regulatorTeamAdminPerson))
         .thenReturn(Optional.empty());
 
@@ -288,7 +293,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void populateExistingRoles_personHasRolesInTeam() {
+  void populateExistingRoles_personHasRolesInTeam() {
     when(teamService.getMembershipOfPersonInTeam(regulatorTeam, regulatorTeamAdminPerson))
         .thenReturn(Optional.of(new PwaTeamMember(regulatorTeam,
             regulatorTeamAdminPerson, Set.of(regTeamAdminRole, regTeamSomeOtherRole))));
@@ -301,7 +306,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void removePersonFromTeam_personBeingRemovedIsNotLastAdministrator() {
+  void removePersonFromTeam_personBeingRemovedIsNotLastAdministrator() {
     // Setup a second team member who is also an admin
     var secondTeamMember = new PwaTeamMember(regulatorTeam, otherRegulatorPerson, Set.of(regTeamAdminRole));
 
@@ -315,34 +320,34 @@ public class TeamManagementServiceTest {
     verify(teamService, times(1)).removePersonFromTeam(regulatorTeam, regulatorTeamAdminPerson, someWebUserAccount);
   }
 
-  @Test(expected = LastAdministratorException.class)
-  public void removePersonFromTeam_personBeingRemovedIsLastAdministrator() {
-    // Setup a second team member who is not an admin
+  @Test
+  void removePersonFromTeam_personBeingRemovedIsLastAdministrator() {
     var secondTeamMember = new PwaTeamMember(regulatorTeam, otherRegulatorPerson, Set.of(regTeamSomeOtherRole));
-
     when(teamService.getTeamMembers(regulatorTeam))
-        .thenReturn(List.of(regulatorPersonRegulatorTeamMember, secondTeamMember));
-
+          .thenReturn(List.of(regulatorPersonRegulatorTeamMember, secondTeamMember));
     when(teamService.isPersonMemberOfTeam(or(eq(regulatorPersonRegulatorTeamMember.getPerson()), eq(secondTeamMember.getPerson())), eq(regulatorTeam)))
-        .thenReturn(true);
+          .thenReturn(true);
+    assertThrows(LastAdministratorException.class, () ->
 
-    teamManagementService.removeTeamMember(regulatorTeamAdminPerson, regulatorTeam, someWebUserAccount);
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void updateUserRoles_errorsWhenFormHasNoRoles() {
-    userRolesForm.setUserRoles(List.of());
-    teamManagementService.updateUserRoles(regulatorTeamAdminPerson, regulatorTeam, userRolesForm, someWebUserAccount);
-  }
-
-  @Test(expected = LastAdministratorException.class)
-  public void updateUserRoles_errorsWhenLastAdminIsUpdatedAsNoLongerAnAdmin() {
-    userRolesForm.setUserRoles(List.of(regTeamSomeOtherRole.getName()));
-    teamManagementService.updateUserRoles(regulatorTeamAdminPerson, regulatorTeam, userRolesForm, someWebUserAccount);
+      teamManagementService.removeTeamMember(regulatorTeamAdminPerson, regulatorTeam, someWebUserAccount));
   }
 
   @Test
-  public void updateUserRoles_whenPersonWhoIsLastAdminHasRoleAdded() {
+  void updateUserRoles_errorsWhenFormHasNoRoles() {
+    userRolesForm.setUserRoles(List.of());
+    assertThrows(RuntimeException.class, () ->
+      teamManagementService.updateUserRoles(regulatorTeamAdminPerson, regulatorTeam, userRolesForm, someWebUserAccount));
+  }
+
+  @Test
+  void updateUserRoles_errorsWhenLastAdminIsUpdatedAsNoLongerAnAdmin() {
+    userRolesForm.setUserRoles(List.of(regTeamSomeOtherRole.getName()));
+    assertThrows(LastAdministratorException.class, () ->
+      teamManagementService.updateUserRoles(regulatorTeamAdminPerson, regulatorTeam, userRolesForm, someWebUserAccount));
+  }
+
+  @Test
+  void updateUserRoles_whenPersonWhoIsLastAdminHasRoleAdded() {
     userRolesForm.setUserRoles(List.of(regTeamAdminRole.getName(), regTeamSomeOtherRole.getName()));
 
     teamManagementService.updateUserRoles(regulatorTeamAdminPerson, regulatorTeam, userRolesForm, someWebUserAccount);
@@ -354,7 +359,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void updateUserRoles_whenNewPersonAddedToTeam() {
+  void updateUserRoles_whenNewPersonAddedToTeam() {
     when(teamService.isPersonMemberOfTeam(regulatorTeamAdminPerson, regulatorTeam)).thenReturn(false);
     userRolesForm.setUserRoles(List.of(regTeamAdminRole.getName(), regTeamSomeOtherRole.getName()));
 
@@ -376,7 +381,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getSelectedRolesForTeam_formContainsOnlyUnsupportedRolesForTeam() {
+  void getSelectedRolesForTeam_formContainsOnlyUnsupportedRolesForTeam() {
     userRolesForm.setUserRoles(List.of("NOT_SUPPORTED1", "NOT_SUPPORTED2"));
 
     List<PwaRole> validSelectedRoles = teamManagementService.getSelectedRolesForTeam(userRolesForm, regulatorTeam);
@@ -384,7 +389,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getSelectedRolesForTeam_formContainsSomeSupportedRolesForTeam() {
+  void getSelectedRolesForTeam_formContainsSomeSupportedRolesForTeam() {
     userRolesForm.setUserRoles(List.of("NOT_SUPPORTED1", "NOT_SUPPORTED2", regTeamAdminRole.getName(), regTeamSomeOtherRole.getName()));
 
     List<PwaRole> validSelectedRoles = teamManagementService.getSelectedRolesForTeam(userRolesForm, regulatorTeam);
@@ -392,7 +397,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void canManageAnyOrgTeam() {
+  void canManageAnyOrgTeam() {
     assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
     assertThat(teamManagementService.canManageAnyOrgTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE))).isTrue();
 
@@ -401,7 +406,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void canManageRegulatorTeam() {
+  void canManageRegulatorTeam() {
     assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
     assertThat(teamManagementService.canManageRegulatorTeam(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REGULATOR_ADMIN))).isTrue();
 
@@ -447,14 +452,14 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-    public void getUserRolesForPwaTeam_regulatorTeamType() {
+  void getUserRolesForPwaTeam_regulatorTeamType() {
       var pwaTeam = new PwaRegulatorTeam(1, null, null);
       var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
       assertThat(userRoles).containsAll(PwaRegulatorRole.stream().collect(Collectors.toList()));
   }
 
   @Test
-    public void getUserRolesForPwaTeam_organisationTeamType() {
+  void getUserRolesForPwaTeam_organisationTeamType() {
       var pwaTeam = new PwaOrganisationTeam(1, null, null, null);
       var userRoles = teamManagementService.getUserRolesForPwaTeam(pwaTeam);
       assertThat(userRoles).containsAll(PwaOrganisationRole.stream().collect(Collectors.toList()));
@@ -462,7 +467,7 @@ public class TeamManagementServiceTest {
 
 
   @Test
-  public void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByEmailSearch_personReturned() {
+  void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByEmailSearch_personReturned() {
 
     var person = PersonTestUtil.createDefaultPerson();
     var user = WebUserAccountTestUtil.createWebUserAccountMatchingPerson(1, person, WebUserAccountStatus.ACTIVE);
@@ -477,7 +482,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByLoginIdSearch_personReturned() {
+  void getPersonByEmailAddressOrLoginId_exactly1WuaFoundByLoginIdSearch_personReturned() {
 
     var person = PersonTestUtil.createDefaultPerson();
     var user = WebUserAccountTestUtil.createWebUserAccount(1, person, "myLoginId", WebUserAccountStatus.ACTIVE);
@@ -493,29 +498,25 @@ public class TeamManagementServiceTest {
   }
 
   //An unlikely potential situation where two people have the same email address but with different user accounts that are active causing an error
-  @Test(expected = RuntimeException.class)
-  public void getPersonByEmailAddressOrLoginId_multiplePeopleFoundForSameEmail_exceptionThrown() {
-
+  @Test
+  void getPersonByEmailAddressOrLoginId_multiplePeopleFoundForSameEmail_exceptionThrown() {
     var emailAddress = "me@email.com";
     var person1 = PersonTestUtil.createPersonFrom(new PersonId(1), emailAddress);
     var user1 = WebUserAccountTestUtil.createWebUserAccount(1, person1, "myLoginId1", WebUserAccountStatus.ACTIVE);
-
     var person2 = PersonTestUtil.createPersonFrom(new PersonId(2), emailAddress);
     var user2 = WebUserAccountTestUtil.createWebUserAccount(1, person2, "myLoginId2", WebUserAccountStatus.ACTIVE);
-
     var user3 = WebUserAccountTestUtil.createWebUserAccount(2, person2, emailAddress, WebUserAccountStatus.ACTIVE);
-
     when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(
-        emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
-
+          emailAddress, List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(new ArrayList<>(List.of(user1, user2)));
     when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(
-        user3.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user3));
+          user3.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user3));
+    assertThrows(RuntimeException.class, () ->
 
-    teamManagementService.getPersonByEmailAddressOrLoginId(person1.getEmailAddress());
+      teamManagementService.getPersonByEmailAddressOrLoginId(person1.getEmailAddress()));
   }
 
   @Test
-  public void getPersonByEmailAddressOrLoginId_noPersonFoundForEmail_noPersonReturned() {
+  void getPersonByEmailAddressOrLoginId_noPersonFoundForEmail_noPersonReturned() {
 
     when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(new ArrayList<>());
     when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
@@ -525,7 +526,7 @@ public class TeamManagementServiceTest {
   }
 
   @Test
-  public void getPersonByEmailAddressOrLoginId_multipleWuaForEmail_exactly1PersonForAccounts_personReturned() {
+  void getPersonByEmailAddressOrLoginId_multipleWuaForEmail_exactly1PersonForAccounts_personReturned() {
 
     var emailAddress = "me@email.com";
     var person1 = PersonTestUtil.createPersonFrom(new PersonId(1), emailAddress);

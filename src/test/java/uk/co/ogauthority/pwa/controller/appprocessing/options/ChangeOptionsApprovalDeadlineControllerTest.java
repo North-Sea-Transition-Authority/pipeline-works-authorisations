@@ -12,21 +12,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -52,9 +50,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.appprocessing.options.ChangeOptionsApprovalDeadlineFormValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ChangeOptionsApprovalDeadlineController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final String DEADLINE_DAY_ATTR = "deadlineDateDay";
   private static final String DEADLINE_MONTH_ATTR = "deadlineDateMonth";
@@ -85,8 +82,8 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   private AuthenticatedUserAccount user;
   private Person person;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
 
     person = PersonTestUtil.createPersonFrom(new PersonId(1));
@@ -120,7 +117,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void renderChangeDeadline_appStatusSmokeTest() {
+  void renderChangeDeadline_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
@@ -130,7 +127,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void renderChangeDeadline_processingPermissionSmokeTest() {
+  void renderChangeDeadline_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -142,7 +139,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
 
 
   @Test
-  public void approveOptions_appStatusSmokeTest() {
+  void approveOptions_appStatusSmokeTest() {
     mockValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -153,7 +150,7 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void approveOptions_processingPermissionSmokeTest() {
+  void approveOptions_processingPermissionSmokeTest() {
     mockValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -165,33 +162,33 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void approveOptions_whenTaskNotAccessible() throws Exception {
+  void approveOptions_whenTaskNotAccessible() throws Exception {
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderChangeDeadline_whenTaskNotAccessible() throws Exception {
+  void renderChangeDeadline_whenTaskNotAccessible() throws Exception {
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .renderChangeDeadline(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void approveOptions_whenTaskAccessible_andfailsValidation() throws Exception {
+  void approveOptions_whenTaskAccessible_andfailsValidation() throws Exception {
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(true);
     mockValidationFail();
 
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .with(csrf())
     )
@@ -201,13 +198,13 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void approveOptions_whenTaskAccessible_andPassesValidation() throws Exception {
+  void approveOptions_whenTaskAccessible_andPassesValidation() throws Exception {
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(true);
 
     var note = "some note";
     mockMvc.perform(post(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .changeOptionsApprovalDeadline(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .param(DEADLINE_MONTH_ATTR, "12")
         .param(DEADLINE_YEAR_ATTR, "2020")
@@ -226,12 +223,12 @@ public class ChangeOptionsApprovalDeadlineControllerTest extends PwaAppProcessin
   }
 
   @Test
-  public void renderChangeDeadline_whenTaskAccessible_mapsCurrentDeadlineDateToForm() throws Exception {
+  void renderChangeDeadline_whenTaskAccessible_mapsCurrentDeadlineDateToForm() throws Exception {
     when(changeOptionsApprovalDeadlineTaskService.taskAccessible(any())).thenReturn(true);
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(ChangeOptionsApprovalDeadlineController.class)
         .renderChangeDeadline(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView();

@@ -5,11 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
@@ -17,8 +17,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemica
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FluidCompositionValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class FluidCompositionValidatorTest {
 
   @Mock
   FluidCompositionFormValidator formValidator;
@@ -29,14 +29,14 @@ public class FluidCompositionValidatorTest {
 
   Errors errors;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     dataValidator = new FluidCompositionDataValidator(new DecimalInputValidator());
     validator = new FluidCompositionValidator(dataValidator, formValidator);
   }
 
   @Test
-  public void validate_dataValidationError_FormValidationSkipped() {
+  void validate_dataValidationError_FormValidationSkipped() {
     var form = new FluidCompositionForm();
     var dataForm = new FluidCompositionDataForm();
     dataForm.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);

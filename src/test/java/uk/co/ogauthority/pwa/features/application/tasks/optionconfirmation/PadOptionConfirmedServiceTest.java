@@ -9,18 +9,18 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadOptionConfirmedServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadOptionConfirmedServiceTest {
 
   @Mock
   private PadConfirmationOfOptionRepository padConfirmationOfOptionRepository;
@@ -29,15 +29,15 @@ public class PadOptionConfirmedServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     padOptionConfirmedService = new PadOptionConfirmedService(padConfirmationOfOptionRepository);
   }
 
   @Test
-  public void approvedOptionComplete_whenNotOptionsVariation() {
+  void approvedOptionComplete_whenNotOptionsVariation() {
     var notOptions = EnumSet.allOf(PwaApplicationType.class);
     notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -51,7 +51,7 @@ public class PadOptionConfirmedServiceTest {
   }
 
   @Test
-  public void approvedOptionComplete_whenOptionsVariation_notCompletedApprovedOption() {
+  void approvedOptionComplete_whenOptionsVariation_notCompletedApprovedOption() {
 
     assertThat(padOptionConfirmedService.approvedOptionConfirmed(pwaApplicationDetail)).isFalse();
 
@@ -61,7 +61,7 @@ public class PadOptionConfirmedServiceTest {
   }
 
   @Test
-  public void approvedOptionComplete_whenOptionsVariation_CompletedApprovedOption() {
+  void approvedOptionComplete_whenOptionsVariation_CompletedApprovedOption() {
 
     when(padConfirmationOfOptionRepository.existsByPwaApplicationDetailAndConfirmedOptionType(any(), any()))
         .thenReturn(true);

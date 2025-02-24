@@ -14,19 +14,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlTemplate;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.teams.PortalTeamManagementController;
@@ -40,20 +38,19 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(PortalTeamManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class PortalTeamManagementControllerTest extends AbstractControllerTest {
+class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
   private static final int UNKNOWN_PERSON_ID = 123456789;
   private static final int UNKNOWN_RES_ID = 99999;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @MockBean
   protected AddUserToTeamFormValidator addUserToTeamFormValidator;
@@ -71,8 +68,8 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   private TeamMemberView regTeamAdminTeamUserView;
 
 
-  @Before
-  public void teamManagementTestSetup() {
+  @BeforeEach
+  void teamManagementTestSetup() {
 
     regulatorTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
     organisationTeamAdmin = new AuthenticatedUserAccount(new WebUserAccount(2), List.of(PwaUserPrivilege.PWA_ORG_ADMIN));
@@ -108,72 +105,72 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderManageableTeams_whenMultipleTeamsCanBeManaged() throws Exception {
+  void renderManageableTeams_whenMultipleTeamsCanBeManaged() throws Exception {
     when(teamManagementService.getAllPwaTeamsUserCanManage(regulatorTeamAdmin))
         .thenReturn(List.of(regulatorTeam, organisationTeam));
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void renderManageableTeams_whenSingleTeamCanBeManaged() throws Exception {
+  void renderManageableTeams_whenSingleTeamCanBeManaged() throws Exception {
     when(teamManagementService.getAllPwaTeamsUserCanManage(regulatorTeamAdmin))
         .thenReturn(List.of(regulatorTeam));
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().is3xxRedirection());
   }
 
   @Test
-  public void renderManageableTeams_whenZeroTeamsCanBeManaged() throws Exception {
+  void renderManageableTeams_whenZeroTeamsCanBeManaged() throws Exception {
     when(teamManagementService.getAllPwaTeamsUserCanManage(regulatorTeamAdmin))
         .thenReturn(List.of());
 
     mockMvc.perform(get("/portal-team-management")
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderTeamMembers_whenTeamFound_andUserCanManageTeam() throws Exception {
+  void renderTeamMembers_whenTeamFound_andUserCanManageTeam() throws Exception {
     when(teamManagementService.getTeamMemberViewsForTeam(regulatorTeam))
         .thenReturn(List.of(regTeamAdminTeamUserView));
 
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/teamMembers"));
+        .andExpect(view().name("teamManagementOld/teamMembers"));
   }
 
   @Test
-  public void renderTeamMembers_whenTeamFound_andUserCannotManageTeam() throws Exception {
+  void renderTeamMembers_whenTeamFound_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(organisationTeamAdmin)))
+        .with(user(organisationTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderTeamMembers_whenTeamNotFound() throws Exception {
+  void renderTeamMembers_whenTeamNotFound() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member", UNKNOWN_RES_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andDo(print())
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void renderMemberRoles_whenTeamFound_andUserCanManage_andFormNotFilled() throws Exception {
+  void renderMemberRoles_whenTeamFound_andUserCanManage_andFormNotFilled() throws Exception {
     mockMvc.perform(
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
             .requestAttr("form", new UserRolesForm())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
     verify(teamManagementService, times(1)).populateExistingRoles(
         eq(regulatorTeamAdminPerson),
@@ -183,15 +180,15 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderMemberRoles_whenTeamFound_andUserCanManage_andFormFilledWithRoles() throws Exception {
+  void renderMemberRoles_whenTeamFound_andUserCanManage_andFormFilledWithRoles() throws Exception {
     mockMvc.perform(
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
         .param("userRoles", teamAdminRole.getRoleName())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
     verify(teamManagementService, times(0)).populateExistingRoles(
         eq(regulatorTeamAdminPerson),
@@ -201,32 +198,32 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderMemberRoles_whenPersonNotFoundTest() throws Exception {
+  void renderMemberRoles_whenPersonNotFoundTest() throws Exception {
     mockMvc.perform(
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             regulatorTeam.getId(),
             UNKNOWN_PERSON_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void renderMemberRoles_whenTeamNotFoundTest() throws Exception {
+  void renderMemberRoles_whenTeamNotFoundTest() throws Exception {
     mockMvc.perform(
         get("/portal-team-management/teams/{resId}/member/{personId}/roles",
             UNKNOWN_RES_ID,
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void handleMemberRolesUpdate_whenUserCanManageTeam_andNoBindingErrors_andNewMemberAddedToTeam() throws Exception {
+  void handleMemberRolesUpdate_whenUserCanManageTeam_andNoBindingErrors_andNewMemberAddedToTeam() throws Exception {
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .param("userRoles", teamAdminRole.getRoleName())
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
@@ -241,7 +238,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleMemberRolesUpdate_whenUserCanManageTeam_andNoBindingErrors_andRemovingLastTeamAdmin() throws Exception {
+  void handleMemberRolesUpdate_whenUserCanManageTeam_andNoBindingErrors_andRemovingLastTeamAdmin() throws Exception {
     doThrow(new LastAdministratorException(""))
       .when(teamManagementService).updateUserRoles(
         eq(regulatorTeamAdminPerson),
@@ -254,7 +251,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userRoles", teamAdminRole.getRoleName()))
         .andExpect(status().isOk())
@@ -269,12 +266,12 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleMemberRolesUpdate_whenUserCanManageTeam_andFromValidationProducesErrors() throws Exception {
+  void handleMemberRolesUpdate_whenUserCanManageTeam_andFromValidationProducesErrors() throws Exception {
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userRoles", ""))
         .andExpect(status().isOk())
@@ -285,12 +282,12 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleMemberRolesUpdate_whenUserCannotManageTeam() throws Exception {
+  void handleMemberRolesUpdate_whenUserCannotManageTeam() throws Exception {
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/{personId}/roles"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(organisationTeamAdmin))
+        .with(user(organisationTeamAdmin))
         .with(csrf())
         .param("userRoles", ""))
         .andExpect(status().isForbidden());
@@ -301,7 +298,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void renderRemoveTeamMember_whenNotATeamMember() throws Exception {
+  void renderRemoveTeamMember_whenNotATeamMember() throws Exception {
     when(teamManagementService.getTeamMemberViewForTeamAndPerson(regulatorTeam, regulatorTeamAdminPerson))
         .thenReturn(Optional.empty());
 
@@ -309,28 +306,28 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         get("/portal-team-management/teams/{resId}/member/{personId}/remove",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void renderRemoveTeamMember_whenATeamMember() throws Exception {
+  void renderRemoveTeamMember_whenATeamMember() throws Exception {
     mockMvc.perform(
         get("/portal-team-management/teams/{resId}/member/{personId}/remove",
             regulatorTeam.getId(),
             regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void handleRemoveTeamMemberSubmit_userCanManageTeam() throws Exception {
+  void handleRemoveTeamMemberSubmit_userCanManageTeam() throws Exception {
 
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession((regulatorTeamAdmin)))
+        .with(user((regulatorTeamAdmin)))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrlTemplate("/portal-team-management/teams/{resId}/member", regulatorTeam.getId()));
@@ -340,13 +337,13 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleRemoveTeamMemberSubmit_userCannotManageTeam() throws Exception {
+  void handleRemoveTeamMemberSubmit_userCannotManageTeam() throws Exception {
 
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession(organisationTeamAdmin))
+        .with(user(organisationTeamAdmin))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
@@ -354,7 +351,7 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleRemoveTeamMemberSubmit_userCanManageTeam_andPersonIsLastAdministratorInTeam() throws Exception {
+  void handleRemoveTeamMemberSubmit_userCanManageTeam_andPersonIsLastAdministratorInTeam() throws Exception {
 
     doThrow(new LastAdministratorException(""))
         .when(teamManagementService).removeTeamMember(
@@ -367,46 +364,46 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
         post("/portal-team-management/teams/{resId}/member/{personId}/remove"
             , regulatorTeam.getId()
             , regulatorTeamAdminPerson.getId().asInt())
-        .with(authenticatedUserAndSession((regulatorTeamAdmin)))
+        .with(user((regulatorTeamAdmin)))
         .with(csrf()))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void renderAddUserToTeam() throws Exception {
+  void renderAddUserToTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void renderAddUserToTeam_whenTeamDoesNotExist() throws Exception {
+  void renderAddUserToTeam_whenTeamDoesNotExist() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", UNKNOWN_RES_ID)
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void renderAddUserToTeam_whenTeamExists_andUserCannotManageTeam() throws Exception {
+  void renderAddUserToTeam_whenTeamExists_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(organisationTeamAdmin)))
+        .with(user(organisationTeamAdmin)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderAddUserToTeam_whenTeamExists_andUserCanManageTeam() throws Exception {
+  void renderAddUserToTeam_whenTeamExists_andUserCanManageTeam() throws Exception {
     mockMvc.perform(get("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin)))
+        .with(user(regulatorTeamAdmin)))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsValid() throws Exception {
+  void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsValid() throws Exception {
     when(teamManagementService.getPersonByEmailAddressOrLoginId(organisationTeamAdminPerson.getEmailAddress()))
         .thenReturn(Optional.of(organisationTeamAdminPerson));
 
     mockMvc.perform(post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userIdentifier", organisationTeamAdminPerson.getEmailAddress()))
         .andExpect(status().is3xxRedirection())
@@ -416,22 +413,22 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsValid_andFormEmailNotKnown() throws Exception {
+  void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsValid_andFormEmailNotKnown() throws Exception {
     mockMvc.perform(post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-        .with(authenticatedUserAndSession(regulatorTeamAdmin))
+        .with(user(regulatorTeamAdmin))
         .with(csrf())
         .param("userIdentifier", "Some.Unknown@email.com"))
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsInvalid() throws Exception {
+  void handleAddUserToTeamSubmit_whenTeamExists_andUserCanManageTeam_andFormIsInvalid() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(addUserToTeamFormValidator, List.of("userIdentifier"));
 
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-            .with(authenticatedUserAndSession(regulatorTeamAdmin))
+            .with(user(regulatorTeamAdmin))
             .with(csrf())
             .param("userIdentifier", ""))
         .andExpect(status().isOk())
@@ -439,10 +436,10 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void handleAddUserToTeamSubmit_whenTeamExists_andUserCannotManageTeam() throws Exception {
+  void handleAddUserToTeamSubmit_whenTeamExists_andUserCannotManageTeam() throws Exception {
     mockMvc.perform(
         post("/portal-team-management/teams/{resId}/member/new", regulatorTeam.getId())
-            .with(authenticatedUserAndSession(organisationTeamAdmin))
+            .with(user(organisationTeamAdmin))
             .with(csrf())
             .param("newUser", ""))
         .andExpect(status().isForbidden());

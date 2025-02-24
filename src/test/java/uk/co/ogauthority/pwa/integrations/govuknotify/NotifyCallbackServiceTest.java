@@ -9,17 +9,17 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.service.notify.Notification;
 import uk.gov.service.notify.NotificationClientApi;
 
-@RunWith(MockitoJUnitRunner.class)
-public class NotifyCallbackServiceTest {
+@ExtendWith(MockitoExtension.class)
+class NotifyCallbackServiceTest {
 
   private static final String CALLBACK_TOKEN = "ec83c275-e593";
   private static final String BOUNCE_BACK_EMAIL_BOX = "bounceback@pwa.co.uk";
@@ -34,8 +34,8 @@ public class NotifyCallbackServiceTest {
   private NotifyCallback notifyCallback;
   private NotifyCallbackService notifyCallbackService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     notifyCallbackService = new NotifyCallbackService(notifyServiceMock, notificationClientMock, BOUNCE_BACK_EMAIL_BOX, CALLBACK_TOKEN);
 
@@ -74,13 +74,13 @@ public class NotifyCallbackServiceTest {
   }
 
   @Test
-  public void handleCallback_emailDelivered() throws Exception {
+  void handleCallback_emailDelivered() throws Exception {
     notifyCallbackService.handleCallback(notifyCallback);
     verifyNoInteractions(notifyServiceMock);
   }
 
   @Test
-  public void handleCallback_failedToDeliverEmailToBounceBackBox() throws Exception {
+  void handleCallback_failedToDeliverEmailToBounceBackBox() throws Exception {
     notifyCallback.setStatus(NotifyCallback.NotifyCallbackStatus.PERMANENT_FAILURE);
     notifyCallback.setTo(BOUNCE_BACK_EMAIL_BOX);
 
@@ -89,7 +89,7 @@ public class NotifyCallbackServiceTest {
   }
 
   @Test
-  public void handleCallback_failedToDeliverEmailToWrongAddress() throws Exception {
+  void handleCallback_failedToDeliverEmailToWrongAddress() throws Exception {
 
     notifyCallback.setStatus(NotifyCallback.NotifyCallbackStatus.PERMANENT_FAILURE);
     when(notificationClientMock.getNotificationById(anyString())).thenReturn(notification);
@@ -108,7 +108,7 @@ public class NotifyCallbackServiceTest {
   }
 
   @Test
-  public void isCallbackTokenMatching_unmatchingToken() {
+  void isCallbackTokenMatching_unmatchingToken() {
 
     String bearerToken = constructBearerToken("invalid-token");
 
@@ -121,7 +121,7 @@ public class NotifyCallbackServiceTest {
   }
 
   @Test
-  public void isCallbackTokenMatching_matchingToken() {
+  void isCallbackTokenMatching_matchingToken() {
 
     String bearerToken = constructBearerToken(CALLBACK_TOKEN);
 

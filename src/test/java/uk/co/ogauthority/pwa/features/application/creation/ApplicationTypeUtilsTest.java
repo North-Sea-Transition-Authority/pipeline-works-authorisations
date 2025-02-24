@@ -1,16 +1,17 @@
 package uk.co.ogauthority.pwa.features.application.creation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.EnumSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 
-public class ApplicationTypeUtilsTest {
+class ApplicationTypeUtilsTest {
 
   @Test
-  public void getFormattedDuration() {
+  void getFormattedDuration() {
     EnumSet.allOf(PwaApplicationType.class).forEach(type -> {
       switch (type) {
         case INITIAL:
@@ -30,16 +31,17 @@ public class ApplicationTypeUtilsTest {
     });
   }
 
-  @Test(expected = ActionNotAllowedException.class)
-  public void getFormattedMedianLineDuration_NotAllowed() {
-    EnumSet.allOf(PwaApplicationType.class)
-        .stream()
-        .filter(type -> type.getMedianLineImplication().equals(MedianLineImplication.FALSE))
-        .forEach(ApplicationTypeUtils::getFormattedMedianLineDuration);
+  @Test
+  void getFormattedMedianLineDuration_NotAllowed() {
+    assertThrows(ActionNotAllowedException.class, () ->
+      EnumSet.allOf(PwaApplicationType.class)
+          .stream()
+          .filter(type -> type.getMedianLineImplication().equals(MedianLineImplication.FALSE))
+          .forEach(ApplicationTypeUtils::getFormattedMedianLineDuration));
   }
 
   @Test
-  public void getFormattedMedianLineDuration_Allowed() {
+  void getFormattedMedianLineDuration_Allowed() {
     EnumSet.allOf(PwaApplicationType.class)
         .stream()
         .filter(type -> type.getMedianLineImplication().equals(MedianLineImplication.TRUE))

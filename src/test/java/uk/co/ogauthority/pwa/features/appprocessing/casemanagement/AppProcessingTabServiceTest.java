@@ -7,18 +7,18 @@ import static org.mockito.Mockito.verify;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AppProcessingTabServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AppProcessingTabServiceTest {
 
   @Mock
   private TasksTabContentService tasksTabContentService;
@@ -31,8 +31,8 @@ public class AppProcessingTabServiceTest {
   private WebUserAccount wua;
   private AuthenticatedUserAccount authenticatedUserAccount;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     tabService = new AppProcessingTabService(List.of(tasksTabContentService, caseHistoryTabContentService));
 
@@ -42,7 +42,7 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_all() {
+  void getTabsAvailableToUser_all() {
 
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
@@ -54,7 +54,7 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_industryOnly() {
+  void getTabsAvailableToUser_industryOnly() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_INDUSTRY));
 
@@ -67,7 +67,7 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_regulatorOnly() {
+  void getTabsAvailableToUser_regulatorOnly() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_REGULATOR));
 
@@ -81,7 +81,7 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabsAvailableToUser_consulteeOnly() {
+  void getTabsAvailableToUser_consulteeOnly() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_CONSULTEE));
 
@@ -92,7 +92,7 @@ public class AppProcessingTabServiceTest {
   }
 
   @Test
-  public void getTabContentModelMap_allTabContentRetrieved() {
+  void getTabContentModelMap_allTabContentRetrieved() {
 
     var context = new PwaAppProcessingContext(null, null, null, null, null, Set.of());
 

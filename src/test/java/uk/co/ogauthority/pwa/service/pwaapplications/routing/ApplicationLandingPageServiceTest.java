@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.pwaapplications.routing;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.times;
@@ -10,11 +11,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -31,8 +34,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationLandingPageServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationLandingPageServiceTest {
 
   private static final int APP_ID = 10;
   private static final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
@@ -55,8 +59,8 @@ public class ApplicationLandingPageServiceTest {
   private AuthenticatedUserAccount authenticatedUserAccount;
   private ApplicationInvolvementDto applicationInvolvementDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     applicationLandingPageService = new ApplicationLandingPageService(
         applicationInvolvementService, applicationRedirectService, pwaApplicationDetailService,
         URL_BASE,
@@ -72,16 +76,17 @@ public class ApplicationLandingPageServiceTest {
 
   }
 
-  @Test(expected = ApplicationLandingPageException.class)
-  public void getApplicationLandingPage_cannotLocateDetailForUser() {
+  @Test
+  void getApplicationLandingPage_cannotLocateDetailForUser() {
     when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, authenticatedUserAccount))
-        .thenReturn(Optional.empty());
+          .thenReturn(Optional.empty());
+    assertThrows(ApplicationLandingPageException.class, () ->
 
-    applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
+      applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID));
   }
 
   @Test
-  public void getApplicationLandingPage_whenApplicationContact_nonPreparer_firstVersion_andDraft() {
+  void getApplicationLandingPage_whenApplicationContact_nonPreparer_firstVersion_andDraft() {
     detail.setStatus(PwaApplicationStatus.DRAFT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
         detail.getPwaApplication(), EnumSet.of(PwaContactRole.VIEWER));
@@ -94,7 +99,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenApplicationContact_preparer_firstVersion_andDraft() {
+  void getApplicationLandingPage_whenApplicationContact_preparer_firstVersion_andDraft() {
     detail.setStatus(PwaApplicationStatus.DRAFT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
         detail.getPwaApplication(), EnumSet.of(PwaContactRole.PREPARER));
@@ -110,7 +115,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenApplicationContact_firstVersion_andNotDraft() {
+  void getApplicationLandingPage_whenApplicationContact_firstVersion_andNotDraft() {
 
     detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
@@ -124,7 +129,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenApplicationContact_notFirstVersion() {
+  void getApplicationLandingPage_whenApplicationContact_notFirstVersion() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID ,20, 2);
     when(pwaApplicationDetailService.getLatestDetailForUser(APP_ID, authenticatedUserAccount))
@@ -142,7 +147,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenConsultationUser() {
+  void getApplicationLandingPage_whenConsultationUser() {
 
 
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
@@ -158,7 +163,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenUserWithNoDirectInvolvement() {
+  void getApplicationLandingPage_whenUserWithNoDirectInvolvement() {
 
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(detail.getPwaApplication());
 
@@ -170,7 +175,7 @@ public class ApplicationLandingPageServiceTest {
   }
 
   @Test
-  public void getApplicationLandingPage_whenHolderTeamUser() {
+  void getApplicationLandingPage_whenHolderTeamUser() {
 
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         detail.getPwaApplication(),

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.feedback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,9 +12,9 @@ import java.time.temporal.ChronoUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.apache.http.HttpHeaders;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import uk.co.fivium.feedbackmanagementservice.client.CannotSendFeedbackException;
@@ -21,7 +22,7 @@ import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackResultStatus;
 import uk.co.ogauthority.pwa.model.enums.feedback.ServiceFeedbackRating;
 
-public class FeedbackClientServiceTest {
+class FeedbackClientServiceTest {
 
   private static MockWebServer mockWebServer;
 
@@ -38,8 +39,8 @@ public class FeedbackClientServiceTest {
   private TestFeedback feedback;
   private FeedbackClientService feedbackClientService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     mockWebServer = new MockWebServer();
     mockWebServer.start();
 
@@ -50,13 +51,13 @@ public class FeedbackClientServiceTest {
         COMMENT, Instant.now(), APPLICATION_ID, CASE_REFERENCE, CASE_LINK);
   }
 
-  @After
-  public void tearDown() throws IOException {
+  @AfterEach
+  void tearDown() throws IOException {
     mockWebServer.shutdown();
   }
 
   @Test
-  public void saveFeedback_authorized() throws JsonProcessingException, CannotSendFeedbackException, InterruptedException {
+  void saveFeedback_authorized() throws JsonProcessingException, CannotSendFeedbackException, InterruptedException {
     mockWebServer.enqueue(new MockResponse()
         .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
         .setResponseCode(200)
@@ -83,26 +84,28 @@ public class FeedbackClientServiceTest {
     assertThat(postedJson.get("transactionLink").asText()).isEqualTo(feedback.getTransactionLink());
   }
 
-  @Test(expected = CannotSendFeedbackException.class)
-  public void saveFeedback_unauthorized() throws CannotSendFeedbackException{
+  @Test
+  void saveFeedback_unauthorized(){
     mockWebServer.enqueue(new MockResponse()
-        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-        .setResponseCode(403)
-        .setBody("{\"timestamp\":\"2021-11-04T17:55:25.329+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Access Denied\",\"path\":\"/fmslocal/api/v1/save-feedback\"}")
-    );
+          .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+          .setResponseCode(403)
+          .setBody("{\"timestamp\":\"2021-11-04T17:55:25.329+00:00\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Access Denied\",\"path\":\"/fmslocal/api/v1/save-feedback\"}")
+      );
+    assertThrows(CannotSendFeedbackException.class, () ->
 
-    feedbackClientService.saveFeedback(feedback);
+      feedbackClientService.saveFeedback(feedback));
   }
 
-  @Test(expected = CannotSendFeedbackException.class)
-  public void saveFeedback_responseBodyNotJSon() throws CannotSendFeedbackException {
+  @Test
+  void saveFeedback_responseBodyNotJSon() {
     mockWebServer.enqueue(new MockResponse()
-        .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-        .setResponseCode(500)
-        .setBody("unexpectedResponseBody")
-    );
+          .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+          .setResponseCode(500)
+          .setBody("unexpectedResponseBody")
+      );
+    assertThrows(CannotSendFeedbackException.class, () ->
 
-    feedbackClientService.saveFeedback(feedback);
+      feedbackClientService.saveFeedback(feedback));
   }
 
 }

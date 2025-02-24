@@ -5,28 +5,28 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaResourceTypeFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PwaResourceTypeFormValidatorTest {
 
   private final PwaResourceTypeFormValidator validator = new PwaResourceTypeFormValidator();
 
   @Test
-  public void testSupports() {
+  void supports() {
     assertTrue(validator.supports(PwaResourceTypeForm.class));
     assertFalse(validator.supports(PwaHolderForm.class));
   }
 
   @Test
-  public void validate_emptyInvalid() {
+  void validate_emptyInvalid() {
     var pwaResourceTypeForm = new PwaResourceTypeForm();
     var bindingResult = new BeanPropertyBindingResult(pwaResourceTypeForm, "pwaResourceTypeForm");
 
@@ -36,7 +36,7 @@ public class PwaResourceTypeFormValidatorTest {
   }
 
   @Test
-  public void validate_valid() {
+  void validate_valid() {
     var pwaResourceTypeForm = new PwaResourceTypeForm();
     var bindingResult = new BeanPropertyBindingResult(pwaResourceTypeForm, "pwaResourceTypeForm");
     pwaResourceTypeForm.setResourceType(PwaResourceType.HYDROGEN);

@@ -13,11 +13,11 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestService;
@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PaymentAttemptCleanupBeanTest {
+@ExtendWith(MockitoExtension.class)
+class PaymentAttemptCleanupBeanTest {
 
   @Mock
   private ApplicationChargeRequestService applicationChargeRequestService;
@@ -52,8 +52,8 @@ public class PaymentAttemptCleanupBeanTest {
   private PaymentAttemptCleanupBean paymentAttemptCleanupBean;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     person = PersonTestUtil.createDefaultPerson();
     sysWua = new WebUserAccount();
     paymentAttemptCleanupBean = new PaymentAttemptCleanupBean(
@@ -64,11 +64,10 @@ public class PaymentAttemptCleanupBeanTest {
         warningThreshold
     );
 
-    when(userAccountService.getSystemWebUserAccount()).thenReturn(sysWua);
   }
 
   @Test
-  public void executeInternal_whenNoPaymentAttemptsReturned() throws JobExecutionException {
+  void executeInternal_whenNoPaymentAttemptsReturned() throws JobExecutionException {
 
     paymentAttemptCleanupBean.executeInternal(jobExecutionContext);
 
@@ -83,8 +82,9 @@ public class PaymentAttemptCleanupBeanTest {
   }
 
   @Test
-  public void executeInternal_whenSinglePaymentAttemptReturned() throws JobExecutionException {
+  void executeInternal_whenSinglePaymentAttemptReturned() throws JobExecutionException {
 
+    when(userAccountService.getSystemWebUserAccount()).thenReturn(sysWua);
 
     var paymentAttempt = PwaAppChargePaymentAttemptTestUtil.createWithPaymentRequest(
         null, PaymentRequestStatus.IN_PROGRESS, person);

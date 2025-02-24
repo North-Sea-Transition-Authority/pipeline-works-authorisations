@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeeItem;
@@ -36,8 +36,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FeePeriodServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FeePeriodServiceTest {
 
   @Mock
   private FeePeriodRepository feePeriodRepository;
@@ -67,8 +67,8 @@ public class FeePeriodServiceTest {
   @Captor
   ArgumentCaptor<List<FeePeriodDetailFeeItem>> costMapCaptor;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     feePeriodService = new FeePeriodService(feePeriodRepository,
         feePeriodDetailRepository,
         feePeriodDetailItemRepository,
@@ -88,7 +88,7 @@ public class FeePeriodServiceTest {
   }
 
   @Test
-  public void testSaveFeePeriod_GetFeePeriodObjects() {
+  void saveFeePeriodGetFeePeriodObjects() {
     feePeriodService.saveFeePeriod(form, getTestPerson());
     verify(feePeriodDetailRepository).save(periodCaptor.capture());
 
@@ -102,7 +102,7 @@ public class FeePeriodServiceTest {
   }
 
   @Test
-  public void testSaveFeePeriod_GetFeePeriodDetailItems() {
+  void saveFeePeriodGetFeePeriodDetailItems() {
     feePeriodService.saveFeePeriod(form, getTestPerson());
     verify(feePeriodDetailItemRepository).saveAll(costMapCaptor.capture());
 
@@ -116,13 +116,13 @@ public class FeePeriodServiceTest {
   }
 
   @Test
-  public void testSaveFeePeriod_NewPeriodNoneExisting() {
+  void saveFeePeriodNewPeriodNoneExisting() {
     feePeriodService.saveFeePeriod(form, getTestPerson());
     verify(feePeriodDetailRepository).save(any());
   }
 
   @Test
-  public void testSaveFeePeriod_NewPendingActiveExisting() {
+  void saveFeePeriodNewPendingActiveExisting() {
     when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
         currentInstant))
         .thenReturn(Optional.of(getActiveFeePeriodDetail()));
@@ -142,7 +142,7 @@ public class FeePeriodServiceTest {
   }
 
   @Test
-  public void testSaveFeePeriod_EditPendingNoActive() {
+  void saveFeePeriodEditPendingNoActive() {
     when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
         currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));
@@ -166,7 +166,7 @@ public class FeePeriodServiceTest {
   }
 
   @Test
-  public void testSaveFeePeriod_EditPendingActiveExisting() {
+  void saveFeePeriodEditPendingActiveExisting() {
     when(feePeriodDetailRepository.findFirstByTipFlagIsTrueAndPeriodStartTimestampLessThanEqualOrderByPeriodStartTimestampDesc(
         currentInstant))
         .thenReturn(Optional.of(getSavedFeePeriodDetail()));

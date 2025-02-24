@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -19,8 +19,8 @@ import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestReposit
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationsStatusViewFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationsStatusViewFactoryTest {
 
   @Mock
   private ConsultationRequestRepository consultationRequestRepository;
@@ -29,8 +29,8 @@ public class ConsultationsStatusViewFactoryTest {
 
   private PwaApplication pwaApplication;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
 
@@ -40,7 +40,7 @@ public class ConsultationsStatusViewFactoryTest {
   }
 
   @Test
-  public void getApplicationStatusView_whenNoConsultations() {
+  void getApplicationStatusView_whenNoConsultations() {
 
     var applicationStatusView = consultationsStatusViewFactory.getApplicationStatusView(pwaApplication);
 
@@ -54,7 +54,7 @@ public class ConsultationsStatusViewFactoryTest {
   }
 
   @Test
-  public void getApplicationStatusView_whenConsultationsFoundForEveryPossibleStatus() {
+  void getApplicationStatusView_whenConsultationsFoundForEveryPossibleStatus() {
 
     var consultationList = new ArrayList<ConsultationRequest>();
 

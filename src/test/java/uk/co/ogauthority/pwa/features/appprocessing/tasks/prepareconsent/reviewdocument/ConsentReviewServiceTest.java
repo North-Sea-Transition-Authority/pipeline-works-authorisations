@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,13 +14,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -43,8 +46,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventS
 import uk.co.ogauthority.pwa.service.pwaapplications.events.PwaApplicationEventType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentReviewServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ConsentReviewServiceTest {
 
   @Mock
   private ConsentReviewRepository consentReviewRepository;
@@ -84,8 +88,8 @@ public class ConsentReviewServiceTest {
 
   private final Instant fixedInstant = Instant.now();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     when(clock.instant()).thenReturn(fixedInstant);
 
@@ -102,7 +106,7 @@ public class ConsentReviewServiceTest {
   }
 
   @Test
-  public void startConsentReview_noOpenReviewExists() {
+  void startConsentReview_noOpenReviewExists() {
 
     consentReviewService.startConsentReview(detail, "my cover letter text", caseOfficerPerson);
 
@@ -122,17 +126,19 @@ public class ConsentReviewServiceTest {
   }
 
 
-  @Test(expected = RuntimeException.class)
-  public void startConsentReview_openReviewExists() {
+  @Test
+  void startConsentReview_openReviewExists() {
+    var openReview = new ConsentReview();
+    openReview.setStatus(ConsentReviewStatus.OPEN);
+    when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));
 
-    when(consentReviewService.areThereAnyOpenReviews(detail)).thenReturn(true);
-
-    consentReviewService.startConsentReview(detail, "error going to happen", caseOfficerPerson);
+    assertThrows(RuntimeException.class, () ->
+      consentReviewService.startConsentReview(detail, "error going to happen", caseOfficerPerson));
 
   }
 
   @Test
-  public void getOpenConsentReview_openReview() {
+  void getOpenConsentReview_openReview() {
 
     var openReview = new ConsentReview();
     openReview.setStatus(ConsentReviewStatus.OPEN);
@@ -145,7 +151,7 @@ public class ConsentReviewServiceTest {
   }
 
   @Test
-  public void getOpenConsentReview_noOpenReview() {
+  void getOpenConsentReview_noOpenReview() {
 
     var openReview = new ConsentReview();
     openReview.setStatus(ConsentReviewStatus.APPROVED);
@@ -158,7 +164,7 @@ public class ConsentReviewServiceTest {
   }
 
   @Test
-  public void returnToCaseOfficer_openReview() {
+  void returnToCaseOfficer_openReview() {
 
     var openReview = new ConsentReview();
     openReview.setStatus(ConsentReviewStatus.OPEN);
@@ -192,17 +198,17 @@ public class ConsentReviewServiceTest {
 
   }
 
-  @Test(expected = ConsentReviewException.class)
-  public void returnToCaseOfficer_noOpenReview() {
-
+  @Test
+  void returnToCaseOfficer_noOpenReview() {
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of());
+    assertThrows(ConsentReviewException.class, () ->
 
-    consentReviewService.returnToCaseOfficer(detail, "return reason", caseOfficerPerson, user);
+      consentReviewService.returnToCaseOfficer(detail, "return reason", caseOfficerPerson, user));
 
   }
 
   @Test
-  public void findByPwaApplicationDetails() {
+  void findByPwaApplicationDetails() {
 
     var detailList = List.of(PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL), new PwaApplicationDetail());
 
@@ -213,7 +219,7 @@ public class ConsentReviewServiceTest {
   }
 
   @Test
-  public void scheduleConsentIssue_openReview() throws SchedulerException {
+  void scheduleConsentIssue_openReview() throws SchedulerException {
 
     var review = new ConsentReview();
     review.setStatus(ConsentReviewStatus.OPEN);
@@ -247,17 +253,17 @@ public class ConsentReviewServiceTest {
 
   }
 
-  @Test(expected = ConsentReviewException.class)
-  public void scheduleConsentIssue_noOpenReview() {
-
+  @Test
+  void scheduleConsentIssue_noOpenReview() {
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of());
+    assertThrows(ConsentReviewException.class, () ->
 
-    consentReviewService.scheduleConsentIssue(detail, user);
+      consentReviewService.scheduleConsentIssue(detail, user));
 
   }
 
   @Test
-  public void approveConsentReview_openReview() {
+  void approveConsentReview_openReview() {
 
     var review = new ConsentReview();
     review.setStatus(ConsentReviewStatus.OPEN);
@@ -277,17 +283,17 @@ public class ConsentReviewServiceTest {
 
   }
 
-  @Test(expected = ConsentReviewException.class)
-  public void approveConsentReview_noOpenReview() {
-
+  @Test
+  void approveConsentReview_noOpenReview() {
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of());
+    assertThrows(ConsentReviewException.class, () ->
 
-    consentReviewService.approveConsentReview(detail, user, Instant.now());
+      consentReviewService.approveConsentReview(detail, user, Instant.now()));
 
   }
 
   @Test
-  public void canStartConsentReview_canStart() {
+  void canStartConsentReview_canStart() {
     var startedReview = new ConsentReview();
     startedReview.setStatus(ConsentReviewStatus.APPROVED);
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(startedReview));
@@ -295,7 +301,7 @@ public class ConsentReviewServiceTest {
   }
 
   @Test
-  public void canStartConsentReview_cannotStart() {
+  void canStartConsentReview_cannotStart() {
     var openReview = new ConsentReview();
     openReview.setStatus(ConsentReviewStatus.OPEN);
     when(consentReviewRepository.findAllByPwaApplicationDetail(detail)).thenReturn(List.of(openReview));

@@ -6,8 +6,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-public class PipelineHeaderFormValidatorTest {
+class PipelineHeaderFormValidatorTest {
 
   private PipelineHeaderFormValidator validator;
 
@@ -36,20 +36,20 @@ public class PipelineHeaderFormValidatorTest {
 
   private static final PipelineHeaderValidationHints NO_VALIDATE_CONDITIONAL_QUESTIONS = new PipelineHeaderValidationHints(Set.of());
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineHeaderFormValidator(new CoordinateFormValidator());
     validationHints = NO_VALIDATE_CONDITIONAL_QUESTIONS;
   }
 
   @Test
-  public void valid() {
+  void valid() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, buildForm(), validationHints);
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void failed_mandatory() {
+  void failed_mandatory() {
     var form = new PipelineHeaderForm();
     form.setFromCoordinateForm(new CoordinateForm());
     form.setToCoordinateForm(new CoordinateForm());
@@ -87,7 +87,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_tooLong() {
+  void fromLocation_tooLong() {
 
     var form = buildForm();
     form.setFromLocation(StringUtils.repeat("a", 201));
@@ -99,7 +99,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_charBoundary() {
+  void fromLocation_charBoundary() {
 
     var form = buildForm();
     form.setFromLocation(StringUtils.repeat("a", 200));
@@ -111,7 +111,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void fromLocation_unwantedChars() {
+  void fromLocation_unwantedChars() {
 
     var form = buildForm();
     form.setFromLocation("bad##");
@@ -123,7 +123,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void toLocation_tooLong() {
+  void toLocation_tooLong() {
 
     var form = buildForm();
     form.setToLocation(StringUtils.repeat("a", 201));
@@ -135,7 +135,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void toLocation_charBoundary() {
+  void toLocation_charBoundary() {
 
     var form = buildForm();
     form.setToLocation(StringUtils.repeat("a", 200));
@@ -147,7 +147,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void toLocation_unwantedChars() {
+  void toLocation_unwantedChars() {
 
     var form = buildForm();
     form.setToLocation("bad##");
@@ -159,7 +159,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void failed_length_notPositive() {
+  void failed_length_notPositive() {
 
     var form = buildForm();
 
@@ -172,7 +172,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void failed_length_over2Dp() {
+  void failed_length_over2Dp() {
 
     var form = buildForm();
 
@@ -185,7 +185,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_productsToBeConveyed_tooLong() {
+  void invalid_productsToBeConveyed_tooLong() {
     var form = buildForm();
     form.setProductsToBeConveyed(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -194,7 +194,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_componentPartsDescription_tooLong() {
+  void invalid_componentPartsDescription_tooLong() {
     var form = buildForm();
     form.setComponentPartsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -203,7 +203,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void failed_trenchingMethodsRequired() {
+  void failed_trenchingMethodsRequired() {
 
     var form = buildForm();
     form.setTrenchingMethods(null);
@@ -214,7 +214,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void valid_trenchingMethodsNotRequired() {
+  void valid_trenchingMethodsNotRequired() {
 
     var form = buildForm();
     form.setTrenchedBuriedBackfilled(false);
@@ -227,7 +227,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_trenchingMethods_tooLong() {
+  void invalid_trenchingMethods_tooLong() {
     var form = buildForm();
     form.setTrenchedBuriedBackfilled(true);
     form.setTrenchingMethods(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -237,7 +237,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void valid_otherMaterialUsed() {
+  void valid_otherMaterialUsed() {
     var form = buildForm();
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     form.setOtherPipelineMaterialUsed("other material");
@@ -246,7 +246,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_otherMaterialUsed() {
+  void invalid_otherMaterialUsed() {
     var form = buildForm();
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -254,7 +254,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_otherMaterialUsed_tooLong() {
+  void invalid_otherMaterialUsed_tooLong() {
     var form = buildForm();
     form.setPipelineMaterial(PipelineMaterial.OTHER);
     form.setOtherPipelineMaterialUsed(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -264,7 +264,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_designLife() {
+  void invalid_designLife() {
     var form = buildForm();
     form.setPipelineDesignLife(0);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -272,7 +272,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_bundleName_empty() {
+  void invalid_bundleName_empty() {
     var form = buildForm();
     form.setPipelineInBundle(true);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);
@@ -281,7 +281,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_bundleName_tooLong() {
+  void invalid_bundleName_tooLong() {
     var form = buildForm();
     form.setPipelineInBundle(true);
     form.setBundleName(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -291,7 +291,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void failed_whyNotReturnedToShoreRequired() {
+  void failed_whyNotReturnedToShoreRequired() {
     var form = buildForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_OUT_OF_USE_REASON);
     assertThat(result).contains(
@@ -299,7 +299,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void invalid_whyNotReturnedToShore_tooLong() {
+  void invalid_whyNotReturnedToShore_tooLong() {
     var form = buildForm();
     form.setWhyNotReturnedToShore(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_OUT_OF_USE_REASON);
@@ -308,7 +308,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void seabedQuestionRequired_null() {
+  void seabedQuestionRequired_null() {
     var form = buildForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_ALREADY_EXISTS);
     assertThat(result).contains(
@@ -316,7 +316,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void pipelineInUseQuestionRequired_null() {
+  void pipelineInUseQuestionRequired_null() {
     var form = buildForm();
     form.setAlreadyExistsOnSeabed(true);
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, VALIDATE_ALREADY_EXISTS);
@@ -325,7 +325,7 @@ public class PipelineHeaderFormValidatorTest {
   }
 
   @Test
-  public void validate_footnote_lengthExceeded() {
+  void validate_footnote_lengthExceeded() {
     var form = buildForm();
     form.setFootnote(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, validationHints);

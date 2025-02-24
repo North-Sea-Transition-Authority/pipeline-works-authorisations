@@ -16,13 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -53,8 +55,9 @@ import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResultTes
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineTaskListServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadPipelineTaskListServiceTest {
 
   private static final int PAD_PIPELINE_1_ID = 1;
 
@@ -94,8 +97,8 @@ public class PadPipelineTaskListServiceTest {
   private Pipeline pipe1;
   private PadPipelineIdent ident;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -142,7 +145,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void isComplete_whenValidatorCreatesNoErrors() {
+  void isComplete_whenValidatorCreatesNoErrors() {
 
     // Use mock ident validator instead of real one.
     padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
@@ -161,7 +164,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void canImportConsentedPipelines_applicationTypeSmokeTest() {
+  void canImportConsentedPipelines_applicationTypeSmokeTest() {
     PwaApplicationType.stream()
         .forEach(pwaApplicationType -> {
           var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(pwaApplicationType);
@@ -176,7 +179,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void cleanupData_hiddenData() {
+  void cleanupData_hiddenData() {
 
     var pipeline1 = new PadPipeline();
     pipeline1.setTrenchedBuriedBackfilled(false);
@@ -208,7 +211,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void cleanupData_noHiddenData() {
+  void cleanupData_noHiddenData() {
 
     var pipeline1 = new PadPipeline();
     pipeline1.setTrenchedBuriedBackfilled(true);
@@ -240,7 +243,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void cleanupData_dataNotRequired_notCleaned() {
+  void cleanupData_dataNotRequired_notCleaned() {
 
     var pipeline1 = new PadPipeline();
     pipeline1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -262,7 +265,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getValidationResult_noErrors() {
+  void getValidationResult_noErrors() {
 
     // Use mock ident validator instead of real one.
     padPipelineTaskListService = getTaskListServiceWithMockedIdentValidator();
@@ -285,7 +288,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getValidationResult_errors_noPipelines() {
+  void getValidationResult_errors_noPipelines() {
 
     var validationResult = padPipelineTaskListService.getValidationResult(detail);
 
@@ -299,7 +302,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getValidationResult_errors_pipelineTransferWithdrawn() {
+  void getValidationResult_errors_pipelineTransferWithdrawn() {
     mockPipeline();
 
     var claimedWithdrawnTransfer = new PadPipelineTransfer().setRecipientPipeline(pipe1);
@@ -330,7 +333,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getValidationResult_errors_pipelineExists_identSummaryIncomplete() {
+  void getValidationResult_errors_pipelineExists_identSummaryIncomplete() {
 
     mockPipeline();
     when(padPipelineIdentService.getSummaryScreenValidationResult(padPipe1))
@@ -353,7 +356,7 @@ public class PadPipelineTaskListServiceTest {
 
 
   @Test
-  public void copySectionInformation_serviceInteractions() {
+  void copySectionInformation_serviceInteractions() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100, 100);
     padPipelineTaskListService.copySectionInformation(detail, newDetail);
     verify(padPipelineDataCopierService, times(1))
@@ -361,7 +364,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notOptionsVariation() {
+  void canShowInTaskList_notOptionsVariation() {
     var notOptions = EnumSet.allOf(PwaApplicationType.class);
     notOptions.remove(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -373,7 +376,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsNotComplete() {
+  void canShowInTaskList_OptionsVariation_optionsNotComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(false);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -383,7 +386,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_OptionsVariation_optionsComplete() {
+  void canShowInTaskList_OptionsVariation_optionsComplete() {
     when(padOptionConfirmedService.approvedOptionConfirmed(detail)).thenReturn(true);
 
     detail.getPwaApplication().setApplicationType(PwaApplicationType.OPTIONS_VARIATION);
@@ -393,7 +396,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getSortedPipelineTaskListItems_whenNoPipelines() {
+  void getSortedPipelineTaskListItems_whenNoPipelines() {
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
 
     var taskListItems = padPipelineTaskListService.getSortedPipelineTaskListItems(context);
@@ -403,7 +406,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getSortedPipelineTaskListItems_whenPipelineIsNotRequiredToBeValidated() {
+  void getSortedPipelineTaskListItems_whenPipelineIsNotRequiredToBeValidated() {
 
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
     padPipe1.setPipelineStatus(PipelineStatus.RETURNED_TO_SHORE);
@@ -422,7 +425,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceDoesNotProvideTask() {
+  void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceDoesNotProvideTask() {
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
 
     mockPipeline();
@@ -439,7 +442,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceProvidesTask() {
+  void getSortedPipelineTaskListItems_whenRegulatorPipelineServiceProvidesTask() {
     var context = new PwaApplicationContext(detail, null, Set.of(PwaApplicationPermission.EDIT));
 
     mockPipeline();
@@ -458,7 +461,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void getAvailableMailMergeFields() {
+  void getAvailableMailMergeFields() {
 
     PwaApplicationType.stream().forEach(appType -> {
 
@@ -479,7 +482,7 @@ public class PadPipelineTaskListServiceTest {
   }
 
   @Test
-  public void resolveMailMergeFields() {
+  void resolveMailMergeFields() {
 
     var pipe1 = new PadPipeline();
     pipe1.setPipelineNumber("PL889");

@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationResponseValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationResponseValidatorTest {
 
   private ConsultationResponseValidator validator;
 
@@ -35,8 +35,8 @@ public class ConsultationResponseValidatorTest {
   private final ConsultationResponseDataForm dataForm2 = new ConsultationResponseDataForm();
   private final UploadFileWithDescriptionForm uploadedFileForm = new UploadFileWithDescriptionForm();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new ConsultationResponseValidator(consultationResponseDataValidator);
 
     uploadedFileForm.setUploadedFileId("file id 1");
@@ -45,7 +45,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eia_agree_noDocumentsUploaded_fail() {
+  void validate_validateFileUploads_eia_agree_noDocumentsUploaded_fail() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.EIA_REGS, dataForm1));
@@ -61,7 +61,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eia_agree_documentUploaded_pass() {
+  void validate_validateFileUploads_eia_agree_documentUploaded_pass() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.EIA_REGS, dataForm1));
@@ -72,7 +72,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eiaAndHabitats_agree_DocumentUploaded_pass() {
+  void validate_validateFileUploads_eiaAndHabitats_agree_DocumentUploaded_pass() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
@@ -86,7 +86,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eiaAndHabitats_agree_noDocumentsUploaded_fail() {
+  void validate_validateFileUploads_eiaAndHabitats_agree_noDocumentsUploaded_fail() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
@@ -105,7 +105,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_eia_disagree_documentNotUploaded_pass() {
+  void validate_validateFileUploads_eia_disagree_documentNotUploaded_pass() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_DISAGREE);
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.EIA_REGS, dataForm1));
@@ -116,7 +116,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_validateFileUploads_habitats_disagree_documentNotUploaded_pass() {
+  void validate_validateFileUploads_habitats_disagree_documentNotUploaded_pass() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.HABITATS_DISAGREE);
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.HABITATS_REGS, dataForm1));
@@ -127,7 +127,7 @@ public class ConsultationResponseValidatorTest {
   }
 
   @Test
-  public void validate_fileDescriptionOverMaxCharLength_fail() {
+  void validate_fileDescriptionOverMaxCharLength_fail() {
 
     dataForm1.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
     dataForm2.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);

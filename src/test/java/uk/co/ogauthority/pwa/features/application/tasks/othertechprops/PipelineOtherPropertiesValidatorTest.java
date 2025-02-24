@@ -5,17 +5,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineOtherPropertiesValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineOtherPropertiesValidatorTest {
 
   private PipelineOtherPropertiesValidator validator;
   private OtherPropertiesFormBuilder formBuilder = new OtherPropertiesFormBuilder();
@@ -23,14 +23,14 @@ public class PipelineOtherPropertiesValidatorTest {
   @Mock
   private PipelineOtherPropertiesDataValidator pipelineOtherPropertiesDataValidator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineOtherPropertiesValidator(pipelineOtherPropertiesDataValidator);
   }
 
 
   @Test
-  public void validate_formPhases_empty() {
+  void validate_formPhases_empty() {
     var form = new PipelineOtherPropertiesForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
@@ -39,7 +39,7 @@ public class PipelineOtherPropertiesValidatorTest {
   }
 
   @Test
-  public void validate_formPhases_emptyCCUS() {
+  void validate_formPhases_emptyCCUS() {
     var form = new PipelineOtherPropertiesForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.CCUS);
     assertThat(errorsMap).contains(
@@ -48,7 +48,7 @@ public class PipelineOtherPropertiesValidatorTest {
   }
 
   @Test
-  public void validate_formPhases_valid() {
+  void validate_formPhases_valid() {
     var form = new PipelineOtherPropertiesForm();
     form.getPhasesSelection().put(PropertyPhase.OIL, "true");
 
@@ -57,7 +57,7 @@ public class PipelineOtherPropertiesValidatorTest {
   }
 
   @Test
-  public void validate_formPhases_validemptyCCUS() {
+  void validate_formPhases_validemptyCCUS() {
     var form = new PipelineOtherPropertiesForm();
     form.setOtherPhaseDescription("Plasma phase");
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL, PwaResourceType.CCUS);
@@ -65,7 +65,7 @@ public class PipelineOtherPropertiesValidatorTest {
   }
 
   @Test
-  public void validate_formPhases_valid_otherSelected() {
+  void validate_formPhases_valid_otherSelected() {
     var form = new PipelineOtherPropertiesForm();
     formBuilder.setPhasesFormData(form);
 
@@ -75,7 +75,7 @@ public class PipelineOtherPropertiesValidatorTest {
 
 
   @Test
-  public void validate_formPhases_invalid_otherSelected() {
+  void validate_formPhases_invalid_otherSelected() {
     var form = new PipelineOtherPropertiesForm();
     form.getPhasesSelection().put(PropertyPhase.OTHER, "true");
 

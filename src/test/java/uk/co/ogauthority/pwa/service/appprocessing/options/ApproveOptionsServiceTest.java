@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.options;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,13 +15,13 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -40,8 +41,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectServi
 import uk.co.ogauthority.pwa.service.pwaapplications.generic.PwaApplicationDetailVersioningService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApproveOptionsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApproveOptionsServiceTest {
 
   private static final String NOTE = "A Note";
 
@@ -79,8 +80,8 @@ public class ApproveOptionsServiceTest {
   private Person person;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -100,7 +101,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void approveOptions_serviceInteractions() {
+  void approveOptions_serviceInteractions() {
     var instant = Instant.MAX;
     var newHistory = new OptionsApprovalDeadlineHistory();
     newHistory.setDeadlineDate(instant);
@@ -135,7 +136,7 @@ public class ApproveOptionsServiceTest {
 
 
   @Test
-  public void changeOptionsApprovalDeadline_serviceInteractions(){
+  void changeOptionsApprovalDeadline_serviceInteractions(){
 
     var deadlineAsInstant = Instant.MAX;
 
@@ -168,7 +169,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void getOptionsApprovalDeadlineViewOrError_whenApproved_mapsData() {
+  void getOptionsApprovalDeadlineViewOrError_whenApproved_mapsData() {
     var approvedByPersonId = new PersonId(1);
     var updatedByPersonId = new PersonId(2);
     var approvedInstant = Instant.MIN;
@@ -198,19 +199,19 @@ public class ApproveOptionsServiceTest {
     assertThat(view.getUpdateNote()).isEqualTo(NOTE);
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getOptionsApprovalDeadlineViewOrError_whenNoOptionsApproval() {
-
+  @Test
+  void getOptionsApprovalDeadlineViewOrError_whenNoOptionsApproval() {
     when(optionsApprovalDeadlineHistoryRepository.findByOptionsApplicationApproval_PwaApplicationAndTipFlagIsTrue(
-        pwaApplicationDetail.getPwaApplication()))
-        .thenReturn(Optional.empty());
+          pwaApplicationDetail.getPwaApplication()))
+          .thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    approveOptionsService.getOptionsApprovalDeadlineViewOrError(pwaApplicationDetail.getPwaApplication());
+      approveOptionsService.getOptionsApprovalDeadlineViewOrError(pwaApplicationDetail.getPwaApplication()));
 
   }
 
   @Test
-  public void getOptionsApprovalStatus_whenNotOptions(){
+  void getOptionsApprovalStatus_whenNotOptions(){
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     assertThat(approveOptionsService.getOptionsApprovalStatus(detail)).isEqualTo(OptionsApprovalStatus.NOT_APPLICABLE);
@@ -220,7 +221,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void getOptionsApprovalStatus_whenOptions_notApproved(){
+  void getOptionsApprovalStatus_whenOptions_notApproved(){
 
     assertThat(approveOptionsService.getOptionsApprovalStatus(pwaApplicationDetail))
         .isEqualTo(OptionsApprovalStatus.NOT_APPROVED);
@@ -232,7 +233,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void getOptionsApprovalStatus_whenOptions_approved_notResponded(){
+  void getOptionsApprovalStatus_whenOptions_approved_notResponded(){
     var approval = new OptionsApplicationApproval();
 
     when(optionsApplicationApprovalRepository.findByPwaApplication(any())).thenReturn(
@@ -254,7 +255,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void getOptionsApprovalStatus_whenOptionsApproved_responded_andConsentedOptionConfirmed(){
+  void getOptionsApprovalStatus_whenOptionsApproved_responded_andConsentedOptionConfirmed(){
     var approval = new OptionsApplicationApproval();
 
     when(optionsApplicationApprovalRepository.findByPwaApplication(any())).thenReturn(
@@ -290,7 +291,7 @@ public class ApproveOptionsServiceTest {
   }
 
   @Test
-  public void closeOutOptions_serviceInteractions(){
+  void closeOutOptions_serviceInteractions(){
     approveOptionsService.closeOutOptions(pwaApplicationDetail, user);
 
     InOrder verifyOrder = Mockito.inOrder(getAllMockServices());

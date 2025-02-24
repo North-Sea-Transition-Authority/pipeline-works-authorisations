@@ -2,12 +2,13 @@ package uk.co.ogauthority.pwa.domain.pwa.huoo.aggregates;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationPipelineRoleInstanceDto;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.OrganisationRoleDtoTestUtil;
@@ -16,8 +17,8 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentPoint;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineSection;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
   private static final int OU_ID1 = 10;
   private static final int PIPELINE_ID1 = 100;
@@ -32,8 +33,8 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   private OrganisationPipelineRoleInstanceDto operatorOrg1Pipeline1Role;
   private OrganisationPipelineRoleInstanceDto ownerOrg1Pipeline1Role;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     holderOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     userOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.USER, OU_ID1, PIPELINE_ID1);
     operatorOrg1Pipeline1Role = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.OPERATOR, OU_ID1, PIPELINE_ID1);
@@ -41,7 +42,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getGroupsByType_smokeTestRoles_whenSingleGroup() {
+  void getGroupsByType_smokeTestRoles_whenSingleGroup() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -72,7 +73,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
 
 
   @Test
-  public void getGroupsByHuooRole_smokeTestRoles_cannotModifyPopulatedSet() {
+  void getGroupsByHuooRole_smokeTestRoles_cannotModifyPopulatedSet() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -94,7 +95,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getGroupsByHuooRole_smokeTestRoles_cannotModifyEmptySet() {
+  void getGroupsByHuooRole_smokeTestRoles_cannotModifyEmptySet() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -120,7 +121,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
    * THEN there is a single group with 1 pipeline and 1 org role
    */
   @Test
-  public void aggregateOrganisationPipelineRoleDtos_singleHolderAndPipelineGroup_withSingleOrgAndPipeline() {
+  void aggregateOrganisationPipelineRoleDtos_singleHolderAndPipelineGroup_withSingleOrgAndPipeline() {
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1Role));
@@ -139,7 +140,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
    * THEN there is 1 group with both pipelines and both organisation roles
    */
   @Test
-  public void aggregateOrganisationPipelineRoleDtos_singleHolderAndPipelineGroup_withMultipleOrgAndMultiplePipelines() {
+  void aggregateOrganisationPipelineRoleDtos_singleHolderAndPipelineGroup_withMultipleOrgAndMultiplePipelines() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -174,7 +175,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
    * THEN there a 3 groups, each with 1 pipeline, where the pipeline 2 group has both orgs
    */
   @Test
-  public void aggregateOrganisationPipelineRoleDtos_multipleHolderAndPipelineGroups_withSharedPipelineInGroup() {
+  void aggregateOrganisationPipelineRoleDtos_multipleHolderAndPipelineGroups_withSharedPipelineInGroup() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -223,7 +224,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllOrganisationRoleOwnersInSummary_whenSingleOrganisationHasMultipleRoles() {
+  void getAllOrganisationRoleOwnersInSummary_whenSingleOrganisationHasMultipleRoles() {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role)
     );
@@ -232,7 +233,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllOrganisationRoleOwnersInSummary_whenMultipleOrganisationHaveMultipleRoles() {
+  void getAllOrganisationRoleOwnersInSummary_whenMultipleOrganisationHaveMultipleRoles() {
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
 
@@ -249,7 +250,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllPipelineIdsInSummary_whenSinglePipelineHasMultipleRoles() {
+  void getAllPipelineIdsInSummary_whenSinglePipelineHasMultipleRoles() {
 
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
         Set.of(holderOrg1Pipeline1Role, userOrg1Pipeline1Role, operatorOrg1Pipeline1Role, ownerOrg1Pipeline1Role)
@@ -258,7 +259,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllPipelineIdsInSummary_whenMultiplePipelinesHaveMultipleRoles() {
+  void getAllPipelineIdsInSummary_whenMultiplePipelinesHaveMultipleRoles() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -278,7 +279,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getPipelineIdsWithAssignedRole_whenNoPipelinesForRole() {
+  void getPipelineIdsWithAssignedRole_whenNoPipelinesForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -291,7 +292,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getPipelineIdsWithAssignedRole_whenPipelinesForRole() {
+  void getPipelineIdsWithAssignedRole_whenPipelinesForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -306,18 +307,18 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     );
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getPipelineIdsWithAssignedRole_unmodifiableSetReturned() {
-
+  @Test
+  void getPipelineIdsWithAssignedRole_unmodifiableSetReturned() {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
-        Set.of()
-    );
+          Set.of()
+      );
+    assertThrows(UnsupportedOperationException.class, () ->
 
-    summary.getPipelineIdsWithAssignedRole(HuooRole.HOLDER).add(new PipelineId(1));
+      summary.getPipelineIdsWithAssignedRole(HuooRole.HOLDER).add(new PipelineId(1)));
   }
 
   @Test
-  public void getOrganisationRoleOwnersWithAssignedRole_whenNoOrgsForRole() {
+  void getOrganisationRoleOwnersWithAssignedRole_whenNoOrgsForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -330,7 +331,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getOrganisationRoleOwnersWithAssignedRole_whenOrgsForRole() {
+  void getOrganisationRoleOwnersWithAssignedRole_whenOrgsForRole() {
 
     var holder1Pipeline1 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID1);
     var holder1Pipeline2 = OrganisationRoleDtoTestUtil.createOrgUnitPipelineRoleInstance(HuooRole.HOLDER, OU_ID1, PIPELINE_ID2);
@@ -344,20 +345,20 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
     );
   }
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getOrganisationRoleOwnersWithAssignedRole_unmodifiableSetReturned() {
-
+  @Test
+  void getOrganisationRoleOwnersWithAssignedRole_unmodifiableSetReturned() {
     var summary = PipelineAndOrganisationRoleGroupSummaryDto.aggregateOrganisationPipelineRoleDtos(
-        Set.of()
-    );
+          Set.of()
+      );
+    assertThrows(UnsupportedOperationException.class, () ->
 
-    summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.HOLDER).add(
-        OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1)
-    );
+      summary.getOrganisationRoleOwnersWithAssignedRole(HuooRole.HOLDER).add(
+          OrganisationRoleDtoTestUtil.createOrganisationUnitRoleOwnerDto(OU_ID1)
+      ));
   }
 
   @Test
-  public void getGroupsByType_filtersOutRoleInstancesWhichAreNotAssignable() {
+  void getGroupsByType_filtersOutRoleInstancesWhichAreNotAssignable() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -382,7 +383,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllPipelineIdentifiersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
+  void getAllPipelineIdentifiersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -407,7 +408,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getOrganisationRoleOwnersWithAssignedRole_filtersOutRoleInstancesWhichAreNotAssignable() {
+  void getOrganisationRoleOwnersWithAssignedRole_filtersOutRoleInstancesWhichAreNotAssignable() {
 
     for (HuooRole role : HuooRole.values()) {
       try {
@@ -432,7 +433,7 @@ public class PipelineAndOrganisationRoleGroupSummaryDtoTest {
   }
 
   @Test
-  public void getAllOrganisationRoleOwnersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
+  void getAllOrganisationRoleOwnersInSummary_filtersOutRoleInstancesWhichAreNotAssignable() {
 
     for (HuooRole role : HuooRole.values()) {
       try {

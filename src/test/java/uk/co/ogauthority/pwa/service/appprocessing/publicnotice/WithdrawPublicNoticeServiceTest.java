@@ -10,13 +10,13 @@ import static org.mockito.Mockito.when;
 import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -41,8 +41,8 @@ import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.WithdrawPublicNoticeValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WithdrawPublicNoticeServiceTest {
+@ExtendWith(MockitoExtension.class)
+class WithdrawPublicNoticeServiceTest {
 
   private WithdrawPublicNoticeService withdrawPublicNoticeService;
 
@@ -76,9 +76,8 @@ public class WithdrawPublicNoticeServiceTest {
   private AuthenticatedUserAccount user;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     withdrawPublicNoticeService = new WithdrawPublicNoticeService(publicNoticeService, validator,
         camundaWorkflowService, pwaTeamService, pwaContactService, notifyService, clock);
@@ -90,7 +89,7 @@ public class WithdrawPublicNoticeServiceTest {
 
 
   @Test
-  public void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeExistsForApp() {
+  void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeExistsForApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getOpenPublicNotices()).thenReturn(List.of(publicNotice));
     var publicNoticeCanBeWithdrawn = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(pwaApplication);
@@ -98,7 +97,7 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeExistsForDifferentApp() {
+  void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeExistsForDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(new PwaApplication());
     when(publicNoticeService.getOpenPublicNotices()).thenReturn(List.of(publicNotice));
     var publicNoticeCanBeWithdrawn = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(pwaApplication);
@@ -106,14 +105,14 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeDoesNotExist() {
+  void publicNoticeCanBeWithdrawn_withdrawablePublicNoticeDoesNotExist() {
     when(publicNoticeService.getOpenPublicNotices()).thenReturn(List.of());
     var publicNoticeCanBeWithdrawn = withdrawPublicNoticeService.publicNoticeCanBeWithdrawn(pwaApplication);
     assertThat(publicNoticeCanBeWithdrawn).isFalse();
   }
 
   @Test
-  public void validate_verifyServiceInteractions() {
+  void validate_verifyServiceInteractions() {
 
     var form = new WithdrawPublicNoticeForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -122,7 +121,7 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void withdrawPublicNotice_publicNoticeAtApprovalStage_workflowEndedAndEmailSentToManagerOnly() {
+  void withdrawPublicNotice_publicNoticeAtApprovalStage_workflowEndedAndEmailSentToManagerOnly() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -168,7 +167,7 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void withdrawPublicNotice_publicNoticeAtApprovalStage_workflowEndedAndEmailSentToManagerOnly_noDoc_noError() {
+  void withdrawPublicNotice_publicNoticeAtApprovalStage_workflowEndedAndEmailSentToManagerOnly_noDoc_noError() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -214,7 +213,7 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void withdrawPublicNotice_publicNoticeAtCaseOfficerReviewStage_workflowEndedAndEmailSentToManagerAndApplicant() {
+  void withdrawPublicNotice_publicNoticeAtCaseOfficerReviewStage_workflowEndedAndEmailSentToManagerAndApplicant() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -257,7 +256,7 @@ public class WithdrawPublicNoticeServiceTest {
   }
 
   @Test
-  public void withdrawPublicNotice_publishedStatus_workflowUnchanged() {
+  void withdrawPublicNotice_publishedStatus_workflowUnchanged() {
 
     var publicNotice = PublicNoticeTestUtil.createPublishedPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);

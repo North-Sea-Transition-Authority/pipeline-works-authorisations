@@ -5,11 +5,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.campaignworks.CampaignWorksService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadP
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineRemovalServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineRemovalServiceTest {
 
   @Mock
   private PadTechnicalDrawingService padTechnicalDrawingService;
@@ -51,8 +51,8 @@ public class PipelineRemovalServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PadPipeline padPipeline;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pipelineRemovalService = new PipelineRemovalService(padTechnicalDrawingService, padTechnicalDrawingLinkService,
         padOrganisationRoleService, campaignWorksService, padPipelineIdentService, padPipelineRepository,
         permanentDepositService, padPipelineTransferService);
@@ -63,13 +63,13 @@ public class PipelineRemovalServiceTest {
   }
 
   @Test
-  public void removePipeline() {
+  void removePipeline() {
     pipelineRemovalService.removePipeline(padPipeline);
     verify(padPipelineRepository, times(1)).delete(padPipeline);
   }
 
   @Test
-  public void removeAndClean_serviceInteraction() {
+  void removeAndClean_serviceInteraction() {
     pipelineRemovalService.removeAndClean(padPipeline);
     verify(padOrganisationRoleService, times(1)).deletePipelineRoleLinksForPadPipeline(padPipeline);
     verify(padTechnicalDrawingService, times(1)).removePadPipelineFromDrawings(padPipeline);
@@ -78,7 +78,7 @@ public class PipelineRemovalServiceTest {
   }
 
   @Test
-  public void removeIdents_serviceInteraction() {
+  void removeIdents_serviceInteraction() {
     pipelineRemovalService.removeIdents(padPipeline);
     var pipelineIdentifier = PadPipelineId.from(padPipeline);
     verify(padPipelineIdentService, times(1)).getAllIdentsByPadPipelineIds(eq(List.of(pipelineIdentifier)));

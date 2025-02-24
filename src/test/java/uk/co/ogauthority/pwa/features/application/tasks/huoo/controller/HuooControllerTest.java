@@ -8,20 +8,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -42,12 +40,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = HuooController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class HuooControllerTest extends PwaApplicationContextAbstractControllerTest {
+class HuooControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -70,8 +67,8 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
 
   private PadHuooSummaryView padHuooSummaryView;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     doCallRealMethod().when(applicationBreadcrumbService).fromWorkArea(any(), any());
 
@@ -101,7 +98,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   }
 
   @Test
-  public void renderHuooSummary_appTypeSmokeTest() {
+  void renderHuooSummary_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(HuooController.class)
@@ -118,7 +115,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   }
 
   @Test
-  public void renderHuooSummary_appStatusSmokeTest() {
+  void renderHuooSummary_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(HuooController.class)
@@ -135,7 +132,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   }
 
   @Test
-  public void renderHuooSummary_contactRoleSmokeTest() {
+  void renderHuooSummary_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(HuooController.class)
@@ -152,7 +149,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   }
 
   @Test
-  public void postHuooSummary_Invalid() throws Exception {
+  void postHuooSummary_Invalid() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
@@ -164,7 +161,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
             null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("errorMessage"));
@@ -172,7 +169,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
   }
 
   @Test
-  public void postHuooSummary_Valid() throws Exception {
+  void postHuooSummary_Valid() throws Exception {
 
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
@@ -182,7 +179,7 @@ public class HuooControllerTest extends PwaApplicationContextAbstractControllerT
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
             null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 

@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DepconIntroductionGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DepconIntroductionGeneratorServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
@@ -44,8 +44,8 @@ public class DepconIntroductionGeneratorServiceTest {
 
   private DocumentView docView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     depconIntroductionGeneratorService = new DepconIntroductionGeneratorService(documentInstanceService, mailMergeService);
 
@@ -69,7 +69,7 @@ public class DepconIntroductionGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_dataPresent() {
+  void getDocumentSectionData_dataPresent() {
 
     var docSectionData = depconIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 

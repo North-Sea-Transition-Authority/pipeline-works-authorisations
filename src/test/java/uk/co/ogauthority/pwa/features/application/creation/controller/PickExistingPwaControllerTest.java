@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
@@ -22,9 +22,8 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -32,7 +31,6 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -60,10 +58,9 @@ import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PickExistingPwaController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class PickExistingPwaControllerTest extends AbstractControllerTest {
+class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   private static final int MASTER_PWA_ID = 1;
 
@@ -107,8 +104,8 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   private PortalOrganisationUnit applicantOrganisation = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ACME");
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
 
     doCallRealMethod().when(pickPwaFormValidator).validate(any(), any(), any(Object[].class));
@@ -138,7 +135,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderPickPwaToStartApplication_onlySupportedTypesGetOkStatus() throws Exception {
+  void renderPickPwaToStartApplication_onlySupportedTypesGetOkStatus() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -154,7 +151,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
         mockMvc.perform(
             get(ReverseRouter.route(on(PickExistingPwaController.class)
                 .renderPickPwaToStartApplication(appType, PwaResourceType.PETROLEUM, null, null)
-            )).with(authenticatedUserAndSession(user))
+            )).with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -164,13 +161,13 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderPickPwaToStartApplication_noPrivileges() throws Exception {
+  void renderPickPwaToStartApplication_noPrivileges() throws Exception {
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
       mockMvc.perform(
           get(ReverseRouter.route(on(PickExistingPwaController.class)
               .renderPickPwaToStartApplication(appType,PwaResourceType.PETROLEUM, null, null)))
-              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(user(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
     }
@@ -178,7 +175,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_urlAppTypeCheck() throws Exception {
+  void pickPwaAndStartApplication_urlAppTypeCheck() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -193,7 +190,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(appType, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
             .andExpect(expectedStatus);
@@ -206,10 +203,10 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
+  void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN,null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
@@ -219,13 +216,13 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_oneApplicantOrg_appCreated() throws Exception {
+  void pickPwaAndStartApplication_oneApplicantOrg_appCreated() throws Exception {
 
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation));
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
@@ -236,14 +233,14 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_multipleApplicantOrgs_appNotCreated() throws Exception {
+  void pickPwaAndStartApplication_multipleApplicantOrgs_appNotCreated() throws Exception {
 
     var secondApplicantOrg = PortalOrganisationTestUtils.generateOrganisationUnit(2, "Umbrella");
     when(applicantOrganisationService.getPotentialApplicantOrganisations(any(), any())).thenReturn(Set.of(applicantOrganisation, secondApplicantOrg));
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
@@ -254,10 +251,10 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_nonconsentedPwaPicked() throws Exception {
+  void pickPwaAndStartApplication_nonconsentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
@@ -267,10 +264,10 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void pickPwaAndStartApplication_nonconsentedPwaPicked_notDepositType() throws Exception {
+  void pickPwaAndStartApplication_nonconsentedPwaPicked_notDepositType() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is5xxServerError());
@@ -279,7 +276,7 @@ public class PickExistingPwaControllerTest extends AbstractControllerTest {
 
 
   @Test
-  public void pickPwaAndStartApplication_timerMetricStarted_timeRecordedAndLogged() {
+  void pickPwaAndStartApplication_timerMetricStarted_timeRecordedAndLogged() {
 
     var controller = new PickExistingPwaController(
         pwaApplicationRedirectService,

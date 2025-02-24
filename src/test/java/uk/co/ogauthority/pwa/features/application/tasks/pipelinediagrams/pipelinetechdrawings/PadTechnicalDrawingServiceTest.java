@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -12,12 +13,12 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
@@ -40,8 +41,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadTechnicalDrawingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadTechnicalDrawingServiceTest {
 
   private PadTechnicalDrawingService padTechnicalDrawingService;
 
@@ -65,8 +66,8 @@ public class PadTechnicalDrawingServiceTest {
   private PadPipeline padPipelineForAppOverviewB;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     padTechnicalDrawingService = new PadTechnicalDrawingService(padTechnicalDrawingRepository,
         padTechnicalDrawingLinkService, padFileService, padPipelineService, pipelineDrawingValidator);
 
@@ -87,7 +88,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getDrawings() {
+  void getDrawings() {
     var list = List.of(new PadTechnicalDrawing());
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(list);
     var result = padTechnicalDrawingService.getDrawings(pwaApplicationDetail);
@@ -95,7 +96,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void addDrawing() {
+  void addDrawing() {
     var form = new PipelineDrawingForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
@@ -116,7 +117,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getPipelineDrawingSummaryViews_singleOverview() {
+  void getPipelineDrawingSummaryViews_singleOverview() {
     var pipelineDrawing = new PadTechnicalDrawing();
     pipelineDrawing.setReference("ref");
     pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
@@ -152,7 +153,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getPipelineDrawingSummaryViews_multipleOverviews() {
+  void getPipelineDrawingSummaryViews_multipleOverviews() {
     var pipelineDrawing = new PadTechnicalDrawing();
     pipelineDrawing.setReference("ref");
     pipelineDrawing.setPwaApplicationDetail(pwaApplicationDetail);
@@ -195,7 +196,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void removeDrawing_noFileLinked() {
+  void removeDrawing_noFileLinked() {
     var drawing = new PadTechnicalDrawing();
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
         .thenReturn(Optional.of(drawing));
@@ -205,7 +206,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void removeDrawing_fileLinked() {
+  void removeDrawing_fileLinked() {
     var drawing = new PadTechnicalDrawing();
     drawing.setFile(new PadFile());
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
@@ -215,17 +216,21 @@ public class PadTechnicalDrawingServiceTest {
     verify(padFileService, times(1)).processFileDeletion(eq(drawing.getFile()), any());
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void removeDrawing_drawingNotFound() {
+  @Test
+  void removeDrawing_drawingNotFound() {
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndId(pwaApplicationDetail, 1))
-        .thenReturn(Optional.empty());
-    padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1, new WebUserAccount(1));
+          .thenReturn(Optional.empty());
+
     verifyNoInteractions(padTechnicalDrawingRepository);
     verifyNoInteractions(padFileService);
+
+    assertThrows(PwaEntityNotFoundException.class, () ->
+        padTechnicalDrawingService.removeDrawing(pwaApplicationDetail, 1, new WebUserAccount(1))
+    );
   }
 
   @Test
-  public void getPipelineDrawingSummaryViewFromDrawing_oneResult() {
+  void getPipelineDrawingSummaryViewFromDrawing_oneResult() {
 
     var drawing = new PadTechnicalDrawing();
     drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
@@ -256,24 +261,23 @@ public class PadTechnicalDrawingServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getPipelineDrawingSummaryViewFromDrawing_noResults() {
-
+  @Test
+  void getPipelineDrawingSummaryViewFromDrawing_noResults() {
     var drawing = new PadTechnicalDrawing();
     drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
-        ApplicationFileLinkStatus.FULL));
+          ApplicationFileLinkStatus.FULL));
     drawing.setReference("ref");
     drawing.setId(1);
-
     when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of());
+          ApplicationFileLinkStatus.FULL)).thenReturn(List.of());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    padTechnicalDrawingService.getPipelineDrawingSummaryViewFromDrawing(pwaApplicationDetail, drawing);
+      padTechnicalDrawingService.getPipelineDrawingSummaryViewFromDrawing(pwaApplicationDetail, drawing));
 
   }
 
   @Test
-  public void getPipelineDrawingSummaryViewList() {
+  void getPipelineDrawingSummaryViewList() {
 
     var drawing = new PadTechnicalDrawing();
     drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
@@ -309,7 +313,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void updateDrawing() {
+  void updateDrawing() {
     var form = new PipelineDrawingForm();
     form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
     form.setReference("ref");
@@ -338,31 +342,31 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void isDrawingRequiredForPipeline_inServiceStatus() {
+  void isDrawingRequiredForPipeline_inServiceStatus() {
     var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.IN_SERVICE);
     assertThat(isDrawingRequired).isTrue();
   }
 
   @Test
-  public void isDrawingRequiredForPipeline_returnedToShoreStatus() {
+  void isDrawingRequiredForPipeline_returnedToShoreStatus() {
     var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.RETURNED_TO_SHORE);
     assertThat(isDrawingRequired).isFalse();
   }
 
   @Test
-  public void isDrawingRequiredForPipeline_onSeaBedStatus() {
+  void isDrawingRequiredForPipeline_onSeaBedStatus() {
     var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.OUT_OF_USE_ON_SEABED);
     assertThat(isDrawingRequired).isTrue();
   }
 
   @Test
-  public void isDrawingRequiredForPipeline_neverLaidStatus() {
+  void isDrawingRequiredForPipeline_neverLaidStatus() {
     var isDrawingRequired = padTechnicalDrawingService.isDrawingRequiredForPipeline(PipelineStatus.NEVER_LAID);
     assertThat(isDrawingRequired).isFalse();
   }
 
   @Test
-  public void validateSection_valid() {
+  void validateSection_valid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
     pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
@@ -381,7 +385,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void validateSection_invalid() {
+  void validateSection_invalid() {
     var pipeline = new PadPipeline(pwaApplicationDetail);
     pipeline.setPipelineStatus(PipelineStatus.IN_SERVICE);
     pipeline.setId(1);
@@ -405,7 +409,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getDrawingLinkedToPadFile() {
+  void getDrawingLinkedToPadFile() {
     var optionalDrawing = Optional.of(new PadTechnicalDrawing());
     var padFile = new PadFile();
     when(padTechnicalDrawingRepository.findByPwaApplicationDetailAndFile(pwaApplicationDetail, padFile))
@@ -415,7 +419,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void unlinkFile() {
+  void unlinkFile() {
     var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, new PadFile(), "ref");
     padTechnicalDrawingService.unlinkFile(drawing);
     assertThat(drawing.getFile()).isNull();
@@ -423,7 +427,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void allPipelinesLinked_allPipelinesLinked() {
+  void allPipelinesLinked_allPipelinesLinked() {
     var drawing = new PadTechnicalDrawing();
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
@@ -442,7 +446,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void allPipelinesLinked_notAllPipelinesRequireDrawings() {
+  void allPipelinesLinked_notAllPipelinesRequireDrawings() {
     var drawing = new PadTechnicalDrawing();
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
@@ -478,7 +482,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void allPipelinesLinked_notAllPipelinesLinked() {
+  void allPipelinesLinked_notAllPipelinesLinked() {
     var drawing = new PadTechnicalDrawing();
 
     var pipeline = new PadPipeline(pwaApplicationDetail);
@@ -501,7 +505,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void drawingsValid_valid() {
+  void drawingsValid_valid() {
     var drawing = new PadTechnicalDrawing();
     drawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.PIPELINE_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
@@ -524,7 +528,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void drawingsValid_invalid() {
+  void drawingsValid_invalid() {
     var drawing = new PadTechnicalDrawing();
 
     when(padTechnicalDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(drawing));
@@ -534,7 +538,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getValidationFactory_ensureIsComplete_true() {
+  void getValidationFactory_ensureIsComplete_true() {
 
     // Call to drawingsValid to provide mocks for valid data.
     drawingsValid_valid();
@@ -543,7 +547,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getValidationFactory_ensureIsComplete_false() {
+  void getValidationFactory_ensureIsComplete_false() {
 
     // Call to drawingsValid to provide mocks for invalid data.
     drawingsValid_invalid();
@@ -552,7 +556,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void cleanupData() {
+  void cleanupData() {
 
     var drawing1 = new PadTechnicalDrawing();
     var file1 = new PadFile();
@@ -575,7 +579,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedApplicationPipelineOverviews_allPipelinesLinked() {
+  void getUnlinkedApplicationPipelineOverviews_allPipelinesLinked() {
     var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -589,7 +593,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedApplicationPipelineOverviews_somePipelinesLinked() {
+  void getUnlinkedApplicationPipelineOverviews_somePipelinesLinked() {
 
     padPipelineForAppOverviewA.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipelineForAppOverviewB.setPipelineStatus(PipelineStatus.IN_SERVICE);
@@ -605,7 +609,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {
+  void getUnlinkedApplicationPipelineOverviews_noPipelinesLinked() {
     padPipelineForAppOverviewA.setPipelineStatus(PipelineStatus.IN_SERVICE);
     padPipelineForAppOverviewB.setPipelineStatus(PipelineStatus.IN_SERVICE);
     var pipelineOverviewA = new PadPipelineOverview(padPipelineForAppOverviewA, 1L);
@@ -618,7 +622,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_allPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
+  void getUnlinkedAndSpecificApplicationPipelineOverviews_allPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
       padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -633,7 +637,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_excludeNonLinked() {var pipelineOverviewA = new PadPipelineOverview(
+  void getUnlinkedAndSpecificApplicationPipelineOverviews_excludeNonLinked() {var pipelineOverviewA = new PadPipelineOverview(
       padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -646,7 +650,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void getUnlinkedAndSpecificApplicationPipelineOverviews_noPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
+  void getUnlinkedAndSpecificApplicationPipelineOverviews_noPipelinesLinked() {var pipelineOverviewA = new PadPipelineOverview(
       padPipelineForAppOverviewA, 1L);
     var pipelineOverviewB = new PadPipelineOverview(padPipelineForAppOverviewB, 1L);
     when(padPipelineService.getApplicationPipelineOverviews(pwaApplicationDetail))
@@ -658,7 +662,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void cleanUnlinkedDrawings_serviceInteraction_noLinks() {
+  void cleanUnlinkedDrawings_serviceInteraction_noLinks() {
     var padPipeline = new PadPipeline(pwaApplicationDetail);
     var drawing = new PadTechnicalDrawing();
     drawing.setId(1);
@@ -671,7 +675,7 @@ public class PadTechnicalDrawingServiceTest {
   }
 
   @Test
-  public void cleanUnlinkedDrawings_serviceInteraction_remainingLinks() {
+  void cleanUnlinkedDrawings_serviceInteraction_remainingLinks() {
     var padPipeline = new PadPipeline(pwaApplicationDetail);
     var drawing = new PadTechnicalDrawing();
     drawing.setId(1);
@@ -686,9 +690,8 @@ public class PadTechnicalDrawingServiceTest {
   }
 
 
-
   @Test
-  public void getPipelineDrawingViewsMap() {
+  void getPipelineDrawingViewsMap() {
     //drawing link 1: padpipieline 1 & technical drawing 1
     var padPipeline1 = new PadPipeline();
     var pipeline1 = new Pipeline();

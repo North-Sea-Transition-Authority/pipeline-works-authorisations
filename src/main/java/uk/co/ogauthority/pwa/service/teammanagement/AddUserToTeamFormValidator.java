@@ -14,10 +14,10 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 @Service
 public class AddUserToTeamFormValidator implements Validator {
 
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
 
   @Autowired
-  public AddUserToTeamFormValidator(TeamManagementService teamManagementService) {
+  public AddUserToTeamFormValidator(OldTeamManagementService teamManagementService) {
     this.teamManagementService = teamManagementService;
   }
 

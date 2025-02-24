@@ -6,10 +6,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.Chemical;
 import uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -17,19 +17,19 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FluidCompositionDataValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class FluidCompositionDataValidatorTest {
 
   private FluidCompositionDataValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new FluidCompositionDataValidator(new DecimalInputValidator());
   }
 
 
   @Test
-  public void validateForm_invalid() {
+  void validateForm_invalid() {
     var form = new FluidCompositionDataForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
       ValidationType.FULL);
@@ -39,7 +39,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_valid() {
+  void validateForm_valid() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.NONE);
 
@@ -50,7 +50,7 @@ public class FluidCompositionDataValidatorTest {
 
 
   @Test
-  public void validateForm_molePercentageRequired_valid() {
+  void validateForm_molePercentageRequired_valid() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     form.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(0.2)));
@@ -60,7 +60,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_molePercentageRequired_invalid() {
+  void validateForm_molePercentageRequired_invalid() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
@@ -71,7 +71,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_molePercentageValue_tooSmall() {
+  void validateForm_molePercentageValue_tooSmall() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     form.setMeasurementValue(new DecimalInput(BigDecimal.ONE.negate()));
@@ -83,7 +83,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_molePercentageValue_tooLarge() {
+  void validateForm_molePercentageValue_tooLarge() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     form.setMeasurementValue(new DecimalInput(BigDecimal.valueOf(101)));
@@ -95,7 +95,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_molePercentageValue_tooManyDp() {
+  void validateForm_molePercentageValue_tooManyDp() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.MOLE_PERCENTAGE);
     form.setMeasurementValue(new DecimalInput(new BigDecimal("99.011")));
@@ -107,7 +107,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_ppmvRequired_invalid() {
+  void validateForm_ppmvRequired_invalid() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
@@ -118,7 +118,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_ppmvValue_aboveLimit() {
+  void validateForm_ppmvValue_aboveLimit() {
     var form = new FluidCompositionDataForm();
     form.setChemicalMeasurementType(ChemicalMeasurementType.PPMV_100K);
     form.setMeasurementValue(new DecimalInput(new BigDecimal(600000000)));
@@ -130,7 +130,7 @@ public class FluidCompositionDataValidatorTest {
   }
 
   @Test
-  public void validateForm_partialValidation_allowsEmptyForm() {
+  void validateForm_partialValidation_allowsEmptyForm() {
     var form = new FluidCompositionDataForm();
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, Chemical.H2O,
       ValidationType.PARTIAL);

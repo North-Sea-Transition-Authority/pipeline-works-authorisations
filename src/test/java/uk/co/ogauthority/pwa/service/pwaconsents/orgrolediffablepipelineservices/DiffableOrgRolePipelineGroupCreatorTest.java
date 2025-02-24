@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
@@ -19,20 +19,19 @@ import uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model.PipelineNumbersAndSpl
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 
 
-
-@RunWith(MockitoJUnitRunner.class)
-public class DiffableOrgRolePipelineGroupCreatorTest {
+@ExtendWith(MockitoExtension.class)
+class DiffableOrgRolePipelineGroupCreatorTest {
 
   private DiffableOrgRolePipelineGroupCreator diffableOrgRolePipelineGroupCreator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     diffableOrgRolePipelineGroupCreator = new DiffableOrgRolePipelineGroupCreator();
   }
 
 
   @Test
-  public void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsFalse() {
+  void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsFalse() {
 
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
         PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "111");
@@ -65,7 +64,7 @@ public class DiffableOrgRolePipelineGroupCreatorTest {
 
 
   @Test
-  public void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsTrue() {
+  void createDiffableView_orgRoleViewHasPortalOrgWithUnitDetail_allPipelineOverrideFlagIsTrue() {
 
     var portalOrgUnitDetail1 = PortalOrganisationTestUtils.generateOrganisationUnitDetail(
         PortalOrganisationTestUtils.generateOrganisationUnit(1, "company"), "address", "111");
@@ -97,7 +96,7 @@ public class DiffableOrgRolePipelineGroupCreatorTest {
 
 
   @Test
-  public void createDiffableView_orgRoleViewHasPortalOrgWithNoUnitDetail_allPipelineOverrideFlagIsFalse() {
+  void createDiffableView_orgRoleViewHasPortalOrgWithNoUnitDetail_allPipelineOverrideFlagIsFalse() {
 
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromOrganisationUnitId(new OrganisationUnitId(1));
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));
@@ -127,7 +126,7 @@ public class DiffableOrgRolePipelineGroupCreatorTest {
 
 
   @Test
-  public void createDiffableView_orgRoleViewHasTreaty_allPipelineOverrideFlagIsFalse() {
+  void createDiffableView_orgRoleViewHasTreaty_allPipelineOverrideFlagIsFalse() {
 
     var organisationRoleOwnerDto1 = OrganisationRoleOwnerDto.fromTreaty(TreatyAgreement.ANY_TREATY_COUNTRY);
     var pipelineNumbersAndSplits = List.of(new PipelineNumbersAndSplits(new PipelineId(1), "ppl1", null));

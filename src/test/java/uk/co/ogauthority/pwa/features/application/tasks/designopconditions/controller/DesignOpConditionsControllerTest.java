@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -33,9 +31,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = DesignOpConditionsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class DesignOpConditionsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -50,8 +47,8 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -67,10 +64,8 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
 
-
-
   @Test
-  public void renderAddDesignOpConditions_permissionSmokeTest() {
+  void renderAddDesignOpConditions_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
@@ -80,7 +75,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderAddDesignOpConditions_appTypeSmokeTest() {
+  void renderAddDesignOpConditions_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
@@ -91,7 +86,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void renderAddDesignOpConditions_appStatusSmokeTest() {
+  void renderAddDesignOpConditions_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(DesignOpConditionsController.class)
@@ -102,9 +97,8 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
 
-
   @Test
-  public void postAddDesignOpConditions_appTypeSmokeTest() {
+  void postAddDesignOpConditions_appTypeSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -116,7 +110,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postAddDesignOpConditions_appStatusSmokeTest() {
+  void postAddDesignOpConditions_appStatusSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -129,7 +123,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postAddDesignOpConditions_permissionSmokeTest() {
+  void postAddDesignOpConditions_permissionSmokeTest() {
     ControllerTestUtils.passValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())
@@ -142,7 +136,7 @@ public class DesignOpConditionsControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void postAddDesignOpConditions_failValidation() {
+  void postAddDesignOpConditions_failValidation() {
     ControllerTestUtils.failValidationWhenPost(padDesignOpConditionsService, new PipelineTechInfoForm(), ValidationType.FULL );
     endpointTester.setRequestMethod(HttpMethod.POST)
         .addRequestParam(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText())

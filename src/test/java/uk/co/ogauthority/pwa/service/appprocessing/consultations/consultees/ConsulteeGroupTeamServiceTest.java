@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,13 +14,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
@@ -42,8 +45,9 @@ import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.C
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsulteeGroupTeamServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ConsulteeGroupTeamServiceTest {
 
   @Mock
   private ConsulteeGroupDetailRepository groupDetailRepository;
@@ -68,8 +72,8 @@ public class ConsulteeGroupTeamServiceTest {
   private ConsulteeGroupDetail emtGroupDetail;
   private ConsulteeGroupDetail oduGroupDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     emtGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("Environmental Management Team", "EMT");
     oduGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("Offshore Decommissioning Unit", "ODU");
@@ -87,7 +91,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getManageableGroupDetailsForUser_isRegulatorAdmin() {
+  void getManageableGroupDetailsForUser_isRegulatorAdmin() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
@@ -96,7 +100,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getManageableGroupDetailsForUser_isAccessManager() {
+  void getManageableGroupDetailsForUser_isAccessManager() {
 
     var consulteeGroupTeamMember = new ConsulteeGroupTeamMember(
         emtGroupDetail.getConsulteeGroup(),
@@ -111,7 +115,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getManageableGroupTeamViewsForUser_isRegulatorAdmin() {
+  void getManageableGroupTeamViewsForUser_isRegulatorAdmin() {
 
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
 
@@ -127,7 +131,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getManageableGroupTeamViewsForUser_isAccessManager() {
+  void getManageableGroupTeamViewsForUser_isAccessManager() {
 
     var consulteeGroupTeamMember = new ConsulteeGroupTeamMember(
         emtGroupDetail.getConsulteeGroup(),
@@ -147,7 +151,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getTeamMemberViewsForGroup_attributesMatchDetails() {
+  void getTeamMemberViewsForGroup_attributesMatchDetails() {
 
     var person1 = new Person(12, "1", "11", "a@b.com", "01234567889");
     var person2 = new Person(13, "2", "22", "b@c.com", "0987654321");
@@ -209,7 +213,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void getTeamMemberOrError_noErrorWhenTeamMemberFound() {
+  void getTeamMemberOrError_noErrorWhenTeamMemberFound() {
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(
         Optional.of(new ConsulteeGroupTeamMember())
@@ -219,17 +223,17 @@ public class ConsulteeGroupTeamServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getTeamMemberOrError_error() {
-
+  @Test
+  void getTeamMemberOrError_error() {
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(any(), any())).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    groupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+      groupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson()));
 
   }
 
   @Test
-  public void removeTeamMember_successfulRemoval() {
+  void removeTeamMember_successfulRemoval() {
 
     var member = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
     var member2 = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
@@ -244,17 +248,17 @@ public class ConsulteeGroupTeamServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void removeTeamMember_doesntExist() {
-
+  @Test
+  void removeTeamMember_doesntExist() {
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    groupTeamService.removeTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
+      groupTeamService.removeTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson()));
 
   }
 
   @Test
-  public void removeTeamMember_notLastInRoles() {
+  void removeTeamMember_notLastInRoles() {
 
     var allRolesMember = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), EnumSet.allOf(ConsulteeGroupMemberRole.class));
     var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
@@ -273,7 +277,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void removeTeamMember_lastInRoles() {
+  void removeTeamMember_lastInRoles() {
 
     var accessRecipient = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RECIPIENT));
     var responder = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.RESPONDER));
@@ -296,7 +300,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void updateUsersRoles() {
+  void updateUsersRoles() {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 
@@ -322,7 +326,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void updateUsersRoles_notMember() {
+  void updateUsersRoles_notMember() {
 
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenReturn(Optional.empty());
 
@@ -342,20 +346,19 @@ public class ConsulteeGroupTeamServiceTest {
 
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void updateUsersRoles_emptyRoles() {
-
+  @Test
+  void updateUsersRoles_emptyRoles() {
     when(groupTeamMemberRepository.findByConsulteeGroupAndPerson(any(), any())).thenReturn(Optional.of(new ConsulteeGroupTeamMember()));
-
     var form = new UserRolesForm();
     form.setUserRoles(List.of());
+    assertThrows(IllegalStateException.class, () ->
 
-    groupTeamService.updateUserRoles(oduGroupDetail.getConsulteeGroup(), new Person(), form);
+      groupTeamService.updateUserRoles(oduGroupDetail.getConsulteeGroup(), new Person(), form));
 
   }
 
   @Test
-  public void updateUsersRoles_changeRoles_notLastinRoles() {
+  void updateUsersRoles_changeRoles_notLastinRoles() {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
     var additionalAccessManager = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), new Person(), Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
@@ -379,7 +382,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void updateUsersRoles_changeRoles_lastInRoles() {
+  void updateUsersRoles_changeRoles_lastInRoles() {
 
     var member = new ConsulteeGroupTeamMember(oduGroupDetail.getConsulteeGroup(), user.getLinkedPerson(),
         Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
@@ -404,7 +407,7 @@ public class ConsulteeGroupTeamServiceTest {
   }
 
   @Test
-  public void addMember_NotificationSent() {
+  void addMember_NotificationSent() {
     var person = new Person(1, "PersonForeName", "PersonSurname", "person.person@person.co.uk", null);
     var form = getRolesFormWithRoles(Set.of(ConsulteeGroupMemberRole.RECIPIENT));
 

@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -57,7 +57,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = IndustryPaymentController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
 public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstractControllerTest {
   private static final int APP_ID = 1;
@@ -155,7 +154,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         .thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(IndustryPaymentController.class).renderPayForApplicationLanding(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isNotFound());
 
   }
@@ -167,7 +166,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         .thenReturn(permissionsDto);
 
     mockMvc.perform(get(ReverseRouter.route(on(IndustryPaymentController.class).renderPayForApplicationLanding(APP_ID, APP_TYPE, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().hasNoErrors())
         // testing precise URL values not done. Controller reverse router has access to the annotation driven app type converter (@ApplicationTypeUrl),
@@ -217,7 +216,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         .thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:" + attemptSuccessResult.getStartExternalJourneyUrl()));
@@ -238,7 +237,7 @@ public class IndustryPaymentControllerTest extends PwaAppProcessingContextAbstra
         .thenReturn(alreadyPaidResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(IndustryPaymentController.class).startPaymentAttempt(APP_ID, APP_TYPE, null, null, Optional.empty())))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name(new StringContains(true, "case-management")));

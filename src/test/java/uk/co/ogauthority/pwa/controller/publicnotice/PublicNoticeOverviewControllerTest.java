@@ -6,21 +6,19 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -39,9 +37,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PublicNoticeOverviewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -54,8 +51,8 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW, PwaApplicationStatus.COMPLETE)
@@ -78,7 +75,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void renderPublicNoticeOverview_appStatusSmokeTest() {
+  void renderPublicNoticeOverview_appStatusSmokeTest() {
 
     when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
         new AllPublicNoticesView(null, List.of(), Set.of()));
@@ -93,7 +90,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderPublicNoticeOverview_processingPermissionSmokeTest() {
+  void renderPublicNoticeOverview_processingPermissionSmokeTest() {
 
     when(publicNoticeService.getAllPublicNoticeViews(any())).thenReturn(
         new AllPublicNoticesView(null, List.of(), Set.of()));
@@ -108,7 +105,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderPublicNoticeOverview_noSatisfactoryVersions() throws Exception {
+  void renderPublicNoticeOverview_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
@@ -116,7 +113,7 @@ public class PublicNoticeOverviewControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null,  null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 

@@ -10,20 +10,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -46,9 +44,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CloseOutOptionsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final int APP_ID = 5;
   private static final int APP_DETAIL_ID = 50;
@@ -76,8 +73,8 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   private Person person;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     person = PersonTestUtil.createPersonFrom(new PersonId(1));
     user = new AuthenticatedUserAccount(
@@ -113,18 +110,18 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void renderCloseOutOptions_whenNotCloseable() throws Exception {
+  void renderCloseOutOptions_whenNotCloseable() throws Exception {
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(CloseOutOptionsController.class)
         .renderCloseOutOptions(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderCloseOutOptions_appStatusSmokeTest() {
+  void renderCloseOutOptions_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CloseOutOptionsController.class)
@@ -134,7 +131,7 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void renderCloseOutOptions_processingPermissionSmokeTest() {
+  void renderCloseOutOptions_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -145,12 +142,12 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void closeOutOptions_whenNotCloseable() throws Exception {
+  void closeOutOptions_whenNotCloseable() throws Exception {
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(CloseOutOptionsController.class)
         .closeOutOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isForbidden());
@@ -158,12 +155,12 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void closeOutOptions_whenCloseable() throws Exception {
+  void closeOutOptions_whenCloseable() throws Exception {
     when(closeOutOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(CloseOutOptionsController.class)
         .closeOutOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection());
@@ -173,7 +170,7 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void closeOutOptions_appStatusSmokeTest() {
+  void closeOutOptions_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(CloseOutOptionsController.class)
@@ -183,7 +180,7 @@ public class CloseOutOptionsControllerTest extends PwaAppProcessingContextAbstra
   }
 
   @Test
-  public void closeOutOptions_processingPermissionSmokeTest() {
+  void closeOutOptions_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->

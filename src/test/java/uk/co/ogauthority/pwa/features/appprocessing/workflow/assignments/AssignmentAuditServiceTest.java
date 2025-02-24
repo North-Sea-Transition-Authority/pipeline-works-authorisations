@@ -7,19 +7,19 @@ import static org.mockito.Mockito.verify;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AssignmentAuditServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AssignmentAuditServiceTest {
 
   @Mock
   private AssignmentAuditRepository repository;
@@ -30,14 +30,14 @@ public class AssignmentAuditServiceTest {
   private AssignmentAuditService assignmentAuditService;
   private Instant fixedInstant;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     fixedInstant = Instant.now();
     assignmentAuditService = new AssignmentAuditService(Clock.fixed(fixedInstant, ZoneId.systemDefault()), repository);
   }
 
   @Test
-  public void auditAssignment() {
+  void auditAssignment() {
 
     var app = new PwaApplication();
     app.setId(1);

@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -26,8 +26,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaApplicationMailMergeResolverTest {
+@ExtendWith(MockitoExtension.class)
+class PwaApplicationMailMergeResolverTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -48,8 +48,8 @@ public class PwaApplicationMailMergeResolverTest {
 
   private List<MailMergeFieldMnem> mailMergeFields;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationMailMergeResolver = new PwaApplicationMailMergeResolver(pwaApplicationDetailService, taskListService, applicationContext);
 
@@ -59,7 +59,7 @@ public class PwaApplicationMailMergeResolverTest {
   }
 
   @Test
-  public void supportsDocumentSource_app_true() {
+  void supportsDocumentSource_app_true() {
 
     var app = new PwaApplication();
 
@@ -70,7 +70,7 @@ public class PwaApplicationMailMergeResolverTest {
   }
 
   @Test
-  public void getAvailableMailMergeFields() {
+  void getAvailableMailMergeFields() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -90,7 +90,7 @@ public class PwaApplicationMailMergeResolverTest {
   }
 
   @Test
-  public void resolveMergeFields() {
+  void resolveMergeFields() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 

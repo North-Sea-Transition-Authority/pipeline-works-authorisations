@@ -5,13 +5,13 @@ import static org.mockito.Mockito.verify;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
@@ -26,8 +26,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltPipelineNotificationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltPipelineNotificationServiceTest {
 
   @Mock
   private AsBuiltNotificationGroupPipelineRepository asBuiltNotificationGroupPipelineRepository;
@@ -46,8 +46,8 @@ public class AsBuiltPipelineNotificationServiceTest {
   private final PipelineDetail pipelineDetail = PipelineDetailTestUtil.createPipelineDetail(10, new PipelineId(20),
       Instant.now());
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil.createGroupWithConsent_fromNgId(30);
     asBuiltPipelineNotificationService = new AsBuiltPipelineNotificationService(
@@ -56,7 +56,7 @@ public class AsBuiltPipelineNotificationServiceTest {
   }
 
   @Test
-  public void addPipelineDetailsToAsBuiltNotificationGroup_noPipelineNotificationsSpecs() {
+  void addPipelineDetailsToAsBuiltNotificationGroup_noPipelineNotificationsSpecs() {
     asBuiltPipelineNotificationService.addPipelineDetailsToAsBuiltNotificationGroup(
         asBuiltNotificationGroup,
         List.of()
@@ -68,7 +68,7 @@ public class AsBuiltPipelineNotificationServiceTest {
   }
 
   @Test
-  public void addPipelineDetailsToAsBuiltNotificationGroup_pipelineNotificationsSpecsMappedAsExpected() {
+  void addPipelineDetailsToAsBuiltNotificationGroup_pipelineNotificationsSpecsMappedAsExpected() {
 
     var pipelineSpec1 = new AsBuiltPipelineNotificationSpec(new PipelineDetailId(1),
         PipelineChangeCategory.NEW_PIPELINE);
@@ -95,7 +95,7 @@ public class AsBuiltPipelineNotificationServiceTest {
   }
 
   @Test
-  public void getAsBuiltNotificationGroupPipeline() {
+  void getAsBuiltNotificationGroupPipeline() {
     asBuiltPipelineNotificationService.getAsBuiltNotificationGroupPipeline(asBuiltNotificationGroup.getId(),
         pipelineDetail.getPipelineDetailId());
     verify(asBuiltNotificationGroupPipelineRepository)
@@ -104,13 +104,13 @@ public class AsBuiltPipelineNotificationServiceTest {
   }
 
   @Test
-  public void getAllAsBuiltNotificationGroupPipelines() {
+  void getAllAsBuiltNotificationGroupPipelines() {
     asBuiltPipelineNotificationService.getAllAsBuiltNotificationGroupPipelines(asBuiltNotificationGroup.getId());
     verify(asBuiltNotificationGroupPipelineRepository).findAllByAsBuiltNotificationGroup_Id(asBuiltNotificationGroup.getId());
   }
 
   @Test
-  public void getPipelineDetail() {
+  void getPipelineDetail() {
     asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetail.getPipelineDetailId().asInt());
     verify(pipelineDetailService).getByPipelineDetailId(pipelineDetail.getPipelineDetailId().asInt());
   }

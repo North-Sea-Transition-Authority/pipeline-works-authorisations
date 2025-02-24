@@ -6,16 +6,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineHuooScreenValidationResultFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineHuooScreenValidationResultFactoryTest {
 
   private static final String UNNASSIGNED_PIPELINE_ERROR = "pipeline_error";
   private static final String UNNASSIGNED_ROLE_ERROR = "role_error";
@@ -26,8 +26,8 @@ public class PipelineHuooScreenValidationResultFactoryTest {
   @Mock
   private PipelineHuooValidationResult validationResult;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     factory = new PipelineHuooScreenValidationResultFactory();
 
     // by default, no errors
@@ -44,7 +44,7 @@ public class PipelineHuooScreenValidationResultFactoryTest {
   }
 
   @Test
-  public void createFromValidationResult_whenNoErrors() {
+  void createFromValidationResult_whenNoErrors() {
 
     var summary = factory.createFromValidationResult(validationResult);
     assertThat(summary.getErrorItems()).isEmpty();
@@ -56,7 +56,7 @@ public class PipelineHuooScreenValidationResultFactoryTest {
   }
 
   @Test
-  public void createFromValidationResult_isSectionComplete_isSameAsValidationResultIsValid() {
+  void createFromValidationResult_isSectionComplete_isSameAsValidationResultIsValid() {
     when(validationResult.isValid()).thenReturn(false);
 
     var summary = factory.createFromValidationResult(validationResult);
@@ -65,7 +65,7 @@ public class PipelineHuooScreenValidationResultFactoryTest {
   }
 
   @Test
-  public void createFromValidationResult_whenRolesInvalidWithUnassignedPipelinesAndOrgRoles() {
+  void createFromValidationResult_whenRolesInvalidWithUnassignedPipelinesAndOrgRoles() {
     var roleValidationResultMap = new LinkedHashMap<HuooRole, PipelineHuooRoleValidationResult>();
     roleValidationResultMap.put(
         HuooRole.HOLDER,
@@ -102,7 +102,7 @@ public class PipelineHuooScreenValidationResultFactoryTest {
   }
 
   @Test
-  public void createFromValidationResult_whenRoleInvalidDueToInvalidSections(){
+  void createFromValidationResult_whenRoleInvalidDueToInvalidSections(){
     var roleValidationResultMap = new LinkedHashMap<HuooRole, PipelineHuooRoleValidationResult>();
     roleValidationResultMap.put(
         HuooRole.HOLDER,

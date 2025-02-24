@@ -50,7 +50,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -67,7 +67,7 @@ public class PwaContactController {
 
   private final PwaContactService pwaContactService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
   private final PwaHolderService pwaHolderService;
@@ -80,7 +80,7 @@ public class PwaContactController {
   @Autowired
   public PwaContactController(PwaContactService pwaContactService,
                               ApplicationBreadcrumbService applicationBreadcrumbService,
-                              TeamManagementService teamManagementService,
+                              OldTeamManagementService teamManagementService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
                               PwaHolderService pwaHolderService,
@@ -130,7 +130,7 @@ public class PwaContactController {
 
     var showCaseManagementLink = applicationContext.hasPermission(PwaApplicationPermission.MANAGE_CONTACTS);
 
-    var modelAndView = new ModelAndView("teamManagement/teamMembers")
+    var modelAndView = new ModelAndView("teamManagementOld/teamMembers")
         .addObject("teamName", "Application users")
         .addObject("teamMemberViews", teamMemberViews)
         .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
@@ -164,7 +164,7 @@ public class PwaContactController {
 
     form.setPwaApplicationId(pwaApplication.getId());
 
-    return new ModelAndView("teamManagement/addUserToTeam")
+    return new ModelAndView("teamManagementOld/addUserToTeam")
         .addObject("groupName", pwaApplication.getAppReference() + " contacts")
         .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
@@ -219,7 +219,7 @@ public class PwaContactController {
 
   private ModelAndView getContactRolesModelAndView(PwaApplicationDetail detail, Person person, UserRolesForm form) {
 
-    return new ModelAndView("teamManagement/memberRoles")
+    return new ModelAndView("teamManagementOld/memberRoles")
         .addObject("teamName", detail.getPwaApplicationRef())
         .addObject("form", form)
         .addObject("roles", rolesCheckboxMap)
@@ -290,7 +290,7 @@ public class PwaContactController {
 
   private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, PwaContact contact) {
 
-    return new ModelAndView("teamManagement/removeMember")
+    return new ModelAndView("teamManagementOld/removeMember")
         .addObject("cancelUrl",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))

@@ -8,11 +8,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LocationDetailsSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class LocationDetailsSummaryServiceTest {
 
 
 
@@ -38,8 +38,8 @@ public class LocationDetailsSummaryServiceTest {
   private LocationDetailsSummaryService locationDetailsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     locationDetailsSummaryService = new LocationDetailsSummaryService(padLocationDetailsService, taskListService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
@@ -47,7 +47,7 @@ public class LocationDetailsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     assertThat(locationDetailsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
 
@@ -55,18 +55,18 @@ public class LocationDetailsSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
     assertThat(locationDetailsSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(locationDetailsSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var locationDetailsView = LocationDetailsSummaryServiceTestUtil.createLocationDetailsView();
     when(padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail)).thenReturn(locationDetailsView);

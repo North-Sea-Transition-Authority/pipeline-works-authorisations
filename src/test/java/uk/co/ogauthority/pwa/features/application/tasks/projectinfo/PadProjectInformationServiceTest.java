@@ -1,12 +1,12 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
 import jakarta.persistence.EntityManager;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -38,8 +38,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadProjectInformationServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadProjectInformationServiceTest {
 
   @Mock
   private PadProjectInformationRepository padProjectInformationRepository;
@@ -72,8 +72,8 @@ public class PadProjectInformationServiceTest {
   private LocalDate date;
   private WebUserAccount user = new WebUserAccount(1);
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     service = new PadProjectInformationService(
         padProjectInformationRepository,
@@ -96,7 +96,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getProjectInformationView_existingPadProjectInformationData_thenGetsLicenceApplications() {
+  void getProjectInformationView_existingPadProjectInformationData_thenGetsLicenceApplications() {
     padProjectInformation.setId(1);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
@@ -119,7 +119,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getProjectInformationView_noExistingPadProjectInformationData_thenNoLicenceApplications() {
+  void getProjectInformationView_noExistingPadProjectInformationData_thenNoLicenceApplications() {
     padProjectInformation.setId(null);
 
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail))
@@ -137,7 +137,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getPadProjectInformationData_WithExisting() {
+  void getPadProjectInformationData_WithExisting() {
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(padProjectInformation));
     var result = service.getPadProjectInformationData(pwaApplicationDetail);
@@ -145,7 +145,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getPadProjectInformationData_NoExisting() {
+  void getPadProjectInformationData_NoExisting() {
     when(padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(Optional.empty());
     var padProjectInformation = new PadProjectInformation();
     padProjectInformation.setPwaApplicationDetail(pwaApplicationDetail);
@@ -157,7 +157,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeContainsLicence() {
+  void saveEntityUsingForm_verifyServiceInteractions_applicationTypeContainsLicence() {
 
     service.saveEntityUsingForm(padProjectInformation, form, user);
 
@@ -175,7 +175,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void saveEntityUsingForm_verifyServiceInteractions_applicationTypeDoesNotContainLicence() {
+  void saveEntityUsingForm_verifyServiceInteractions_applicationTypeDoesNotContainLicence() {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.DEPOSIT_CONSENT);
@@ -200,7 +200,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_verifyServiceInteractions() {
+  void mapEntityToForm_verifyServiceInteractions() {
 
     service.mapEntityToForm(padProjectInformation, form);
 
@@ -220,7 +220,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void validate() {
+  void validate() {
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     service.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
     verify(validator, times(1)).validate(form, bindingResult,
@@ -234,7 +234,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getFormattedProposedStartDate() {
+  void getFormattedProposedStartDate() {
     LocalDateTime dateTime = LocalDateTime.of(2017, 5, 15, 0, 0);
     Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
     var projectInformation = new PadProjectInformation();
@@ -247,7 +247,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_depositConsentAppType() {
+  void getAvailableQuestions_depositConsentAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.LICENCE_TRANSFER_PLANNED,
@@ -264,7 +264,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_huooVariationAppType() {
+  void getAvailableQuestions_huooVariationAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.HUOO_VARIATION, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
         ProjectInformationQuestion.PROJECT_OVERVIEW,
@@ -282,7 +282,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_decomAppType() {
+  void getAvailableQuestions_decomAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.DECOMMISSIONING, PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(
         EnumSet.of(ProjectInformationQuestion.METHOD_OF_PIPELINE_DEPLOYMENT,
@@ -290,7 +290,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_optionsVariationAppType() {
+  void getAvailableQuestions_optionsVariationAppType() {
     var requiredQuestions = service.getRequiredQuestions(PwaApplicationType.OPTIONS_VARIATION,
         PwaResourceType.PETROLEUM);
     assertThat(requiredQuestions).containsOnlyElementsOf(EnumSet.complementOf(EnumSet.of(
@@ -301,7 +301,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableQuestions_allAppTypesExceptDepConAndHuooAndDecom() {
+  void getAvailableQuestions_allAppTypesExceptDepConAndHuooAndDecom() {
     PwaApplicationType.stream()
         .filter(appType -> appType != PwaApplicationType.HUOO_VARIATION
             && appType != PwaApplicationType.DEPOSIT_CONSENT
@@ -317,7 +317,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_whenInitialVariation_andAllConditionalFieldsHidden() {
+  void cleanupData_whenInitialVariation_andAllConditionalFieldsHidden() {
 
     padProjectInformation.setLicenceTransferPlanned(false);
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
@@ -348,7 +348,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_whenHuooVariation_conditionalQuestionsNeverShown() {
+  void cleanupData_whenHuooVariation_conditionalQuestionsNeverShown() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.HUOO_VARIATION);
 
     padProjectInformation = new PadProjectInformation();
@@ -372,7 +372,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_whenDepositConsentVariation_conditionalQuestionsNeverShown() {
+  void cleanupData_whenDepositConsentVariation_conditionalQuestionsNeverShown() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
 
     padProjectInformation = new PadProjectInformation();
@@ -395,7 +395,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void cleanupData_whenInitialApplication_andAllConditionalQuestionsShownAndPopulated() {
+  void cleanupData_whenInitialApplication_andAllConditionalQuestionsShownAndPopulated() {
 
     padProjectInformation.setLicenceTransferPlanned(true);
     padProjectInformation.setLicenceTransferTimestamp(Instant.now());
@@ -426,7 +426,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void removeFdpQuestionData() {
+  void removeFdpQuestionData() {
     padProjectInformation.setFdpOptionSelected(true);
     padProjectInformation.setFdpConfirmationFlag(true);
     padProjectInformation.setFdpNotSelectedReason("reason");
@@ -442,7 +442,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void copySectionInformation_serviceIteractions() {
+  void copySectionInformation_serviceIteractions() {
     var copyToDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1000, 1001);
     var oldProjectInformation = new PadProjectInformation();
     oldProjectInformation.setId(2222);
@@ -472,7 +472,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getPermanentDepositsMadeAnswer_depositMadeNull() {
+  void getPermanentDepositsMadeAnswer_depositMadeNull() {
 
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(null);
@@ -485,7 +485,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getPermanentDepositsMadeAnswer_depositMadeFalse() {
+  void getPermanentDepositsMadeAnswer_depositMadeFalse() {
 
     PadProjectInformation projectInformation = new PadProjectInformation();
     projectInformation.setPermanentDepositsMade(PermanentDepositMade.NONE);
@@ -499,7 +499,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void getAvailableMailMergeFields() {
+  void getAvailableMailMergeFields() {
 
     PwaApplicationType.stream().forEach(appType -> {
 
@@ -521,7 +521,7 @@ public class PadProjectInformationServiceTest {
   }
 
   @Test
-  public void resolveMailMergeFields() {
+  void resolveMailMergeFields() {
 
     var pwaDetail = new MasterPwaDetail();
     pwaDetail.setReference("1/W/1");

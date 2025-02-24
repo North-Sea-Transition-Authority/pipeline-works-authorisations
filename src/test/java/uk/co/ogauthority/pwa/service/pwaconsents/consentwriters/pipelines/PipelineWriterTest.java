@@ -8,15 +8,16 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
+import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransfer;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
@@ -25,8 +26,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineWriterTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineWriterTest {
 
   @Mock
   private PadPipelineIdentDataService padPipelineIdentDataService;
@@ -44,21 +45,19 @@ public class PipelineWriterTest {
   private Map<Pipeline, PadPipelineDto> pipelineToPadPipelineDtoMap;
 
   private ConsentWriterDto consentWriterDto;
+  private List<PadPipelineIdentData> identData;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     detail = new PwaApplicationDetail();
 
     pipelineToPadPipelineDtoMap = PipelineWriterTestUtils.createPipelineToPadPipelineDtoMap();
 
-    var identData = pipelineToPadPipelineDtoMap.values().stream()
+    identData = pipelineToPadPipelineDtoMap.values().stream()
         .flatMap(dto -> dto.getIdentToIdentDataSetMap().values().stream())
         .flatMap(Collection::stream)
-        .collect(Collectors.toList());
-
-    when(padPipelineIdentDataService.getAllPipelineIdentDataForPwaApplicationDetail(detail))
-        .thenReturn(identData);
+        .toList();
 
     pipelineWriter = new PipelineWriter(padPipelineIdentDataService, pipelineDetailService, padPipelineTransferService);
 
@@ -67,7 +66,7 @@ public class PipelineWriterTest {
   }
 
   @Test
-  public void writerIsApplicable_hasPipelinesTask() {
+  void writerIsApplicable_hasPipelinesTask() {
 
     boolean isApplicable = pipelineWriter.writerIsApplicable(Set.of(ApplicationTask.PIPELINES), new PwaConsent());
 
@@ -76,7 +75,7 @@ public class PipelineWriterTest {
   }
 
   @Test
-  public void writerIsApplicable_doesNotHavePipelinesTask() {
+  void writerIsApplicable_doesNotHavePipelinesTask() {
 
     boolean isApplicable = pipelineWriter.writerIsApplicable(Set.of(ApplicationTask.HUOO), new PwaConsent());
 
@@ -85,7 +84,10 @@ public class PipelineWriterTest {
   }
 
   @Test
-  public void write() {
+  void write() {
+
+    when(padPipelineIdentDataService.getAllPipelineIdentDataForPwaApplicationDetail(detail))
+        .thenReturn(identData);
 
     var consent = new PwaConsent();
     pipelineWriter.write(detail, consent, consentWriterDto);
@@ -95,7 +97,10 @@ public class PipelineWriterTest {
   }
 
   @Test
-  public void write_transferOut() {
+  void write_transferOut() {
+
+    when(padPipelineIdentDataService.getAllPipelineIdentDataForPwaApplicationDetail(detail))
+        .thenReturn(identData);
 
     var transfer = new PadPipelineTransfer();
     var pipes = new ArrayList<>(pipelineToPadPipelineDtoMap.keySet());
@@ -118,7 +123,10 @@ public class PipelineWriterTest {
   }
 
   @Test
-  public void write_transferIn() {
+  void write_transferIn() {
+
+    when(padPipelineIdentDataService.getAllPipelineIdentDataForPwaApplicationDetail(detail))
+        .thenReturn(identData);
 
     var transfer = new PadPipelineTransfer();
     var pipes = new ArrayList<>(pipelineToPadPipelineDtoMap.keySet());

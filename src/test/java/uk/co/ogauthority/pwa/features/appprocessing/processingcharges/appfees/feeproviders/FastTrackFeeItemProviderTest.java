@@ -8,11 +8,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeeItem;
@@ -22,8 +24,9 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.in
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FastTrackFeeItemProviderTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class FastTrackFeeItemProviderTest {
 
   private static final String FEE_DESC = "FEE_1";
   private static final int FEE_AMOUNT = 100;
@@ -42,8 +45,8 @@ public class FastTrackFeeItemProviderTest {
   private FeePeriodDetailFeeItem feePeriodDetailFeeItem;
   private FeeItem feeItem;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     feeItemProvider = new FastTrackFeeItemProvider(feePeriodDetailItemRepository);
 
@@ -66,24 +69,24 @@ public class FastTrackFeeItemProviderTest {
   }
 
   @Test
-  public void getProvisionOrdering_valueTest() {
+  void getProvisionOrdering_valueTest() {
     assertThat(feeItemProvider.getProvisionOrdering()).isEqualTo(20);
   }
 
   @Test
-  public void canProvideFeeItems_whenSubmittedAsFastTrack() {
+  void canProvideFeeItems_whenSubmittedAsFastTrack() {
     pwaApplicationDetail.setSubmittedAsFastTrackFlag(true);
     assertThat(feeItemProvider.canProvideFeeItems(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canProvideFeeItems_whenNotSubmittedAsFastTrack() {
+  void canProvideFeeItems_whenNotSubmittedAsFastTrack() {
     pwaApplicationDetail.setSubmittedAsFastTrackFlag(false);
     assertThat(feeItemProvider.canProvideFeeItems(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void provideFees() {
+  void provideFees() {
     var feeItems = feeItemProvider.provideFees(feePeriodDetail, pwaApplicationDetail);
     assertThat(feeItems).hasOnlyOneElementSatisfying(
         applicationFeeItem -> assertThat(applicationFeeItem).isEqualTo(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT))
@@ -96,7 +99,7 @@ public class FastTrackFeeItemProviderTest {
   }
 
   @Test
-  public void getApplicationFeeType() {
+  void getApplicationFeeType() {
     assertThat(feeItemProvider.getApplicationFeeType()).isEqualTo(FEE_TYPE);
   }
 }

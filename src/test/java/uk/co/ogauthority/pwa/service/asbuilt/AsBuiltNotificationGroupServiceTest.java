@@ -5,17 +5,17 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationGroupServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationGroupServiceTest {
 
   private AsBuiltNotificationGroupService asBuiltNotificationGroupService;
 
@@ -27,13 +27,13 @@ public class AsBuiltNotificationGroupServiceTest {
   private final AsBuiltNotificationGroup asBuiltNotificationGroup = AsBuiltNotificationGroupTestUtil
       .createGroupWithConsent_withApplication_fromNgId(AS_BUILT_NOTIFICATION_GROUP_ID);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationGroupService = new AsBuiltNotificationGroupService(asBuiltNotificationGroupRepository);
   }
 
   @Test
-  public void getAsBuiltNotificationGroup() {
+  void getAsBuiltNotificationGroup() {
     when(asBuiltNotificationGroupRepository.findById(AS_BUILT_NOTIFICATION_GROUP_ID))
         .thenReturn(Optional.of(asBuiltNotificationGroup));
 
@@ -45,7 +45,7 @@ public class AsBuiltNotificationGroupServiceTest {
   }
 
   @Test
-  public void getAsBuiltNotificationGroupPerConsent() {
+  void getAsBuiltNotificationGroupPerConsent() {
     when(asBuiltNotificationGroupRepository.findByPwaConsent(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(Optional.of(asBuiltNotificationGroup));
 
@@ -56,7 +56,7 @@ public class AsBuiltNotificationGroupServiceTest {
   }
 
   @Test
-  public void getMasterPwaForAsBuiltNotificationGroup() {
+  void getMasterPwaForAsBuiltNotificationGroup() {
     when(asBuiltNotificationGroupRepository.findById(AS_BUILT_NOTIFICATION_GROUP_ID))
         .thenReturn(Optional.of(asBuiltNotificationGroup));
 

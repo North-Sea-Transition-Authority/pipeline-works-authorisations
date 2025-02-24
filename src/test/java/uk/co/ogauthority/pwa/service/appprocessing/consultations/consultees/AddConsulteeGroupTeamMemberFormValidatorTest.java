@@ -8,25 +8,25 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.form.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberForm;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AddConsulteeGroupTeamMemberFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class AddConsulteeGroupTeamMemberFormValidatorTest {
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;
@@ -36,8 +36,8 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   private AddConsulteeGroupTeamMemberForm memberForm;
   private AddConsulteeGroupTeamMemberFormValidator memberFormValidator;
 
-  @Before
-  public void before() {
+  @BeforeEach
+  void before() {
 
     groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("Environmental Management Team", "EMT");
 
@@ -47,7 +47,7 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_noErrors() {
+  void validate_userIdentifier_noErrors() {
 
     var person = new Person();
 
@@ -62,7 +62,7 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_blank() {
+  void validate_userIdentifier_blank() {
 
     var errors = ValidatorTestUtils.getFormValidationErrors(memberFormValidator, memberForm, groupDetail);
 
@@ -73,7 +73,7 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_userNotFound() {
+  void validate_userIdentifier_userNotFound() {
 
     when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
 
@@ -88,7 +88,7 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_userAlreadyExists() {
+  void validate_userIdentifier_userAlreadyExists() {
 
     var person = new Person();
     var existingMember = new ConsulteeGroupTeamMember(groupDetail.getConsulteeGroup(), person, Set.of(
@@ -106,7 +106,7 @@ public class AddConsulteeGroupTeamMemberFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifier_partOfAnotherConsulteeGroupTeam() {
+  void validate_userIdentifier_partOfAnotherConsulteeGroupTeam() {
 
     var person = new Person();
     var newGroup = ConsulteeGroupTestingUtils.createConsulteeGroup("group2", "g2").getConsulteeGroup();

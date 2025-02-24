@@ -18,7 +18,10 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
   private static final long serialVersionUID = 1;
 
   private Collection<PwaUserPrivilege> userPrivileges;
-  private final Integer proxyUserWuaId;
+  private Integer proxyUserWuaId;
+
+  public AuthenticatedUserAccount() {
+  }
 
   public AuthenticatedUserAccount(WebUserAccount webUserAccount, Collection<PwaUserPrivilege> userPrivileges) {
     this(webUserAccount, userPrivileges, null);
@@ -45,6 +48,10 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
 
   public void setPrivileges(Collection<PwaUserPrivilege> userPrivileges) {
     this.userPrivileges = userPrivileges;
+  }
+
+  public void setProxyUserWuaId(Integer proxyUserWuaId) {
+    this.proxyUserWuaId = proxyUserWuaId;
   }
 
   public Optional<Integer> getProxyUserWuaId() {

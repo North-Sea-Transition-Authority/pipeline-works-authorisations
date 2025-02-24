@@ -1,20 +1,19 @@
 package uk.co.ogauthority.pwa.service.asbuilt;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.asbuilt.AsBuiltNotificationDeadlinePassedEmailProps;
@@ -29,8 +28,8 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationEmailServiceTest {
 
   private AsBuiltNotificationEmailService asBuiltNotificationEmailService;
 
@@ -60,18 +59,21 @@ public class AsBuiltNotificationEmailServiceTest {
 
   private final Person person = PersonTestUtil.createDefaultPerson();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     asBuiltNotificationEmailService = new AsBuiltNotificationEmailService(notifyService, caseLinkService, OGA_CONSENTS_EMAIL);
 
-    when(caseLinkService.generateAsBuiltNotificationSummaryLink(any(), any())).thenCallRealMethod();
-    when(caseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
+
 
   }
 
   @Test
-  public void sendAsBuiltNotificationNotPerConsentEmail() {
+  void sendAsBuiltNotificationNotPerConsentEmail() {
+    String caseManagementLink = "case management link url";
+    when(caseLinkService.generateAsBuiltNotificationSummaryLink(asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(), pipelineDetail.getPipelineId().asInt()))
+        .thenReturn(caseManagementLink);
+
     asBuiltNotificationEmailService.sendAsBuiltNotificationNotPerConsentEmail(OGA_CONSENTS_EMAIL, "recipientName",
         asBuiltNotificationGroup, pipelineDetail, AS_BUILT_NOTIFICATION_STATUS);
     verify(notifyService).sendEmail(asBuiltNotificationNotPerConsentEmailPropsArgumentCaptor.capture(), eq(OGA_CONSENTS_EMAIL));
@@ -81,13 +83,13 @@ public class AsBuiltNotificationEmailServiceTest {
         "AS_BUILT_GROUP_REF", asBuiltNotificationGroup.getReference(),
         "PIPELINE_NUMBER", pipelineDetail.getPipelineNumber(),
         "AS_BUILT_NOTIFICATION_STATUS", AS_BUILT_NOTIFICATION_STATUS.getDisplayName(),
-        "AS_BUILT_DASHBOARD_LINK", caseLinkService.generateAsBuiltNotificationSummaryLink(
-            asBuiltNotificationGroup.getMasterPwaIdFromGroupConsent(), pipelineDetail.getPipelineId().asInt())
+        "AS_BUILT_DASHBOARD_LINK", caseManagementLink
     ));
   }
 
   @Test
-  public void sendAsBuiltNotificationDeadlineUpcomingEmail() {
+  void sendAsBuiltNotificationDeadlineUpcomingEmail() {
+    when(caseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
     asBuiltNotificationEmailService.sendUpcomingDeadlineEmail(person.getEmailAddress(), person.getFullName(),
         asBuiltNotificationGroup.getReference());
     verify(notifyService).sendEmail(asBuiltNotificationDeadlineUpcomingEmailPropsArgumentCaptor.capture(), eq(person.getEmailAddress()));
@@ -100,7 +102,8 @@ public class AsBuiltNotificationEmailServiceTest {
   }
 
   @Test
-  public void sendAsBuiltNotificationDeadlinePassedEmail() {
+  void sendAsBuiltNotificationDeadlinePassedEmail() {
+    when(caseLinkService.generateAsBuiltNotificationWorkareaLink()).thenCallRealMethod();
     asBuiltNotificationEmailService.sendDeadlinePassedEmail(person.getEmailAddress(), person.getFullName(),
         asBuiltNotificationGroup.getReference());
     verify(notifyService).sendEmail(asBuiltNotificationDeadlinePassedEmailPropsArgumentCaptor.capture(), eq(person.getEmailAddress()));

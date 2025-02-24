@@ -8,11 +8,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -26,8 +26,8 @@ import uk.co.ogauthority.pwa.model.enums.documents.SectionClauseVersionStatus;
 import uk.co.ogauthority.pwa.model.form.documents.ClauseForm;
 import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentClauseServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentClauseServiceTest {
 
   @Mock
   private Clock clock;
@@ -48,8 +48,8 @@ public class DocumentClauseServiceTest {
 
   private Instant clockTime;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     parent = new DocumentInstanceSectionClause();
 
@@ -76,7 +76,7 @@ public class DocumentClauseServiceTest {
   }
 
   @Test
-  public void addClauseAfter() {
+  void addClauseAfter() {
 
     clauseRecord.setDocumentTemplateSectionClause(templateClause);
 
@@ -103,7 +103,7 @@ public class DocumentClauseServiceTest {
 
 
   @Test
-  public void addClauseBefore() {
+  void addClauseBefore() {
 
     var notIncrementedVersion = new DocumentInstanceSectionClauseVersion();
     notIncrementedVersion.setLevelOrder(1);
@@ -158,7 +158,7 @@ public class DocumentClauseServiceTest {
   }
 
   @Test
-  public void addSubClauseFor() {
+  void addSubClauseFor() {
 
     clauseRecord.setDocumentTemplateSectionClause(templateClause);
 
@@ -184,7 +184,7 @@ public class DocumentClauseServiceTest {
   }
 
   @Test
-  public void editClause_newClauseCreated_originalClauseEnded() {
+  void editClause_newClauseCreated_originalClauseEnded() {
 
     var clause = new DocumentInstanceSectionClause();
     var parent = new DocumentInstanceSectionClause();
@@ -242,7 +242,7 @@ public class DocumentClauseServiceTest {
   }
 
   @Test
-  public void removeClause() {
+  void removeClause() {
 
     //sub child clause
     var subChildDocumentInstance = new DocumentInstance();

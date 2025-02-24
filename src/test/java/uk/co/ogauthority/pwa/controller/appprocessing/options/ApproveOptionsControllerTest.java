@@ -11,21 +11,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -48,9 +46,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.appprocessing.options.ApproveOptionsFormValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ApproveOptionsController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final String DEADLINE_DAY_ATTR = "deadlineDateDay";
   private static final String DEADLINE_MONTH_ATTR = "deadlineDateMonth";
@@ -79,8 +76,8 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   private AuthenticatedUserAccount user;
   private Person person;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     person = PersonTestUtil.createPersonFrom(new PersonId(1));
     user = new AuthenticatedUserAccount(
@@ -110,7 +107,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderApproveOptions_appStatusSmokeTest() {
+  void renderApproveOptions_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ApproveOptionsController.class)
@@ -120,7 +117,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderApproveOptions_processingPermissionSmokeTest() {
+  void renderApproveOptions_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -132,7 +129,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
 
 
   @Test
-  public void approveOptions_appStatusSmokeTest() {
+  void approveOptions_appStatusSmokeTest() {
     mockApproveOptionsValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -143,7 +140,7 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void approveOptions_processingPermissionSmokeTest() {
+  void approveOptions_processingPermissionSmokeTest() {
     mockApproveOptionsValidationFail();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -155,33 +152,33 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void approveOptions_whenTaskNotAccessible() throws Exception {
+  void approveOptions_whenTaskNotAccessible() throws Exception {
     when(approveOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderApproveOptions_whenTaskNotAccessible() throws Exception {
+  void renderApproveOptions_whenTaskNotAccessible() throws Exception {
     when(approveOptionsTaskService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void approveOptions_whenTaskAccessible_andfailsValidation() throws Exception {
+  void approveOptions_whenTaskAccessible_andfailsValidation() throws Exception {
     when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
     mockApproveOptionsValidationFail();
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .with(csrf())
     )
@@ -191,12 +188,12 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void approveOptions_whenTaskAccessible_andPassesValidation() throws Exception {
+  void approveOptions_whenTaskAccessible_andPassesValidation() throws Exception {
     when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(post(ReverseRouter.route(on(ApproveOptionsController.class)
         .approveOptions(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param(DEADLINE_DAY_ATTR, "1")
         .param(DEADLINE_MONTH_ATTR, "12")
         .param(DEADLINE_YEAR_ATTR, "2020")
@@ -213,12 +210,12 @@ public class ApproveOptionsControllerTest extends PwaAppProcessingContextAbstrac
   }
 
   @Test
-  public void renderApproveOptions_whenTaskAccessible() throws Exception {
+  void renderApproveOptions_whenTaskAccessible() throws Exception {
     when(approveOptionsTaskService.taskAccessible(any())).thenReturn(true);
 
     mockMvc.perform(get(ReverseRouter.route(on(ApproveOptionsController.class)
         .renderApproveOptions(APP_ID, APP_TYPE, null, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
   }
 

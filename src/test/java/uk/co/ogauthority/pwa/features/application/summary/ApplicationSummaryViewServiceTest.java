@@ -15,11 +15,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -31,8 +31,8 @@ import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSummaryViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSummaryViewServiceTest {
 
   @Mock
   private ApplicationSummaryService applicationSummaryService;
@@ -61,8 +61,8 @@ public class ApplicationSummaryViewServiceTest {
   private static Instant TODAY_MORNING;
   private static Instant YESTERDAY;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     applicationSummaryViewService = new ApplicationSummaryViewService(applicationSummaryService, templateRenderingService, pwaApplicationDetailService);
     detail = new PwaApplicationDetail();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
@@ -74,7 +74,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getApplicationSummaryView_usingDetail() {
+  void getApplicationSummaryView_usingDetail() {
 
     when(applicationSummaryService.summarise(detail)).thenReturn(List.of(
         new ApplicationSectionSummary("test", List.of(SidebarSectionLink.createAnchorLink("text", "#")), Map.of("test", "1")),
@@ -93,7 +93,7 @@ public class ApplicationSummaryViewServiceTest {
 
 
   @Test
-  public void getApplicationSummaryViewForId_verifyServiceInteractions() {
+  void getApplicationSummaryViewForId_verifyServiceInteractions() {
     when(pwaApplicationDetailService.getDetailByDetailId(APP_DETAIL_ID3)).thenReturn(detail);
     applicationSummaryViewService.getApplicationSummaryViewForAppDetailId(APP_DETAIL_ID3);
     verify(pwaApplicationDetailService).getDetailByDetailId(APP_DETAIL_ID3);
@@ -102,7 +102,7 @@ public class ApplicationSummaryViewServiceTest {
 
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_onlyDetailsUpdatedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
+  void getAppDetailVersionSearchSelectorItems_onlyDetailsUpdatedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
     var appDetailSubmittedTodayAfternoon = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID3, VERSION_3, TODAY_AFTERNOON, CASE_OFFICER_REVIEW);
     var appDetailSubmittedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
@@ -134,7 +134,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_onlyLatestDetailVersionHasLatestVersionText() {
+  void getAppDetailVersionSearchSelectorItems_onlyLatestDetailVersionHasLatestVersionText() {
 
     var appDetailSubmittedYesterday = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, YESTERDAY, CASE_OFFICER_REVIEW);
     var appDetailSubmittedTodayMorning = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, TODAY_MORNING, CASE_OFFICER_REVIEW);
@@ -155,7 +155,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_appHasUpdateRequestAndNonIndustryEditableVersions_updateRequestVersionNotIncludedInSelectorOptions() {
+  void getAppDetailVersionSearchSelectorItems_appHasUpdateRequestAndNonIndustryEditableVersions_updateRequestVersionNotIncludedInSelectorOptions() {
 
     var appDetailUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, UPDATE_REQUESTED);
     var appDetailNoUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
@@ -176,7 +176,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_appHasDraftAndNonIndustryEditableVersions_draftVersionNotIncludedInSelectorOptions() {
+  void getAppDetailVersionSearchSelectorItems_appHasDraftAndNonIndustryEditableVersions_draftVersionNotIncludedInSelectorOptions() {
 
     var appDetailDraft = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, DRAFT);
     var appDetailNoUpdateRequested = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID1, VERSION_1, YESTERDAY, CASE_OFFICER_REVIEW);
@@ -197,7 +197,7 @@ public class ApplicationSummaryViewServiceTest {
   }
 
   @Test
-  public void getAppDetailVersionSearchSelectorItems_userIsConsultee_versionsAreSatisfactoryAndNonSatisfactory_onlySatisfactoryVersionIncludedInOptions() {
+  void getAppDetailVersionSearchSelectorItems_userIsConsultee_versionsAreSatisfactoryAndNonSatisfactory_onlySatisfactoryVersionIncludedInOptions() {
 
     var appDetailSatisfactory = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_ID, APP_DETAIL_ID2, VERSION_2, TODAY_MORNING, CASE_OFFICER_REVIEW);
     appDetailSatisfactory.setConfirmedSatisfactoryTimestamp(Instant.now());

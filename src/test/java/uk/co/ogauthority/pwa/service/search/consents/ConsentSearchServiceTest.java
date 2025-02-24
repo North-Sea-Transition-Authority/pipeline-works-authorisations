@@ -9,8 +9,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.IntStream;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +44,7 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
 
+// IJ seems to give spurious warnings when running with embedded H2
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -51,8 +52,7 @@ import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-// IJ seems to give spurious warnings when running with embedded H2
-public class ConsentSearchServiceTest {
+class ConsentSearchServiceTest {
 
   @Autowired
   private EntityManager entityManager;
@@ -78,8 +78,8 @@ public class ConsentSearchServiceTest {
   private AuthenticatedUserAccount ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(12))), Set.of(
       PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_CONSENT_SEARCH));
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     consentSearchService = new ConsentSearchService(entityManager, predicateProviders, consentSearchItemRepository);
 
@@ -100,7 +100,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_ogaUser_unrestricted_sortedByIdDesc() {
+  void search_ogaUser_unrestricted_sortedByIdDesc() {
 
     setUpSearchData();
 
@@ -124,7 +124,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_industryUser_restrictedOrgGrpsReturned_sortedByIdDesc() {
+  void search_industryUser_restrictedOrgGrpsReturned_sortedByIdDesc() {
 
     setUpSearchData();
 
@@ -148,7 +148,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_industryUser_filterByOrgUnitId_userInOrgGrp_filteredAndReturned() {
+  void search_industryUser_filterByOrgUnitId_userInOrgGrp_filteredAndReturned() {
 
     setUpSearchData();
 
@@ -170,7 +170,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_industryUser_filterByOrgUnitId_userNotInOrgGrp_notReturned() {
+  void search_industryUser_filterByOrgUnitId_userNotInOrgGrp_notReturned() {
 
     setUpSearchData();
 
@@ -190,7 +190,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_ogaUser_filterByOrgUnitId_filteredAndReturned() {
+  void search_ogaUser_filterByOrgUnitId_filteredAndReturned() {
 
     setUpSearchData();
 
@@ -211,7 +211,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByConsentReference_smallRefFragment_filteredAndReturned() {
+  void search_filterByConsentReference_smallRefFragment_filteredAndReturned() {
 
     setUpSearchData();
 
@@ -233,7 +233,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByConsentReference_fullRefFragment_filteredAndReturned() {
+  void search_filterByConsentReference_fullRefFragment_filteredAndReturned() {
 
     setUpSearchData();
 
@@ -254,7 +254,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByConsentReference_nothingFound() {
+  void search_filterByConsentReference_nothingFound() {
 
     setUpSearchData();
 
@@ -276,7 +276,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByPipelineReference_likeMatch_filteredAndReturned() {
+  void search_filterByPipelineReference_likeMatch_filteredAndReturned() {
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
     var params = new ConsentSearchParams();
@@ -293,7 +293,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByPipelineReference_exactMatch_filteredAndReturned() {
+  void search_filterByPipelineReference_exactMatch_filteredAndReturned() {
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
     var params = new ConsentSearchParams();
@@ -310,7 +310,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_filterByPipelineReference_searchAndPersistedRefAreDifferent_nothingFound() {
+  void search_filterByPipelineReference_searchAndPersistedRefAreDifferent_nothingFound() {
 
     var context = new ConsentSearchContext(ogaUser, UserType.OGA);
     var params = new ConsentSearchParams();
@@ -330,7 +330,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_oga_resultsLimited() {
+  void search_oga_resultsLimited() {
 
     // insert 20 more search items into the view than the max result size
     int start = 1000;
@@ -352,7 +352,7 @@ public class ConsentSearchServiceTest {
 
   @Test
   @Transactional
-  public void search_industry_resultsLimited() {
+  void search_industry_resultsLimited() {
 
     // insert 20 more search items into the view than the max result size
     int start = 2000;

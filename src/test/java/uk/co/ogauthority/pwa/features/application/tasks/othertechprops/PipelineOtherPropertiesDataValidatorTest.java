@@ -5,32 +5,32 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.MinMaxValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInput;
 import uk.co.ogauthority.pwa.util.forminputs.minmax.MinMaxInputValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineOtherPropertiesDataValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineOtherPropertiesDataValidatorTest {
 
   private PipelineOtherPropertiesDataValidator validator;
 
   private MinMaxInputValidator minMaxInputValidator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     minMaxInputValidator = new MinMaxInputValidator();
     validator = new PipelineOtherPropertiesDataValidator(minMaxInputValidator);
   }
 
 
   @Test
-  public void validate_availability_notSelected() {
+  void validate_availability_notSelected() {
     var form = new PipelineOtherPropertiesDataForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, OtherPipelineProperty.MERCURY,
       ValidationType.FULL);
@@ -48,7 +48,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_waxContent() {
+  void validate_invalid_waxContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-3, 5.21), OtherPipelineProperty.WAX_CONTENT, ValidationType.FULL);
 
@@ -59,7 +59,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_valid_waxContent() {
+  void validate_valid_waxContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(3, 5.2), OtherPipelineProperty.WAX_CONTENT, ValidationType.FULL);
 
@@ -72,7 +72,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_waxAppearanceTemp() {
+  void validate_invalid_waxAppearanceTemp() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(2.3, 5.2), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE, ValidationType.FULL);
 
@@ -83,7 +83,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_valid_waxAppearanceTemp() {
+  void validate_valid_waxAppearanceTemp() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(2, 5), OtherPipelineProperty.WAX_APPEARANCE_TEMPERATURE, ValidationType.FULL);
 
@@ -94,7 +94,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_acidNum() {
+  void validate_invalid_acidNum() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.2), OtherPipelineProperty.ACID_NUM, ValidationType.FULL);
 
@@ -105,7 +105,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_viscosity() {
+  void validate_invalid_viscosity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.22), OtherPipelineProperty.VISCOSITY, ValidationType.FULL);
 
@@ -116,7 +116,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_valid_viscosity() {
+  void validate_valid_viscosity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(4, 5.2), OtherPipelineProperty.VISCOSITY, ValidationType.FULL);
 
@@ -129,7 +129,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_densityGravity() {
+  void validate_invalid_densityGravity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.22), OtherPipelineProperty.DENSITY_GRAVITY, ValidationType.FULL);
 
@@ -141,7 +141,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
 
 
   @Test
-  public void validate_valid_densityGravity() {
+  void validate_valid_densityGravity() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(4, 5), OtherPipelineProperty.DENSITY_GRAVITY, ValidationType.FULL);
 
@@ -154,7 +154,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_sulphurContent() {
+  void validate_invalid_sulphurContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.232), OtherPipelineProperty.SULPHUR_CONTENT, ValidationType.FULL);
 
@@ -165,7 +165,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_pourPoint() {
+  void validate_invalid_pourPoint() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(4, 5.2), OtherPipelineProperty.POUR_POINT, ValidationType.FULL);
 
@@ -175,7 +175,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_solidContent() {
+  void validate_invalid_solidContent() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.232), OtherPipelineProperty.SOLID_CONTENT, ValidationType.FULL);
 
@@ -186,7 +186,7 @@ public class PipelineOtherPropertiesDataValidatorTest {
   }
 
   @Test
-  public void validate_invalid_mercury() {
+  void validate_invalid_mercury() {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator,
         createForm(-4, 5.232), OtherPipelineProperty.MERCURY, ValidationType.FULL);
 

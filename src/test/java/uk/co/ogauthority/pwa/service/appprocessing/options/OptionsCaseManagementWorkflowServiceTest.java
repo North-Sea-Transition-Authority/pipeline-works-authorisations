@@ -6,11 +6,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowMessageEvents;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OptionsCaseManagementWorkflowServiceTest {
+@ExtendWith(MockitoExtension.class)
+class OptionsCaseManagementWorkflowServiceTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
@@ -46,8 +46,8 @@ public class OptionsCaseManagementWorkflowServiceTest {
 
   private AuthenticatedUserAccount authenticatedUserAccount;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -61,7 +61,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
   }
 
   @Test
-  public void doOptionsApprovedWorkflowUpdates_serviceInteractions() {
+  void doOptionsApprovedWorkflowUpdates_serviceInteractions() {
 
     optionsCaseManagementWorkflowService.doOptionsApprovalWork(pwaApplicationDetail);
 
@@ -82,7 +82,7 @@ public class OptionsCaseManagementWorkflowServiceTest {
   }
 
   @Test
-  public void doOptionsCloseOutWorkFlowUpdates_serviceInteractions() {
+  void doOptionsCloseOutWorkFlowUpdates_serviceInteractions() {
 
     optionsCaseManagementWorkflowService.doCloseOutWork(pwaApplicationDetail, authenticatedUserAccount);
 

@@ -6,19 +6,19 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadHuooRoleMetadataProviderTest {
+@ExtendWith(MockitoExtension.class)
+class PadHuooRoleMetadataProviderTest {
 
   @Mock
   private PadOrganisationRolesRepository padOrganisationRolesRepository;
@@ -27,8 +27,8 @@ public class PadHuooRoleMetadataProviderTest {
 
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     padHuooRoleMetadataProvider = new PadHuooRoleMetadataProvider(padOrganisationRolesRepository);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -36,9 +36,8 @@ public class PadHuooRoleMetadataProviderTest {
   }
 
 
-
   @Test
-  public void getRoleCountMap_noUnassignedRolesPresent() {
+  void getRoleCountMap_noUnassignedRolesPresent() {
 
     var unassignedUserRole = PadOrganisationRoleTestUtil.createOrgRole(HuooRole.USER);
     unassignedUserRole.setType(HuooType.UNASSIGNED_PIPELINE_SPLIT);

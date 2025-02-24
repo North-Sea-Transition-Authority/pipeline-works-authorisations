@@ -7,28 +7,28 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.internal.DevukFacilityRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DevukFacilityServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DevukFacilityServiceTest {
 
   @Mock
   private DevukFacilityRepository devukFacilityRepository;
 
   private DevukFacilityService devukFacilityService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     devukFacilityService = new DevukFacilityService(devukFacilityRepository);
   }
 
   @Test
-  public void getFacilities_serviceInteraction() {
+  void getFacilities_serviceInteraction() {
     var facility = new DevukFacility();
     when(devukFacilityRepository.findAllByFacilityNameContainsIgnoreCase(any(), any())).thenReturn(List.of(facility));
     var result = devukFacilityService.getFacilities("");
@@ -36,7 +36,7 @@ public class DevukFacilityServiceTest {
   }
 
   @Test
-  public void getFacilitiesInIds_ensureOnlyIntegersPassed() {
+  void getFacilitiesInIds_ensureOnlyIntegersPassed() {
     List<String> idList = List.of("1", "two", "3");
     devukFacilityService.getFacilitiesInIds(idList);
     verify(devukFacilityRepository, times(1)).findAllByIdIn(List.of(1, 3));

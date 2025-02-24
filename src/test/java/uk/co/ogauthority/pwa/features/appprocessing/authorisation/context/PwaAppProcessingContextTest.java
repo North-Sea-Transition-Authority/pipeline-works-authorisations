@@ -4,24 +4,24 @@ package uk.co.ogauthority.pwa.features.appprocessing.authorisation.context;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-public class PwaAppProcessingContextTest {
+class PwaAppProcessingContextTest {
 
   private PwaApplicationDetail appDetail;
 
-  @Before
-  public void setup(){
+  @BeforeEach
+  void setup(){
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
   @Test
-  public void hasAnyProcessingPermission_whenAllSearchPermissionsInContext() {
+  void hasAnyProcessingPermission_whenAllSearchPermissionsInContext() {
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         appDetail,
         EnumSet.of(
@@ -34,7 +34,7 @@ public class PwaAppProcessingContextTest {
   }
 
   @Test
-  public void hasAnyProcessingPermission_whenSomeSearchPermissionsInContext() {
+  void hasAnyProcessingPermission_whenSomeSearchPermissionsInContext() {
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         appDetail,
         EnumSet.of(
@@ -47,7 +47,7 @@ public class PwaAppProcessingContextTest {
   }
 
   @Test
-  public void hasAnyProcessingPermission_whenNoSearchPermissionsInContext() {
+  void hasAnyProcessingPermission_whenNoSearchPermissionsInContext() {
     var context = PwaAppProcessingContextTestUtil.withPermissions(
         appDetail,
         EnumSet.of(

@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 /**
  * A service to withdraw consultation requests from application.
@@ -33,7 +33,7 @@ public class WithdrawConsultationService {
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final ConsultationRequestService consultationRequestService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final NotifyService notifyService;
@@ -44,7 +44,7 @@ public class WithdrawConsultationService {
       ConsulteeGroupDetailService consulteeGroupDetailService,
       ConsultationRequestService consultationRequestService,
       CamundaWorkflowService camundaWorkflowService,
-      TeamManagementService teamManagementService,
+      OldTeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
       WorkflowAssignmentService workflowAssignmentService,
       NotifyService notifyService,

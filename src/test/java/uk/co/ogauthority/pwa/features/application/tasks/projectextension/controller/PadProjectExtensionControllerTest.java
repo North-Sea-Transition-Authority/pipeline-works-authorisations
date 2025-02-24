@@ -10,22 +10,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -43,9 +42,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PadProjectExtensionController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -68,10 +66,10 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
   @MockBean
   PadProjectExtensionService padProjectExtensionService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     webUserAccount = new WebUserAccount(1);
-    user = new AuthenticatedUserAccount(webUserAccount, Set.of());
+    user = new AuthenticatedUserAccount(webUserAccount, Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);
@@ -95,12 +93,12 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+  void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(
             PadProjectExtensionController.class)
             .renderProjectExtension(null, APP_ID, PwaApplicationType.INITIAL, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/projectExtension"))
@@ -109,7 +107,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void postProjectInformation_validationPasses_appTypeSmokeTest() throws Exception {
+  void postProjectInformation_validationPasses_appTypeSmokeTest() throws Exception {
     ControllerTestUtils.passValidationWhenPost(padProjectExtensionService, new ProjectExtensionForm(), ValidationType.FULL);
     mockMvc.perform(
         post(ReverseRouter.route(on(
@@ -120,7 +118,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
                 null,
                 APP_ID,
                 PwaApplicationType.INITIAL)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .param(ValidationType.FULL.getButtonText(), ""))
         .andExpect(status().is3xxRedirection())
@@ -128,7 +126,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
   }
 
   @Test
-  public void postProjectInformation_validationFail_appTypeSmokeTest() throws Exception {
+  void postProjectInformation_validationFail_appTypeSmokeTest() throws Exception {
     ControllerTestUtils.failValidationWhenPost(padProjectExtensionService, new ProjectExtensionForm(), ValidationType.FULL);
     mockMvc.perform(
             post(ReverseRouter.route(on(
@@ -139,7 +137,7 @@ public class PadProjectExtensionControllerTest extends PwaApplicationContextAbst
                     null,
                     APP_ID,
                     PwaApplicationType.INITIAL)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf())
                 .param(ValidationType.FULL.getButtonText(), ""))
         .andExpect(status().isOk())

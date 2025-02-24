@@ -9,11 +9,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadHuooRoleMetadataProvider;
 import uk.co.ogauthority.pwa.model.documents.instances.DocumentInstanceSectionClauseVersionDto;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HuooIntroductionGeneratorServiceTest {
+@ExtendWith(MockitoExtension.class)
+class HuooIntroductionGeneratorServiceTest {
 
   @Mock
   private DocumentInstanceService documentInstanceService;
@@ -50,8 +50,8 @@ public class HuooIntroductionGeneratorServiceTest {
 
   private DocumentView docView;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     huooIntroductionGeneratorService = new HuooIntroductionGeneratorService(
         documentInstanceService,
@@ -85,7 +85,7 @@ public class HuooIntroductionGeneratorServiceTest {
   }
 
   @Test
-  public void getDocumentSectionData_dataPresent() {
+  void getDocumentSectionData_dataPresent() {
 
     var docSectionData = huooIntroductionGeneratorService.getDocumentSectionData(detail, documentInstance, DocGenType.PREVIEW);
 

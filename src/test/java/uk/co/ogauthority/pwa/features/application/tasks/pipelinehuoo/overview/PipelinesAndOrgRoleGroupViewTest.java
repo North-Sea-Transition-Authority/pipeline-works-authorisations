@@ -1,15 +1,15 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.overview;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelinesAndOrgRoleGroupViewTest {
+@ExtendWith(MockitoExtension.class)
+class PipelinesAndOrgRoleGroupViewTest {
 
   @Test
-  public void testEquals() {
+  void equals() {
     EqualsVerifier.forClass(PipelinesAndOrgRoleGroupView.class)
         .verify();
 

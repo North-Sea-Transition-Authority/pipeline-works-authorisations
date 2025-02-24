@@ -3,42 +3,42 @@ package uk.co.ogauthority.pwa.model.entity.converters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PersonIdConverterTest {
+@ExtendWith(MockitoExtension.class)
+class PersonIdConverterTest {
   private static final int PERSON_ID = 1;
   private static final PersonId PERSON_ID_OBJ = new PersonId(PERSON_ID);
   private PersonIdConverter personIdConverter;
 
-  @Before
-  public void setup(){
+  @BeforeEach
+  void setup(){
     personIdConverter = new PersonIdConverter();
   }
 
   @Test
-  public void convertToDatabaseColumn_whenNotNull() {
+  void convertToDatabaseColumn_whenNotNull() {
 
     assertThat(personIdConverter.convertToDatabaseColumn(PERSON_ID_OBJ)).isEqualTo(PERSON_ID);
   }
 
   @Test
-  public void convertToDatabaseColumn_whenNull() {
+  void convertToDatabaseColumn_whenNull() {
 
     assertThat(personIdConverter.convertToDatabaseColumn(null)).isNull();
   }
 
   @Test
-  public void convertToEntityAttribute_whenNotNull() {
+  void convertToEntityAttribute_whenNotNull() {
     assertThat(personIdConverter.convertToEntityAttribute(PERSON_ID)).isEqualTo(PERSON_ID_OBJ);
   }
 
   @Test
-  public void convertToEntityAttribute_whenNull() {
+  void convertToEntityAttribute_whenNull() {
     assertThat(personIdConverter.convertToEntityAttribute(null)).isNull();
   }
 }

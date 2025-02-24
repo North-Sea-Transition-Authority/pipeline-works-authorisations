@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -11,17 +12,17 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.PearsBlockRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PearsBlockServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PearsBlockServiceTest {
 
   @Mock
   private PearsBlockRepository pearsBlockRepository;
@@ -51,19 +52,13 @@ public class PearsBlockServiceTest {
       "6",
       BlockLocation.OFFSHORE);
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pearsBlockService = new PearsBlockService(pearsBlockRepository, entityManager);
-
-    when(pearsBlockRepository.findByCompositeKeyAndBlockLocation(
-        licensedBlock.getCompositeKey(),
-        BlockLocation.OFFSHORE
-    ))
-        .thenReturn(Optional.of(licensedBlock));
   }
 
   @Test
-  public void findOffshorePickablePearsBlocks_whenBlockFounds() {
+  void findOffshorePickablePearsBlocks_whenBlockFounds() {
 
     var foundBlocks = List.of(
         licensedBlock,
@@ -89,35 +84,48 @@ public class PearsBlockServiceTest {
   }
 
   @Test
-  public void getExtantOrUnlicensedOffshorePearsBlockByCompositeKey_whenLicenceIsExtant_andBlockOffshore() {
+  void getExtantOrUnlicensedOffshorePearsBlockByCompositeKey_whenLicenceIsExtant_andBlockOffshore() {
     when(pearsBlockRepository.findByCompositeKeyAndBlockLocation(
         licensedBlock.getCompositeKey(),
         BlockLocation.OFFSHORE
     ))
         .thenReturn(Optional.of(licensedBlock));
 
-    assertThat(
-        pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(licensedBlock.getCompositeKey()).get())
-        .isEqualTo(licensedBlock);
+    assertThat(pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(licensedBlock.getCompositeKey()))
+        .contains(licensedBlock);
   }
 
   @Test
-  public void getExtantOrUnlicensedOffshorePearsBlockByCompositeKey_whenLicenceIsNotExtand_andBlockOffshore() {
+  void getExtantOrUnlicensedOffshorePearsBlockByCompositeKey_whenLicenceIsNotExtand_andBlockOffshore() {
+    when(pearsBlockRepository.findByCompositeKeyAndBlockLocation(
+        licensedBlock.getCompositeKey(),
+        BlockLocation.OFFSHORE
+    ))
+        .thenReturn(Optional.of(licensedBlock));
+
     licence.setLicenceStatus(LicenceStatus.SURRENDERED);
     assertThat(pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKey(licensedBlock.getCompositeKey()))
         .isEmpty();
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError_whenBlockNotFoundAtAll() {
+  @Test
+  void getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError_whenBlockNotFoundAtAll() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError("unknown");
+      pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError("unknown"));
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError_whenBlockFoundButLicenceNotExtant() {
-    licence.setLicenceStatus(LicenceStatus.SURRENDERED);
+  @Test
+  void getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError_whenBlockFoundButLicenceNotExtant() {
+    when(pearsBlockRepository.findByCompositeKeyAndBlockLocation(
+        licensedBlock.getCompositeKey(),
+        BlockLocation.OFFSHORE
+    ))
+        .thenReturn(Optional.of(licensedBlock));
 
-    pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(licensedBlock.getCompositeKey());
+    licence.setLicenceStatus(LicenceStatus.SURRENDERED);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+
+      pearsBlockService.getExtantOrUnlicensedOffshorePearsBlockByCompositeKeyOrError(licensedBlock.getCompositeKey()));
   }
 }

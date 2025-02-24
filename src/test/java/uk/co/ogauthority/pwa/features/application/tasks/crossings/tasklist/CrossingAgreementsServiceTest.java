@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.Crossing
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CrossingAgreementsServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CrossingAgreementsServiceTest {
   @Mock
   private PadMedianLineAgreementService padMedianLineAgreementService;
 
@@ -48,8 +48,8 @@ public class CrossingAgreementsServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     crossingAgreementsService = new CrossingAgreementsService(
@@ -63,7 +63,7 @@ public class CrossingAgreementsServiceTest {
   }
 
   @Test
-  public void getValidationResult_depcon_blocksComplete() {
+  void getValidationResult_depcon_blocksComplete() {
     var application = new PwaApplication(null, PwaApplicationType.DEPOSIT_CONSENT, null);
     pwaApplicationDetail.setPwaApplication(application);
 
@@ -73,7 +73,7 @@ public class CrossingAgreementsServiceTest {
   }
 
   @Test
-  public void getValidationResult_depcon_blocksIncomplete() {
+  void getValidationResult_depcon_blocksIncomplete() {
     var application = new PwaApplication(null, PwaApplicationType.DEPOSIT_CONSENT, null);
     pwaApplicationDetail.setPwaApplication(application);
 
@@ -83,14 +83,14 @@ public class CrossingAgreementsServiceTest {
   }
 
   @Test
-  public void getValidationResult_appTypesExceptDepcon_sectionsCrossedButIncomplete() {
+  void getValidationResult_appTypesExceptDepcon_sectionsCrossedButIncomplete() {
     when(crossingTypesService.isComplete(pwaApplicationDetail)).thenReturn(false);
     var validationResult =  crossingAgreementsService.getValidationResult(pwaApplicationDetail);
     assertThat(validationResult.isCrossingAgreementsValid()).isFalse();
   }
 
   @Test
-  public void getValidationResult_appTypesExceptDepcon_sectionsCrossedAndComplete() {
+  void getValidationResult_appTypesExceptDepcon_sectionsCrossedAndComplete() {
     when(crossingTypesService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(blockCrossingService.isComplete(pwaApplicationDetail)).thenReturn(true);
     when(padMedianLineAgreementService.isComplete(pwaApplicationDetail)).thenReturn(true);
@@ -102,9 +102,8 @@ public class CrossingAgreementsServiceTest {
   }
 
 
-
   @Test
-  public void copySectionInformation_serviceInteractions_allConditionalCrossingsTasksShown() {
+  void copySectionInformation_serviceInteractions_allConditionalCrossingsTasksShown() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 99, 99);
     pwaApplicationDetail.setCablesCrossed(true);
     pwaApplicationDetail.setPipelinesCrossed(true);
@@ -127,7 +126,7 @@ public class CrossingAgreementsServiceTest {
   }
 
   @Test
-  public void copySectionInformation_serviceInteractions_allConditionalCrossingsTasksHidden() {
+  void copySectionInformation_serviceInteractions_allConditionalCrossingsTasksHidden() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 99, 99);
 
     crossingAgreementsService.copySectionInformation(pwaApplicationDetail, newDetail);

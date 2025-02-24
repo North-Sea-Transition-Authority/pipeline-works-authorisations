@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,13 +13,13 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -46,8 +47,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.FinalisePublicNoticeValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class FinalisePublicNoticeServiceTest {
+@ExtendWith(MockitoExtension.class)
+class FinalisePublicNoticeServiceTest {
 
   private FinalisePublicNoticeService finalisePublicNoticeService;
 
@@ -89,9 +90,8 @@ public class FinalisePublicNoticeServiceTest {
   private AuthenticatedUserAccount user;
 
 
-
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     finalisePublicNoticeService = new FinalisePublicNoticeService(publicNoticeService, validator,
         camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService,
@@ -104,7 +104,7 @@ public class FinalisePublicNoticeServiceTest {
 
 
   @Test
-  public void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedExistsWithApp() {
+  void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedExistsWithApp() {
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeCanBeFinalised(pwaApplication);
@@ -112,7 +112,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedExistsWithDifferentApp() {
+  void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedExistsWithDifferentApp() {
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(new PwaApplication());
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of(publicNotice));
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeCanBeFinalised(pwaApplication);
@@ -120,7 +120,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedDoesNotExist() {
+  void publicNoticeCanBeFinalised_publicNoticeThatCanBeFinalisedDoesNotExist() {
     when(publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.CASE_OFFICER_REVIEW)).thenReturn(List.of());
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeCanBeFinalised(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
@@ -128,7 +128,7 @@ public class FinalisePublicNoticeServiceTest {
 
 
   @Test
-  public void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesExistsWithApp() {
+  void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesExistsWithApp() {
     var pwaApplication = new PwaApplication();
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -137,14 +137,14 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesDoesNotExist() {
+  void publicNoticeDatesCanBeUpdated_updatablePublicNoticeDatesDoesNotExist() {
     var publicNoticeExists = finalisePublicNoticeService.publicNoticeDatesCanBeUpdated(pwaApplication);
     assertThat(publicNoticeExists).isFalse();
   }
 
 
   @Test
-  public void validate_verifyServiceInteractions() {
+  void validate_verifyServiceInteractions() {
 
     var form = new FinalisePublicNoticeForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -154,7 +154,7 @@ public class FinalisePublicNoticeServiceTest {
 
 
   @Test
-  public void finalisePublicNotice_publicNoticeDateEntitySavedFromForm() {
+  void finalisePublicNotice_publicNoticeDateEntitySavedFromForm() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -181,7 +181,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void finalisePublicNotice_startDateBeforeToday_workflowTransitionsToPublishStage() {
+  void finalisePublicNotice_startDateBeforeToday_workflowTransitionsToPublishStage() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -202,7 +202,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void finalisePublicNotice_startDateAfterToday_workflowTransitionsToWaitingStage() {
+  void finalisePublicNotice_startDateAfterToday_workflowTransitionsToWaitingStage() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -222,7 +222,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void finalisePublicNotice_emailsSent() {
+  void finalisePublicNotice_emailsSent() {
 
     var publicNotice = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication))
@@ -251,7 +251,7 @@ public class FinalisePublicNoticeServiceTest {
 
 
   @Test
-  public void updatePublicNoticeDate_existingDateEntityEnded_newDateEntitySavedFromForm() {
+  void updatePublicNoticeDate_existingDateEntityEnded_newDateEntitySavedFromForm() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -285,7 +285,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void updatePublicNoticeDate_startDateAfterToday_workflowRemainsAtWaitingStage() {
+  void updatePublicNoticeDate_startDateAfterToday_workflowRemainsAtWaitingStage() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -303,7 +303,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void updatePublicNoticeDate_startDateBeforeToday_workflowTransitionsToEndStage() {
+  void updatePublicNoticeDate_startDateBeforeToday_workflowTransitionsToEndStage() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -325,7 +325,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void updatePublicNoticeDate_emailsSent() {
+  void updatePublicNoticeDate_emailsSent() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -356,7 +356,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void publishPublicNotice_verifyServiceInteractions_statusUpdatedToPublished() {
+  void publishPublicNotice_verifyServiceInteractions_statusUpdatedToPublished() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     finalisePublicNoticeService.publishPublicNotice(publicNotice);
@@ -370,7 +370,7 @@ public class FinalisePublicNoticeServiceTest {
   }
 
   @Test
-  public void mapUnpublishedPublicNoticeDateToForm_unpublishedPublicNoticeDateExists_dataMappedToForm() {
+  void mapUnpublishedPublicNoticeDateToForm_unpublishedPublicNoticeDateExists_dataMappedToForm() {
 
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
@@ -389,16 +389,15 @@ public class FinalisePublicNoticeServiceTest {
     assertThat(form.getDaysToBePublishedFor()).isEqualTo((int) publicNoticeDate.getPublicationDaysLength());
   }
 
-  @Test(expected = EntityLatestVersionNotFoundException.class)
-  public void mapUnpublishedPublicNoticeDateToForm_unpublishedPublicNoticeDateDoesNotExist() {
-
+  @Test
+  void mapUnpublishedPublicNoticeDateToForm_unpublishedPublicNoticeDateDoesNotExist() {
     var publicNotice = PublicNoticeTestUtil.createWaitingPublicNotice(pwaApplication);
     when(publicNoticeService.getLatestPublicNotice(pwaApplication)).thenReturn(publicNotice);
-
     when(publicNoticeDatesRepository.getByPublicNoticeAndEndedByPersonIdIsNull(publicNotice))
-        .thenReturn(Optional.empty());
+          .thenReturn(Optional.empty());
+    assertThrows(EntityLatestVersionNotFoundException.class, () ->
 
-    finalisePublicNoticeService.mapUnpublishedPublicNoticeDateToForm(pwaApplication, new FinalisePublicNoticeForm());
+      finalisePublicNoticeService.mapUnpublishedPublicNoticeDateToForm(pwaApplication, new FinalisePublicNoticeForm()));
   }
 
 

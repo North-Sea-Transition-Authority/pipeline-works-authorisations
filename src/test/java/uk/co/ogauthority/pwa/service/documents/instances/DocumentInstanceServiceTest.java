@@ -16,13 +16,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.documents.SectionClauseVersionDto;
@@ -52,8 +54,9 @@ import uk.co.ogauthority.pwa.testutils.DocumentDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.SectionClauseVersionDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentInstanceServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DocumentInstanceServiceTest {
 
   @Mock
   private DocumentInstanceRepository documentInstanceRepository;
@@ -105,8 +108,8 @@ public class DocumentInstanceServiceTest {
   private DocumentInstanceSectionClause clauseRecord;
   private DocumentInstanceSectionClauseVersion clauseVersion;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     documentTemplate = new DocumentTemplate();
     documentTemplate.setMnem(DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
@@ -148,7 +151,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void createFromDocumentDto_whenDocumentHasMultipleSections_andMultipleClausesPerSection() {
+  void createFromDocumentDto_whenDocumentHasMultipleSections_andMultipleClausesPerSection() {
 
     var docDto = DocumentDtoTestUtils.create(documentTemplate, clock, person, 2, 3, 3);
 
@@ -235,7 +238,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void clearClauses() {
+  void clearClauses() {
 
     var instance = new DocumentInstance(documentTemplate, applicationDetail.getPwaApplication(), fixedInstant);
 
@@ -271,7 +274,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void getDocumentInstance() {
+  void getDocumentInstance() {
 
     documentInstanceService.getDocumentInstance(applicationDetail.getPwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
 
@@ -281,7 +284,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void getDocumentView() {
+  void getDocumentView() {
 
     var docInstance = new DocumentInstance();
     docInstance.setPwaApplication(applicationDetail.getPwaApplication());
@@ -306,7 +309,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void getDocumentView_specificSectionOnly() {
+  void getDocumentView_specificSectionOnly() {
 
     var docInstance = new DocumentInstance();
     docInstance.setPwaApplication(applicationDetail.getPwaApplication());
@@ -339,7 +342,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void addClauseAfter() {
+  void addClauseAfter() {
 
     var docInstance = new DocumentInstance();
 
@@ -363,7 +366,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void addClauseBefore() {
+  void addClauseBefore() {
 
     var docInstance = new DocumentInstance();
 
@@ -401,7 +404,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void addSubClauseFor() {
+  void addSubClauseFor() {
 
     var docInstance = new DocumentInstance();
 
@@ -425,7 +428,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void editClause_updatedClauseVersionsSaved() {
+  void editClause_updatedClauseVersionsSaved() {
 
     var originalClauseVersion = new DocumentInstanceSectionClauseVersion();
     var newClauseVersion = new DocumentInstanceSectionClauseVersion();
@@ -440,7 +443,7 @@ public class DocumentInstanceServiceTest {
   }
 
   @Test
-  public void removeClause_updatedClausesSaved() {
+  void removeClause_updatedClausesSaved() {
 
     var parentClauseVersion = new DocumentInstanceSectionClauseVersion();
     var parentClause = new DocumentInstanceSectionClause();

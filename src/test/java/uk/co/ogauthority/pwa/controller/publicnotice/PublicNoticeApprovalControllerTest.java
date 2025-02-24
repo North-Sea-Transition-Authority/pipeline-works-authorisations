@@ -10,19 +10,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -48,9 +46,8 @@ import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PublicNoticeApprovalController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private PwaApplicationEndpointTestBuilder endpointTestBuilder;
 
@@ -68,8 +65,8 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
 
   private PublicNoticeRequest publicNoticeRequest;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTestBuilder = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
@@ -107,7 +104,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void renderApprovePublicNotice_appStatusSmokeTest() {
+  void renderApprovePublicNotice_appStatusSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -119,7 +116,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderApprovePublicNotice_processingPermissionSmokeTest() {
+  void renderApprovePublicNotice_processingPermissionSmokeTest() {
 
     endpointTestBuilder.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -131,7 +128,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderApprovePublicNotice_noSatisfactoryVersions() throws Exception {
+  void renderApprovePublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
@@ -139,32 +136,32 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeApprovalController.class).renderApprovePublicNotice(
         pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
+  void renderApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
 
     when(publicNoticeApprovalService.openPublicNoticeCanBeApproved(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeApprovalController.class)
         .renderApprovePublicNotice(
             pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }
 
   @Test
-  public void renderApprovePublicNotice_requestTextInModel() throws Exception {
+  void renderApprovePublicNotice_requestTextInModel() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(PublicNoticeApprovalController.class)
             .renderApprovePublicNotice(
                 pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(model().attribute("requestReason", publicNoticeRequest.getReason().getReasonText()))
         .andExpect(model().attribute("requestDescription", publicNoticeRequest.getReasonDescription()));
@@ -172,7 +169,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postApprovePublicNotice_appStatusSmokeTest() {
+  void postApprovePublicNotice_appStatusSmokeTest() {
 
     when(publicNoticeApprovalService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form"));
 
@@ -186,7 +183,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postApprovePublicNotice_permissionSmokeTest() {
+  void postApprovePublicNotice_permissionSmokeTest() {
 
     when(publicNoticeApprovalService.validate(any(), any())).thenReturn(new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form"));
 
@@ -200,7 +197,7 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postApprovePublicNotice_validationFail() throws Exception {
+  void postApprovePublicNotice_validationFail() throws Exception {
 
     var failedBindingResult = new BeanPropertyBindingResult(new PublicNoticeApprovalForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
@@ -208,34 +205,34 @@ public class PublicNoticeApprovalControllerTest extends PwaAppProcessingContextA
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class)
         .postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("publicNotice/approvePublicNotice"));
   }
 
   @Test
-  public void postApprovePublicNotice_noSatisfactoryVersions() throws Exception {
+  void postApprovePublicNotice_noSatisfactoryVersions() throws Exception {
 
     when(processingPermissionService.getProcessingPermissionsDto(any(), any())).thenReturn(new ProcessingPermissionsDto(
         PwaAppProcessingContextDtoTestUtils.emptyAppInvolvement(pwaApplicationDetail.getPwaApplication()),
         EnumSet.allOf(PwaAppProcessingPermission.class)));
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class).postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void postApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
+  void postApprovePublicNotice_noPublicNoticeToApprove() throws Exception {
 
     when(publicNoticeApprovalService.openPublicNoticeCanBeApproved(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(PublicNoticeApprovalController.class)
         .postApprovePublicNotice(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(result -> assertThat(result.getResolvedException()).isInstanceOf(AccessDeniedException.class));
   }

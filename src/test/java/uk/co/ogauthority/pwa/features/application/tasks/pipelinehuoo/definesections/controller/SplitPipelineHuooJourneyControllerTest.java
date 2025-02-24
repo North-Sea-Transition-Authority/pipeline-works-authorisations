@@ -14,21 +14,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -54,9 +52,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = SplitPipelineHuooJourneyController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContextAbstractControllerTest {
+class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
   private final int APP_ID = 10;
@@ -94,8 +91,8 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   private PickableIdentLocationOption identOption1;
   private PickableIdentLocationOption identOption2;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pipeline = new Pipeline();
     pipeline.setId(PIPELINE_ID.asInt());
 
@@ -139,7 +136,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderSelectPipelineToSplit_smokeCheckRolesAccess() {
+  void renderSelectPipelineToSplit_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -152,7 +149,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderSelectPipelineToSplit_smokeCheckAppStatus() {
+  void renderSelectPipelineToSplit_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -165,7 +162,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderSelectPipelineToSplit_smokeCheckAppType() {
+  void renderSelectPipelineToSplit_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -178,12 +175,12 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderSelectPipelineToSplit_modelCheck_andServiceInteractions() throws Exception {
+  void renderSelectPipelineToSplit_modelCheck_andServiceInteractions() throws Exception {
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderSelectPipelineToSplit(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -198,7 +195,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void splitSelectedPipeline_smokeCheckRolesAccess() {
+  void splitSelectedPipeline_smokeCheckRolesAccess() {
     mockSelectPipelineForSplitFailedValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -212,7 +209,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void splitSelectedPipeline_smokeCheckAppStatus() {
+  void splitSelectedPipeline_smokeCheckAppStatus() {
     mockSelectPipelineForSplitFailedValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -226,7 +223,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void splitSelectedPipeline_smokeCheckAppType() {
+  void splitSelectedPipeline_smokeCheckAppType() {
     mockSelectPipelineForSplitFailedValidation();
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -239,13 +236,13 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void splitSelectedPipeline_whenValidationFails() throws Exception {
+  void splitSelectedPipeline_whenValidationFails() throws Exception {
     mockSelectPipelineForSplitFailedValidation();
 
     mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .splitSelectedPipeline(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("pipelineId", String.valueOf(pipeline.getId()))
         .param("numberOfSections", "0")
@@ -260,12 +257,12 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void splitSelectedPipeline_whenValidationPasses_withSingleSectionDefined() throws Exception {
+  void splitSelectedPipeline_whenValidationPasses_withSingleSectionDefined() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .splitSelectedPipeline(APP_TYPE, APP_ID, DEFAULT_ROLE, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param("pipelineId", String.valueOf(pipeline.getId()))
         .param("numberOfSections", "1")
@@ -287,7 +284,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDefineSections_smokeCheckRolesAccess() {
+  void renderDefineSections_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -300,7 +297,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDefineSections_smokeCheckAppStatus() {
+  void renderDefineSections_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -313,7 +310,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDefineSections_smokeCheckAppType() {
+  void renderDefineSections_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -326,12 +323,12 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDefineSections_modelCheck_andServiceInteractions() throws Exception {
+  void renderDefineSections_modelCheck_andServiceInteractions() throws Exception {
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -353,7 +350,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void renderDefineSections_whenPipelineNotSplittable() throws Exception {
+  void renderDefineSections_whenPipelineNotSplittable() throws Exception {
 
     when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
        any(),
@@ -363,7 +360,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .renderDefineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isNotFound());
@@ -371,7 +368,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
 
 
   @Test
-  public void defineSections_smokeCheckRolesAccess() {
+  void defineSections_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -384,7 +381,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void defineSections_smokeCheckAppStatus() {
+  void defineSections_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -397,7 +394,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void defineSections_smokeCheckAppType() {
+  void defineSections_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -410,12 +407,12 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void defineSections_modelCheck_andServiceInteractions() throws Exception {
+  void defineSections_modelCheck_andServiceInteractions() throws Exception {
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())
@@ -428,7 +425,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
   }
 
   @Test
-  public void defineSections_whenPipelineNotSplittable() throws Exception {
+  void defineSections_whenPipelineNotSplittable() throws Exception {
 
     when(padPipelinesHuooService.getSplitablePipelineForAppAndMasterPwaOrError(
         any(),
@@ -438,14 +435,14 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isNotFound());
   }
 
   @Test
-  public void defineSections_whenValidationFails() throws Exception {
+  void defineSections_whenValidationFails() throws Exception {
 
     doAnswer(invocation -> {
       ((BindingResult) invocation.getArgument(1)).rejectValue("pipelineSectionPoints", "pipelineSectionPoints.fake", "fake msg");
@@ -456,7 +453,7 @@ public class SplitPipelineHuooJourneyControllerTest extends PwaApplicationContex
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(SplitPipelineHuooJourneyController.class)
         .defineSections(APP_TYPE, APP_ID, DEFAULT_ROLE, PIPELINE_ID.asInt(), NUMBER_OF_SECTIONS, null, null, null, null
         )))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk());

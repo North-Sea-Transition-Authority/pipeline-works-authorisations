@@ -4,16 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.EnumSet;
 import java.util.stream.Collectors;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationTaskGroupTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationTaskGroupTest {
 
   @Test
-  public void applicationTaskGroup_petorleum_allApplicationTasksAssignedAGroup(){
+  void applicationTaskGroup_petorleum_allApplicationTasksAssignedAGroup(){
     var allTasks = ApplicationTaskGroup.asList().stream()
         .flatMap(applicationTaskGroup -> applicationTaskGroup.getApplicationTaskSet(PwaResourceType.PETROLEUM).stream())
         .collect(Collectors.toSet());
@@ -22,7 +22,7 @@ public class ApplicationTaskGroupTest {
   }
 
   @Test
-  public void applicationTaskGroup_ccus_allApplicationTasksAssignedAGroup(){
+  void applicationTaskGroup_ccus_allApplicationTasksAssignedAGroup(){
     var allTasks = ApplicationTaskGroup.asList().stream()
         .flatMap(applicationTaskGroup -> applicationTaskGroup.getApplicationTaskSet(PwaResourceType.CCUS).stream())
         .collect(Collectors.toSet());

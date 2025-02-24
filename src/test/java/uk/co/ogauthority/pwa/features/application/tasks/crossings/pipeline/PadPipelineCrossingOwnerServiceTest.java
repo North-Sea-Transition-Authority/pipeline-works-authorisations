@@ -9,13 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineCrossingOwnerServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineCrossingOwnerServiceTest {
 
   @Mock
   private PadPipelineCrossingOwnerRepository padPipelineCrossingOwnerRepository;
@@ -46,8 +46,8 @@ public class PadPipelineCrossingOwnerServiceTest {
   private static int ORG_ID = 1;
   private static String ORG_NAME = "ORG";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     padPipelineCrossing = new PadPipelineCrossing();
     padPipelineCrossingOwnerService = new PadPipelineCrossingOwnerService(padPipelineCrossingOwnerRepository,
@@ -61,13 +61,13 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void getOwnersForCrossing() {
+  void getOwnersForCrossing() {
     var result = padPipelineCrossingOwnerService.getOwnersForCrossing(padPipelineCrossing);
     assertThat(result).containsExactly(padPipelineCrossingOwner);
   }
 
   @Test
-  public void getOwnerPrepopulationFormAttribute_LinkedEntry() {
+  void getOwnerPrepopulationFormAttribute_LinkedEntry() {
     padPipelineCrossingOwner.setOrganisationUnit(portalOrganisationUnit);
     var result = padPipelineCrossingOwnerService.getOwnerPrepopulationFormAttribute(padPipelineCrossing);
     assertThat(result).containsExactly(
@@ -76,7 +76,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void getOwnerPrepopulationFormAttribute_ManualEntry() {
+  void getOwnerPrepopulationFormAttribute_ManualEntry() {
     var owner = new PadPipelineCrossingOwner();
     when(padPipelineCrossingOwnerRepository.findAllByPadPipelineCrossing(padPipelineCrossing))
         .thenReturn(List.of(owner));
@@ -85,7 +85,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void createOwners_FullyOwned() {
+  void createOwners_FullyOwned() {
     var form = new PipelineCrossingForm();
     form.setPipelineFullyOwnedByOrganisation(true);
     padPipelineCrossingOwnerService.createOwners(padPipelineCrossing, form);
@@ -94,7 +94,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void createOwners_NotFullyOwned_LinkedEntry() {
+  void createOwners_NotFullyOwned_LinkedEntry() {
     var form = new PipelineCrossingForm();
     form.setPipelineFullyOwnedByOrganisation(false);
     form.setPipelineOwners(List.of(String.valueOf(ORG_ID)));
@@ -111,7 +111,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void createOwners_NotFullyOwned_ManualEntry() {
+  void createOwners_NotFullyOwned_ManualEntry() {
     var form = new PipelineCrossingForm();
     form.setPipelineFullyOwnedByOrganisation(false);
     form.setPipelineOwners(List.of(SearchSelectable.FREE_TEXT_PREFIX + ORG_NAME));
@@ -126,7 +126,7 @@ public class PadPipelineCrossingOwnerServiceTest {
   }
 
   @Test
-  public void removeAllForCrossing() {
+  void removeAllForCrossing() {
     padPipelineCrossingOwnerService.removeAllForCrossing(padPipelineCrossing);
     verify(padPipelineCrossingOwnerRepository, times(1)).deleteAll(any());
   }

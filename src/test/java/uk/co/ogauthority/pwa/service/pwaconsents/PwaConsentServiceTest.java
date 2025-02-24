@@ -10,13 +10,15 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
@@ -26,8 +28,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaConsentServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaConsentServiceTest {
 
   @Mock
   private PwaConsentRepository pwaConsentRepository;
@@ -47,8 +50,8 @@ public class PwaConsentServiceTest {
   private Instant clockTime;
   private static final String FAKE_REF = "99/X/99";
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaConsentService = new PwaConsentService(pwaConsentRepository, clock, referencingService);
 
@@ -60,7 +63,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void createConsent_newPwa() {
+  void createConsent_newPwa() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaConsentService.createConsent(detail.getPwaApplication());
@@ -81,7 +84,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void createConsent_variation() {
+  void createConsent_variation() {
 
     var initialConsent = new PwaConsent();
     initialConsent.setVariationNumber(0);
@@ -110,7 +113,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void createConsent_depcon() {
+  void createConsent_depcon() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
     pwaConsentService.createConsent(detail.getPwaApplication());
@@ -131,7 +134,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void getConsentsByMasterPwa() {
+  void getConsentsByMasterPwa() {
 
     var masterPwa = new MasterPwa();
 
@@ -142,7 +145,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void getConsentByPwaApplication_found() {
+  void getConsentByPwaApplication_found() {
 
     var consent = new PwaConsent();
 
@@ -153,7 +156,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void getConsentByPwaApplication_notFound() {
+  void getConsentByPwaApplication_notFound() {
 
     when(pwaConsentRepository.findBySourcePwaApplication(any())).thenReturn(Optional.empty());
 
@@ -162,7 +165,7 @@ public class PwaConsentServiceTest {
   }
 
   @Test
-  public void setDocgenRunId_idSet() {
+  void setDocgenRunId_idSet() {
 
     var docgenRun = new DocgenRun();
     docgenRun.setId(1L);

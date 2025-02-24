@@ -7,11 +7,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestView;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestViewService;
@@ -24,8 +26,9 @@ import uk.co.ogauthority.pwa.model.view.appprocessing.applicationupdates.Applica
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationUpdateSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationUpdateSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -46,8 +49,8 @@ public class ApplicationUpdateSummaryServiceTest {
 
   private Person person;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     person = PersonTestUtil.createPersonFrom(PERSON_ID);
 
@@ -65,12 +68,12 @@ public class ApplicationUpdateSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_whenPreviousUpdateResponseFound() {
+  void canSummarise_whenPreviousUpdateResponseFound() {
     assertThat(applicationUpdateSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenPreviousUpdateResponseNotFound() {
+  void canSummarise_whenPreviousUpdateResponseNotFound() {
 
     when(applicationUpdateRequestViewService.getLastRespondedApplicationUpdateView(pwaApplicationDetail))
         .thenReturn(Optional.empty());
@@ -78,7 +81,7 @@ public class ApplicationUpdateSummaryServiceTest {
   }
 
   @Test
-  public void summariseSection_verifyServiceInterations() {
+  void summariseSection_verifyServiceInterations() {
     var appSummary = applicationUpdateSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     verify(personService, times(1)).getPersonById(PERSON_ID);

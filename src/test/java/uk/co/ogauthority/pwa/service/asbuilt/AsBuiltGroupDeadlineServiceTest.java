@@ -19,13 +19,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -40,8 +42,9 @@ import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRe
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltGroupDeadlineServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AsBuiltGroupDeadlineServiceTest {
 
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -74,8 +77,8 @@ public class AsBuiltGroupDeadlineServiceTest {
 
   private final Multimap<PortalOrganisationGroup, Integer> orgToMasterPwaIdMultiMap = ArrayListMultimap.create();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     asBuiltGroupDeadlineService = new AsBuiltGroupDeadlineService(asBuiltNotificationGroupDetailRepository,
         asBuiltNotificationGroupStatusService, pwaHolderTeamService, pwaHolderService, asBuiltNotificationEmailService, clock);
 
@@ -90,7 +93,7 @@ public class AsBuiltGroupDeadlineServiceTest {
   }
 
   @Test
-  public void setNewDeadline_noCurrentGroupDetailExists() {
+  void setNewDeadline_noCurrentGroupDetailExists() {
     var deadline = LocalDate.now(clock).plusWeeks(1);
 
     asBuiltGroupDeadlineService.setNewDeadline(asBuiltGroup, deadline, person);
@@ -109,7 +112,7 @@ public class AsBuiltGroupDeadlineServiceTest {
   }
 
   @Test
-  public void setNewDeadline_currentGroupDetailExists() {
+  void setNewDeadline_currentGroupDetailExists() {
     var oldDeadline = LocalDate.now(clock).minusWeeks(1);
     var deadline = LocalDate.now(clock).plusWeeks(1);
 
@@ -152,7 +155,7 @@ public class AsBuiltGroupDeadlineServiceTest {
   }
 
   @Test
-  public void notifyHoldersOfAsBuiltGroupDeadlines_upcomingDeadline() {
+  void notifyHoldersOfAsBuiltGroupDeadlines_upcomingDeadline() {
     var asBuiltNotificationGroupDetail = AsBuiltNotificationGroupDetailTestUtil
             .createAsBuiltNotificationGroupDetail_fromAsBuiltNotificationGroupAndDeadlineDateAndPerson(
                 asBuiltGroup, LocalDate.now().plusDays(7), person);
@@ -169,7 +172,7 @@ public class AsBuiltGroupDeadlineServiceTest {
   }
 
   @Test
-  public void notifyHoldersOfAsBuiltGroupDeadlines_passedDeadline() {
+  void notifyHoldersOfAsBuiltGroupDeadlines_passedDeadline() {
     var asBuiltNotificationGroupDetail = AsBuiltNotificationGroupDetailTestUtil
         .createAsBuiltNotificationGroupDetail_fromAsBuiltNotificationGroupAndDeadlineDateAndPerson(
             asBuiltGroup, LocalDate.now(clock).plusDays(7), person);
@@ -186,7 +189,7 @@ public class AsBuiltGroupDeadlineServiceTest {
   }
 
   @Test
-  public void notifyHoldersOfAsBuiltGroupDeadlines_noDeadlines() {
+  void notifyHoldersOfAsBuiltGroupDeadlines_noDeadlines() {
     when(asBuiltNotificationGroupDetailRepository.findAllByAsBuiltNotificationGroupInAndDeadlineDate(eq(List.of(asBuiltGroup)), any()))
         .thenReturn(List.of());
 

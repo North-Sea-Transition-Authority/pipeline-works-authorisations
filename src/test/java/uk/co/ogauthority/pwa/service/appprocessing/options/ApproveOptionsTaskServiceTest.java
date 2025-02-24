@@ -13,11 +13,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.controller.appprocessing.options.ApproveOptionsController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -36,8 +38,9 @@ import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApproveOptionsTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApproveOptionsTaskServiceTest {
 
   @Mock
   private ConsultationRequestService consultationRequestService;
@@ -58,8 +61,8 @@ public class ApproveOptionsTaskServiceTest {
   private PwaAppProcessingContext pwaAppProcessingContext;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
@@ -80,12 +83,12 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_whenHasApproveOptionsPermission() {
+  void canShowInTaskList_whenHasApproveOptionsPermission() {
     assertThat(approveOptionsTaskService.canShowInTaskList(pwaAppProcessingContext)).isTrue();
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermissionAndOptionsAppType() {
+  void canShowInTaskList_showAllTasksPermissionAndOptionsAppType() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY)
@@ -94,7 +97,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_showAllTasksPermissionAndNotOptionsAppType() {
+  void canShowInTaskList_showAllTasksPermissionAndNotOptionsAppType() {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         detail,
@@ -104,7 +107,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_whenApproveOptionsPermissionMissing() {
+  void canShowInTaskList_whenApproveOptionsPermissionMissing() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.noneOf(PwaAppProcessingPermission.class)
@@ -115,7 +118,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_missingPermission_serviceInteractions() {
+  void taskAccessible_missingPermission_serviceInteractions() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -129,7 +132,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_serviceInteractions() {
+  void taskAccessible_hasPermission_serviceInteractions() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -150,7 +153,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_noConsultationRequest_andNoOpenUpdateRequest() {
+  void taskAccessible_hasPermission_noConsultationRequest_andNoOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -167,7 +170,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_hasUnrespondedRequests_noOpenUpdateRequest() {
+  void taskAccessible_hasPermission_hasRespondedRequests_hasUnrespondedRequests_noOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -189,7 +192,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest() {
+  void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -211,7 +214,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_OpenUpdateRequest() {
+  void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_OpenUpdateRequest() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -236,7 +239,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest_noApprovals() {
+  void taskAccessible_hasPermission_hasRespondedRequests_noUnrespondedRequests_noOpenUpdateRequest_noApprovals() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
@@ -265,7 +268,7 @@ public class ApproveOptionsTaskServiceTest {
 
 
   @Test
-  public void getTaskListEntry_whenRegulator_andOpenConsultations() {
+  void getTaskListEntry_whenRegulator_andOpenConsultations() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
@@ -300,7 +303,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenRegulator_andNoOpenConsultations_andRespondedConsultation_andNotApproved() {
+  void getTaskListEntry_whenRegulator_andNoOpenConsultations_andRespondedConsultation_andNotApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
@@ -328,7 +331,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenRegulator_andOptionsApproved() {
+  void getTaskListEntry_whenRegulator_andOptionsApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS)
@@ -359,7 +362,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenRegulator_noSatisfactoryVersions() {
+  void getTaskListEntry_whenRegulator_noSatisfactoryVersions() {
 
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissionsNoSatisfactoryVersions(
         pwaApplicationDetail,
@@ -391,7 +394,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenIndustry_andOptionsApproved() {
+  void getTaskListEntry_whenIndustry_andOptionsApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW)
@@ -414,7 +417,7 @@ public class ApproveOptionsTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenIndustry_andOptionsNotApproved() {
+  void getTaskListEntry_whenIndustry_andOptionsNotApproved() {
     pwaAppProcessingContext = PwaAppProcessingContextTestUtil.withPermissions(
         pwaApplicationDetail,
         EnumSet.of(PwaAppProcessingPermission.APPROVE_OPTIONS_VIEW)

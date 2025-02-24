@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -28,8 +30,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DefinePipelineHuooSectionsFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class DefinePipelineHuooSectionsFormValidatorTest {
 
   private static final PipelineId PIPELINE_ID = new PipelineId(1);
   private static final HuooRole HUOO_ROLE = HuooRole.HOLDER;
@@ -58,8 +61,8 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
 
   private PickableIdentLocationOption finalPickableIdentLocation;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     validator = new DefinePipelineHuooSectionsFormValidator(pickableHuooPipelineIdentService);
 
     form = new DefinePipelineHuooSectionsForm();
@@ -103,7 +106,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFormHasNullSectionPointList() {
+  void validate_whenFormHasNullSectionPointList() {
 
     var validationResult = ValidatorTestUtils.getFormValidationErrors(validator, form, defaultValidationHint);
 
@@ -113,7 +116,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFormHasEmptySectionPointList() {
+  void validate_whenFormHasEmptySectionPointList() {
 
     form.setPipelineSectionPoints(new ArrayList<>());
 
@@ -125,7 +128,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFormHasMoreSectionsThanDefinedInHint() {
+  void validate_whenFormHasMoreSectionsThanDefinedInHint() {
 
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(), new PipelineSectionPointFormInput(),
@@ -141,7 +144,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFormHasMatchingNumberOfSections_andNoDetailsProvided() {
+  void validate_whenFormHasMatchingNumberOfSections_andNoDetailsProvided() {
 
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(), new PipelineSectionPointFormInput(), new PipelineSectionPointFormInput()
@@ -192,7 +195,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSelectedSectionStartPointNotFound() {
+  void validate_whenSelectedSectionStartPointNotFound() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput("some nonsense string", true),
         new PipelineSectionPointFormInput(), new PipelineSectionPointFormInput()
@@ -211,7 +214,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionsStartLocationValid_andSequentialStartLocationsAreTheSame_andAllIncludePoint() {
+  void validate_whenSectionsStartLocationValid_andSequentialStartLocationsAreTheSame_andAllIncludePoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
         new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), true),
@@ -232,7 +235,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionStartPointsAreOutOfIdentPointOrder() {
+  void validate_whenSectionStartPointsAreOutOfIdentPointOrder() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
         new PipelineSectionPointFormInput(ident3LocationPoint2.getPickableString(), true),
@@ -253,7 +256,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionsStartLocationValid_andAllStartLocationsAreTheSame_andAllIncludePoint() {
+  void validate_whenSectionsStartLocationValid_andAllStartLocationsAreTheSame_andAllIncludePoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true)
@@ -279,7 +282,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionsStartLocationValid_andAllStartLocationsAreTheSame_andSecondDoesNotIncludePoint_andThirdStartPointIsIncludedInSection() {
+  void validate_whenSectionsStartLocationValid_andAllStartLocationsAreTheSame_andSecondDoesNotIncludePoint_andThirdStartPointIsIncludedInSection() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), true),
         new PipelineSectionPointFormInput(ident1LocationPoint1.getPickableString(), false),
@@ -300,7 +303,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFirstSectionStartPointIsNotExpectedFirstIdentPoint() {
+  void validate_whenFirstSectionStartPointIsNotExpectedFirstIdentPoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), true),
         new PipelineSectionPointFormInput(),
@@ -321,7 +324,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenSectionsFirstSectionStartPointIsExpectedFirstIdentPoint_andDoesNotIncludePoint() {
+  void validate_whenSectionsFirstSectionStartPointIsExpectedFirstIdentPoint_andDoesNotIncludePoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(ident1LocationPoint2.getPickableString(), false),
         new PipelineSectionPointFormInput(),
@@ -342,7 +345,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenFinalSectionStartsAtAndIncludesLastPointOfPipeline() {
+  void validate_whenFinalSectionStartsAtAndIncludesLastPointOfPipeline() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(),
         new PipelineSectionPointFormInput(),
@@ -363,7 +366,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenLocationAllPopulatedInValidOrder() {
+  void validate_whenLocationAllPopulatedInValidOrder() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(0).getPickableString(), true),
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(2).getPickableString(), false),
@@ -377,7 +380,7 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
 
 
   @Test
-  public void validate_whenSectionStartPointsOverlapByNotIncludingTheStartPoint() {
+  void validate_whenSectionStartPointsOverlapByNotIncludingTheStartPoint() {
     form.setPipelineSectionPoints(List.of(
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(0).getPickableString(), true),
         new PipelineSectionPointFormInput(pipelineIdentLocationOptions.get(1).getPickableString(), false),
@@ -398,12 +401,12 @@ public class DefinePipelineHuooSectionsFormValidatorTest {
   }
 
   @Test
-  public void supports_whenIsSupported() {
+  void supports_whenIsSupported() {
     assertThat(validator.supports(DefinePipelineHuooSectionsForm.class)).isTrue();
   }
 
   @Test
-  public void supports_whenIsNotSupported() {
+  void supports_whenIsNotSupported() {
     assertThat(validator.supports(Object.class)).isFalse();
   }
 }

@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadHuooTaskSectionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadHuooTaskSectionServiceTest {
 
   private static final EnumSet<PwaApplicationType> DEFAULT_CANNOT_SHOW_TASKS = EnumSet.of(
       PwaApplicationType.OPTIONS_VARIATION, PwaApplicationType.DEPOSIT_CONSENT
@@ -44,8 +44,8 @@ public class PadHuooTaskSectionServiceTest {
 
   private PadHuooTaskSectionService padHuooTaskSectionService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     padHuooTaskSectionService = new PadHuooTaskSectionService(
         padOrganisationRolesRepository,
@@ -59,7 +59,7 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_allowed() {
+  void canShowInTaskList_allowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -78,7 +78,7 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notAllowed() {
+  void canShowInTaskList_notAllowed() {
 
     var detail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -97,14 +97,14 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void allowCopyOfSectionInformation_whenOptionsApp(){
+  void allowCopyOfSectionInformation_whenOptionsApp(){
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
     assertThat(padHuooTaskSectionService.allowCopyOfSectionInformation(detail)).isTrue();
   }
 
   @Test
-  public void allowCopyOfSectionInformation_whenDepositApp(){
+  void allowCopyOfSectionInformation_whenDepositApp(){
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.DEPOSIT_CONSENT);
 
@@ -112,7 +112,7 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void allowCopyOfSectionInformation_whenAppTypeNotHidden(){
+  void allowCopyOfSectionInformation_whenAppTypeNotHidden(){
 
     EnumSet.complementOf(DEFAULT_CANNOT_SHOW_TASKS).forEach(
         pwaApplicationType -> {
@@ -123,7 +123,7 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void isComplete_validationResultIsValid() {
+  void isComplete_validationResultIsValid() {
 
     var validationResult = HuooSummaryValidationResultTestUtil.validResult();
     when(padHuooValidationService.getHuooSummaryValidationResult(detail)).thenReturn(validationResult);
@@ -133,7 +133,7 @@ public class PadHuooTaskSectionServiceTest {
   }
 
   @Test
-  public void isComplete_validationResultIsInvalid() {
+  void isComplete_validationResultIsInvalid() {
 
     var validationResult = HuooSummaryValidationResultTestUtil.invalidResult();
     when(padHuooValidationService.getHuooSummaryValidationResult(detail)).thenReturn(validationResult);

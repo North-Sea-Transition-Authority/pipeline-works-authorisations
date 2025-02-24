@@ -23,14 +23,14 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
 @Service
 public class AssignCaseOfficerService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
-  private final TeamManagementService teamManagementService;
+  private final OldTeamManagementService teamManagementService;
   private final NotifyService notifyService;
   private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
@@ -39,7 +39,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
   @Autowired
   public AssignCaseOfficerService(
       WorkflowAssignmentService workflowAssignmentService,
-      TeamManagementService teamManagementService,
+      OldTeamManagementService teamManagementService,
       NotifyService notifyService,
       PersonService personService,
       AssignCaseOfficerValidator assignCaseOfficerValidator,

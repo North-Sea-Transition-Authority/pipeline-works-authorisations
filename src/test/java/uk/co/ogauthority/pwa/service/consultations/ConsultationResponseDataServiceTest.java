@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseData;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseDataRepository;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationResponseDataServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationResponseDataServiceTest {
 
   @Mock
   private ConsultationResponseDataRepository consultationResponseDataRepository;
@@ -38,8 +38,8 @@ public class ConsultationResponseDataServiceTest {
 
   private ConsultationResponseDataForm dataForm;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     consultationResponseDataService = new ConsultationResponseDataService(consultationResponseDataRepository);
 
@@ -49,7 +49,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_content_descriptionProvided() {
+  void createAndSaveResponseData_content_descriptionProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.CONTENT,
@@ -60,7 +60,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_rejected_commentsProvided() {
+  void createAndSaveResponseData_rejected_commentsProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.CONTENT,
@@ -71,7 +71,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_advice_adviceProvided() {
+  void createAndSaveResponseData_advice_adviceProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.ADVICE,
@@ -82,7 +82,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_noAdvice_commentsProvided() {
+  void createAndSaveResponseData_noAdvice_commentsProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.ADVICE,
@@ -93,7 +93,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_eiaAgree_consentConditionsProvided() {
+  void createAndSaveResponseData_eiaAgree_consentConditionsProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.EIA_REGS,
@@ -104,7 +104,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_eiaDisagree_reasonProvided() {
+  void createAndSaveResponseData_eiaDisagree_reasonProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.EIA_REGS,
@@ -115,7 +115,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_eiaNotRequired_reasonProvided() {
+  void createAndSaveResponseData_eiaNotRequired_reasonProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.EIA_REGS,
@@ -126,7 +126,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_habitatsAgree_consentConditionsProvided() {
+  void createAndSaveResponseData_habitatsAgree_consentConditionsProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.HABITATS_REGS,
@@ -137,7 +137,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_habitatsDisagree_reasonProvided() {
+  void createAndSaveResponseData_habitatsDisagree_reasonProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.HABITATS_REGS,
@@ -148,7 +148,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_habitatsNotRequired_reasonProvided() {
+  void createAndSaveResponseData_habitatsNotRequired_reasonProvided() {
 
     testSingleResponseOptionAndTextStoredCorrectly(
         ConsultationResponseOptionGroup.HABITATS_REGS,
@@ -186,7 +186,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void createAndSaveResponseData_eiaAndHabitatsRegs_bothSaved() {
+  void createAndSaveResponseData_eiaAndHabitatsRegs_bothSaved() {
 
     var eiaForm = new ConsultationResponseDataForm();
     eiaForm.setConsultationResponseOption(ConsultationResponseOption.EIA_DISAGREE);
@@ -226,7 +226,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void findAllByConsultationResponseIn() {
+  void findAllByConsultationResponseIn() {
 
     var responses = List.of(response);
 
@@ -237,7 +237,7 @@ public class ConsultationResponseDataServiceTest {
   }
 
   @Test
-  public void findAllByConsultationResponse() {
+  void findAllByConsultationResponse() {
 
     consultationResponseDataService.findAllByConsultationResponse(response);
 

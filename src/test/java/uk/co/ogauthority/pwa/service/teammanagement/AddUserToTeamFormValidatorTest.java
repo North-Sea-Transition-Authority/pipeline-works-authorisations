@@ -1,17 +1,18 @@
 package uk.co.ogauthority.pwa.service.teammanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -21,19 +22,19 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.AddUserToTeamForm;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AddUserToTeamFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class AddUserToTeamFormValidatorTest {
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private AddUserToTeamFormValidator addUserToTeamFormValidator;
   private AddUserToTeamForm addUserToTeamForm;
   private Person foundPerson;
   private PwaTeam team;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     addUserToTeamFormValidator = new AddUserToTeamFormValidator(teamManagementService);
     addUserToTeamForm = new AddUserToTeamForm();
     team = TeamTestingUtils.getRegulatorTeam();
@@ -41,7 +42,7 @@ public class AddUserToTeamFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifierHasError_whenEmpty() {
+  void validate_userIdentifierHasError_whenEmpty() {
     addUserToTeamForm.setUserIdentifier("");
     var errors = new BeanPropertyBindingResult(addUserToTeamForm, "form");
     ValidationUtils.invokeValidator(addUserToTeamFormValidator, addUserToTeamForm, errors);
@@ -51,7 +52,7 @@ public class AddUserToTeamFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifierHasError_whenNull() {
+  void validate_userIdentifierHasError_whenNull() {
     addUserToTeamForm.setUserIdentifier(null);
     var errors = new BeanPropertyBindingResult(addUserToTeamForm, "form");
     ValidationUtils.invokeValidator(addUserToTeamFormValidator, addUserToTeamForm, errors);
@@ -61,7 +62,7 @@ public class AddUserToTeamFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifierHasError_whenPersonNotFound() {
+  void validate_userIdentifierHasError_whenPersonNotFound() {
     var identifier = "personWhoDoesNotExist";
     addUserToTeamForm.setUserIdentifier(identifier);
     var errors = new BeanPropertyBindingResult(addUserToTeamForm, "form");
@@ -72,7 +73,7 @@ public class AddUserToTeamFormValidatorTest {
   }
 
   @Test
-  public void validate_userIdentifierHasError_whenPersonFound_andAlreadyMemberOfTeam() {
+  void validate_userIdentifierHasError_whenPersonFound_andAlreadyMemberOfTeam() {
     when(teamManagementService.getPersonByEmailAddressOrLoginId(foundPerson.getEmailAddress()))
         .thenReturn(Optional.of(foundPerson));
     when(teamManagementService.getTeamOrError(team.getId())).thenReturn(team);
@@ -86,20 +87,20 @@ public class AddUserToTeamFormValidatorTest {
     assertThat(errors.hasFieldErrors("userIdentifier")).isTrue();
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void validate_errorWhenTeamNotfound() {
+  @Test
+  void validate_errorWhenTeamNotfound() {
     when(teamManagementService.getPersonByEmailAddressOrLoginId(foundPerson.getEmailAddress()))
-        .thenReturn(Optional.of(foundPerson));
+          .thenReturn(Optional.of(foundPerson));
     when(teamManagementService.getTeamOrError(999)).thenThrow(new PwaEntityNotFoundException(""));
     addUserToTeamForm.setUserIdentifier(foundPerson.getEmailAddress());
     addUserToTeamForm.setResId(999);
-
     Errors errors = new BeanPropertyBindingResult(addUserToTeamForm, "form");
-    ValidationUtils.invokeValidator(addUserToTeamFormValidator, addUserToTeamForm, errors);
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      ValidationUtils.invokeValidator(addUserToTeamFormValidator, addUserToTeamForm, errors));
   }
 
   @Test
-  public void validate_noErrors_whenPersonFound_andTeamKnown_andNotAlreadyMemberOfTeam() {
+  void validate_noErrors_whenPersonFound_andTeamKnown_andNotAlreadyMemberOfTeam() {
     when(teamManagementService.getPersonByEmailAddressOrLoginId(foundPerson.getEmailAddress()))
         .thenReturn(Optional.of(foundPerson));
     when(teamManagementService.getTeamOrError(team.getId())).thenReturn(team);

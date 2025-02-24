@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate;
 
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -18,13 +19,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
@@ -56,8 +59,9 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationUpdateRequestServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ApplicationUpdateRequestServiceTest {
   private static final String TELEPHONE = "123456789";
 
   private static final int PREPARER_1_ID = 100;
@@ -129,8 +133,8 @@ public class ApplicationUpdateRequestServiceTest {
 
   private ApplicationUpdateRequest defaultUpdateRequest;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     responderPerson = new Person(RESPONDER_PERSON_ID.asInt(), "test", "person", "email", TELEPHONE);
     requesterPerson = new Person(REQUESTER_PERSON_ID.asInt(), "test1", "person1", "email1", TELEPHONE);
     user = new WebUserAccount(99, responderPerson);
@@ -159,7 +163,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void createApplicationUpdateRequest_savedRequestHasExpectedAttributes() {
+  void createApplicationUpdateRequest_savedRequestHasExpectedAttributes() {
 
     var deadlineDate = clock.instant().plus(5, ChronoUnit.DAYS);
     applicationUpdateRequestService.createApplicationUpdateRequest(pwaApplicationDetail, responderPerson, REASON, deadlineDate);
@@ -178,7 +182,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void applicationHasOpenUpdateRequest_whenOpenUpdateRequest() {
+  void applicationHasOpenUpdateRequest_whenOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
@@ -188,7 +192,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void applicationHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
+  void applicationHasOpenUpdateRequest_whenNoOpenUpdateRequest() {
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
     ))
@@ -198,7 +202,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void sendApplicationUpdateRequestedEmail_whenMultiplePreparers() {
+  void sendApplicationUpdateRequestedEmail_whenMultiplePreparers() {
 
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplicationDetail.getPwaApplication(),
         PwaContactRole.PREPARER))
@@ -226,7 +230,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void sendApplicationUpdateRequestedEmail_wheZeroPreparers() {
+  void sendApplicationUpdateRequestedEmail_wheZeroPreparers() {
 
     applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, responderPerson);
 
@@ -235,7 +239,7 @@ public class ApplicationUpdateRequestServiceTest {
 
 
   @Test
-  public void submitApplicationUpdateRequest_serviceInteractions() {
+  void submitApplicationUpdateRequest_serviceInteractions() {
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplicationDetail.getPwaApplication(),
         PwaContactRole.PREPARER))
         .thenReturn(List.of(preparer1));
@@ -276,7 +280,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_hasPermission_true() {
+  void canShowInTaskList_appNotEnded_hasPermission_true() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
@@ -295,7 +299,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appNotEnded_noPermission_false() {
+  void canShowInTaskList_appNotEnded_noPermission_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
@@ -314,7 +318,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_appEnded_false() {
+  void canShowInTaskList_appEnded_false() {
 
     pwaApplicationDetail.setStatus(PwaApplicationStatus.COMPLETE);
 
@@ -333,7 +337,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void respondToApplicationOpenUpdateRequest_happyPath() {
+  void respondToApplicationOpenUpdateRequest_happyPath() {
 
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
@@ -366,7 +370,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void respondToApplicationOpenUpdateRequest_preparerResponseNotOverwritten() {
+  void respondToApplicationOpenUpdateRequest_preparerResponseNotOverwritten() {
 
     // set the response, ensure it is not overwritten later
     var preparerPersonId = new PersonId(99);
@@ -402,13 +406,14 @@ public class ApplicationUpdateRequestServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void respondToApplicationOpenUpdateRequest_noOpenUpdateRequest() {
-    applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE");
+  @Test
+  void respondToApplicationOpenUpdateRequest_noOpenUpdateRequest() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      applicationUpdateRequestService.respondToApplicationOpenUpdateRequest(pwaApplicationDetail, responderPerson, "RESPONSE"));
   }
 
   @Test
-  public void storeResponseWithoutSubmitting_happyPath() {
+  void storeResponseWithoutSubmitting_happyPath() {
 
     when(applicationUpdateRequestRepository.findByPwaApplicationDetail_pwaApplicationAndStatus(
         pwaApplicationDetail.getPwaApplication(), ApplicationUpdateRequestStatus.OPEN
@@ -430,13 +435,14 @@ public class ApplicationUpdateRequestServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void storeResponseWithoutSubmitting_noOpenUpdateRequest() {
-    applicationUpdateRequestService.storeResponseWithoutSubmitting(pwaApplicationDetail, responderPerson, "RESPONSE");
+  @Test
+  void storeResponseWithoutSubmitting_noOpenUpdateRequest() {
+    assertThrows(PwaEntityNotFoundException.class, () ->
+      applicationUpdateRequestService.storeResponseWithoutSubmitting(pwaApplicationDetail, responderPerson, "RESPONSE"));
   }
 
   @Test
-  public void getTaskListEntry_appUpdate_inProgress() {
+  void getTaskListEntry_appUpdate_inProgress() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -456,7 +462,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_appUpdate_notInProgress() {
+  void getTaskListEntry_appUpdate_notInProgress() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -475,7 +481,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_appUpdate_notInProgress_unrespondedOptionApproval() {
+  void getTaskListEntry_appUpdate_notInProgress_unrespondedOptionApproval() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -496,7 +502,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void endUpdateRequestIfExists_openUpdateRequestExists_requestStatusUpdated() {
+  void endUpdateRequestIfExists_openUpdateRequestExists_requestStatusUpdated() {
 
     var openUpdateRequest = new ApplicationUpdateRequest();
     openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);
@@ -513,7 +519,7 @@ public class ApplicationUpdateRequestServiceTest {
   }
 
   @Test
-  public void endUpdateRequestIfExists_openUpdateRequestDoesNotExists_noUpdateRequestProcessingDone() {
+  void endUpdateRequestIfExists_openUpdateRequestDoesNotExists_noUpdateRequestProcessingDone() {
 
     var openUpdateRequest = new ApplicationUpdateRequest();
     openUpdateRequest.setStatus(ApplicationUpdateRequestStatus.OPEN);

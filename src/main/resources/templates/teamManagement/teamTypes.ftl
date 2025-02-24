@@ -1,22 +1,21 @@
-<#-- @ftlvariable name="teamTypes" type="java.util.Map<uk.co.ogauthority.pwa.model.enums.teams.ManageTeamType, String>" -->
-
+<#-- @ftlvariable name="teamTypeViews" type="java.util.List<uk.co.ogauthority.pwa.teams.management.view.TeamTypeView>" -->
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Manage teams" pageHeading="Manage teams" topNavigation=true twoThirdsColumn=false>
+<#assign pageTitle="Select a team"/>
 
-  <div class="pwa-category-list">
+<@defaultPage
+htmlTitle=pageTitle
+pageHeading=pageTitle
 
-    <#list teamTypes as teamType, url>
+twoThirdsColumn=true
+>
 
-        <div class="pwa-category-list__item">
-
-          <@fdsAction.link linkText="${teamType.linkText}" linkClass="govuk-link govuk-link--no-visited-state pwa-category-list__link" linkUrl=springUrl(url)/>
-          <span class="govuk-hint">${teamType.linkHint}</span>
-
-        </div>
-
-    </#list>
-
-  </div>
+    <@fdsResultList.resultList>
+        <#list teamTypeViews as teamTypeView>
+            <@fdsResultList.resultListItem
+            linkHeadingUrl=springUrl(teamTypeView.manageUrl())
+            linkHeadingText=teamTypeView.teamTypeName()/>
+        </#list>
+    </@fdsResultList.resultList>
 
 </@defaultPage>

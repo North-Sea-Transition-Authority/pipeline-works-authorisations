@@ -3,16 +3,14 @@ package uk.co.ogauthority.pwa.features.application.tasks.crossings.types.control
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -25,9 +23,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CrossingTypesController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class CrossingTypesControllerTest extends PwaApplicationContextAbstractControllerTest {
+class CrossingTypesControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private int APP_ID = 100;
   private PwaApplicationEndpointTestBuilder endpointTester;
@@ -41,8 +38,8 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   @MockBean
   private CrossingTypesService crossingTypesService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(
             PwaApplicationType.INITIAL,
@@ -55,7 +52,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderForm_appTypeSmokeTest() {
+  void renderForm_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -66,7 +63,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderForm_appStatusSmokeTest() throws Exception {
+  void renderForm_appStatusSmokeTest() throws Exception {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -78,7 +75,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderForm_appContactRoleSmokeTest() throws Exception {
+  void renderForm_appContactRoleSmokeTest() throws Exception {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -90,7 +87,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postForm_appTypeSmokeTest() {
+  void postForm_appTypeSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -102,7 +99,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postForm_appStatusSmokeTest() {
+  void postForm_appStatusSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -114,7 +111,7 @@ public class CrossingTypesControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postForm_appContactRoleSmokeTest() {
+  void postForm_appContactRoleSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

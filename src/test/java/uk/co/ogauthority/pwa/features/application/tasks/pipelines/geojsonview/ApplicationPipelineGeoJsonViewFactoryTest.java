@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineFlexibility;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineMaterial;
@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.features.datatypes.geojson.GeoJsonFeatureTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationPipelineGeoJsonViewFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationPipelineGeoJsonViewFactoryTest {
 
   @Mock
   private PadPipelineService pipelineService;
@@ -46,21 +46,20 @@ public class ApplicationPipelineGeoJsonViewFactoryTest {
   private final CoordinatePair validToLocationCoordinates = CoordinatePairTestUtil.getDefaultCoordinate(3, 4);
 
 
-
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     viewFactory = new ApplicationPipelineGeoJsonViewFactory(pipelineService, geoJsonFeatureFactory);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     when(geoJsonFeatureFactory.createFeatureCollection(any()))
         .thenAnswer(invocation ->  GeoJsonFeatureCollectionTestUtil.createCollectionFrom((List<GeoJsonFeature>)invocation.getArgument(0)));
-    when(geoJsonFeatureFactory.createSimpleLineFeature(any(), any()))
-        .thenAnswer(invocation -> GeoJsonFeatureTestUtil.getFakeFeature());
   }
 
   @Test
-  public void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesValid_andPipelineOnSeabed() {
+  void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesValid_andPipelineOnSeabed() {
+    when(geoJsonFeatureFactory.createSimpleLineFeature(any(), any()))
+        .thenAnswer(invocation -> GeoJsonFeatureTestUtil.getFakeFeature());
 
     var pipelineOverview = new CustomPipelineOverview(
         "PL1",
@@ -79,14 +78,13 @@ public class ApplicationPipelineGeoJsonViewFactoryTest {
     verify(pipelineService).getApplicationPipelineOverviews(pwaApplicationDetail);
     verify(geoJsonFeatureFactory).createSimpleLineFeature(validFromLocationCoordinates, validToLocationCoordinates);
 
-    assertThat(pipelineGeoJsonFeatures.getFeatures()).hasOnlyOneElementSatisfying(geoJsonFeature -> {
-      assertThat(geoJsonFeature.getProperties()).isNotEmpty();
-    });
+    assertThat(pipelineGeoJsonFeatures.getFeatures()).hasOnlyOneElementSatisfying(geoJsonFeature ->
+      assertThat(geoJsonFeature.getProperties()).isNotEmpty());
 
   }
 
   @Test
-  public void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesValid_andPipelineReturnedToShore() {
+  void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesValid_andPipelineReturnedToShore() {
 
     var pipelineOverview = new CustomPipelineOverview(
         "PL1",
@@ -109,7 +107,7 @@ public class ApplicationPipelineGeoJsonViewFactoryTest {
   }
 
   @Test
-  public void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesInvalid_andPipelineOnSeabed() {
+  void createApplicationPipelinesAsLineFeatures_hasPipeline_andPipelineCoordinatesInvalid_andPipelineOnSeabed() {
 
     var pipelineOverview = new CustomPipelineOverview(
         "PL1",

@@ -6,30 +6,30 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationResponseDataValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationResponseDataValidatorTest {
 
   private ConsultationResponseDataValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     validator = new ConsultationResponseDataValidator();
 
   }
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new ConsultationResponseDataForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         ConsultationResponseOptionGroup.CONTENT);
@@ -38,7 +38,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_form_valid() {
+  void validate_form_valid() {
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
 
@@ -48,7 +48,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_rejected_invalid() {
+  void form_rejected_invalid() {
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
 
@@ -59,7 +59,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_confirmed_withConditions_valid() {
+  void form_confirmed_withConditions_valid() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
@@ -71,7 +71,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_rejectDescriptionTooBig_failed() {
+  void validate_rejectDescriptionTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.REJECTED);
@@ -90,7 +90,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_confirmDescriptionTooBig_failed() {
+  void validate_confirmDescriptionTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.CONFIRMED);
@@ -109,7 +109,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_provideAdvice_withAdvice_valid() {
+  void form_provideAdvice_withAdvice_valid() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.PROVIDE_ADVICE);
@@ -121,7 +121,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_provideAdvice_noAdvice_invalid() {
+  void form_provideAdvice_noAdvice_invalid() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.PROVIDE_ADVICE);
@@ -132,7 +132,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_noAdvice_noComments_valid() {
+  void form_noAdvice_noComments_valid() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.NO_ADVICE);
@@ -143,7 +143,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void form_noAdvice_comments_valid() {
+  void form_noAdvice_comments_valid() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.NO_ADVICE);
@@ -155,7 +155,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_commentsTooBig_failed() {
+  void validate_commentsTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.NO_ADVICE);
@@ -174,7 +174,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_adviceTextTooBig_failed() {
+  void validate_adviceTextTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.PROVIDE_ADVICE);
@@ -193,7 +193,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eiaNotRelevantTextTooBig_failed() {
+  void validate_eiaNotRelevantTextTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_NOT_RELEVANT);
@@ -212,7 +212,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitatsNotRelevantTextTooBig_failed() {
+  void validate_habitatsNotRelevantTextTooBig_failed() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_NOT_RELEVANT);
@@ -231,7 +231,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_agree_nothingProvided_pass() {
+  void validate_eia_agree_nothingProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
@@ -242,7 +242,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_agree_conditionsProvided_pass() {
+  void validate_eia_agree_conditionsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_AGREE);
@@ -254,7 +254,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_disagree_nothingProvided_fail() {
+  void validate_eia_disagree_nothingProvided_fail() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_DISAGREE);
@@ -265,7 +265,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_disagree_commentsProvided_pass() {
+  void validate_eia_disagree_commentsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_DISAGREE);
@@ -277,7 +277,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_notRelevant_nothingProvided_fail() {
+  void validate_eia_notRelevant_nothingProvided_fail() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_NOT_RELEVANT);
@@ -288,7 +288,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_eia_notRelevant_commentsProvided_pass() {
+  void validate_eia_notRelevant_commentsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.EIA_NOT_RELEVANT);
@@ -300,7 +300,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_agree_nothingProvided_pass() {
+  void validate_habitats_agree_nothingProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
@@ -311,7 +311,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_agree_conditionsProvided_pass() {
+  void validate_habitats_agree_conditionsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_AGREE);
@@ -323,7 +323,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_disagree_nothingProvided_fail() {
+  void validate_habitats_disagree_nothingProvided_fail() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_DISAGREE);
@@ -334,7 +334,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_disagree_commentsProvided_pass() {
+  void validate_habitats_disagree_commentsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_DISAGREE);
@@ -346,7 +346,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_notRelevant_nothingProvided_fail() {
+  void validate_habitats_notRelevant_nothingProvided_fail() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_NOT_RELEVANT);
@@ -357,7 +357,7 @@ public class ConsultationResponseDataValidatorTest {
   }
 
   @Test
-  public void validate_habitats_notRelevant_commentsProvided_pass() {
+  void validate_habitats_notRelevant_commentsProvided_pass() {
 
     var form = new ConsultationResponseDataForm();
     form.setConsultationResponseOption(ConsultationResponseOption.HABITATS_NOT_RELEVANT);

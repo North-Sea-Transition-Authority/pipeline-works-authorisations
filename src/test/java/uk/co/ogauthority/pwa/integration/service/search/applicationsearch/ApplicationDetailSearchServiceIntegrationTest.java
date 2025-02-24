@@ -10,7 +10,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -247,7 +247,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenRegulatorUser_unfiltered_multipleSubmittedVersionsOfApp() {
+  void search_whenRegulatorUser_unfiltered_multipleSubmittedVersionsOfApp() {
 
     setupDefaultData();
 
@@ -264,7 +264,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenRegulatorUser_applicationReferenceFilter_partialMatch() {
+  void search_whenRegulatorUser_applicationReferenceFilter_partialMatch() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     app2Version1.setPadReference(APP_2_REFERENCE);
@@ -286,7 +286,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenRegulatorUser_applicationReferenceFilter_fullMatch() {
+  void search_whenRegulatorUser_applicationReferenceFilter_fullMatch() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     app2Version1.setPadReference(APP_2_REFERENCE);
@@ -308,7 +308,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenRegulatorUser_applicationReferenceFilter_noMatch() {
+  void search_whenRegulatorUser_applicationReferenceFilter_noMatch() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     app2Version1.setPadReference(APP_2_REFERENCE);
@@ -331,7 +331,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
+  void search_whenIndustryUser_unfiltered_noCurrentPwasHeldByOrgGroupOrgUnits() {
 
     setupDefaultData();
 
@@ -348,7 +348,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndUpdateAppsExist() {
+  void search_whenIndustryUser_unfiltered_applicationsForPwaWhereUserInOrgGrpTeam_submittedAndUpdateAppsExist() {
 
     setupDefaultData();
 
@@ -368,7 +368,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenIndustryUser_unfiltered_submittedInitialPwaAppExists() {
+  void search_whenIndustryUser_unfiltered_submittedInitialPwaAppExists() {
 
     setupDefaultData();
     searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
@@ -403,7 +403,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForDifferentHolder() {
+  void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForDifferentHolder() {
 
     setupDefaultData();
     searchContext = getIndustryAndOgaContext(new OrganisationUnitId(portalOrgUnit1.getOuId()));
@@ -432,7 +432,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForUserHolderOrg() {
+  void search_whenIndustryUser_andOGAUser_unfiltered_draftInitialPwaAppExistsForUserHolderOrg() {
 
     setupDefaultData();
     searchContext = getIndustryAndOgaContext(new OrganisationUnitId(portalOrgUnit1.getOuId()));
@@ -465,7 +465,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenIndustryUser_unfiltered_draftInitialPwaAppExists() {
+  void search_whenIndustryUser_unfiltered_draftInitialPwaAppExists() {
 
     setupDefaultData();
     searchContext = getIndustryContext(USER_HOLDER_ORG_UNIT_ID);
@@ -497,7 +497,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
    */
   @Transactional
   @Test
-  public void search_whenConsulteeUser_unfiltered_limitedToApplicationsConsultedOn_lastSatisfactoryVersion() {
+  void search_whenConsulteeUser_unfiltered_limitedToApplicationsConsultedOn_lastSatisfactoryVersion() {
 
     setupDefaultData();
     // setup app to link to consultation request
@@ -552,7 +552,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_regulatorContext_emptySearchParam_completeAppDetailExistsForApp() {
+  void search_regulatorContext_emptySearchParam_completeAppDetailExistsForApp() {
     var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
     entityManager.persist(app);
     var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
@@ -580,7 +580,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_regulatorContext_includeCompletedWithdrawnApps_completeAppDetailExistsForApp() {
+  void search_regulatorContext_includeCompletedWithdrawnApps_completeAppDetailExistsForApp() {
     var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
     entityManager.persist(app);
     var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
@@ -611,7 +611,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_regulatorContext_filterByCaseOfficer_completeAppDetailExistsForApp() {
+  void search_regulatorContext_filterByCaseOfficer_completeAppDetailExistsForApp() {
     var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
     entityManager.persist(app);
     var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
@@ -654,7 +654,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_regulatorContext_filterByCaseOfficer_noCaseOfficersAssignedToApps() {
+  void search_regulatorContext_filterByCaseOfficer_noCaseOfficersAssignedToApps() {
     var app = new PwaApplication(pwa2, PwaApplicationType.CAT_1_VARIATION, 0);
     entityManager.persist(app);
     var appDetail = new PwaApplicationDetail(app, 1, 1, clock.instant());
@@ -694,7 +694,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenRegulatorUser_applicationTypeFilter_appTypeUnmatched() {
+  void search_whenRegulatorUser_applicationTypeFilter_appTypeUnmatched() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     persistAppDetailViews();
@@ -714,7 +714,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenRegulatorUser_applicationTypeFilter_appTypeMatched() {
+  void search_whenRegulatorUser_applicationTypeFilter_appTypeMatched() {
     setupDefaultPwaConsentsAndHolderOrgs();
     createDefaultAppDetailViews();
     persistAppDetailViews();
@@ -733,7 +733,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_holderOrgUnitFilterMatches() {
+  void search_whenIndustryUser_holderOrgUnitFilterMatches() {
 
     setupDefaultData();
 
@@ -752,7 +752,7 @@ public class ApplicationDetailSearchServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void search_whenIndustryUser_holderOrgUnitFilterMatches_butNotForUser() {
+  void search_whenIndustryUser_holderOrgUnitFilterMatches_butNotForUser() {
 
     setupDefaultData();
 

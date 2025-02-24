@@ -5,16 +5,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultMatcher;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -25,10 +23,9 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = StartVariationController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class StartVariationControllerTest extends AbstractControllerTest {
+class StartVariationControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
       Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
@@ -37,7 +34,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       Collections.emptyList());
 
   @Test
-  public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_petroleum() throws Exception {
+  void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_petroleum() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -52,7 +49,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
             get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -63,7 +60,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_hydrogen() throws Exception {
+  void renderVariationTypeStartPage_onlySupportedTypesGetOkStatus_hydrogen() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION
     );
@@ -73,7 +70,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
                 get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.HYDROGEN)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -84,13 +81,13 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void renderVariationTypeStartPage_noPrivileges() throws Exception {
+  void renderVariationTypeStartPage_noPrivileges() throws Exception {
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
 
       mockMvc.perform(
           get(ReverseRouter.route(on(StartVariationController.class).renderVariationTypeStartPage(appType, PwaResourceType.PETROLEUM)))
-              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(user(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
 
@@ -99,7 +96,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void startVariation_onlySupportedTypesGetRedirectedStatus_petroleum() throws Exception {
+  void startVariation_onlySupportedTypesGetRedirectedStatus_petroleum() throws Exception {
     var expectOkAppTypes = EnumSet.of(
         PwaApplicationType.CAT_1_VARIATION,
         PwaApplicationType.CAT_2_VARIATION,
@@ -114,7 +111,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
             post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.PETROLEUM)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -125,7 +122,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void startVariation_onlySupportedTypesGetRedirectedStatus_hydrogen() throws Exception {
+  void startVariation_onlySupportedTypesGetRedirectedStatus_hydrogen() throws Exception {
     var expectOkAppTypes = EnumSet.of(PwaApplicationType.CAT_1_VARIATION);
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
@@ -133,7 +130,7 @@ public class StartVariationControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(
                 post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
-                    .with(authenticatedUserAndSession(user))
+                    .with(user(user))
                     .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -144,13 +141,13 @@ public class StartVariationControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void startVariation_noPrivileges() throws Exception {
+  void startVariation_noPrivileges() throws Exception {
 
     for (PwaApplicationType appType : PwaApplicationType.values()) {
 
       mockMvc.perform(
           post(ReverseRouter.route(on(StartVariationController.class).startVariation(appType, PwaResourceType.HYDROGEN)))
-              .with(authenticatedUserAndSession(userNoPrivs))
+              .with(user(userNoPrivs))
               .with(csrf()))
           .andExpect(status().isForbidden());
 

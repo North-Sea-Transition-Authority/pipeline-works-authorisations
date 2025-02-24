@@ -1,4 +1,12 @@
+<#import '/spring.ftl' as spring>
 <#import 'fds/components/header/header.ftl' as fdsHeader>
+
+<#function springUrl url>
+    <#local springUrl>
+        <@spring.url url/>
+    </#local>
+    <#return springUrl>
+</#function>
 
 <#-- Header Component https://design-system.service.gov.uk/components/header/ -->
 <#macro header
@@ -14,7 +22,7 @@ wrapperWidth=false>
       <@fdsHeader.headerNavigation>
           <#if currentUserView?has_content && currentUserView.isAuthenticated()>
               <@fdsHeader.headerNavigationItem itemText=currentUserView.getFullName()/>
-              <@fdsHeader.headerNavigationItem itemText="Sign out" itemUrl=foxLogoutUrl/>
+              <@fdsHeader.headerNavigationSignOutButton formUrl=springUrl("/logout") buttonText="Sign out"/>
           </#if>
       </@fdsHeader.headerNavigation>
   </@fdsHeader.header>

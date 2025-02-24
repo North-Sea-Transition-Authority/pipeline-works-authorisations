@@ -6,16 +6,16 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.WorkAreaApplicationDetailSearchItem;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationWorkAreaSortTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationWorkAreaSortTest {
 
   @Test
-  public void allValuesHaveValidSortProperty() {
+  void allValuesHaveValidSortProperty() {
 
     var validFieldsSet = Arrays.stream(FieldUtils.getAllFields(WorkAreaApplicationDetailSearchItem.class))
         .map(Field::getName)

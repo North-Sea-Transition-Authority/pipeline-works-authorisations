@@ -9,11 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpe
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 
-@RunWith(MockitoJUnitRunner.class)
-public class TemplateDocumentSourceMailMergeResolverTest {
+@ExtendWith(MockitoExtension.class)
+class TemplateDocumentSourceMailMergeResolverTest {
 
   @Mock
   private TaskListService taskListService;
@@ -38,8 +38,8 @@ public class TemplateDocumentSourceMailMergeResolverTest {
 
   private List<MailMergeFieldMnem> mailMergeFields;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     templateDocumentSourceMailMergeResolver = new TemplateDocumentSourceMailMergeResolver(taskListService, applicationContext);
 
@@ -49,7 +49,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
   }
 
   @Test
-  public void supportsDocumentSource_templateDocSource_true() {
+  void supportsDocumentSource_templateDocSource_true() {
 
     var source = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
@@ -60,7 +60,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
   }
 
   @Test
-  public void getAvailableMailMergeFields() {
+  void getAvailableMailMergeFields() {
 
     var source = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
@@ -79,7 +79,7 @@ public class TemplateDocumentSourceMailMergeResolverTest {
   }
 
   @Test
-  public void resolveMergeFields() {
+  void resolveMergeFields() {
 
     var mockResolver = mock(TemplateDocumentSourceMailMergeResolver.class);
 

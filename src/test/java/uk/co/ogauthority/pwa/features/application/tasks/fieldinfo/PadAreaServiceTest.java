@@ -13,13 +13,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -40,8 +42,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadAreaServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadAreaServiceTest {
   private final int DEVUK_FIELD_ID = 1;
   private final String DEVUK_FIELD_NAME = "FIELD_NAME";
 
@@ -76,8 +79,8 @@ public class PadAreaServiceTest {
   private DevukField devukField;
   private String manuallyEnteredFieldName = "my entered field";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setResourceType(PwaResourceType.PETROLEUM);
@@ -110,7 +113,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void getActiveFieldsForApplicationDetail() {
+  void getActiveFieldsForApplicationDetail() {
     var pwaField = new PadLinkedArea();
     when(padAreaRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(pwaField));
@@ -118,7 +121,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void updateFieldInformation_nothingEntered() {
+  void updateFieldInformation_nothingEntered() {
 
     padAreaService.updateFieldInformation(pwaApplicationDetail, new PwaAreaForm());
 
@@ -128,7 +131,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void updateFieldInformation_linkedToField_noField() {
+  void updateFieldInformation_linkedToField_noField() {
 
     var form = new PwaAreaForm();
     form.setLinkedToArea(true);
@@ -146,7 +149,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void updateFieldInformation_linkedToField_fieldSelected() {
+  void updateFieldInformation_linkedToField_fieldSelected() {
 
     var form = new PwaAreaForm();
     form.setLinkedToArea(true);
@@ -185,7 +188,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void updateFieldInformation_notLinkedToField_noDescription() {
+  void updateFieldInformation_notLinkedToField_noDescription() {
 
     var form = new PwaAreaForm();
     form.setLinkedToArea(false);
@@ -206,7 +209,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void updateFieldInformation_notLinkedToField_descriptionEntered() {
+  void updateFieldInformation_notLinkedToField_descriptionEntered() {
 
     var form = new PwaAreaForm();
     form.setLinkedToArea(false);
@@ -228,7 +231,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void createAndSavePadFieldsFromMasterPwa_noFieldData() {
+  void createAndSavePadFieldsFromMasterPwa_noFieldData() {
 
     padAreaService.createAndSavePadFieldsFromMasterPwa(pwaApplicationDetail, new MasterPwaDetail(), List.of());
 
@@ -238,7 +241,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void createAndSavePadFieldsFromMasterPwa_linkedToField_devukFieldAndManualEntry() {
+  void createAndSavePadFieldsFromMasterPwa_linkedToField_devukFieldAndManualEntry() {
     var pwaDetail = new MasterPwaDetail();
     pwaDetail.setLinkedToFields(true);
 
@@ -269,7 +272,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void createAndSavePadFieldsFromMasterPwa_notLinkedToField() {
+  void createAndSavePadFieldsFromMasterPwa_notLinkedToField() {
 
     var pwaDetail = new MasterPwaDetail();
     pwaDetail.setLinkedToFields(false);
@@ -283,7 +286,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_whenNoFieldData() {
+  void mapEntityToForm_whenNoFieldData() {
     var form = new PwaAreaForm();
     when(padAreaRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
 
@@ -295,7 +298,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_whenNotLinkedToField() {
+  void mapEntityToForm_whenNotLinkedToField() {
     var form = new PwaAreaForm();
     var desc = "DESC";
     when(padAreaRepository.getAllByPwaApplicationDetail(any())).thenReturn(List.of());
@@ -310,7 +313,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void mapEntityToForm_whenLinkedToField() {
+  void mapEntityToForm_whenLinkedToField() {
     var form = new PwaAreaForm();
     pwaApplicationDetail.setLinkedToArea(true);
 
@@ -328,7 +331,7 @@ public class PadAreaServiceTest {
 
 
   @Test
-  public void getPreSelectedItems() {
+  void getPreSelectedItems() {
     devukField.setFieldName("a field");
     var padFieldManaullyEntered = new PadLinkedArea();
     padFieldManaullyEntered.setAreaName(manuallyEnteredFieldName);
@@ -342,9 +345,8 @@ public class PadAreaServiceTest {
   }
 
 
-
   @Test
-  public void isComplete_serviceInteraction_whenValidateResultAddsErrors() {
+  void isComplete_serviceInteraction_whenValidateResultAddsErrors() {
 
     doAnswer(invocation -> {
       var errors = (Errors) invocation.getArgument(1);
@@ -359,7 +361,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void isComplete_serviceInteraction_whenValidateAddsNoErrors() {
+  void isComplete_serviceInteraction_whenValidateAddsNoErrors() {
 
     assertThat(padAreaService.isComplete(pwaApplicationDetail)).isTrue();
 
@@ -368,7 +370,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void getApplicationFieldLinksView_whenNoLinkData() {
+  void getApplicationFieldLinksView_whenNoLinkData() {
     pwaApplicationDetail.setLinkedToArea(null);
     pwaApplicationDetail.setNotLinkedDescription(null);
     var fieldLinkView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
@@ -380,7 +382,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void getApplicationFieldLinksView_whenIsNotLinkedToField() {
+  void getApplicationFieldLinksView_whenIsNotLinkedToField() {
     pwaApplicationDetail.setLinkedToArea(false);
     pwaApplicationDetail.setNotLinkedDescription("NOT_LINKED");
     var fieldLinkView = padAreaService.getApplicationAreaLinksView(pwaApplicationDetail);
@@ -392,7 +394,7 @@ public class PadAreaServiceTest {
   }
 
   @Test
-  public void getApplicationFieldLinksView_whenIsLinkedToField() {
+  void getApplicationFieldLinksView_whenIsLinkedToField() {
     var padManualFieldLink = new PadLinkedArea();
     padManualFieldLink.setAreaName("FIELD_NAME");
 

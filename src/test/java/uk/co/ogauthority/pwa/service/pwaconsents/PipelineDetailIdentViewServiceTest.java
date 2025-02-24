@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineIdentViewCollectorService;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentDataReposit
 import uk.co.ogauthority.pwa.repository.pipelines.PipelineDetailIdentRepository;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentViewService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailIdentViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineDetailIdentViewServiceTest {
 
   private final PipelineId PIPELINE_ID = new PipelineId(1);
 
@@ -39,8 +39,8 @@ public class PipelineDetailIdentViewServiceTest {
 
   private PipelineDetailIdentViewService pipelineDetailIdentViewService;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pipelineIdentViewCollectorService = new PipelineIdentViewCollectorService();
 
@@ -51,7 +51,7 @@ public class PipelineDetailIdentViewServiceTest {
   }
 
   @Test
-  public void getSortedPipelineIdentViewsForPipeline_sortsIdentsByNumber() {
+  void getSortedPipelineIdentViewsForPipeline_sortsIdentsByNumber() {
 
     var identData = List.of(
         createPipelineIdentData(PIPELINE_ID, 2),
@@ -78,7 +78,7 @@ public class PipelineDetailIdentViewServiceTest {
   }
 
   @Test
-  public void getSortedPipelineIdentViewsForPipelineDetail_sortsIdentsByNumber() {
+  void getSortedPipelineIdentViewsForPipelineDetail_sortsIdentsByNumber() {
 
     var identData = List.of(
         createPipelineIdentData(PIPELINE_ID, 2),

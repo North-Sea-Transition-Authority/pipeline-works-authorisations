@@ -10,20 +10,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -44,9 +42,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValidator;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsultationResponseController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private ConsultationResponseService consultationResponseService;
@@ -68,12 +65,12 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
 
   private ProcessingPermissionsDto permissionsDto;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -90,14 +87,14 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
         EnumSet.allOf(PwaAppProcessingPermission.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setUserPrivileges(PwaUserPrivilege.PWA_CONSULTEE)
+        .setUserPrivileges(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.CONSULTATION_RESPONDER)
         .setConsultationRequest(consultationRequest);
 
   }
 
   @Test
-  public void renderResponder_permissionSmokeTest() {
+  void renderResponder_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -109,7 +106,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder_permissionSmokeTest() {
+  void postResponder_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -121,14 +118,14 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder() throws Exception {
+  void postResponder() throws Exception {
 
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(pwaApplicationDetail, user)).thenReturn(permissionsDto);
 
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationResponseController.class)
         .postResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("consultationResponseOption", "")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -138,7 +135,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void postResponder_validationFail() throws Exception {
+  void postResponder_validationFail() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(consultationResponseValidator, List.of("responseDataForms[CONTENT].consultationResponseOption"));
 
@@ -147,7 +144,7 @@ public class ConsultationResponseControllerTest extends PwaAppProcessingContextA
     mockMvc.perform(post(ReverseRouter.route(on(ConsultationResponseController.class)
         .postResponder(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(),
             1, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("consultationResponseOption", "")
         .with(csrf()))
         .andExpect(status().isOk())

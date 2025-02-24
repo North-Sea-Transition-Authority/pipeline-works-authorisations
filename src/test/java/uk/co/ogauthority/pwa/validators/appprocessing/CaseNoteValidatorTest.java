@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
@@ -16,19 +16,19 @@ import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CaseNoteValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class CaseNoteValidatorTest {
 
   private CaseNoteFormValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new CaseNoteFormValidator();
   }
 
 
   @Test
-  public void validate_noteTextAdded_valid() {
+  void validate_noteTextAdded_valid() {
     var form = new AddCaseNoteForm();
     form.setNoteText("note text");
 
@@ -37,7 +37,7 @@ public class CaseNoteValidatorTest {
   }
 
   @Test
-  public void validate_formComplete_valid() {
+  void validate_formComplete_valid() {
     var form = new AddCaseNoteForm();
     form.setNoteText("note text");
     FileUploadTestUtil.addDefaultUploadFileToForm(form);
@@ -47,7 +47,7 @@ public class CaseNoteValidatorTest {
   }
 
   @Test
-  public void validate_formEmpty_invalid() {
+  void validate_formEmpty_invalid() {
     var form = new AddCaseNoteForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
@@ -56,7 +56,7 @@ public class CaseNoteValidatorTest {
   }
 
   @Test
-  public void validate_fileDescriptionEmpty_invalid() {
+  void validate_fileDescriptionEmpty_invalid() {
     var form = new AddCaseNoteForm();
     FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
 
@@ -68,7 +68,7 @@ public class CaseNoteValidatorTest {
   }
 
   @Test
-  public void validate_fileDescriptionOverMaxCharLength_invalid() {
+  void validate_fileDescriptionOverMaxCharLength_invalid() {
     var form = new AddCaseNoteForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
 

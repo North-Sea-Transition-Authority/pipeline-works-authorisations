@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -10,11 +11,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -32,8 +35,9 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaTeamsDtoFactoryTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaTeamsDtoFactoryTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -58,8 +62,8 @@ public class PwaTeamsDtoFactoryTest {
   private PortalRoleDto role1;
   private PortalRoleDto role2;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pwaTeamsDtoFactory = new PwaTeamsDtoFactory(portalOrganisationsAccessor, personRepository);
 
     setupPortalTeamDtos();
@@ -90,34 +94,36 @@ public class PwaTeamsDtoFactoryTest {
     orgTeamMember1 = new PortalTeamMemberDto(orgMember1.getId(), Set.of(role1, role2));
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void createPwaTeam_errorsWhenTeamTypeNotSupported() {
+  @Test
+  void createPwaTeam_errorsWhenTeamTypeNotSupported() {
     var unsupportedTeamType = new PortalTeamDto(1, "NAME", "DESC", "UNSUPPORTED", null);
-    pwaTeamsDtoFactory.createPwaTeam(unsupportedTeamType);
+    assertThrows(IllegalArgumentException.class, () ->
+      pwaTeamsDtoFactory.createPwaTeam(unsupportedTeamType));
   }
 
   @Test
-  public void createPwaTeam_createsRegulatorInstanceWhenExpected() {
+  void createPwaTeam_createsRegulatorInstanceWhenExpected() {
     assertThat(pwaTeamsDtoFactory.createPwaTeam(regulatorTeamDto)).isInstanceOf(PwaRegulatorTeam.class);
   }
 
   @Test
-  public void createPwaTeam_createsOrganisationInstanceWhenExpected() {
+  void createPwaTeam_createsOrganisationInstanceWhenExpected() {
     assertThat(pwaTeamsDtoFactory.createPwaTeam(organisationTeamDto1)).isInstanceOf(PwaOrganisationTeam.class);
   }
 
   @Test
-  public void createPwaTeam_createsGlobalInstanceWhenExpected() {
+  void createPwaTeam_createsGlobalInstanceWhenExpected() {
     assertThat(pwaTeamsDtoFactory.createPwaTeam(globalTeamDto)).isInstanceOf(PwaGlobalTeam.class);
   }
 
-  @Test(expected = PwaTeamFactoryException.class)
-  public void createRegulatorTeam_errorsWhenGivenUnexpectedTeamTypeDto() {
-    pwaTeamsDtoFactory.createRegulatorTeam(organisationTeamDto1);
+  @Test
+  void createRegulatorTeam_errorsWhenGivenUnexpectedTeamTypeDto() {
+    assertThrows(PwaTeamFactoryException.class, () ->
+      pwaTeamsDtoFactory.createRegulatorTeam(organisationTeamDto1));
   }
 
   @Test
-  public void createRegulatorTeam_mapsDtoAsExpected() {
+  void createRegulatorTeam_mapsDtoAsExpected() {
     regulatorTeam = pwaTeamsDtoFactory.createRegulatorTeam(regulatorTeamDto);
     assertThat(regulatorTeam.getId()).isEqualTo(regulatorTeamDto.getResId());
     assertThat(regulatorTeam.getName()).isEqualTo(regulatorTeamDto.getName());
@@ -126,7 +132,7 @@ public class PwaTeamsDtoFactoryTest {
   }
 
   @Test
-  public void createOrganisationTeam_mapsDtoAsExpected() {
+  void createOrganisationTeam_mapsDtoAsExpected() {
     List<String> expectedUrefList = List.of(portalOrganisationGroup1.getUrefValue());
     organisationTeam1 = pwaTeamsDtoFactory.createOrganisationTeam(organisationTeamDto1);
     verify(portalOrganisationsAccessor, times(1)).getAllOrganisationGroupsWithUrefIn(eq(expectedUrefList));
@@ -138,22 +144,24 @@ public class PwaTeamsDtoFactoryTest {
     assertThat(organisationTeam1.getPortalOrganisationGroup()).isEqualTo(portalOrganisationGroup1);
   }
 
-  @Test(expected = PwaTeamFactoryException.class)
-  public void createOrganisationTeam_errorsWhenAssociatedUrefNotValidOrganisationGroup() {
+  @Test
+  void createOrganisationTeam_errorsWhenAssociatedUrefNotValidOrganisationGroup() {
     when(portalOrganisationsAccessor.getAllOrganisationGroupsWithUrefIn(any())).thenReturn(List.of());
-    pwaTeamsDtoFactory.createOrganisationTeam(organisationTeamDto1);
-  }
-
-  @Test(expected = PwaTeamFactoryException.class)
-  public void createOrganisationTeam_errorsWhenAssociatedUrefNotScoped() {
-    when(portalOrganisationsAccessor.getAllOrganisationGroupsWithUrefIn(any())).thenReturn(List.of());
-    organisationTeamDto1 = new PortalTeamDto(1, "NAME", "DESC", PwaTeamType.ORGANISATION.getPortalTeamType(), null);
-
-    pwaTeamsDtoFactory.createOrganisationTeam(organisationTeamDto1);
+    assertThrows(PwaTeamFactoryException.class, () ->
+      pwaTeamsDtoFactory.createOrganisationTeam(organisationTeamDto1));
   }
 
   @Test
-  public void createOrganisationTeamList_verifyOrganisationsRetrievedInOneHit() {
+  void createOrganisationTeam_errorsWhenAssociatedUrefNotScoped() {
+    when(portalOrganisationsAccessor.getAllOrganisationGroupsWithUrefIn(any())).thenReturn(List.of());
+    organisationTeamDto1 = new PortalTeamDto(1, "NAME", "DESC", PwaTeamType.ORGANISATION.getPortalTeamType(), null);
+    assertThrows(PwaTeamFactoryException.class, () ->
+
+      pwaTeamsDtoFactory.createOrganisationTeam(organisationTeamDto1));
+  }
+
+  @Test
+  void createOrganisationTeamList_verifyOrganisationsRetrievedInOneHit() {
     List<String> expectedUrefList = List.of(portalOrganisationGroup1.getUrefValue(), portalOrganisationGroup2.getUrefValue());
     when(portalOrganisationsAccessor.getAllOrganisationGroupsWithUrefIn(any()))
         .thenReturn(List.of(portalOrganisationGroup1, portalOrganisationGroup2));
@@ -164,7 +172,7 @@ public class PwaTeamsDtoFactoryTest {
   }
 
   @Test
-  public void createPwaTeamMemberList_verifyTeamMemberPersonsGotInOneHit() {
+  void createPwaTeamMemberList_verifyTeamMemberPersonsGotInOneHit() {
     PortalTeamMemberDto orgTeamMember1 = TeamTestingUtils.createPortalTeamMember(orgMember1, organisationTeam1);
     PortalTeamMemberDto orgTeamMember2 = TeamTestingUtils.createPortalTeamMember(orgMember2, organisationTeam1);
     List<PortalTeamMemberDto> portalTeamMemberDtos = List.of(orgTeamMember1, orgTeamMember2);
@@ -177,7 +185,7 @@ public class PwaTeamsDtoFactoryTest {
   }
 
   @Test
-  public void createPwaTeamMember_mapsDtoPropertiesAsExpected() {
+  void createPwaTeamMember_mapsDtoPropertiesAsExpected() {
     PwaTeamMember teamMember = pwaTeamsDtoFactory.createPwaTeamMember(orgTeamMember1, orgMember1, organisationTeam1);
 
     assertThat(teamMember.getPerson()).isEqualTo(orgMember1);
@@ -185,7 +193,7 @@ public class PwaTeamsDtoFactoryTest {
   }
 
   @Test
-  public void createPwaTeamMember_mapsRolesAsExpected() {
+  void createPwaTeamMember_mapsRolesAsExpected() {
     PwaTeamMember teamMember = pwaTeamsDtoFactory.createPwaTeamMember(orgTeamMember1, orgMember1, organisationTeam1);
 
     PwaRole mappedRole1 = teamMember.getRoleSet().stream()
@@ -211,7 +219,7 @@ public class PwaTeamsDtoFactoryTest {
 
 
   @Test
-  public void createPwaUserPrivilegeSet_mapsPrivAsExpected_andRemovesDuplicates() {
+  void createPwaUserPrivilegeSet_mapsPrivAsExpected_andRemovesDuplicates() {
     Set<PwaUserPrivilege> privs = pwaTeamsDtoFactory.createPwaUserPrivilegeSet(List.of(
         new PortalSystemPrivilegeDto(PwaTeamType.REGULATOR.getPortalTeamType(), "SomeRole",
             PwaUserPrivilege.PWA_WORKAREA.name()),

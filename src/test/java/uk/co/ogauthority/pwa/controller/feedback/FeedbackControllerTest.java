@@ -11,15 +11,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Optional;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -31,10 +29,9 @@ import uk.co.ogauthority.pwa.features.feedback.FeedbackService;
 import uk.co.ogauthority.pwa.model.form.feedback.FeedbackForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(FeedbackController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class FeedbackControllerTest extends AbstractControllerTest {
+class FeedbackControllerTest extends AbstractControllerTest {
 
   @MockBean
   FeedbackService feedbackService;
@@ -46,52 +43,52 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   private static final int APP_DETAIL_ID = 1;
 
   @Test
-  public void getFeedback_whenAuthenticatedAndApplicationDetailId_thenOk() throws Exception {
+  void getFeedback_whenAuthenticatedAndApplicationDetailId_thenOk() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(10), null, null)))
-        .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+        .with(user(AUTHENTICATED_USER))
     )
         .andExpect(status().isOk());
   }
 
   @Test
-  public void getFeedback_whenAuthenticatedAndNoApplicationDetailId_thenOk() throws Exception {
+  void getFeedback_whenAuthenticatedAndNoApplicationDetailId_thenOk() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+                .with(user(AUTHENTICATED_USER))
         )
         .andExpect(status().isOk());
   }
 
   @Test
-  public void getFeedback_whenUnauthenticatedAndApplicationDetailId_thenForbidden() throws Exception {
+  void getFeedback_whenUnauthenticatedAndApplicationDetailId_thenForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(10), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
         )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
-  public void getFeedback_whenUnauthenticatedAndNoApplicationDetailId_thenForbidden() throws Exception {
+  void getFeedback_whenUnauthenticatedAndNoApplicationDetailId_thenForbidden() throws Exception {
     mockMvc.perform(
         get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-        .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+        .with(user(UNAUTHENTICATED_USER))
     )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
-  public void getFeedback_whenUnauthenticated_thenForbidden() throws Exception {
+  void getFeedback_whenUnauthenticated_thenForbidden() throws Exception {
     mockMvc.perform(
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
         )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
-  public void submitFeedback_whenNoFormErrors_thenRedirect() throws Exception {
+  void submitFeedback_whenNoFormErrors_thenRedirect() throws Exception {
 
     var form = new FeedbackForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -100,7 +97,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(APP_DETAIL_ID), null, null)))
-            .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+            .with(user(AUTHENTICATED_USER))
             .with(csrf())
         )
         .andExpect(status().is3xxRedirection())
@@ -110,7 +107,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void submitFeedback_whenFormErrors_thenRedirectToFeedbackPage() throws Exception {
+  void submitFeedback_whenFormErrors_thenRedirectToFeedbackPage() throws Exception {
 
     var form = new FeedbackForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -120,7 +117,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-            .with(authenticatedUserAndSession(AUTHENTICATED_USER))
+            .with(user(AUTHENTICATED_USER))
             .with(csrf())
         )
         .andExpect(status().isOk());
@@ -129,7 +126,7 @@ public class FeedbackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void submitFeedback_whenUnauthenticated_thenForbidden() throws Exception {
+  void submitFeedback_whenUnauthenticated_thenForbidden() throws Exception {
 
     var form = new FeedbackForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -138,10 +135,10 @@ public class FeedbackControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(
             post(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
-                .with(authenticatedUserAndSession(UNAUTHENTICATED_USER))
+                .with(user(UNAUTHENTICATED_USER))
                 .with(csrf())
         )
-        .andExpect(status().is3xxRedirection());
+        .andExpect(status().isForbidden());
   }
 
 }

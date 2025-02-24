@@ -3,17 +3,17 @@ package uk.co.ogauthority.pwa.features.datatypes.coordinate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CoordinateUtilsTest {
+class CoordinateUtilsTest {
 
   @Test
-  public void coordinatePairFromForm() {
+  void coordinatePairFromForm() {
 
     var form = new CoordinateForm();
     form.setLatitudeDegrees(55);
@@ -41,7 +41,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void mapCoordinatePairToForm() {
+  void mapCoordinatePairToForm() {
 
     var coordinatePair = new CoordinatePair(
         new LatitudeCoordinate(48, 49, new BigDecimal("50.00"), LatitudeDirection.NORTH),
@@ -65,7 +65,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void restoreScale_null() {
+  void restoreScale_null() {
 
     BigDecimal decimal = CoordinateUtils.restoreScale(null);
 
@@ -74,7 +74,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void restoreScale_0dp() {
+  void restoreScale_0dp() {
 
     BigDecimal decimal = CoordinateUtils.restoreScale(new BigDecimal("7"));
 
@@ -83,7 +83,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void restoreScale_1dp() {
+  void restoreScale_1dp() {
 
     BigDecimal decimal = CoordinateUtils.restoreScale(new BigDecimal("7.5"));
 
@@ -92,7 +92,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void restoreScale_2dp() {
+  void restoreScale_2dp() {
 
     BigDecimal decimal = CoordinateUtils.restoreScale(new BigDecimal("7.66"));
 
@@ -101,7 +101,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void restoreScale_moreThan_2dp() {
+  void restoreScale_moreThan_2dp() {
 
     BigDecimal decimal = CoordinateUtils.restoreScale(new BigDecimal("7.666"));
 
@@ -110,7 +110,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void buildFromCoordinatePair_null() {
+  void buildFromCoordinatePair_null() {
 
     var pipeline = new PadPipeline();
 
@@ -129,7 +129,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void buildFromCoordinatePair_values() {
+  void buildFromCoordinatePair_values() {
 
     var pipeline = new PadPipeline();
     var coordinate = CoordinatePairTestUtil.getDefaultCoordinate();
@@ -150,7 +150,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void buildToCoordinatePair_null() {
+  void buildToCoordinatePair_null() {
 
     var pipeline = new PadPipeline();
 
@@ -169,7 +169,7 @@ public class CoordinateUtilsTest {
   }
 
   @Test
-  public void buildToCoordinatePair_values() {
+  void buildToCoordinatePair_values() {
 
     var pipeline = new PadPipeline();
     var coordinate = CoordinatePairTestUtil.getDefaultCoordinate();

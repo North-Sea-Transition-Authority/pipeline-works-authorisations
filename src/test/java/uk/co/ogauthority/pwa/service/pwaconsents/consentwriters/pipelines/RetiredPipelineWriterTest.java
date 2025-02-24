@@ -11,13 +11,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RetiredPipelineWriterTest {
+@ExtendWith(MockitoExtension.class)
+class RetiredPipelineWriterTest {
 
   @Mock
   private PadOrganisationRoleService padOrganisationRoleService;
@@ -54,9 +54,10 @@ public class RetiredPipelineWriterTest {
 
   @Captor
   private ArgumentCaptor<List<Pipeline>> pipelineCaptor;
+  private PadPipeline padPipeline;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     linkWriter = new RetiredPipelineWriter(padOrganisationRoleService, padPipelineService, pipelineRemovalService);
 
     pwaApplicationDetail = new PwaApplicationDetail();
@@ -66,13 +67,12 @@ public class RetiredPipelineWriterTest {
     pipelineDetailMap = getPipelineMap();
     consentWriterDto.setPipelineToNewDetailMap(pipelineDetailMap);
 
-    var padPipeline = new PadPipeline();
+    padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(pwaApplicationDetail);
-    when(padPipelineService.findSubmittedOrDraftPipelinesWithPipelineNumber(any())).thenReturn(List.of(padPipeline));
   }
 
   @Test
-  public void linkWriter_noPipelinesModifiedInApplication() {
+  void linkWriter_noPipelinesModifiedInApplication() {
     consentWriterDto.setPipelineToNewDetailMap(Collections.emptyMap());
     linkWriter.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
     verify(padOrganisationRoleService, never()).removePipelineLinksForRetiredPipelines(any());
@@ -80,7 +80,8 @@ public class RetiredPipelineWriterTest {
   }
 
   @Test
-  public void linkWriter_pipelinesInApplicationsToRemove() {
+  void linkWriter_pipelinesInApplicationsToRemove() {
+    when(padPipelineService.findSubmittedOrDraftPipelinesWithPipelineNumber(any())).thenReturn(List.of(padPipeline));
     linkWriter.write(pwaApplicationDetail, pwaConsent, consentWriterDto);
     verify(padOrganisationRoleService, times(1)).removePipelineLinksForRetiredPipelines(pipelineCaptor.capture());
     verify(padPipelineService, times(PipelineStatus.getStatusesWithoutState(PhysicalPipelineState.ON_SEABED).size())).findSubmittedOrDraftPipelinesWithPipelineNumber(any());
@@ -94,7 +95,8 @@ public class RetiredPipelineWriterTest {
   }
 
   @Test
-  public void linkWriter_pipelinesInSubmittedApplications() {
+  void linkWriter_pipelinesInSubmittedApplications() {
+    when(padPipelineService.findSubmittedOrDraftPipelinesWithPipelineNumber(any())).thenReturn(List.of(padPipeline));
     var padPipeline = new PadPipeline();
     var pwaApplicationDetail = new PwaApplicationDetail();
     pwaApplicationDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);

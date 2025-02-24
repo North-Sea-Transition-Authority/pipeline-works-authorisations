@@ -2,21 +2,21 @@ package uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.internal.LicenceStatusConverter;
 
-public class LicenceStatusConverterTest {
+class LicenceStatusConverterTest {
 
   private LicenceStatusConverter converter;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     converter = new LicenceStatusConverter();
   }
 
   @Test
-  public void convertToDatabaseColumn_ProvidedValue() {
+  void convertToDatabaseColumn_ProvidedValue() {
     LicenceStatus.stream()
         .forEach(licenceStatus -> {
           var result = converter.convertToDatabaseColumn(licenceStatus);
@@ -25,13 +25,13 @@ public class LicenceStatusConverterTest {
   }
 
   @Test
-  public void convertToDatabaseColumn_WithNull() {
+  void convertToDatabaseColumn_WithNull() {
     var result = converter.convertToDatabaseColumn(null);
     assertThat(result).isNull();
   }
 
   @Test
-  public void convertToEntityAttribute_ProvidedValue() {
+  void convertToEntityAttribute_ProvidedValue() {
     LicenceStatus.stream()
         .forEach(licenceStatus -> {
           var result = converter.convertToEntityAttribute(licenceStatus.getInternalCharacter());
@@ -40,7 +40,7 @@ public class LicenceStatusConverterTest {
   }
 
   @Test
-  public void convertToEntityAttribute_WithNull() {
+  void convertToEntityAttribute_WithNull() {
     var result = converter.convertToEntityAttribute(null);
     assertThat(result).isNull();
   }

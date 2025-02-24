@@ -13,26 +13,25 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -50,9 +49,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = EnvironmentalDecomController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractControllerTest {
+class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
@@ -74,12 +72,12 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
       PwaApplicationType.DEPOSIT_CONSENT
   );
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     person = new Person();
     wua = new WebUserAccount(1, person);
-    user = new AuthenticatedUserAccount(wua, List.of());
+    user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_ACCESS));
 
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     instant = Instant.now();
@@ -92,7 +90,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void render_authenticated_validAppType() {
+  void render_authenticated_validAppType() {
 
 
     allowedApplicationTypes.forEach(validAppType -> {
@@ -102,7 +100,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             get(ReverseRouter.route(
                 on(EnvironmentalDecomController.class).renderEnvDecom(validAppType, null, null),
                 Map.of("applicationId", 1)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
         .andExpect(status().isOk());
       } catch (Exception e) {
@@ -114,7 +112,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void render_authenticated_invalidAppType() {
+  void render_authenticated_invalidAppType() {
 
 
     PwaApplicationType.stream()
@@ -126,7 +124,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
             get(ReverseRouter.route(
                 on(EnvironmentalDecomController.class).renderEnvDecom(invalidAppType, null, null),
                 Map.of("applicationId", 1)))
-                .with(authenticatedUserAndSession(user))
+                .with(user(user))
                 .with(csrf()))
             .andExpect(status().isForbidden());
       } catch (Exception e) {
@@ -140,7 +138,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testUnauthenticated() throws Exception {
+  void unauthenticated() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1))))
@@ -161,18 +159,18 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testRenderAdminDetails() throws Exception {
+  void renderAdminDetails() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(EnvironmentalDecomController.class).renderEnvDecom(PwaApplicationType.INITIAL, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(view().name("pwaApplication/shared/environmentalAndDecommissioning"));
   }
 
   @Test
-  public void testPostAdminDetails_partial() throws Exception {
+  void postAdminDetailsPartial() throws Exception {
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     when(padEnvironmentalDecommissioningService.validate(any(), any(), any(), any())).thenReturn(bindingResult);
@@ -180,7 +178,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.partialValidationPostParams()))
         .andExpect(status().is3xxRedirection());
@@ -190,7 +188,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testPostAdminDetails_full_invalid() throws Exception {
+  void postAdminDetailsFullInvalid() throws Exception {
 
     var bindingResult = new BeanPropertyBindingResult(EnvironmentalDecommissioningForm.class, "form");
     bindingResult.addError(new ObjectError("fake error", "fake"));
@@ -199,7 +197,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class)
             .postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().isOk())
@@ -211,7 +209,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
   }
 
   @Test
-  public void testPostAdminDetails_full_valid() throws Exception {
+  void postAdminDetailsFullValid() throws Exception {
 
     MultiValueMap<String, String> completeParams = new LinkedMultiValueMap<>(){{
       add(ValidationType.FULL.getButtonText(), ValidationType.FULL.getButtonText());
@@ -235,7 +233,7 @@ public class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstr
 
     mockMvc.perform(
         post(ReverseRouter.route(on(EnvironmentalDecomController.class).postEnvDecom(PwaApplicationType.INITIAL, null, null, null, null), Map.of("applicationId", 1)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
             .params(completeParams))
         .andExpect(status().is3xxRedirection());

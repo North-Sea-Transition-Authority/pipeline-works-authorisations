@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.files;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -15,13 +16,15 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.web.multipart.MultipartFile;
 import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
@@ -39,8 +42,9 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadFileServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadFileServiceTest {
 
   private final String FILE_ID = "1234567890qwertyuiop";
 
@@ -75,8 +79,8 @@ public class PadFileServiceTest {
       Instant.now(),
       "");
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     padFileService = new PadFileService(fileUploadService, padFileRepository, entityCopyingService);
 
@@ -98,7 +102,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void mapFilesToForm() {
+  void mapFilesToForm() {
 
     var form = new LocationDetailsForm();
 
@@ -118,7 +122,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void processInitialUpload_success() {
+  void processInitialUpload_success() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -143,7 +147,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void processInitialUpload_failed() {
+  void processInitialUpload_failed() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -162,7 +166,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void processImageUpload_success() {
+  void processImageUpload_success() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -187,7 +191,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void processImageUpload_failed() {
+  void processImageUpload_failed() {
 
     var multiPartFile = mock(MultipartFile.class);
 
@@ -206,7 +210,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenFirstVersionOfApplication_thenPadAndUploadedFilesAreDeleted() {
+  void updateFiles_whenFirstVersionOfApplication_thenPadAndUploadedFilesAreDeleted() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.setVersionNo(1);
     file = new PadFile();
@@ -231,7 +235,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenNotFirstVersionOfApplication_thenOnlyPadFilesAreDeleted() {
+  void updateFiles_whenNotFirstVersionOfApplication_thenOnlyPadFilesAreDeleted() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.setVersionNo(2);
     file = new PadFile();
@@ -256,7 +260,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
+  void updateFiles_whenFileOnFormThenUpdatedDescriptionSaved_andLinkIsFull() {
 
     var form = new LocationDetailsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
@@ -286,7 +290,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void updateFiles_whenNoExistingFiles() {
+  void updateFiles_whenNoExistingFiles() {
     var form = ProjectInformationTestUtils.buildForm(LocalDate.now());
     padFileService.updateFiles(form, pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION,
         FileUpdateMode.DELETE_UNLINKED_FILES, wua);
@@ -298,24 +302,24 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
+  void deleteFileLinksAndUploadedFiles_uploadedFileRemoveSuccessful() {
     padFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
     verify(padFileRepository).deleteAll(List.of(file));
   }
 
-  @Test(expected = RuntimeException.class)
-  public void deleteFileLinksAndUploadedFiles_uploadedFileRemoveFail() {
-
+  @Test
+  void deleteFileLinksAndUploadedFiles_uploadedFileRemoveFail() {
     when(fileUploadService.deleteUploadedFile(any(), any())).thenAnswer(invocation ->
-        FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
-    );
+          FileDeleteResult.generateFailedFileDeleteResult(invocation.getArgument(0))
+      );
+    assertThrows(RuntimeException.class, () ->
 
-    padFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua);
+      padFileService.deleteAppFileLinksAndUploadedFiles(List.of(file), wua));
 
   }
 
   @Test
-  public void processFileDeletion_verifyServiceInteractions() {
+  void processFileDeletion_verifyServiceInteractions() {
 
     padFileService.processFileDeletion(file, wua);
 
@@ -325,7 +329,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void getFilesLinkedToForm() {
+  void getFilesLinkedToForm() {
 
     var form = new LocationDetailsForm();
     var fileForm = new UploadFileWithDescriptionForm(FILE_ID, "New Description", Instant.now());
@@ -341,7 +345,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void cleanupFiles_filesToKeep() {
+  void cleanupFiles_filesToKeep() {
 
     var file4 = new PadFile();
     file4.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
@@ -361,7 +365,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void cleanupFiles_noFilesToKeep() {
+  void cleanupFiles_noFilesToKeep() {
 
     var file1 = new PadFile();
     file1.setPurpose(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
@@ -385,7 +389,7 @@ public class PadFileServiceTest {
   }
 
   @Test
-  public void copyPadFilesToPwaApplicationDetail_serviceInteractions() {
+  void copyPadFilesToPwaApplicationDetail_serviceInteractions() {
     var newDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 20, 21);
 
     var copiedFiles = padFileService.copyPadFilesToPwaApplicationDetail(
@@ -405,7 +409,7 @@ public class PadFileServiceTest {
 
 
   @Test
-  public void deleteTemporaryFilesForDetail_tempPadFilesRemoveSuccessful() {
+  void deleteTemporaryFilesForDetail_tempPadFilesRemoveSuccessful() {
 
     var pwaApplicationDetail1 = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail1.setVersionNo(1);

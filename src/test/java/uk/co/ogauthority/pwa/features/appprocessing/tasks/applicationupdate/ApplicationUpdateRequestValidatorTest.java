@@ -9,41 +9,40 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 
 import java.time.LocalDate;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 
-
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationUpdateRequestValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationUpdateRequestValidatorTest {
 
   private ApplicationUpdateRequestValidator validator;
   private ApplicationUpdateRequestForm form;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     validator = new ApplicationUpdateRequestValidator();
     form = new ApplicationUpdateRequestForm();
   }
 
 
   @Test
-  public void supports_whenValidTarget() {
+  void supports_whenValidTarget() {
     assertThat(validator.supports(ApplicationUpdateRequestForm.class)).isTrue();
   }
 
   @Test
-  public void supports_whenInvalidTarget() {
+  void supports_whenInvalidTarget() {
     assertThat(validator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_whenAllNull() {
+  void validate_whenAllNull() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(result).contains(
         entry("requestReason", Set.of(REQUIRED.errorCode("requestReason"))),
@@ -52,7 +51,7 @@ public class ApplicationUpdateRequestValidatorTest {
   }
 
   @Test
-  public void validate_allValidProperties_noErrors() {
+  void validate_allValidProperties_noErrors() {
 
     form.setRequestReason("requestReason");
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
@@ -61,7 +60,7 @@ public class ApplicationUpdateRequestValidatorTest {
   }
 
   @Test
-  public void validate_whenReasonProvided_tooBig() {
+  void validate_whenReasonProvided_tooBig() {
 
     form.setRequestReason(ValidatorTestUtils.overMaxDefaultCharLength());
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -69,7 +68,7 @@ public class ApplicationUpdateRequestValidatorTest {
   }
 
   @Test
-  public void validate_deadlineDateBeforeToday_error() {
+  void validate_deadlineDateBeforeToday_error() {
 
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().minusDays(1)));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -77,7 +76,7 @@ public class ApplicationUpdateRequestValidatorTest {
   }
 
   @Test
-  public void validate_deadlineDateToday_noError() {
+  void validate_deadlineDateToday_noError() {
 
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now()));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -85,7 +84,7 @@ public class ApplicationUpdateRequestValidatorTest {
   }
 
   @Test
-  public void validate_deadlineDateAfterToday_noError() {
+  void validate_deadlineDateAfterToday_noError() {
 
     form.setDeadlineTimestampStr(DateUtils.formatToDatePickerString(LocalDate.now().plusDays(1)));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form);

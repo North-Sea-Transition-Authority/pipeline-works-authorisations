@@ -2,8 +2,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -16,13 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -51,7 +50,7 @@ import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -59,8 +58,8 @@ import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationH
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class AssignResponderServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AssignResponderServiceTest {
 
   private AssignResponderService assignResponderService;
 
@@ -74,7 +73,7 @@ public class AssignResponderServiceTest {
   private AssignResponderValidator validator;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -91,8 +90,8 @@ public class AssignResponderServiceTest {
   @Captor
   private ArgumentCaptor<ConsultationAssignedToYouEmailProps> emailPropsCaptor;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     assignResponderService = new AssignResponderService(
         workflowAssignmentService,
         validator,
@@ -105,7 +104,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void getAllRespondersForRequest() {
+  void getAllRespondersForRequest() {
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var expectedResponder1 = new Person(1, "", "Smith", "", "");
     var expectedResponder2 = new Person(2, "", "Berry", "", "");
@@ -118,7 +117,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assignToDifferentUser_emailSent() {
+  void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assignToDifferentUser_emailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -174,7 +173,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assigningToSelf_noEmailSent() {
+  void assignUserAndCompleteWorkflow_allocation_workflowProgressed_assigningToSelf_noEmailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -215,7 +214,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assignToDifferentUser_emailSent() {
+  void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assignToDifferentUser_emailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -267,7 +266,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assigningToSelf_noEmailSent() {
+  void assignUserAndCompleteWorkflow_response_workflowStageDoesntChange_assigningToSelf_noEmailSent() {
 
     ConsultationRequest consultationRequest = new ConsultationRequest();
     var app = new PwaApplication();
@@ -307,19 +306,18 @@ public class AssignResponderServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void assignUserAndCompleteWorkflow_personNotFound() {
-
+  @Test
+  void assignUserAndCompleteWorkflow_personNotFound() {
     when(teamManagementService.getPerson(5)).thenThrow(new PwaEntityNotFoundException(""));
-
     var form = new AssignResponderForm();
     form.setResponderPersonId(5);
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    assignResponderService.assignResponder(form, new ConsultationRequest(), new WebUserAccount());
+      assignResponderService.assignResponder(form, new ConsultationRequest(), new WebUserAccount()));
   }
 
   @Test
-  public void validate() {
+  void validate() {
     var form = new AssignResponderForm();
     assignResponderService.validate(form, new BeanPropertyBindingResult(form, "form"), new ConsultationRequest());
     verify(validator, times(1)).validate(any(AssignResponderForm.class), any(BeanPropertyBindingResult.class), any(
@@ -327,7 +325,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void isUserMemberOfRequestGroup_valid() {
+  void isUserMemberOfRequestGroup_valid() {
     var usersGroup = new ConsulteeGroup();
     usersGroup.setId(1);
 
@@ -346,7 +344,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void isUserMemberOfRequestGroup_invalid() {
+  void isUserMemberOfRequestGroup_invalid() {
     var usersGroup = new ConsulteeGroup();
     usersGroup.setId(1);
 
@@ -367,7 +365,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission_noActiveConsultation_notShown() {
+  void canShowInTaskList_hasPermission_noActiveConsultation_notShown() {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         null,
@@ -389,7 +387,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission_activeConsultation_shown() {
+  void canShowInTaskList_hasPermission_activeConsultation_shown() {
 
     var processingContext = new PwaAppProcessingContext(
         null,
@@ -406,7 +404,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermission() {
+  void canShowInTaskList_noPermission() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
@@ -417,7 +415,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_noOneAssignedYet() {
+  void getTaskListEntry_noOneAssignedYet() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var request = new ConsultationRequest();
@@ -439,7 +437,7 @@ public class AssignResponderServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_personAssigned() {
+  void getTaskListEntry_personAssigned() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var request = new ConsultationRequest();
@@ -467,12 +465,12 @@ public class AssignResponderServiceTest {
 
   }
 
-  @Test(expected = RuntimeException.class)
-  public void getTaskListEntry_noActiveConsultationRequest() {
-
+  @Test
+  void getTaskListEntry_noActiveConsultationRequest() {
     var processingContext = new PwaAppProcessingContext(null, null, null, null, null, Set.of());
+    assertThrows(RuntimeException.class, () ->
 
-    assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext);
+      assignResponderService.getTaskListEntry(PwaAppProcessingTask.ALLOCATE_RESPONDER, processingContext));
 
   }
 

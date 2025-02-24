@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LatitudeDirection;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.LongitudeDirection;
 import uk.co.ogauthority.pwa.model.form.enums.ValueRequirement;
@@ -16,18 +16,18 @@ import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.service.location.CoordinateFormValidator;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CoordinateFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class CoordinateFormValidatorTest {
 
   private CoordinateFormValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new CoordinateFormValidator();
   }
 
   @Test
-  public void valid_mandatory_dataPresent() {
+  void valid_mandatory_dataPresent() {
 
     var form = buildForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
@@ -37,7 +37,7 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
-  public void failed_mandatory_secondsUnder2Dp() {
+  void failed_mandatory_secondsUnder2Dp() {
 
     var form = buildForm();
     form.setLongitudeSeconds(BigDecimal.valueOf(1.1));
@@ -51,7 +51,7 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
-  public void failed_mandatory_secondsOver2Dp() {
+  void failed_mandatory_secondsOver2Dp() {
 
     var form = buildForm();
     form.setLongitudeSeconds(BigDecimal.valueOf(1.111));
@@ -65,7 +65,7 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
-  public void failed_mandatory_dataNotPresent() {
+  void failed_mandatory_dataNotPresent() {
 
     var form = new CoordinateForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.MANDATORY, "Start point");
@@ -83,7 +83,7 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
-  public void valid_optional_dataNotPresent() {
+  void valid_optional_dataNotPresent() {
 
     var form = new CoordinateForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, null, ValueRequirement.OPTIONAL, "Start point");
@@ -93,7 +93,7 @@ public class CoordinateFormValidatorTest {
   }
 
   @Test
-  public void invalid_optional_partialDataPresent() {
+  void invalid_optional_partialDataPresent() {
 
     var form = new CoordinateForm();
     form.setLatitudeDegrees(50);

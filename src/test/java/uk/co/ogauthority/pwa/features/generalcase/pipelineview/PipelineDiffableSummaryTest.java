@@ -6,18 +6,21 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.views.PipelineHeaderView;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDiffableSummaryTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelineDiffableSummaryTest {
 
   private final String PIPELINE_NAME = "PIPELINE";
   private final PipelineId PIPELINE_ID = new PipelineId(1);
@@ -39,8 +42,8 @@ public class PipelineDiffableSummaryTest {
   @Mock
   private IdentView endIdent;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     when(pipelineHeaderView.getPipelineName()).thenReturn(PIPELINE_NAME);
     when(pipelineHeaderView.getPipelineId()).thenReturn(PIPELINE_ID.asInt());
@@ -51,7 +54,7 @@ public class PipelineDiffableSummaryTest {
   }
 
   @Test
-  public void from_mapsPipelineHeaderInfo_andContainsAllIdents() {
+  void from_mapsPipelineHeaderInfo_andContainsAllIdents() {
 
     var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent), new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
 
@@ -61,7 +64,7 @@ public class PipelineDiffableSummaryTest {
   }
 
   @Test
-  public void from_processesIdentsInOrder() {
+  void from_processesIdentsInOrder() {
 
     var result = PipelineDiffableSummary.from(pipelineHeaderView, List.of(startIdent, midIdent, endIdent), new PipelineDrawingSummaryView(new PadTechnicalDrawing(), List.of()));
 
@@ -97,7 +100,7 @@ public class PipelineDiffableSummaryTest {
   }
 
   @Test
-  public void equals_hashcode(){
+  void equals_hashcode(){
 
     EqualsVerifier.forClass(PipelineDiffableSummary.class)
         .verify();

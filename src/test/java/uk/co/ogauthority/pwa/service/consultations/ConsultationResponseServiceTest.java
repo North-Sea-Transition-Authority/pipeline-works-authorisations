@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -17,13 +18,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -67,8 +70,9 @@ import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationResponseServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class ConsultationResponseServiceTest {
 
   private ConsultationResponseService consultationResponseService;
 
@@ -120,8 +124,8 @@ public class ConsultationResponseServiceTest {
   private ConsulteeGroupDetail groupDetail;
   private PwaApplication application;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     clock = Clock.fixed(Instant.parse(Instant.now().toString()), ZoneId.of("UTC"));
 
@@ -153,7 +157,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned_singleResponseEmailSent() {
+  void saveResponseAndCompleteWorkflow_confirmed_confirmedDescriptionNotProvided_caseOfficerAssigned_singleResponseEmailSent() {
 
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
@@ -202,7 +206,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_multiResponse_caseOfficerAssigned_multiResponseEmailSent() {
+  void saveResponseAndCompleteWorkflow_multiResponse_caseOfficerAssigned_multiResponseEmailSent() {
 
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
@@ -264,7 +268,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_confirmed_fileLinksCreated() {
+  void saveResponseAndCompleteWorkflow_confirmed_fileLinksCreated() {
 
     ConsultationRequest consultationRequest = buildConsultationRequest();
 
@@ -312,21 +316,17 @@ public class ConsultationResponseServiceTest {
     return dataForm;
   }
 
-  @Test(expected = WorkflowAssignmentException.class)
-  public void saveResponseAndCompleteWorkflow_noCaseOfficer() {
-
+  @Test
+  void saveResponseAndCompleteWorkflow_noCaseOfficer() {
     ConsultationRequest consultationRequest = buildConsultationRequest();
-
     var dataForm = buildDataForm(ConsultationResponseOptionGroup.CONTENT);
-
     var form = new ConsultationResponseForm();
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
-
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
-
     when(workflowAssignmentService.getAssignee(any())).thenReturn(Optional.empty());
+    assertThrows(WorkflowAssignmentException.class, () ->
 
-    consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
+      consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user));
 
   }
 
@@ -340,7 +340,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_includeResponseTextInEmail_emailHasCorrectText() {
+  void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_includeResponseTextInEmail_emailHasCorrectText() {
 
     var consultationRequest = buildConsultationRequest();
     var form = new ConsultationResponseForm();
@@ -364,7 +364,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_dontIncludeResponseTextInEmail_emailHasCorrectText() {
+  void saveResponseAndCompleteWorkflow_responseOptionHasEmailText_dontIncludeResponseTextInEmail_emailHasCorrectText() {
 
     var consultationRequest = buildConsultationRequest();
     var form = new ConsultationResponseForm();
@@ -387,7 +387,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void saveResponseAndCompleteWorkflow_responseOptionDoesNotHaveEmailText_defaultTextUsed_emailHasCorrectText() {
+  void saveResponseAndCompleteWorkflow_responseOptionDoesNotHaveEmailText_defaultTextUsed_emailHasCorrectText() {
 
     var consultationRequest = buildConsultationRequest();
     var form = new ConsultationResponseForm();
@@ -409,7 +409,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void isUserAssignedResponderForConsultation_valid() {
+  void isUserAssignedResponderForConsultation_valid() {
 
     var consultationRequest = new ConsultationRequest();
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
@@ -424,7 +424,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void isUserAssignedResponderForConsultation_invalid() {
+  void isUserAssignedResponderForConsultation_invalid() {
 
     var consultationRequest = new ConsultationRequest();
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
@@ -439,7 +439,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notRespondedYet() {
+  void canShowInTaskList_notRespondedYet() {
 
     var request = new ConsultationRequest();
     when(consultationResponseRepository.findByConsultationRequest(request)).thenReturn(Optional.empty());
@@ -458,7 +458,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_alreadyResponded() {
+  void canShowInTaskList_alreadyResponded() {
 
     var request = new ConsultationRequest();
     var response = new ConsultationResponse();
@@ -479,7 +479,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_caseOfficer() {
+  void canShowInTaskList_caseOfficer() {
 
     var processingContext = new PwaAppProcessingContext(
         null,
@@ -496,7 +496,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry() {
+  void canShowInTaskList_industry() {
 
     var processingContext = new PwaAppProcessingContext(
         null,
@@ -513,7 +513,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void getTaskListEntry() {
+  void getTaskListEntry() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var processingContext = new PwaAppProcessingContext(
@@ -534,7 +534,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void getLatestResponseForRequests_whenMultipleRequestsChecked_andLatestResponseFound() {
+  void getLatestResponseForRequests_whenMultipleRequestsChecked_andLatestResponseFound() {
     var request1 = buildConsultationRequest();
     var request2 = buildConsultationRequest();
     request1.setId(40);
@@ -546,7 +546,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void areConsultationResponsesValidForOptionsApproval_approvalsPresent_noEmtDisagreeResponse_valid() {
+  void areConsultationResponsesValidForOptionsApproval_approvalsPresent_noEmtDisagreeResponse_valid() {
     var request1 = buildConsultationRequest();
     request1.setId(40);
     request1.setStatus(ConsultationRequestStatus.RESPONDED);
@@ -573,7 +573,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void areConsultationResponsesValidForOptionsApproval_approvalsPresent_includesEmtDisagreeResponse_invalid() {
+  void areConsultationResponsesValidForOptionsApproval_approvalsPresent_includesEmtDisagreeResponse_invalid() {
 
     var hseRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
         application, ConsulteeGroupTestingUtils.createConsulteeGroup("hse", "hse").getConsulteeGroup());
@@ -606,7 +606,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void areConsultationResponsesValidForOptionsApproval_approvalPresentAndNonApprovalPresent_valid() {
+  void areConsultationResponsesValidForOptionsApproval_approvalPresentAndNonApprovalPresent_valid() {
 
     var hseRequest = ConsultationRequestTestUtil.createWithRespondedRequest(
         application, ConsulteeGroupTestingUtils.createConsulteeGroup("hse", "hse").getConsulteeGroup());
@@ -640,7 +640,7 @@ public class ConsultationResponseServiceTest {
 
 
   @Test
-  public void areConsultationResponsesValidForOptionsApproval_noApprovalsPresent_invalid() {
+  void areConsultationResponsesValidForOptionsApproval_noApprovalsPresent_invalid() {
 
     var oduRequest = ConsultationRequestTestUtil.createWithRespondedRequest(application, groupDetail.getConsulteeGroup());
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of(oduRequest));
@@ -660,7 +660,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void areConsultationResponsesValidForOptionsApproval_noResponses_invalid() {
+  void areConsultationResponsesValidForOptionsApproval_noResponses_invalid() {
     var request1 = buildConsultationRequest();
     request1.setId(40);
     request1.setStatus(ConsultationRequestStatus.RESPONDED);
@@ -672,7 +672,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void getConsultationResponseFileLink_successfullyRetrieved() {
+  void getConsultationResponseFileLink_successfullyRetrieved() {
     var appFile = new AppFile(application, "FILE_ID", AppFilePurpose.CONSULTATION_RESPONSE, ApplicationFileLinkStatus.FULL);
     var fileLink = new ConsultationResponseFileLink(null, appFile);
     when(consultationResponseFileLinkRepository.findByAppFile_PwaApplicationAndAppFile(application, appFile)).thenReturn(
@@ -681,7 +681,7 @@ public class ConsultationResponseServiceTest {
   }
 
   @Test
-  public void deleteConsultationResponseFileLink_calledRepositoryMethod() {
+  void deleteConsultationResponseFileLink_calledRepositoryMethod() {
     var fileLink = new ConsultationResponseFileLink(null, null);
     consultationResponseFileLinkRepository.delete(fileLink);
     verify(consultationResponseFileLinkRepository).delete(fileLink);

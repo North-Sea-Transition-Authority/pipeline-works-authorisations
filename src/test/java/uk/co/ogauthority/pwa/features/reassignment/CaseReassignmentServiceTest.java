@@ -4,17 +4,17 @@ import static org.mockito.Mockito.verify;
 
 import jakarta.persistence.criteria.Predicate;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CaseReassignmentServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CaseReassignmentServiceTest {
   @Mock
   CaseReassignmentRepository reassignmentRepository;
 
@@ -29,20 +29,20 @@ public class CaseReassignmentServiceTest {
 
   CaseReassignmentService service;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     service = new CaseReassignmentService(reassignmentRepository, caseReassignmentOfficerValidator,
         caseReassignmentCasesValidator);
   }
 
   @Test
-  public void getReassignableCases_CaseOfficerFilter() {
+  void getReassignableCases_CaseOfficerFilter() {
     service.findAllReassignableCases();
     verify(reassignmentRepository).findAll();
   }
 
   @Test
-  public void validateOfficerForm() {
+  void validateOfficerForm() {
     var form = new CaseReassignmentOfficerForm();
     form.setAssignedCaseOfficerPersonId(1);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -53,7 +53,7 @@ public class CaseReassignmentServiceTest {
   }
 
   @Test
-  public void validateCasesForm() {
+  void validateCasesForm() {
     var form = new CaseReassignmentCasesForm();
     form.setSelectedApplicationIds(List.of("test"));
     var bindingResult = new BeanPropertyBindingResult(form, "form");

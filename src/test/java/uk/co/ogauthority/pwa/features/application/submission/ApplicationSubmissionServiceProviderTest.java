@@ -2,21 +2,22 @@ package uk.co.ogauthority.pwa.features.application.submission;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.ApplicationSubmissionException;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationSubmissionServiceProviderTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationSubmissionServiceProviderTest {
 
   @Mock
   private PwaApplicationFirstDraftSubmissionService pwaApplicationFirstDraftSubmissionService;
@@ -35,8 +36,8 @@ public class ApplicationSubmissionServiceProviderTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     applicationSubmissionServiceProvider = new ApplicationSubmissionServiceProvider(
         pwaApplicationFirstDraftSubmissionService,
@@ -48,7 +49,7 @@ public class ApplicationSubmissionServiceProviderTest {
   }
 
   @Test
-  public void getSubmissionService_whenDetailIsFirstVersion() {
+  void getSubmissionService_whenDetailIsFirstVersion() {
 
     assertThat(
         applicationSubmissionServiceProvider.getSubmissionService(pwaApplicationDetail)
@@ -56,7 +57,7 @@ public class ApplicationSubmissionServiceProviderTest {
   }
 
   @Test
-  public void getSubmissionService_whenDetailIsNotFirstVersion_andOpenUpdateRequest() {
+  void getSubmissionService_whenDetailIsNotFirstVersion_andOpenUpdateRequest() {
 
     when(applicationUpdateRequestService.applicationHasOpenUpdateRequest(pwaApplicationDetail))
         .thenReturn(true);
@@ -69,7 +70,7 @@ public class ApplicationSubmissionServiceProviderTest {
   }
 
   @Test
-  public void getSubmissionService_whenDetailIsNotFirstVersion_andNoOpenUpdateRequest_andOptions() {
+  void getSubmissionService_whenDetailIsNotFirstVersion_andNoOpenUpdateRequest_andOptions() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.OPTIONS_VARIATION,
@@ -83,12 +84,12 @@ public class ApplicationSubmissionServiceProviderTest {
     ).isEqualTo(pwaApplicationOptionConfirmationSubmissionService);
   }
 
-  @Test(expected = ApplicationSubmissionException.class)
-  public void getSubmissionService_whenDetailIsNotFirstVersion_andNoOpenUpdateRequest_andNotOptions() {
-
+  @Test
+  void getSubmissionService_whenDetailIsNotFirstVersion_andNoOpenUpdateRequest_andNotOptions() {
     pwaApplicationDetail.setVersionNo(2);
+    assertThrows(ApplicationSubmissionException.class, () ->
 
-    applicationSubmissionServiceProvider.getSubmissionService(pwaApplicationDetail);
+      applicationSubmissionServiceProvider.getSubmissionService(pwaApplicationDetail));
 
   }
 }

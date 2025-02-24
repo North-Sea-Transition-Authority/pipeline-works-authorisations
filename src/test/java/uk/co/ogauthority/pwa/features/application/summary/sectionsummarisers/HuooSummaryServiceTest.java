@@ -11,11 +11,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitDetailDto;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -38,8 +38,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleServi
 import uk.co.ogauthority.pwa.service.pwaconsents.orgrolediffablepipelineservices.DiffableOrgRolePipelineGroupCreator;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class HuooSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class HuooSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -67,8 +67,8 @@ public class HuooSummaryServiceTest {
   private static int PIPELINE_ID_2 = 2;
   private static int PIPELINE_ID_3 = 3;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     diffService = new DiffService();
     huooSummaryService = new HuooSummaryService(taskListService, padOrganisationRoleService,
         pwaConsentOrganisationRoleService, diffableOrgRolePipelineGroupCreator, diffService);
@@ -77,7 +77,7 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     assertThat(huooSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
 
@@ -85,18 +85,18 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(any(), eq(pwaApplicationDetail))).thenReturn(true);
     assertThat(huooSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(huooSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
 
     var padView = new AllOrgRolePipelineGroupsView(List.of(), List.of(), List.of(), List.of());
     when(padOrganisationRoleService.getAllOrganisationRolePipelineGroupView(pwaApplicationDetail)).thenReturn(padView);
@@ -118,7 +118,7 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void getDiffedViewUsingSummaryViews_appRoleOwnerCoversAllApplicationPipelines_andMatchingConsentedRoleOwnerCoversAllConsentedPipelines() {
+  void getDiffedViewUsingSummaryViews_appRoleOwnerCoversAllApplicationPipelines_andMatchingConsentedRoleOwnerCoversAllConsentedPipelines() {
 
     var allPipelinesLabelOverride = true;
     var holderApp = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);
@@ -156,7 +156,7 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void getDiffedViewUsingSummaryViews_pipelineLabelActionIsReduceToAllPipelines_allPipelinesOverrideFlagTrue() {
+  void getDiffedViewUsingSummaryViews_pipelineLabelActionIsReduceToAllPipelines_allPipelinesOverrideFlagTrue() {
 
     var allPipelinesLabelOverride = true;
     var holderApp = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);
@@ -185,7 +185,7 @@ public class HuooSummaryServiceTest {
   }
 
   @Test
-  public void getDiffedViewUsingSummaryViews_pipelineLabelActionIsShowEveryPipeline_allPipelinesOverrideFlagFalse() {
+  void getDiffedViewUsingSummaryViews_pipelineLabelActionIsShowEveryPipeline_allPipelinesOverrideFlagFalse() {
 
     var allPipelinesLabelOverride = false;
     var holderApp = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);
@@ -210,7 +210,7 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void getDiffedViewUsingSummaryViews_appAndConsentedRoleOwnersHaveNoPipelines() {
+  void getDiffedViewUsingSummaryViews_appAndConsentedRoleOwnersHaveNoPipelines() {
 
     var allPipelinesLabelOverride = false;
     var holderApp = createOrgRolePipelineGroupViewWithNoPipelines(ORG_1_ID);
@@ -246,7 +246,7 @@ public class HuooSummaryServiceTest {
 
 
   @Test
-  public void getDiffedViewUsingSummaryViews_appRoleOwnerCoversAllApplicationPipelines_andMatchingConsentedRoleOwnerDoesNotCoverAllConsentedPipelines() {
+  void getDiffedViewUsingSummaryViews_appRoleOwnerCoversAllApplicationPipelines_andMatchingConsentedRoleOwnerDoesNotCoverAllConsentedPipelines() {
 
     var allPipelinesLabelOverride = false;
     var operatorApp1 = createOrgRolePipelineGroupView(ORG_1_ID, PIPELINE_ID_1);

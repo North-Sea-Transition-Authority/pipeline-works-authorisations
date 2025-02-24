@@ -10,11 +10,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDto;
@@ -41,8 +43,9 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PrepareConsentTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PrepareConsentTaskServiceTest {
 
   @Mock
   private DocumentService documentService;
@@ -58,8 +61,8 @@ public class PrepareConsentTaskServiceTest {
 
   private PrepareConsentTaskService prepareConsentTaskService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     when(approveOptionsService.getOptionsApprovalStatus(any(PwaApplicationDetail.class))).thenReturn(OptionsApprovalStatus.NOT_APPLICABLE);
 
@@ -72,7 +75,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_editConsentDocumentPermission_true() {
+  void canShowInTaskList_editConsentDocumentPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.EDIT_CONSENT_DOCUMENT), null, null,
         Set.of());
@@ -84,7 +87,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_caseManagementIndustryPermission_true() {
+  void canShowInTaskList_caseManagementIndustryPermission_true() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null, null,
         Set.of());
@@ -96,7 +99,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermissions_false() {
+  void canShowInTaskList_noPermissions_false() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
@@ -110,7 +113,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_invalidAppStatusAndPermissions_false() {
+  void canShowInTaskList_invalidAppStatusAndPermissions_false() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.DRAFT);
@@ -123,7 +126,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_completedAppStatus_invalidPermissions_true() {
+  void canShowInTaskList_completedAppStatus_invalidPermissions_true() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
@@ -136,7 +139,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_noSatisfactoryVersions() {
+  void getTaskListEntry_noSatisfactoryVersions() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -159,7 +162,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_atLeastOneSatisfactoryVersion() {
+  void getTaskListEntry_atLeastOneSatisfactoryVersion() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -183,7 +186,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_optionsVariation_withSatisfactoryVersions_notApproved() {
+  void getTaskListEntry_optionsVariation_withSatisfactoryVersions_notApproved() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -204,7 +207,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andOptionsApprovedUnresponded() {
+  void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andOptionsApprovedUnresponded() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -225,7 +228,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed() {
+  void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -246,7 +249,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed_andPendingTransfer() {
+  void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed_andPendingTransfer() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -273,7 +276,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionConfirmed() {
+  void getTaskListEntry_optionsVariation_withSatisfactoryVersions_andApprovedOptionConfirmed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -296,7 +299,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_noDocumentLoaded() {
+  void getTaskListEntry_noDocumentLoaded() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -316,7 +319,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_consentReviewer_noOpenReview() {
+  void getTaskListEntry_consentReviewer_noOpenReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -335,7 +338,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_consentReviewer_openReview() {
+  void getTaskListEntry_consentReviewer_openReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -355,7 +358,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_caseofficer_openReview() {
+  void getTaskListEntry_caseofficer_openReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -376,7 +379,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_documentLoaded() {
+  void getTaskListEntry_documentLoaded() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -398,7 +401,7 @@ public class PrepareConsentTaskServiceTest {
 
 
   @Test
-  public void getTaskListEntry_applicationIsConsented_taskCompleted() {
+  void getTaskListEntry_applicationIsConsented_taskCompleted() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
@@ -417,7 +420,7 @@ public class PrepareConsentTaskServiceTest {
 
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_notOption() {
+  void taskAccessible_SatisfactoryVersions_notOption() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -431,7 +434,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_notOption_userIndustryOnly() {
+  void taskAccessible_SatisfactoryVersions_notOption_userIndustryOnly() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -445,7 +448,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_applicationIsCompleted_taskNotAccessible() {
+  void taskAccessible_applicationIsCompleted_taskNotAccessible() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.COMPLETE);
@@ -459,7 +462,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_userHolder_andCaseOfficer() {
+  void taskAccessible_SatisfactoryVersions_userHolder_andCaseOfficer() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -481,7 +484,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_satisfactoryVersions_assignedCaseOfficer_noConsentReviewPermission_caseOfficerReviewStage() {
+  void taskAccessible_satisfactoryVersions_assignedCaseOfficer_noConsentReviewPermission_caseOfficerReviewStage() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -501,7 +504,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_satisfactoryVersions_assignedCaseOfficer_consentReviewPermission_caseOfficerReviewStage() {
+  void taskAccessible_satisfactoryVersions_assignedCaseOfficer_consentReviewPermission_caseOfficerReviewStage() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
@@ -521,7 +524,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_satisfactoryVersions_noConsentReviewPermission_openReview() {
+  void taskAccessible_satisfactoryVersions_noConsentReviewPermission_openReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     detail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
@@ -542,7 +545,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_consentReviewPermission_openReview() {
+  void taskAccessible_SatisfactoryVersions_consentReviewPermission_openReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -562,7 +565,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_SatisfactoryVersions_notAssignedCaseOfficer_consentReviewPermission_noReview() {
+  void taskAccessible_SatisfactoryVersions_notAssignedCaseOfficer_consentReviewPermission_noReview() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -581,7 +584,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_noSatisfactoryVersions_notOption() {
+  void taskAccessible_noSatisfactoryVersions_notOption() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -595,7 +598,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed() {
+  void taskAccessible_optionsVariation_withSatisfactoryVersions_andApprovedOptionNotConfirmed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -612,7 +615,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_optionsVariation_withSatisfactoryVersions_andApprovedOptionConfirmed() {
+  void taskAccessible_optionsVariation_withSatisfactoryVersions_andApprovedOptionConfirmed() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION);
 
@@ -628,7 +631,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_transferReleaseNotConsented() {
+  void taskAccessible_transferReleaseNotConsented() {
     var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     donorDetail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
@@ -645,7 +648,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskAccessible_transferReleaseConsented() {
+  void taskAccessible_transferReleaseConsented() {
     var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     donorDetail.setStatus(PwaApplicationStatus.COMPLETE);
@@ -662,7 +665,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskStatus_transferReleaseNotConsented() {
+  void taskStatus_transferReleaseNotConsented() {
     var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     donorDetail.setStatus(PwaApplicationStatus.CONSENT_REVIEW);
@@ -679,7 +682,7 @@ public class PrepareConsentTaskServiceTest {
   }
 
   @Test
-  public void taskStatus_transferReleaseConsented() {
+  void taskStatus_transferReleaseConsented() {
     var recipientDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     var donorDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.CAT_1_VARIATION);
     donorDetail.setStatus(PwaApplicationStatus.COMPLETE);

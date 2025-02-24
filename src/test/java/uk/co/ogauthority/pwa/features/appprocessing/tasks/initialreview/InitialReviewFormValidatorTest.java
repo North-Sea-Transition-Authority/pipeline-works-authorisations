@@ -9,32 +9,32 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class InitialReviewFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class InitialReviewFormValidatorTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
 
   private InitialReviewFormValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new InitialReviewFormValidator(workflowAssignmentService);
   }
 
   @Test
-  public void validate_paymentWaived_withReason_andCaseOfficer() {
+  void validate_paymentWaived_withReason_andCaseOfficer() {
 
     var caseOfficerPerson = new Person(1, null, null, null, null);
 
@@ -52,7 +52,7 @@ public class InitialReviewFormValidatorTest {
   }
 
   @Test
-  public void validate_paymentWaivedReasonCharLengthLongerThanMax() {
+  void validate_paymentWaivedReasonCharLengthLongerThanMax() {
 
     var caseOfficerPerson = new Person(1, null, null, null, null);
 
@@ -71,7 +71,7 @@ public class InitialReviewFormValidatorTest {
   }
 
   @Test
-  public void validate_paymentWaived_NoReason_andCaseOfficer() {
+  void validate_paymentWaived_NoReason_andCaseOfficer() {
 
     var caseOfficerPerson = new Person(1, null, null, null, null);
 
@@ -91,7 +91,7 @@ public class InitialReviewFormValidatorTest {
   }
 
   @Test
-  public void valid_fail_mandatory() {
+  void valid_fail_mandatory() {
 
     var form = new InitialReviewForm();
 
@@ -106,7 +106,7 @@ public class InitialReviewFormValidatorTest {
   }
 
   @Test
-  public void valid_fail_userNotCaseOfficer() {
+  void valid_fail_userNotCaseOfficer() {
 
     var form = new InitialReviewForm();
     form.setInitialReviewPaymentDecision(InitialReviewPaymentDecision.PAYMENT_REQUIRED);

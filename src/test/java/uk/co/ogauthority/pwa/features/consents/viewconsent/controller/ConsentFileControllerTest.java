@@ -11,14 +11,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,10 +46,9 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConsentFileController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
     PwaContextService.class}))
-public class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
+class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
   private PwaEndpointTestBuilder endpointTester;
 
@@ -74,14 +73,14 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   private PwaConsent consent;
   private DocgenRun docgenRun;
 
-  @Before
-  public void setup() throws SQLException {
+  @BeforeEach
+  void setup() throws SQLException {
     endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
         .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA);
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        Set.of(PwaUserPrivilege.PWA_REGULATOR));
+        Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_REGULATOR));
 
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);
@@ -102,7 +101,7 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_processingPermissionSmokeTest() {
+  void downloadConsentDocument_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -114,13 +113,13 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_success() throws Exception {
+  void downloadConsentDocument_success() throws Exception {
 
     var blob = docgenRun.getGeneratedDocument();
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
         .downloadConsentDocument(1, null, 1, 1L)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(content().bytes(blob.getBytes(1, (int) blob.length())))
@@ -130,14 +129,14 @@ public class ConsentFileControllerTest extends PwaContextAbstractControllerTest 
   }
 
   @Test
-  public void downloadConsentDocument_notAllowed() throws Exception {
+  void downloadConsentDocument_notAllowed() throws Exception {
 
     doThrow(new AccessDeniedException(""))
         .when(pwaViewTabService).verifyConsentDocumentDownloadable(eq(docgenRun), eq(consent), any());
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
         .downloadConsentDocument(1, null, 1, 1L)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isForbidden());
 

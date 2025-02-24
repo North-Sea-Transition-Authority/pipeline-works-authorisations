@@ -8,11 +8,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeeItem;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.in
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DefaultFeeItemProviderTest {
+@ExtendWith(MockitoExtension.class)
+class DefaultFeeItemProviderTest {
 
   private static final String FEE_DESC = "FEE_1";
   private static final int FEE_AMOUNT = 100;
@@ -42,8 +42,8 @@ public class DefaultFeeItemProviderTest {
   private FeePeriodDetailFeeItem feePeriodDetailFeeItem;
   private FeeItem feeItem;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
 
     feeItemProvider = new DefaultFeeItemProvider(feePeriodDetailItemRepository);
 
@@ -60,23 +60,24 @@ public class DefaultFeeItemProviderTest {
     feePeriodDetailFeeItem.setPennyAmount(FEE_AMOUNT);
     feePeriodDetailFeeItem.setFeeItem(feeItem);
 
-    when(feePeriodDetailItemRepository.findAllByFeePeriodDetailAndFeeItem_PwaApplicationTypeAndFeeItem_PwaApplicationFeeType(
-        any(), any(), any()
-    )).thenReturn(List.of(feePeriodDetailFeeItem));
   }
 
   @Test
-  public void getProvisionOrdering_valueTest() {
+  void getProvisionOrdering_valueTest() {
     assertThat(feeItemProvider.getProvisionOrdering()).isEqualTo(10);
   }
 
   @Test
-  public void canProvideFeeItems_valueTest() {
+  void canProvideFeeItems_valueTest() {
     assertThat(feeItemProvider.canProvideFeeItems(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void provideFees() {
+  void provideFees() {
+    when(feePeriodDetailItemRepository.findAllByFeePeriodDetailAndFeeItem_PwaApplicationTypeAndFeeItem_PwaApplicationFeeType(
+        any(), any(), any()
+    )).thenReturn(List.of(feePeriodDetailFeeItem));
+
     var feeItems = feeItemProvider.provideFees(feePeriodDetail, pwaApplicationDetail);
     assertThat(feeItems).hasOnlyOneElementSatisfying(
         applicationFeeItem -> assertThat(applicationFeeItem).isEqualTo(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT))
@@ -89,7 +90,7 @@ public class DefaultFeeItemProviderTest {
   }
 
   @Test
-  public void getApplicationFeeType() {
+  void getApplicationFeeType() {
     assertThat(feeItemProvider.getApplicationFeeType()).isEqualTo(FEE_TYPE);
   }
 }

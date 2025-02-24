@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -41,8 +43,9 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDiffableSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PipelineDiffableSummaryServiceTest {
 
   private static final int PIPELINE_ID = 1;
   private static final String PAD_PIPELINE_NAME = "PAD_PIPELINE_NAME";
@@ -96,8 +99,8 @@ public class PipelineDiffableSummaryServiceTest {
 
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -122,14 +125,14 @@ public class PipelineDiffableSummaryServiceTest {
 
 
   @Test
-  public void getApplicationDetailPipelines_whenNoPipelines() {
+  void getApplicationDetailPipelines_whenNoPipelines() {
 
     assertThat(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).isEmpty();
 
   }
 
   @Test
-  public void getApplicationDetailPipelines_pipelineTransfer_mapsAsExpected() {
+  void getApplicationDetailPipelines_pipelineTransfer_mapsAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
     var time = Instant.now();
@@ -182,7 +185,7 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
-  public void getApplicationDetailPipelines_pipelineTransfer_whenNoIntelligentlyPiggedDate_thenMapsAsExpected() {
+  void getApplicationDetailPipelines_pipelineTransfer_whenNoIntelligentlyPiggedDate_thenMapsAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
@@ -234,7 +237,7 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
-  public void getApplicationDetailPipelines_whenOnePipeline_andZeroIdents() {
+  void getApplicationDetailPipelines_whenOnePipeline_andZeroIdents() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
 
@@ -255,7 +258,7 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
-  public void getApplicationDetailPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
+  void getApplicationDetailPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
     var pipeline = new Pipeline();
     pipeline.setId(1);
 
@@ -290,7 +293,7 @@ public class PipelineDiffableSummaryServiceTest {
 
 
   @Test
-  public void getConsentedPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
+  void getConsentedPipelines_whenOnePipeline_andMultipleIdents_thenMappedAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
 
@@ -345,7 +348,7 @@ public class PipelineDiffableSummaryServiceTest {
 
 
   @Test
-  public void getConsentedPipeline_multipleIdents_mappedAsExpected() {
+  void getConsentedPipeline_multipleIdents_mappedAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetailId = PIPELINE_ID;
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);
@@ -393,7 +396,7 @@ public class PipelineDiffableSummaryServiceTest {
   }
 
   @Test
-  public void getConsentedPipeline_pipelineTransfer_mapsAsExpected() {
+  void getConsentedPipeline_pipelineTransfer_mapsAsExpected() {
     var pipelineId = new PipelineId(PIPELINE_ID);
     var pipelineDetailId = PIPELINE_ID;
     var pipelineDetail = getPipelineDetail(pipelineId, BigDecimal.ONE, PipelineType.PRODUCTION_FLOWLINE);

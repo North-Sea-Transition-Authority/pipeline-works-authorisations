@@ -2,16 +2,19 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.setnumber;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
 import org.assertj.core.util.IterableUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
@@ -24,8 +27,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class RegulatorPipelineNumberTaskServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class RegulatorPipelineNumberTaskServiceTest {
 
   @Mock
   private PadPipelineNumberingService padPipelineNumberingService;
@@ -45,8 +49,8 @@ public class RegulatorPipelineNumberTaskServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     regulatorPipelineNumberTaskService = new RegulatorPipelineNumberTaskService(
         padPipelineNumberingService,
@@ -67,7 +71,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
   }
 
   @Test
-  public void pipelineTaskAccessible_validPermissions_pipelineConsented() {
+  void pipelineTaskAccessible_validPermissions_pipelineConsented() {
     when(pipelineDetailService.isPipelineConsented(padPipeline.getPipeline())).thenReturn(true);
 
     assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(
@@ -76,7 +80,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
   }
 
   @Test
-  public void pipelineTaskAccessible_validPermissions_pipelineNotConsented() {
+  void pipelineTaskAccessible_validPermissions_pipelineNotConsented() {
 
     assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE), padPipeline))
@@ -84,7 +88,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
   }
 
   @Test
-  public void pipelineTaskAccessible_invalidPermissions_pipelineNotConsented() {
+  void pipelineTaskAccessible_invalidPermissions_pipelineNotConsented() {
 
     assertThat(regulatorPipelineNumberTaskService.pipelineTaskAccessible(Set.of(PwaApplicationPermission.EDIT),
         padPipeline))
@@ -92,7 +96,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenValidPipelineAndUser_andFullReferenceDefined() {
+  void getTaskListEntry_whenValidPipelineAndUser_andFullReferenceDefined() {
     var context = new PwaApplicationContext(pwaApplicationDetail, null,
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE));
     var taskListHeader = new PadPipelineTaskListHeader(padPipeline, 0, PipelineStatus.IN_SERVICE, "Some name",
@@ -110,7 +114,7 @@ public class RegulatorPipelineNumberTaskServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_whenValidPipelineAndUser_andFullReferenceNotDefined() {
+  void getTaskListEntry_whenValidPipelineAndUser_andFullReferenceNotDefined() {
 
     var context = new PwaApplicationContext(pwaApplicationDetail, null,
         Set.of(PwaApplicationPermission.SET_PIPELINE_REFERENCE));
@@ -120,14 +124,13 @@ public class RegulatorPipelineNumberTaskServiceTest {
     when(padPipelineNumberingService.nonConsentedPadPipelineRequiresFullReference(any())).thenReturn(true);
 
     assertThat(regulatorPipelineNumberTaskService.getTaskListEntry(context, taskListHeader)).isPresent()
-        .hasValueSatisfying(taskListEntry -> {
-          assertThat(taskListEntry.isCompleted()).isFalse();
-        });
+        .hasValueSatisfying(taskListEntry ->
+          assertThat(taskListEntry.isCompleted()).isFalse());
 
   }
 
   @Test
-  public void getPermittedPipelineNumberRange_serviceInteractions(){
+  void getPermittedPipelineNumberRange_serviceInteractions(){
     var config = PipelineMigrationConfigTestUtil.create(5000, 6000);
 
     when(pipelineMigrationConfigRepository.findAll()).thenReturn(IterableUtil.iterable(config));
@@ -141,9 +144,10 @@ public class RegulatorPipelineNumberTaskServiceTest {
 
   }
 
-  @Test(expected = PipelineNumberConfigException.class)
-  public void getPermittedPipelineNumberRange_configNotFound(){
-    regulatorPipelineNumberTaskService.getPermittedPipelineNumberRange();
+  @Test
+  void getPermittedPipelineNumberRange_configNotFound(){
+    assertThrows(PipelineNumberConfigException.class, () ->
+      regulatorPipelineNumberTaskService.getPermittedPipelineNumberRange());
 
 
   }

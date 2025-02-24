@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
@@ -21,23 +21,23 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentReviewReturnFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentReviewReturnFormValidatorTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
 
   private ConsentReviewReturnFormValidator validator;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     validator = new ConsentReviewReturnFormValidator(workflowAssignmentService);
 
   }
 
   @Test
-  public void mandatory_fail() {
+  void mandatory_fail() {
 
     var form = new ConsentReviewReturnForm();
 
@@ -50,7 +50,7 @@ public class ConsentReviewReturnFormValidatorTest {
   }
 
   @Test
-  public void mandatory_pass() {
+  void mandatory_pass() {
 
     var form = new ConsentReviewReturnForm();
     form.setCaseOfficerPersonId(2);
@@ -66,7 +66,7 @@ public class ConsentReviewReturnFormValidatorTest {
   }
 
   @Test
-  public void validCaseOfficer_fail() {
+  void validCaseOfficer_fail() {
 
     var form = new ConsentReviewReturnForm();
     form.setCaseOfficerPersonId(2);
@@ -82,7 +82,7 @@ public class ConsentReviewReturnFormValidatorTest {
   }
 
   @Test
-  public void validate_returnReasonTooLong() {
+  void validate_returnReasonTooLong() {
 
     var form = new ConsentReviewReturnForm();
     form.setReturnReason(ValidatorTestUtils.overMaxDefaultCharLength());

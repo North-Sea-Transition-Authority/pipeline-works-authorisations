@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestSt
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentFileViewerServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentFileViewerServiceTest {
 
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
@@ -57,8 +57,8 @@ public class ConsentFileViewerServiceTest {
 
   private ConsentFileView consentFileView;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     consentFileViewerService = new ConsentFileViewerService(consulteeGroupDetailService, consultationRequestService, consultationViewService);
 
     consulteeGroupDetail.setConsultationResponseDocumentType(ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION);
@@ -75,7 +75,7 @@ public class ConsentFileViewerServiceTest {
   }
 
   @Test
-  public void getLatestConsultationRequestViewForDocumentType_consentDocAndConsultationFiles() {
+  void getLatestConsultationRequestViewForDocumentType_consentDocAndConsultationFiles() {
     when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(Set.of(consultationRequest.getConsulteeGroup()))).thenReturn(List.of(consulteeGroupDetail));
     when(consultationRequestService.getAllRequestsByAppRespondedOnly(pwaApplication)).thenReturn(List.of(consultationRequest));
     when(consultationViewService.getConsultationRequestView(consultationRequest)).thenReturn(consultationRequestView);
@@ -86,14 +86,14 @@ public class ConsentFileViewerServiceTest {
   }
 
   @Test
-  public void getLatestConsultationRequestViewForDocumentType_noConsultationFiles() {
+  void getLatestConsultationRequestViewForDocumentType_noConsultationFiles() {
     assertThat(consentFileViewerService.getConsentFileView(pwaApplication, pwaConsentApplicationDto,
         ConsultationResponseDocumentType.SECRETARY_OF_STATE_DECISION))
         .isEqualTo(new ConsentFileView(pwaConsentApplicationDto, null));
   }
 
   @Test
-  public void getLatestConsultationRequestForResponseDocType_multipleRespondedRequests() {
+  void getLatestConsultationRequestForResponseDocType_multipleRespondedRequests() {
 
     var latestRequest = new ConsultationRequest();
     latestRequest.setConsulteeGroup(consulteeGroupDetail.getConsulteeGroup());

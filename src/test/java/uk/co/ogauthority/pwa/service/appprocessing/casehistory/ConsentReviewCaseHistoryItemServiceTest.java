@@ -12,11 +12,11 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReview;
@@ -32,8 +32,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentReviewCaseHistoryItemServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentReviewCaseHistoryItemServiceTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -53,8 +53,8 @@ public class ConsentReviewCaseHistoryItemServiceTest {
 
   private Person pwaManagerPerson = PersonTestUtil.createDefaultPerson();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
@@ -73,7 +73,7 @@ public class ConsentReviewCaseHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews() {
+  void getCaseHistoryItemViews() {
 
     var openReview = new ConsentReview(detail, "cover 1", new PersonId(1), clock.instant());
     var returnedReview = new ConsentReview(detail2, "cover 2", new PersonId(2), clock.instant().plus(1, ChronoUnit.DAYS));
@@ -124,7 +124,7 @@ public class ConsentReviewCaseHistoryItemServiceTest {
 
 
   @Test
-  public void getCaseHistoryItemViews_consentReviewNotEnded_historyItemViewStillCreated() {
+  void getCaseHistoryItemViews_consentReviewNotEnded_historyItemViewStillCreated() {
 
     var openReview = new ConsentReview(detail, "cover 1", new PersonId(1), clock.instant());
     openReview.setEndedByPersonId(null);

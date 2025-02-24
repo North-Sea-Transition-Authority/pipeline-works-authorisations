@@ -5,15 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CrossingAgreementsValidationResultTest {
+@ExtendWith(MockitoExtension.class)
+class CrossingAgreementsValidationResultTest {
 
   @Test
-  public void CrossingAgreementsValidationResult_whenNoValidSections(){
+  void CrossingAgreementsValidationResult_whenNoValidSections(){
     var result = new CrossingAgreementsValidationResult(Set.of());
 
     assertThat(result.isCrossingAgreementsValid()).isFalse();
@@ -26,7 +26,7 @@ public class CrossingAgreementsValidationResultTest {
 
 
   @Test
-  public void CrossingAgreementsValidationResult_whenSomeSectionIsValid(){
+  void CrossingAgreementsValidationResult_whenSomeSectionIsValid(){
     var result = new CrossingAgreementsValidationResult(Set.of(CrossingAgreementsSection.BLOCK_CROSSINGS));
 
     assertThat(result.isCrossingAgreementsValid()).isFalse();
@@ -45,7 +45,7 @@ public class CrossingAgreementsValidationResultTest {
   }
 
   @Test
-  public void CrossingAgreementsValidationResult_whenAllSectionsValid(){
+  void CrossingAgreementsValidationResult_whenAllSectionsValid(){
     var result = new CrossingAgreementsValidationResult(EnumSet.allOf(CrossingAgreementsSection.class));
 
     assertThat(result.isCrossingAgreementsValid()).isTrue();

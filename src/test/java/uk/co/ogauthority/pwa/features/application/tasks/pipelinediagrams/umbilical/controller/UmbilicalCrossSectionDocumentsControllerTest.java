@@ -7,16 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.EnumSet;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -32,12 +30,11 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(
     controllers = UmbilicalCrossSectionDocumentsController.class,
     includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class)
 )
-public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
+class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final int APP_ID = 100;
 
@@ -54,8 +51,8 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     doCallRealMethod().when(applicationBreadcrumbService).fromTechnicalDrawings(any(), any(), any());
     // set default checks for entire controller
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
@@ -73,7 +70,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void renderAddDocuments_appTypeSmokeTest() {
+  void renderAddDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
@@ -91,7 +88,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void renderAddDocuments_contactRoleSmokeTest() {
+  void renderAddDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
@@ -109,7 +106,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void renderAddDocuments_appStatusSmokeTest() {
+  void renderAddDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
@@ -127,7 +124,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void postAddDocuments_appTypeSmokeTest() {
+  void postAddDocuments_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
@@ -146,7 +143,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void postAddDocuments_contactRoleSmokeTest() {
+  void postAddDocuments_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)
@@ -165,7 +162,7 @@ public class UmbilicalCrossSectionDocumentsControllerTest extends PwaApplication
   }
 
   @Test
-  public void postAddDocuments_appStatusSmokeTest() {
+  void postAddDocuments_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(UmbilicalCrossSectionDocumentsController.class)

@@ -2,8 +2,8 @@ package uk.co.ogauthority.pwa.service.appprocessing.consultations;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
@@ -12,11 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -41,8 +41,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationFileServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationFileServiceTest {
 
   private ConsultationFileService consultationFileService;
 
@@ -69,8 +69,8 @@ public class ConsultationFileServiceTest {
   @Mock
   private ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     consultationFileService = new ConsultationFileService(appFileService, consultationResponseFileLinkRepository,
         pwaConsentService);
 
@@ -94,7 +94,7 @@ public class ConsultationFileServiceTest {
   }
 
   @Test
-  public void getConsultationResponseIdToFileViewsMap_isPopulatedCorrectly() {
+  void getConsultationResponseIdToFileViewsMap_isPopulatedCorrectly() {
     when(appFileService.getUploadedFileViewsWithNoUrl(any(), any(), any())).thenReturn(List.of(uploadedFileView));
 
     when(consultationResponseFileLinkRepository.findAllByConsultationResponseIn(Set.of(consultationResponse))).thenReturn(Set.of(consultationResponseFileLink));
@@ -105,7 +105,7 @@ public class ConsultationFileServiceTest {
   }
 
   @Test
-  public void getConsultationFileViewUrl_getsCorrectUrl() {
+  void getConsultationFileViewUrl_getsCorrectUrl() {
     assertThat(consultationFileService.getConsultationFileViewUrl(consultationRequest)).isEqualTo(RouteUtils.routeWithUriVariables(on(
         ConsultationResponseFileController.class)
             .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null),
@@ -113,7 +113,7 @@ public class ConsultationFileServiceTest {
   }
 
   @Test
-  public void industryUserCanAccessFile_industryInvolvement_canAccess() {
+  void industryUserCanAccessFile_industryInvolvement_canAccess() {
     var processingContext = PwaAppProcessingContextTestUtil.withAppInvolvement(
         PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
         ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(pwaApplication,
@@ -124,7 +124,7 @@ public class ConsultationFileServiceTest {
   }
 
   @Test
-  public void industryUserCanAccessFile_noIndustryInvolvement_cannotAccess() {
+  void industryUserCanAccessFile_noIndustryInvolvement_cannotAccess() {
     var processingContext = PwaAppProcessingContextTestUtil.withAppInvolvement(
         PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
         ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(pwaApplication));

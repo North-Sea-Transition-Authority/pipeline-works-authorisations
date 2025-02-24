@@ -7,33 +7,32 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EditCarbonStorageCrossingFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class EditCarbonStorageCrossingFormValidatorTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
   private EditCarbonStorageAreaCrossingFormValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new EditCarbonStorageAreaCrossingFormValidator(portalOrganisationsAccessor);
   }
 
 
-
   @Test
-  public void validate_NotOwnedByHolder_selectedOwnerOrgIsActive_valid() {
+  void validate_NotOwnedByHolder_selectedOwnerOrgIsActive_valid() {
 
     var form = new AddCarbonStorageAreaCrossingForm();
     form.setStorageAreaRef("ref");
@@ -53,7 +52,7 @@ public class EditCarbonStorageCrossingFormValidatorTest {
 
 
   @Test
-  public void validate_NotOwnedByHolder_selectedOwnerOrgIsInActive_invalid() {
+  void validate_NotOwnedByHolder_selectedOwnerOrgIsInActive_invalid() {
 
     var form = new EditCarbonStorageAreaCrossingForm();
     form.setCrossingOwner(CrossingOwner.PORTAL_ORGANISATION);

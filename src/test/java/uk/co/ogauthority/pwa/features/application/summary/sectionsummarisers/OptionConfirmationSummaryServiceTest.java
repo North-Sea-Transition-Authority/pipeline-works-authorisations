@@ -7,11 +7,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OptionConfirmationSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class OptionConfirmationSummaryServiceTest {
 
   private final String TEMPLATE = "TEMPLATE";
 
@@ -36,8 +36,8 @@ public class OptionConfirmationSummaryServiceTest {
   private OptionConfirmationSummaryService optionConfirmationSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     optionConfirmationSummaryService = new OptionConfirmationSummaryService(
         taskListService,
         padConfirmationOfOptionService
@@ -48,25 +48,25 @@ public class OptionConfirmationSummaryServiceTest {
   }
 
   @Test
-  public void canSummarise_serviceInteractions() {
+  void canSummarise_serviceInteractions() {
     when(taskListService.anyTaskShownForApplication(any(), any())).thenReturn(true);
     assertThat(optionConfirmationSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenHasTaskShown() {
+  void canSummarise_whenHasTaskShown() {
     when(taskListService.anyTaskShownForApplication(Set.of(ApplicationTask.CONFIRM_OPTIONS), pwaApplicationDetail))
         .thenReturn(true);
     assertThat(optionConfirmationSummaryService.canSummarise(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void canSummarise_whenTaskNotShown() {
+  void canSummarise_whenTaskNotShown() {
     assertThat(optionConfirmationSummaryService.canSummarise(pwaApplicationDetail)).isFalse();
   }
 
   @Test
-  public void summariseSection_verifyServiceInteractions() {
+  void summariseSection_verifyServiceInteractions() {
     var view = PadConfirmationOfOptionViewTestUtil.createFrom("type", "desc");
 
     when(padConfirmationOfOptionService.getPadConfirmationOfOptionView(pwaApplicationDetail))

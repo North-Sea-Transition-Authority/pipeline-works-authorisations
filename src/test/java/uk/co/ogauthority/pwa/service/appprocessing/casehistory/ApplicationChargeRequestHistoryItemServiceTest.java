@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.ApplicationChargeRequestReportTestUtil;
@@ -30,8 +30,8 @@ import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.DataItemRow;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationChargeRequestHistoryItemServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationChargeRequestHistoryItemServiceTest {
 
   private static final String FORMATTED_AMOUNT = "1.00";
   private static final int PENNIES = 100;
@@ -60,8 +60,8 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
   private ApplicationChargeRequestHistoryItemService caseHistoryService;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     requesterPersonId = new PersonId(1);
     cancelledByPersonId = new PersonId(2);
     waivedByPersonId = new PersonId(3);
@@ -78,11 +78,10 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
 
     fakePerson = PersonTestUtil.createDefaultPerson();
-    when(personService.getPersonById(any(PersonId.class))).thenReturn(fakePerson);
   }
 
   @Test
-  public void getCaseHistoryItemViews_whenRequestOpen() {
+  void getCaseHistoryItemViews_whenRequestOpen() {
     var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createOpenReport(
         PENNIES,
         SUMMARY,
@@ -109,7 +108,9 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews_whenRequestCancelled() {
+  void getCaseHistoryItemViews_whenRequestCancelled() {
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(fakePerson);
+
     var cancelledInstant = requestInstant.plus(1, ChronoUnit.DAYS);
     var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createCancelledReport(
         PENNIES,
@@ -153,7 +154,7 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews_whenRequestWaived() {
+  void getCaseHistoryItemViews_whenRequestWaived() {
     var cancelledInstant = requestInstant.plus(1, ChronoUnit.DAYS);
     var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createWaivedReport(
         PENNIES,
@@ -186,7 +187,9 @@ public class ApplicationChargeRequestHistoryItemServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews_whenRequestPaid() {
+  void getCaseHistoryItemViews_whenRequestPaid() {
+    when(personService.getPersonById(any(PersonId.class))).thenReturn(fakePerson);
+    
     var paidInstant = requestInstant.plus(1, ChronoUnit.DAYS);
     var applicationChargeRequestReport = ApplicationChargeRequestReportTestUtil.createPaidReport(
         PENNIES,

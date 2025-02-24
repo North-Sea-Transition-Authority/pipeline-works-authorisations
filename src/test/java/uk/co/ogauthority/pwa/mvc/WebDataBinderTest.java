@@ -7,36 +7,34 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Controller;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(WebDataBinderTest.class)
 @Import(PwaMvcTestConfiguration.class)
-public class WebDataBinderTest extends AbstractControllerTest {
+class WebDataBinderTest extends AbstractControllerTest {
 
   @Test
-  public void testStringTrimmer() throws Exception {
+  void stringTrimmer() throws Exception {
 
-    var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
+    var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_ACCESS));
 
     mockMvc.perform(post("/data-binder-test")
-        .with(authenticatedUserAndSession(testUser))
+        .with(user(testUser))
         .with(csrf())
         .param("leading", " test")
         .param("trailing", "test ")

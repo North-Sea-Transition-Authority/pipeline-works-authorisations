@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -34,8 +34,8 @@ import uk.co.ogauthority.pwa.testutils.ObjectTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.SectionClauseVersionDtoTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class DocumentViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class DocumentViewServiceTest {
 
   @Mock
   private Clock clock;
@@ -44,15 +44,15 @@ public class DocumentViewServiceTest {
 
   private final Person person = PersonTestUtil.createDefaultPerson();
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     documentViewService = new DocumentViewService();
 
   }
 
   @Test
-  public void getDocumentView_multipleSections_withMaxNestingLevels_FromInstance() {
+  void getDocumentView_multipleSections_withMaxNestingLevels_FromInstance() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var docSpec = DocumentSpec.getSpecForApplication(detail.getPwaApplicationType(), detail.getResourceType());
@@ -70,7 +70,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void getDocumentView_multipleSections_withMaxNestingLevels_FromTemplate() {
+  void getDocumentView_multipleSections_withMaxNestingLevels_FromTemplate() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var docSpec = DocumentSpec.getSpecForApplication(detail.getPwaApplicationType(), detail.getResourceType());
@@ -90,7 +90,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void getDocumentView_buildSidebarTopLink_fromPwaApplication() {
+  void getDocumentView_buildSidebarTopLink_fromPwaApplication() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -115,7 +115,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void getDocumentView_buildSidebarTopLink_fromTemplateDocument() {
+  void getDocumentView_buildSidebarTopLink_fromTemplateDocument() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -140,7 +140,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void getDocumentView_buildSidebarTopLink_topLinkOnlyIncludedInFirstSection() {
+  void getDocumentView_buildSidebarTopLink_topLinkOnlyIncludedInFirstSection() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     var docSource = detail.getPwaApplication();
@@ -277,7 +277,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void documentViewHasClauses_noDocumentClauses() {
+  void documentViewHasClauses_noDocumentClauses() {
 
     var emptyDocView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     emptyDocView.setSections(List.of(new SectionView()));
@@ -289,7 +289,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void documentViewHasClauses_hasDocumentClauses() {
+  void documentViewHasClauses_hasDocumentClauses() {
 
     var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
@@ -303,7 +303,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void documentViewContainsManualMergeData_hasManualMergeData() {
+  void documentViewContainsManualMergeData_hasManualMergeData() {
 
     var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();
@@ -324,7 +324,7 @@ public class DocumentViewServiceTest {
   }
 
   @Test
-  public void documentViewContainsManualMergeData_noManualMergeData() {
+  void documentViewContainsManualMergeData_noManualMergeData() {
 
     var docView = new DocumentView(PwaDocumentType.INSTANCE, new PwaApplication(), DocumentTemplateMnem.PETROLEUM_CONSENT_DOCUMENT);
     var sectionView = new SectionView();

@@ -4,7 +4,7 @@ import static org.mockito.Mockito.when;
 
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -57,7 +57,7 @@ public abstract class PwaApplicationContextAbstractControllerTest extends Abstra
 
   private Timer timer;
 
-  @Before
+  @BeforeEach
   public void applicationContextAbstractControllerTestSetup() {
 
     timer = TimerMetricTestUtils.setupTimerMetric(

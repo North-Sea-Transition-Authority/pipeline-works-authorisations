@@ -2,25 +2,26 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationConsultationStatusViewTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationConsultationStatusViewTest {
 
   private Map<ConsultationRequestStatus, Long> consultationRequestStatusLongMap;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     consultationRequestStatusLongMap = new HashMap<>();
 
@@ -29,7 +30,7 @@ public class ApplicationConsultationStatusViewTest {
   }
 
   @Test
-  public void getCountOfRequestsWithStatus_whenAllStatusesInConstructionMap() {
+  void getCountOfRequestsWithStatus_whenAllStatusesInConstructionMap() {
 
     var applicationStatusView = new ApplicationConsultationStatusView(consultationRequestStatusLongMap);
 
@@ -43,7 +44,7 @@ public class ApplicationConsultationStatusViewTest {
   }
 
   @Test
-  public void getCountOfRequestsWithStatus_whenEmptyMap() {
+  void getCountOfRequestsWithStatus_whenEmptyMap() {
 
     var applicationStatusView = new ApplicationConsultationStatusView(new HashMap<>());
 
@@ -58,7 +59,7 @@ public class ApplicationConsultationStatusViewTest {
   }
 
   @Test
-  public void sumFilteredStatusCounts_whenEmptyMapConstruction_andNoStatusFiltered() {
+  void sumFilteredStatusCounts_whenEmptyMapConstruction_andNoStatusFiltered() {
 
     var applicationStatusView = new ApplicationConsultationStatusView(new HashMap<>());
 
@@ -66,7 +67,7 @@ public class ApplicationConsultationStatusViewTest {
   }
 
   @Test
-  public void sumFilteredStatusCounts_whenFullConstructionMap_andNoStatusFiltered() {
+  void sumFilteredStatusCounts_whenFullConstructionMap_andNoStatusFiltered() {
 
     var applicationStatusView = new ApplicationConsultationStatusView(consultationRequestStatusLongMap);
 
@@ -74,7 +75,7 @@ public class ApplicationConsultationStatusViewTest {
   }
 
   @Test
-  public void sumFilteredStatusCounts_whenFullConstructionMap_andStatusFiltered() {
+  void sumFilteredStatusCounts_whenFullConstructionMap_andStatusFiltered() {
 
     var applicationStatusView = new ApplicationConsultationStatusView(consultationRequestStatusLongMap);
 
@@ -84,11 +85,11 @@ public class ApplicationConsultationStatusViewTest {
   }
 
 
-  @Test(expected = UnsupportedOperationException.class)
-  public void getStatusCounts_immutableMap() {
-
+  @Test
+  void getStatusCounts_immutableMap() {
     var applicationStatusView = new ApplicationConsultationStatusView(consultationRequestStatusLongMap);
     var map = applicationStatusView.getStatusCounts();
-    map.put(ConsultationRequestStatus.RESPONDED, 1000L);
+    assertThrows(UnsupportedOperationException.class, () ->
+      map.put(ConsultationRequestStatus.RESPONDED, 1000L));
   }
 }

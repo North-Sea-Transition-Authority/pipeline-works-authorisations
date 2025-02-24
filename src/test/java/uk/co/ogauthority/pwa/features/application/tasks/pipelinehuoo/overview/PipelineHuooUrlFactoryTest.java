@@ -6,10 +6,10 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo.controller.ModifyPipelineHuooJourneyController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineHuooUrlFactoryTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineHuooUrlFactoryTest {
   private final int APP_ID = 1;
   private final PwaApplicationType APP_TYPE = PwaApplicationType.INITIAL;
   private final HuooRole ROLE = HuooRole.HOLDER;
@@ -33,8 +33,8 @@ public class PipelineHuooUrlFactoryTest {
 
   private PipelineHuooUrlFactory pipelineHuooUrlFactory;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     pipelineId = new PipelineId(1);
     pickableHuooPipelineId = PickableHuooPipelineId.from(PickableHuooPipelineType.createPickableString(pipelineId));
     encodedPickableWholePipelineId = Base64.getEncoder().encodeToString(pickableHuooPipelineId.asString().getBytes());
@@ -43,7 +43,7 @@ public class PipelineHuooUrlFactoryTest {
   }
 
   @Test
-  public void changeGroupPipelineOwnersUrl_expectedUrlProduced() {
+  void changeGroupPipelineOwnersUrl_expectedUrlProduced() {
     var pipelineId = new PipelineId(1);
     var orgUnitId = new OrganisationUnitId(2);
     var treaty = TreatyAgreement.ANY_TREATY_COUNTRY;
@@ -74,7 +74,7 @@ public class PipelineHuooUrlFactoryTest {
   }
 
   @Test
-  public void assignUnassignedPipelineOwnersUrl_expectedUrlProduced() {
+  void assignUnassignedPipelineOwnersUrl_expectedUrlProduced() {
     var pipelineId = new PipelineId(1);
 
     var summaryVieWithUnassignedPipeline = PipelineHuooViewTestUtil.createUnassignedPipelinePipelineHuooRoleSummaryView(

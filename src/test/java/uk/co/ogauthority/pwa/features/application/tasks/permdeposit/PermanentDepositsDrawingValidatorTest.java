@@ -9,18 +9,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PermanentDepositsDrawingValidatorTest {
 
   private PermanentDepositsDrawingValidator validator;
@@ -30,8 +30,8 @@ public class PermanentDepositsDrawingValidatorTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PermanentDepositsDrawingValidator();
     pwaApplicationDetail = new PwaApplicationDetail();
   }
@@ -46,7 +46,7 @@ public class PermanentDepositsDrawingValidatorTest {
 
 
   @Test
-  public void validate_form_empty() {
+  void validate_form_empty() {
     var form = new PermanentDepositDrawingForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(
@@ -57,7 +57,7 @@ public class PermanentDepositsDrawingValidatorTest {
   }
 
   @Test
-  public void validate_ref_notUnique() {
+  void validate_ref_notUnique() {
     var form = new PermanentDepositDrawingForm();
     form.setReference("existing ref");
     when(service.isDrawingReferenceUnique(
@@ -68,7 +68,7 @@ public class PermanentDepositsDrawingValidatorTest {
   }
 
   @Test
-  public void validate_ref_valid() {
+  void validate_ref_valid() {
     var form = new PermanentDepositDrawingForm();
     form.setReference("new ref");
     when(service.isDrawingReferenceUnique(
@@ -78,7 +78,7 @@ public class PermanentDepositsDrawingValidatorTest {
   }
 
   @Test
-  public void validate_ref_existingDrawing_valid() {
+  void validate_ref_existingDrawing_valid() {
     var form = new PermanentDepositDrawingForm();
     form.setReference("new ref");
     when(service.isDrawingReferenceUnique(
@@ -93,7 +93,7 @@ public class PermanentDepositsDrawingValidatorTest {
 
 
   @Test
-  public void validate_files_moreThanOneUploaded() {
+  void validate_files_moreThanOneUploaded() {
     var form = new PermanentDepositDrawingForm();
     form.setUploadedFileWithDescriptionForms(
         List.of(FileUploadTestUtil.createDefaultUploadFileForm(), FileUploadTestUtil.createDefaultUploadFileForm()));
@@ -105,7 +105,7 @@ public class PermanentDepositsDrawingValidatorTest {
   }
 
   @Test
-  public void validate_uploadedDrawingDescriptionOverMaxCharLength_invalid() {
+  void validate_uploadedDrawingDescriptionOverMaxCharLength_invalid() {
     var form = new PermanentDepositDrawingForm();
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
     var errorsMap = getErrorMap(form);
@@ -117,7 +117,7 @@ public class PermanentDepositsDrawingValidatorTest {
   }
 
   @Test
-  public void validate_drawingReferenceSurpassMaxLimit_invalid() {
+  void validate_drawingReferenceSurpassMaxLimit_invalid() {
     var form = new PermanentDepositDrawingForm();
     form.setReference(StringUtils.repeat("b", 151));
     when(service.isDrawingReferenceUnique(
@@ -133,7 +133,7 @@ public class PermanentDepositsDrawingValidatorTest {
 
 
   @Test
-  public void validate_depositSelectionEmpty() {
+  void validate_depositSelectionEmpty() {
     var form = new PermanentDepositDrawingForm();
     form.setSelectedDeposits(Set.of());
     Map<String, Set<String>> errorsMap = getErrorMap(form);

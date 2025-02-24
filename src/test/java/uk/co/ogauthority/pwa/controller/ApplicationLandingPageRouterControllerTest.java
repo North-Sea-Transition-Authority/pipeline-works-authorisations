@@ -9,16 +9,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -26,10 +24,9 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.pwaapplications.routing.ApplicationLandingPageInstance;
 import uk.co.ogauthority.pwa.service.pwaapplications.routing.ApplicationLandingPageService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ApplicationLandingPageRouterController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ApplicationLandingPageRouterControllerTest extends AbstractControllerTest {
+class ApplicationLandingPageRouterControllerTest extends AbstractControllerTest {
 
   private static final int APP_ID = 10;
   private static final String ROUTE = "Example/Route";
@@ -43,7 +40,7 @@ public class ApplicationLandingPageRouterControllerTest extends AbstractControll
   private ApplicationLandingPageInstance applicationLandingPageInstance;
 
   @Test
-  public void route_serviceInteractions() throws Exception {
+  void route_serviceInteractions() throws Exception {
 
     when(applicationLandingPageService.getApplicationLandingPage(any(), anyInt())).thenReturn(
         applicationLandingPageInstance);
@@ -53,7 +50,7 @@ public class ApplicationLandingPageRouterControllerTest extends AbstractControll
         EnumSet.allOf(PwaUserPrivilege.class));
 
    mockMvc.perform(get(ReverseRouter.route(on(ApplicationLandingPageRouterController.class).route(APP_ID, null)))
-        .with(authenticatedUserAndSession(authenticatedUserAccount)))
+        .with(user(authenticatedUserAccount)))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ROUTE));
 

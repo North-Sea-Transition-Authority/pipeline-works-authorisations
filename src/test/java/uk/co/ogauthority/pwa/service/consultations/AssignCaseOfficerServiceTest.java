@@ -9,13 +9,15 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -35,13 +37,14 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class AssignCaseOfficerServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AssignCaseOfficerServiceTest {
 
   private AssignCaseOfficerService assignCaseOfficerService;
 
@@ -49,7 +52,7 @@ public class AssignCaseOfficerServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @Mock
   private NotifyService notifyService;
@@ -75,8 +78,8 @@ public class AssignCaseOfficerServiceTest {
   private Person caseOfficerPerson;
   private static final String CASE_LINK = "case link";
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     assignCaseOfficerService = new AssignCaseOfficerService(
         workflowAssignmentService,
@@ -102,7 +105,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void assignCaseOfficer_assignToDifferentUser_emailSent() {
+  void assignCaseOfficer_assignToDifferentUser_emailSent() {
 
     var form = new AssignCaseOfficerForm();
     form.setCaseOfficerPersonId(2);
@@ -139,7 +142,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void autoAssignCaseOfficer_success() {
+  void autoAssignCaseOfficer_success() {
 
     when(workflowAssignmentService.assignTaskNoException(
         appDetail.getPwaApplication(),
@@ -162,7 +165,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void autoAssignCaseOfficer_failure() {
+  void autoAssignCaseOfficer_failure() {
 
     when(workflowAssignmentService.assignTaskNoException(
         appDetail.getPwaApplication(),
@@ -178,7 +181,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermission() {
+  void canShowInTaskList_hasPermission() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var processingContext = new PwaAppProcessingContext(appDetail, null, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER), null, null,
         Set.of());
@@ -190,7 +193,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_noPermission() {
+  void canShowInTaskList_noPermission() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(), null, null, Set.of());
 
@@ -201,7 +204,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_hasPermissionWithIncorrectStatus() {
+  void canShowInTaskList_hasPermissionWithIncorrectStatus() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
@@ -212,7 +215,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_invalidPermission_taskLocked() {
+  void getTaskListEntry_invalidPermission_taskLocked() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var processingContext = PwaAppProcessingContextTestUtil.withoutPermissions(appDetail);
 
@@ -223,7 +226,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_invalidAppStatus_taskLocked() {
+  void getTaskListEntry_invalidAppStatus_taskLocked() {
     appDetail.setStatus(PwaApplicationStatus.INITIAL_SUBMISSION_REVIEW);
     var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 
@@ -234,7 +237,7 @@ public class AssignCaseOfficerServiceTest {
   }
 
   @Test
-  public void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
+  void getTaskListEntry_validPermissionAndAppStatus_taskEditable() {
     appDetail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
     var processingContext = PwaAppProcessingContextTestUtil.withPermissions(appDetail, Set.of(PwaAppProcessingPermission.ASSIGN_CASE_OFFICER));
 

@@ -7,16 +7,16 @@ import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErro
 import static uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes.REQUIRED;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.model.form.appprocessing.options.ApproveOptionsForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApproveOptionsFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class ApproveOptionsFormValidatorTest {
 
   private static final String DAY_ATTR = "deadlineDateDay";
   private static final String MONTH_ATTR = "deadlineDateMonth";
@@ -26,24 +26,24 @@ public class ApproveOptionsFormValidatorTest {
 
   private ApproveOptionsForm form;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     approveOptionsFormValidator = new ApproveOptionsFormValidator();
     form = new ApproveOptionsForm();
   }
 
   @Test
-  public void supports_whenValidTarget() {
+  void supports_whenValidTarget() {
     assertThat(approveOptionsFormValidator.supports(ApproveOptionsForm.class)).isTrue();
   }
 
   @Test
-  public void supports_whenInvalidTarget() {
+  void supports_whenInvalidTarget() {
     assertThat(approveOptionsFormValidator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_whenAllNull() {
+  void validate_whenAllNull() {
 
     var result = ValidatorTestUtils.getFormValidationErrors(approveOptionsFormValidator, form);
 
@@ -56,7 +56,7 @@ public class ApproveOptionsFormValidatorTest {
   }
 
   @Test
-  public void validate_whenPastDate() {
+  void validate_whenPastDate() {
     form.setDeadlineDateDay(1);
     form.setDeadlineDateMonth(1);
     form.setDeadlineDateYear(2020);

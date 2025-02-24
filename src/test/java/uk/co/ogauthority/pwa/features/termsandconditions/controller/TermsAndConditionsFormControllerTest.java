@@ -8,13 +8,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -37,10 +37,9 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(TermsAndConditionsFormController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class TermsAndConditionsFormControllerTest extends AbstractControllerTest {
+class TermsAndConditionsFormControllerTest extends AbstractControllerTest {
 
   @MockBean
   TermsAndConditionsService termsAndConditionsService;
@@ -56,11 +55,11 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   private MasterPwa masterPwa;
   private MasterPwaDetail masterPwaDetail;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
 
     userAccountNoAuth = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());
@@ -72,14 +71,14 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void renderTermsAndConditionsForm_newRecord() throws Exception {
+  void renderTermsAndConditionsForm_newRecord() throws Exception {
     var availablePwas = Map.of("1/W/23", "1");
     when(termsAndConditionsService.getPwasForSelector()).thenReturn(availablePwas);
     when(termsAndConditionsService.getTermsAndConditionsForm(null)).thenReturn(new TermsAndConditionsForm());
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
         .renderNewTermsAndConditionsForm(null, userAccount)))
-        .with(authenticatedUserAndSession(userAccount)))
+        .with(user(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView()
@@ -93,7 +92,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void renderTermsAndConditionsForm_existingRecord() throws Exception {
+  void renderTermsAndConditionsForm_existingRecord() throws Exception {
     var preFilledForm = new TermsAndConditionsForm().setPwaId(1)
         .setVariationTerm(7)
         .setHuooTermOne(3)
@@ -109,7 +108,7 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
 
     var mvc = mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderEditTermsAndConditionsForm(null, 1, userAccount)))
-            .with(authenticatedUserAndSession(userAccount)))
+            .with(user(userAccount)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView()
@@ -123,40 +122,40 @@ public class TermsAndConditionsFormControllerTest extends AbstractControllerTest
   }
 
   @Test
-  public void renderTermsAndConditionsForm_unauthenticated() throws Exception {
+  void renderTermsAndConditionsForm_unauthenticated() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .renderNewTermsAndConditionsForm(null, userAccountNoAuth)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void submitTermsAndConditionsVariationForm_post() throws Exception {
+  void submitTermsAndConditionsVariationForm_post() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void submitTermsAndConditionsVariationForm_post_validationFail() throws Exception {
+  void submitTermsAndConditionsVariationForm_post_validationFail() throws Exception {
     var failedBindingResult = new BeanPropertyBindingResult(new TermsAndConditionsForm(), "form");
     failedBindingResult.addError(new ObjectError("fake", "fake"));
     when(termsAndConditionsService.validateForm(any(), any())).thenReturn(failedBindingResult);
 
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccount, null)))
-            .with(authenticatedUserAndSession(userAccount))
+            .with(user(userAccount))
             .with(csrf()))
         .andExpect(status().isOk());
   }
 
   @Test
-  public void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
+  void submitTermsAndConditionsVariationForm_post_unauthenticated() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(TermsAndConditionsFormController.class)
             .submitTermsAndConditionsForm(null, null, null, userAccountNoAuth, null)))
-            .with(authenticatedUserAndSession(userAccountNoAuth)))
+            .with(user(userAccountNoAuth)))
         .andExpect(status().isForbidden());
   }
 }

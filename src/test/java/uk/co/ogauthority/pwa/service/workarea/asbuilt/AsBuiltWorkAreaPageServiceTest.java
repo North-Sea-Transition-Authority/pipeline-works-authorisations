@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaVie
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationDtoRepository;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltWorkAreaPageServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltWorkAreaPageServiceTest {
 
   private static final int REQUESTED_PAGE = 0;
 
@@ -37,8 +37,8 @@ public class AsBuiltWorkAreaPageServiceTest {
       EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
 
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltWorkAreaPageService = new AsBuiltWorkAreaPageService(asBuiltNotificationDtoRepository);
   }
 
@@ -47,7 +47,7 @@ public class AsBuiltWorkAreaPageServiceTest {
   }
 
   @Test
-  public void getPageView_asBuiltNotifications() {
+  void getPageView_asBuiltNotifications() {
     setupFakeAsBuiltNotificationResultPage(List.of(), REQUESTED_PAGE);
 
     asBuiltWorkAreaPageService.getAsBuiltNotificationsPageView(

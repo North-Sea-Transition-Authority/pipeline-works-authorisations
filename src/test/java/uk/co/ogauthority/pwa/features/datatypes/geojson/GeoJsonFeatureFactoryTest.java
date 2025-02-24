@@ -2,23 +2,24 @@ package uk.co.ogauthority.pwa.features.datatypes.geojson;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-public class GeoJsonFeatureFactoryTest {
+class GeoJsonFeatureFactoryTest {
 
   private GeoJsonFeatureFactory factory;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     factory = new GeoJsonFeatureFactory();
   }
 
   @Test
-  public void createFeatureCollection_noFeatures() {
+  void createFeatureCollection_noFeatures() {
 
     var featureCollection = factory.createFeatureCollection(List.of());
     assertThat(featureCollection.getFeatures()).isEmpty();
@@ -26,7 +27,7 @@ public class GeoJsonFeatureFactoryTest {
   }
 
   @Test
-  public void createFeatureCollection_withFeatures() {
+  void createFeatureCollection_withFeatures() {
 
 
     var f1 = new GeoJsonFeature(new LineGeometry(List.of()));
@@ -37,16 +38,17 @@ public class GeoJsonFeatureFactoryTest {
     assertThat(featureCollection.getType()).isEqualTo("FeatureCollection");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void createSimpleLineFeature_invalidPoints() {
+  @Test
+  void createSimpleLineFeature_invalidPoints() {
     var p1 = new DecimalDegreesPointTestImpl(null, 1.2);
     var p2 = new DecimalDegreesPointTestImpl(1.2, 1.2);
+    assertThrows(IllegalArgumentException.class, () ->
 
-     factory.createSimpleLineFeature(p1, p2);
+      factory.createSimpleLineFeature(p1, p2));
   }
 
   @Test
-  public void createSimpleLineFeature_validPoints() {
+  void createSimpleLineFeature_validPoints() {
     var p1 = new DecimalDegreesPointTestImpl(0.0, 1.2);
     var p2 = new DecimalDegreesPointTestImpl(1.7, 1.2);
 
@@ -64,16 +66,17 @@ public class GeoJsonFeatureFactoryTest {
     assertThat(feature.getType()).isEqualTo("Feature");
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void createMultiPointFeature_validPoints_invalidPoints() {
+  @Test
+  void createMultiPointFeature_validPoints_invalidPoints() {
     var p1 = new DecimalDegreesPointTestImpl(1.0, 1.2);
     var p2 = new DecimalDegreesPointTestImpl(1.2, null);
+    assertThrows(IllegalArgumentException.class, () ->
 
-    factory.createMultiPointFeature(p1, p2);
+      factory.createMultiPointFeature(p1, p2));
   }
 
   @Test
-  public void createMultiPointFeature_validPoints() {
+  void createMultiPointFeature_validPoints() {
     var p1 = new DecimalDegreesPointTestImpl(1.0, 2.0);
     var p2 = new DecimalDegreesPointTestImpl(3.0, 4.0);
     var p3 = new DecimalDegreesPointTestImpl(5.0, 6.0);

@@ -5,11 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineCoreType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
@@ -17,8 +17,8 @@ import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInputValidator;
 import uk.co.ogauthority.pwa.util.validation.PipelineValidationUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineIdentDataFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineIdentDataFormValidatorTest {
 
   private PipelineIdentDataFormValidator validator;
 
@@ -27,13 +27,13 @@ public class PipelineIdentDataFormValidatorTest {
 
   private static final String VALUE_INVALID_CODE = "value" + FieldValidationErrorCodes.INVALID.getCode();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineIdentDataFormValidator(decimalInputValidator);
   }
 
   @Test
-  public void valid_singleCore_mandatory_dataPresent() {
+  void valid_singleCore_mandatory_dataPresent() {
 
     var form = buildForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
@@ -43,7 +43,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void valid_multiCore__mandatory_dataPresent() {
+  void valid_multiCore__mandatory_dataPresent() {
 
     var form = new PipelineIdentDataForm();
     form.setComponentPartsDescription("text");
@@ -60,7 +60,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_multiCore__mandatory_dataTooBig() {
+  void failed_multiCore__mandatory_dataTooBig() {
 
     var form = new PipelineIdentDataForm();
     form.setComponentPartsDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -85,7 +85,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_mandatory_dataNotPresent() {
+  void failed_mandatory_dataNotPresent() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
@@ -103,7 +103,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_multiCore_definingStructure_mandatory_dataNotPresent() {
+  void failed_multiCore_definingStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_STRUCTURE);
@@ -116,7 +116,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_multiCore_notDefiningStructure_mandatory_dataNotPresent() {
+  void failed_multiCore_notDefiningStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.MULTI_CORE, PipelineIdentDataValidationRule.AS_SECTION);
@@ -134,7 +134,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_singleCore_definingStructure_mandatory_dataNotPresent() {
+  void failed_singleCore_definingStructure_mandatory_dataNotPresent() {
 
     var form = new PipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_STRUCTURE);
@@ -147,7 +147,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_singleCore_notDefiningStructure_mandatory_dataNotPresent() {
+  void failed_singleCore_notDefiningStructure_mandatory_dataNotPresent() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, (Object) null, PipelineCoreType.SINGLE_CORE, PipelineIdentDataValidationRule.AS_SECTION);
@@ -165,7 +165,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void validate_validInternalDiameterProvided_invalidExternalDiameterProvided_internalNotValidatedAgainstExternal() {
+  void validate_validInternalDiameterProvided_invalidExternalDiameterProvided_internalNotValidatedAgainstExternal() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
@@ -179,7 +179,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_internalDiameterLargerThanExternal() {
+  void failed_internalDiameterLargerThanExternal() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
@@ -193,7 +193,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void failed_internalDiameterEqualsExternal() {
+  void failed_internalDiameterEqualsExternal() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(5)));
@@ -207,7 +207,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void valid_internalDiameterSmallerThanExternal() {
+  void valid_internalDiameterSmallerThanExternal() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(4)));
@@ -221,7 +221,7 @@ public class PipelineIdentDataFormValidatorTest {
   }
 
   @Test
-  public void valid_singleCoreAsSectionFieldsAreNonNegative_negativeValues_invalid() {
+  void valid_singleCoreAsSectionFieldsAreNonNegative_negativeValues_invalid() {
 
     var form = PipelineValidationUtils.createEmptyPipelineIdentDataForm();
     form.setInternalDiameter(new DecimalInput(BigDecimal.valueOf(-4)));

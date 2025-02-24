@@ -32,7 +32,7 @@ public class ManageTeamsController {
           user.getWuaId()));
     }
 
-    return new ModelAndView("teamManagement/teamTypes")
+    return new ModelAndView("teamManagementOld/teamTypes")
         .addObject("teamTypes", teamTypeUrlMap);
 
   }

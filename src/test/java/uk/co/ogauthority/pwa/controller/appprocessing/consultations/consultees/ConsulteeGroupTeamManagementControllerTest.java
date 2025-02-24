@@ -15,23 +15,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
@@ -46,14 +45,13 @@ import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.AddConsulteeGroupTeamMemberFormValidator;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ConsulteeGroupTeamManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class ConsulteeGroupTeamManagementControllerTest extends AbstractControllerTest {
+class ConsulteeGroupTeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
   private ConsulteeGroupTeamService consulteeGroupTeamService;
@@ -62,16 +60,16 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   private AddConsulteeGroupTeamMemberFormValidator addMemberFormValidator;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person(1, null, null, null, null)), List.of());
+      new WebUserAccount(1, new Person(1, null, null, null, null)), List.of(PwaUserPrivilege.PWA_ACCESS));
 
   private ConsulteeGroupDetail emtGroupDetail;
   private ConsulteeGroupDetail oduGroupDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     emtGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("Environmental Management Team", "EMT");
     oduGroupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("Offshore Decommissioning Unit", "ODU");
@@ -85,7 +83,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void renderManageableGroups_groupsPresent() throws Exception {
+  void renderManageableGroups_groupsPresent() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupTeamViewsForUser(user)).thenReturn(List.of(
         new ConsulteeGroupTeamView(1, "group"),
@@ -93,30 +91,30 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     ));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderManageableGroups(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
 
   }
 
   @Test
-  public void renderManageableGroups_noGroupsPresent() throws Exception {
+  void renderManageableGroups_noGroupsPresent() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupTeamViewsForUser(user)).thenReturn(List.of());
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderManageableGroups(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderManageableGroups_oneGroupPresent() throws Exception {
+  void renderManageableGroups_oneGroupPresent() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupTeamViewsForUser(user)).thenReturn(
         List.of(new ConsulteeGroupTeamView(1, "Group1")));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderManageableGroups(null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().is3xxRedirection())
         .andExpect(view().name("redirect:" + ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderTeamMembers(1, null))));
@@ -124,104 +122,104 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void renderTeamMembers_validTeam_canManage() throws Exception {
+  void renderTeamMembers_validTeam_canManage() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(emtGroupDetail.getConsulteeGroupId(), user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/teamMembers"));
+        .andExpect(view().name("teamManagementOld/teamMembers"));
 
   }
 
   @Test
-  public void renderTeamMembers_validTeam_cannotManage() throws Exception {
+  void renderTeamMembers_validTeam_cannotManage() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupDetailsForUser(user)).thenReturn(List.of(oduGroupDetail));
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class).renderTeamMembers(emtGroupDetail.getConsulteeGroupId(), user)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderAddUserToTeam() throws Exception {
+  void renderAddUserToTeam() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderAddUserToTeam(emtGroupDetail.getConsulteeGroupId(), null, user)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk());
 
   }
 
   @Test
-  public void handleAddUserToTeamSubmit_validationError() throws Exception {
+  void handleAddUserToTeamSubmit_validationError() throws Exception {
 
     ControllerTestUtils.mockSmartValidatorErrors(addMemberFormValidator, List.of("userIdentifier"));
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .handleAddUserToTeamSubmit(emtGroupDetail.getConsulteeGroupId(), null, null, user)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());
 
   }
 
   @Test
-  public void handleAddUserToTeamSubmit() throws Exception {
+  void handleAddUserToTeamSubmit() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .handleAddUserToTeamSubmit(emtGroupDetail.getConsulteeGroupId(), null, null, user)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
   }
 
   @Test
-  public void renderAddUserToTeam_cannotManage() throws Exception {
+  void renderAddUserToTeam_cannotManage() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupDetailsForUser(user)).thenReturn(List.of(oduGroupDetail));
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderAddUserToTeam(emtGroupDetail.getConsulteeGroupId(), null, user)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderMemberRoles() throws Exception {
+  void renderMemberRoles() throws Exception {
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderMemberRoles(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null, user)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isOk());
 
   }
 
   @Test
-  public void renderMemberRoles_denied() throws Exception {
+  void renderMemberRoles_denied() throws Exception {
 
     when(consulteeGroupTeamService.getManageableGroupDetailsForUser(user)).thenReturn(List.of(oduGroupDetail));
 
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderMemberRoles(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null, user)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isForbidden());
 
   }
 
   @Test
-  public void renderMemberRoles_rolesPreFilled() throws Exception {
+  void renderMemberRoles_rolesPreFilled() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
@@ -233,7 +231,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderMemberRoles(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null,
                 user)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isOk())
         .andReturn()
         .getModelAndView())
@@ -245,12 +243,12 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void handleMemberRolesUpdate() throws Exception {
+  void handleMemberRolesUpdate() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .handleMemberRolesUpdate(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null, null, user)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .param("userRoles", "ACCESS_MANAGER")
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
@@ -261,21 +259,21 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void handleMemberRolesUpdate_validationError() throws Exception {
+  void handleMemberRolesUpdate_validationError() throws Exception {
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .handleMemberRolesUpdate(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null, null, user)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .param("userRoles", "")
             .with(csrf()))
         .andExpect(status().isOk())
-        .andExpect(view().name("teamManagement/memberRoles"));
+        .andExpect(view().name("teamManagementOld/memberRoles"));
 
   }
 
   @Test
-  public void handleMemberRolesUpdate_lastInRoles() throws Exception {
+  void handleMemberRolesUpdate_lastInRoles() throws Exception {
 
     doThrow(new LastUserInRoleRemovedException("Access managers, Consultation responders"))
         .when(consulteeGroupTeamService).updateUserRoles(eq(emtGroupDetail.getConsulteeGroup()), eq(user.getLinkedPerson()), any());
@@ -286,7 +284,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .handleMemberRolesUpdate(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null,
                 null, user)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .param("userRoles", "RECIPIENT")
             .with(csrf()))
         .andExpect(status().isOk())
@@ -306,7 +304,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void renderRemoveMemberScreen() throws Exception {
+  void renderRemoveMemberScreen() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
@@ -318,13 +316,13 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderRemoveMemberScreen(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isOk());
 
   }
 
   @Test
-  public void renderRemoveMemberScreen_notMember() throws Exception {
+  void renderRemoveMemberScreen_notMember() throws Exception {
 
     when(consulteeGroupTeamService.getTeamMemberOrError(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson())).thenThrow(
         new PwaEntityNotFoundException(""));
@@ -332,13 +330,13 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     mockMvc.perform(
         get(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .renderRemoveMemberScreen(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
         .andExpect(status().isNotFound());
 
   }
 
   @Test
-  public void removeMember() throws Exception {
+  void removeMember() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER));
@@ -348,7 +346,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
@@ -357,7 +355,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
   }
 
   @Test
-  public void removeMember_notMember() throws Exception {
+  void removeMember_notMember() throws Exception {
 
     doThrow(new PwaEntityNotFoundException(""))
         .when(consulteeGroupTeamService).removeTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson());
@@ -365,14 +363,14 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isNotFound());
 
   }
 
   @Test
-  public void removeMember_LastInRoles() throws Exception {
+  void removeMember_LastInRoles() throws Exception {
 
     var member = new ConsulteeGroupTeamMember(emtGroupDetail.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
         ConsulteeGroupMemberRole.ACCESS_MANAGER, ConsulteeGroupMemberRole.RESPONDER));
@@ -387,7 +385,7 @@ public class ConsulteeGroupTeamManagementControllerTest extends AbstractControll
     mockMvc.perform(
         post(ReverseRouter.route(on(ConsulteeGroupTeamManagementController.class)
             .removeMember(emtGroupDetail.getConsulteeGroupId(), user.getLinkedPerson().getId().asInt(), null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(model().attribute(

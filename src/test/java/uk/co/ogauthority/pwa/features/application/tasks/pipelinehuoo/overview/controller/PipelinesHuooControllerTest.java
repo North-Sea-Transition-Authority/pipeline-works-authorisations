@@ -12,13 +12,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,7 +25,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
@@ -50,9 +48,8 @@ import uk.co.ogauthority.pwa.service.validation.SummaryScreenValidationResult;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PipelinesHuooController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PipelinesHuooControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private final HuooRole DEFAULT_ROLE = HuooRole.HOLDER;
   private final int APP_ID = 10;
@@ -82,8 +79,8 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
 
   private SummaryScreenValidationResult summaryScreenValidationResult;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(APP_TYPE, APP_ID);
 
@@ -141,7 +138,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderSummary_smokeCheckRolesAccess() {
+  void renderSummary_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -154,7 +151,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderSummary_smokeCheckAppStatus() {
+  void renderSummary_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -167,7 +164,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderSummary_smokeCheckAppType() {
+  void renderSummary_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -180,11 +177,11 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void renderSummary_modelCheck_andServiceInteractions_whenFail() throws Exception {
+  void renderSummary_modelCheck_andServiceInteractions_whenFail() throws Exception {
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(PipelinesHuooController.class)
         .renderSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -194,7 +191,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postSummary_smokeCheckRolesAccess() {
+  void postSummary_smokeCheckRolesAccess() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -207,7 +204,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postSummary_smokeCheckAppStatus() {
+  void postSummary_smokeCheckAppStatus() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -220,7 +217,7 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postSummary_smokeCheckAppType() {
+  void postSummary_smokeCheckAppType() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer(((pwaApplicationDetail, pwaApplicationType) ->
@@ -233,11 +230,11 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postSummary_whenFailValidation() throws Exception {
+  void postSummary_whenFailValidation() throws Exception {
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(PipelinesHuooController.class)
         .postSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isOk())
@@ -248,13 +245,13 @@ public class PipelinesHuooControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void postSummary_whenPassValidation() throws Exception {
+  void postSummary_whenPassValidation() throws Exception {
 
     when(validationResult.isValid()).thenReturn(true);
 
     var modelAndView = mockMvc.perform(post(ReverseRouter.route(on(PipelinesHuooController.class)
         .postSummary(APP_TYPE, APP_ID, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().is3xxRedirection())

@@ -14,13 +14,13 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
@@ -45,8 +45,8 @@ import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CaseNoteServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CaseNoteServiceTest {
 
   private CaseNoteService caseNoteService;
 
@@ -70,13 +70,13 @@ public class CaseNoteServiceTest {
   @Captor
   private ArgumentCaptor<List<CaseNoteDocumentLink>> caseNoteDocumentLinksCaptor;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     caseNoteService = new CaseNoteService(caseNoteRepository, appFileService, clock, documentLinkRepository, validator);
   }
 
   @Test
-  public void canShowInTaskList() {
+  void canShowInTaskList() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.ADD_CASE_NOTE), null,
         null, Set.of());
@@ -88,7 +88,7 @@ public class CaseNoteServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_industry() {
+  void canShowInTaskList_industry() {
 
     var processingContext = new PwaAppProcessingContext(null, null, Set.of(PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY), null,
         null, Set.of());
@@ -100,7 +100,7 @@ public class CaseNoteServiceTest {
   }
 
   @Test
-  public void createCaseNote_noDocuments() {
+  void createCaseNote_noDocuments() {
 
     var app = new PwaApplication();
     var person = new Person(1, null, null, null, null);
@@ -126,7 +126,7 @@ public class CaseNoteServiceTest {
   }
 
   @Test
-  public void createCaseNote_withDocuments() {
+  void createCaseNote_withDocuments() {
 
     var app = new PwaApplication();
     var person = new Person(1, null, null, null, null);
@@ -173,7 +173,7 @@ public class CaseNoteServiceTest {
   }
 
   @Test
-  public void getCaseHistoryItemViews() {
+  void getCaseHistoryItemViews() {
 
     var app = new PwaApplication();
 

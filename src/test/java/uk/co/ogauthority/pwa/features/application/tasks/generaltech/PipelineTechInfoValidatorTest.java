@@ -5,26 +5,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineTechInfoValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineTechInfoValidatorTest {
 
   private PipelineTechInfoValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PipelineTechInfoValidator();
   }
 
   @Test
-  public void validate_full_empty() {
+  void validate_full_empty() {
     var form = new PipelineTechInfoForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
@@ -36,7 +36,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_full_valid() {
+  void validate_full_valid() {
 
     var form = getFullForm();
 
@@ -57,7 +57,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_full_pipelineStandardsDescription_notRequired() {
+  void validate_full_pipelineStandardsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPipelineDesignedToStandards(false);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
@@ -67,7 +67,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_full_tieInPointsDescription_notRequired() {
+  void validate_full_tieInPointsDescription_notRequired() {
     var form = new PipelineTechInfoForm();
     form.setPlannedPipelineTieInPoints(false);
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
@@ -77,7 +77,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_partial_valid() {
+  void validate_partial_valid() {
 
     var form = new PipelineTechInfoForm();
 
@@ -88,7 +88,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_partial_someData_valid() {
+  void validate_partial_someData_valid() {
 
     var form = new PipelineTechInfoForm();
     form.setPipelineDesignedToStandards(true);
@@ -101,7 +101,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_full_maxLength_invalid() {
+  void validate_full_maxLength_invalid() {
 
     var form = getFullForm();
     form.setCorrosionDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -119,7 +119,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_partial_maxLength_invalid() {
+  void validate_partial_maxLength_invalid() {
 
     var form = new PipelineTechInfoForm();
     form.setCorrosionDescription(ValidatorTestUtils.overMaxDefaultCharLength());
@@ -137,7 +137,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_estimatedAssetLife_negativeNumber_invalid() {
+  void validate_estimatedAssetLife_negativeNumber_invalid() {
     var form = getFullForm();
     form.setEstimatedAssetLife(-1);
 
@@ -149,7 +149,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_estimatedAssetLife_zero_invalid() {
+  void validate_estimatedAssetLife_zero_invalid() {
     var form = getFullForm();
     form.setEstimatedAssetLife(0);
 
@@ -161,7 +161,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_estimatedAssetLife_NullHydrogen() {
+  void validate_estimatedAssetLife_NullHydrogen() {
     var form = getFullForm();
     form.setCorrosionDescription(null);
     form.setEstimatedAssetLife(null);
@@ -174,7 +174,7 @@ public class PipelineTechInfoValidatorTest {
   }
 
   @Test
-  public void validate_estimatedAssetLife_NullCcus() {
+  void validate_estimatedAssetLife_NullCcus() {
     var form = getFullForm();
     form.setCorrosionDescription(null);
     form.setEstimatedAssetLife(null);

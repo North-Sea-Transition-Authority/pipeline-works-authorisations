@@ -10,24 +10,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallback;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyCallbackService;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = NotifyCallbackController.class)
 @Import(PwaMvcTestConfiguration.class)
-public class NotifyCallbackControllerTest extends AbstractControllerTest {
+class NotifyCallbackControllerTest extends AbstractControllerTest {
 
   @MockBean
   private NotifyCallbackService notifyCallbackServiceMock;
@@ -37,8 +34,8 @@ public class NotifyCallbackControllerTest extends AbstractControllerTest {
 
   private NotifyCallback notifyCallback;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     notifyCallback = new NotifyCallback(
         "be0a4c7d-1657-4b83-8771-2a40e7408d67",
         345235,
@@ -52,7 +49,7 @@ public class NotifyCallbackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void notifyCallback_invalidToken() throws Exception {
+  void notifyCallback_invalidToken() throws Exception {
 
     when(notifyCallbackServiceMock.isTokenValid(anyString())).thenReturn(false);
 
@@ -64,7 +61,7 @@ public class NotifyCallbackControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  public void notifyCallback_validToken() throws Exception {
+  void notifyCallback_validToken() throws Exception {
 
     when(notifyCallbackServiceMock.isTokenValid(anyString())).thenReturn(true);
 

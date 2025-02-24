@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.email;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -22,13 +22,13 @@ import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class CaseLinkServiceTest {
+class CaseLinkServiceTest {
 
   @Autowired
   private CaseLinkService caseLinkService;
 
   @Test
-  public void generateCaseManagementLink_application() {
+  void generateCaseManagementLink_application() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     String caseManagementLink = caseLinkService.generateCaseManagementLink(detail.getPwaApplication());
@@ -38,7 +38,7 @@ public class CaseLinkServiceTest {
   }
 
   @Test
-  public void generateReviewAndSubmitLink_application() {
+  void generateReviewAndSubmitLink_application() {
 
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     String caseManagementLink = caseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication());

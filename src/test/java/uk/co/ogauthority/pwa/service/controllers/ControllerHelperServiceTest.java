@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -27,7 +27,7 @@ import uk.co.ogauthority.pwa.util.FileUploadUtils;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles("integration-test")
-public class ControllerHelperServiceTest {
+class ControllerHelperServiceTest {
 
   @Autowired
   private MessageSource messageSource;
@@ -37,8 +37,8 @@ public class ControllerHelperServiceTest {
   private ModelAndView failedModelAndView;
   private ModelAndView passedModelAndView;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     controllerHelperService = new ControllerHelperService(messageSource);
 
@@ -51,7 +51,7 @@ public class ControllerHelperServiceTest {
   }
 
   @Test
-  public void checkErrorsAndRedirect_noErrors() {
+  void checkErrorsAndRedirect_noErrors() {
 
     var form = new TypeMismatchTestForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -63,7 +63,7 @@ public class ControllerHelperServiceTest {
   }
 
   @Test
-  public void checkErrorsAndRedirect_errors() {
+  void checkErrorsAndRedirect_errors() {
 
     var form = new TypeMismatchTestForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
@@ -87,7 +87,7 @@ public class ControllerHelperServiceTest {
   }
 
   @Test
-  public void checkErrorsAndRedirect_errorCodeHasOverrideFieldName_errorItemUsesOverrideFieldName() {
+  void checkErrorsAndRedirect_errorCodeHasOverrideFieldName_errorItemUsesOverrideFieldName() {
 
     var form = new AddCaseNoteForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

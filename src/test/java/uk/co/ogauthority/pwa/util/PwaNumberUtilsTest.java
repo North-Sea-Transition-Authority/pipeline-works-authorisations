@@ -4,16 +4,16 @@ package uk.co.ogauthority.pwa.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaNumberUtilsTest {
+@ExtendWith(MockitoExtension.class)
+class PwaNumberUtilsTest {
 
   @SuppressWarnings("ConstantConditions")// suppress warning that output is always true or false. That's what we want to test!
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_whenNull() {
+  void numberOfDecimalPlacesLessThanOrEqual_whenNull() {
 
     var expectTrue = PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(null, 2, true);
     assertThat(expectTrue).isTrue();
@@ -24,7 +24,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_whenMaxDecimalPlaces() {
+  void numberOfDecimalPlacesLessThanOrEqual_whenMaxDecimalPlaces() {
 
     var expectTrue = PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(BigDecimal.valueOf(0.01), 2, true);
     assertThat(expectTrue).isTrue();
@@ -32,7 +32,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_whenMoreThanMaxDecimalPlaces() {
+  void numberOfDecimalPlacesLessThanOrEqual_whenMoreThanMaxDecimalPlaces() {
 
     var expectTrue = PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(BigDecimal.valueOf(0.001), 2, true);
     assertThat(expectTrue).isFalse();
@@ -40,7 +40,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_whenLesThanMaxDecimalPlaces() {
+  void numberOfDecimalPlacesLessThanOrEqual_whenLesThanMaxDecimalPlaces() {
 
     var expectTrue = PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(BigDecimal.valueOf(0.1), 2, true);
     assertThat(expectTrue).isTrue();
@@ -48,7 +48,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_valid() {
+  void numberOfDecimalPlacesLessThanOrEqual_valid() {
     assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0"), 0, true)).isTrue();
     assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0"), 1, true)).isTrue();
 
@@ -78,7 +78,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void numberOfDecimalPlacesLessThanOrEqual_invalid() {
+  void numberOfDecimalPlacesLessThanOrEqual_invalid() {
 
     assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.1"), 0, true)).isFalse();
     assertThat(PwaNumberUtils.numberOfDecimalPlacesLessThanOrEqual(new BigDecimal("0.10"), 0, true)).isFalse();
@@ -96,7 +96,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void getNumberOfDpIncludingTrailingZeros() {
+  void getNumberOfDpIncludingTrailingZeros() {
     assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.1"))).isEqualTo(1);
     assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.11"))).isEqualTo(2);
     assertThat(PwaNumberUtils.getNumberOfDpIncludingTrailingZeros(new BigDecimal("0.0"))).isEqualTo(1);
@@ -109,7 +109,7 @@ public class PwaNumberUtilsTest {
   }
 
   @Test
-  public void getNumberOfDp() {
+  void getNumberOfDp() {
     assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.1"))).isEqualTo(1);
     assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.11"))).isEqualTo(2);
     assertThat(PwaNumberUtils.getNumberOfDp(new BigDecimal("0.0"))).isZero();

@@ -3,18 +3,18 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinehuoo.modifyhuoo
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ModifyPipelineHuooJourneyDataTest {
+@ExtendWith(MockitoExtension.class)
+class ModifyPipelineHuooJourneyDataTest {
 
   private static final PwaApplicationDetail APP_DETAIL = PwaApplicationTestUtil.createDefaultApplicationDetail(
       PwaApplicationType.INITIAL, 10, 11);
@@ -26,8 +26,8 @@ public class ModifyPipelineHuooJourneyDataTest {
 
   private PickHuooPipelinesForm form = new PickHuooPipelinesForm();
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     journeyData = new ModifyPipelineHuooJourneyData();
 
@@ -35,7 +35,7 @@ public class ModifyPipelineHuooJourneyDataTest {
 
 
   @Test
-  public void updateJourneyPipelineData_whenRoleHasChanged() {
+  void updateJourneyPipelineData_whenRoleHasChanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2),
         Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
@@ -51,7 +51,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateJourneyPipelineData_whenRoleUnchanged_andAppDetailIdHasChanged() {
+  void updateJourneyPipelineData_whenRoleUnchanged_andAppDetailIdHasChanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2),
         Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
@@ -67,7 +67,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateJourneyPipelineData_whenHuooRoleUnchanged() {
+  void updateJourneyPipelineData_whenHuooRoleUnchanged() {
 
     journeyData.updateJourneyOrganisationData(
         APP_DETAIL,
@@ -87,7 +87,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateJourneyOrganisationData_whenRoleHasChanged() {
+  void updateJourneyOrganisationData_whenRoleHasChanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
     journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
@@ -102,7 +102,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateJourneyOrganisationData_whenRoleUnchanged_andPwaAppDetailHasChanged() {
+  void updateJourneyOrganisationData_whenRoleUnchanged_andPwaAppDetailHasChanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
     journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
@@ -117,7 +117,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateJourneyOrganisationData_whenRoleUnchanged() {
+  void updateJourneyOrganisationData_whenRoleUnchanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
     journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
@@ -132,7 +132,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateFormWithPipelineJourneyData_whenRoleUnchanged() {
+  void updateFormWithPipelineJourneyData_whenRoleUnchanged() {
 
     journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
@@ -143,7 +143,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateFormWithPipelineJourneyData_whenRoleHasChanged() {
+  void updateFormWithPipelineJourneyData_whenRoleHasChanged() {
 
     journeyData.updateJourneyPipelineData(APP_DETAIL, HuooRole.HOLDER, Set.of("STRING1"));
 
@@ -154,7 +154,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateFormWithOrganisationRoleJourneyData_whenRoleUnchanged() {
+  void updateFormWithOrganisationRoleJourneyData_whenRoleUnchanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
 
@@ -165,7 +165,7 @@ public class ModifyPipelineHuooJourneyDataTest {
   }
 
   @Test
-  public void updateFormWithOrganisationRoleJourneyData_whenRoleHasChanged() {
+  void updateFormWithOrganisationRoleJourneyData_whenRoleHasChanged() {
 
     journeyData.updateJourneyOrganisationData(APP_DETAIL, HuooRole.HOLDER, Set.of(1, 2), Set.of(TreatyAgreement.ANY_TREATY_COUNTRY));
 

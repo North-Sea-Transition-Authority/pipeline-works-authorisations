@@ -10,11 +10,11 @@ import static org.mockito.Mockito.when;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -22,8 +22,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.Po
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaHolderFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PwaHolderFormValidatorTest {
 
   @Mock
   private PortalOrganisationUnitRepository portalOrganisationUnitRepository;
@@ -31,14 +31,14 @@ public class PwaHolderFormValidatorTest {
   private PwaHolderForm holderForm;
   private PwaHolderFormValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     holderForm = new PwaHolderForm();
     validator = new PwaHolderFormValidator(portalOrganisationUnitRepository);
   }
 
   @Test
-  public void validate_holderOuId_hasErrorWhenNull() {
+  void validate_holderOuId_hasErrorWhenNull() {
 
     holderForm.setHolderOuId(null);
 
@@ -50,7 +50,7 @@ public class PwaHolderFormValidatorTest {
   }
 
   @Test
-  public void validate_holderOuId_hasErrorWhenOrgNotFound() {
+  void validate_holderOuId_hasErrorWhenOrgNotFound() {
 
     when(portalOrganisationUnitRepository.findById(123)).thenReturn(Optional.empty());
     holderForm.setHolderOuId(123);
@@ -63,7 +63,7 @@ public class PwaHolderFormValidatorTest {
   }
 
   @Test
-  public void validate_holderOuId_noErrorsWhenOrgFound() {
+  void validate_holderOuId_noErrorsWhenOrgFound() {
 
     when(portalOrganisationUnitRepository.findById(123)).thenReturn(Optional.of(new PortalOrganisationUnit()));
 

@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.workflow.assignment;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -11,11 +12,13 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -38,12 +41,13 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class WorkflowAssignmentServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class WorkflowAssignmentServiceTest {
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -61,7 +65,7 @@ public class WorkflowAssignmentServiceTest {
   private ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @Mock
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   private WorkflowAssignmentService workflowAssignmentService;
 
@@ -73,8 +77,8 @@ public class WorkflowAssignmentServiceTest {
   private ConsultationRequest consultationRequest;
   private ConsulteeGroupDetail consulteeGroupDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     caseOfficerPerson = new Person(1, null, null, null, null);
     notCaseOfficerPerson = new Person(2, null, null, null, null);
@@ -97,7 +101,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentCandidates_caseOfficer() {
+  void getAssignmentCandidates_caseOfficer() {
 
     assertThat(workflowAssignmentService.getAssignmentCandidates(pwaApplicationSubject,
         PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW)).containsOnly(caseOfficerPerson);
@@ -105,7 +109,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentCandidates_consultationResponder_respondersExist() {
+  void getAssignmentCandidates_consultationResponder_respondersExist() {
 
     var person1 = new Person(1, null, null, null, null);
     var person2 = new Person(2, null, null, null, null);
@@ -126,7 +130,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void getAssignmentCandidates_consultationResponder_noResponders() {
+  void getAssignmentCandidates_consultationResponder_noResponders() {
 
     when(consulteeGroupTeamService.getTeamMembersForGroup(eq(consulteeGroupDetail.getConsulteeGroup()))).thenReturn(
         List.of(
@@ -141,16 +145,17 @@ public class WorkflowAssignmentServiceTest {
 
   }
 
-  @Test(expected = IllegalArgumentException.class)
-  public void getAssignmentCandidates_consultationResponder_invalidWorkflow() {
+  @Test
+  void getAssignmentCandidates_consultationResponder_invalidWorkflow() {
+    assertThrows(IllegalArgumentException.class, () ->
 
-    workflowAssignmentService.getAssignmentCandidates(pwaApplicationSubject,
-        PwaApplicationConsultationWorkflowTask.RESPONSE);
+      workflowAssignmentService.getAssignmentCandidates(pwaApplicationSubject,
+          PwaApplicationConsultationWorkflowTask.RESPONSE));
 
   }
 
   @Test
-  public void getAssignmentCandidates_noAssignment() {
+  void getAssignmentCandidates_noAssignment() {
 
     assertThat(workflowAssignmentService.getAssignmentCandidates(pwaApplicationSubject,
         PwaApplicationWorkflowTask.PREPARE_APPLICATION)).isEmpty();
@@ -158,7 +163,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void assign_success() {
+  void assign_success() {
 
     var app = new PwaApplication();
 
@@ -174,18 +179,18 @@ public class WorkflowAssignmentServiceTest {
 
   }
 
-  @Test(expected = WorkflowAssignmentException.class)
-  public void assign_invalid() {
-
+  @Test
+  void assign_invalid() {
     var app = new PwaApplication();
+    assertThrows(WorkflowAssignmentException.class, () ->
 
-    workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, notCaseOfficerPerson,
-        caseOfficerPerson);
+      workflowAssignmentService.assign(app, PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, notCaseOfficerPerson,
+          caseOfficerPerson));
 
   }
 
   @Test
-  public void assignTaskNoException_success() {
+  void assignTaskNoException_success() {
 
     var app = new PwaApplication();
 
@@ -206,7 +211,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void assignTaskNoException_invalidAssigneePerson() {
+  void assignTaskNoException_invalidAssigneePerson() {
 
     var app = new PwaApplication();
 
@@ -223,7 +228,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskExists() {
+  void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskExists() {
     var testMessageName = "TEST";
     var testTaskKey = "TASK_KEY";
     var mockWorkFlowTask = mock(UserWorkflowTask.class);
@@ -240,20 +245,19 @@ public class WorkflowAssignmentServiceTest {
     verify(camundaWorkflowService, times(1)).getAllActiveWorkflowTasks(pwaApplicationSubject);
   }
 
-  @Test(expected = WorkflowAssignmentException.class)
-  public void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskDoesNotExists() {
+  @Test
+  void triggerWorkflowMessageAndAssertTaskExists_whenExpectedTaskDoesNotExists() {
     var testMessageName = "TEST";
-
     var mockWorkFlowTask = mock(UserWorkflowTask.class);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(pwaApplicationSubject)).thenReturn(Set.of());
-
     var genericMessageEvent = GenericMessageEvent.from(pwaApplicationSubject, testMessageName);
-    workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(genericMessageEvent, mockWorkFlowTask);
+    assertThrows(WorkflowAssignmentException.class, () ->
+      workflowAssignmentService.triggerWorkflowMessageAndAssertTaskExists(genericMessageEvent, mockWorkFlowTask));
 
   }
 
   @Test
-  public void getAssignee_assigneeExists_personExists_fullOptional() {
+  void getAssignee_assigneeExists_personExists_fullOptional() {
 
     var person = new Person(1, null, null, null, null);
 
@@ -268,20 +272,19 @@ public class WorkflowAssignmentServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getAssignee_assigneeExists_personDoesntExist_error() {
-
+  @Test
+  void getAssignee_assigneeExists_personDoesntExist_error() {
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
     when(teamManagementService.getPerson(1)).thenThrow(PwaEntityNotFoundException.class);
-
     var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    workflowAssignmentService.getAssignee(taskInstance);
+      workflowAssignmentService.getAssignee(taskInstance));
 
   }
 
   @Test
-  public void getAssignee_assigneeDoesntExist_emptyOptional() {
+  void getAssignee_assigneeDoesntExist_emptyOptional() {
 
 
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.empty());
@@ -295,7 +298,7 @@ public class WorkflowAssignmentServiceTest {
   }
 
   @Test
-  public void clearAssignments_verifyServiceInteractions() {
+  void clearAssignments_verifyServiceInteractions() {
 
     var workflowSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     workflowAssignmentService.clearAssignments(workflowSubject);

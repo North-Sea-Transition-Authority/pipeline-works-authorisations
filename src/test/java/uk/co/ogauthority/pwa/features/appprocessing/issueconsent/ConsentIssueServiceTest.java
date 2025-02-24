@@ -7,11 +7,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.Instant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReview;
@@ -37,8 +37,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.events.ConsentIssueFailedEv
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.ConsentWriterService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsentIssueServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ConsentIssueServiceTest {
 
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
@@ -79,8 +79,8 @@ public class ConsentIssueServiceTest {
   private Person issuingPerson, caseOfficerPerson;
   private WebUserAccount issuingUser;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaApplicationDetail = new PwaApplicationDetail();
     var app = new PwaApplication();
@@ -89,8 +89,6 @@ public class ConsentIssueServiceTest {
     issuingPerson = PersonTestUtil.createDefaultPerson();
     issuingUser = new WebUserAccount(1, issuingPerson);
     caseOfficerPerson = PersonTestUtil.createPersonWithNameFrom(new PersonId(10));
-
-    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
 
     consentIssueService = new ConsentIssueService(
         pwaApplicationDetailService,
@@ -108,7 +106,9 @@ public class ConsentIssueServiceTest {
   }
 
   @Test
-  public void issueConsent() {
+  void issueConsent() {
+
+    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
 
     var docgenRun = new DocgenRun();
     when(docgenService.createDocgenRun(any(), any(), any())).thenReturn(docgenRun);
@@ -148,7 +148,7 @@ public class ConsentIssueServiceTest {
   }
 
   @Test
-  public void failConsentIssue() {
+  void failConsentIssue() {
 
     var exception = mock(Exception.class);
     consentIssueService.failConsentIssue(pwaApplicationDetail, exception, issuingUser);

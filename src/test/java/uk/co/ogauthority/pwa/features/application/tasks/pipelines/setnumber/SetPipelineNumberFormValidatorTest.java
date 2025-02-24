@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
@@ -25,8 +27,9 @@ import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SetPipelineNumberFormValidatorTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class SetPipelineNumberFormValidatorTest {
   private static final String PIPELINE_NUM_ATTR = "pipelineNumber";
 
   private static final int MIN = 1000;
@@ -47,8 +50,8 @@ public class SetPipelineNumberFormValidatorTest {
   private SetPipelineNumberValidationConfig config;
 
 
-  @Before
-  public void setUp() throws IllegalAccessException {
+  @BeforeEach
+  void setUp() throws IllegalAccessException {
     validator = new SetPipelineNumberFormValidator(padPipelineService);
 
     form = new SetPipelineNumberForm();
@@ -62,17 +65,17 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void supports_withSupportedForm() {
+  void supports_withSupportedForm() {
     assertThat(validator.supports(SetPipelineNumberForm.class)).isTrue();
   }
 
   @Test
-  public void supports_withOtherClass() {
+  void supports_withOtherClass() {
     assertThat(validator.supports(Object.class)).isFalse();
   }
 
   @Test
-  public void validate_withNullNumber() {
+  void validate_withNullNumber() {
     var errors = ValidatorTestUtils.getFormValidationErrors(
         validator, form, validatedPadPipeline, config);
 
@@ -82,7 +85,7 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void validate_withInvalidNumberFormat() {
+  void validate_withInvalidNumberFormat() {
     var invalidFormatTests = List.of(
         "1000",  // missing prefix
         "1", // missing prefix
@@ -116,7 +119,7 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void validate_withValidNumberFormat_withinRange_uniqueNumber() {
+  void validate_withValidNumberFormat_withinRange_uniqueNumber() {
 
     var validFormatTests = List.of(
         "PLU1000",  // good prefix
@@ -142,7 +145,7 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void validate_withValidNumberFormat_outOfRange() {
+  void validate_withValidNumberFormat_outOfRange() {
 
     var invalidFormatTests = List.of(
         "PLU999",
@@ -168,7 +171,7 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void validate_withValidNumberFormat_currentPipelineReferenceValidated_noOtherPipelinesHaveReference() {
+  void validate_withValidNumberFormat_currentPipelineReferenceValidated_noOtherPipelinesHaveReference() {
 
     var pipelineNumber = "PL1234";
 
@@ -186,7 +189,7 @@ public class SetPipelineNumberFormValidatorTest {
   }
 
   @Test
-  public void validate_withValidNumberFormat_otherPipelineHasReferenceValidated_noOtherPipelinesHaveReference() throws IllegalAccessException {
+  void validate_withValidNumberFormat_otherPipelineHasReferenceValidated_noOtherPipelinesHaveReference() throws IllegalAccessException {
 
     var pipelineNumber = "PL1234";
 

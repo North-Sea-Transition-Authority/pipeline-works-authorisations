@@ -7,14 +7,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,13 +23,12 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(ReverseRouterTest.class) // We need a WebApplicationContext to test the reverse router
 @Import(PwaMvcTestConfiguration.class)
-public class ReverseRouterTest extends AbstractControllerTest {
+class ReverseRouterTest extends AbstractControllerTest {
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     Map<String, Object> uriTemplateVariablesMap = new HashMap<>();
     uriTemplateVariablesMap.put("parentId", "request_parent_id");
     uriTemplateVariablesMap.put("childId", "request_child_id");
@@ -45,7 +41,7 @@ public class ReverseRouterTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testReverseRouter_route() {
+  void reverseRouterRoute() {
 
     String route = ReverseRouter.route(on(TestController.class).testMethod("method_child_id"));
     assertThat(route).isEqualTo("/parent/request_parent_id/child/method_child_id");
@@ -78,7 +74,7 @@ public class ReverseRouterTest extends AbstractControllerTest {
   }
 
   @Test
-  public void testReverseRouter_redirect() {
+  void reverseRouterRedirect() {
     // Redirect should behave as route does, with "redirect:/" prefix on results
     ModelAndView redirect = ReverseRouter.redirect(on(TestController.class).testMethod("method_child_id"));
     assertThat(redirect.getViewName()).isEqualTo("redirect:/parent/request_parent_id/child/method_child_id");

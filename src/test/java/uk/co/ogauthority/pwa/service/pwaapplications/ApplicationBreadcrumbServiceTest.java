@@ -4,18 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationBreadcrumbServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationBreadcrumbServiceTest {
 
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
@@ -25,14 +25,14 @@ public class ApplicationBreadcrumbServiceTest {
   @Mock
   private CrossingAgreementsTaskListService crossingAgreementsTaskListService;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     applicationBreadcrumbService = new ApplicationBreadcrumbService(pwaApplicationRedirectService,
         crossingAgreementsTaskListService);
   }
 
   @Test
-  public void fromWorkArea() {
+  void fromWorkArea() {
     var modelAndView = new ModelAndView();
     applicationBreadcrumbService.fromWorkArea(modelAndView, "My area");
     assertThat(modelAndView.getModel()).containsOnlyKeys("breadcrumbMap", "currentPage");
@@ -42,7 +42,7 @@ public class ApplicationBreadcrumbServiceTest {
   }
 
   @Test
-  public void fromTaskList() {
+  void fromTaskList() {
 
     for (var type : PwaApplicationType.values()) {
 

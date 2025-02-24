@@ -16,25 +16,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.model.entity.enums.MasterPwaDetailStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaDtoController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 @Import(ExternalApiWebSecurityConfiguration.class)
-public class PwaDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PwaDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @MockBean
   private PwaDtoRepository pwaDtoRepository;
@@ -43,7 +40,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   @Test
-  public void searchPwas_NoBearerToken_AssertForbidden() throws Exception {
+  void searchPwas_NoBearerToken_AssertForbidden() throws Exception {
     mockMvc.perform(post(
             ReverseRouter.route(on(PwaDtoController.class)
                 .searchPwas(null, null, null))))
@@ -52,7 +49,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   }
 
   @Test
-  public void searchPwas() throws Exception {
+  void searchPwas() throws Exception {
     var id = 1;
     var reference = "PL123";
 
@@ -84,7 +81,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   }
 
   @Test
-  public void searchPwas_assertSort() throws Exception {
+  void searchPwas_assertSort() throws Exception {
     var firstPwa = PwaDtoTestUtil.builder()
         .withId(1)
         .withReference("1/W/02")
@@ -131,7 +128,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   }
 
   @Test
-  public void searchPwas_whenStatusIsInvalid_thenBadRequest() throws Exception {
+  void searchPwas_whenStatusIsInvalid_thenBadRequest() throws Exception {
     var invalidStatus = "invalid";
     mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
@@ -146,7 +143,7 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
   }
 
   @Test
-  public void searchPwas_whenAllParametersAreNull_thenBadRequest() throws Exception {
+  void searchPwas_whenAllParametersAreNull_thenBadRequest() throws Exception {
      mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 null,

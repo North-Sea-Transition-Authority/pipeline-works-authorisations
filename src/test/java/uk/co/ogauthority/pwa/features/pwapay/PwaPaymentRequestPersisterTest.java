@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.pwapay;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,18 +15,21 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovPayNewCardPaymentResultTestUtil;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovPayPaymentJourneyStateTestUtil;
 import uk.co.ogauthority.pwa.integrations.govukpay.GovUkPaymentStatus;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaPaymentRequestPersisterTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaPaymentRequestPersisterTest {
   private static final String GOV_PAY_ID = "abc123";
 
   private static final int PENNY_AMOUNT = 150;
@@ -46,8 +50,8 @@ public class PwaPaymentRequestPersisterTest {
 
   private PwaPaymentRequest paymentRequest;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     paymentUuid = UUID.randomUUID();
     paymentRequest = PwaPaymentRequestTestUtil.createFrom(paymentUuid, PaymentRequestStatus.PENDING, null);
@@ -64,7 +68,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void createPendingPaymentRequestInNewTransaction_setExpectedValuesOnNewPaymentRequest() {
+  void createPendingPaymentRequestInNewTransaction_setExpectedValuesOnNewPaymentRequest() {
 
     ArgumentCaptor<PwaPaymentRequest> paymentRequestCaptor = ArgumentCaptor.forClass(PwaPaymentRequest.class);
 
@@ -95,7 +99,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void setPaymentRequestStatusInNewTransaction_paymentExists() {
+  void setPaymentRequestStatusInNewTransaction_paymentExists() {
 
     pwaPaymentRequestPersister.setPaymentRequestStatusInNewTransaction(
         paymentUuid,
@@ -112,21 +116,21 @@ public class PwaPaymentRequestPersisterTest {
 
   }
 
-  @Test(expected = PwaPaymentsException.class)
-  public void setPaymentRequestStatusInNewTransaction_paymentDoesNotExist() {
-
+  @Test
+  void setPaymentRequestStatusInNewTransaction_paymentDoesNotExist() {
     when(pwaPaymentRequestRepository.findById(any())).thenReturn(Optional.empty());
+    assertThrows(PwaPaymentsException.class, () ->
 
-    pwaPaymentRequestPersister.setPaymentRequestStatusInNewTransaction(
-        paymentUuid,
-        PaymentRequestStatus.IN_PROGRESS,
-        MESSAGE
-    );
+      pwaPaymentRequestPersister.setPaymentRequestStatusInNewTransaction(
+          paymentUuid,
+          PaymentRequestStatus.IN_PROGRESS,
+          MESSAGE
+      ));
 
   }
 
   @Test
-  public void setPaymentRequestStatusData_setsStatusColumnsAsExpected() {
+  void setPaymentRequestStatusData_setsStatusColumnsAsExpected() {
     pwaPaymentRequestPersister.setPaymentRequestStatusData(
         paymentRequest,
         PaymentRequestStatus.IN_PROGRESS,
@@ -142,7 +146,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void setPaymentRequestGovUkStatusData_whenNoCode_andNoMessage() {
+  void setPaymentRequestGovUkStatusData_whenNoCode_andNoMessage() {
     paymentRequest.setGovUkPaymentStatus(GovUkPaymentStatus.CREATED);
     paymentRequest.setGovUkPaymentStatusTimestamp(Instant.now());
     paymentRequest.setGovUkPaymentStatusMessage("some old message");
@@ -158,7 +162,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void setPaymentRequestGovUkStatusData_whenCode_andNoMessage() {
+  void setPaymentRequestGovUkStatusData_whenCode_andNoMessage() {
     paymentRequest.setGovUkPaymentStatus(GovUkPaymentStatus.CREATED);
     paymentRequest.setGovUkPaymentStatusTimestamp(Instant.now());
     paymentRequest.setGovUkPaymentStatusMessage(null);
@@ -180,7 +184,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void setPaymentRequestGovUkStatusData_whenNoCode_andSomeMessage() {
+  void setPaymentRequestGovUkStatusData_whenNoCode_andSomeMessage() {
     paymentRequest.setGovUkPaymentStatus(GovUkPaymentStatus.CREATED);
     paymentRequest.setGovUkPaymentStatusTimestamp(Instant.now());
     paymentRequest.setGovUkPaymentStatusMessage(null);
@@ -201,7 +205,7 @@ public class PwaPaymentRequestPersisterTest {
   }
 
   @Test
-  public void setPaymentRequestInProgress_whenPaymentRequestFound() {
+  void setPaymentRequestInProgress_whenPaymentRequestFound() {
     var govUkPayNewCardPaymentResult = GovPayNewCardPaymentResultTestUtil.createFrom(GOV_PAY_ID, GovUkPaymentStatus.CREATED, "someUrl" );
 
     pwaPaymentRequestPersister.setPaymentRequestInProgress(paymentUuid, govUkPayNewCardPaymentResult);
@@ -222,15 +226,16 @@ public class PwaPaymentRequestPersisterTest {
     assertThat(capturedPaymentRequest.getGovUkPaymentStatusMessage()).isNull();
   }
 
-  @Test(expected = PwaPaymentsException.class)
-  public void setPaymentRequestInProgress_whenPaymentRequestNotFound() {
+  @Test
+  void setPaymentRequestInProgress_whenPaymentRequestNotFound() {
     var govUkPayNewCardPaymentResult = GovPayNewCardPaymentResultTestUtil.createFrom(
-        GOV_PAY_ID,
-        GovUkPaymentStatus.CREATED,
-        "someUrl"
-    );
+          GOV_PAY_ID,
+          GovUkPaymentStatus.CREATED,
+          "someUrl"
+      );
+    assertThrows(PwaPaymentsException.class, () ->
 
-    pwaPaymentRequestPersister.setPaymentRequestInProgress(UUID.randomUUID(), govUkPayNewCardPaymentResult);
+      pwaPaymentRequestPersister.setPaymentRequestInProgress(UUID.randomUUID(), govUkPayNewCardPaymentResult));
 
   }
 }

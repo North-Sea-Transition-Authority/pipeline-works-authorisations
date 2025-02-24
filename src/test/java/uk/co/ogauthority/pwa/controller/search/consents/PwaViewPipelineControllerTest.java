@@ -9,15 +9,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
@@ -46,9 +44,8 @@ import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.ViewablePip
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.PwaEndpointTestBuilder;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaPipelineViewController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaContextService.class}))
-public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerTest {
+class PwaViewPipelineControllerTest extends PwaContextAbstractControllerTest {
 
   private PwaEndpointTestBuilder endpointTester;
 
@@ -83,8 +80,8 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
 
   private final AsBuiltSubmissionHistoryView historyView = AsBuiltSubmissionHistoryViewUtil.createDefaultAsBuiltSubmissionHistoryView();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     endpointTester = new PwaEndpointTestBuilder(mockMvc, masterPwaService, pwaPermissionService, consentSearchService)
         .setAllowedProcessingPermissions(PwaPermission.VIEW_PWA_PIPELINE);
@@ -129,7 +126,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void renderViewPwaPipeline_pipelineHistoryTab_processingPermissionSmokeTest() {
+  void renderViewPwaPipeline_pipelineHistoryTab_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -141,7 +138,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void renderViewPwaPipeline_huooHistoryTab_processingPermissionSmokeTest() {
+  void renderViewPwaPipeline_huooHistoryTab_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -153,7 +150,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void renderViewPwaPipeline_asBuiltSubmissionsTab_processingPermissionSmokeTest() {
+  void renderViewPwaPipeline_asBuiltSubmissionsTab_processingPermissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(PwaPipelineViewController.class)
@@ -164,7 +161,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void renderViewPwaPipeline_nullTab() {
+  void renderViewPwaPipeline_nullTab() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -176,7 +173,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void postViewPwaPipeline_pipelineHistoryTab_processingPermissionSmokeTest() {
+  void postViewPwaPipeline_pipelineHistoryTab_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -188,7 +185,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void postViewPwaPipeline_huooHistoryTab_processingPermissionSmokeTest() {
+  void postViewPwaPipeline_huooHistoryTab_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
@@ -200,7 +197,7 @@ public class PwaViewPipelineControllerTest extends PwaContextAbstractControllerT
   }
 
   @Test
-  public void postViewPwaPipeline_nullTab() {
+  void postViewPwaPipeline_nullTab() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->

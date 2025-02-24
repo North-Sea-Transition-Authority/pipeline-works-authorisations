@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,13 +14,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -33,8 +34,8 @@ import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaContactServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaContactServiceTest {
 
 
   @Mock
@@ -55,8 +56,8 @@ public class PwaContactServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaContact allRolesContact;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaContactService = new PwaContactService(pwaContactRepository, nonFoxTeamMemberEventPublisher);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
@@ -66,7 +67,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void getContactsForPwaApplication() {
+  void getContactsForPwaApplication() {
     var contactOne = new PwaContact();
     var contactTwo = new PwaContact();
 
@@ -78,7 +79,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void personIsContactOnApplication() {
+  void personIsContactOnApplication() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(
         Optional.of(new PwaContact()));
 
@@ -87,7 +88,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void personIsContactOnApplication_notContact() {
+  void personIsContactOnApplication_notContact() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
 
     assertThat(pwaContactService.personIsContactOnApplication(pwaApplication, person)).isFalse();
@@ -95,7 +96,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void getContactOrError() {
+  void getContactOrError() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(
         Optional.of(new PwaContact())
     );
@@ -104,17 +105,17 @@ public class PwaContactServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void getContactOrError_error() {
-
+  @Test
+  void getContactOrError_error() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(any(), any())).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    pwaContactService.getContactOrError(pwaApplication, person);
+      pwaContactService.getContactOrError(pwaApplication, person));
 
   }
 
   @Test
-  public void removeContact() {
+  void removeContact() {
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
@@ -126,16 +127,17 @@ public class PwaContactServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void removeContact_doesntExist() {
+  @Test
+  void removeContact_doesntExist() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    pwaContactService.removeContact(pwaApplication, person);
+      pwaContactService.removeContact(pwaApplication, person));
 
   }
 
   @Test
-  public void removeContact_notLastAccessManager() {
+  void removeContact_notLastAccessManager() {
     var additionalAccessManager = new PwaContact(pwaApplication, new Person(), Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(
@@ -150,22 +152,22 @@ public class PwaContactServiceTest {
 
   }
 
-  @Test(expected = LastAdministratorException.class)
-  public void removeContact_lastAccessManager() {
+  @Test
+  void removeContact_lastAccessManager() {
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
     var nonAccessManagerContact = new PwaContact(pwaApplication, new Person(), Set.of(PwaContactRole.VIEWER));
-
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(
-        List.of(contact, nonAccessManagerContact)
-    );
+          List.of(contact, nonAccessManagerContact)
+      );
+    assertThrows(LastAdministratorException.class, () ->
 
-    pwaContactService.removeContact(pwaApplication, person);
+      pwaContactService.removeContact(pwaApplication, person));
 
   }
 
   @Test
-  public void updateContact() {
+  void updateContact() {
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
@@ -187,7 +189,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void updateContact_notContact() {
+  void updateContact_notContact() {
 
     var pwaApplication = new PwaApplication();
 
@@ -206,16 +208,16 @@ public class PwaContactServiceTest {
 
   }
 
-  @Test(expected = IllegalStateException.class)
-  public void updateContact_emptyRoles() {
-
+  @Test
+  void updateContact_emptyRoles() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(any(), any())).thenReturn(Optional.of(new PwaContact()));
-    pwaContactService.updateContact(new PwaApplication(), new Person(), Set.of());
+    assertThrows(IllegalStateException.class, () ->
+      pwaContactService.updateContact(new PwaApplication(), new Person(), Set.of()));
 
   }
 
   @Test
-  public void updateContact_changeAdministrator_notLastAdministrator() {
+  void updateContact_changeAdministrator_notLastAdministrator() {
 
     var pwaApplication = new PwaApplication();
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
@@ -239,22 +241,20 @@ public class PwaContactServiceTest {
 
   }
 
-  @Test(expected = LastAdministratorException.class)
-  public void updateContact_changeAdministrator_lastAdministrator() {
-
+  @Test
+  void updateContact_changeAdministrator_lastAdministrator() {
     var pwaApplication = new PwaApplication();
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
-
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact));
-
     var newRoles = Set.of(PwaContactRole.PREPARER);
-    pwaContactService.updateContact(pwaApplication, person, newRoles);
+    assertThrows(LastAdministratorException.class, () ->
+      pwaContactService.updateContact(pwaApplication, person, newRoles));
 
   }
 
   @Test
-  public void getTeamMemberView() {
+  void getTeamMemberView() {
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(123);
@@ -301,7 +301,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void getPwaContactRolesForWebUserAccount_multipleRolesSingleAppDetail_allRoleFilter() {
+  void getPwaContactRolesForWebUserAccount_multipleRolesSingleAppDetail_allRoleFilter() {
     var appDetailId = 20;
     var foundRoles = List.of(
         new PwaContactDto(appDetailId, person.getId().asInt(), EnumSet.allOf(PwaContactRole.class))
@@ -314,21 +314,19 @@ public class PwaContactServiceTest {
         EnumSet.allOf(PwaContactRole.class));
 
     for (PwaContactRole role : PwaContactRole.values()) {
-      PwaApplicationTestUtil.tryAssertionWithPwaContactRole(role, testRole -> {
+      PwaApplicationTestUtil.tryAssertionWithPwaContactRole(role, testRole ->
 
         assertThat(result).anySatisfy(singleRoleDto -> {
           assertThat(singleRoleDto.getPersonId()).isEqualTo(person.getId().asInt());
           assertThat(singleRoleDto.getPwaApplicationId()).isEqualTo(appDetailId);
           assertThat(singleRoleDto.getPwaContactRole()).isEqualTo(testRole);
-        });
-
-      });
+        }));
     }
 
   }
 
   @Test
-  public void getPwaContactRolesForWebUserAccount_multipleRolesSingleAppDetail_singleRoleFilter() {
+  void getPwaContactRolesForWebUserAccount_multipleRolesSingleAppDetail_singleRoleFilter() {
 
     var appDetailId = 20;
     var foundRoles = List.of(
@@ -353,7 +351,7 @@ public class PwaContactServiceTest {
 
 
   @Test
-  public void getPwaContactRolesForWebUserAccount_zeroRolesFound_singleRoleFilter() {
+  void getPwaContactRolesForWebUserAccount_zeroRolesFound_singleRoleFilter() {
     when(pwaContactRepository.findAllAsDtoByPerson(person)).thenReturn(Collections.emptyList());
 
     var result = pwaContactService.getPwaContactRolesForWebUserAccount(
@@ -365,12 +363,12 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void isComplete_alwaysReturnsTrue(){
+  void isComplete_alwaysReturnsTrue(){
     assertThat(pwaContactService.isComplete(pwaApplicationDetail)).isTrue();
   }
 
   @Test
-  public void getTaskInfoList_alwaysContainsContactCountItem(){
+  void getTaskInfoList_alwaysContainsContactCountItem(){
 
     when(pwaContactRepository.countByPwaApplication(pwaApplication)).thenReturn(1L);
     var taskInfoList = pwaContactService.getTaskInfoList(pwaApplicationDetail);
@@ -382,7 +380,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void getPeopleInRoleForPwaApplication_whenContactWithRoleExists() {
+  void getPeopleInRoleForPwaApplication_whenContactWithRoleExists() {
     var fakeContact = new PwaContact();
     fakeContact.setRoles(Set.of(PwaContactRole.PREPARER));
     fakeContact.setPerson(person);
@@ -393,7 +391,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void getPeopleInRoleForPwaApplication_whenZeroContactsWithRoleExist() {
+  void getPeopleInRoleForPwaApplication_whenZeroContactsWithRoleExist() {
     var fakeContact = new PwaContact();
     fakeContact.setRoles(Set.of(PwaContactRole.ACCESS_MANAGER));
     fakeContact.setPerson(person);
@@ -404,7 +402,7 @@ public class PwaContactServiceTest {
   }
 
   @Test
-  public void copySectionInformation_doesNothing() {
+  void copySectionInformation_doesNothing() {
     pwaContactService.copySectionInformation(pwaApplicationDetail, pwaApplicationDetail);
     verifyNoInteractions(pwaContactRepository);
   }

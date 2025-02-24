@@ -8,11 +8,13 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -20,8 +22,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadProjectExtensionServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PadProjectExtensionServiceTest {
 
   @Mock
   PadFileService padFileService;
@@ -36,8 +39,8 @@ public class PadProjectExtensionServiceTest {
 
   PadProjectExtensionService projectExtensionService;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     projectExtensionService = new PadProjectExtensionService(
         padFileService,
         padProjectInformationService,
@@ -48,7 +51,7 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void isProjectExtensionRequired_overMaxPeriod_NotExtendable() {
+  void isProjectExtensionRequired_overMaxPeriod_NotExtendable() {
     var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
 
     var applicationDetail = projectInformation.getPwaApplicationDetail();
@@ -67,7 +70,7 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void isProjectExtensionRequired_underMaxPeriod() {
+  void isProjectExtensionRequired_underMaxPeriod() {
     var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
     projectInformation.setLatestCompletionTimestamp(
         LocalDateTime.of(2020, 7, 2, 3, 4, 5)
@@ -80,7 +83,7 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_notExtendable() {
+  void canShowInTaskList_notExtendable() {
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
         .thenReturn(getProjectInformation(PwaApplicationType.CAT_2_VARIATION));
     assertFalse(projectExtensionService
@@ -106,8 +109,9 @@ public class PadProjectExtensionServiceTest {
     assertFalse(projectExtensionService
         .canShowInTaskList(getProjectInformation(PwaApplicationType.DECOMMISSIONING).getPwaApplicationDetail()));
   }
+
   @Test
-  public void canShowInTaskList_NoStartTime() {
+  void canShowInTaskList_NoStartTime() {
     var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
     projectInformation.setProposedStartTimestamp(null);
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
@@ -118,7 +122,7 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_NoEndTime() {
+  void canShowInTaskList_NoEndTime() {
     var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
     projectInformation.setLatestCompletionTimestamp(null);
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
@@ -129,7 +133,7 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void canShowInTaskList_underMaxPeriod() {
+  void canShowInTaskList_underMaxPeriod() {
     var projectInformation = getProjectInformation(PwaApplicationType.INITIAL);
     projectInformation.setLatestCompletionTimestamp(
         LocalDateTime.of(2020, 6, 2, 3, 4, 5)
@@ -142,13 +146,13 @@ public class PadProjectExtensionServiceTest {
   }
 
   @Test
-  public void isProjectExtensionRequired_overMaxPeriod() {
+  void isProjectExtensionRequired_overMaxPeriod() {
     pwaApplicationDetail = new PwaApplicationDetail();
     assertTrue(projectExtensionService.canShowInTaskList(pwaApplicationDetail));
   }
 
   @Test
-  public void getProjectTimelineGuidance() {
+  void getProjectTimelineGuidance() {
     assertThat(projectExtensionService.getProjectTimelineGuidance(getProjectInformation(PwaApplicationType.INITIAL).getPwaApplicationDetail()))
         .isEqualTo("For example, 31 3 2023 \n" +
             "This must be within 12 months of the proposed start of works date. " +

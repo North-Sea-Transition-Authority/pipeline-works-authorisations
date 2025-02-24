@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class CoordinateTest {
+class CoordinateTest {
 
   @Test
-  public void convertToDecimalDegrees_smoke() {
+  void convertToDecimalDegrees_smoke() {
     // deg min second and expected decimal degrees conversion output values
     // test values taken from the wikipedia page https://en.wikipedia.org/wiki/Decimal_degrees
     // with scale increased

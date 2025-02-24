@@ -9,20 +9,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
@@ -39,19 +38,18 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
-import uk.co.ogauthority.pwa.service.teammanagement.TeamManagementService;
+import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaContactController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   @SpyBean
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private TeamManagementService teamManagementService;
+  private OldTeamManagementService teamManagementService;
 
   @MockBean
   private AddPwaContactFormValidator addPwaContactFormValidator;
@@ -59,13 +57,14 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   @MockBean
   private PwaHolderService pwaHolderService;
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of());
+  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
+      PwaUserPrivilege.PWA_ACCESS));
 
   private PwaApplicationDetail detail;
   private PwaApplicationEndpointTestBuilder manageAndEditEndpointTester, manageEndpointTester;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     when(teamManagementService.getPerson(anyInt())).thenReturn(user.getLinkedPerson());
     var teamMemberView = new TeamMemberView(user.getLinkedPerson(), null, null, Set.of());
@@ -98,7 +97,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_appTypeSmokeTest() {
+  void renderContactsScreen_appTypeSmokeTest() {
 
     manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -110,7 +109,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_permissionSmokeTest() {
+  void renderContactsScreen_permissionSmokeTest() {
 
     manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -122,7 +121,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_appStatusSmokeTest() {
+  void renderContactsScreen_appStatusSmokeTest() {
 
     manageAndEditEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -134,7 +133,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderAddContact_appTypeSmokeTest() {
+  void renderAddContact_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -146,7 +145,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderAddContact_permissionSmokeTest() {
+  void renderAddContact_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -158,7 +157,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderAddContact_appStatusSmokeTest() {
+  void renderAddContact_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -170,7 +169,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void addContact_appTypeSmokeTest() {
+  void addContact_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -182,7 +181,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void addContact_permissionSmokeTest() {
+  void addContact_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -194,7 +193,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void addContact_appStatusSmokeTest() {
+  void addContact_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -206,7 +205,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactRolesScreen_appTypeSmokeTest() {
+  void renderContactRolesScreen_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -218,7 +217,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactRolesScreen_permissionSmokeTest() {
+  void renderContactRolesScreen_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -230,7 +229,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactRolesScreen_appStatusSmokeTest() {
+  void renderContactRolesScreen_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -242,7 +241,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void updateContactRoles_appTypeSmokeTest() {
+  void updateContactRoles_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -254,7 +253,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void updateContactRoles_permissionSmokeTest() {
+  void updateContactRoles_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -266,7 +265,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void updateContactRoles_appStatusSmokeTest() {
+  void updateContactRoles_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -278,7 +277,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderRemoveContactScreen_appTypeSmokeTest() {
+  void renderRemoveContactScreen_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -290,7 +289,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderRemoveContactScreen_permissionSmokeTest() {
+  void renderRemoveContactScreen_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -302,7 +301,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderRemoveContactScreen_appStatusSmokeTest() {
+  void renderRemoveContactScreen_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -314,7 +313,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void removeContact_appTypeSmokeTest() {
+  void removeContact_appTypeSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -326,7 +325,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void removeContact_permissionSmokeTest() {
+  void removeContact_permissionSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -338,7 +337,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void removeContact_appStatusSmokeTest() {
+  void removeContact_appStatusSmokeTest() {
 
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -350,7 +349,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_holderNamesNotDuplicated() throws Exception {
+  void renderContactsScreen_holderNamesNotDuplicated() throws Exception {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -363,14 +362,14 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("orgGroupHolders", Set.of("ORGGRP")));
 
   }
 
   @Test
-  public void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCanBeEdited() throws Exception {
+  void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCanBeEdited() throws Exception {
 
     for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
       try {
@@ -383,7 +382,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))
@@ -398,7 +397,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCannotBeEdited() throws Exception {
+  void renderContactsScreen_whenUserHasManageContactPrivOnly_andApplicationCannotBeEdited() throws Exception {
 
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -410,7 +409,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseManagementUrl"))
         .andExpect(model().attributeExists("completeSectionUrl"))
@@ -421,7 +420,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCannotBeEdited() throws Exception {
+  void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCannotBeEdited() throws Exception {
 
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -433,7 +432,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
         .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-        .with(authenticatedUserAndSession(user)))
+        .with(user(user)))
         .andExpect(status().isOk())
         .andExpect(model().attributeExists("caseManagementUrl"))
         .andExpect(model().attributeExists("completeSectionUrl"))
@@ -444,7 +443,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCanBeEdited() throws Exception {
+  void renderContactsScreen_whenUserHasManageContactPrivAndEditPriv_andApplicationCanBeEdited() throws Exception {
 
     for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
       try {
@@ -457,7 +456,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))
@@ -475,7 +474,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
   }
 
   @Test
-  public void renderContactsScreen_whenUserHasMEditPrivOnly_andApplicationCanBeEdited() throws Exception {
+  void renderContactsScreen_whenUserHasMEditPrivOnly_andApplicationCanBeEdited() throws Exception {
 
     for(PwaApplicationStatus status: ApplicationState.INDUSTRY_EDITABLE.getStatuses()) {
       try {
@@ -488,7 +487,7 @@ public class PwaContactControllerTest extends PwaApplicationContextAbstractContr
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
             .renderContactsScreen(PwaApplicationType.INITIAL, 1, null, null)))
-            .with(authenticatedUserAndSession(user)))
+            .with(user(user)))
             .andExpect(status().isOk())
             .andExpect(model().attributeExists("caseManagementUrl"))
             .andExpect(model().attributeExists("completeSectionUrl"))

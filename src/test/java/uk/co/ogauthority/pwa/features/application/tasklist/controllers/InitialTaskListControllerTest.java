@@ -8,14 +8,12 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.EnumSet;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
@@ -27,17 +25,16 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = InitialTaskListController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class InitialTaskListControllerTest extends TaskListControllerTest {
+class InitialTaskListControllerTest extends TaskListControllerTest {
 
 
   private PwaApplicationDetail detail;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -61,7 +58,7 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
 
 
   @Test
-  public void viewTaskList_appTypeSmokeTest() {
+  void viewTaskList_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialTaskListController.class)
@@ -77,7 +74,7 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
   }
 
   @Test
-  public void viewTaskList_appStatusSmokeTest() {
+  void viewTaskList_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialTaskListController.class)
@@ -93,7 +90,7 @@ public class InitialTaskListControllerTest extends TaskListControllerTest {
   }
 
   @Test
-  public void viewTaskList_contactRoleSmokeTest() {
+  void viewTaskList_contactRoleSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(InitialTaskListController.class)

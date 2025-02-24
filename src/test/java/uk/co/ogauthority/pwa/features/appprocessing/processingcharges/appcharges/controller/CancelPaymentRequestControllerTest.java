@@ -10,13 +10,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,9 +51,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = CancelPaymentRequestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class CancelPaymentRequestControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   private static final int APP_ID = 1;
   private static final int APP_DETAIL_ID = 30;
@@ -83,8 +82,8 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
   private ApplicationChargeRequestReport applicationChargeRequestReport;
   private ApplicationPaymentDisplaySummary applicationPaymentDisplaySummary;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), EnumSet.allOf(PwaUserPrivilege.class));
 
@@ -123,11 +122,11 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderCancelPaymentRequest_verifyModel() throws Exception {
+  void renderCancelPaymentRequest_verifyModel() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isOk())
         .andExpect(model().hasNoErrors())
@@ -141,29 +140,29 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void renderCancelPaymentRequest_whenCancelTaskNotAccessible() throws Exception {
+  void renderCancelPaymentRequest_whenCancelTaskNotAccessible() throws Exception {
     when(cancelPaymentRequestProcService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void renderCancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
+  void renderCancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
     when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
 
     mockMvc.perform(get(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .renderCancelPaymentRequest(APP_ID, APP_TYPE, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
     )
         .andExpect(status().isInternalServerError());
   }
 
   @Test
-  public void renderCancelPaymentRequest_processingPermissionSmokeTest() {
+  void renderCancelPaymentRequest_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -175,24 +174,24 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void cancelPaymentRequest_whenCancelTaskNotAccessible() throws Exception {
+  void cancelPaymentRequest_whenCancelTaskNotAccessible() throws Exception {
     when(cancelPaymentRequestProcService.taskAccessible(any())).thenReturn(false);
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isForbidden());
   }
 
   @Test
-  public void cancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
+  void cancelPaymentRequest_whenAppChargeReportNotFound() throws Exception {
     when(applicationChargeRequestService.getOpenRequestAsApplicationChargeRequestReport(any())).thenReturn(Optional.empty());
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
     )
         .andExpect(status().isInternalServerError());
@@ -200,13 +199,13 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void cancelPaymentRequest_whenFormInvalid() throws Exception {
+  void cancelPaymentRequest_whenFormInvalid() throws Exception {
 
     ControllerTestUtils.mockValidatorErrors(cancelAppChargeFormValidator, List.of(CANCEL_REASON_ATTR));
 
     var result = mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(CANCEL_REASON_ATTR, "")
     )
@@ -218,11 +217,11 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
 
 
   @Test
-  public void cancelPaymentRequest_whenFormValid() throws Exception {
+  void cancelPaymentRequest_whenFormValid() throws Exception {
 
     mockMvc.perform(post(ReverseRouter.route(on(CancelPaymentRequestController.class)
         .cancelPaymentRequest(APP_ID, APP_TYPE, null, null, null, null)))
-        .with(authenticatedUserAndSession(user))
+        .with(user(user))
         .with(csrf())
         .param(CANCEL_REASON_ATTR, ValidatorTestUtils.exactlyMaxDefaultCharLength())
     )
@@ -233,7 +232,7 @@ public class CancelPaymentRequestControllerTest extends PwaAppProcessingContextA
   }
 
   @Test
-  public void cancelPaymentRequest_processingPermissionSmokeTest() {
+  void cancelPaymentRequest_processingPermissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->

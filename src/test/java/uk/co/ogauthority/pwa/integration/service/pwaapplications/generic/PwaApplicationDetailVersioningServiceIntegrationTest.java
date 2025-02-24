@@ -8,7 +8,7 @@ import java.util.Set;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -515,7 +515,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_projectInformationMappedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_projectInformationMappedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -557,7 +557,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_allPadFilesMappedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_allPadFilesMappedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -579,7 +579,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_allPipelineDataMappedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_allPipelineDataMappedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -628,7 +628,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_huooRoleLinksMappedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_huooRoleLinksMappedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.OPTIONS_VARIATION);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -697,7 +697,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_permanentDepositCopiedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_permanentDepositCopiedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -742,7 +742,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_campaignWorkScheduleCopiedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_campaignWorkScheduleCopiedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -768,7 +768,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_padFieldsCopiedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_padFieldsCopiedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -804,7 +804,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_padEnvDecomCopiedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_padEnvDecomCopiedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -824,7 +824,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_otherPipelineDiagrams() throws IllegalAccessException {
+  void createNewApplicationVersion_otherPipelineDiagrams() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -848,7 +848,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_partnerLetters() throws IllegalAccessException {
+  void createNewApplicationVersion_partnerLetters() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -867,7 +867,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_optionVariationDocuments() throws IllegalAccessException {
+  void createNewApplicationVersion_optionVariationDocuments() throws IllegalAccessException {
     setup(PwaApplicationType.OPTIONS_VARIATION);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -891,7 +891,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_locationDetailsCopedAsExpected() throws IllegalAccessException {
+  void createNewApplicationVersion_locationDetailsCopedAsExpected() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -945,7 +945,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_locationDetails_licenceBlockCrossings() throws IllegalAccessException {
+  void createNewApplicationVersion_locationDetails_licenceBlockCrossings() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1003,7 +1003,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_locationDetails_cableCrossings() throws IllegalAccessException {
+  void createNewApplicationVersion_locationDetails_cableCrossings() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1026,7 +1026,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_locationDetails_pipelineCrossings() throws IllegalAccessException {
+  void createNewApplicationVersion_locationDetails_pipelineCrossings() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1084,7 +1084,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_locationDetails_medianLineCrossing() throws IllegalAccessException {
+  void createNewApplicationVersion_locationDetails_medianLineCrossing() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1107,7 +1107,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_techDetails_generalTechDetails() throws IllegalAccessException {
+  void createNewApplicationVersion_techDetails_generalTechDetails() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1125,7 +1125,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_techDetails_fluidComposition() throws IllegalAccessException {
+  void createNewApplicationVersion_techDetails_fluidComposition() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     var newVersionDetail = pwaApplicationDetailVersioningService.createNewApplicationVersion(
@@ -1145,7 +1145,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_techDetails_otherProperties() throws IllegalAccessException {
+  void createNewApplicationVersion_techDetails_otherProperties() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     firstVersionApplicationContainer.getPwaApplicationDetail().setOtherPhaseDescription("Other Phase Description");
@@ -1178,7 +1178,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_techDetails_designOpConditions() throws IllegalAccessException {
+  void createNewApplicationVersion_techDetails_designOpConditions() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL);
 
     entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());
@@ -1200,7 +1200,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_fastTrack() throws IllegalAccessException {
+  void createNewApplicationVersion_fastTrack() throws IllegalAccessException {
     setup(PwaApplicationType.INITIAL, true);
 
     entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());
@@ -1222,7 +1222,7 @@ public class PwaApplicationDetailVersioningServiceIntegrationTest {
 
   @Transactional
   @Test
-  public void createNewApplicationVersion_padConfirmationOfOption() throws IllegalAccessException {
+  void createNewApplicationVersion_padConfirmationOfOption() throws IllegalAccessException {
     setup(PwaApplicationType.OPTIONS_VARIATION, true);
 
     entityManager.persist(firstVersionApplicationContainer.getPwaApplicationDetail());

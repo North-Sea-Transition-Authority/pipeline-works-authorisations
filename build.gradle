@@ -1,12 +1,11 @@
 plugins {
-  id 'org.springframework.boot' version '3.3.5'
-  id 'io.spring.dependency-management' version '1.1.6'
+  id 'org.springframework.boot' version '3.4.1'
+  id 'io.spring.dependency-management' version '1.1.7'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
   id 'war'
-  id 'org.sonarqube' version '5.0.0.4638'
-  id 'org.owasp.dependencycheck' version '6.1.2'
+  id 'org.sonarqube' version '6.0.1.5171'
 }
 
 group = 'uk.co.fivium'
@@ -16,6 +15,7 @@ sourceCompatibility = '21'
 tasks {
   bootJar {
     archiveFileName.set("${rootProject.name}.jar")
+    exclude('**/localdevonly/**')
   }
 }
 
@@ -24,6 +24,10 @@ repositories {
   maven { url "https://nexus.fivium.co.uk/repository/maven-releases/" }
   maven { url "https://nexus.fivium.co.uk/repository/maven-snapshots/" }
   maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+  maven {
+    // Required for opensaml deps
+    url "https://build.shibboleth.net/nexus/content/repositories/releases/"
+  }
 }
 
 dependencies {
@@ -34,6 +38,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   implementation 'org.springframework.boot:spring-boot-starter-jdbc'
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security:spring-security-saml2-service-provider'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework:spring-test'
   implementation 'org.springframework.boot:spring-boot-starter-freemarker'
@@ -43,17 +48,15 @@ dependencies {
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
-  // Hibernate 6.5 introduced a performance issue with certain Oracle queries, see https://hibernate.atlassian.net/browse/HHH-18352.
-  // This was fixed in a 6.5.3 snapshot but development moved over to 6.6.0 before a final 6.5.3 was released.
-  // The upcoming spring-data-jpa 3.4.x will use Hibernate 6.6 https://github.com/spring-projects/spring-data-jpa/issues/3574, until then we
-  // use a pinned 6.5.3 snapshot which has passed all the Hibernate CI tests, and which we have tested internally.
-  implementation 'org.hibernate.orm:hibernate-core:6.5.3-20240807.164253-67'
+  implementation 'uk.co.fivium.energyportalapi:client:v12.4.0'
+  implementation 'uk.co.fivium.digital.energyportalteamaccesslibrary:energy-portal-team-access-libray:v1.0.0'
 
   implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
+  implementation "org.hamcrest:hamcrest:2.2"
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
-  implementation 'uk.gov.service.notify:notifications-java-client:5.1.0-RELEASE'
+  implementation 'uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE'
   implementation 'org.springframework.session:spring-session-jdbc'
-  implementation('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.21.0') {
+  implementation('org.camunda.bpm.springboot:camunda-bpm-spring-boot-starter:7.22.0') {
     // Exclude com.sun.xml.bind JAXB as it conflicts with glassfish JAXB from Hibernate Envers. The packages inside
     // the dependencies are the same so it is fine to exclude it.
     exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
@@ -100,13 +103,14 @@ dependencies {
 
   testImplementation 'com.h2database:h2:1.4.200'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.16.1'
-  testImplementation(
+  testImplementation "org.junit.jupiter:junit-jupiter-params:5.11.4"
+    testImplementation "org.mockito:mockito-junit-jupiter:4.11.0"
+    testImplementation(
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
-      'com.squareup.okhttp3:mockwebserver:4.9.1',
-      'com.squareup.okhttp3:okhttp:4.9.1' // Required otherwise MockWebServer gives ClassNotFoundException
+      'com.squareup.okhttp3:mockwebserver:4.12.0',
+      'com.squareup.okhttp3:okhttp:4.12.0' // Required otherwise MockWebServer gives ClassNotFoundException
   )
-  testImplementation 'junit:junit:4.13.1'
 
 }
 
@@ -120,17 +124,10 @@ checkstyle {
   configProperties = [ "suppressionFile" : project(':').file('ide/checkstyle-suppression.xml')]
 }
 
-dependencyCheck {
-  data {
-    // Point to a persisted volume in drone, to avoid having to re-download the whole CVE database each run.
-    // Comment this out to run locally
-    directory='/var/nvd-db'
-  }
-}
-
 test {
-  minHeapSize = "5g" // initial heap size
-  maxHeapSize = "10g" // maximum heap size
+    minHeapSize = "5g" // initial heap size
+    maxHeapSize = "10g" // maximum heap size
+    useJUnitPlatform()
 }
 
 tasks.jacocoTestReport {

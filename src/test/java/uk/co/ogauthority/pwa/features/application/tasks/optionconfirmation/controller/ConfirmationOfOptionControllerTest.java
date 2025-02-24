@@ -12,21 +12,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -45,9 +43,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ConfirmationOfOptionController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbstractControllerTest {
+class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Integer APP_ID = 1;
 
@@ -63,8 +60,8 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
 
   private AuthenticatedUserAccount user;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.OPTIONS_VARIATION,
         APP_ID);
@@ -83,7 +80,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void renderConfirmOption_permissionSmokeTest() {
+  void renderConfirmOption_permissionSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConfirmationOfOptionController.class)
@@ -93,7 +90,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void renderConfirmOption_appTypeSmokeTest() {
+  void renderConfirmOption_appTypeSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConfirmationOfOptionController.class)
@@ -104,7 +101,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void renderConfirmOption_appStatusSmokeTest() {
+  void renderConfirmOption_appStatusSmokeTest() {
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(ConfirmationOfOptionController.class)
@@ -115,7 +112,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void renderConfirmOption_whenPadConfirmationOfOptionFound() throws Exception {
+  void renderConfirmOption_whenPadConfirmationOfOptionFound() throws Exception {
     var confirmation = new PadConfirmationOfOption();
     when(padConfirmationOfOptionService.findPadConfirmationOfOption(pwaApplicationDetail))
         .thenReturn(Optional.of(confirmation));
@@ -123,7 +120,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
     mockMvc.perform(
         get(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .renderConfirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null)))
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
     ).andExpect(status().isOk());
 
     verify(padConfirmationOfOptionService, times(1)).mapEntityToForm(any(), eq(confirmation));
@@ -132,14 +129,14 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
 
 
   @Test
-  public void confirmOption_whenFailsValidation_andFullValidation() throws Exception {
+  void confirmOption_whenFailsValidation_andFullValidation() throws Exception {
     mockFailValidation();
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.FULL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
 
@@ -152,14 +149,14 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_whenFailsValidation_andPartialValidation() throws Exception {
+  void confirmOption_whenFailsValidation_andPartialValidation() throws Exception {
     mockFailValidation();
 
     mockMvc.perform(
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.PARTIAL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().isOk());
 
@@ -172,7 +169,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_whenPassesValidation() throws Exception {
+  void confirmOption_whenPassesValidation() throws Exception {
 
     //return original binding result without errors
     when(padConfirmationOfOptionService.validate(any(), any(), any(), any()))
@@ -187,7 +184,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
         post(ReverseRouter.route(on(ConfirmationOfOptionController.class)
             .confirmOption(PwaApplicationType.OPTIONS_VARIATION, APP_ID, null, null, null, null)))
             .param(ValidationType.FULL.getButtonText(), "")
-            .with(authenticatedUserAndSession(user))
+            .with(user(user))
             .with(csrf())
     ).andExpect(status().is3xxRedirection());
 
@@ -198,7 +195,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_permissionSmokeTest() {
+  void confirmOption_permissionSmokeTest() {
     mockFailValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -212,7 +209,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_appTypeSmokeTest() {
+  void confirmOption_appTypeSmokeTest() {
     mockFailValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)
@@ -227,7 +224,7 @@ public class ConfirmationOfOptionControllerTest extends PwaApplicationContextAbs
   }
 
   @Test
-  public void confirmOption_appStatusSmokeTest() {
+  void confirmOption_appStatusSmokeTest() {
     mockFailValidation();
 
     endpointTester.setRequestMethod(HttpMethod.POST)

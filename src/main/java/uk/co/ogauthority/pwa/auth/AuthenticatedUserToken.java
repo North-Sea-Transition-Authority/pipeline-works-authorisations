@@ -1,8 +1,7 @@
 package uk.co.ogauthority.pwa.auth;
 
-import static java.util.stream.Collectors.toSet;
-
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -13,14 +12,11 @@ public class AuthenticatedUserToken extends AbstractAuthenticationToken {
   private final AuthenticatedUserAccount principal;
 
   public static AuthenticatedUserToken create(String sessionId, AuthenticatedUserAccount principal) {
-
     Set<GrantedAuthority> grantedAuthorities = principal.getUserPrivileges().stream()
         .map(PwaUserPrivilege::name)
         .map(SimpleGrantedAuthority::new)
-        .collect(toSet());
-
+        .collect(Collectors.toSet());
     return new AuthenticatedUserToken(sessionId, principal, grantedAuthorities);
-
   }
 
   private AuthenticatedUserToken(String sessionId, AuthenticatedUserAccount principal,

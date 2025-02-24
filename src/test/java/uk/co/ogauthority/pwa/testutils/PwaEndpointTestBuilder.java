@@ -7,7 +7,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.co.ogauthority.pwa.util.TestUserProvider.authenticatedUserAndSession;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -140,13 +140,13 @@ public class PwaEndpointTestBuilder {
     if (this.requestMethod == HttpMethod.GET) {
       this.mockMvc.perform(
           get(url)
-              .with(authenticatedUserAndSession(user))
+              .with(user(user))
               .params(paramMap)
       ).andExpect(resultMatcher);
     } else {
       this.mockMvc.perform(
           post(url)
-              .with(authenticatedUserAndSession(user))
+              .with(user(user))
               .with(csrf())
               .params(paramMap)
       )

@@ -7,11 +7,13 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PadAreaService;
@@ -28,8 +30,9 @@ import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.ConsentWriterDto;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AreaWriterTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AreaWriterTest {
 
   @Mock
   private MasterPwaService masterPwaService;
@@ -51,8 +54,8 @@ public class AreaWriterTest {
 
   private ConsentWriterDto consentWriterDto;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     masterPwa = detail.getMasterPwa();
@@ -75,7 +78,7 @@ public class AreaWriterTest {
   }
 
   @Test
-  public void write_initialPwa() {
+  void write_initialPwa() {
 
     pwaConsent.setVariationNumber(0);
     masterPwaDetail.setMasterPwaDetailStatus(MasterPwaDetailStatus.APPLICATION);
@@ -93,7 +96,7 @@ public class AreaWriterTest {
   }
 
   @Test
-  public void write_variation_noChanges() {
+  void write_variation_noChanges() {
 
     pwaConsent.setVariationNumber(1);
 
@@ -115,7 +118,7 @@ public class AreaWriterTest {
   }
 
   @Test
-  public void write_variation_changes() {
+  void write_variation_changes() {
 
     pwaConsent.setVariationNumber(1);
 
@@ -137,7 +140,7 @@ public class AreaWriterTest {
   }
 
   @Test
-  public void write_depcon_changes() {
+  void write_depcon_changes() {
 
     pwaConsent.setVariationNumber(null);
 
@@ -159,7 +162,7 @@ public class AreaWriterTest {
   }
 
   @Test
-  public void write_depcon_noChanges() {
+  void write_depcon_noChanges() {
 
     pwaConsent.setVariationNumber(null);
 

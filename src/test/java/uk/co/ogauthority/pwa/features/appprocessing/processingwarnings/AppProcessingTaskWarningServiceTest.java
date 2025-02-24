@@ -4,11 +4,11 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingwarnings;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentDocumentUrlProvider;
@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeServ
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AppProcessingTaskWarningServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AppProcessingTaskWarningServiceTest {
 
   @Mock
   private ConsultationService consultationService;
@@ -32,8 +32,8 @@ public class AppProcessingTaskWarningServiceTest {
   private PwaApplication application;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     appProcessingTaskWarningService = new AppProcessingTaskWarningService(consultationService, publicNoticeService);
     application = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL).getPwaApplication();
@@ -41,7 +41,7 @@ public class AppProcessingTaskWarningServiceTest {
 
 
   @Test
-  public void getNonBlockingTasksWarning_tasksNotRequired_noWarnings() {
+  void getNonBlockingTasksWarning_tasksNotRequired_noWarnings() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(false);
     when(publicNoticeService.publicNoticeTaskRequired(application)).thenReturn(false);
@@ -55,7 +55,7 @@ public class AppProcessingTaskWarningServiceTest {
   }
 
   @Test
-  public void getNonBlockingTasksWarning_tasksRequired_tasksNotStarted_warningMessageIncludesBothTasks() {
+  void getNonBlockingTasksWarning_tasksRequired_tasksNotStarted_warningMessageIncludesBothTasks() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
     when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);
@@ -72,7 +72,7 @@ public class AppProcessingTaskWarningServiceTest {
   }
 
   @Test
-  public void getNonBlockingTasksWarning_tasksRequired_consultationsNotStarted_publicNoticeStarted_warningMessageIncludesRelevantTask() {
+  void getNonBlockingTasksWarning_tasksRequired_consultationsNotStarted_publicNoticeStarted_warningMessageIncludesRelevantTask() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
     when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);
@@ -89,7 +89,7 @@ public class AppProcessingTaskWarningServiceTest {
   }
 
   @Test
-  public void getNonBlockingTasksWarning_tasksRequired_consultationsStarted_publicNoticeNotStarted_warningMessageIncludesRelevantTask() {
+  void getNonBlockingTasksWarning_tasksRequired_consultationsStarted_publicNoticeNotStarted_warningMessageIncludesRelevantTask() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
     when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.COMPLETED);
@@ -106,7 +106,7 @@ public class AppProcessingTaskWarningServiceTest {
   }
 
   @Test
-  public void getNonBlockingTasksWarning_warningAtSendForApprovalStage_returnMessageLinksToCaseManagement() {
+  void getNonBlockingTasksWarning_warningAtSendForApprovalStage_returnMessageLinksToCaseManagement() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
     when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);
@@ -122,7 +122,7 @@ public class AppProcessingTaskWarningServiceTest {
   }
 
   @Test
-  public void getNonBlockingTasksWarning_warningAtIssueConsentStage_returnMessageLinksToReturnToCaseOfficer() {
+  void getNonBlockingTasksWarning_warningAtIssueConsentStage_returnMessageLinksToReturnToCaseOfficer() {
 
     when(consultationService.consultationsTaskRequired(application)).thenReturn(true);
     when(consultationService.getTaskStatus(application)).thenReturn(TaskStatus.NOT_STARTED);

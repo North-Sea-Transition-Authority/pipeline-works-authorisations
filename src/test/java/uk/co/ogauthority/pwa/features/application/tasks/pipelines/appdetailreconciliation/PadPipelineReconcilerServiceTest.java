@@ -2,14 +2,15 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelines.appdetailreco
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -19,8 +20,8 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineReconcilerServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineReconcilerServiceTest {
 
   private final int APP_ID = 1;
   private final int SOURCE_DETAIL_ID = 2;
@@ -46,8 +47,8 @@ public class PadPipelineReconcilerServiceTest {
   private PadPipeline reconcilePadPipeline1;
   private PadPipeline reconcilePadPipeline2;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     sourceDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL,
@@ -78,7 +79,7 @@ public class PadPipelineReconcilerServiceTest {
   }
 
   @Test
-  public void reconcileApplicationDetailPadPipelines_whenPipelinesFound() {
+  void reconcileApplicationDetailPadPipelines_whenPipelinesFound() {
     when(padPipelineService.getPipelines(sourceDetail))
         .thenReturn(List.of(sourcePadPipeline1, sourcePadPipeline2));
     when(padPipelineService.getPipelines(reconcileDetail))
@@ -99,10 +100,7 @@ public class PadPipelineReconcilerServiceTest {
   }
 
   @Test
-  public void reconcileApplicationDetailPadPipelines_whenNoSourcePipelinesFound() {
-
-    when(padPipelineService.getPipelines(reconcileDetail))
-        .thenReturn(List.of(reconcilePadPipeline1, reconcilePadPipeline2));
+  void reconcileApplicationDetailPadPipelines_whenNoSourcePipelinesFound() {
 
     var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(sourceDetail,
         reconcileDetail);
@@ -111,26 +109,28 @@ public class PadPipelineReconcilerServiceTest {
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void reconcileApplicationDetailPadPipelines_whenCannotReconcileSourcePipelineFound() {
-
+  @Test
+  void reconcileApplicationDetailPadPipelines_whenCannotReconcileSourcePipelineFound() {
     when(padPipelineService.getPipelines(sourceDetail))
-        .thenReturn(List.of(sourcePadPipeline1, sourcePadPipeline2));
+          .thenReturn(List.of(sourcePadPipeline1, sourcePadPipeline2));
     when(padPipelineService.getPipelines(reconcileDetail))
-        .thenReturn(List.of(reconcilePadPipeline1));
+          .thenReturn(List.of(reconcilePadPipeline1));
+    assertThrows(PwaEntityNotFoundException.class, () -> {
 
-    var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(sourceDetail,
-        reconcileDetail);
+      var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(sourceDetail,
+          reconcileDetail);
+
+    });
 
   }
 
-  @Test(expected = PwaEntityNotFoundException.class)
-  public void reconcileApplicationDetailPadPipelines_whenUnreconciledPipelineIdRequested() {
-
+  @Test
+  void reconcileApplicationDetailPadPipelines_whenUnreconciledPipelineIdRequested() {
     var reconciledPadPipelines = padPipelineReconcilerService.reconcileApplicationDetailPadPipelines(sourceDetail,
-        reconcileDetail);
+          reconcileDetail);
+    assertThrows(PwaEntityNotFoundException.class, () ->
 
-    reconciledPadPipelines.findByPipelineIdOrError(new PipelineId(9999));
+      reconciledPadPipelines.findByPipelineIdOrError(new PipelineId(9999)));
 
 
   }

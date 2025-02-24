@@ -7,13 +7,13 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
@@ -33,8 +33,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailIdentDa
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineIdentDataMappingService;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineIdentMappingService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PipelineDetailIdentDataImportServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PipelineDetailIdentDataImportServiceTest {
 
   @Mock
   private PipelineDetailIdentDataRepository pipelineDetailIdentDataRepository;
@@ -58,8 +58,8 @@ public class PipelineDetailIdentDataImportServiceTest {
   private PipelineDetailIdent pipelineDetailIdent;
   private PipelineDetailIdentData pipelineDetailIdentData;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var identMappingService = new PipelineIdentMappingService();
     var identDataMappingService = new PipelineIdentDataMappingService();
@@ -76,7 +76,7 @@ public class PipelineDetailIdentDataImportServiceTest {
   }
 
   @Test
-  public void importIdentsAndData_serviceInteraction() {
+  void importIdentsAndData_serviceInteraction() {
 
     when(pipelineDetailIdentDataRepository.getAllByPipelineDetailIdent_PipelineDetail(pipelineDetail))
         .thenReturn(List.of(pipelineDetailIdentData));
@@ -94,7 +94,7 @@ public class PipelineDetailIdentDataImportServiceTest {
   }
 
   @Test
-  public void buildIdentAndData_ensureLinkedToPadPipeline() {
+  void buildIdentAndData_ensureLinkedToPadPipeline() {
     var result = pipelineDetailIdentDataImportService.buildIdentAndData(padPipeline, pipelineDetailIdent,
         List.of(pipelineDetailIdentData));
     assertThat(result).extracting(PadPipelineIdentData::getPadPipelineIdent).extracting(
@@ -103,7 +103,7 @@ public class PipelineDetailIdentDataImportServiceTest {
   }
 
   @Test
-  public void mapIdentsToPadPipelineIdents_ensureDataLinkedToPadPipelineIdent() {
+  void mapIdentsToPadPipelineIdents_ensureDataLinkedToPadPipelineIdent() {
     var pipelineIdent = new PadPipelineIdent();
     var data = new PipelineDetailIdentData();
     var result = pipelineDetailIdentDataImportService.mapIdentsToPadPipelineIdents(pipelineIdent, List.of(data));
@@ -111,7 +111,7 @@ public class PipelineDetailIdentDataImportServiceTest {
   }
 
   @Test
-  public void mapIdentToPadPipelineIdent_assertMappedValues() {
+  void mapIdentToPadPipelineIdent_assertMappedValues() {
     var detailIdent = new PipelineDetailIdent();
     detailIdent.setIdentNo(1);
 
@@ -163,7 +163,7 @@ public class PipelineDetailIdentDataImportServiceTest {
   }
 
   @Test
-  public void mapIdentDataToPadPipelineIdentData() {
+  void mapIdentDataToPadPipelineIdentData() {
     var padPipelineIdent = new PadPipelineIdent();
     var pipelineDetailIdentData = new PipelineDetailIdentData();
 

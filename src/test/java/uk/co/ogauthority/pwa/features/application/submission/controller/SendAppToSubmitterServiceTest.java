@@ -6,14 +6,14 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
@@ -25,8 +25,8 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class SendAppToSubmitterServiceTest {
+@ExtendWith(MockitoExtension.class)
+class SendAppToSubmitterServiceTest {
 
   @Mock
   private NotifyService notifyService;
@@ -44,8 +44,8 @@ public class SendAppToSubmitterServiceTest {
 
   private PwaApplicationDetail detail;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     sendAppToSubmitterService = new SendAppToSubmitterService(notifyService, caseLinkService, applicationUpdateRequestService);
 
@@ -54,7 +54,7 @@ public class SendAppToSubmitterServiceTest {
   }
 
   @Test
-  public void sendToSubmitter_updateTextPresent() {
+  void sendToSubmitter_updateTextPresent() {
 
     var sendingPerson = PersonTestUtil.createPersonFrom(new PersonId(1));
     var recipientPerson = PersonTestUtil.createPersonFrom(new PersonId(2));
@@ -70,7 +70,7 @@ public class SendAppToSubmitterServiceTest {
   }
 
   @Test
-  public void sendToSubmitter_noUpdateText() {
+  void sendToSubmitter_noUpdateText() {
 
     var sendingPerson = PersonTestUtil.createPersonFrom(new PersonId(1));
     var recipientPerson = PersonTestUtil.createPersonFrom(new PersonId(2));

@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 @ActiveProfiles("integration-test")
 @DirtiesContext
 @Transactional
-public class PipelineDtoRepositoryTest {
+class PipelineDtoRepositoryTest {
 
   @Autowired
   private TestEntityManager entityManager;
@@ -40,8 +40,8 @@ public class PipelineDtoRepositoryTest {
   @Autowired
   PipelineDtoRepository pipelineDtoRepository;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     var pwa = new MasterPwa();
     var secondPwa = new MasterPwa();
@@ -74,7 +74,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPipelineId() {
+  void searchPipelines_searchByPipelineId() {
     var searchedIds = List.of(pipeline.getId());
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(searchedIds, null, null);
 
@@ -84,7 +84,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPipelineNumber() {
+  void searchPipelines_searchByPipelineNumber() {
     var pipelineNumber = "PIPELINE NUM";
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, pipelineNumber, null);
 
@@ -101,7 +101,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_searchByPwaIds() {
+  void searchPipelines_searchByPwaIds() {
     var pwaIds = List.of(pwaDetail.getMasterPwaId());
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, pwaIds);
 
@@ -112,7 +112,7 @@ public class PipelineDtoRepositoryTest {
 
 
   @Test
-  public void searchPipelines_whenAllNull_assertAllPipelinesReturned() {
+  void searchPipelines_whenAllNull_assertAllPipelinesReturned() {
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(null, null, null);
 
     assertThat(resultingPipelineDtos)
@@ -121,7 +121,7 @@ public class PipelineDtoRepositoryTest {
   }
 
   @Test
-  public void searchPipelines_orderedByPipelineId() {
+  void searchPipelines_orderedByPipelineId() {
     var ids = List.of(secondPipelineDetail.getPipeline().getId(), pipeline.getId());
     var resultingPipelineDtos = pipelineDtoRepository.searchPipelines(ids, null, null);
 

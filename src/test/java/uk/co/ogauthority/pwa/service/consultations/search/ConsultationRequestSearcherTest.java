@@ -9,11 +9,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.repository.consultations.search.ConsultationRequest
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ConsultationRequestSearcherTest {
+@ExtendWith(MockitoExtension.class)
+class ConsultationRequestSearcherTest {
 
   private static final int PERSON_ID = 10;
   private static final int APP_ID = 20;
@@ -36,22 +36,22 @@ public class ConsultationRequestSearcherTest {
   private ConsultationRequestSearcher consultationRequestSearcher;
   private Pageable pageable;
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
 
     consultationRequestSearcher = new ConsultationRequestSearcher(consultationRequestSearchItemRepository);
     pageable = PageRequest.of(PAGE_REQUESTED, PAGE_SIZE);
   }
 
   @Test
-  public void searchByAllocationForGroupIdsOrConsultationRequestIds_whenNoIds() {
+  void searchByAllocationForGroupIdsOrConsultationRequestIds_whenNoIds() {
     var resultPage = consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(pageable,
         ConsultationRequestStatus.ALLOCATION, null, Set.of());
     assertThat(resultPage).isEqualTo(Page.empty(PageRequest.of(PAGE_REQUESTED, PAGE_SIZE)));
   }
 
   @Test
-  public void searchByAllocationForGroupIdsOrConsultationRequestIds_idsProvided() {
+  void searchByAllocationForGroupIdsOrConsultationRequestIds_idsProvided() {
 
     var result = ConsultationRequestSearchTestUtil.getSearchDetailItem(ConsultationRequestStatus.ALLOCATION);
 

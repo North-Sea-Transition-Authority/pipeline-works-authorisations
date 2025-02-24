@@ -5,28 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PartnerLettersValidatorTest {
+@ExtendWith(MockitoExtension.class)
+class PartnerLettersValidatorTest {
 
   private PartnerLettersValidator validator;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     validator = new PartnerLettersValidator();
   }
 
 
   @Test
-  public void validate_full_form_valid() {
+  void validate_full_form_valid() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
@@ -37,7 +37,7 @@ public class PartnerLettersValidatorTest {
   }
 
   @Test
-  public void validate_full_form_empty() {
+  void validate_full_form_empty() {
     var form = new PartnerLettersForm();
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
@@ -45,7 +45,7 @@ public class PartnerLettersValidatorTest {
   }
 
   @Test
-  public void validate_full_lettersRequired_invalid() {
+  void validate_full_lettersRequired_invalid() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(null);
@@ -57,7 +57,7 @@ public class PartnerLettersValidatorTest {
   }
 
   @Test
-  public void validate_full_letterDescription_empty() {
+  void validate_full_letterDescription_empty() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
@@ -71,7 +71,7 @@ public class PartnerLettersValidatorTest {
   }
 
   @Test
-  public void validate_full_letterDescriptionOverMaxCharLength_invalid() {
+  void validate_full_letterDescriptionOverMaxCharLength_invalid() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
@@ -84,7 +84,7 @@ public class PartnerLettersValidatorTest {
   }
 
   @Test
-  public void validate_partial_letterDescriptionOverMaxCharLength_invalid() {
+  void validate_partial_letterDescriptionOverMaxCharLength_invalid() {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);

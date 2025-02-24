@@ -4,14 +4,14 @@ package uk.co.ogauthority.pwa.features.application.authorisation.involvement;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 
-public class ApplicationInvolvementDtoTest {
+class ApplicationInvolvementDtoTest {
 
   @Test
-  public void isUserInAppContactTeam_whenConstructedWithContactRoles() {
+  void isUserInAppContactTeam_whenConstructedWithContactRoles() {
     var involvement = new ApplicationInvolvementDto(
         null,
         Set.of(PwaContactRole.VIEWER),
@@ -28,7 +28,7 @@ public class ApplicationInvolvementDtoTest {
   }
 
   @Test
-  public void isUserInAppContactTeam_whenConstructedWithoutContactRoles() {
+  void isUserInAppContactTeam_whenConstructedWithoutContactRoles() {
     var involvement = new ApplicationInvolvementDto(
         null,
         Set.of(),
@@ -44,9 +44,8 @@ public class ApplicationInvolvementDtoTest {
   }
 
 
-
   @Test
-  public void isUserInHolderTeam_whenConstructedWithHolderTeamRoles() {
+  void isUserInHolderTeam_whenConstructedWithHolderTeamRoles() {
     var involvement = new ApplicationInvolvementDto(
         null,
         Set.of(),
@@ -63,7 +62,7 @@ public class ApplicationInvolvementDtoTest {
   }
 
   @Test
-  public void isUserInHolderTeam_whenConstructedWithoutHolderTeamRoles() {
+  void isUserInHolderTeam_whenConstructedWithoutHolderTeamRoles() {
     var involvement = new ApplicationInvolvementDto(
         null,
         Set.of(),

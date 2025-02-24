@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-public class ConsentWriterServiceTest {
+class ConsentWriterServiceTest {
 
   @MockBean
   private AreaWriter areaWriter;
@@ -78,8 +78,8 @@ public class ConsentWriterServiceTest {
     when(consentWriterMock.write(any(), any(), any())).thenReturn(consentWriterDto);
   }
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
 
     consentWriterDto = new ConsentWriterDto();
     consentWriterDto.setConsentRolesAdded(List.of(new PwaConsentOrganisationRole()));
@@ -102,7 +102,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_allTasks_initial_inOrder_noHolderChangeEmail() {
+  void updateConsentedData_allTasks_initial_inOrder_noHolderChangeEmail() {
 
     consentWriterService.updateConsentedData(detail, consent);
 
@@ -118,7 +118,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_allTasks_variation_inOrder_holderChangeEmail() {
+  void updateConsentedData_allTasks_variation_inOrder_holderChangeEmail() {
 
     consent.setConsentType(PwaConsentType.VARIATION);
 
@@ -138,7 +138,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_notInitialConsent_noInitialConsentWrite() {
+  void updateConsentedData_notInitialConsent_noInitialConsentWrite() {
     consent.setConsentType(PwaConsentType.VARIATION);
     consentWriterService.updateConsentedData(detail, consent);
 
@@ -147,7 +147,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_initialConsent_consentWrite() {
+  void updateConsentedData_initialConsent_consentWrite() {
 
     consentWriterService.updateConsentedData(detail, consent);
 
@@ -156,7 +156,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noFieldTask_areaWriteForCarbonStorage() {
+  void updateConsentedData_noFieldTask_areaWriteForCarbonStorage() {
 
     applicationTasks.remove(ApplicationTask.FIELD_INFORMATION);
 
@@ -167,7 +167,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noFieldTask_areaWriteForField() {
+  void updateConsentedData_noFieldTask_areaWriteForField() {
 
     applicationTasks.remove(ApplicationTask.CARBON_STORAGE_INFORMATION);
 
@@ -178,7 +178,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noAreaTask_noWrite() {
+  void updateConsentedData_noAreaTask_noWrite() {
 
     applicationTasks.remove(ApplicationTask.CARBON_STORAGE_INFORMATION);
     applicationTasks.remove(ApplicationTask.FIELD_INFORMATION);
@@ -190,7 +190,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noHuooTask_noHuooWrite() {
+  void updateConsentedData_noHuooTask_noHuooWrite() {
 
     applicationTasks.remove(ApplicationTask.HUOO);
 
@@ -201,7 +201,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noPipelinesTask_noPipelineWrite() {
+  void updateConsentedData_noPipelinesTask_noPipelineWrite() {
 
     applicationTasks.remove(ApplicationTask.PIPELINES);
 
@@ -212,7 +212,7 @@ public class ConsentWriterServiceTest {
   }
 
   @Test
-  public void updateConsentedData_noPipelineHuooTask_noPipelineHuooWrite() {
+  void updateConsentedData_noPipelineHuooTask_noPipelineHuooWrite() {
 
     applicationTasks.remove(ApplicationTask.PIPELINES_HUOO);
 

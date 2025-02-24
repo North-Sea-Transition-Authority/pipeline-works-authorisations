@@ -7,18 +7,18 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationUpdateRequestViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationUpdateRequestViewServiceTest {
 
   @Mock
   private ApplicationUpdateRequestViewRepository applicationUpdateRequestViewRepository;
@@ -28,8 +28,8 @@ public class ApplicationUpdateRequestViewServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     applicationUpdateRequestViewService = new ApplicationUpdateRequestViewService(
@@ -38,7 +38,7 @@ public class ApplicationUpdateRequestViewServiceTest {
   }
 
   @Test
-  public void getOpenRequestView_detail_checkCorrectStatusIsUsed() {
+  void getOpenRequestView_detail_checkCorrectStatusIsUsed() {
 
     var detail = new PwaApplicationDetail();
 
@@ -50,7 +50,7 @@ public class ApplicationUpdateRequestViewServiceTest {
   }
 
   @Test
-  public void getOpenRequestView_app_checkCorrectStatusIsUsed() {
+  void getOpenRequestView_app_checkCorrectStatusIsUsed() {
 
     var app = new PwaApplication();
 
@@ -62,7 +62,7 @@ public class ApplicationUpdateRequestViewServiceTest {
   }
 
   @Test
-  public void getLastRespondedApplicationUpdateView_noRespondedUpdates(){
+  void getLastRespondedApplicationUpdateView_noRespondedUpdates(){
 
     var previousUpdate = applicationUpdateRequestViewService.getLastRespondedApplicationUpdateView(pwaApplicationDetail);
     assertThat(previousUpdate).isEmpty();
@@ -77,7 +77,7 @@ public class ApplicationUpdateRequestViewServiceTest {
   }
 
   @Test
-  public void getLastRespondedApplicationUpdateView_respondedUpdateExistsForGivenAppVersion(){
+  void getLastRespondedApplicationUpdateView_respondedUpdateExistsForGivenAppVersion(){
     // Make sure responded requests for versions after and including the given app detail are filtered out
     // because requests are linked on the version before the response is submitted.
     var requestVersion1 = getMockUpdateRequestViewForVersion(1);

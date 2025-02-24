@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
 
 public class SecurityUtils {
 
@@ -25,6 +26,13 @@ public class SecurityUtils {
     } else {
       return Optional.of((AuthenticatedUserAccount) authentication.getPrincipal());
     }
+  }
+
+  public static boolean isUserLoggedIn() {
+    if (SecurityContextHolder.getContext().getAuthentication() instanceof AuthenticatedUserToken authentication) {
+      return authentication.getPrincipal() instanceof AuthenticatedUserAccount;
+    }
+    return false;
   }
 
 }

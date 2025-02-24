@@ -9,11 +9,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.Cons
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberModificationEvent;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaGlobalTeamServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaGlobalTeamServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -48,8 +48,8 @@ public class PwaGlobalTeamServiceTest {
   private Person person = PersonTestUtil.createDefaultPerson();
   private WebUserAccount systemWebUserAccount = new WebUserAccount();
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaGlobalTeam = new PwaGlobalTeam(1, "G", "Global");
     when(teamService.getGlobalTeam()).thenReturn(pwaGlobalTeam);
@@ -61,7 +61,7 @@ public class PwaGlobalTeamServiceTest {
   }
 
   @Test
-  public void updateGlobalAccessTeamMembership_addedEvent_alreadyMemberOfTeam() {
+  void updateGlobalAccessTeamMembership_addedEvent_alreadyMemberOfTeam() {
 
     var event = new NonFoxTeamMemberModificationEvent(person, NonFoxTeamMemberModificationEvent.EventType.ADDED);
 
@@ -74,7 +74,7 @@ public class PwaGlobalTeamServiceTest {
   }
 
   @Test
-  public void updateGlobalAccessTeamMembership_addedEvent_notAlreadyMemberOfTeam() {
+  void updateGlobalAccessTeamMembership_addedEvent_notAlreadyMemberOfTeam() {
 
     var event = new NonFoxTeamMemberModificationEvent(person, NonFoxTeamMemberModificationEvent.EventType.ADDED);
 
@@ -87,7 +87,7 @@ public class PwaGlobalTeamServiceTest {
   }
 
   @Test
-  public void updateGlobalAccessTeamMembership_removedEvent_isStillContact() {
+  void updateGlobalAccessTeamMembership_removedEvent_isStillContact() {
 
     var event = new NonFoxTeamMemberModificationEvent(person, NonFoxTeamMemberModificationEvent.EventType.REMOVED);
 
@@ -101,7 +101,7 @@ public class PwaGlobalTeamServiceTest {
   }
 
   @Test
-  public void updateGlobalAccessTeamMembership_removedEvent_isStillConsultee() {
+  void updateGlobalAccessTeamMembership_removedEvent_isStillConsultee() {
 
     var event = new NonFoxTeamMemberModificationEvent(person, NonFoxTeamMemberModificationEvent.EventType.REMOVED);
 
@@ -115,7 +115,7 @@ public class PwaGlobalTeamServiceTest {
   }
 
   @Test
-  public void updateGlobalAccessTeamMembership_removedEvent_noFurtherInvolvement() {
+  void updateGlobalAccessTeamMembership_removedEvent_noFurtherInvolvement() {
 
     var event = new NonFoxTeamMemberModificationEvent(person, NonFoxTeamMemberModificationEvent.EventType.REMOVED);
 

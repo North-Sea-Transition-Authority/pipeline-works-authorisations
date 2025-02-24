@@ -6,11 +6,11 @@ import static org.mockito.Mockito.when;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaPermissionServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaPermissionServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -36,8 +36,8 @@ public class PwaPermissionServiceTest {
   private MasterPwa masterPwa;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaPermissionService = new PwaPermissionService(teamService, pwaHolderTeamService);
 
@@ -45,7 +45,7 @@ public class PwaPermissionServiceTest {
   }
 
   @Test
-  public void getPwaPermissions_userInHolderTeam() {
+  void getPwaPermissions_userInHolderTeam() {
 
     when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()))
         .thenReturn(true);
@@ -59,7 +59,7 @@ public class PwaPermissionServiceTest {
   }
 
   @Test
-  public void getPwaPermissions_userNotInHolderTeamOrRegulatorTeam_hasViewPipelinePermission() {
+  void getPwaPermissions_userNotInHolderTeamOrRegulatorTeam_hasViewPipelinePermission() {
 
     user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PIPELINE_VIEW));
 
@@ -69,7 +69,7 @@ public class PwaPermissionServiceTest {
 
 
   @Test
-  public void getPwaPermissions_userNotInHolderTeam_userHasRegulatorRole() {
+  void getPwaPermissions_userNotInHolderTeam_userHasRegulatorRole() {
 
     when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()))
         .thenReturn(false);
@@ -88,7 +88,7 @@ public class PwaPermissionServiceTest {
   }
 
   @Test
-  public void getPwaPermissions_notHolderTeam_userDoesNotHaveRegulatorRole() {
+  void getPwaPermissions_notHolderTeam_userDoesNotHaveRegulatorRole() {
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
     assertThat(permissions).isEmpty();

@@ -7,11 +7,13 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
@@ -27,8 +29,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaHolderTeamServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PwaHolderTeamServiceTest {
 
   @Mock
   private TeamService teamService;
@@ -51,8 +54,8 @@ public class PwaHolderTeamServiceTest {
   private WebUserAccount webUserAccount;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pwaHolderTeamService = new PwaHolderTeamService(
         teamService,
@@ -85,7 +88,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void isPersonInHolderTeam_holderExists_personInHolderTeam() {
+  void isPersonInHolderTeam_holderExists_personInHolderTeam() {
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)))
         .thenReturn(List.of(holderOrgTeam));
@@ -97,7 +100,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void isPersonInHolderTeam_holderExists_personNotInHolderTeam() {
+  void isPersonInHolderTeam_holderExists_personNotInHolderTeam() {
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)))
         .thenReturn(List.of());
@@ -109,7 +112,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void isPersonInHolderTeamWithRole_holderExists_personInHolderTeamWithRole() {
+  void isPersonInHolderTeamWithRole_holderExists_personInHolderTeamWithRole() {
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, List.of(PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)))
         .thenReturn(List.of(holderOrgTeam));
@@ -121,7 +124,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void isPersonInHolderTeamWithRole_holderExists_personNotInHolderTeamWithRole() {
+  void isPersonInHolderTeamWithRole_holderExists_personNotInHolderTeamWithRole() {
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, List.of(PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)))
         .thenReturn(List.of());
@@ -133,7 +136,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void getRolesInHolderTeam_holderExists_personNotInHolderTeam() {
+  void getRolesInHolderTeam_holderExists_personNotInHolderTeam() {
 
     when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of());
 
@@ -145,7 +148,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void getRolesInHolderTeam_holderExists_personInHolderTeam() {
+  void getRolesInHolderTeam_holderExists_personInHolderTeam() {
 
     var roles = pwaHolderTeamService.getRolesInHolderTeam(detail, person);
 
@@ -156,7 +159,7 @@ public class PwaHolderTeamServiceTest {
 
 
   @Test
-  public void getPeopleWithHolderTeamRole_singlePersonInHolderTeam() {
+  void getPeopleWithHolderTeamRole_singlePersonInHolderTeam() {
 
 
     var people = pwaHolderTeamService.getPeopleWithHolderTeamRole(detail, PwaOrganisationRole.APPLICATION_CREATOR);
@@ -167,7 +170,7 @@ public class PwaHolderTeamServiceTest {
 
 
   @Test
-  public void getPersonsInHolderTeam_singlePersonInHolderTeam() {
+  void getPersonsInHolderTeam_singlePersonInHolderTeam() {
 
 
     var people = pwaHolderTeamService.getPersonsInHolderTeam(detail);
@@ -176,7 +179,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void getPortalOrganisationUnitsWhereUserHasAnyOrgRole_userHasRole(){
+  void getPortalOrganisationUnitsWhereUserHasAnyOrgRole_userHasRole(){
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)))
         .thenReturn(List.of(holderOrgTeam));
@@ -189,7 +192,7 @@ public class PwaHolderTeamServiceTest {
   }
 
   @Test
-  public void getPortalOrganisationUnitsWhereUserHasAnyOrgRole_userHasNoRole(){
+  void getPortalOrganisationUnitsWhereUserHasAnyOrgRole_userHasNoRole(){
 
     when(teamService.getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)))
         .thenReturn(List.of());

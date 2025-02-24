@@ -7,15 +7,13 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSummaryViewService;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
@@ -26,9 +24,8 @@ import uk.co.ogauthority.pwa.model.view.appsummary.VisibleApplicationVersionOpti
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = ApplicationSummaryController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {PwaAppProcessingContextService.class}))
-public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbstractControllerTest {
+class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbstractControllerTest {
 
   @MockBean
   private ApplicationSummaryViewService applicationSummaryViewService;
@@ -38,8 +35,8 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     when(applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(any(), any()))
         .thenReturn(new VisibleApplicationVersionOptionsForUser(Map.of()));
@@ -51,7 +48,7 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   }
 
   @Test
-  public void renderSummary_permissionSmokeTest() {
+  void renderSummary_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->
@@ -63,7 +60,7 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   }
 
   @Test
-  public void renderSummary_applicationDetailNonAvailable_throwsApplicationDetailNotFoundException() {
+  void renderSummary_applicationDetailNonAvailable_throwsApplicationDetailNotFoundException() {
 
     when(applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(any(), any()))
         .thenReturn(new VisibleApplicationVersionOptionsForUser(Map.of("66", "Version 66")));
@@ -78,7 +75,7 @@ public class ApplicationSummaryControllerTest extends PwaAppProcessingContextAbs
   }
 
   @Test
-  public void postViewSummary_permissionSmokeTest() {
+  void postViewSummary_permissionSmokeTest() {
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((applicationDetail, type) ->

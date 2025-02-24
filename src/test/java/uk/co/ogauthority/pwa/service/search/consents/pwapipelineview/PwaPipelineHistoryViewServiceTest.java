@@ -10,11 +10,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers.PipelinesSummaryService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
@@ -23,8 +23,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.testutil.PipelineDetailTestUtil
 import uk.co.ogauthority.pwa.service.search.consents.pwapipelineview.testutil.PwaPipelineViewTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PwaPipelineHistoryViewServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PwaPipelineHistoryViewServiceTest {
 
   @Mock
   private PipelineDiffableSummaryService pipelineDiffableSummaryService;
@@ -47,8 +47,8 @@ public class PwaPipelineHistoryViewServiceTest {
   private static Instant YESTERDAY;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaPipelineHistoryViewService = new PwaPipelineHistoryViewService(pipelineDiffableSummaryService,
         pipelinesSummaryService, pipelineDetailService);
 
@@ -59,7 +59,7 @@ public class PwaPipelineHistoryViewServiceTest {
   }
 
   @Test
-  public void getPipelinesVersionSearchSelectorItems_onlyPipelinesChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
+  void getPipelinesVersionSearchSelectorItems_onlyPipelinesChangedOnSameDayHaveOrderTag_itemsAreOrderedLatestFirst() {
 
     var pipelineDetailCreatedTodayAfternoon = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID3, PIPELINE_ID, TODAY_AFTERNOON);
     var pipelineDetailCreatedTodayMorning = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, TODAY_MORNING);
@@ -90,7 +90,7 @@ public class PwaPipelineHistoryViewServiceTest {
   }
 
   @Test
-  public void getPipelinesVersionSearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestPipelineVersionHasLatestVersionText() {
+  void getPipelinesVersionSearchSelectorItems_consentReferenceDisplayedWhenAvailable_onlyLatestPipelineVersionHasLatestVersionText() {
 
     var pipelineDetailNoConsentRef = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
     var pipelineDetailHasConsentRef = PipelineDetailTestUtil.createPipelineDetail(
@@ -112,7 +112,7 @@ public class PwaPipelineHistoryViewServiceTest {
 
 
   @Test
-  public void getDiffedPipelineSummaryModel_hasPreviousVersion_selectedVersionDiffedAgainstPrevious() {
+  void getDiffedPipelineSummaryModel_hasPreviousVersion_selectedVersionDiffedAgainstPrevious() {
 
     var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
     var pipelineDetailForPreviousVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID2, PIPELINE_ID, YESTERDAY);
@@ -131,7 +131,7 @@ public class PwaPipelineHistoryViewServiceTest {
 
 
   @Test
-  public void getDiffedPipelineSummaryModel_doesNotHavePreviousVersion_selectedVersionDiffedAgainstItself() {
+  void getDiffedPipelineSummaryModel_doesNotHavePreviousVersion_selectedVersionDiffedAgainstItself() {
 
     var pipelineDetailForSelectedVersion = PipelineDetailTestUtil.createPipelineDetail(PIPELINE_DETAIL_ID1, PIPELINE_ID, TODAY_MORNING);
     when(pipelineDetailService.getAllPipelineDetailsForPipeline(PIPELINE_ID)).thenReturn(

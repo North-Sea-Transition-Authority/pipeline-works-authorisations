@@ -10,12 +10,12 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
@@ -27,8 +27,8 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PadPipelineTransferServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PadPipelineTransferServiceTest {
 
   @Mock
   PadPipelineTransferRepository transferRepository;
@@ -48,8 +48,8 @@ public class PadPipelineTransferServiceTest {
   PadPipeline padPipeline;
   PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setup()  {
+  @BeforeEach
+  void setup()  {
     padPipelineTransferService = new PadPipelineTransferService(
         transferRepository,
         padPipelineService,
@@ -69,7 +69,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void transferOut() {
+  void transferOut() {
     padPipelineTransferService.releasePipeline(padPipeline, pwaApplicationDetail);
 
     ArgumentCaptor<PadPipelineTransfer> captor = ArgumentCaptor.forClass(PadPipelineTransfer.class);
@@ -80,7 +80,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void claimPipeline() {
+  void claimPipeline() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false);
@@ -122,7 +122,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void claimPipeline_whenClaimedByRevokedPipelineApplication() {
+  void claimPipeline_whenClaimedByRevokedPipelineApplication() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false);
@@ -166,7 +166,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void claimPipeline_whenClaimedByPipelineApplication() {
+  void claimPipeline_whenClaimedByPipelineApplication() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false);
@@ -197,7 +197,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void claimPipeline_CcusResourceType() {
+  void claimPipeline_CcusResourceType() {
     var form = new PadPipelineTransferClaimForm()
         .setPipelineId(1)
         .setAssignNewPipelineNumber(false)
@@ -241,7 +241,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void findUnclaimedByDonorApplication() {
+  void findUnclaimedByDonorApplication() {
     var pipelineAppDetail = new PwaApplicationDetail();
     var pipelineTransfer = mock(PadPipelineTransfer.class);
 
@@ -253,7 +253,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void findUnclaimedByDonorApplication_whenPipelineTransferClaimedByRevokedApplication() {
+  void findUnclaimedByDonorApplication_whenPipelineTransferClaimedByRevokedApplication() {
     var pipelineAppDetail = new PwaApplicationDetail();
 
     var pipelineTransferWithWithdrawnClaim = mock(PadPipelineTransfer.class);
@@ -279,7 +279,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer_nothingToRemove() {
+  void checkAndRemoveFromTransfer_nothingToRemove() {
     when(transferRepository.findByRecipientPipeline(pipeline)).thenReturn(Optional.empty());
     when(transferRepository.findByDonorPipeline(pipeline)).thenReturn(Optional.empty());
 
@@ -290,7 +290,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer_removeRecipient_donorPresent() {
+  void checkAndRemoveFromTransfer_removeRecipient_donorPresent() {
     var transfer = new PadPipelineTransfer()
         .setDonorPipeline(pipeline)
         .setDonorApplicationDetail(pwaApplicationDetail)
@@ -311,7 +311,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer_removeRecipient_donorNotPresent() {
+  void checkAndRemoveFromTransfer_removeRecipient_donorNotPresent() {
     var transfer = new PadPipelineTransfer()
         .setRecipientPipeline(pipeline)
         .setRecipientApplicationDetail(pwaApplicationDetail);
@@ -324,7 +324,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer_removeDonor_recipientPresent() {
+  void checkAndRemoveFromTransfer_removeDonor_recipientPresent() {
     var transfer = new PadPipelineTransfer()
         .setDonorPipeline(pipeline)
         .setDonorApplicationDetail(pwaApplicationDetail)
@@ -346,7 +346,7 @@ public class PadPipelineTransferServiceTest {
   }
 
   @Test
-  public void checkAndRemoveFromTransfer_removeDonor_recipientNotPresent() {
+  void checkAndRemoveFromTransfer_removeDonor_recipientNotPresent() {
     var transfer = new PadPipelineTransfer()
         .setDonorPipeline(pipeline)
         .setDonorApplicationDetail(pwaApplicationDetail);

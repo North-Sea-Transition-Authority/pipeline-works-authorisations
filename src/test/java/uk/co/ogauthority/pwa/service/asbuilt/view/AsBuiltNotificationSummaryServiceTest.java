@@ -7,11 +7,11 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.summary.controller.ApplicationSummaryController;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -28,8 +28,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AsBuiltNotificationSummaryServiceTest {
+@ExtendWith(MockitoExtension.class)
+class AsBuiltNotificationSummaryServiceTest {
 
   private AsBuiltNotificationSummaryService asBuiltNotificationSummaryService;
 
@@ -45,15 +45,15 @@ public class AsBuiltNotificationSummaryServiceTest {
       .now(), person.getId(), Instant.now());
   private final PortalOrganisationGroup portalOrganisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(50, "Org Group", "OG");
 
-  @Before
-  public void setup() {
+  @BeforeEach
+  void setup() {
     asBuiltNotificationSummaryService = new AsBuiltNotificationSummaryService(pwaHolderService);
 
     when(pwaHolderService.getPwaHolderOrgGroups(applicationDetail.getMasterPwa())).thenReturn(Set.of(portalOrganisationGroup));
   }
 
   @Test
-  public void getAsBuiltNotificationGroupSummaryView_expectedView() {
+  void getAsBuiltNotificationGroupSummaryView_expectedView() {
     var asBuiltSummaryView = asBuiltNotificationSummaryService
         .getAsBuiltNotificationGroupSummaryView(asBuiltNotificationGroupDetail);
 

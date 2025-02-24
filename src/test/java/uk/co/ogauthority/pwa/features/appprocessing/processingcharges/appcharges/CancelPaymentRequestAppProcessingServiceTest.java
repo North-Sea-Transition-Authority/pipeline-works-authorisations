@@ -8,11 +8,11 @@ import static org.mockito.Mockito.when;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
@@ -21,8 +21,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class CancelPaymentRequestAppProcessingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class CancelPaymentRequestAppProcessingServiceTest {
 
   @Mock
   private ApplicationChargeRequestService applicationChargeRequestService;
@@ -35,11 +35,9 @@ public class CancelPaymentRequestAppProcessingServiceTest {
   private PwaApplicationDetail pwaApplicationDetail;
 
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() {
     cancelPaymentRequestAppProcessingService = new CancelPaymentRequestAppProcessingService(applicationChargeRequestService);
-
-    when(applicationChargeRequestService.applicationHasOpenChargeRequest(any())).thenReturn(true);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -62,18 +60,19 @@ public class CancelPaymentRequestAppProcessingServiceTest {
   }
 
   @Test
-  public void taskAccessible_whenOpenPaymentRequestForApplication_andHasCancelPaymentPermission() {
+  void taskAccessible_whenOpenPaymentRequestForApplication_andHasCancelPaymentPermission() {
+    when(applicationChargeRequestService.applicationHasOpenChargeRequest(any())).thenReturn(true);
     assertThat(cancelPaymentRequestAppProcessingService.taskAccessible(processingContext)).isTrue();
   }
 
   @Test
-  public void taskAccessible_whenOpenPaymentRequestForApplication_andHasNoCancelPaymentPermission() {
+  void taskAccessible_whenOpenPaymentRequestForApplication_andHasNoCancelPaymentPermission() {
     processingContext = getContextWithPermissions();
     assertThat(cancelPaymentRequestAppProcessingService.taskAccessible(processingContext)).isFalse();
   }
 
   @Test
-  public void taskAccessible_whenNoOpenPaymentRequestForApplication() {
+  void taskAccessible_whenNoOpenPaymentRequestForApplication() {
     when(applicationChargeRequestService.applicationHasOpenChargeRequest(any())).thenReturn(false);
     assertThat(cancelPaymentRequestAppProcessingService.taskAccessible(processingContext)).isFalse();
 
@@ -81,18 +80,19 @@ public class CancelPaymentRequestAppProcessingServiceTest {
 
 
   @Test
-  public void canShowInTaskList_whenOpenPaymentRequestForApplication_andHasCancelPaymentPermission() {
+  void canShowInTaskList_whenOpenPaymentRequestForApplication_andHasCancelPaymentPermission() {
+    when(applicationChargeRequestService.applicationHasOpenChargeRequest(any())).thenReturn(true);
     assertThat(cancelPaymentRequestAppProcessingService.canShowInTaskList(processingContext)).isTrue();
   }
 
   @Test
-  public void canShowInTaskList_whenOpenPaymentRequestForApplication_andHasNoCancelPaymentPermission() {
+  void canShowInTaskList_whenOpenPaymentRequestForApplication_andHasNoCancelPaymentPermission() {
     processingContext = getContextWithPermissions();
     assertThat(cancelPaymentRequestAppProcessingService.canShowInTaskList(processingContext)).isFalse();
   }
 
   @Test
-  public void canShowInTaskList_whenNoOpenPaymentRequestForApplication() {
+  void canShowInTaskList_whenNoOpenPaymentRequestForApplication() {
     when(applicationChargeRequestService.applicationHasOpenChargeRequest(any())).thenReturn(false);
     assertThat(cancelPaymentRequestAppProcessingService.canShowInTaskList(processingContext)).isFalse();
 

@@ -5,18 +5,18 @@ import static org.mockito.Mockito.when;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
-@RunWith(MockitoJUnitRunner.class)
-public class PdfRenderingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PdfRenderingServiceTest {
 
   @Mock
   private MetricsProvider metricsProvider;
@@ -33,8 +33,8 @@ public class PdfRenderingServiceTest {
   private PdfRenderingService pdfRenderingService;
 
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
 
     pdfRenderingService = new PdfRenderingService(metricsProvider);
 
@@ -46,7 +46,7 @@ public class PdfRenderingServiceTest {
 
 
   @Test
-  public void render_timerMetricStarted_timeRecordedAndLogged() {
+  void render_timerMetricStarted_timeRecordedAndLogged() {
 
     pdfRenderingService.render("data");
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "PDF generated");

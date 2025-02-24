@@ -7,25 +7,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import uk.co.ogauthority.pwa.externalapi.PipelineDto;
 import uk.co.ogauthority.pwa.externalapi.PipelineDtoTestUtil;
 
-@RunWith(Parameterized.class)
 public class PipelineNumberSortingUtilTest {
 
-  private final String firstPipelineNumber;
-  private final String secondPipelineNumber;
+  private String firstPipelineNumber;
+  private String secondPipelineNumber;
 
-  public PipelineNumberSortingUtilTest(String firstPipelineNumber, String secondPipelineNumber) {
+  public void initPipelineNumberSortingUtilTest(String firstPipelineNumber, String secondPipelineNumber) {
     this.firstPipelineNumber = firstPipelineNumber;
     this.secondPipelineNumber = secondPipelineNumber;
   }
 
-  @Test
-  public void compare_comparisonExcludesAnyLetterPrefix_pipelineNumberNumericValuesCompared() {
+  @MethodSource("getPipelinesToCompare")
+  @ParameterizedTest(name = "{0} {1}")
+  public void compare_comparisonExcludesAnyLetterPrefix_pipelineNumberNumericValuesCompared(String firstPipelineNumber, String secondPipelineNumber) {
+    initPipelineNumberSortingUtilTest(firstPipelineNumber, secondPipelineNumber);
     var firstPipelineDto = PipelineDtoTestUtil.builder()
         .withNumber(firstPipelineNumber)
         .build();
@@ -45,7 +45,6 @@ public class PipelineNumberSortingUtilTest {
         );
   }
 
-  @Parameterized.Parameters(name = "{0} {1}")
   public static Collection getPipelinesToCompare() {
     return Arrays.asList(new Object[][] {
         {"PL638   ", "  PLU4353"},

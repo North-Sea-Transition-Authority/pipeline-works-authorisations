@@ -8,13 +8,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
@@ -32,8 +34,9 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AppChargeEmailServiceTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class AppChargeEmailServiceTest {
   private static final String CASE_LINK = "LINK";
 
   @Mock
@@ -66,8 +69,8 @@ public class AppChargeEmailServiceTest {
 
   private PwaApplication pwaApplication;
 
-  @Before
-  public void setUp() throws Exception {
+  @BeforeEach
+  void setUp() throws Exception {
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL)
         .getPwaApplication();
 
@@ -91,7 +94,7 @@ public class AppChargeEmailServiceTest {
   }
 
   @Test
-  public void sendFailedToAssignCaseOfficerEmail_emailsPwaManagers() {
+  void sendFailedToAssignCaseOfficerEmail_emailsPwaManagers() {
 
     when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER))
         .thenReturn(Set.of(pwaManager1, pwaManager2));
@@ -108,17 +111,15 @@ public class AppChargeEmailServiceTest {
           assertThat(caseOfficerAssignmentFailEmailProps.getApplicationReference()).isEqualTo(
               pwaApplication.getAppReference());
         })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
-        })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
-        });
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(pwaManager1.getFullName()))
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(pwaManager2.getFullName()));
 
   }
 
   @Test
-  public void sendChargeRequestIssuedEmail_emailsAppContacts() {
+  void sendChargeRequestIssuedEmail_emailsAppContacts() {
 
     appChargeEmailService.sendChargeRequestIssuedEmail(pwaApplication);
 
@@ -132,16 +133,14 @@ public class AppChargeEmailServiceTest {
           assertThat(chargeRequestIssuedEmailProps.getApplicationReference()).isEqualTo(
               pwaApplication.getAppReference());
         })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact1Person.getFullName());
-        })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact2Person.getFullName());
-        });
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact1Person.getFullName()))
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact2Person.getFullName()));
   }
 
   @Test
-  public void sendChargeRequestCancelledEmail_emailsAppContacts() {
+  void sendChargeRequestCancelledEmail_emailsAppContacts() {
     appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplication);
 
     verify(notifyService, times(1)).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
@@ -149,16 +148,13 @@ public class AppChargeEmailServiceTest {
 
     assertThat(requestCancelledEmailPropsCaptor.getAllValues())
         .hasSize(2)
-        .allSatisfy(chargeRequestCancelledEmailProps -> {
+        .allSatisfy(chargeRequestCancelledEmailProps ->
           assertThat(chargeRequestCancelledEmailProps.getApplicationReference()).isEqualTo(
-              pwaApplication.getAppReference());
-        })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact1Person.getFullName());
-        })
-        .anySatisfy(caseOfficerAssignmentFailEmailProps -> {
-          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact2Person.getFullName());
-        });
+              pwaApplication.getAppReference()))
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact1Person.getFullName()))
+        .anySatisfy(caseOfficerAssignmentFailEmailProps ->
+          assertThat(caseOfficerAssignmentFailEmailProps.getRecipientFullName()).isEqualTo(appContact2Person.getFullName()));
 
   }
 }

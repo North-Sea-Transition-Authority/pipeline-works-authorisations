@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.HashMap;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -18,8 +18,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 /**
  * This is testing the same class as {@link PermanentDepositEntityMappingServiceTest}?.
  */
-@RunWith(MockitoJUnitRunner.class)
-public class PermanentDepositViewMappingServiceTest {
+@ExtendWith(MockitoExtension.class)
+class PermanentDepositViewMappingServiceTest {
 
   private static final int ID = 100;
   private static final String REFERENCE = "TEST";
@@ -38,8 +38,8 @@ public class PermanentDepositViewMappingServiceTest {
 
   private PwaApplicationDetail pwaApplicationDetail;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     permanentDepositEntityMappingService = new PermanentDepositEntityMappingService();
   }
@@ -117,7 +117,7 @@ public class PermanentDepositViewMappingServiceTest {
   }
 
   @Test
-  public void createPermanentDepositOverview_materialTypeConcrete() {
+  void createPermanentDepositOverview_materialTypeConcrete() {
     PadPermanentDeposit entity = getConcreteDeposit(20, "TEST");
 
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
@@ -132,7 +132,7 @@ public class PermanentDepositViewMappingServiceTest {
   }
 
   @Test
-  public void createPermanentDepositOverview_materialTypeRocks() {
+  void createPermanentDepositOverview_materialTypeRocks() {
     PadPermanentDeposit entity = getRockDeposit(30, "TEST1");
 
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
@@ -146,7 +146,7 @@ public class PermanentDepositViewMappingServiceTest {
   }
 
   @Test
-  public void createPermanentDepositOverview_materialTypeGroutBags_withNonBioBags() {
+  void createPermanentDepositOverview_materialTypeGroutBags_withNonBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", "some reason");
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
 
@@ -161,7 +161,7 @@ public class PermanentDepositViewMappingServiceTest {
   }
 
   @Test
-  public void createPermanentDepositOverview_materialTypeGroutBags_withBioBags() {
+  void createPermanentDepositOverview_materialTypeGroutBags_withBioBags() {
     PadPermanentDeposit entity = getGroutBagDeposit(40, "TEST2", null);
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
 
@@ -176,7 +176,7 @@ public class PermanentDepositViewMappingServiceTest {
   }
 
   @Test
-  public void createPermanentDepositOverview_materialTypeOther() {
+  void createPermanentDepositOverview_materialTypeOther() {
     PadPermanentDeposit entity = getOtherTypeDeposit(50, "TEST3", "SOME_TYPE");
     var actualView = permanentDepositEntityMappingService.createPermanentDepositOverview(entity, new HashMap<>());
     assertThat(actualView.getEntityID()).isEqualTo(50);

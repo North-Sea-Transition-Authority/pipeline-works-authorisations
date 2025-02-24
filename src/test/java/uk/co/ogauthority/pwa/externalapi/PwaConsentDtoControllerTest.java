@@ -19,25 +19,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(controllers = PwaConsentDtoController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 @Import(ExternalApiWebSecurityConfiguration.class)
-public class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
+class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
   private static final Class<PwaConsentDtoController> CONTROLLER = PwaConsentDtoController.class;
   private static final String PRE_SHARED_KEY = "testKey1";
@@ -46,34 +43,34 @@ public class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractCo
   @MockBean
   private PwaConsentDtoRepository pwaConsentDtoRepository;
 
-  @Before
-  public void setUp() {
+  @BeforeEach
+  void setUp() {
     MAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
   }
 
   @Test
-  public void searchPwaConsents_noBearerToken_assertForbidden() throws Exception {
+  void searchPwaConsents_noBearerToken_assertForbidden() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER).searchPwaConsents(List.of(1)))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
   }
 
   @Test
-  public void searchPwaConsents_withNoPwaIds_assertBadRequest() throws Exception {
+  void searchPwaConsents_withNoPwaIds_assertBadRequest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER).searchPwaConsents(null)))
         .header("Authorization", "Bearer " + PRE_SHARED_KEY)
     ).andExpect(status().isBadRequest());
   }
 
   @Test
-  public void searchPwaConsents_withEmptyPwaIds_assertBadRequest() throws Exception {
+  void searchPwaConsents_withEmptyPwaIds_assertBadRequest() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER).searchPwaConsents(Collections.emptyList())))
         .header("Authorization", "Bearer " + PRE_SHARED_KEY)
     ).andExpect(status().isBadRequest());
   }
 
   @Test
-  public void searchPwaConsents() throws Exception {
+  void searchPwaConsents() throws Exception {
     var currentTime = Instant.now();
     var pwaIds = List.of(1);
 
@@ -100,7 +97,7 @@ public class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void searchPwaConsents_assertSort() throws Exception {
+  void searchPwaConsents_assertSort() throws Exception {
     var currentTime = Instant.now();
     var pwaIds = List.of(1, 2);
 
@@ -141,7 +138,7 @@ public class PwaConsentDtoControllerTest extends PwaApplicationContextAbstractCo
   }
 
   @Test
-  public void searchPwaConsents_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
+  void searchPwaConsents_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER).searchPwaConsents(null)))
             .header("Authorization", "Bearer " + PRE_SHARED_KEY)
