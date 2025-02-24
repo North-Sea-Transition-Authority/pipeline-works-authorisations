@@ -80,7 +80,7 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        Set.of(PwaUserPrivilege.PWA_REGULATOR));
+        Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_REGULATOR));
 
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);

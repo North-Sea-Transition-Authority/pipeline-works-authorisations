@@ -9,8 +9,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,11 +24,16 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
@@ -52,6 +59,12 @@ class TeamManagementServiceTest {
   @Mock
   private UserApi userApi;
 
+  @Mock
+  private EnergyPortalAccessService energyPortalAccessService;
+
+  @Mock
+  private EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+
   @InjectMocks
   private TeamManagementService teamManagementService;
 
@@ -59,6 +72,12 @@ class TeamManagementServiceTest {
   private ArgumentCaptor<Team> teamArgumentCaptor;
   @Captor
   private ArgumentCaptor<List<TeamRole>> teamRoleListCaptor;
+  @Captor
+  private ArgumentCaptor<ResourceType> resourceTypeArgumentCaptor;
+  @Captor
+  private ArgumentCaptor<TargetWebUserAccountId> targetWebUserAccountIdArgumentCaptor;
+  @Captor
+  private ArgumentCaptor<InstigatingWebUserAccountId> instigatingWebUserAccountIdArgumentCaptor;
 
   private static Team regTeam;
   private static Team orgTeam1;
@@ -346,7 +365,7 @@ class TeamManagementServiceTest {
   }
 
   @Test
-  void setUserTeamRoles() {
+  void setUserTeamRoles_existingUser() {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
@@ -354,11 +373,14 @@ class TeamManagementServiceTest {
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
+    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(List.of(new TeamRole()));
 
-    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER));
+    long instigatingUser = 2;
+    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser);
 
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
     verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verifyNoInteractions(energyPortalAccessService);
 
     assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
         .contains(regTeam, regTeam);
@@ -369,6 +391,41 @@ class TeamManagementServiceTest {
   }
 
   @Test
+  void setUserTeamRoles_newUser() {
+    var expectedProjection = new UserProjectionRoot()
+        .isAccountShared()
+        .canLogin();
+    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+        .thenReturn(Optional.of(user1));
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
+    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(Collections.emptyList());
+    var resourceTypeName = "REMI_ACCESS_TEAM";
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
+
+    long instigatingUser = 2;
+    teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser);
+
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user1WuaId, regTeam);
+    verify(teamRoleRepository).saveAll(teamRoleListCaptor.capture());
+    verify(energyPortalAccessService).addUserToAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+    );
+
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getTeam)
+        .contains(regTeam, regTeam);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getWuaId)
+        .contains(user1WuaId, user1WuaId);
+    assertThat(teamRoleListCaptor.getValue()).extracting(TeamRole::getRole)
+        .contains(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER);
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
+    assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser);
+  }
+
+  @Test
   void setUserTeamRoles_noTeamManagerLeft() {
     when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
@@ -376,14 +433,16 @@ class TeamManagementServiceTest {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
 
+    long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.ORGANISATION_MANAGER)));
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.ORGANISATION_MANAGER), instigatingUser));
   }
 
   @Test
   void setUserTeamRoles_invalidRoles() {
+    long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.APPLICATION_CREATOR)));
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.APPLICATION_CREATOR), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
@@ -394,8 +453,9 @@ class TeamManagementServiceTest {
     when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
+    long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)));
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
@@ -409,8 +469,9 @@ class TeamManagementServiceTest {
     when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
+    long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)));
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
@@ -424,20 +485,44 @@ class TeamManagementServiceTest {
     when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
+    long instigatingUser = 2;
     assertThatExceptionOfType(TeamManagementException.class)
-        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)));
+        .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
 
     verify(teamRoleRepository, never()).deleteByWuaIdAndTeam(any(), any());
     verify(teamRoleRepository, never()).saveAll(any());
   }
 
   @Test
-  void removeUserFromTeam() {
+  void removeUserFromTeam_inNoMoreTeams() {
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
+    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(Collections.emptyList());
+    var resourceTypeName = "PWA_ACCESS";
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(resourceTypeName);
 
     teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
     verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    verify(energyPortalAccessService).removeUserFromAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+    );
+
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user2WuaId);
+  }
+
+  @Test
+  void removeUserFromTeam_stillInTeams() {
+    when(teamRoleRepository.findByTeam(regTeam))
+        .thenReturn(List.of(regTeamUser1RoleManage));
+    var teamRole = new TeamRole();
+    when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(List.of(teamRole));
+
+    teamManagementService.removeUserFromTeam(user2WuaId, regTeam);
+    verify(teamRoleRepository).deleteByWuaIdAndTeam(user2WuaId, regTeam);
+    verifyNoInteractions(energyPortalAccessService);
   }
 
   @Test

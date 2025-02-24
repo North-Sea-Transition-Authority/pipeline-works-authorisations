@@ -15,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -42,7 +43,7 @@ class OrganisationGroupRestControllerTest extends PwaApplicationContextAbstractC
   @BeforeEach
   void setup() {
     authenticatedUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()),
-        List.of());
+        List.of(PwaUserPrivilege.PWA_ACCESS));
   }
 
 

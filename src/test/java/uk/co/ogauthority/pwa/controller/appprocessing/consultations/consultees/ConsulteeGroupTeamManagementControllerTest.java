@@ -30,6 +30,7 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
@@ -62,7 +63,7 @@ class ConsulteeGroupTeamManagementControllerTest extends AbstractControllerTest 
   private OldTeamManagementService teamManagementService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person(1, null, null, null, null)), List.of());
+      new WebUserAccount(1, new Person(1, null, null, null, null)), List.of(PwaUserPrivilege.PWA_ACCESS));
 
   private ConsulteeGroupDetail emtGroupDetail;
   private ConsulteeGroupDetail oduGroupDetail;

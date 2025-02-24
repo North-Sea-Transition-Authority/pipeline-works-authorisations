@@ -19,6 +19,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
@@ -59,7 +60,7 @@ class CrossingAgreementsControllerTest extends PwaApplicationContextAbstractCont
         pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var wua = new WebUserAccount(1);
-    user = new AuthenticatedUserAccount(wua, Set.of());
+    user = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     // support application context service
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));

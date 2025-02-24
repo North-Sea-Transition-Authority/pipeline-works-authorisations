@@ -81,7 +81,7 @@ class ApplicantOrganisationControllerTest extends AbstractControllerTest {
   private PwaHolderTeamService pwaHolderTeamService;
 
   private final AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
-      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+      Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_APPLICATION_CREATE));
 
   private MasterPwa masterPwa;
 

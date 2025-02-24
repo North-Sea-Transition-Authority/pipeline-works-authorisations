@@ -220,6 +220,7 @@ public class TeamManagementController {
   public ModelAndView updateUserTeamRoles(@PathVariable UUID teamId,
                                           @PathVariable Long wuaId,
                                           @ModelAttribute("form") MemberRolesForm form,
+                                          AuthenticatedUserAccount authenticatedUserAccount,
                                           BindingResult bindingResult) {
     var team = getTeamOrThrow(teamId);
 
@@ -231,7 +232,7 @@ public class TeamManagementController {
         .map(Role::valueOf)
         .toList();
 
-    teamManagementService.setUserTeamRoles(wuaId, team, roles);
+    teamManagementService.setUserTeamRoles(wuaId, team, roles, (long) authenticatedUserAccount.getWuaId());
     return ReverseRouter.redirect(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null));
   }
 

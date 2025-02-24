@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlockService;
@@ -38,7 +39,7 @@ class PearsRestControllerTest extends PwaApplicationContextAbstractControllerTes
   @BeforeEach
   void setUp() {
     when(pearsBlockService.findOffshorePickablePearsBlocks(any(), any())).thenReturn(List.of());
-    user = new AuthenticatedUserAccount(new WebUserAccount(), Set.of());
+    user = new AuthenticatedUserAccount(new WebUserAccount(), Set.of(PwaUserPrivilege.PWA_ACCESS));
   }
 
   @Test

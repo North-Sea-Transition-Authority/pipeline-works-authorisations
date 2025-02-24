@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -68,7 +69,7 @@ class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractCon
   @BeforeEach
   void setUp() {
     webUserAccount = new WebUserAccount(1);
-    user = new AuthenticatedUserAccount(webUserAccount, Set.of());
+    user = new AuthenticatedUserAccount(webUserAccount, Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplication = new PwaApplication();
     pwaApplication.setApplicationType(PwaApplicationType.INITIAL);

@@ -5,6 +5,7 @@ import java.util.List;
 public enum PwaUserPrivilege {
 
   // GENERIC
+  PWA_ACCESS,
   PWA_WORKAREA,
   PWA_APPLICATION_SEARCH,
   PWA_ASBUILT_WORKAREA,

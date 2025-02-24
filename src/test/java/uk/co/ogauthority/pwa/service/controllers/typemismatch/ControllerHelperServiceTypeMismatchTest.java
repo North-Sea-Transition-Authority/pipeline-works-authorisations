@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.SamlProperties;
@@ -37,6 +40,7 @@ import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
@@ -55,7 +59,7 @@ import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
     WebSecurityConfig.class,
     SamlProperties.class,
 })
-@EnableConfigurationProperties(ExternalApiConfiguration.class)
+@EnableConfigurationProperties({ExternalApiConfiguration.class, EnergyPortalAccessApiConfiguration.class})
 @ActiveProfiles("test")
 @WebMvcTest(
     controllers = ControllerHelperServiceTypeMismatchController.class,
@@ -112,6 +116,8 @@ class ControllerHelperServiceTypeMismatchTest {
   @MockBean
   private TeamQueryService teamQueryService;
 
+  private final AuthenticatedUserAccount testUser = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
+
   @BeforeEach
   void setUp() {
 
@@ -128,6 +134,7 @@ class ControllerHelperServiceTypeMismatchTest {
     @SuppressWarnings("unchecked")
     var errorList = (List<ErrorItem>) Objects.requireNonNull(mockMvc.perform(
         post(ReverseRouter.route(on(ControllerHelperServiceTypeMismatchController.class).post(null, null)))
+            .with(user(testUser))
             .with(csrf())
             .param("integerField", "invalidInt")
             .param("bigDecimalField", "invalidDec")
@@ -151,6 +158,7 @@ class ControllerHelperServiceTypeMismatchTest {
 
     var errorList = Objects.requireNonNull(mockMvc.perform(
         post(ReverseRouter.route(on(ControllerHelperServiceTypeMismatchController.class).post(null, null)))
+            .with(user(testUser))
             .with(csrf())
             .param("integerField", "7")
             .param("bigDecimalField", "7.77")

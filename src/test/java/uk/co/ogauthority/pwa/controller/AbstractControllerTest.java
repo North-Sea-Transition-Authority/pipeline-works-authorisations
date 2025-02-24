@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.hibernate.HibernateQueryCounter;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.ogauthority.pwa.mvc.RequestLogFilter;
 import uk.co.ogauthority.pwa.mvc.error.ErrorService;
@@ -55,6 +56,7 @@ import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterc
     AnalyticsProperties.class,
     AnalyticsConfig.class,
     SamlProperties.class,
+    EnergyPortalAccessApiConfiguration.class,
 })
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,

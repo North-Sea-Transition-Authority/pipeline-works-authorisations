@@ -72,7 +72,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_WORKAREA));
 
   private WorkAreaContext pwaManagerWorkAreaContext = WorkAreaContextTestUtil.createPwaManagerContext(pwaManagerUser);
 

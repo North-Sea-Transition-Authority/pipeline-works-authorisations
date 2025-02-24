@@ -25,6 +25,7 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.ogauthority.pwa.mvc.RequestLogFilter;
 
@@ -50,6 +51,7 @@ public class WebSecurityConfig {
   private final LogoutSuccessHandler serviceLogoutSuccessHandler;
   private final RequestLogFilter requestLogFilter;
   private final PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter;
+  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
   public WebSecurityConfig(SystemAreaAccessService systemAreaAccessService,
@@ -57,7 +59,8 @@ public class WebSecurityConfig {
                            SamlResponseParser samlResponseParser,
                            LogoutSuccessHandler serviceLogoutSuccessHandler,
                            RequestLogFilter requestLogFilter,
-                           PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter
+                           PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter,
+                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration
   ) {
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
     this.systemAreaAccessService = systemAreaAccessService;
@@ -65,6 +68,7 @@ public class WebSecurityConfig {
     this.samlResponseParser = samlResponseParser;
     this.requestLogFilter = requestLogFilter;
     this.postAuthenticationRequestMdcFilter = postAuthenticationRequestMdcFilter;
+    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
   }
 
   @Bean
@@ -102,8 +106,7 @@ public class WebSecurityConfig {
 
             .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
 
-            .anyRequest()
-            .authenticated()
+            .anyRequest().hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
 
         )
         .csrf(csrf -> csrf

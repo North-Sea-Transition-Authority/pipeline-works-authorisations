@@ -46,7 +46,7 @@ class TermsAndConditionsManagementControllerTest  extends AbstractControllerTest
   void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
 
     userAccountNoAuth = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()), Set.of());

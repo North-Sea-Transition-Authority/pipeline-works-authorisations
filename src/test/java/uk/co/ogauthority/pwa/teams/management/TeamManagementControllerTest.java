@@ -21,15 +21,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.runner.RunWith;
+import java.util.stream.Stream;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
@@ -49,7 +46,7 @@ import uk.co.ogauthority.pwa.teams.management.view.TeamView;
 @SuppressWarnings({"unchecked", "DataFlowIssue"})
 @WebMvcTest(TeamManagementController.class)
 @Import(PwaMvcTestConfiguration.class)
-class TeamManagementControllerTest extends AbstractControllerTest {
+public class TeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
   private MemberRolesFormValidator memberRolesFormValidator;
@@ -65,8 +62,8 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   private static TeamMemberView regTeamMemberView;
   private static AuthenticatedUserAccount invokingUser;
 
-  @BeforeAll
-  static void setUp() {
+  @BeforeClass
+  public static void setUp() {
     regTeam = new Team(UUID.randomUUID());
     regTeam.setTeamType(TeamType.REGULATOR);
     regTeam.setName("reg team one");
@@ -90,7 +87,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamTypeList() throws Exception {
+  public void renderTeamTypeList() throws Exception {
     when(teamManagementService.getTeamTypesUserIsMemberOf(invokingUser.getWuaId()))
         .thenReturn(Set.of(TeamType.ORGANISATION, TeamType.REGULATOR));
 
@@ -107,7 +104,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamTypeList_singeTypeRedirects() throws Exception {
+  public void renderTeamTypeList_singeTypeRedirects() throws Exception {
     when(teamManagementService.getTeamTypesUserIsMemberOf(invokingUser.getWuaId()))
         .thenReturn(Set.of(TeamType.ORGANISATION));
 
@@ -118,7 +115,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamTypeList_regWithOrgManageCanSeeOrgTeams() throws Exception {
+  public void renderTeamTypeList_regWithOrgManageCanSeeOrgTeams() throws Exception {
     when(teamManagementService.getTeamTypesUserIsMemberOf(invokingUser.getWuaId()))
         .thenReturn(Set.of(TeamType.REGULATOR));
 
@@ -138,7 +135,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamTypeList_noManageableTeams() throws Exception {
+  public void renderTeamTypeList_noManageableTeams() throws Exception {
     when(teamManagementService.getTeamTypesUserIsMemberOf(invokingUser.getWuaId()))
         .thenReturn(Set.of());
 
@@ -148,7 +145,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamsOfType_staticTeamRedirectsToSingleInstance() throws Exception {
+  public void renderTeamsOfType_staticTeamRedirectsToSingleInstance() throws Exception {
     when(teamManagementService.getStaticTeamOfTypeUserIsMemberOf(TeamType.REGULATOR, (long) invokingUser.getWuaId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -159,7 +156,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamsOfType_singleScopedTeamRedirectsToInstance() throws Exception {
+  public void renderTeamsOfType_singleScopedTeamRedirectsToInstance() throws Exception {
     when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(TeamType.ORGANISATION, (long) invokingUser.getWuaId()))
         .thenReturn(Set.of(organisationTeam));
 
@@ -170,7 +167,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamsOfType_scopedTeamReturnList() throws Exception {
+  public void renderTeamsOfType_scopedTeamReturnList() throws Exception {
 
     var firstOrganisationTeamByName = new Team(UUID.randomUUID());
     firstOrganisationTeamByName.setTeamType(TeamType.ORGANISATION);
@@ -205,7 +202,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamsOfType_noManageableTeams() throws Exception {
+  public void renderTeamsOfType_noManageableTeams() throws Exception {
     when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(TeamType.ORGANISATION, (long) invokingUser.getWuaId()))
         .thenReturn(Set.of());
 
@@ -215,7 +212,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamsOfType_noManageableTeams_orgAdminNotForbidden() throws Exception {
+  public void renderTeamsOfType_noManageableTeams_orgAdminNotForbidden() throws Exception {
     when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(TeamType.ORGANISATION, (long) invokingUser.getWuaId()))
         .thenReturn(Set.of());
 
@@ -236,7 +233,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
 
 
   @Test
-  void renderTeamMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
+  public void renderTeamMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
 
     var team = regTeam;
 
@@ -252,7 +249,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_whenMemberOfTeam_thenOk() throws Exception {
+  public void renderTeamMemberList_whenMemberOfTeam_thenOk() throws Exception {
 
     var team = regTeam;
 
@@ -268,7 +265,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_whenOrganisationTeam_andNotMemberOfTeam_andUserHasManageAnyOrganisationRole_thenOk() throws Exception {
+  public void renderTeamMemberList_whenOrganisationTeam_andNotMemberOfTeam_andUserHasManageAnyOrganisationRole_thenOk() throws Exception {
 
     // GIVEN an organisation team
     var team = organisationTeam;
@@ -291,7 +288,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_whenOrganisationTeam_andNotMemberOfTeam_andUserWithoutManageAnyOrganisationRole_thenForbidden() throws Exception {
+  public void renderTeamMemberList_whenOrganisationTeam_andNotMemberOfTeam_andUserWithoutManageAnyOrganisationRole_thenForbidden() throws Exception {
 
     // GIVEN an organisation team
     var team = organisationTeam;
@@ -313,33 +310,40 @@ class TeamManagementControllerTest extends AbstractControllerTest {
         .andExpect(status().isForbidden());
   }
 
-  @ParameterizedTest
-  @EnumSource(value = TeamType.class, mode = EnumSource.Mode.EXCLUDE, names = "ORGANISATION")
-  void renderTeamMemberList_whenNotOrganisationTeam_andNotMemberOfTeam_andCanManageAnyOrganisationRole_thenForbidden(TeamType nonOrganisationTeamType) throws Exception {
+  @Test
+  public void renderTeamMemberList_whenNotOrganisationTeam_andNotMemberOfTeam_andCanManageAnyOrganisationRole_thenForbidden() {
 
-    // GIVEN an non-organisation team
-    var team = new Team(UUID.randomUUID());
-    team.setTeamType(nonOrganisationTeamType);
+    Stream.of(TeamType.values())
+        .filter(teamType -> teamType != TeamType.ORGANISATION)
+        .forEach(nonOrganisationTeamType -> {
+          // GIVEN an non-organisation team
+          var team = new Team(UUID.randomUUID());
+          team.setTeamType(nonOrganisationTeamType);
 
-    when(teamManagementService.getTeam(team.getId()))
-        .thenReturn(Optional.of(team));
+          when(teamManagementService.getTeam(team.getId()))
+              .thenReturn(Optional.of(team));
 
-    // AND the invoking user is not a direct member
-    when(teamManagementService.isMemberOfTeam(team, invokingUser.getWuaId()))
-        .thenReturn(false);
+          // AND the invoking user is not a direct member
+          when(teamManagementService.isMemberOfTeam(team, invokingUser.getWuaId()))
+              .thenReturn(false);
 
-    // WHEN the invoking user has the CREATE_MANAGE_ANY_ORGANISATION_TEAM in the regulator team
-    when(teamManagementService.userCanManageAnyOrganisationTeam(invokingUser.getWuaId()))
-        .thenReturn(true);
+          // WHEN the invoking user has the CREATE_MANAGE_ANY_ORGANISATION_TEAM in the regulator team
+          when(teamManagementService.userCanManageAnyOrganisationTeam(invokingUser.getWuaId()))
+              .thenReturn(true);
 
-    // THEN the invoking user will not be able to view the team
-    mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null)))
-        .with(user(invokingUser)))
-        .andExpect(status().isForbidden());
+          // THEN the invoking user will not be able to view the team
+          try {
+            mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null)))
+                    .with(user(invokingUser)))
+                .andExpect(status().isForbidden());
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        });
   }
 
   @Test
-  void renderTeamMemberList_whenIsMemberOfTeamAndTeamManager_thenAssetModelProperties() throws Exception {
+  public void renderTeamMemberList_whenIsMemberOfTeamAndTeamManager_thenAssetModelProperties() throws Exception {
 
     when(teamManagementService.canManageTeam(regTeam, invokingUser.getWuaId()))
         .thenReturn(true);
@@ -368,7 +372,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_whenIsMemberOfTeamAndNotTeamManager_thenAssetModelProperties() throws Exception {
+  public void renderTeamMemberList_whenIsMemberOfTeamAndNotTeamManager_thenAssetModelProperties() throws Exception {
 
     when(teamManagementService.canManageTeam(regTeam, invokingUser.getWuaId()))
         .thenReturn(false);
@@ -396,7 +400,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_noTeamFound() throws Exception {
+  public void renderTeamMemberList_noTeamFound() throws Exception {
     var nonExistentTeamId = UUID.randomUUID();
     when(teamManagementService.getTeam(nonExistentTeamId))
         .thenReturn(Optional.empty());
@@ -407,7 +411,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderTeamMemberList_noAccess() throws Exception {
+  public void renderTeamMemberList_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -420,7 +424,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderAddMemberToTeam() throws Exception {
+  public void renderAddMemberToTeam() throws Exception {
     when(teamManagementService.getTeam(organisationTeam.getId()))
         .thenReturn(Optional.of(organisationTeam));
 
@@ -442,7 +446,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderAddMemberToTeam_noTeamFound() throws Exception {
+  public void renderAddMemberToTeam_noTeamFound() throws Exception {
     var nonExistentTeamId = UUID.randomUUID();
     when(teamManagementService.getTeam(nonExistentTeamId))
         .thenReturn(Optional.empty());
@@ -453,7 +457,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderAddMemberToTeam_noAccess() throws Exception {
+  public void renderAddMemberToTeam_noAccess() throws Exception {
     when(teamManagementService.getTeam(organisationTeam.getId()))
         .thenReturn(Optional.of(organisationTeam));
 
@@ -469,7 +473,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleAddMemberToTeam() throws Exception {
+  public void handleAddMemberToTeam() throws Exception {
     var epaUser = new User.Builder()
         .webUserAccountId(999)
         .isAccountShared(false)
@@ -497,7 +501,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleAddMemberToTeam_invalidForm() throws Exception {
+  public void handleAddMemberToTeam_invalidForm() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -517,7 +521,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleAddMemberToTeam_invalidUser() throws Exception {
+  public void handleAddMemberToTeam_invalidUser() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -538,7 +542,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleAddMemberToTeam_noAccess() throws Exception {
+  public void handleAddMemberToTeam_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -553,7 +557,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderUserTeamRoles() throws Exception {
+  public void renderUserTeamRoles() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -601,7 +605,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderUserTeamRoles_noAccess() throws Exception {
+  public void renderUserTeamRoles_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -615,7 +619,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void updateUserTeamRoles() throws Exception {
+  public void updateUserTeamRoles() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -625,18 +629,18 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     when(memberRolesFormValidator.isValid(any(), eq(999L), eq(regTeam), any()))
         .thenReturn(true);
 
-    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, invokingUser, null)))
         .with(csrf())
         .with(user(invokingUser))
         .param("roles", "TEAM_ADMINISTRATOR"))
         .andExpect(status().is3xxRedirection())
         .andExpect(redirectedUrl(ReverseRouter.route(on(TeamManagementController.class).renderTeamMemberList(regTeam.getId(), null))));
 
-    verify(teamManagementService).setUserTeamRoles(999L, regTeam, List.of(Role.TEAM_ADMINISTRATOR));
+    verify(teamManagementService).setUserTeamRoles(999L, regTeam, List.of(Role.TEAM_ADMINISTRATOR), (long) invokingUser.getWuaId());
   }
 
   @Test
-  void updateUserTeamRoles_invalidForm() throws Exception {
+  public void updateUserTeamRoles_invalidForm() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -649,34 +653,34 @@ class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getTeamMemberView(regTeam, 999L))
         .thenReturn(regTeamMemberView);
 
-    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, invokingUser, null)))
         .with(csrf())
         .with(user(invokingUser))
         .param("roles", "MANAGE_TEAM"))
         .andExpect(status().isOk()); // No redirect to next page
 
-    verify(teamManagementService, never()).setUserTeamRoles(any(), any(), any());
+    verify(teamManagementService, never()).setUserTeamRoles(any(), any(), any(), any());
   }
 
   @Test
-  void updateUserTeamRoles_noAccess() throws Exception {
+  public void updateUserTeamRoles_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
     when(teamManagementService.getStaticTeamOfTypeUserCanManage(regTeam.getTeamType(), (long) invokingUser.getWuaId()))
         .thenReturn(Optional.empty());
 
-    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, null)))
+    mockMvc.perform(post(ReverseRouter.route(on(TeamManagementController.class).updateUserTeamRoles(regTeam.getId(), 999L, null, invokingUser, null)))
         .with(csrf())
         .with(user(invokingUser))
         .param("roles", "MANAGE_TEAM"))
         .andExpect(status().isForbidden());
 
-    verify(teamManagementService, never()).setUserTeamRoles(any(), any(), any());
+    verify(teamManagementService, never()).setUserTeamRoles(any(), any(), any(), any());
   }
 
   @Test
-  void renderRemoveTeamMember() throws Exception {
+  public void renderRemoveTeamMember() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -704,7 +708,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void renderRemoveTeamMember_noAccess() throws Exception {
+  public void renderRemoveTeamMember_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -717,7 +721,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleRemoveTeamMember() throws Exception {
+  public void handleRemoveTeamMember() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 
@@ -734,7 +738,7 @@ class TeamManagementControllerTest extends AbstractControllerTest {
   }
 
   @Test
-  void handleRemoveTeamMember_noAccess() throws Exception {
+  public void handleRemoveTeamMember_noAccess() throws Exception {
     when(teamManagementService.getTeam(regTeam.getId()))
         .thenReturn(Optional.of(regTeam));
 

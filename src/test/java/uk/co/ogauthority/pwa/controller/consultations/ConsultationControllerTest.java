@@ -22,6 +22,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextService;
@@ -76,7 +77,7 @@ class ConsultationControllerTest extends PwaAppProcessingContextAbstractControll
         .setAllowedStatuses(PwaApplicationStatus.CASE_OFFICER_REVIEW)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.WITHDRAW_CONSULTATION);
 
-    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of());
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);

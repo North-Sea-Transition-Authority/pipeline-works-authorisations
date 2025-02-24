@@ -66,7 +66,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.of(10), null, null)))
                 .with(user(UNAUTHENTICATED_USER))
         )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -75,7 +75,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
         get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
         .with(user(UNAUTHENTICATED_USER))
     )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -84,7 +84,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
             get(ReverseRouter.route(on(FeedbackController.class).getFeedback(Optional.empty(), null, null)))
                 .with(user(UNAUTHENTICATED_USER))
         )
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -138,7 +138,7 @@ class FeedbackControllerTest extends AbstractControllerTest {
                 .with(user(UNAUTHENTICATED_USER))
                 .with(csrf())
         )
-        .andExpect(status().is3xxRedirection());
+        .andExpect(status().isForbidden());
   }
 
 }

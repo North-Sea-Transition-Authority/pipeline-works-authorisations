@@ -25,7 +25,7 @@ class AccessibilityStatementControllerTest extends AbstractControllerTest {
 
   private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_WORKAREA));
 
   private static final AuthenticatedUserAccount unAuthenticatedUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
@@ -42,7 +42,7 @@ class AccessibilityStatementControllerTest extends AbstractControllerTest {
   void getAccessibilityStatement_whenUnauthenticated_thenAccess() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(AccessibilityStatementController.class).getAccessibilityStatement(null)))
         .with(user(unAuthenticatedUser)))
-        .andExpect(status().isOk());
+        .andExpect(status().isForbidden());
   }
 
 }

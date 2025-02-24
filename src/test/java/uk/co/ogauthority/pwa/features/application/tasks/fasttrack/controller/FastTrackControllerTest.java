@@ -28,6 +28,7 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -69,7 +70,7 @@ class FastTrackControllerTest extends PwaApplicationContextAbstractControllerTes
     pwaApplication = pwaApplicationDetail.getPwaApplication();
 
     var wua = new WebUserAccount(1);
-    user = new AuthenticatedUserAccount(wua, Set.of());
+    user = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_ACCESS));
     padProjectInformation = new PadProjectInformation();
     padProjectInformation.setProposedStartTimestamp(Instant.now().plus(Period.ofDays(1)));
 

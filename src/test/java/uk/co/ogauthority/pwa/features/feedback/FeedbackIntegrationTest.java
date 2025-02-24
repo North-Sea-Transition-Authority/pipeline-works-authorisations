@@ -105,7 +105,7 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
   void setUp() {
     person = PersonTestUtil.createDefaultPerson();
     var systemWua = new WebUserAccount(1, person);
-    user = new AuthenticatedUserAccount(systemWua, Set.of(PwaUserPrivilege.PWA_REGULATOR));
+    user = new AuthenticatedUserAccount(systemWua, Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_REGULATOR));
 
     responseWhenAuthorized = new MockResponse()
         .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)

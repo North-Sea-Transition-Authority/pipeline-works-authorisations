@@ -27,6 +27,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -71,7 +72,7 @@ class PadPwaAreaControllerTest extends PwaApplicationContextAbstractControllerTe
   @BeforeEach
   void setUp() {
 
-    user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
         PwaApplicationType.INITIAL, APP_ID, APP_DETAIL_ID

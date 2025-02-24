@@ -31,6 +31,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
@@ -76,7 +77,7 @@ class EnvironmentalDecomControllerTest extends PwaApplicationContextAbstractCont
 
     person = new Person();
     wua = new WebUserAccount(1, person);
-    user = new AuthenticatedUserAccount(wua, List.of());
+    user = new AuthenticatedUserAccount(wua, List.of(PwaUserPrivilege.PWA_ACCESS));
 
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     instant = Instant.now();

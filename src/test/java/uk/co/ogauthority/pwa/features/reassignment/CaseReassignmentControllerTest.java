@@ -67,7 +67,7 @@ class CaseReassignmentControllerTest extends AbstractControllerTest {
   void setup() {
     userAccount = new AuthenticatedUserAccount(
         new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_MANAGER));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
   }
 
   @Test

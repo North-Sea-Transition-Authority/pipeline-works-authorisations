@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -30,7 +31,7 @@ class WebDataBinderTest extends AbstractControllerTest {
   @Test
   void stringTrimmer() throws Exception {
 
-    var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
+    var testUser = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_ACCESS));
 
     mockMvc.perform(post("/data-binder-test")
         .with(user(testUser))

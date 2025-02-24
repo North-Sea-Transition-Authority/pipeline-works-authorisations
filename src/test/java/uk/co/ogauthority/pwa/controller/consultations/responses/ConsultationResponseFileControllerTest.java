@@ -96,7 +96,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
   void setup() throws SQLException {
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.of(PwaUserPrivilege.PWA_CONSULTEE));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
