@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.service.enums.documents.DocumentImageMethod;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 
@@ -43,7 +43,7 @@ public class ConsentDocumentImageService {
 
     Map<String, String> fileIdToImgSrcMap = fileUploadService.getFilesByIds(fileIds)
         .stream()
-        .collect(Collectors.toMap(UploadedFile::getFileId, this::convertFileToImgSource));
+        .collect(Collectors.toMap(UploadedFileOld::getFileId, this::convertFileToImgSource));
 
     var elapsedMs = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
@@ -53,18 +53,18 @@ public class ConsentDocumentImageService {
 
   }
 
-  private String convertFileToImgSource(UploadedFile uploadedFile) {
+  private String convertFileToImgSource(UploadedFileOld uploadedFile) {
     var imageSourceUri = imageMethod == DocumentImageMethod.TEMP_FILE ? createTempFile(uploadedFile) : convertToBase64String(uploadedFile);
     return imageMethod.getUriPrefix() + imageSourceUri;
   }
 
-  private String createTempFile(UploadedFile uploadedFile) {
+  private String createTempFile(UploadedFileOld uploadedFile) {
     var newFile = fileUploadService.createTempFile(uploadedFile);
     var path = newFile.getAbsolutePath();
     return path.replace("\\", "/");
   }
 
-  private String convertToBase64String(UploadedFile file) {
+  private String convertToBase64String(UploadedFileOld file) {
 
     try {
 

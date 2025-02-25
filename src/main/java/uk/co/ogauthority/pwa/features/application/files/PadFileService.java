@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWit
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
@@ -201,7 +201,7 @@ public class PadFileService {
   }
 
 
-  public UploadedFile getUploadedFileById(String fileId) {
+  public UploadedFileOld getUploadedFileById(String fileId) {
     return fileUploadService.getFileById(fileId);
   }
 

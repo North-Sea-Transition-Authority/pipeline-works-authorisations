@@ -29,8 +29,8 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescript
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
-import uk.co.ogauthority.pwa.repository.files.UploadedFileRepository;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
+import uk.co.ogauthority.pwa.repository.files.UploadedFileRepositoryOld;
 import uk.co.ogauthority.pwa.service.images.ImageScalingService;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
@@ -40,7 +40,7 @@ public class FileUploadService {
   private static final Logger LOGGER = LoggerFactory.getLogger(FileUploadService.class);
 
   private final FileUploadProperties fileUploadProperties;
-  private final UploadedFileRepository uploadedFileRepository;
+  private final UploadedFileRepositoryOld uploadedFileRepositoryOld;
   private final VirusCheckService virusCheckService;
   private final ImageScalingService imageScalingService;
   private final MetricsProvider metricsProvider;
@@ -49,12 +49,12 @@ public class FileUploadService {
 
   @Autowired
   public FileUploadService(FileUploadProperties fileUploadProperties,
-                           UploadedFileRepository uploaded,
+                           UploadedFileRepositoryOld uploaded,
                            VirusCheckService virusCheckService,
                            ImageScalingService imageScalingService,
                            MetricsProvider metricsProvider) {
     this.fileUploadProperties = fileUploadProperties;
-    this.uploadedFileRepository = uploaded;
+    this.uploadedFileRepositoryOld = uploaded;
     this.virusCheckService = virusCheckService;
     this.imageScalingService = imageScalingService;
     this.metricsProvider = metricsProvider;
@@ -68,8 +68,8 @@ public class FileUploadService {
     return form;
   }
 
-  public UploadedFile getFileById(String fileId) {
-    return uploadedFileRepository.findById(fileId).orElseThrow(
+  public UploadedFileOld getFileById(String fileId) {
+    return uploadedFileRepositoryOld.findById(fileId).orElseThrow(
         () -> new PwaEntityNotFoundException("File not found. findId: " + fileId));
   }
 
@@ -125,18 +125,18 @@ public class FileUploadService {
     try {
 
       Blob blob = new SerialBlob(file.getBytes());
-      UploadedFile uploadedFile = new UploadedFile(fileId, filename, blob, file.getContentType(),
+      UploadedFileOld uploadedFile = new UploadedFileOld(fileId, filename, blob, file.getContentType(),
           file.getSize(), Instant.now(), user.getWuaId(), user.getWuaId(), FileUploadStatus.CURRENT);
 
       if (uploadedFile.getContentType().contains("image") && scaleImage == ScaleImage.YES) {
         var scaledImageBaos = imageScalingService.scaleImage(uploadedFile);
         Blob scaledBlob = new SerialBlob(scaledImageBaos.toByteArray());
         uploadedFile.setScaledImageData(scaledBlob);
-        uploadedFileRepository.save(uploadedFile);
+        uploadedFileRepositoryOld.save(uploadedFile);
         scaledBlob.free();
         scaledImageBaos.close();
       } else {
-        uploadedFileRepository.save(uploadedFile);
+        uploadedFileRepositoryOld.save(uploadedFile);
       }
 
       blob.free();
@@ -173,11 +173,11 @@ public class FileUploadService {
 
   @Transactional
   public FileDeleteResult deleteUploadedFile(String fileId, WebUserAccount lastUpdatedByWua) {
-    UploadedFile file = getFileById(fileId);
+    UploadedFileOld file = getFileById(fileId);
     return processDelete(file, lastUpdatedByWua);
   }
 
-  private FileDeleteResult processDelete(UploadedFile file, WebUserAccount lastUpdatedByWua) {
+  private FileDeleteResult processDelete(UploadedFileOld file, WebUserAccount lastUpdatedByWua) {
     try {
       deleteFile(file, lastUpdatedByWua);
       return FileDeleteResult.generateSuccessfulFileDeleteResult(file.getFileId());
@@ -187,21 +187,21 @@ public class FileUploadService {
     }
   }
 
-  private void deleteFile(UploadedFile file, WebUserAccount lastUpdatedByWua) {
+  private void deleteFile(UploadedFileOld file, WebUserAccount lastUpdatedByWua) {
     file.setStatus(FileUploadStatus.DELETED);
     file.setLastUpdatedByWuaId(lastUpdatedByWua.getWuaId());
-    uploadedFileRepository.save(file);
+    uploadedFileRepositoryOld.save(file);
   }
 
-  public List<UploadedFile> getFilesByIds(Collection<String> fileIds) {
-    return uploadedFileRepository.getAllByFileIdIn(fileIds);
+  public List<UploadedFileOld> getFilesByIds(Collection<String> fileIds) {
+    return uploadedFileRepositoryOld.getAllByFileIdIn(fileIds);
   }
 
   /**
    * Creates a temporary file from an UploadedFile object. Consumers must delete the
    * temporary file after they have finished using it.
    */
-  public File createTempFile(UploadedFile uploadedFile) {
+  public File createTempFile(UploadedFileOld uploadedFile) {
 
     String filename = uploadedFile.getFileName().replace(" ", "");
     String extension = filename.substring(filename.lastIndexOf("."));

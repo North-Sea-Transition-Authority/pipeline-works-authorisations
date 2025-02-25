@@ -23,6 +23,8 @@ BEGIN
     AND UPPER(object_name) not like 'ACT_%' -- ignore camunda tables
     AND UPPER(object_name) not like 'QRTZ%' -- ignore quartz job tables
     AND UPPER(object_name) not like 'SPRING%' -- ignore spring tables/views
+    AND UPPER(object_name) not like 'FLYWAY%' -- ignore flyway tables
+    AND UPPER(object_name) not like '%FLYWAY'
   ) LOOP
 
     EXECUTE IMMEDIATE 'GRANT SELECT ON ' || object.owner || '.' || object.object_name || ' TO ' || K_INTERFACE_SCHEMA_USER;

@@ -34,7 +34,7 @@ public class AppFileDtoRepositoryImpl implements AppFileDtoRepository {
             ", '#' " + //link updated after construction as requires reverse router
             ") " +
             "FROM AppFile af " +
-            "JOIN UploadedFile uf ON af.fileId = uf.fileId " +
+            "JOIN UploadedFileOld uf ON af.fileId = uf.fileId " +
             "WHERE uf.status = :fileStatus " +
             "AND af.pwaApplication = :app " +
             "AND af.purpose = :purpose " +
@@ -63,7 +63,7 @@ public class AppFileDtoRepositoryImpl implements AppFileDtoRepository {
             ", '#' " + //link updated after construction as requires reverse router
             ") " +
             "FROM AppFile af " +
-            "JOIN UploadedFile uf ON af.fileId = uf.fileId " +
+            "JOIN UploadedFileOld uf ON af.fileId = uf.fileId " +
             "WHERE af.fileId = :fileId " +
             "AND uf.status = :fileStatus " +
             "AND af.pwaApplication = :app " +
@@ -101,7 +101,7 @@ public class AppFileDtoRepositoryImpl implements AppFileDtoRepository {
     return entityManager.createQuery("" +
         "SELECT af " +
         "FROM AppFile af " +
-        "JOIN UploadedFile uf ON af.fileId = uf.fileId " +
+        "JOIN UploadedFileOld uf ON af.fileId = uf.fileId " +
         "WHERE uf.status = :fileStatus " +
         "AND af.pwaApplication = :app " +
         "AND af.purpose = :purpose " +

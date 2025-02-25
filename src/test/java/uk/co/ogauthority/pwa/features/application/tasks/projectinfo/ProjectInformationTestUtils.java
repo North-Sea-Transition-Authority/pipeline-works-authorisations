@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
+import java.util.List;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 public class ProjectInformationTestUtils {
@@ -54,7 +54,7 @@ public class ProjectInformationTestUtils {
     form.setCommercialAgreementMonth(commercialAgreementDate.getMonthValue());
     form.setCommercialAgreementYear(commercialAgreementDate.getYear());
 
-    form.setUploadedFileWithDescriptionForms(new ArrayList<>());
+    form.setUploadedFiles(List.of());
 
     form.setPermanentDepositsMadeType(PermanentDepositMade.LATER_APP);
     form.setFutureSubmissionDate(new TwoFieldDateInput(2020, 7));

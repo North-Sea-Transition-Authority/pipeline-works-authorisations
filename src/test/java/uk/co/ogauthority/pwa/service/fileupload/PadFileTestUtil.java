@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePur
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 public class PadFileTestUtil {
@@ -22,7 +22,7 @@ public class PadFileTestUtil {
     byte[] array = new byte[7]; // length is bounded by 7
     new Random().nextBytes(array);
     String generalPurposeRandomString = new String(array, Charset.forName("UTF-8"));
-    var uploadedFile = new UploadedFile(
+    var uploadedFile = new UploadedFileOld(
         generalPurposeRandomString,
         generalPurposeRandomString,
         generalPurposeRandomString,

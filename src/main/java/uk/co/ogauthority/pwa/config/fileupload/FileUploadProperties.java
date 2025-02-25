@@ -1,13 +1,10 @@
 package uk.co.ogauthority.pwa.config.fileupload;
 
 
-import fi.solita.clamav.ClamAVClient;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
@@ -57,12 +54,5 @@ public class FileUploadProperties {
 
   public void setAllowedImageExtensions(List<String> allowedImageExtensions) {
     this.allowedImageExtensions = allowedImageExtensions;
-  }
-
-  @Bean
-  public ClamAVClient clamAvClient(@Value("${clamav.host}") String clamavHost,
-                                   @Value("${clamav.port}") int clamavPort,
-                                   @Value("${clamav.timeout}") int clamavTimeout) {
-    return new ClamAVClient(clamavHost, clamavPort, clamavTimeout);
   }
 }

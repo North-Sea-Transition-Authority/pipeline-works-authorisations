@@ -17,18 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.FileUploadLibraryUtils;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileUsage;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFileRepository;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -39,32 +42,32 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   private final PadProjectInformationRepository padProjectInformationRepository;
   private final ProjectInformationEntityMappingService projectInformationEntityMappingService;
   private final ProjectInformationValidator projectInformationValidator;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   private final PadLicenceTransactionService padLicenceTransactionService;
   private final EntityCopyingService entityCopyingService;
   private final MasterPwaService masterPwaService;
   private final EntityManager entityManager;
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
-
   @Autowired
   public PadProjectInformationService(
       PadProjectInformationRepository padProjectInformationRepository,
       ProjectInformationEntityMappingService projectInformationEntityMappingService,
       ProjectInformationValidator projectInformationValidator,
-      PadFileService padFileService,
       PadLicenceTransactionService padLicenceTransactionService,
       EntityCopyingService entityCopyingService,
-      MasterPwaService masterPwaService, EntityManager entityManager) {
+      MasterPwaService masterPwaService,
+      EntityManager entityManager,
+      PadFileManagementService padFileManagementService
+  ) {
     this.padProjectInformationRepository = padProjectInformationRepository;
     this.projectInformationEntityMappingService = projectInformationEntityMappingService;
     this.projectInformationValidator = projectInformationValidator;
-    this.padFileService = padFileService;
     this.padLicenceTransactionService = padLicenceTransactionService;
     this.entityCopyingService = entityCopyingService;
     this.masterPwaService = masterPwaService;
     this.entityManager = entityManager;
+    this.padFileManagementService = padFileManagementService;
   }
 
   public PadProjectInformation getPadProjectInformationData(PwaApplicationDetail pwaApplicationDetail) {
@@ -83,16 +86,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
-    padFileService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE);
+    padFileManagementService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_LAYOUT);
     padLicenceTransactionService.mapApplicationsToForm(form, padProjectInformation);
   }
 
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    var layoutDiagramFileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
-        ApplicationDetailFilePurpose.PROJECT_INFORMATION,
-        ApplicationFileLinkStatus.FULL);
+    var layoutDiagramFileViews = padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_LAYOUT);
 
     List<String> licenceApplications = Optional.of(projectInformation)
         .filter(entityManager::contains)
@@ -115,11 +116,10 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void saveEntityUsingForm(PadProjectInformation padProjectInformation,
                                   ProjectInformationForm form,
                                   WebUserAccount user) {
-    projectInformationEntityMappingService.setEntityValuesUsingForm(
-        padProjectInformation, form);
+    projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
-    padFileService.updateFiles(form, padProjectInformation.getPwaApplicationDetail(), FILE_PURPOSE,
-        FileUpdateMode.DELETE_UNLINKED_FILES, user);
+    padFileManagementService.saveFiles(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_LAYOUT);
+
     if (getRequiredQuestions(
         padProjectInformation.getPwaApplicationDetail().getPwaApplicationType(),
         padProjectInformation.getPwaApplicationDetail().getResourceType())
@@ -127,6 +127,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
       padLicenceTransactionService.saveApplicationsToPad(padProjectInformation, form);
     }
   }
+
 
   public boolean isCampaignApproachBeingUsed(PwaApplicationDetail pwaApplicationDetail) {
     return padProjectInformationRepository.findByPwaApplicationDetail(pwaApplicationDetail)
@@ -279,12 +280,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         toDetail,
         PadProjectInformation.class);
 
-    padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        FILE_PURPOSE,
-        ApplicationFileLinkStatus.FULL
-    );
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PROJECT_LAYOUT);
 
     padLicenceTransactionService.copyApplicationsToPad(
         getPadProjectInformationData(fromDetail),

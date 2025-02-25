@@ -14,15 +14,14 @@ import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.MaxCompletionPeriod;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class ProjectInformationValidator implements SmartValidator {
@@ -155,7 +154,11 @@ public class ProjectInformationValidator implements SmartValidator {
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)
         && validationType.equals(ValidationType.PARTIAL)) {
-      FileUploadUtils.validateFilesDescriptionLength(form, errors);
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload a project layout diagram")
+          .withMaximumNumberOfFiles(1, "Upload a maximum of one file")
+          .isPartiallyValidated()
+          .validate(errors, form.getUploadedFiles(), "uploadedFiles");
     }
   }
 
@@ -419,9 +422,10 @@ public class ProjectInformationValidator implements SmartValidator {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-      FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "Upload a project layout diagram");
-      FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload a project layout diagram")
+          .withMaximumNumberOfFiles(1, "Upload a maximum of one file")
+          .validate(errors, form.getUploadedFiles(), "uploadedFiles");
     }
-
   }
 }

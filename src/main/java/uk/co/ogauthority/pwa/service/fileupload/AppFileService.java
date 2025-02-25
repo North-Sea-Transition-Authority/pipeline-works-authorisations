@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaapplications.shared.file.AppFileRepository;
 import uk.co.ogauthority.pwa.util.FileServiceUtils;
@@ -183,7 +183,7 @@ public class AppFileService {
   }
 
 
-  public UploadedFile getUploadedFileById(String fileId) {
+  public UploadedFileOld getUploadedFileById(String fileId) {
     return fileUploadService.getFileById(fileId);
   }
 

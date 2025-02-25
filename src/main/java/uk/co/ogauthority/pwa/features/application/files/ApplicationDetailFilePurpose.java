@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiral
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.controller.PipelineDrawingController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.controller.UmbilicalCrossSectionDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.controller.PadProjectExtensionController;
-import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.ProjectInformationController;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
 
 /**
@@ -23,7 +22,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.contro
 public enum ApplicationDetailFilePurpose {
 
   LOCATION_DETAILS(LocationDetailsController.class),
-  PROJECT_INFORMATION(ProjectInformationController.class),
+  //PROJECT_INFORMATION(),
   PROJECT_EXTENSION(PadProjectExtensionController.class),
   BLOCK_CROSSINGS(BlockCrossingDocumentsController.class),
   CARBON_STORAGE_CROSSINGS(CarbonStorageAreaCrossingDocumentsController.class),

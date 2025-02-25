@@ -5,16 +5,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,15 +21,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -1094,16 +1093,19 @@ public class ProjectInformationValidatorTest {
     );
   }
 
-
   @Test
   void validate_oneProjectLayoutDiagramFile() {
     var form = new ProjectInformationForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", "2", Instant.now())
-    ));
+
+    var fileForm = new UploadedFileForm();
+    fileForm.setFileId(UUID.randomUUID());
+    fileForm.setFileDescription("test");
+
+    form.setUploadedFiles(List.of(fileForm));
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
-    assertThat(errorsMap).doesNotContainKeys("uploadedFileWithDescriptionForms", "uploadedFileWithDescriptionForms[0].uploadedFileDescription");
+    assertThat(errorsMap).doesNotContainKeys("uploadedFiles", "uploadedFiles[0].uploadedFileDescription");
   }
 
   @Test
@@ -1112,48 +1114,42 @@ public class ProjectInformationValidatorTest {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
     assertThat(errorsMap).contains(
-        entry("uploadedFileWithDescriptionForms",
-            Set.of(FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode("uploadedFileWithDescriptionForms")))
+        entry("uploadedFiles",
+            Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE.formatted("uploadedFiles")))
     );
   }
 
   @Test
   void validate_tooManyProjectLayoutDiagramFiles() {
     var form = new ProjectInformationForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", "2", Instant.now()),
-        new UploadFileWithDescriptionForm("3", "4", Instant.now())
-    ));
+
+    var fileForm = new UploadedFileForm();
+    fileForm.setFileId(UUID.randomUUID());
+
+    var fileForm2 = new UploadedFileForm();
+    fileForm2.setFileId(UUID.randomUUID());
+
+    form.setUploadedFiles(List.of(fileForm, fileForm2));
+
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
-    assertThat(errorsMap).containsKeys("uploadedFileWithDescriptionForms");
+    assertThat(errorsMap).containsKeys("uploadedFiles");
   }
 
   @Test
   void validate_projectLayoutDiagramFile_noDescription() {
     var form = new ProjectInformationForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", null, Instant.now())
-    ));
-    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
-    assertThat(errorsMap).contains(
-        entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
-            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
-  }
 
-  @Test
-  void validate_projectLayoutDiagramFile_descriptionOverMaxCharLength() {
-    var form = new ProjectInformationForm();
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+    var fileForm = new UploadedFileForm();
+    fileForm.setFileId(UUID.randomUUID());
+
+    form.setUploadedFiles(List.of(fileForm));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
-
     assertThat(errorsMap).contains(
-        Assertions.entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
+        entry("uploadedFiles[0].uploadedFileDescription",
+            Set.of("uploadedFiles[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
@@ -1163,24 +1159,6 @@ public class ProjectInformationValidatorTest {
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
     assertThat(errorsMap).isEmpty();
   }
-
-  @Test
-  void validate_partialValidation_stringLengthOverMaxDefaultCharLength() {
-    var form = new ProjectInformationForm();
-    form.setMethodOfPipelineDeployment(ValidatorTestUtils.overMaxDefaultCharLength());
-    form.setProjectOverview(ValidatorTestUtils.overMaxDefaultCharLength());
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-
-    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
-        new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.PARTIAL, EnumSet.allOf(ProjectInformationQuestion.class), false));
-
-    assertThat(errorsMap).contains(
-        entry("methodOfPipelineDeployment", Set.of("methodOfPipelineDeployment" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("projectOverview", Set.of("projectOverview" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())));
-  }
-
 
   @Test
   void validate_validationNotRequired_whenQuestionNotProvided() {

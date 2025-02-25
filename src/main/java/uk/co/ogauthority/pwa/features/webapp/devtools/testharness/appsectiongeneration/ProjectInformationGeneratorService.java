@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
@@ -116,9 +115,10 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-      var generatedFileId = testHarnessPadFileService.generateImageUpload(
-          user, pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
-      testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
+      //TODO: PWARE-48 fix
+      //var generatedFileId = testHarnessPadFileService.generateImageUpload(
+       //   user, pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
+      //testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
     }
 
     return form;

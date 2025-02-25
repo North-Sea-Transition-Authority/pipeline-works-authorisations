@@ -122,7 +122,17 @@
 
         <#if requiredQuestions?seq_contains("PROJECT_LAYOUT_DIAGRAM")>
             <@fdsFieldset.fieldset legendHeadingClass="govuk-fieldset__legend--l" legendHeading="Project layout diagram" legendHeadingSize="h2" hintText="Provide an overall project layout diagram showing pipeline(s) to be covered by the Authorisation and route of the pipeline(s)." nestingPath="" caption="" captionClass="govuk-caption-l">
-                <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
+                <@fdsFileUpload.fileUpload
+                id="projectLayoutDiagram"
+                path="form.uploadedFiles"
+                uploadUrl=fileUploadAttributes.uploadUrl()
+                downloadUrl=fileUploadAttributes.downloadUrl()
+                deleteUrl=fileUploadAttributes.deleteUrl()
+                maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                allowedExtensions=fileUploadAttributes.allowedExtensions()
+                existingFiles=fileUploadAttributes.existingFiles()
+                dropzoneText="Drag and drop your documents here"
+                />
             </@fdsFieldset.fieldset>
         </#if>
 

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.service.enums.documents.DocumentImageMethod;
 import uk.co.ogauthority.pwa.service.fileupload.FileUploadService;
 
@@ -31,8 +31,8 @@ class ConsentDocumentImageServiceTest {
   private ConsentDocumentImageService base64ImageService;
   private ConsentDocumentImageService tempFileImageService;
 
-  private UploadedFile uploadedFile1;
-  private UploadedFile uploadedFile2;
+  private UploadedFileOld uploadedFile1;
+  private UploadedFileOld uploadedFile2;
 
   private File file1;
   private File file2;
@@ -43,11 +43,11 @@ class ConsentDocumentImageServiceTest {
     base64ImageService = new ConsentDocumentImageService(fileUploadService, DocumentImageMethod.BASE_64);
     tempFileImageService = new ConsentDocumentImageService(fileUploadService, DocumentImageMethod.TEMP_FILE);
 
-    uploadedFile1 = new UploadedFile("id1", "name1");
+    uploadedFile1 = new UploadedFileOld("id1", "name1");
     uploadedFile1.setScaledImageData(new SerialBlob(new byte[2]));
     uploadedFile1.setContentType("image/jpg");
 
-    uploadedFile2 = new UploadedFile("id2", "name2");
+    uploadedFile2 = new UploadedFileOld("id2", "name2");
     uploadedFile2.setFileData(new SerialBlob(new byte[1]));
     uploadedFile2.setContentType("image/png");
 

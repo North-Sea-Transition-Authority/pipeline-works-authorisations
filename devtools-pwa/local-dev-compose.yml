@@ -36,3 +36,18 @@ services:
       JAVA_OPTS: -Xms1024m -Xmx1024m -Duser.country=GB
       LANG: en_GB.UTF-8
       NLS_LANG: ENGLISH_UNITED KINGDOM.AL32UTF8
+
+  s3mock:
+    image: adobe/s3mock:2.1.28
+    ports:
+      - "9090:9090"
+      - "9191:9191"
+    environment:
+      initialBuckets: pwa-dev
+      retainFilesOnExit: true
+      root: ./s3data
+
+  clamav:
+    image: clamav/clamav:0.105
+    ports:
+      - "3310:3310"

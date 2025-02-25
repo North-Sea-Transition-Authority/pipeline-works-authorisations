@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,7 +61,7 @@ class ImageScalingServiceTest {
     var byteArray = StreamUtils.copyToByteArray(imageRes.getInputStream());
     var blob = new SerialBlob(byteArray);
 
-    var uploadedFile = new UploadedFile();
+    var uploadedFile = new UploadedFileOld();
     uploadedFile.setFileId("id1");
     uploadedFile.setFileData(blob);
     uploadedFile.setContentType("image/png");
@@ -88,7 +88,7 @@ class ImageScalingServiceTest {
     var byteArray = StreamUtils.copyToByteArray(imageRes.getInputStream());
     var blob = new SerialBlob(byteArray);
 
-    var uploadedFile = new UploadedFile();
+    var uploadedFile = new UploadedFileOld();
     uploadedFile.setFileId("id1");
     uploadedFile.setFileData(blob);
     uploadedFile.setContentType("image/jpg");
@@ -115,7 +115,7 @@ class ImageScalingServiceTest {
     var byteArray = StreamUtils.copyToByteArray(imageRes.getInputStream());
     var blob = new SerialBlob(byteArray);
 
-    var uploadedFile = new UploadedFile();
+    var uploadedFile = new UploadedFileOld();
     uploadedFile.setFileId("id1");
     uploadedFile.setFileData(blob);
     uploadedFile.setContentType("image/jpg");

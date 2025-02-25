@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWit
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.FileDownloadUtils;
@@ -86,7 +86,7 @@ public abstract class PwaApplicationDataFileUploadAndDownloadController {
    * @param uploadedFile file we want to trigger download for
    * @return the ResponseEntity object containing the downloaded file
    */
-  private ResponseEntity<Resource> serveFile(UploadedFile uploadedFile) {
+  private ResponseEntity<Resource> serveFile(UploadedFileOld uploadedFile) {
     Resource resource = FileDownloadUtils.fetchFileAsStream(uploadedFile.getFileName(), uploadedFile.getFileData());
     MediaType mediaType = MediaType.parseMediaType(uploadedFile.getContentType());
     return FileDownloadUtils.getResourceAsResponse(resource, mediaType, uploadedFile.getFileName(),

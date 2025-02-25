@@ -7,8 +7,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,26 +14,20 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProjectExtensionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceApplicationsRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
@@ -60,7 +52,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-public class ProjectInformationController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class ProjectInformationController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -69,23 +61,24 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private final PadProjectExtensionService projectExtensionService;
 
   private final PearsLicenceTransactionService pearsLicenceTransactionService;
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PROJECT_INFORMATION;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public ProjectInformationController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                       PwaApplicationRedirectService pwaApplicationRedirectService,
                                       PadProjectInformationService padProjectInformationService,
-                                      PadFileService padFileService,
                                       ControllerHelperService controllerHelperService,
                                       PadProjectExtensionService projectExtensionService,
-                                      PearsLicenceTransactionService pearsLicenceTransactionService) {
-    super(padFileService);
+                                      PearsLicenceTransactionService pearsLicenceTransactionService,
+                                      PadFileManagementService padFileManagementService
+  ) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padProjectInformationService = padProjectInformationService;
     this.controllerHelperService = controllerHelperService;
     this.projectExtensionService = projectExtensionService;
     this.pearsLicenceTransactionService = pearsLicenceTransactionService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @GetMapping
@@ -136,13 +129,6 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
   private ModelAndView getProjectInformationModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                          ProjectInformationForm form) {
 
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/projectInformation",
-        pwaApplicationDetail,
-        FILE_PURPOSE,
-        form
-    );
-
     List<PearsLicenceTransaction> licenceApplications = new ArrayList<>();
     if (form.getPearsApplicationList() != null) {
       licenceApplications = pearsLicenceTransactionService.getApplicationsByIds(
@@ -151,7 +137,14 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
               .collect(Collectors.toList()));
     }
 
-    modelAndView.addObject("permanentDepositsMadeOptions", PermanentDepositMade.asList(pwaApplicationDetail.getPwaApplicationType()))
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        FileDocumentType.PROJECT_LAYOUT,
+        pwaApplicationDetail
+    );
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/projectInformation")
+        .addObject("permanentDepositsMadeOptions", PermanentDepositMade.asList(pwaApplicationDetail.getPwaApplicationType()))
         .addObject("isFdpQuestionRequiredBasedOnField", padProjectInformationService.isFdpQuestionRequired(pwaApplicationDetail))
         .addObject("requiredQuestions", padProjectInformationService.getRequiredQuestions(
             pwaApplicationDetail.getPwaApplicationType(),
@@ -161,49 +154,11 @@ public class ProjectInformationController extends PwaApplicationDetailDataFileUp
         .addObject("timelineGuidance", projectExtensionService.getProjectTimelineGuidance(pwaApplicationDetail))
         .addObject("selectedLicenceApplications", licenceApplications)
         .addObject("licenceApplicationListUrl",
-            ReverseRouter.route(on(PearsLicenceApplicationsRestController.class).getApplications(null)));
+            ReverseRouter.route(on(PearsLicenceApplicationsRestController.class).getApplications(null)))
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Project information");
     return modelAndView;
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processImageUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 }

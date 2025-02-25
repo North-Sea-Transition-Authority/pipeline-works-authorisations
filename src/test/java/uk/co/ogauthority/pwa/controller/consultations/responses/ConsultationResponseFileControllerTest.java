@@ -46,7 +46,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.files.FileUploadStatus;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
@@ -74,7 +74,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
 
   private final ConsultationResponse consultationResponse = new ConsultationResponse();
 
-  private UploadedFile uploadedFile;
+  private UploadedFileOld uploadedFile;
   private AppFile appFile;
 
   private ProcessingPermissionsDto permissionsDto;
@@ -116,7 +116,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
     appFile.setId(90);
     when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplicationDetail.getPwaApplication(), FILE_ID)).thenReturn(appFile);
 
-    uploadedFile = new UploadedFile(FILE_ID, "File name", "image/jpg", 100L, Instant.now(),
+    uploadedFile = new UploadedFileOld(FILE_ID, "File name", "image/jpg", 100L, Instant.now(),
         FileUploadStatus.CURRENT);
     uploadedFile.setFileData(new SerialBlob(new byte[1]));
     uploadedFile.setUploadedByWuaId(user.getWuaId());

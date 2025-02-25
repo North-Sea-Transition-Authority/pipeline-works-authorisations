@@ -32,7 +32,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
             ", '#' " + //link updated after construction as requires reverse router
             ") " +
             "FROM PadFile pf " +
-            "JOIN UploadedFile uf ON pf.fileId = uf.fileId " +
+            "JOIN UploadedFileOld uf ON pf.fileId = uf.fileId " +
             "WHERE uf.status = :fileStatus " +
             "AND pf.pwaApplicationDetail = :pwaAppDetail " +
             "AND pf.purpose = :purpose " +
@@ -61,7 +61,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
             ", '#' " + //link updated after construction as requires reverse router
             ") " +
             "FROM PadFile pf " +
-            "JOIN UploadedFile uf ON pf.fileId = uf.fileId " +
+            "JOIN UploadedFileOld uf ON pf.fileId = uf.fileId " +
             "WHERE pf.fileId = :fileId " +
             "AND uf.status = :fileStatus " +
             "AND pf.pwaApplicationDetail = :pwaAppDetail " +
@@ -99,7 +99,7 @@ public class PadFileDtoRepositoryImpl implements PadFileDtoRepository {
     return entityManager.createQuery("" +
         "SELECT pf " +
         "FROM PadFile pf " +
-        "JOIN UploadedFile uf ON pf.fileId = uf.fileId " +
+        "JOIN UploadedFileOld uf ON pf.fileId = uf.fileId " +
         "WHERE uf.status = :fileStatus " +
         "AND pf.pwaApplicationDetail = :pwaAppDetail " +
         "AND pf.purpose = :purpose " +

@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.exception.images.ImageScalingException;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFile;
+import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 
 @Service
@@ -43,7 +43,7 @@ public class ImageScalingService {
     this.metricsProvider = metricsProvider;
   }
 
-  public ByteArrayOutputStream scaleImage(UploadedFile uploadedFile) {
+  public ByteArrayOutputStream scaleImage(UploadedFileOld uploadedFile) {
 
     var stopwatch = Stopwatch.createStarted();
 

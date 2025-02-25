@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectinfo;
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
-public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionForm {
+public class ProjectInformationForm extends FileUploadForm {
 
 
   private String projectName;
@@ -54,7 +54,6 @@ public class ProjectInformationForm extends UploadMultipleFilesWithDescriptionFo
   private Boolean cspOptionSelected;
   private Boolean cspConfirmationFlag;
   private String cspNotSelectedReason;
-
 
   public String getProjectName() {
     return projectName;

@@ -13,7 +13,7 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "uploaded_files")
-public class UploadedFile {
+public class UploadedFileOld {
 
   @Id
   private String fileId;
@@ -42,23 +42,23 @@ public class UploadedFile {
   @Column(updatable = false)
   private Blob scaledImageData;
 
-  public UploadedFile() {
+  public UploadedFileOld() {
   }
 
-  public UploadedFile(String fileId, String fileName) {
+  public UploadedFileOld(String fileId, String fileName) {
     this.fileId = fileId;
     this.fileName = fileName;
   }
 
-  public UploadedFile(String fileId,
-                      String fileName,
-                      Blob fileData,
-                      String contentType,
-                      Long fileSize,
-                      Instant uploadDatetime,
-                      Integer uploadedByWuaId,
-                      Integer lastUpdatedByWuaId,
-                      FileUploadStatus status) {
+  public UploadedFileOld(String fileId,
+                         String fileName,
+                         Blob fileData,
+                         String contentType,
+                         Long fileSize,
+                         Instant uploadDatetime,
+                         Integer uploadedByWuaId,
+                         Integer lastUpdatedByWuaId,
+                         FileUploadStatus status) {
     this.fileId = fileId;
     this.fileName = fileName;
     this.fileData = fileData;
@@ -70,12 +70,12 @@ public class UploadedFile {
     this.status = status;
   }
 
-  public UploadedFile(String fileId,
-                      String fileName,
-                      String contentType,
-                      Long fileSize,
-                      Instant uploadDatetime,
-                      FileUploadStatus status) {
+  public UploadedFileOld(String fileId,
+                         String fileName,
+                         String contentType,
+                         Long fileSize,
+                         Instant uploadDatetime,
+                         FileUploadStatus status) {
     this.fileId = fileId;
     this.fileName = fileName;
     this.status = status;
