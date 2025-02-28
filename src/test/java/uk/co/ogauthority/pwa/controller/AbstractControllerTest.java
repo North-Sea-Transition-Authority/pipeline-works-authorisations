@@ -41,7 +41,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccess
 import uk.co.ogauthority.pwa.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.ogauthority.pwa.mvc.RequestLogFilter;
 import uk.co.ogauthority.pwa.mvc.error.ErrorService;
-import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -73,9 +72,6 @@ public abstract class AbstractControllerTest {
 
   @Autowired
   protected WebApplicationContext context;
-
-  @MockBean
-  protected UserSessionPrivilegesService userSessionPrivilegesService;
 
   @MockBean
   protected PwaApplicationDetailService pwaApplicationDetailService;

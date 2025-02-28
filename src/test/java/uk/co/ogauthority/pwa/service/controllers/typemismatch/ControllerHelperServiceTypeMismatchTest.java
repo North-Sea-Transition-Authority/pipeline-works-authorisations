@@ -43,7 +43,6 @@ import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.UserSessionPrivilegesService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
@@ -70,9 +69,6 @@ class ControllerHelperServiceTypeMismatchTest {
 
   @Autowired
   protected WebApplicationContext context;
-
-  @MockBean
-  protected UserSessionPrivilegesService userSessionPrivilegesService;
 
   @MockBean
   protected PwaApplicationDetailService pwaApplicationDetailService;

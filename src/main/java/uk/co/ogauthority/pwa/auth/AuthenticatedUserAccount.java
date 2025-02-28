@@ -2,18 +2,16 @@ package uk.co.ogauthority.pwa.auth;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.AuthenticatedPrincipal;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
 /**
  * An AuthenticatedUserAccount represents a WebUserAccount which is currently in an authenticated state.
  * This entity is the Spring Security Principal.
  */
-public class AuthenticatedUserAccount extends WebUserAccount implements Serializable, UserDetails {
+public class AuthenticatedUserAccount extends WebUserAccount implements AuthenticatedPrincipal, Serializable {
 
   private static final long serialVersionUID = 1;
 
@@ -58,48 +56,12 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Serializ
     return Optional.ofNullable(proxyUserWuaId);
   }
 
-  /**
-   * Return user privileges as GrantedAuthorities, so they can be matched in Spring HttpSecurity rules.
-   * @return Users privs only (not org privs) as a collection of GrantedAuthorities
-   */
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return userPrivileges.stream()
-        .map(p -> new SimpleGrantedAuthority(p.name()))
-        .collect(Collectors.toList());
-  }
-
   public boolean hasPrivilege(PwaUserPrivilege pwaUserPrivilege) {
     return userPrivileges.contains(pwaUserPrivilege);
   }
 
   @Override
-  public String getPassword() {
-    return null;
-  }
-
-  @Override
-  public String getUsername() {
-    return getEmailAddress();
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return false;
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return false;
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return false;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return true;
+  public String getName() {
+    return Objects.nonNull(proxyUserWuaId) ? proxyUserWuaId.toString() : String.valueOf(wuaId);
   }
 }

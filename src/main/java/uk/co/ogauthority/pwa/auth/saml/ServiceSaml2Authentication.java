@@ -7,7 +7,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 
-class ServiceSaml2Authentication extends AbstractAuthenticationToken {
+public class ServiceSaml2Authentication extends AbstractAuthenticationToken {
 
   @Serial
   private static final long serialVersionUID = 4671397789349743401L;

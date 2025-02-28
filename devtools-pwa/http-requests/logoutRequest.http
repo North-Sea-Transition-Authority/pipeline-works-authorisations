@@ -1,0 +1,14 @@
+### Replace contextSuffix with your CONTEXT_SUFFIX e.g."HD" before running
+@contextSuffix =
+
+### Replace wuaId with the required wuaId before running
+@wuaId =
+
+### VALID
+POST http://localhost:8081/engedudev1/{{contextSuffix}}/api/v1/logout/{{wuaId}}
+Authorization: Bearer dev
+
+
+### INVALID
+POST http://localhost:8081/engedudev1/{{contextSuffix}}/api/v1/logout/{{wuaId}}
+Authorization: invalid

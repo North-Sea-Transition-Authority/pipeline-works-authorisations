@@ -26,13 +26,12 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerMapping;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserToken;
+import uk.co.ogauthority.pwa.auth.saml.ServiceSaml2Authentication;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
-import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 @ExtendWith(MockitoExtension.class)
 class TeamManagementHandlerInterceptorTest {
@@ -42,9 +41,6 @@ class TeamManagementHandlerInterceptorTest {
 
   @Mock
   private TeamQueryService teamQueryService;
-
-  @InjectMocks
-  private TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   @Mock
   private HttpServletRequest request;
@@ -59,7 +55,10 @@ class TeamManagementHandlerInterceptorTest {
   private SecurityContext securityContext;
 
   @Mock
-  private AuthenticatedUserToken existingAuthentication;
+  private ServiceSaml2Authentication existingAuthentication;
+
+  @InjectMocks
+  private TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
   private final AuthenticatedUserAccount invokingUser = new AuthenticatedUserAccount();
 
@@ -72,8 +71,8 @@ class TeamManagementHandlerInterceptorTest {
     invokingUser.setEmailAddress("test@example.com");
 
     SecurityContextHolder.setContext(securityContext);
-    when(existingAuthentication.getPrincipal()).thenReturn(invokingUser);
     when(securityContext.getAuthentication()).thenReturn(existingAuthentication);
+    when(existingAuthentication.getPrincipal()).thenReturn(invokingUser);
 
   }
 
