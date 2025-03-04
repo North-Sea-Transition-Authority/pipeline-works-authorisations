@@ -19,7 +19,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 
 @ExtendWith(MockitoExtension.class)
 class TermsAndConditionsMailMergeResolverTest {
-
   @Mock
   private TermsAndConditionsService termsAndConditionsService;
 
