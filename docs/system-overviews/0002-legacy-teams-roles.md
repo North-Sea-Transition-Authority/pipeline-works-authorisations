@@ -1,7 +1,7 @@
-# System Reference Document: Legacy Teams, Roles and their Privileges, and Permissions
+# System Overview: Legacy Teams, Roles and their Privileges, and Permissions
 Author(s): Harshid Dattani  
 Created: 11-02-2025  
-Updated: 11-02-2025  
+Updated: 07-03-2025  
 
 ## Overview
 
@@ -19,6 +19,7 @@ All Regulator roles have:
 - the `PWA_REGULATOR`, `PWA_WORKAREA` privileges. `PWA_APPLICATION_SEARCH` available to all but the `TEMPLATE_CLAUSE_MANAGER` role. 
 - the `VIEW_PWA_PIPELINE`, `VIEW_PWA`, `SHOW_PWA_NAVIGATION` PwaPermissions
 - the `CASE_MANAGEMENT_OGA`, `VIEW_CONSENT_DOCUMENT`, PwaAppProcessingPermissions
+- the `VIEW` PwaApplicationPermission
 
 | **Role (`PwaRegulatorRole`)** | **Privileges (`PwaUserPrivilege`)** | **Processing permissions (`PwaAppProcessingPermission`)**                                                                                                                                                                                                                                                 |
 |-------------------------------|-------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -36,26 +37,28 @@ All Organisation roles have:
 - the `PWA_INDUSTRY`, `PWA_WORKAREA`, `PWA_APPLICATION_SEARCH` privileges.
 - the `VIEW_PWA_PIPELINE`, `VIEW_PWA`, `SHOW_PWA_NAVIGATION` PwaPermissions
 - the `UPDATE_PUBLIC_NOTICE_DOC`, `VIEW_CONSENT_DOCUMENT`, `VIEW_PAYMENT_DETAILS_IF_EXISTS`, `CASE_MANAGEMENT_INDUSTRY` PwaAppProcessingPermissions
+- the `VIEW` PwaApplicationPermission
 
-| **Role (`PwaOrganisationRole`)**  | **Privileges (`PwaUserPrivilege`)**            | **Processing permissions (`PwaAppProcessingPermission`)** |
-|-----------------------------------|------------------------------------------------|-----------------------------------------------------------|
-| `TEAM_ADMINISTRATOR`              | `PWA_CONSENT_SEARCH`, `PWA_ORG_ADMIN`          |                                                           | 
-| `APPLICATION_CREATOR`             | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_CREATE` |                                                           |
-| `APPLICATION_SUBMITTER`           | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_SUBMIT` |                                                           |
-| `FINANCE_ADMIN`                   |                                                | `AWAITING_APPLICATION_PAYMENT`                            |
-| `AS_BUILT_NOTIFICATION_SUBMITTER` | `PWA_ASBUILT_WORKAREA`                         |                                                           |
+| **Role (`PwaOrganisationRole`)**  | ** Additional Privileges (`PwaUserPrivilege`)** | **Additional Processing permissions (`PwaAppProcessingPermission`)** | **Additional Application permissions (`PwaApplicationPermission`)** |
+|-----------------------------------|-------------------------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------|
+| `TEAM_ADMINISTRATOR`              | `PWA_CONSENT_SEARCH`, `PWA_ORG_ADMIN`           |                                                                      |                                                                     |
+| `APPLICATION_CREATOR`             | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_CREATE`  |                                                                      | `MANAGE_CONTACTS`                                                   |
+| `APPLICATION_SUBMITTER`           | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_SUBMIT`  |                                                                      | `MANAGE_CONTACTS`, `SUBMIT`                                         |
+| `FINANCE_ADMIN`                   |                                                 | `PAY_FOR_APPLICATION`                                                |                                                                     |
+| `AS_BUILT_NOTIFICATION_SUBMITTER` | `PWA_ASBUILT_WORKAREA`                          |                                                                      |                                                                     |
 
 
 ## 3. Consultee Group Team
 All Consultee roles have:
 - the `PWA_CONSULTEE`, `PWA_WORKAREA`, `PWA_APPLICATION_SEARCH` privileges.
 - the `UPDATE_PUBLIC_NOTICE_DOC`, `VIEW_CONSENT_DOCUMENT`, `VIEW_PAYMENT_DETAILS_IF_EXISTS` PwaAppProcessingPermissions
+- the `VIEW` PwaApplicationPermission
 
-| **Role (`ConsulteeGroupMemberRole`)** | **Privileges (`PwaUserPrivilege`)** | **Processing permissions (`PwaAppProcessingPermission`)** |
-|---------------------------------------|-------------------------------------|-----------------------------------------------------------|
-| `ACCESS_MANAGER`                      | `PWA_CONSULTEE_GROUP_ADMIN`         |                                                           |
-| `RECIPIENT`                           |                                     | `ASSIGN_RESPONDER`,                                       |
-| `RESPONDER`                           |                                     | `ASSIGN_RESPONDER`, `CONSULTATION_RESPONDER`              |
+| **Role (`ConsulteeGroupMemberRole`)** | **Additional Privileges (`PwaUserPrivilege`)** | **Additional Processing permissions (`PwaAppProcessingPermission`)** |
+|---------------------------------------|------------------------------------------------|----------------------------------------------------------------------|
+| `ACCESS_MANAGER`                      | `PWA_CONSULTEE_GROUP_ADMIN`                    |                                                                      |
+| `RECIPIENT`                           |                                                | `ASSIGN_RESPONDER`,                                                  |
+| `RESPONDER`                           |                                                | `ASSIGN_RESPONDER`, `CONSULTATION_RESPONDER`                         |
 
 
 ## 4. Application Contacts
@@ -63,9 +66,10 @@ _(Not a system-wide team, scoped to an application)_
 All Contact roles have:
 - the `PWA_INDUSTRY`, `PWA_WORKAREA` privileges.
 - the `VIEW_PAYMENT_DETAILS_IF_EXISTS` PwaAppProcessingPermission
+- the `VIEW` PwaApplicationPermission
 
-| **Role (`PwaContactRole`)** | **Processing permissions (`PwaAppProcessingPermission`)** |
-|-----------------------------|-----------------------------------------------------------|
-| `ACCESS_MANAGER`            | `PAY_FOR_APPLICATION`, `MANAGE_APPLICATION_CONTACTS`      |
-| `PREPARER`                  | `PAY_FOR_APPLICATION`, `UPDATE_APPLICATION`               |
-| `VIEWER`                    |                                                           |
+| **Role (`PwaContactRole`)** | **Additional Processing permissions (`PwaAppProcessingPermission`)** | **Additional Application permissions (`PwaApplicationPermission`)** |
+|-----------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------|
+| `ACCESS_MANAGER`            | `PAY_FOR_APPLICATION`, `MANAGE_APPLICATION_CONTACTS`                 | `MANAGE_CONTACTS`                                                   |
+| `PREPARER`                  | `PAY_FOR_APPLICATION`, `UPDATE_APPLICATION`                          | `EDIT`, `SET_PIPELINE_REFERENCE`                                    |
+| `VIEWER`                    |                                                                      |                                                                     |

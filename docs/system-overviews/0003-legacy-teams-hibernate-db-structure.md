@@ -1,4 +1,4 @@
-# System Reference Document - Legacy Teams Database Structure
+# System Overview - Legacy Teams Database Structure
 
 ## Introduction
 This document provides a detailed overview of the hibernate database structure used in the legacy teams system and their underlying views.
