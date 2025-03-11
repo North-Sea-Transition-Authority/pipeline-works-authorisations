@@ -23,6 +23,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
+import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
@@ -106,7 +107,10 @@ public class WebSecurityConfig {
 
             .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
 
-            .anyRequest().hasAuthority(energyPortalAccessApiConfiguration.privilegeName())
+            .anyRequest().hasAnyAuthority(
+                energyPortalAccessApiConfiguration.privilegeName(),
+                String.valueOf(PwaUserPrivilege.PIPELINE_VIEW) // allows external access
+            )
 
         )
         .csrf(csrf -> csrf
