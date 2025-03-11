@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -171,6 +172,24 @@ class TeamQueryServiceTest {
 
     assertThat(teamQueryService.userHasAtLeastOneScopedRole(1L, TeamType.ORGANISATION, TeamScopeReference.from("1", "ORGGRP"), Set.of(Role.APPLICATION_SUBMITTER)))
         .isFalse();
+  }
+
+  @Test
+  void userIsMemberOfAnyTeam_whenMemberOfTeam_thenTrue() {
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of(mock(TeamRole.class)));
+
+    assertThat(teamQueryService.userIsMemberOfAnyTeam(1L)).isTrue();
+  }
+
+  @Test
+  void userIsMemberOfAnyTeam_whenNotMemberOfTeam_thenFalse() {
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of());
+
+    assertThat(teamQueryService.userIsMemberOfAnyTeam(1L)).isFalse();
   }
 
 

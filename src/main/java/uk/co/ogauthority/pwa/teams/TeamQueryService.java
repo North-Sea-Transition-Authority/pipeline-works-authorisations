@@ -56,4 +56,9 @@ public class TeamQueryService {
     });
   }
 
+  public boolean userIsMemberOfAnyTeam(long wuaId) {
+    var teamRoles = teamRoleRepository.findAllByWuaId(wuaId);
+    return !teamRoles.isEmpty();
+  }
+
 }

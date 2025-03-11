@@ -87,6 +87,7 @@ public class WebSecurityConfig {
             .requestMatchers("/consents/search")
             .hasAnyAuthority(systemAreaAccessService.getValidConsentSearchGrantedAuthorities())
 
+            // TODO: Remove in PWARE-63
             .requestMatchers("/portal-team-management", "/portal-team-management/**")
             .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 

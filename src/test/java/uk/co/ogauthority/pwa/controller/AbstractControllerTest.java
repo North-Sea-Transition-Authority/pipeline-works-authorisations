@@ -129,8 +129,8 @@ public abstract class AbstractControllerTest {
   public static class AbstractControllerTestConfiguration {
 
     @Bean
-    public SystemAreaAccessService systemAreaAccessService() {
-      return new SystemAreaAccessService(true);
+    public SystemAreaAccessService systemAreaAccessService(TeamQueryService teamQueryService) {
+      return new SystemAreaAccessService(true, teamQueryService);
     }
 
     @Bean

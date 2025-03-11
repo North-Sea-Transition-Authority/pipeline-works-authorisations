@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
 
 @Service
 public class SystemAreaAccessService {
@@ -18,6 +19,7 @@ public class SystemAreaAccessService {
   public final Set<PwaUserPrivilege> validWorkAreaPrivs = EnumSet.of(
       PwaUserPrivilege.PWA_WORKAREA);
 
+  // TODO: Remove in PWARE-63
   public final Set<PwaUserPrivilege> validTeamManagementPrivileges = EnumSet.of(
       PwaUserPrivilege.PWA_REG_ORG_MANAGE,
       PwaUserPrivilege.PWA_REGULATOR_ADMIN,
@@ -41,19 +43,24 @@ public class SystemAreaAccessService {
   public final Set<PwaUserPrivilege> validManagerPrivileges = EnumSet.of(
       PWA_MANAGER);
 
+  private final TeamQueryService teamQueryService;
+
   @Autowired
-  public SystemAreaAccessService(@Value("${pwa.features.start-application}") Boolean allowStartApplication) {
+  public SystemAreaAccessService(@Value("${pwa.features.start-application}") Boolean allowStartApplication,
+                                 TeamQueryService teamQueryService) {
+    this.teamQueryService = teamQueryService;
+
     if (!BooleanUtils.isTrue(allowStartApplication)) {
       validStartApplicationPrivileges = EnumSet.noneOf(PwaUserPrivilege.class);
     } else {
       validStartApplicationPrivileges = EnumSet.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
     }
-
   }
 
   /**
    * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
    */
+  // TODO: Remove in PWARE-63
   public String[] getValidTeamManagementGrantedAuthorities() {
     return validTeamManagementPrivileges.stream()
         .map(PwaUserPrivilege::name)
@@ -67,8 +74,7 @@ public class SystemAreaAccessService {
   }
 
   public boolean canAccessTeamManagement(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validTeamManagementPrivileges::contains);
+    return teamQueryService.userIsMemberOfAnyTeam(user.getWuaId());
   }
 
   public boolean isManagement(AuthenticatedUserAccount user) {
@@ -148,5 +154,4 @@ public class SystemAreaAccessService {
         .stream()
         .anyMatch(PWA_MANAGER::equals);
   }
-
 }

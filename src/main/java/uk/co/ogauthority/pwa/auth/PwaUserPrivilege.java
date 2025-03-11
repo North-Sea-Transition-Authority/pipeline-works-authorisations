@@ -18,6 +18,7 @@ public enum PwaUserPrivilege {
   PWA_APPLICATION_CREATE,
   PWA_APPLICATION_SUBMIT,
 
+  // TODO: Remove in PWARE-63
   // REGULATOR
   PWA_REGULATOR,
   PWA_ORG_ADMIN,
