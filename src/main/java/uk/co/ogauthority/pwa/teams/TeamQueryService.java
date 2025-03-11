@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.teams;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,12 @@ public class TeamQueryService {
   public TeamQueryService(TeamRepository teamRepository, TeamRoleRepository teamRoleRepository) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
+  }
+
+  public boolean userIsMemberOfStaticTeam(Long wuaId, TeamType teamType) {
+    var team = getStaticTeamByTeamType(teamType);
+
+    return teamRoleRepository.existsByTeamAndWuaId(team, wuaId);
   }
 
   public boolean userHasStaticRole(Long wuaId, TeamType teamType, Role role) {
@@ -61,4 +68,14 @@ public class TeamQueryService {
     return !teamRoles.isEmpty();
   }
 
+  @VisibleForTesting
+  Team getStaticTeamByTeamType(TeamType teamType) {
+    if (teamType.isScoped()) {
+      throw new IllegalArgumentException("TeamType %s is not static".formatted(teamType));
+    }
+
+    return teamRepository.findByTeamType(teamType).stream()
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("No team found for static team of TeamType %s".formatted(teamType)));
+  }
 }

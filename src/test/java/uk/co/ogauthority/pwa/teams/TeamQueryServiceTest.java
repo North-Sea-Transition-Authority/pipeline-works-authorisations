@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,8 +27,33 @@ class TeamQueryServiceTest {
   @Mock
   private TeamRoleRepository teamRoleRepository;
 
+  @Spy
   @InjectMocks
   private TeamQueryService teamQueryService;
+
+  @Test
+  void userIsMemberOfStaticTeam_isMember() {
+
+    Team team = mock(Team.class);
+    setupStaticTeam(teamQueryService, team, TeamType.REGULATOR);
+
+    when(teamRoleRepository.existsByTeamAndWuaId(team, 1L)).thenReturn(true);
+
+    assertThat(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR))
+        .isTrue();
+  }
+
+  @Test
+  void userIsMemberOfStaticTeam_isNotMember() {
+
+    Team team = mock(Team.class);
+    setupStaticTeam(teamQueryService, team, TeamType.REGULATOR);
+
+    when(teamRoleRepository.existsByTeamAndWuaId(team, 1L)).thenReturn(false);
+
+    assertThat(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR))
+        .isFalse();
+  }
 
   @Test
   void userHasStaticRole_hasRole() {
@@ -192,6 +219,38 @@ class TeamQueryServiceTest {
     assertThat(teamQueryService.userIsMemberOfAnyTeam(1L)).isFalse();
   }
 
+  @Test
+  void getStaticTeamByTeamType_throwsIllegalArgumentException_whenScopedTeamType() {
+    TeamType scopedTeamType = mock(TeamType.class);
+    when(scopedTeamType.isScoped()).thenReturn(true);
+
+    assertThatExceptionOfType(IllegalArgumentException.class)
+        .isThrownBy(() -> teamQueryService.getStaticTeamByTeamType(scopedTeamType))
+        .withMessage("TeamType %s is not static".formatted(scopedTeamType));
+  }
+
+  @Test
+  void getStaticTeamByTeamType_throwsIllegalStateException_whenNoTeamFound() {
+    TeamType staticTeamType = mock(TeamType.class);
+    when(staticTeamType.isScoped()).thenReturn(false);
+    when(teamRepository.findByTeamType(staticTeamType)).thenReturn(List.of());
+
+    assertThatExceptionOfType(IllegalStateException.class)
+        .isThrownBy(() -> teamQueryService.getStaticTeamByTeamType(staticTeamType))
+        .withMessage("No team found for static team of TeamType %s".formatted(staticTeamType));
+  }
+
+  @Test
+  void getStaticTeamByTeamType_returnsTeam_whenValidStaticTeamType() {
+    TeamType staticTeamType = mock(TeamType.class);
+    Team expectedTeam = new Team(UUID.randomUUID());
+    when(staticTeamType.isScoped()).thenReturn(false);
+    when(teamRepository.findByTeamType(staticTeamType)).thenReturn(List.of(expectedTeam));
+
+    Team actualTeam = teamQueryService.getStaticTeamByTeamType(staticTeamType);
+
+    assertThat(actualTeam).isEqualTo(expectedTeam);
+  }
 
   private void setupStaticTeamAndRoles(Long wuaId, TeamType teamType, List<Role> roles) {
     var team = new Team(UUID.randomUUID());
@@ -228,6 +287,10 @@ class TeamQueryServiceTest {
     teamRole.setTeam(team);
     teamRole.setRole(role);
     return teamRole;
+  }
+
+  private void setupStaticTeam(TeamQueryService spy, Team team, TeamType teamType) {
+    doReturn(team).when(spy).getStaticTeamByTeamType(teamType);
   }
 
 }

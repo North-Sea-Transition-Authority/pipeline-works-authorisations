@@ -3,32 +3,32 @@ package uk.co.ogauthority.pwa.service.pwacontext;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class PwaPermissionServiceTest {
 
   @Mock
-  private TeamService teamService;
+  private TeamQueryService teamQueryService;
 
   @Mock
   private PwaHolderTeamService pwaHolderTeamService;
 
+  @InjectMocks
   private PwaPermissionService pwaPermissionService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
@@ -38,8 +38,6 @@ class PwaPermissionServiceTest {
 
   @BeforeEach
   void setUp() {
-
-    pwaPermissionService = new PwaPermissionService(teamService, pwaHolderTeamService);
 
     masterPwa = new MasterPwa();
   }
@@ -69,15 +67,15 @@ class PwaPermissionServiceTest {
 
 
   @Test
-  void getPwaPermissions_userNotInHolderTeam_userHasRegulatorRole() {
+  void getPwaPermissions_userNotInHolderTeam_userIsRegulator() {
 
     when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()))
         .thenReturn(false);
 
     int pwaRegulatorTeamId = 1;
     var regulatorTeam = new PwaRegulatorTeam(pwaRegulatorTeamId, "", "");
-    when(teamService.getRegulatorTeamIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaRegulatorRole.class)))
-        .thenReturn(Optional.of(regulatorTeam));
+    when(teamQueryService.userIsMemberOfStaticTeam((long) user.getWuaId(), TeamType.REGULATOR))
+        .thenReturn(true);
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
     assertThat(permissions).containsExactlyInAnyOrder(
