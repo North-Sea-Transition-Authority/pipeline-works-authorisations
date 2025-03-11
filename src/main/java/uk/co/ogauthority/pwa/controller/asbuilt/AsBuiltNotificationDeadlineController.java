@@ -57,7 +57,7 @@ public class AsBuiltNotificationDeadlineController {
   public ModelAndView renderAsBuiltGroupUpdateDeadlineForm(@PathVariable Integer notificationGroupId,
                                                            @ModelAttribute("form") ChangeAsBuiltNotificationGroupDeadlineForm form,
                                                            AuthenticatedUserAccount authenticatedUserAccount) {
-    checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount, notificationGroupId);
+    checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount);
 
     var summary = asBuiltViewerService
         .getAsBuiltNotificationGroupSummaryView(notificationGroupId);
@@ -78,7 +78,7 @@ public class AsBuiltNotificationDeadlineController {
                                                        BindingResult bindingResult,
                                                        RedirectAttributes redirectAttributes,
                                                        AuthenticatedUserAccount authenticatedUserAccount) {
-    checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount, notificationGroupId);
+    checkUserCanChangeAsBuiltDeadline(authenticatedUserAccount);
 
     var asBuiltNotificationGroup = getAsBuiltNotificationGroup(notificationGroupId);
 
@@ -94,8 +94,8 @@ public class AsBuiltNotificationDeadlineController {
         });
   }
 
-  private void checkUserCanChangeAsBuiltDeadline(AuthenticatedUserAccount user, Integer notificationGroupId) {
-    if (asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())) {
+  private void checkUserCanChangeAsBuiltDeadline(AuthenticatedUserAccount user) {
+    if (asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)) {
       return;
     }
     throw new AccessDeniedException(

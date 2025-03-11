@@ -91,9 +91,9 @@ class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest
 
   @BeforeEach
   void setup() {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID))
         .thenReturn(true);
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(false);
     when(asBuiltNotificationGroupService.getAsBuiltNotificationGroup(NOTIFICATION_GROUP_ID))
         .thenReturn(Optional.of(asBuiltNotificationGroup));
     when(asBuiltPipelineNotificationService.getPipelineDetail(PIPElINE_DETAIL_ID)).thenReturn(pipelineDetail);
@@ -105,7 +105,7 @@ class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest
 
   @Test
   void getAsBuiltNotificationSubmissionForm_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID))
         .thenReturn(false);
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
@@ -126,9 +126,9 @@ class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest
 
   @Test
   void getAsBuiltNotificationSubmissionForm_authorizedOgaUser_permitted_hasOgaOnlyQuestion() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID))
         .thenReturn(true);
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
@@ -140,9 +140,9 @@ class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest
   @Test
   void getAsBuiltNotificationSubmissionForm_InServicePipeline_noNeverLaidRadioOption() throws Exception {
     asBuiltNotificationGroupPipeline.setPipelineChangeCategory(PipelineChangeCategory.CONSENT_UPDATE);
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID))
         .thenReturn(true);
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationSubmissionController.class)
             .renderSubmitAsBuiltNotificationForm(NOTIFICATION_GROUP_ID, PIPElINE_DETAIL_ID, user, new AsBuiltNotificationSubmissionForm())))
@@ -156,7 +156,7 @@ class AsBuiltNotificationSubmissionControllerTest extends AbstractControllerTest
 
   @Test
   void postSubmitAsBuiltNotification_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID))
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID))
         .thenReturn(false);
 
     mockMvc.perform(post(

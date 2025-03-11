@@ -16,11 +16,11 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @Service
 public class WorkflowAssignmentService {
@@ -59,7 +59,7 @@ public class WorkflowAssignmentService {
     switch (task.getAssignment()) {
 
       case CASE_OFFICER:
-        return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER);
+        return pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER);
 
       case CONSULTATION_RESPONDER:
 

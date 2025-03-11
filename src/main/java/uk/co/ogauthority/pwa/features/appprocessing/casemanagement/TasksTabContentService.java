@@ -201,8 +201,7 @@ public class TasksTabContentService implements AppProcessingTabContentService {
     var consentOptional = pwaConsentService.getConsentByPwaApplication(appProcessingContext.getPwaApplication());
     if (consentOptional.isPresent()) {
       var consent = consentOptional.get();
-      var isOgaAdmin = asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(
-          appProcessingContext.getUser().getLinkedPerson());
+      var isOgaAdmin = asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(appProcessingContext.getUser());
       if (isOgaAdmin && asBuiltViewerService.canGroupBeReopened(consent)) {
         return asBuiltViewerService.getNotificationGroupOptionalFromConsent(consent)
             .map(asBuiltGroup -> ReverseRouter.route(on(ReopenAsBuiltNotificationGroupController.class)

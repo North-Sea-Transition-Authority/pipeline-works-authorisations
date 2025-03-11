@@ -70,8 +70,7 @@ public class ReopenAsBuiltNotificationGroupController {
   }
 
   private void checkUserCanReopenAsBuiltGroup(AuthenticatedUserAccount user, AsBuiltNotificationGroup asBuiltNotificationGroup) {
-    var person = user.getLinkedPerson();
-    if (asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(person)
+    if (asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)
         && asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent())) {
       return;
     }

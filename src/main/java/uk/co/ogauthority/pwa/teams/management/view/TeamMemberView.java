@@ -23,6 +23,10 @@ public record TeamMemberView(
     List<Role> roles
 ) {
   public String getDisplayName() {
+    return getFullName();
+  }
+
+  public String getFullName() {
     return Stream.of(title, forename, surname)
         .filter(StringUtils::isNotBlank)
         .collect(Collectors.joining(" "));

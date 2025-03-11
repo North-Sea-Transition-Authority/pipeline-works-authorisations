@@ -22,13 +22,11 @@ import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -55,10 +53,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -168,7 +166,7 @@ class ConsentReviewControllerTest extends PwaAppProcessingContextAbstractControl
         WorkflowAssignment.CASE_OFFICER,
         caseOfficerPerson.getId());
 
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER))
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER))
         .thenReturn(Set.of(caseOfficerPerson, PersonTestUtil.createPersonFrom(new PersonId(55))));
 
     when(assignmentService.getAssignments(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(assignment));
@@ -191,7 +189,7 @@ class ConsentReviewControllerTest extends PwaAppProcessingContextAbstractControl
         WorkflowAssignment.CASE_OFFICER,
         caseOfficerPerson.getId());
 
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER))
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER))
         .thenReturn(Set.of(PersonTestUtil.createPersonFrom(new PersonId(55))));
 
     when(assignmentService.getAssignments(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(assignment));

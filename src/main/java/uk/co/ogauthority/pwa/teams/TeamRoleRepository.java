@@ -13,6 +13,8 @@ public interface TeamRoleRepository extends CrudRepository<TeamRole, UUID> {
 
   List<TeamRole> findByTeam(Team team);
 
+  List<TeamRole> findByTeamAndRole(Team team, Role role);
+
   void deleteByWuaIdAndTeam(Long wuaId, Team team);
 
   boolean existsByTeamAndWuaId(Team team, Long wuaId);

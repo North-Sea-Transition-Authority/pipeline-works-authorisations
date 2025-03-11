@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.exception.AsBuiltNotificationGroupNotFoundException;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.dto.pipelines.PipelineDetailId;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupPipeline;
@@ -81,12 +80,10 @@ public class AsBuiltNotificationSubmissionController {
                                                           @ModelAttribute("form") AsBuiltNotificationSubmissionForm form) {
     checkUserCanAccessAsBuiltNotification(authenticatedUserAccount, notificationGroupId);
     var pipelineDetail = asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetailId);
-    var asBuiltNotificationGroup = asBuiltNotificationGroupService.getAsBuiltNotificationGroup(notificationGroupId).orElseThrow(
-        () ->
-            new AsBuiltNotificationGroupNotFoundException(String.format("Could not find as-built notification group with id %s",
-                notificationGroupId)));
-    return getSubmitAsBuiltNotificationModelAndView(authenticatedUserAccount.getLinkedPerson(), pipelineDetail,
-        asBuiltNotificationGroup);
+    var asBuiltNotificationGroup = asBuiltNotificationGroupService.getAsBuiltNotificationGroup(notificationGroupId)
+        .orElseThrow(() -> new AsBuiltNotificationGroupNotFoundException(
+            String.format("Could not find as-built notification group with id %s", notificationGroupId)));
+    return getSubmitAsBuiltNotificationModelAndView(authenticatedUserAccount, pipelineDetail, asBuiltNotificationGroup);
   }
 
   @PostMapping
@@ -98,7 +95,7 @@ public class AsBuiltNotificationSubmissionController {
                                                     RedirectAttributes redirectAttributes) {
     checkUserCanAccessAsBuiltNotification(authenticatedUserAccount, notificationGroupId);
     var pipelineDetail = getPipelineDetail(pipelineDetailId);
-    var isPersonOgaUser = isPersonOgaUser(authenticatedUserAccount.getLinkedPerson());
+    var userAsBuiltNotificationAdmin = isUserAsBuiltNotificationAdmin(authenticatedUserAccount);
     var asBuiltNotificationGroupPipeline = getAsBuiltNotificationGroupPipeline(notificationGroupId,
         pipelineDetail.getPipelineDetailId());
     var asBuiltNotificationGroup = asBuiltNotificationGroupPipeline.getAsBuiltNotificationGroup();
@@ -109,7 +106,11 @@ public class AsBuiltNotificationSubmissionController {
     asBuiltNotificationSubmissionValidator.validate(
         form,
         bindingResult,
-        new AsBuiltNotificationSubmissionValidatorHint(isPersonOgaUser, asBuiltNotificationGroupPipeline.getPipelineChangeCategory()));
+        new AsBuiltNotificationSubmissionValidatorHint(
+            userAsBuiltNotificationAdmin,
+            asBuiltNotificationGroupPipeline.getPipelineChangeCategory()
+        )
+    );
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,
         renderSubmitAsBuiltNotificationForm(notificationGroupId, pipelineDetailId, authenticatedUserAccount, form),
@@ -121,13 +122,13 @@ public class AsBuiltNotificationSubmissionController {
         });
   }
 
-  private ModelAndView getSubmitAsBuiltNotificationModelAndView(Person person,
-                                                               PipelineDetail pipelineDetail,
-                                                               AsBuiltNotificationGroup asBuiltNotificationGroup) {
+  private ModelAndView getSubmitAsBuiltNotificationModelAndView(AuthenticatedUserAccount user,
+                                                                PipelineDetail pipelineDetail,
+                                                                AsBuiltNotificationGroup asBuiltNotificationGroup) {
     var modelAndView = new ModelAndView("asbuilt/form/submitAsBuiltNotification");
     var pipelineChangeCategory = getPipelineChangeCategory(asBuiltNotificationGroup.getId(),
         pipelineDetail.getPipelineDetailId());
-    var isPersonOgaUser = isPersonOgaUser(person);
+    var isPersonOgaUser = isUserAsBuiltNotificationAdmin(user);
     var cancelUrl = ReverseRouter.route(on(AsBuiltNotificationController.class)
         .getAsBuiltNotificationDashboard(asBuiltNotificationGroup.getId(), null));
     var summary = asBuiltViewerService
@@ -171,7 +172,7 @@ public class AsBuiltNotificationSubmissionController {
   }
 
   private void checkUserCanAccessAsBuiltNotification(AuthenticatedUserAccount user, Integer notificationGroupId) {
-    if (asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), notificationGroupId)) {
+    if (asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, notificationGroupId)) {
       return;
     }
     throw new AccessDeniedException(
@@ -184,8 +185,8 @@ public class AsBuiltNotificationSubmissionController {
     return asBuiltPipelineNotificationService.getPipelineDetail(pipelineDetailId);
   }
 
-  private boolean isPersonOgaUser(Person person) {
-    return asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(person);
+  private boolean isUserAsBuiltNotificationAdmin(AuthenticatedUserAccount user) {
+    return asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user);
   }
 
   private PipelineChangeCategory getPipelineChangeCategory(Integer asBuiltNotificationGroupId, PipelineDetailId pipelineDetailId) {

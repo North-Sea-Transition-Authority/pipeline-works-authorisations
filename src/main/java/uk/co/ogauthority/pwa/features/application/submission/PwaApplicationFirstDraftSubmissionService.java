@@ -11,9 +11,10 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * Service to perform all submission business logic for pwa applications.
@@ -22,21 +23,21 @@ import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmissionService {
 
   private final NotifyService notifyService;
-  private final PwaTeamService pwaTeamService;
   private final PadPipelineNumberingService padPipelineNumberingService;
   private final CaseLinkService caseLinkService;
+  private final TeamQueryService teamQueryService;
 
 
   @Autowired
   public PwaApplicationFirstDraftSubmissionService(NotifyService notifyService,
-                                                   PwaTeamService pwaTeamService,
                                                    PadPipelineNumberingService padPipelineNumberingService,
-                                                   CaseLinkService caseLinkService) {
+                                                   CaseLinkService caseLinkService,
+                                                   TeamQueryService teamQueryService) {
 
     this.notifyService = notifyService;
-    this.pwaTeamService = pwaTeamService;
     this.padPipelineNumberingService = padPipelineNumberingService;
     this.caseLinkService = caseLinkService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Override
@@ -71,7 +72,7 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
 
   private void sendApplicationSubmittedEmail(PwaApplicationDetail detail) {
 
-    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
+    var pwaManagers = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER);
 
     pwaManagers.forEach(pwaManager -> {
 
@@ -81,7 +82,7 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
           detail.getPwaApplicationType().getDisplayName(),
           caseLinkService.generateCaseManagementLink(detail.getPwaApplication()));
 
-      notifyService.sendEmail(submittedEmailProps, pwaManager.getEmailAddress());
+      notifyService.sendEmail(submittedEmailProps, pwaManager.email());
 
     });
 

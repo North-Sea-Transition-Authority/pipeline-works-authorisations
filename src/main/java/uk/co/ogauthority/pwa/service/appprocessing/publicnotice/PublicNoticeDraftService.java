@@ -25,11 +25,12 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class PublicNoticeDraftService {
@@ -40,7 +41,7 @@ public class PublicNoticeDraftService {
   private final Clock clock;
   private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
-  private final PwaTeamService pwaTeamService;
+  private final TeamQueryService teamQueryService;
 
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
 
@@ -49,19 +50,18 @@ public class PublicNoticeDraftService {
       AppFileService appFileService,
       PublicNoticeService publicNoticeService,
       CamundaWorkflowService camundaWorkflowService,
-      @Qualifier("utcClock") Clock clock, NotifyService notifyService,
+      @Qualifier("utcClock") Clock clock,
+      NotifyService notifyService,
       CaseLinkService caseLinkService,
-      PwaTeamService pwaTeamService) {
+      TeamQueryService teamQueryService) {
     this.appFileService = appFileService;
     this.publicNoticeService = publicNoticeService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
-    this.pwaTeamService = pwaTeamService;
+    this.teamQueryService = teamQueryService;
   }
-
-
 
   /*
   This method assumes either a public notice doesn't already exist,
@@ -150,7 +150,7 @@ public class PublicNoticeDraftService {
 
     var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
-    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
+    var pwaManagers = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER);
 
     pwaManagers.forEach(pwaManager -> {
 
@@ -159,10 +159,9 @@ public class PublicNoticeDraftService {
           pwaApplication.getAppReference(),
           publicNoticeReason,
           caseManagementLink);
-      notifyService.sendEmail(emailProps, pwaManager.getEmailAddress());
+      notifyService.sendEmail(emailProps, pwaManager.email());
     });
   }
-
 
   private PublicNoticeRequest createPublicNoticeRequestFromForm(PublicNoticeDraftForm form,
                                                                 PublicNotice publicNotice,
@@ -180,6 +179,4 @@ public class PublicNoticeDraftService {
     publicNoticeRequest.setCreatedByPersonId(person.getId().asInt());
     return publicNoticeRequest;
   }
-
-
 }

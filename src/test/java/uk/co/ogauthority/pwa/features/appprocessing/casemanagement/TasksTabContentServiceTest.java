@@ -413,7 +413,7 @@ class TasksTabContentServiceTest {
     when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
     when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()))
         .thenReturn(Optional.of(asBuiltNotificationGroup.getPwaConsent()));
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(wua.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(wua)).thenReturn(false);
 
     var modelMap = taskTabContentService.getTabContent(processingContext, AppProcessingTab.TASKS);
 
@@ -442,7 +442,7 @@ class TasksTabContentServiceTest {
     when(consentReviewService.isApplicationConsented(any())).thenReturn(true);
     when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()))
         .thenReturn(Optional.of(asBuiltNotificationGroup.getPwaConsent()));
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(wua.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(wua)).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent())).thenReturn(true);
     when(asBuiltViewerService.getNotificationGroupOptionalFromConsent(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(Optional.of(asBuiltNotificationGroup));

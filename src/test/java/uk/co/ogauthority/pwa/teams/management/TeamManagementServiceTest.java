@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.teams.management;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
@@ -36,13 +35,13 @@ import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamRepository;
 import uk.co.ogauthority.pwa.teams.TeamRole;
 import uk.co.ogauthority.pwa.teams.TeamRoleRepository;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
-import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @ExtendWith(MockitoExtension.class)
 class TeamManagementServiceTest {
@@ -65,6 +64,9 @@ class TeamManagementServiceTest {
   @Mock
   private EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
+  @Mock
+  private TeamMemberQueryService teamMemberQueryService;
+
   @InjectMocks
   private TeamManagementService teamManagementService;
 
@@ -84,8 +86,6 @@ class TeamManagementServiceTest {
   private static Team orgTeam2;
 
   private static TeamRole regTeamUser1RoleManage;
-  private static TeamRole regTeamUser1RoleOrgAdmin;
-  private static TeamRole regTeamUser2RoleOrgAdmin;
 
   private static TeamRole orgTeam1User1RoleManage;
   private static TeamRole orgTeam2User1RoleManage;
@@ -93,7 +93,6 @@ class TeamManagementServiceTest {
   private static final Long user1WuaId = 1L;
   private static User user1;
   private static final Long user2WuaId = 2L;
-  private static User user2;
 
   @BeforeAll
   static void setUp() {
@@ -103,16 +102,6 @@ class TeamManagementServiceTest {
     regTeamUser1RoleManage.setTeam(regTeam);
     regTeamUser1RoleManage.setWuaId(user1WuaId);
     regTeamUser1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
-
-    regTeamUser1RoleOrgAdmin = new TeamRole();
-    regTeamUser1RoleOrgAdmin.setTeam(regTeam);
-    regTeamUser1RoleOrgAdmin.setWuaId(user1WuaId);
-    regTeamUser1RoleOrgAdmin.setRole(Role.ORGANISATION_MANAGER);
-
-    regTeamUser2RoleOrgAdmin = new TeamRole();
-    regTeamUser2RoleOrgAdmin.setTeam(regTeam);
-    regTeamUser2RoleOrgAdmin.setWuaId(user2WuaId);
-    regTeamUser2RoleOrgAdmin.setRole(Role.ORGANISATION_MANAGER);
 
     orgTeam1 = new Team(UUID.randomUUID());
     orgTeam1.setTeamType(TeamType.ORGANISATION);
@@ -137,16 +126,6 @@ class TeamManagementServiceTest {
     user1.setTelephoneNumber("1");
     user1.setCanLogin(true);
     user1.setIsAccountShared(false);
-
-    user2 = new User();
-    user2.setWebUserAccountId(Math.toIntExact(user2WuaId));
-    user2.setTitle("Mr");
-    user2.setForename("User");
-    user2.setSurname("Two");
-    user2.setPrimaryEmailAddress("two@example.com");
-    user2.setTelephoneNumber("2");
-    user2.setCanLogin(true);
-    user2.setIsAccountShared(false);
 
   }
 
@@ -269,99 +248,6 @@ class TeamManagementServiceTest {
     teamManagementService.getEnergyPortalUser("foo");
 
     verify(userApi).searchUsersByEmail(eq("foo"), refEq(expectedProjection), any(RequestPurpose.class));
-  }
-
-  @Test
-  void getTeamMemberView() {
-    when(teamRoleRepository.findByWuaIdAndTeam(user1WuaId, regTeam))
-        .thenReturn(List.of(regTeamUser1RoleManage, regTeamUser1RoleOrgAdmin));
-
-    var expectedProjection = new UserProjectionRoot()
-        .webUserAccountId()
-        .title()
-        .forename()
-        .surname()
-        .primaryEmailAddress()
-        .telephoneNumber();
-
-    var user = new User();
-    user.setWebUserAccountId(1);
-    user.setTitle("Ms");
-    user.setForename("Foo");
-    user.setSurname("Bar");
-    user.setPrimaryEmailAddress("text@example.com");
-    user.setTelephoneNumber("012345678");
-    user.setCanLogin(true);
-    user.setIsAccountShared(false);
-
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
-        .thenReturn(Optional.of(user));
-
-    var teamMemberView = teamManagementService.getTeamMemberView(regTeam, user1WuaId);
-
-    assertThat(teamMemberView.wuaId()).isEqualTo(Long.valueOf(user.getWebUserAccountId()));
-    assertThat(teamMemberView.title()).isEqualTo(user.getTitle());
-    assertThat(teamMemberView.forename()).isEqualTo(user.getForename());
-    assertThat(teamMemberView.surname()).isEqualTo(user.getSurname());
-    assertThat(teamMemberView.email()).isEqualTo(user.getPrimaryEmailAddress());
-    assertThat(teamMemberView.telNo()).isEqualTo(user.getTelephoneNumber());
-    assertThat(teamMemberView.teamId()).isEqualTo(regTeam.getId());
-    assertThat(teamMemberView.roles()).containsExactlyInAnyOrder(regTeamUser1RoleManage.getRole(), regTeamUser1RoleOrgAdmin.getRole());
-  }
-
-  @Test
-  void getTeamMemberViewsForTeam() {
-
-    // the list returns roles not in the order declared in the TeamType enum
-    when(teamRoleRepository.findByTeam(regTeam))
-        .thenReturn(List.of(regTeamUser1RoleOrgAdmin, regTeamUser1RoleManage, regTeamUser2RoleOrgAdmin));
-
-    var expectedProjection = new UsersProjectionRoot()
-        .webUserAccountId()
-        .title()
-        .forename()
-        .surname()
-        .primaryEmailAddress()
-        .telephoneNumber();
-
-    when(userApi.searchUsersByIds(eq(List.of(1,2)), refEq(expectedProjection), any(RequestPurpose.class)))
-        .thenReturn(List.of(user1, user2));
-
-    var teamMemberViews = teamManagementService.getTeamMemberViewsForTeam(regTeam);
-
-    assertThat(teamMemberViews)
-        .extracting(
-            TeamMemberView::wuaId,
-            TeamMemberView::title,
-            TeamMemberView::forename,
-            TeamMemberView::surname,
-            TeamMemberView::email,
-            TeamMemberView::telNo,
-            TeamMemberView::teamId,
-            TeamMemberView::roles
-        )
-        .containsExactly(
-            tuple(
-                Long.valueOf(user1.getWebUserAccountId()),
-                user1.getTitle(),
-                user1.getForename(),
-                user1.getSurname(),
-                user1.getPrimaryEmailAddress(),
-                user1.getTelephoneNumber(),
-                regTeam.getId(),
-                List.of(regTeamUser1RoleManage.getRole(), regTeamUser1RoleOrgAdmin.getRole())
-            ),
-            tuple(
-                Long.valueOf(user2.getWebUserAccountId()),
-                user2.getTitle(),
-                user2.getForename(),
-                user2.getSurname(),
-                user2.getPrimaryEmailAddress(),
-                user2.getTelephoneNumber(),
-                regTeam.getId(),
-                List.of(regTeamUser2RoleOrgAdmin.getRole())
-            )
-        );
   }
 
   @Test

@@ -7,12 +7,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -20,13 +22,14 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewd
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,8 +42,9 @@ class ConsentDocumentEmailServiceTest {
   private CaseLinkService caseLinkService;
 
   @Mock
-  private PwaTeamService pwaTeamService;
+  private TeamQueryService teamQueryService;
 
+  @InjectMocks
   private ConsentDocumentEmailService consentDocumentEmailService;
 
   @Captor
@@ -51,17 +55,15 @@ class ConsentDocumentEmailServiceTest {
 
   private final PwaApplicationDetail detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   private final Person person = PersonTestUtil.createDefaultPerson();
-  private final Person pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(10));
-  private final Person pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(11));
-  private final Set<Person> pwaManagers = Set.of(pwaManager1, pwaManager2);
+  private final TeamMemberView pwaManager1 = new TeamMemberView(1L, "Mr.", "PWA", "Manager1", "manager1@pwa.co.uk", null, null, null);
+  private final TeamMemberView pwaManager2 = new TeamMemberView(2L, "Ms.", "PWA", "Manager2", "manager2@pwa.co.uk", null, null, null);
+  private final Set<TeamMemberView> pwaManagers = Set.of(pwaManager1, pwaManager2);
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     when(caseLinkService.generateCaseManagementLink(any())).thenReturn("my case link");
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(pwaManagers);
-
-    consentDocumentEmailService = new ConsentDocumentEmailService(notifyService, caseLinkService, pwaTeamService);
+    when(teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER)).thenReturn(List.of(pwaManager1, pwaManager2));
 
   }
 
@@ -85,10 +87,10 @@ class ConsentDocumentEmailServiceTest {
     });
 
     assertThat(emailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.getEmailAddress());
+    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.email());
 
     assertThat(emailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.getEmailAddress());
+    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.email());
 
   }
 

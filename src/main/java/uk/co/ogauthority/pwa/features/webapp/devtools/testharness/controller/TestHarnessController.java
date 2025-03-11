@@ -25,11 +25,11 @@ import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.TestHarnessUse
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.quartzjob.TestHarnessJobCreationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -49,7 +49,6 @@ public class TestHarnessController {
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
   private final ControllerHelperService controllerHelperService;
 
-
   @Autowired
   public TestHarnessController(TestHarnessService testHarnessService,
                                TestHarnessJobCreationService testHarnessJobCreationService,
@@ -65,12 +64,10 @@ public class TestHarnessController {
     this.controllerHelperService = controllerHelperService;
   }
 
-
   @GetMapping("/generate-application")
   public ModelAndView renderGenerateApplication(@ModelAttribute("form") GenerateApplicationForm form) {
     return getGenerateApplicationModelAndView();
   }
-
 
   @PostMapping("/generate-application")
   public ModelAndView postGenerateApplication(@ModelAttribute("form") GenerateApplicationForm form,
@@ -99,7 +96,6 @@ public class TestHarnessController {
 
   }
 
-
   private ModelAndView getGenerateApplicationModelAndView() {
 
     var applicationTypeMap = PwaApplicationType.stream()
@@ -113,7 +109,7 @@ public class TestHarnessController {
     var applicationStatusMap = TestHarnessService.getTestHarnessAppStatuses().stream()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationStatus::getDisplayName));
 
-    var caseOfficerCandidates = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER)
+    var caseOfficerCandidates = pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER)
         .stream()
         .sorted(Comparator.comparing(Person::getFullName))
         .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
@@ -136,9 +132,6 @@ public class TestHarnessController {
         .addObject("appStatusesForCaseOfficer", appStatusesForCaseOfficer);
   }
 
-
-
-
   @GetMapping("/generate-application/select-pwa")
   public ModelAndView renderSelectPwa(@RequestParam String applicationType,
                                       @RequestParam Integer pipelineQuantity,
@@ -149,7 +142,6 @@ public class TestHarnessController {
                                       @ModelAttribute("form") GenerateVariationApplicationForm form) {
     return getSelectPwaModelAndView(form);
   }
-
 
   @PostMapping("/generate-application/select-pwa")
   public ModelAndView postSelectPwa(@ModelAttribute("form") GenerateVariationApplicationForm form,
@@ -165,7 +157,6 @@ public class TestHarnessController {
 
   }
 
-
   private ModelAndView getSelectPwaModelAndView(GenerateVariationApplicationForm form) {
 
     var user = testHarnessUserRetrievalService.getWebUserAccount(form.getApplicantPersonId());
@@ -180,8 +171,5 @@ public class TestHarnessController {
         .addObject("nonConsentedPwaMap", pickableOptions.getNonconsentedPickablePwas())
         .addObject("showNonConsentedOptions", showNonConsentedOptions);
   }
-
-
-
 
 }

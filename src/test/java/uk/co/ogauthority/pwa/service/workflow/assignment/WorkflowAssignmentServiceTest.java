@@ -37,12 +37,12 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,7 +83,7 @@ class WorkflowAssignmentServiceTest {
     caseOfficerPerson = new Person(1, null, null, null, null);
     notCaseOfficerPerson = new Person(2, null, null, null, null);
 
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER)).thenReturn(Set.of(caseOfficerPerson));
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER)).thenReturn(Set.of(caseOfficerPerson));
 
     workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService,
         pwaTeamService, consulteeGroupTeamService, consultationRequestService, teamManagementService, assignmentService);

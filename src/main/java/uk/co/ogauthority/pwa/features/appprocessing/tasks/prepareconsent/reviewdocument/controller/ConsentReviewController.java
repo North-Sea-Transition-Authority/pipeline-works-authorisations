@@ -37,7 +37,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerBodyLine;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -45,6 +44,7 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -104,7 +104,7 @@ public class ConsentReviewController {
   private ModelAndView getReturnToCaseOfficerModelAndView(PwaAppProcessingContext processingContext,
                                                           ConsentReviewReturnForm form) {
 
-    var caseOfficerOptions = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.CASE_OFFICER).stream()
+    var caseOfficerOptions = pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER).stream()
         .sorted(Comparator.comparing(Person::getFullName))
         .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()), Person::getFullName));
 

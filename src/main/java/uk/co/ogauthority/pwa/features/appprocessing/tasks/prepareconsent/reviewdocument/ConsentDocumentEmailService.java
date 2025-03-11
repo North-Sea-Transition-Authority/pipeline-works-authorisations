@@ -7,29 +7,30 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class ConsentDocumentEmailService {
 
   private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
-  private final PwaTeamService pwaTeamService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ConsentDocumentEmailService(NotifyService notifyService,
                                      CaseLinkService caseLinkService,
-                                     PwaTeamService pwaTeamService) {
+                                     TeamQueryService teamQueryService) {
     this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
-    this.pwaTeamService = pwaTeamService;
+    this.teamQueryService = teamQueryService;
   }
 
   public void sendConsentReviewStartedEmail(PwaApplicationDetail pwaApplicationDetail,
                                             Person sendingPerson) {
 
-    var pwaManagers = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
+    var pwaManagers = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER);
 
     String caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
@@ -41,7 +42,7 @@ public class ConsentDocumentEmailService {
           sendingPerson.getFullName(),
           caseManagementLink);
 
-      notifyService.sendEmail(consentReviewEmailProps, pwaManager.getEmailAddress());
+      notifyService.sendEmail(consentReviewEmailProps, pwaManager.email());
 
     });
 

@@ -195,7 +195,7 @@ class DocumentCreationServiceTest {
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
     verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, docGenType);
 
-    verify(templateRenderingService, times(1)).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
+    verify(templateRenderingService).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
 
     assertThat(modelMapCaptor.getValue()).containsAllEntriesOf(Map.of(
         "showWatermark", watermarkShown,

@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges;
 
-import static java.util.stream.Collectors.toList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -13,42 +11,41 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignmentFailEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 class AppChargeEmailService {
 
-  private final PwaTeamService pwaTeamService;
   private final PwaContactService pwaContactService;
   private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
-  AppChargeEmailService(PwaTeamService pwaTeamService,
-                        PwaContactService pwaContactService,
+  AppChargeEmailService(PwaContactService pwaContactService,
                         NotifyService notifyService,
-                        CaseLinkService caseLinkService) {
-    this.pwaTeamService = pwaTeamService;
+                        CaseLinkService caseLinkService, TeamQueryService teamQueryService) {
     this.pwaContactService = pwaContactService;
     this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
+    this.teamQueryService = teamQueryService;
   }
-
 
   public void sendFailedToAssignCaseOfficerEmail(PwaApplication pwaApplication) {
 
-    var pwaManagerPeople = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER);
+    var pwaManagerPeople = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER);
     var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
-    for (Person pwaManager : pwaManagerPeople) {
+    for (var pwaManager : pwaManagerPeople) {
       var emailProps = new CaseOfficerAssignmentFailEmailProps(
           pwaManager.getFullName(),
           pwaApplication.getAppReference(),
           caseLink
       );
 
-      notifyService.sendEmail(emailProps, pwaManager.getEmailAddress());
+      notifyService.sendEmail(emailProps, pwaManager.email());
     }
 
   }
@@ -57,7 +54,7 @@ class AppChargeEmailService {
     var appContactPeople = pwaContactService.getContactsForPwaApplication(pwaApplication)
         .stream()
         .map(PwaContact::getPerson)
-        .collect(toList());
+        .toList();
     var caseLink = caseLinkService.generateCaseManagementLink(pwaApplication);
 
     for (Person appContactPerson : appContactPeople) {
@@ -76,7 +73,7 @@ class AppChargeEmailService {
     var appContactPeople = pwaContactService.getContactsForPwaApplication(pwaApplication)
         .stream()
         .map(PwaContact::getPerson)
-        .collect(toList());
+        .toList();
 
     for (Person appContactPerson : appContactPeople) {
       var emailProps = new ApplicationPaymentRequestCancelledEmailProps(

@@ -55,6 +55,7 @@ public class WebUserAccount implements Serializable {
     this.person = person;
   }
 
+  // TODO: Remove in PWARE-63
   @VisibleForTesting
   WebUserAccount(int wuaId,
                  String emailAddress,

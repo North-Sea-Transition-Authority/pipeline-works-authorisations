@@ -41,7 +41,7 @@ public class AsBuiltNotificationController {
         .getAsBuiltNotificationGroupSummaryView(notificationGroupId);
     var pipelineAsBuiltSubmissionViews = asBuiltViewerService
         .getAsBuiltPipelineNotificationSubmissionViews(notificationGroupId);
-    var isOgaUser = asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(authenticatedUserAccount.getLinkedPerson());
+    var isOgaUser = asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(authenticatedUserAccount);
     var modelAndView = new ModelAndView("asbuilt/asBuiltDashboard")
         .addObject("isOgaUser", isOgaUser)
         .addObject("changeDeadlineUrl", ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
@@ -53,7 +53,7 @@ public class AsBuiltNotificationController {
   }
 
   private void checkUserCanAccessAsBuiltNotificationDashboard(AuthenticatedUserAccount user, Integer notificationGroupId) {
-    if (asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), notificationGroupId)) {
+    if (asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, notificationGroupId)) {
       return;
     }
     throw new AccessDeniedException(

@@ -50,7 +50,7 @@ class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTes
 
   @BeforeEach
   void setup() {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(true);
     when(asBuiltViewerService.getNotificationGroup(NOTIFICATION_GROUP_ID)).thenReturn(asBuiltNotificationGroup);
@@ -60,7 +60,7 @@ class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTes
 
   @Test
   void renderReopenAsBuiltNotificationForm_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(false);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
 
@@ -73,7 +73,7 @@ class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTes
 
   @Test
   void renderReopenAsBuiltNotificationForm_unauthorizedUser_groupCannotBeReopened_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
 
@@ -96,7 +96,7 @@ class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTes
 
   @Test
   void reopenAsBuiltNotification_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(false);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(false);
 
@@ -109,7 +109,7 @@ class ReopenAsBuiltNotificationGroupControllerTest extends AbstractControllerTes
 
   @Test
   void reopenAsBuiltNotification_authorizedUser_success() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     when(asBuiltViewerService.canGroupBeReopened(asBuiltNotificationGroup.getPwaConsent()))
         .thenReturn(true);
 

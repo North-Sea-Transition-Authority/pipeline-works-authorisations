@@ -20,8 +20,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.validators.publicnotice.WithdrawPublicNoticeValidator;
 
 @Service
@@ -42,7 +42,8 @@ public class WithdrawPublicNoticeService {
       PublicNoticeService publicNoticeService,
       WithdrawPublicNoticeValidator withdrawPublicNoticeValidator,
       CamundaWorkflowService camundaWorkflowService,
-      PwaTeamService pwaTeamService, PwaContactService pwaContactService,
+      PwaTeamService pwaTeamService,
+      PwaContactService pwaContactService,
       NotifyService notifyService,
       @Qualifier("utcClock") Clock clock) {
     this.publicNoticeService = publicNoticeService;
@@ -54,22 +55,16 @@ public class WithdrawPublicNoticeService {
     this.clock = clock;
   }
 
-
-
-
   public boolean publicNoticeCanBeWithdrawn(PwaApplication pwaApplication) {
     return publicNoticeService.getOpenPublicNotices()
         .stream()
         .anyMatch(publicNotice -> publicNotice.getPwaApplication().equals(pwaApplication));
   }
 
-
   public BindingResult validate(WithdrawPublicNoticeForm form, BindingResult bindingResult) {
     withdrawPublicNoticeValidator.validate(form, bindingResult);
     return bindingResult;
   }
-
-
 
   @Transactional
   public void withdrawPublicNotice(PwaApplication pwaApplication,
@@ -108,7 +103,7 @@ public class WithdrawPublicNoticeService {
       ));
     }
 
-    emailRecipients.addAll(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER));
+    emailRecipients.addAll(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER));
     emailRecipients.forEach(recipient -> {
 
       var withdrawnEmailProps = new PublicNoticeWithdrawnEmailProps(
@@ -121,6 +116,5 @@ public class WithdrawPublicNoticeService {
     });
 
   }
-
 
 }

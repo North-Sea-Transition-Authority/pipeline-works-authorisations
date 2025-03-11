@@ -1,34 +1,42 @@
 package uk.co.ogauthority.pwa.service.teams;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
+// TODO: Remove when we remove use of Person
 /**
  * TeamService wrapper that answers common PWA team questions.
  */
 @Service
 public class PwaTeamService {
 
-  private final TeamService teamService;
+  private final TeamQueryService teamQueryService;
+  private final UserAccountService userAccountService;
 
   @Autowired
-  public PwaTeamService(TeamService teamService) {
-    this.teamService = teamService;
+  public PwaTeamService(TeamQueryService teamQueryService, UserAccountService userAccountService) {
+    this.teamQueryService = teamQueryService;
+    this.userAccountService = userAccountService;
   }
 
-  public Set<Person> getPeopleWithRegulatorRole(PwaRegulatorRole pwaRegulatorRole) {
-    return teamService.getTeamMembers(teamService.getRegulatorTeam()).stream()
-        .filter(member -> member.getRoleSet().stream()
-            .map(PwaRole::getName)
-            .anyMatch(roleName -> roleName.equals(pwaRegulatorRole.getPortalTeamRoleName())))
-        .map(PwaTeamMember::getPerson)
+  public Set<Person> getPeopleWithRegulatorRole(Role role) {
+    return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role).stream()
+        .map(this::getPersonIdFromWuaId)
         .collect(Collectors.toSet());
   }
 
+  @VisibleForTesting
+  Person getPersonIdFromWuaId(TeamMemberView member) {
+    var webUserAccount = userAccountService.getWebUserAccount(Math.toIntExact(member.wuaId()));
+    return webUserAccount.getLinkedPerson();
+  }
 }

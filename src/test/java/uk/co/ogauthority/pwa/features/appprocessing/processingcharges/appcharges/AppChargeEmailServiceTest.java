@@ -2,17 +2,16 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -30,8 +29,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +41,7 @@ class AppChargeEmailServiceTest {
   private static final String CASE_LINK = "LINK";
 
   @Mock
-  private PwaTeamService pwaTeamService;
+  private TeamQueryService teamQueryService;
 
   @Mock
   private NotifyService notifyService;
@@ -60,22 +61,26 @@ class AppChargeEmailServiceTest {
   @Captor
   private ArgumentCaptor<ApplicationPaymentRequestCancelledEmailProps> requestCancelledEmailPropsCaptor;
 
-
+  @InjectMocks
   private AppChargeEmailService appChargeEmailService;
 
-  private Person pwaManager1, pwaManager2, appContact1Person, appContact2Person;
+  private Person  appContact1Person, appContact2Person;
 
   private PwaContact contact1, contact2;
 
   private PwaApplication pwaApplication;
+  private TeamMemberView pwaManager1;
+  private TeamMemberView pwaManager2;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     pwaApplication = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL)
         .getPwaApplication();
 
-    pwaManager1 = PersonTestUtil.createPersonFrom(new PersonId(1), "manager1@email", "manager1");
-    pwaManager2 = PersonTestUtil.createPersonFrom(new PersonId(2), "manager2@email", "manager2");
+    pwaManager1 = new TeamMemberView(1L, "Mr.", "PWA", "Manager1", "manager1@pwa.co.uk", null, null, null);
+    pwaManager2 = new TeamMemberView(2L, "Ms.", "PWA", "Manager2", "manager2@pwa.co.uk", null, null, null);
+
+    when(teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER)).thenReturn(List.of(pwaManager1, pwaManager2));
 
     appContact1Person = PersonTestUtil.createPersonFrom(new PersonId(3), "contact1@email", "contact1");
     appContact2Person = PersonTestUtil.createPersonFrom(new PersonId(4), "contact2@email", "contact2");
@@ -85,10 +90,6 @@ class AppChargeEmailServiceTest {
     when(pwaContactService.getContactsForPwaApplication(pwaApplication))
         .thenReturn(List.of(contact1, contact2));
 
-    appChargeEmailService = new AppChargeEmailService(
-        pwaTeamService, pwaContactService, notifyService, caseLinkService
-    );
-
     when(caseLinkService.generateCaseManagementLink(pwaApplication)).thenReturn(CASE_LINK);
 
   }
@@ -96,13 +97,12 @@ class AppChargeEmailServiceTest {
   @Test
   void sendFailedToAssignCaseOfficerEmail_emailsPwaManagers() {
 
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER))
-        .thenReturn(Set.of(pwaManager1, pwaManager2));
+    when(teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER)).thenReturn(List.of(pwaManager1, pwaManager2));
 
     appChargeEmailService.sendFailedToAssignCaseOfficerEmail(pwaApplication);
 
-    verify(notifyService, times(1)).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager1.getEmailAddress()));
-    verify(notifyService, times(1)).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager2.getEmailAddress()));
+    verify(notifyService).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager1.email()));
+    verify(notifyService).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager2.email()));
 
     assertThat(assignmentFailEmailPropsCaptor.getAllValues())
         .hasSize(2)
@@ -123,8 +123,8 @@ class AppChargeEmailServiceTest {
 
     appChargeEmailService.sendChargeRequestIssuedEmail(pwaApplication);
 
-    verify(notifyService, times(1)).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
-    verify(notifyService, times(1)).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
+    verify(notifyService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
+    verify(notifyService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
 
     assertThat(requestIssuedEmailPropsCaptor.getAllValues())
         .hasSize(2)
@@ -143,8 +143,8 @@ class AppChargeEmailServiceTest {
   void sendChargeRequestCancelledEmail_emailsAppContacts() {
     appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplication);
 
-    verify(notifyService, times(1)).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
-    verify(notifyService, times(1)).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
+    verify(notifyService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
+    verify(notifyService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
 
     assertThat(requestCancelledEmailPropsCaptor.getAllValues())
         .hasSize(2)

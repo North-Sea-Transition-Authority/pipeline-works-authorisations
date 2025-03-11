@@ -64,7 +64,7 @@ class AsBuiltNotificationDeadlineControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setup() {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     when(asBuiltViewerService.getAsBuiltNotificationGroupSummaryView(NOTIFICATION_GROUP_ID)).thenReturn(
         AsBuiltNotificationSummaryTestUtil.getAsBuiltNotificationSummmary());
     when(asBuiltViewerService.getNotificationGroup(NOTIFICATION_GROUP_ID))
@@ -73,7 +73,7 @@ class AsBuiltNotificationDeadlineControllerTest extends AbstractControllerTest {
 
   @Test
   void renderAsBuiltGroupUpdateDeadlineForm_authorizedUser_successful() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .renderAsBuiltGroupUpdateDeadlineForm(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), user)))
@@ -84,7 +84,7 @@ class AsBuiltNotificationDeadlineControllerTest extends AbstractControllerTest {
 
   @Test
   void renderAsBuiltGroupUpdateDeadlineForm_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(false);
     mockMvc.perform(get(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)
             .renderAsBuiltGroupUpdateDeadlineForm(NOTIFICATION_GROUP_ID, new ChangeAsBuiltNotificationGroupDeadlineForm(), user)))
@@ -94,7 +94,7 @@ class AsBuiltNotificationDeadlineControllerTest extends AbstractControllerTest {
 
   @Test
   void submitAsBuiltGroupUpdateDeadline_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(false);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(false);
 
     mockMvc.perform(post(
         ReverseRouter.route(on(AsBuiltNotificationDeadlineController.class)

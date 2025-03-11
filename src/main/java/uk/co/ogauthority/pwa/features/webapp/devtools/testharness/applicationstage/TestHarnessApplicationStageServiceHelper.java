@@ -17,8 +17,9 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.InitialR
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.TestHarnessUserRetrievalService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appprocessinggeneration.TestHarnessAppProcessingProperties;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 
 /**
@@ -29,23 +30,21 @@ import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 class TestHarnessApplicationStageServiceHelper {
 
   private final PwaAppProcessingTaskService pwaAppProcessingTaskService;
-  private final PwaTeamService pwaTeamService;
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
   private final PwaAppProcessingContextService pwaAppProcessingContextService;
+  private final TeamQueryService teamQueryService;
 
 
   @Autowired
   TestHarnessApplicationStageServiceHelper(
       PwaAppProcessingTaskService pwaAppProcessingTaskService,
-      PwaTeamService pwaTeamService,
       TestHarnessUserRetrievalService testHarnessUserRetrievalService,
-      PwaAppProcessingContextService pwaAppProcessingContextService) {
+      PwaAppProcessingContextService pwaAppProcessingContextService, TeamQueryService teamQueryService) {
     this.pwaAppProcessingTaskService = pwaAppProcessingTaskService;
-    this.pwaTeamService = pwaTeamService;
     this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
     this.pwaAppProcessingContextService = pwaAppProcessingContextService;
+    this.teamQueryService = teamQueryService;
   }
-
 
   private TestHarnessAppProcessingProperties createAppProcessingProperties(WebUserAccount applicantWua,
                                                                    PwaApplication pwaApplication,
@@ -56,10 +55,11 @@ class TestHarnessApplicationStageServiceHelper {
     var applicantAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(applicantWua);
     var applicantProcessingContext = createAppProcessingContext(applicantAua, pwaApplication);
     var caseOfficerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(assignedCaseOfficerId);
-    var pwaManagerPerson = pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER).stream()
-        .findFirst().orElseThrow(() -> new PwaEntityNotFoundException(String.format(
-            "Person could not be found with %s role", PwaRegulatorRole.PWA_MANAGER.name())));
-    var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(pwaManagerPerson.getId().asInt());
+    var pwaManagerPerson = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER).stream()
+        .findFirst()
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            "Person could not be found with %s role".formatted(Role.PWA_MANAGER.name())));
+    var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(Math.toIntExact((pwaManagerPerson.wuaId())));
 
     return new TestHarnessAppProcessingProperties(
         applicantAua, applicantProcessingContext, caseOfficerAua, pwaManagerAua, paymentDecision, pipelineQuantity);
@@ -81,8 +81,6 @@ class TestHarnessApplicationStageServiceHelper {
         applicantWua, pwaApplication, assignedCaseOfficerId, pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_WAIVED);
   }
 
-
-
   PwaAppProcessingContext createAppProcessingContext(AuthenticatedUserAccount authenticatedUserAccount,
                                                      PwaApplication pwaApplication) {
 
@@ -96,10 +94,5 @@ class TestHarnessApplicationStageServiceHelper {
         .filter(task -> pwaAppProcessingTaskService.canShowTask(task, processingContext))
         .collect(Collectors.toSet());
   }
-
-
-
-
-
 
 }

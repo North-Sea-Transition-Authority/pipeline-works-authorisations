@@ -15,7 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -35,16 +37,15 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.WithdrawPublicNoticeValidator;
 
 @ExtendWith(MockitoExtension.class)
 class WithdrawPublicNoticeServiceTest {
 
-  private WithdrawPublicNoticeService withdrawPublicNoticeService;
 
   @Mock
   private PublicNoticeService publicNoticeService;
@@ -67,6 +68,9 @@ class WithdrawPublicNoticeServiceTest {
   @Mock
   private Clock clock;
 
+  @InjectMocks
+  private WithdrawPublicNoticeService withdrawPublicNoticeService;
+
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
 
@@ -78,9 +82,6 @@ class WithdrawPublicNoticeServiceTest {
 
   @BeforeEach
   void setUp() {
-
-    withdrawPublicNoticeService = new WithdrawPublicNoticeService(publicNoticeService, validator,
-        camundaWorkflowService, pwaTeamService, pwaContactService, notifyService, clock);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -117,7 +118,7 @@ class WithdrawPublicNoticeServiceTest {
     var form = new WithdrawPublicNoticeForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     withdrawPublicNoticeService.validate(form, bindingResult);
-    verify(validator, times(1)).validate(form, bindingResult);
+    verify(validator).validate(form, bindingResult);
   }
 
   @Test
@@ -138,16 +139,16 @@ class WithdrawPublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
 
     var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(emailRecipients);
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
-    verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
+    verify(camundaWorkflowService).deleteProcessAndTask(new WorkflowTaskInstance(
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
 
-    verify(publicNoticeService, times(1)).archivePublicNoticeDocument(latestPublicNoticeDocument);
+    verify(publicNoticeService).archivePublicNoticeDocument(latestPublicNoticeDocument);
 
-    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    verify(publicNoticeService).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
     assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.WITHDRAWN);
     assertThat(actualPublicNotice.getWithdrawalReason()).isEqualTo(withdrawnPublicNotice.getWithdrawalReason());
@@ -161,7 +162,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
+      verify(notifyService).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
     });
     verify(notifyService, times(emailRecipients.size())).sendEmail(any(), any());
   }
@@ -184,16 +185,16 @@ class WithdrawPublicNoticeServiceTest {
         .thenThrow(EntityLatestVersionNotFoundException.class);
 
     var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(emailRecipients);
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
-    verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
+    verify(camundaWorkflowService).deleteProcessAndTask(new WorkflowTaskInstance(
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.MANAGER_APPROVAL));
 
-    verify(publicNoticeService, times(0)).archivePublicNoticeDocument(any());
+    verify(publicNoticeService, Mockito.never()).archivePublicNoticeDocument(any());
 
-    verify(publicNoticeService, times(1)).savePublicNotice(publicNoticeArgumentCaptor.capture());
+    verify(publicNoticeService).savePublicNotice(publicNoticeArgumentCaptor.capture());
     var actualPublicNotice = publicNoticeArgumentCaptor.getValue();
     assertThat(actualPublicNotice.getStatus()).isEqualTo(PublicNoticeStatus.WITHDRAWN);
     assertThat(actualPublicNotice.getWithdrawalReason()).isEqualTo(withdrawnPublicNotice.getWithdrawalReason());
@@ -207,7 +208,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
+      verify(notifyService).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
     });
     verify(notifyService, times(emailRecipients.size())).sendEmail(any(), any());
   }
@@ -230,7 +231,7 @@ class WithdrawPublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
 
     var pwaManager = PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com");
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.PWA_MANAGER)).thenReturn(Set.of(pwaManager));
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(Set.of(pwaManager));
 
     var applicant = PersonTestUtil.createPersonFrom(new PersonId(300), "applicant@email.com");
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication,
@@ -239,10 +240,10 @@ class WithdrawPublicNoticeServiceTest {
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
-    verify(camundaWorkflowService, times(1)).deleteProcessAndTask(new WorkflowTaskInstance(
+    verify(camundaWorkflowService).deleteProcessAndTask(new WorkflowTaskInstance(
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.CASE_OFFICER_REVIEW));
 
-    verify(publicNoticeService, times(1)).archivePublicNoticeDocument(latestPublicNoticeDocument);
+    verify(publicNoticeService).archivePublicNoticeDocument(latestPublicNoticeDocument);
 
     emailRecipients.forEach(recipient -> {
       var expectedEmailProps = new PublicNoticeWithdrawnEmailProps(
@@ -251,7 +252,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(notifyService).sendEmail(expectedEmailProps, recipient.getEmailAddress());
     });
   }
 
@@ -267,6 +268,4 @@ class WithdrawPublicNoticeServiceTest {
 
     verifyNoInteractions(camundaWorkflowService);
   }
-
-
 }

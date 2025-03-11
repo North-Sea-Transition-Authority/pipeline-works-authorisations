@@ -56,7 +56,7 @@ class AsBuiltNotificationControllerTest extends AbstractControllerTest {
 
   @Test
   void getAsBuiltNotificationDashboard_unauthorizedUser_forbidden() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson(), NOTIFICATION_GROUP_ID)).thenReturn(false);
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user, NOTIFICATION_GROUP_ID)).thenReturn(false);
     mockMvc.perform(get(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user)))
         .with(user(user)))
         .andExpect(status().isForbidden());
@@ -64,7 +64,7 @@ class AsBuiltNotificationControllerTest extends AbstractControllerTest {
 
   @Test
   void getAsBuiltNotificationDashboard_authorizedUser_permitted() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson() ,NOTIFICATION_GROUP_ID)).thenReturn(true);
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user ,NOTIFICATION_GROUP_ID)).thenReturn(true);
     mockMvc.perform(get(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user)))
         .with(user(user)))
         .andExpect(status().isOk());
@@ -72,8 +72,8 @@ class AsBuiltNotificationControllerTest extends AbstractControllerTest {
 
   @Test
   void getAsBuiltNotificationDashboard_ogaUser_permitted_hasOgaFlag() throws Exception {
-    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user.getLinkedPerson() ,NOTIFICATION_GROUP_ID)).thenReturn(true);
-    when(asBuiltNotificationAuthService.isPersonAsBuiltNotificationAdmin(user.getLinkedPerson())).thenReturn(true);
+    when(asBuiltNotificationAuthService.canPersonAccessAsbuiltNotificationGroup(user ,NOTIFICATION_GROUP_ID)).thenReturn(true);
+    when(asBuiltNotificationAuthService.isUserAsBuiltNotificationAdmin(user)).thenReturn(true);
     mockMvc.perform(get(ReverseRouter.route(on(AsBuiltNotificationController.class).getAsBuiltNotificationDashboard(NOTIFICATION_GROUP_ID, user)))
         .with(user(user)))
         .andExpect(status().isOk())

@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.teams.management;
 
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +21,7 @@ import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamRepository;
 import uk.co.ogauthority.pwa.teams.TeamRole;
@@ -39,19 +39,22 @@ public class TeamManagementService {
   private final UserApi userApi;
   private final EnergyPortalAccessService energyPortalAccessService;
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+  private final TeamMemberQueryService teamMemberQueryService;
 
   public TeamManagementService(TeamRepository teamRepository,
                                TeamRoleRepository teamRoleRepository,
                                UserApi userApi,
                                TeamQueryService teamQueryService,
                                EnergyPortalAccessService energyPortalAccessService,
-                               EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration) {
+                               EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
+                               TeamMemberQueryService teamMemberQueryService) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
     this.userApi = userApi;
     this.teamQueryService = teamQueryService;
     this.energyPortalAccessService = energyPortalAccessService;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
+    this.teamMemberQueryService = teamMemberQueryService;
   }
 
   public Team createScopedTeam(String name, TeamType teamType, TeamScopeReference scopeRef) {
@@ -141,66 +144,13 @@ public class TeamManagementService {
   }
 
   public TeamMemberView getTeamMemberView(Team team, Long wuaId) {
-    var teamRoles = teamRoleRepository.findByWuaIdAndTeam(wuaId, team).stream()
-        .map(TeamRole::getRole)
-        .toList();
 
-    var userProjection = new UserProjectionRoot()
-        .webUserAccountId()
-        .title()
-        .forename()
-        .surname()
-        .primaryEmailAddress()
-        .telephoneNumber();
-
-    var user = userApi.findUserById(Math.toIntExact(wuaId), userProjection, new RequestPurpose("Fetch user in team"))
-        .orElseThrow(() -> new TeamManagementException("WuaId %s not found via EPA".formatted(wuaId)));
-
-    return TeamMemberView.fromEpaUser(user, team.getId(), teamRoles);
+    return teamMemberQueryService.getTeamMemberView(team, wuaId);
   }
 
   public List<TeamMemberView> getTeamMemberViewsForTeam(Team team) {
-    var teamRoles = teamRoleRepository.findByTeam(team);
 
-    var memberWuaIds = teamRoles.stream()
-        .map(TeamRole::getWuaId)
-        .distinct()
-        .toList();
-
-    var userProjection = new UsersProjectionRoot()
-        .webUserAccountId()
-        .title()
-        .forename()
-        .surname()
-        .primaryEmailAddress()
-        .telephoneNumber();
-
-    var memberWuaIdInts = memberWuaIds.stream()
-        .map(Math::toIntExact)
-        .toList();
-    var epaUsers = userApi.searchUsersByIds(memberWuaIdInts, userProjection, new RequestPurpose("Fetch users in team"));
-
-    return memberWuaIds.stream()
-        .map(wuaId -> {
-          var epaUser = epaUsers.stream()
-              .filter(u -> u.getWebUserAccountId().equals(Math.toIntExact(wuaId)))
-              .findFirst()
-              .orElseThrow(() -> new TeamManagementException("WuaId %s not found in EPA user set".formatted(wuaId)));
-
-          List<Role> userRoles = teamRoles.stream()
-              .filter(teamRole -> teamRole.getWuaId().equals(wuaId))
-              .map(TeamRole::getRole)
-              .toList();
-
-          List<Role> orderedUserRoles = team.getTeamType().getAllowedRoles()
-              .stream()
-              .filter(userRoles::contains)
-              .toList();
-
-          return TeamMemberView.fromEpaUser(epaUser, team.getId(), orderedUserRoles);
-        })
-        .sorted(Comparator.comparing(TeamMemberView::forename).thenComparing(TeamMemberView::surname))
-        .toList();
+    return teamMemberQueryService.getTeamMemberViewsForTeam(team);
   }
 
   @Transactional

@@ -1,17 +1,23 @@
 package uk.co.ogauthority.pwa.teams;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @Service
 public class TeamQueryService {
   private final TeamRepository teamRepository;
   private final TeamRoleRepository teamRoleRepository;
+  private final TeamMemberQueryService teamMemberQueryService;
 
-  public TeamQueryService(TeamRepository teamRepository, TeamRoleRepository teamRoleRepository) {
+  public TeamQueryService(TeamRepository teamRepository,
+                          TeamRoleRepository teamRoleRepository,
+                          TeamMemberQueryService teamMemberQueryService) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
+    this.teamMemberQueryService = teamMemberQueryService;
   }
 
   public boolean userIsMemberOfStaticTeam(Long wuaId, TeamType teamType) {
@@ -66,6 +72,13 @@ public class TeamQueryService {
   public boolean userIsMemberOfAnyTeam(long wuaId) {
     var teamRoles = teamRoleRepository.findAllByWuaId(wuaId);
     return !teamRoles.isEmpty();
+  }
+
+  public List<TeamMemberView> getMembersOfStaticTeamWithRole(TeamType teamType, Role role) {
+    var team = getStaticTeamByTeamType(teamType);
+    return teamRoleRepository.findByTeamAndRole(team, role).stream()
+        .map(teamRole -> teamMemberQueryService.getTeamMemberView(teamRole.getTeam(), teamRole.getWuaId()))
+        .toList();
   }
 
   @VisibleForTesting

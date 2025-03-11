@@ -30,11 +30,11 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaVie
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationDtoRepositoryImpl;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTestUtil;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -82,7 +82,7 @@ class AsBuiltNotificationWorkAreaIntegrationTest {
     setupViews();
     setupPwaHolderUnits();
     persistItems();
-    when(pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.AS_BUILT_NOTIFICATION_ADMIN))
+    when(pwaTeamService.getPeopleWithRegulatorRole(Role.AS_BUILT_NOTIFICATION_ADMIN))
         .thenReturn(Set.of(adminUser.getLinkedPerson()));
   }
 

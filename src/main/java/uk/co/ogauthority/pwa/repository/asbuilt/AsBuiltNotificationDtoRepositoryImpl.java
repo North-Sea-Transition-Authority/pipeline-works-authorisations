@@ -18,16 +18,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotificationDtoRepository {
@@ -36,18 +37,20 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
 
   private final PwaTeamService pwaTeamService;
   private final PwaHolderTeamService pwaHolderTeamService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public AsBuiltNotificationDtoRepositoryImpl(EntityManager entityManager,
                                               PwaTeamService pwaTeamService,
-                                              PwaHolderTeamService pwaHolderTeamService) {
+                                              PwaHolderTeamService pwaHolderTeamService, TeamQueryService teamQueryService) {
     this.entityManager = entityManager;
     this.pwaTeamService = pwaTeamService;
     this.pwaHolderTeamService = pwaHolderTeamService;
+    this.teamQueryService = teamQueryService;
   }
 
-  private boolean isUserAsBuiltNotificationAdmin(Person person) {
-    return pwaTeamService.getPeopleWithRegulatorRole(PwaRegulatorRole.AS_BUILT_NOTIFICATION_ADMIN).contains(person);
+  private boolean isUserAsBuiltNotificationAdmin(AuthenticatedUserAccount user) {
+    return teamQueryService.userHasStaticRole((long) user.getWuaId(), TeamType.REGULATOR, Role.AS_BUILT_NOTIFICATION_ADMIN);
   }
 
   @Override
@@ -117,7 +120,7 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
       CriteriaQuery<?> query,
       Root<AsBuiltNotificationWorkareaView> root
   ) {
-    if (!isUserAsBuiltNotificationAdmin(user.getLinkedPerson())) {
+    if (!isUserAsBuiltNotificationAdmin(user)) {
       var groupsUserCanAccess = getOrgGroupsUserCanAccess(user);
       predicates.add(getHolderOrgApplicationsPredicate(groupsUserCanAccess, query, root));
     }
