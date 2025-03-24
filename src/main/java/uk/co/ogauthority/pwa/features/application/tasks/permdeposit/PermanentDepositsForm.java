@@ -2,13 +2,12 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import java.util.Objects;
 import java.util.Set;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.form.location.CoordinateForm;
 import uk.co.ogauthority.pwa.util.forminputs.decimal.DecimalInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
 
-public class PermanentDepositsForm extends UploadMultipleFilesWithDescriptionForm {
+public class PermanentDepositsForm {
 
   private Integer entityID;
   private Boolean depositIsForConsentedPipeline;

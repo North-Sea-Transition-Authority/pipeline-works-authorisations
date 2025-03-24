@@ -18,8 +18,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.AddBlockCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingService;
@@ -29,8 +27,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.Pipel
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller.PortalOrganisationUnitRestController;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -58,8 +57,8 @@ public class PipelineCrossingController {
   private final PipelineCrossingFormValidator pipelineCrossingFormValidator;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
-  private final PadFileService padFileService;
   private final ControllerHelperService controllerHelperService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PipelineCrossingController(
@@ -68,15 +67,16 @@ public class PipelineCrossingController {
       PipelineCrossingFormValidator pipelineCrossingFormValidator,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.padPipelineCrossingService = padPipelineCrossingService;
     this.padPipelineCrossingOwnerService = padPipelineCrossingOwnerService;
     this.pipelineCrossingFormValidator = pipelineCrossingFormValidator;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
-    this.padFileService = padFileService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView getCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
@@ -99,8 +99,7 @@ public class PipelineCrossingController {
         .addObject("pipelineCrossings", padPipelineCrossingService.getPipelineCrossingViews(detail))
         .addObject("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(detail))
         .addObject("pipelineCrossingFiles",
-            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
-                ApplicationFileLinkStatus.FULL))
+            padFileManagementService.getUploadedFileViews(detail, FileDocumentType.PIPELINE_CROSSINGS))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(),
                 detail.getMasterPwaApplicationId(), null,

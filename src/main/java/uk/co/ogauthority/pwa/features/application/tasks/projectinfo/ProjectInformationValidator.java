@@ -155,10 +155,8 @@ public class ProjectInformationValidator implements SmartValidator {
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)
         && validationType.equals(ValidationType.PARTIAL)) {
       FileValidationUtils.validator()
-          .withMinimumNumberOfFiles(1, "Upload a project layout diagram")
           .withMaximumNumberOfFiles(1, "Upload a maximum of one file")
-          .isPartiallyValidated()
-          .validate(errors, form.getUploadedFiles(), "uploadedFiles");
+          .validate(errors, form.getUploadedFiles());
     }
   }
 
@@ -425,7 +423,7 @@ public class ProjectInformationValidator implements SmartValidator {
       FileValidationUtils.validator()
           .withMinimumNumberOfFiles(1, "Upload a project layout diagram")
           .withMaximumNumberOfFiles(1, "Upload a maximum of one file")
-          .validate(errors, form.getUploadedFiles(), "uploadedFiles");
+          .validate(errors, form.getUploadedFiles());
     }
   }
 }

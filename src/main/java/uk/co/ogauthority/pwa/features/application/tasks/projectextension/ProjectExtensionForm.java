@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectextension;
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
-public class ProjectExtensionForm extends UploadMultipleFilesWithDescriptionForm {
+public class ProjectExtensionForm extends FileUploadForm {
 }

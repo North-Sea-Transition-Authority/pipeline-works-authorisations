@@ -11,9 +11,9 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 import uk.co.ogauthority.pwa.util.forminputs.FormInputLabel;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.OnOrAfterDateHint;
@@ -135,7 +135,8 @@ public class LocationDetailsValidator implements SmartValidator {
     }
 
     if (validationType.equals(ValidationType.PARTIAL)) {
-      FileUploadUtils.validateFilesDescriptionLength(form, errors);
+      FileValidationUtils.validator()
+          .validate(errors, form.getUploadedFiles());
     }
   }
 
@@ -245,8 +246,9 @@ public class LocationDetailsValidator implements SmartValidator {
           "Confirm that the limit of deviation during construction will be ±100m");
     }
 
-
-    FileUploadUtils.validateFiles(form, errors, List.of());
+    FileValidationUtils.validator()
+        .withMinimumNumberOfFiles(1, "Upload at least one file")
+        .validate(errors, form.getUploadedFiles());
   }
 
   private void validatePsrNotificationNotRequired(LocationDetailsForm form, Errors errors) {

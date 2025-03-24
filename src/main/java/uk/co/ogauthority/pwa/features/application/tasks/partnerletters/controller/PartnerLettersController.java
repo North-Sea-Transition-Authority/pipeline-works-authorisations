@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.partnerletters.controll
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,23 +9,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -46,7 +38,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
-public class PartnerLettersController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class PartnerLettersController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
@@ -54,21 +46,22 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
   private final ControllerHelperService controllerHelperService;
   private final String partnerLettersTemplateLink;
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PARTNER_LETTERS;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PartnerLettersController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                   PwaApplicationRedirectService pwaApplicationRedirectService,
                                   PadPartnerLettersService padPartnerLettersService,
-                                  PadFileService padFileService,
                                   ControllerHelperService controllerHelperService,
-                                  @Value("${oga.partnerletters.template.link}") String partnerLettersTemplateLink) {
-    super(padFileService);
+                                  @Value("${oga.partnerletters.template.link}") String partnerLettersTemplateLink,
+                                  PadFileManagementService padFileManagementService
+  ) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.padPartnerLettersService = padPartnerLettersService;
     this.controllerHelperService = controllerHelperService;
     this.partnerLettersTemplateLink = partnerLettersTemplateLink;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @GetMapping
@@ -103,55 +96,20 @@ public class PartnerLettersController extends PwaApplicationDetailDataFileUpload
   }
 
   private ModelAndView getAddPartnerLettersModelAndView(PwaApplicationDetail pwaApplicationDetail, PartnerLettersForm form) {
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        pwaApplicationDetail,
+        FileDocumentType.PARTNER_LETTERS
+    );
 
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/partnerletters/partnerLetters", pwaApplicationDetail, FILE_PURPOSE, form)
-        .addObject("partnerLettersTemplateLink", partnerLettersTemplateLink);
+    var modelAndView = new ModelAndView("pwaApplication/shared/partnerletters/partnerLetters")
+        .addObject("partnerLettersTemplateLink", partnerLettersTemplateLink)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView, "Partner approval letters");
 
     return modelAndView;
 
-  }
-
-  //File handle Endpoints
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processInitialUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 
 }

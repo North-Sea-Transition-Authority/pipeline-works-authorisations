@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbili
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -17,13 +16,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class UmbilicalCrossSectionServiceTest {
@@ -52,44 +50,31 @@ class UmbilicalCrossSectionServiceTest {
 
   @Test
   void validate_oneFile() {
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var result = crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     assertThat(result.hasErrors()).isFalse();
   }
 
   @Test
   void validate_twoFiles() {
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", "desc", Instant.now()),
-        new UploadFileWithDescriptionForm("2", "desc 2", Instant.now())
-    ));
+    form.setUploadedFiles(List.of(
+        FileManagementValidatorTestUtils.createUploadedFileForm(),
+        FileManagementValidatorTestUtils.createUploadedFileForm())
+    );
     var result = crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
     assertThat(result.getAllErrors()).extracting(DefaultMessageSourceResolvable::getCode)
-        .containsExactly(
-            "uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode());
-  }
-
-  @Test
-  void validate_fileDescriptionOverMaxCharLength_invalid() {
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-    crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-
-    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
-    assertThat(fieldErrors).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
+        .containsExactly(FileValidationUtils.ABOVE_LIMIT_ERROR_CODE);
   }
 
   @Test
   void validate_emptyFileDescription_invalid() {
-    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
     crossSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
 
     var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
     assertThat(fieldErrors).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry(FileValidationUtils.FIELD_NAME + "[0].uploadedFileDescription",
+            Set.of(FileValidationUtils.FIELD_NAME + "[0].uploadedFileDescription.required"))
     );
   }
 

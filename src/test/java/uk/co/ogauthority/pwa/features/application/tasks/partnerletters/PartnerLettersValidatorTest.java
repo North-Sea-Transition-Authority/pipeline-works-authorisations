@@ -3,16 +3,18 @@ package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class PartnerLettersValidatorTest {
@@ -30,7 +32,7 @@ class PartnerLettersValidatorTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    FileUploadTestUtil.addDefaultUploadFileToForm(form);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).isEmpty();
@@ -52,7 +54,7 @@ class PartnerLettersValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
         entry("partnerLettersConfirmed", Set.of("partnerLettersConfirmed.required")),
-        entry("uploadedFileWithDescriptionForms", Set.of(FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode("uploadedFileWithDescriptionForms")))
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE))
     );
   }
 
@@ -61,45 +63,12 @@ class PartnerLettersValidatorTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
     assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(), Set.of(
-            FieldValidationErrorCodes.REQUIRED.errorCode(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath())))
+        entry("uploadedFiles[0].uploadedFileDescription",
+            Set.of("uploadedFiles[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
-
-  @Test
-  void validate_full_letterDescriptionOverMaxCharLength_invalid() {
-    var form = new PartnerLettersForm();
-    form.setPartnerLettersRequired(true);
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.FULL);
-    assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
-  }
-
-  @Test
-  void validate_partial_letterDescriptionOverMaxCharLength_invalid() {
-    var form = new PartnerLettersForm();
-    form.setPartnerLettersRequired(true);
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-
-    Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form, ValidationType.PARTIAL);
-    assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
-  }
-
-
-
-
-
-
-
 }

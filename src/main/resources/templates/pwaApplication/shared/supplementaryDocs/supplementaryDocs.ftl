@@ -9,7 +9,17 @@
         <@fdsRadio.radioGroup path="form.hasFilesToUpload" labelText="Do you want to upload any supplementary documents?" hiddenContent=true>
 
             <@fdsRadio.radioYes path="form.hasFilesToUpload">
-                <@fdsFileUpload.fileUpload id="docs-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
+                <@fdsFileUpload.fileUpload
+                    id="supplementaryDocumentFiles"
+                    path="form.uploadedFiles"
+                    uploadUrl=fileUploadAttributes.uploadUrl()
+                    downloadUrl=fileUploadAttributes.downloadUrl()
+                    deleteUrl=fileUploadAttributes.deleteUrl()
+                    maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                    allowedExtensions=fileUploadAttributes.allowedExtensions()
+                    existingFiles=fileUploadAttributes.existingFiles()
+                    dropzoneText="Drag and drop your documents here"
+                />
             </@fdsRadio.radioYes>
 
             <@fdsRadio.radioNo path="form.hasFilesToUpload"/>

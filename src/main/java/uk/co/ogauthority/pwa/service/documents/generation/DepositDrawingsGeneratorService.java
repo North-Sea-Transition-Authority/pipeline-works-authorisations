@@ -34,7 +34,6 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
-
     if (!permanentDepositService.permanentDepositsAreToBeMadeOnApp(pwaApplicationDetail)) {
       return null;
     }
@@ -47,7 +46,7 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
     }
 
     var drawingRefToFileIdMap = drawings.stream()
-        .collect(Collectors.toMap(PadDepositDrawing::getReference, d -> d.getFile().getFileId()));
+        .collect(Collectors.toMap(PadDepositDrawing::getReference, d -> String.valueOf(d.getFile().getFileId())));
 
     Map<String, String> fileIdToImgSourceMap = consentDocumentImageService
         .convertFilesToImageSourceMap(new HashSet<>(drawingRefToFileIdMap.values()));
@@ -59,7 +58,6 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
     );
 
     return new DocumentSectionData("documents/consents/sections/depositDrawings", modelMap);
-
   }
 
 }

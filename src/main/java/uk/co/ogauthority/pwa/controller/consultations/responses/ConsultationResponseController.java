@@ -6,8 +6,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,20 +13,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingPermissionCheck;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
@@ -36,7 +27,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.AppProcessingBreadcrumbServic
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationViewService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -45,7 +35,7 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationResponseValida
 @Controller
 @PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.CONSULTATION_RESPONDER})
 @RequestMapping("/pwa-application-processing/{applicationType}/{applicationId}/consultation/{consultationRequestId}/respond")
-public class ConsultationResponseController extends PwaApplicationDataFileUploadAndDownloadController {
+public class ConsultationResponseController {
 
   private final ConsultationResponseService consultationResponseService;
   private final ConsultationViewService consultationViewService;
@@ -53,20 +43,12 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
   private final AppProcessingBreadcrumbService breadcrumbService;
   private final ConsultationResponseValidator consultationResponseValidator;
 
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
-
-  private static final String FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG =
-      "File handling is not directly supported within ConsultationResponseController. " +
-          "File handling should be handled in ConsultationResponseFileController";
-
   @Autowired
   public ConsultationResponseController(ConsultationResponseService consultationResponseService,
                                         ConsultationViewService consultationViewService,
                                         ControllerHelperService controllerHelperService,
                                         AppProcessingBreadcrumbService breadcrumbService,
-                                        ConsultationResponseValidator consultationResponseValidator,
-                                        AppFileService appFileService) {
-    super(appFileService);
+                                        ConsultationResponseValidator consultationResponseValidator) {
     this.consultationResponseService = consultationResponseService;
     this.consultationViewService = consultationViewService;
     this.controllerHelperService = controllerHelperService;
@@ -150,59 +132,26 @@ public class ConsultationResponseController extends PwaApplicationDataFileUpload
         .sorted(Comparator.comparing(ConsultationResponseOptionGroup::getDisplayOrder))
         .collect(StreamUtils.toLinkedHashMap(Function.identity(), ConsultationResponseOptionGroup::getOptions));
 
-    var modelAndView = createModelAndView(
-        "consultation/responses/responderForm",
-        processingContext.getPwaApplication(),
-        FILE_PURPOSE,
-        form
+    var fileUploadAttributes = consultationResponseService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        application,
+        requestDto.getConsultationRequest()
     );
 
-    modelAndView.addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
+    var modelAndView = new ModelAndView("consultation/responses/responderForm")
+        .addObject("cancelUrl", CaseManagementUtils.routeCaseManagement(application))
         .addObject("responseOptionGroupMap", responseOptionGroupMap)
         .addObject("appRef", processingContext.getPwaApplication().getAppReference())
         .addObject("previousResponses", consultationViewService
             .getConsultationRequestViewsRespondedOnly(application, requestDto.getConsultationRequest()))
         .addObject("caseSummaryView", processingContext.getCaseSummaryView())
         .addObject("consulteeGroupName", requestDto.getConsulteeGroupName())
-        .addObject("consultationResponseDocumentType", requestDto.getConsultationResponseDocumentType());
+        .addObject("consultationResponseDocumentType", requestDto.getConsultationResponseDocumentType())
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, "Consultation response");
 
     return modelAndView;
 
   }
-
-  //These file handle methods are not actually used, as the file purpose used in this controller is associated with the
-  // a dedicated consultation response file processing controller which has it's own custom permission checks.
-  // The file methods below are still required to be implemented here as we're extending the abstract class
-  // PwaApplicationDataFileUploadAndDownloadController therefore throwing UnsupportedOperationException.
-  @PostMapping("/file/upload")
-  @ResponseBody
-  public FileUploadResult handleUpload(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                       @PathVariable("applicationId") Integer applicationId,
-                                       @RequestParam("file") MultipartFile file,
-                                       PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
-  }
-
-  @PostMapping("/file/delete/{fileId}")
-  @ResponseBody
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaAppProcessingContext processingContext) {
-    throw new UnsupportedOperationException(FILE_HANDLE_UNSUPPORTED_OPERATION_EXCEPTION_MSG);
-  }
-
 }

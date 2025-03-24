@@ -22,12 +22,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.AddCarbonStorageAreaCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.AddCarbonStorageAreaFormValidator;
-import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.EditCarbonStorageAreaCrossingForm;
@@ -37,9 +34,10 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.A
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -64,12 +62,11 @@ public class CarbonStorageAreaCrossingController {
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final AddCarbonStorageAreaFormValidator addCarbonStorageAreaFormValidator;
-  private final CarbonStorageAreaCrossingFileService fileService;
 
-  private final PadFileService padFileService;
   private final EditCarbonStorageAreaCrossingFormValidator editCarbonStorageAreaCrossingFormValidator;
   private final CarbonStorageAreaCrossingService carbonStorageAreaCrossingService;
   private final ControllerHelperService controllerHelperService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public CarbonStorageAreaCrossingController(
@@ -78,19 +75,17 @@ public class CarbonStorageAreaCrossingController {
       ControllerHelperService controllerHelperService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
       AddCarbonStorageAreaFormValidator addCarbonStorageAreaFormValidator,
-      CarbonStorageAreaCrossingFileService fileService,
-      PadFileService padFileService,
       EditCarbonStorageAreaCrossingFormValidator editCarbonStorageAreaCrossingFormValidator,
-      CarbonStorageAreaCrossingService carbonStorageAreaCrossingService) {
+      CarbonStorageAreaCrossingService carbonStorageAreaCrossingService,
+      PadFileManagementService padFileManagementService) {
     this.breadcrumbService = breadcrumbService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
     this.addCarbonStorageAreaFormValidator = addCarbonStorageAreaFormValidator;
-    this.fileService = fileService;
-    this.padFileService = padFileService;
     this.editCarbonStorageAreaCrossingFormValidator = editCarbonStorageAreaCrossingFormValidator;
     this.carbonStorageAreaCrossingService = carbonStorageAreaCrossingService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView redirectToCrossingOverview(PwaApplicationContext applicationContext) {
@@ -121,8 +116,7 @@ public class CarbonStorageAreaCrossingController {
         .addObject("isStorageAreaDocumentsRequired",
             carbonStorageAreaCrossingService.isDocumentsRequired(applicationDetail))
         .addObject("carbonStorageCrossingFiles",
-        padFileService.getUploadedFileViews(applicationDetail, ApplicationDetailFilePurpose.CARBON_STORAGE_CROSSINGS,
-            ApplicationFileLinkStatus.FULL));
+        padFileManagementService.getUploadedFileViews(applicationDetail, FileDocumentType.CARBON_STORAGE_CROSSINGS));
     breadcrumbService.fromCrossings(
         applicationDetail.getPwaApplication(),
         modelAndView,

@@ -19,13 +19,19 @@
     <#assign dropzoneText = singleFileUpload?string("Drag and drop your document here", "Drag and drop your documents here")/>
 
     <@fdsForm.htmlForm>
+        <@fdsFileUpload.fileUpload
+            id="fileUpload"
+            path="form.uploadedFiles"
+            uploadUrl=fileUploadAttributes.uploadUrl()
+            downloadUrl=fileUploadAttributes.downloadUrl()
+            deleteUrl=fileUploadAttributes.deleteUrl()
+            maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+            allowedExtensions=fileUploadAttributes.allowedExtensions()
+            existingFiles=fileUploadAttributes.existingFiles()
+            dropzoneText="Drag and drop your documents here"
+            multiFile=(singleFileUpload == false)
+        />
 
-        <#assign allowedExtensions = fileuploadAllowedExtensions/>
-        <#if restrictToImageFileTypes?has_content && restrictToImageFileTypes>
-            <#assign allowedExtensions = imageFileUploadAllowedExtensions/>
-        </#if>
-
-        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=allowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText=dropzoneText multiFile=(singleFileUpload == false)/>
         <@fdsAction.submitButtons primaryButtonText="Save and complete" linkSecondaryAction=true secondaryLinkText=backButtonText linkSecondaryActionUrl=springUrl(backUrl) />
     </@fdsForm.htmlForm>
 

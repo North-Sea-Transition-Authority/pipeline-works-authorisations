@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignm
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
@@ -36,7 +36,6 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
@@ -86,6 +85,9 @@ class PublicNoticeDocumentUpdateServiceTest {
   @Mock
   private AssignmentService assignmentService;
 
+  @Mock
+  private AppFileManagementService appFileManagementService;
+
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
 
@@ -95,21 +97,16 @@ class PublicNoticeDocumentUpdateServiceTest {
   @Captor
   private ArgumentCaptor<PublicNoticeDocumentLink> publicNoticeDocumentLinkArgumentCaptor;
 
-
-
-
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
-
 
   @BeforeEach
   void setUp() {
 
-    publicNoticeDocumentUpdateService = new PublicNoticeDocumentUpdateService(publicNoticeService, validator, appFileService,
+    publicNoticeDocumentUpdateService = new PublicNoticeDocumentUpdateService(publicNoticeService, validator,
         publicNoticeDocumentRepository, publicNoticeDocumentLinkRepository, camundaWorkflowService,
-        personService, assignmentService, caseLinkService, notifyService);
+        personService, assignmentService, caseLinkService, notifyService, appFileManagementService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -197,16 +194,18 @@ class PublicNoticeDocumentUpdateServiceTest {
     var publicNoticeAtCaseOfficerReview = PublicNoticeTestUtil.createCaseOfficerReviewPublicNotice(pwaApplication);
     when(publicNoticeService.savePublicNotice(publicNotice)).thenReturn(publicNoticeAtCaseOfficerReview);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        "file id", "desc", Instant.now());
-
     var newPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     newPublicNoticeDocument.setVersion(latestPublicNoticeDocument.getVersion() + 1);
     when(publicNoticeDocumentRepository.save(newPublicNoticeDocument)).thenReturn(newPublicNoticeDocument);
 
+    var form = new UpdatePublicNoticeDocumentForm();
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
+
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
     var documentLink = new PublicNoticeDocumentLink(newPublicNoticeDocument, publicNoticeAppFile);
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, newPublicNoticeDocument))
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromFileId(
+        pwaApplication,
+        String.valueOf(form.getUploadedFiles().getFirst().getFileId()), newPublicNoticeDocument))
         .thenReturn(documentLink);
 
     String caseManagementLink = "case management link url";
@@ -217,10 +216,7 @@ class PublicNoticeDocumentUpdateServiceTest {
     when(assignmentService.getAssignmentOrError(pwaApplication, WorkflowAssignment.CASE_OFFICER)).thenReturn(caseOfficerAssignment);
     when(personService.getPersonById(caseOfficerAssignment.getAssigneePersonId())).thenReturn(caseOfficerPerson);
 
-    var form = new UpdatePublicNoticeDocumentForm();
-    form.setUploadedFileWithDescriptionForms(List.of(uploadFileWithDescriptionForm));
-    publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(pwaApplication, form, user);
-
+    publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(pwaApplication, form);
 
     //verify documents and links updated/added
     verify(publicNoticeDocumentRepository, times(2)).save(publicNoticeDocumentArgumentCaptor.capture());

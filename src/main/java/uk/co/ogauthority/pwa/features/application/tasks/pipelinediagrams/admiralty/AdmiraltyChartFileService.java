@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,34 +8,35 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.FullValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
 public class AdmiraltyChartFileService {
 
   private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
   private final SpringValidatorAdapter groupValidator;
 
   @Autowired
-  public AdmiraltyChartFileService(PadFileService padFileService,
-                                   SpringValidatorAdapter groupValidator) {
+  public AdmiraltyChartFileService(
+      PadFileService padFileService,
+      PadFileManagementService padFileManagementService,
+      SpringValidatorAdapter groupValidator
+  ) {
     this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
     this.groupValidator = groupValidator;
   }
 
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new AdmiraltyChartDocumentForm();
-    padFileService.mapFilesToForm(form, detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
+    padFileManagementService.mapFilesToForm(form, detail, FileDocumentType.ADMIRALTY_CHART);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
@@ -48,24 +48,19 @@ public class AdmiraltyChartFileService {
 
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
-    List<Object> hints = new ArrayList<>();
-    if (validationType.equals(ValidationType.FULL)) {
-      hints.add(FullValidation.class);
-      if (isUploadRequired(pwaApplicationDetail)) {
-        hints.add(MandatoryUploadValidation.class);
-      }
-    } else {
-      hints.add(PartialValidation.class);
-    }
-    groupValidator.validate(form, bindingResult, hints.toArray());
+    var uploadFilesForm = (AdmiraltyChartDocumentForm) form;
 
-    var uploadFilesForm = (UploadMultipleFilesWithDescriptionForm) form;
-    FileUploadUtils.validateMaxFileLimit(
-        uploadFilesForm,
-        bindingResult,
-        1,
-        "Provide a single admiralty chart");
-    FileUploadUtils.validateFilesDescriptionLength(uploadFilesForm, bindingResult);
+    if (validationType.equals(ValidationType.FULL) && isUploadRequired(pwaApplicationDetail)) {
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload at least one file")
+          .withMaximumNumberOfFiles(1, "Provide a single admiralty chart")
+          .validate(bindingResult, uploadFilesForm.getUploadedFiles());
+    } else {
+      FileValidationUtils.validator()
+          .withMaximumNumberOfFiles(1, "Provide a single admiralty chart")
+          .validate(bindingResult, uploadFilesForm.getUploadedFiles());
+    }
+    groupValidator.validate(form, bindingResult, new ArrayList<>());
 
     return bindingResult;
   }
@@ -80,10 +75,8 @@ public class AdmiraltyChartFileService {
     }
   }
 
-  public Optional<PadFile> getAdmiraltyChartFile(PwaApplicationDetail pwaApplicationDetail) {
-    return padFileService
-        .getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART).stream()
-        .filter(pf -> pf.getFileLinkStatus() == ApplicationFileLinkStatus.FULL)
+  public Optional<UploadedFileView> getAdmiraltyChartFile(PwaApplicationDetail pwaApplicationDetail) {
+    return padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART).stream()
         .findFirst();
   }
 

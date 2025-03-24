@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.filehelper.TestHarnessAppFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementTestHarnessService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.publicnotice.FinalisePublicNoticeForm;
@@ -20,7 +21,6 @@ import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDocu
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeDraftService;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeApprovalResult;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 
 @Service
 @Profile("test-harness")
@@ -31,9 +31,9 @@ class PublicNoticeGeneratorService implements TestHarnessAppProcessingService {
   private final PublicNoticeApprovalService publicNoticeApprovalService;
   private final PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
   private final FinalisePublicNoticeService finalisePublicNoticeService;
-  private final TestHarnessAppFileService testHarnessAppFileService;
 
   private static final PwaAppProcessingTask LINKED_APP_PROCESSING_TASK = PwaAppProcessingTask.PUBLIC_NOTICE;
+  private final AppFileManagementTestHarnessService appFileManagementTestHarnessService;
 
   @Autowired
   public PublicNoticeGeneratorService(
@@ -42,22 +42,19 @@ class PublicNoticeGeneratorService implements TestHarnessAppProcessingService {
       PublicNoticeApprovalService publicNoticeApprovalService,
       PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService,
       FinalisePublicNoticeService finalisePublicNoticeService,
-      TestHarnessAppFileService testHarnessAppFileService) {
+      AppFileManagementTestHarnessService appFileManagementTestHarnessService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDraftService = publicNoticeDraftService;
     this.publicNoticeApprovalService = publicNoticeApprovalService;
     this.publicNoticeDocumentUpdateService = publicNoticeDocumentUpdateService;
     this.finalisePublicNoticeService = finalisePublicNoticeService;
-    this.testHarnessAppFileService = testHarnessAppFileService;
+    this.appFileManagementTestHarnessService = appFileManagementTestHarnessService;
   }
-
 
   @Override
   public PwaAppProcessingTask getLinkedAppProcessingTask() {
     return LINKED_APP_PROCESSING_TASK;
   }
-
-
 
   @Override
   public void generateAppProcessingTaskData(TestHarnessAppProcessingProperties appProcessingProps) {
@@ -69,16 +66,14 @@ class PublicNoticeGeneratorService implements TestHarnessAppProcessingService {
     endPublicNotice(appProcessingProps);
   }
 
-
   private void generatePublicNoticeDocument(TestHarnessAppProcessingProperties appProcessingProps,
-                                            UploadMultipleFilesWithDescriptionForm form) {
-
-    var generatedFileId = testHarnessAppFileService.generateInitialUpload(
-        appProcessingProps.getCaseOfficerAua(), appProcessingProps.getPwaApplication(), AppFilePurpose.PUBLIC_NOTICE);
-
-    testHarnessAppFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
-    testHarnessAppFileService.updateAppFiles(form, appProcessingProps.getCaseOfficerAua(), appProcessingProps.getPwaApplication(),
-        AppFilePurpose.PUBLIC_NOTICE, FileUpdateMode.KEEP_UNLINKED_FILES);
+                                            FileUploadForm form) {
+    appFileManagementTestHarnessService.uploadFileAndMapToForm(
+        form,
+        appProcessingProps.getPwaApplication(),
+        FileDocumentType.PUBLIC_NOTICE,
+        AppFilePurpose.PUBLIC_NOTICE
+    );
   }
 
   private void createPublicNoticeDraft(TestHarnessAppProcessingProperties appProcessingProps) {
@@ -106,7 +101,7 @@ class PublicNoticeGeneratorService implements TestHarnessAppProcessingService {
     generatePublicNoticeDocument(appProcessingProps, form);
 
     publicNoticeDocumentUpdateService.updatePublicNoticeDocumentAndTransitionWorkflow(
-        appProcessingProps.getPwaApplication(), form, appProcessingProps.getApplicantAua());
+        appProcessingProps.getPwaApplication(), form);
   }
 
 
@@ -128,8 +123,4 @@ class PublicNoticeGeneratorService implements TestHarnessAppProcessingService {
     var publicNotice = publicNoticeService.getLatestPublicNotice(appProcessingProps.getPwaApplication());
     publicNoticeService.endPublicNotices(List.of(publicNotice));
   }
-
-
-
-
 }

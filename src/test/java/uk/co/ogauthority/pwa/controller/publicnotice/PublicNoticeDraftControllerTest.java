@@ -33,6 +33,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
@@ -86,6 +87,8 @@ class PublicNoticeDraftControllerTest extends PwaAppProcessingContextAbstractCon
 
     when(publicNoticeService.canCreatePublicNoticeDraft(any())).thenReturn(true);
 
+    when(publicNoticeService.getFileUploadComponentAttributes(any(), any()))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
 

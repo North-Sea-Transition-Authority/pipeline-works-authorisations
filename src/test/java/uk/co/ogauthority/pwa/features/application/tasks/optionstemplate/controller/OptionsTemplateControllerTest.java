@@ -26,15 +26,16 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -50,6 +51,9 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
 
   @MockBean
   private OptionsTemplateService optionsTemplateService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -68,6 +72,9 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
         .setAllowedTypes(PwaApplicationType.OPTIONS_VARIATION)
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
+
+    when(padFileManagementService.getFileUploadComponentAttributes(any(), any(), eq(FileDocumentType.OPTIONS_TEMPLATE)))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
 
   }
 
@@ -167,12 +174,11 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
         .with(csrf()))
         .andExpect(status().is3xxRedirection());
 
-    verify(padFileService, times(1)).updateFiles(
+    verify(padFileManagementService, times(1)).saveFiles(
         any(),
         eq(pwaApplicationDetail),
-        eq(ApplicationDetailFilePurpose.OPTIONS_TEMPLATE),
-        eq(FileUpdateMode.DELETE_UNLINKED_FILES),
-        any());
+        eq(FileDocumentType.OPTIONS_TEMPLATE)
+    );
 
   }
 
@@ -202,12 +208,11 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
         .with(csrf()))
         .andExpect(status().isOk());
 
-    verify(padFileService, times(0)).updateFiles(
+    verify(padFileManagementService, times(0)).saveFiles(
         any(),
         any(),
-        any(),
-        any(),
-        any());
+        any()
+    );
 
   }
 

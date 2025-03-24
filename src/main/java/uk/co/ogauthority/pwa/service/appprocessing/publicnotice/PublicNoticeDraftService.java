@@ -12,6 +12,8 @@ import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -20,47 +22,43 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumen
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 
+
 @Service
 public class PublicNoticeDraftService {
 
-  private final AppFileService appFileService;
   private final PublicNoticeService publicNoticeService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
   private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final TeamQueryService teamQueryService;
-
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private final AppFileManagementService appFileManagementService;
 
   @Autowired
   public PublicNoticeDraftService(
-      AppFileService appFileService,
       PublicNoticeService publicNoticeService,
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock,
       NotifyService notifyService,
       CaseLinkService caseLinkService,
-      TeamQueryService teamQueryService) {
-    this.appFileService = appFileService;
+      TeamQueryService teamQueryService,
+      AppFileManagementService appFileManagementService) {
     this.publicNoticeService = publicNoticeService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
     this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
     this.teamQueryService = teamQueryService;
+    this.appFileManagementService = appFileManagementService;
   }
 
   /*
@@ -122,12 +120,11 @@ public class PublicNoticeDraftService {
     publicNoticeService.savePublicNotice(publicNotice);
     publicNoticeService.savePublicNoticeRequest(publicNoticeRequest);
 
-    appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, userAccount);
+    appFileManagementService.saveFiles(form, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
     publicNoticeDocument = publicNoticeService.savePublicNoticeDocument(publicNoticeDocument);
-
     try {
-      var publicNoticeDocumentLink = publicNoticeService.createPublicNoticeDocumentLinkFromForm(
-          pwaApplication, form.getUploadedFileWithDescriptionForms().get(0), publicNoticeDocument);
+      var publicNoticeDocumentLink = publicNoticeService.createPublicNoticeDocumentLinkFromFileId(
+          pwaApplication, String.valueOf(form.getUploadedFiles().getFirst().getFileId()), publicNoticeDocument);
       publicNoticeService.savePublicNoticeDocumentLink(publicNoticeDocumentLink);
     } catch (IndexOutOfBoundsException e) {
       throw new ActionNotAllowedException(

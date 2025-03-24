@@ -8,13 +8,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDocumentUpdateController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeDocumentReviewRequestEmailProps;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
@@ -22,7 +23,6 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
-import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
 import uk.co.ogauthority.pwa.model.form.publicnotice.UpdatePublicNoticeDocumentForm;
@@ -32,8 +32,6 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.publicnotice.PublicNoticeDocumentUpdateValidator;
 
@@ -43,7 +41,6 @@ public class PublicNoticeDocumentUpdateService {
 
   private final PublicNoticeService publicNoticeService;
   private final PublicNoticeDocumentUpdateValidator publicNoticeDocumentUpdateValidator;
-  private final AppFileService appFileService;
   private final PublicNoticeDocumentRepository publicNoticeDocumentRepository;
   private final PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository;
   private final CamundaWorkflowService camundaWorkflowService;
@@ -51,24 +48,23 @@ public class PublicNoticeDocumentUpdateService {
   private final AssignmentService assignmentService;
   private final CaseLinkService caseLinkService;
   private final NotifyService notifyService;
-
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private final AppFileManagementService appFileManagementService;
 
   @Autowired
   public PublicNoticeDocumentUpdateService(
       PublicNoticeService publicNoticeService,
       PublicNoticeDocumentUpdateValidator publicNoticeDocumentUpdateValidator,
-      AppFileService appFileService,
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
       CamundaWorkflowService camundaWorkflowService,
       PersonService personService,
       AssignmentService assignmentService,
       CaseLinkService caseLinkService,
-      NotifyService notifyService) {
+      NotifyService notifyService,
+      AppFileManagementService appFileManagementService
+  ) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDocumentUpdateValidator = publicNoticeDocumentUpdateValidator;
-    this.appFileService = appFileService;
     this.publicNoticeDocumentRepository = publicNoticeDocumentRepository;
     this.publicNoticeDocumentLinkRepository = publicNoticeDocumentLinkRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -76,10 +72,8 @@ public class PublicNoticeDocumentUpdateService {
     this.assignmentService = assignmentService;
     this.caseLinkService = caseLinkService;
     this.notifyService = notifyService;
+    this.appFileManagementService = appFileManagementService;
   }
-
-
-
 
   public boolean publicNoticeDocumentCanBeUpdated(PwaApplication pwaApplication) {
     return publicNoticeService.getPublicNoticesByStatus(PublicNoticeStatus.APPLICANT_UPDATE)
@@ -125,8 +119,12 @@ public class PublicNoticeDocumentUpdateService {
     publicNoticeDocumentRepository.save(latestPublicNoticeDocument);
 
     //accessing list at index 0 as validator ensures there is always and only 1 file
-    var newPublicNoticeDocumentLink = publicNoticeService.createPublicNoticeDocumentLinkFromForm(
-        pwaApplication, form.getUploadedFileWithDescriptionForms().get(0), newPublicNoticeDocument);
+    var newPublicNoticeDocumentLink = publicNoticeService.createPublicNoticeDocumentLinkFromFileId(
+        pwaApplication,
+        String.valueOf(form.getUploadedFiles().getFirst().getFileId()),
+        newPublicNoticeDocument
+    );
+
     publicNoticeDocumentLinkRepository.save(newPublicNoticeDocumentLink);
   }
 
@@ -145,10 +143,8 @@ public class PublicNoticeDocumentUpdateService {
 
   @Transactional
   public void updatePublicNoticeDocumentAndTransitionWorkflow(PwaApplication pwaApplication,
-                                                              UpdatePublicNoticeDocumentForm form,
-                                                              AuthenticatedUserAccount authenticatedUserAccount) {
-
-    appFileService.updateFiles(form, pwaApplication, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, authenticatedUserAccount);
+                                                              UpdatePublicNoticeDocumentForm form) {
+    appFileManagementService.saveFiles(form, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
     var publicNotice = publicNoticeService.getLatestPublicNotice(pwaApplication);
     createAndSaveNewPublicNoticeDocumentAndLink(pwaApplication, publicNotice, form);
 
@@ -158,6 +154,5 @@ public class PublicNoticeDocumentUpdateService {
         publicNotice, PwaApplicationPublicNoticeWorkflowTask.APPLICANT_UPDATE));
     sendPublicNoticeDocumentReviewRequestEmail(pwaApplication);
   }
-
 
 }

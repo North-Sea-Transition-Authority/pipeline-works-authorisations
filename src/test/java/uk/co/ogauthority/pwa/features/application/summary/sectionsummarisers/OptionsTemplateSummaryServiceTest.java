@@ -10,19 +10,19 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.controller.OptionsTemplateController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -37,7 +37,7 @@ class OptionsTemplateSummaryServiceTest {
   private TaskListService taskListService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private OptionsTemplateSummaryService optionsTemplateSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -47,7 +47,7 @@ class OptionsTemplateSummaryServiceTest {
 
     optionsTemplateSummaryService = new OptionsTemplateSummaryService(
         taskListService,
-        padFileService);
+        padFileManagementService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
 
@@ -73,11 +73,10 @@ class OptionsTemplateSummaryServiceTest {
 
   @Test
   void summariseSection_verifyServiceInteractions() {
+    var fileId = UUID.randomUUID();
 
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.OPTIONS_TEMPLATE, ApplicationFileLinkStatus.FULL)).thenReturn(
-        List.of(
-            new UploadedFileView("id", "name", 99L, "desc", Instant.now(), "#")
-        ));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.OPTIONS_TEMPLATE))
+        .thenReturn(List.of(new UploadedFileView(String.valueOf(fileId), "name", 99L, "desc", Instant.now(), "#")));
 
     var appSummary = optionsTemplateSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
@@ -88,9 +87,7 @@ class OptionsTemplateSummaryServiceTest {
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.OPTIONS_TEMPLATE.getDisplayName(), "#optionsTemplate"));
     assertThat(appSummary.getTemplateModel()).containsEntry("optionsFileDownloadUrl", ReverseRouter
-        .route(on(OptionsTemplateController.class)
-            .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
-
+        .route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), fileId)));
   }
 
 }

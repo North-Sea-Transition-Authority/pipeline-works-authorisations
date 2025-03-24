@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -91,8 +92,8 @@ public class PublicNoticeOverviewController {
             .renderWithdrawPublicNotice(pwaApplicationId, applicationType, null, null, null))));
 
     fileView.ifPresent(uploadedFileView -> actions.put(PublicNoticeAction.DOWNLOAD.name(),
-        ReverseRouter.route(on(PublicNoticeDraftController.class)
-            .handleDownload(applicationType, pwaApplicationId, uploadedFileView.getFileId(), null))));
+        ReverseRouter.route(on(PublicNoticeFileManagementRestController.class)
+            .download(pwaApplicationId, UUID.fromString(uploadedFileView.getFileId())))));
 
     return actions;
   }

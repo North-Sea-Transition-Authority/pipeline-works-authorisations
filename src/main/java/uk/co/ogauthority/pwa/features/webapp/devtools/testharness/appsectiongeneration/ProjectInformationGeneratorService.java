@@ -9,7 +9,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationQuestion;
-import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.filehelper.TestHarnessPadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementTestHarnessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
@@ -17,17 +18,17 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 @Profile("test-harness")
 class ProjectInformationGeneratorService implements TestHarnessAppFormService {
 
-  private final PadProjectInformationService padProjectInformationService;
-  private final TestHarnessPadFileService testHarnessPadFileService;
-
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.PROJECT_INFORMATION;
+  private final PadProjectInformationService padProjectInformationService;
+  private final PadFileManagementTestHarnessService padFileManagementTestHarnessService;
 
   @Autowired
   public ProjectInformationGeneratorService(
       PadProjectInformationService padProjectInformationService,
-      TestHarnessPadFileService testHarnessPadFileService) {
+      PadFileManagementTestHarnessService padFileManagementTestHarnessService
+  ) {
     this.padProjectInformationService = padProjectInformationService;
-    this.testHarnessPadFileService = testHarnessPadFileService;
+    this.padFileManagementTestHarnessService = padFileManagementTestHarnessService;
   }
 
 
@@ -115,10 +116,7 @@ class ProjectInformationGeneratorService implements TestHarnessAppFormService {
     }
 
     if (requiredQuestions.contains(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM)) {
-      //TODO: PWARE-48 fix
-      //var generatedFileId = testHarnessPadFileService.generateImageUpload(
-       //   user, pwaApplicationDetail, ApplicationDetailFilePurpose.PROJECT_INFORMATION);
-      //testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
+      padFileManagementTestHarnessService.uploadFileAndMapToForm(form, pwaApplicationDetail, FileDocumentType.PROJECT_INFORMATION);
     }
 
     return form;

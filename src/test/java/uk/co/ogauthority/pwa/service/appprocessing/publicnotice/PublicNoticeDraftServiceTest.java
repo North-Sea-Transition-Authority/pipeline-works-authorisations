@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.appprocessing.publicnotice;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,7 +27,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeApprovalRequestEmailProps;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
@@ -46,6 +48,7 @@ import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
+import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,9 +56,6 @@ class PublicNoticeDraftServiceTest {
 
   @Mock
   private PublicNoticeService publicNoticeService;
-
-  @Mock
-  private AppFileService appFileService;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -75,6 +75,9 @@ class PublicNoticeDraftServiceTest {
   @InjectMocks
   private PublicNoticeDraftService publicNoticeDraftService;
 
+  @Mock
+  private AppFileManagementService appFileManagementService;
+
   @Captor
   private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
 
@@ -83,8 +86,6 @@ class PublicNoticeDraftServiceTest {
 
   private PwaApplication pwaApplication;
   private AuthenticatedUserAccount user;
-
-  private static String FILE_ID = "1";
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
@@ -102,6 +103,16 @@ class PublicNoticeDraftServiceTest {
   void setUp() {
     when(clock.instant()).thenReturn(Instant.now());
 
+    publicNoticeDraftService = new PublicNoticeDraftService(
+        publicNoticeService,
+        camundaWorkflowService,
+        clock,
+        notifyService,
+        caseLinkService,
+        teamQueryService,
+        appFileManagementService
+    );
+
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
@@ -117,12 +128,11 @@ class PublicNoticeDraftServiceTest {
     var expectedPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     when(publicNoticeService.savePublicNoticeDocument(expectedPublicNoticeDocument)).thenReturn(expectedPublicNoticeDocument);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        FILE_ID, "desc", clock.instant());
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(fileForm));
     var publicNoticeAppFile = new AppFile();
     var publicNoticeDocumentLink = new PublicNoticeDocumentLink(expectedPublicNoticeDocument, publicNoticeAppFile);
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, expectedPublicNoticeDocument))
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromFileId(pwaApplication, String.valueOf(fileForm.getFileId()), expectedPublicNoticeDocument))
     .thenReturn(publicNoticeDocumentLink);
 
 
@@ -174,12 +184,11 @@ class PublicNoticeDraftServiceTest {
     List<TeamMemberView> pwaManagers = List.of(pwaManager1, pwaManager2);
     when(teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER)).thenReturn(pwaManagers);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        FILE_ID, "desc", clock.instant());
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(fileForm));
     var publicNoticeAppFile = new AppFile();
     var publicNoticeDocumentLink = new PublicNoticeDocumentLink(expectedPublicNoticeDocument, publicNoticeAppFile);
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, expectedPublicNoticeDocument))
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromFileId(pwaApplication, String.valueOf(fileForm.getFileId()), expectedPublicNoticeDocument))
     .thenReturn(publicNoticeDocumentLink);
 
 
@@ -223,15 +232,14 @@ class PublicNoticeDraftServiceTest {
     var newPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     newPublicNoticeDocument.setVersion(latestPublicNoticeDocument.getVersion() + 1);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        FILE_ID, "desc", clock.instant());
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(fileForm));
     var publicNoticeAppFile = new AppFile();
 
     when(publicNoticeService.savePublicNoticeDocument(any(PublicNoticeDocument.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(eq(pwaApplication), any(UploadFileWithDescriptionForm.class), any(PublicNoticeDocument.class)))
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromFileId(eq(pwaApplication), anyString(), any(PublicNoticeDocument.class)))
         .thenAnswer(invocation -> new PublicNoticeDocumentLink(invocation.getArgument(2), publicNoticeAppFile));
 
     publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
@@ -276,12 +284,11 @@ class PublicNoticeDraftServiceTest {
     newPublicNoticeDocument.setVersion(1);
     when(publicNoticeService.savePublicNoticeDocument(newPublicNoticeDocument)).thenReturn(newPublicNoticeDocument);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        FILE_ID, "desc", clock.instant());
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(fileForm));
     var publicNoticeAppFile = new AppFile();
     var publicNoticeDocumentLink = new PublicNoticeDocumentLink(newPublicNoticeDocument, publicNoticeAppFile);
-    when(publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, newPublicNoticeDocument))
+    when(publicNoticeService.createPublicNoticeDocumentLinkFromFileId(pwaApplication, String.valueOf(fileForm.getFileId()), newPublicNoticeDocument))
         .thenReturn(publicNoticeDocumentLink);
 
     publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
@@ -323,9 +330,8 @@ class PublicNoticeDraftServiceTest {
     var newPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     newPublicNoticeDocument.setVersion(latestPublicNoticeDocument.getVersion() + 1);
 
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        FILE_ID, "desc", clock.instant());
-    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(uploadFileWithDescriptionForm));
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var publicNoticeDraftForm = PublicNoticeTestUtil.createDefaultPublicNoticeDraftForm(List.of(fileForm));
 
     publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
 
@@ -342,6 +348,5 @@ class PublicNoticeDraftServiceTest {
 
     verify(camundaWorkflowService).startWorkflow(publicNotice);
   }
-
 
 }

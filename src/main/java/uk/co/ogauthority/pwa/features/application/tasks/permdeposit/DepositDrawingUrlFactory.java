@@ -4,8 +4,10 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
+import java.util.UUID;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.PermanentDepositDrawingsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class DepositDrawingUrlFactory {
@@ -24,8 +26,7 @@ public class DepositDrawingUrlFactory {
   }
 
   public String getPipelineDrawingDownloadUrl(String fileId) {
-    return ReverseRouter.route(on(PermanentDepositDrawingsController.class)
-        .handleDownload(applicationType, applicationId, fileId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, UUID.fromString(fileId)));
   }
 
   public String getEditDrawingUrl(int drawingId) {

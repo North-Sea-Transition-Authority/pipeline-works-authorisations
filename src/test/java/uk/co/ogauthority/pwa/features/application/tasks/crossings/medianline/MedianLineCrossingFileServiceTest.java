@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline;
 
-import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,10 +7,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,16 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.CrossingDocumentsForm;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class MedianLineCrossingFileServiceTest {
@@ -37,7 +31,7 @@ class MedianLineCrossingFileServiceTest {
   private PadMedianLineAgreementRepository padMedianLineAgreementRepository;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
@@ -48,7 +42,7 @@ class MedianLineCrossingFileServiceTest {
   @BeforeEach
   void setUp() {
 
-    medianLineCrossingFileService = new MedianLineCrossingFileService(padMedianLineAgreementRepository, padFileService);
+    medianLineCrossingFileService = new MedianLineCrossingFileService(padMedianLineAgreementRepository, padFileManagementService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
@@ -56,7 +50,7 @@ class MedianLineCrossingFileServiceTest {
   @Test
   void validate_full_whenNoDocumentRequired_andDocumentProvidedWithDescription() {
 
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "2", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
@@ -66,7 +60,7 @@ class MedianLineCrossingFileServiceTest {
   @Test
   void validate_full_whenNoDocumentRequired_andDocumentProvidedWithoutDescription() {
 
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
@@ -93,7 +87,7 @@ class MedianLineCrossingFileServiceTest {
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(Optional.of(agreement));
 
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
 
@@ -102,7 +96,7 @@ class MedianLineCrossingFileServiceTest {
 
   @Test
   void validate_partial_whenDocumentWithoutDescriptionProvided() {
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
@@ -111,7 +105,7 @@ class MedianLineCrossingFileServiceTest {
 
   @Test
   void validate_partial_whenDocumentWithDescriptionProvided() {
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
 
@@ -119,37 +113,11 @@ class MedianLineCrossingFileServiceTest {
   }
 
   @Test
-  void validate_partial_whenDocumentDescriptionOverMaxCharLength() {
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.PARTIAL, pwaApplicationDetail);
-
-    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
-    assertThat(fieldErrors).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
-  }
-
-  @Test
-  void validate_full_whenDocumentDescriptionOverMaxCharLength() {
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-    var bindingResult = new BeanPropertyBindingResult(form, "form");
-    medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
-
-    var fieldErrors = ValidatorTestUtils.extractErrors(bindingResult);
-    assertThat(fieldErrors).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
-  }
-
-  @Test
   void validate_full_existingDocumentDeleted_newDocumentAdded_noErrors() {
 
-    var existingDocumentDeleted = new UploadFileWithDescriptionForm(null, null, null);
-    var newDocAdded = new UploadFileWithDescriptionForm("1", "new", Instant.now());
-    form.setUploadedFileWithDescriptionForms(List.of(existingDocumentDeleted, newDocAdded));
+    var existingDocumentDeleted = FileManagementValidatorTestUtils.createUploadedFileForm();
+    var newDocAdded = FileManagementValidatorTestUtils.createUploadedFileForm();
+    form.setUploadedFiles(List.of(existingDocumentDeleted, newDocAdded));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -161,9 +129,9 @@ class MedianLineCrossingFileServiceTest {
   @Test
   void validate_full_existingDocumentDeleted_newDocumentAdded_noDescription_error() {
 
-    var existingDocumentDeleted = new UploadFileWithDescriptionForm(null, null, null);
-    var newDocAdded = new UploadFileWithDescriptionForm("1", null, Instant.now());
-    form.setUploadedFileWithDescriptionForms(List.of(existingDocumentDeleted, newDocAdded));
+    var existingDocumentDeleted = FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription();
+    var newDocAdded = FileManagementValidatorTestUtils.createUploadedFileForm();
+    form.setUploadedFiles(List.of(existingDocumentDeleted, newDocAdded));
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     medianLineCrossingFileService.validate(form, bindingResult, ValidationType.FULL, pwaApplicationDetail);
@@ -175,7 +143,7 @@ class MedianLineCrossingFileServiceTest {
   @Test
   void isComplete_serviceInteraction() {
     var result = medianLineCrossingFileService.isComplete(pwaApplicationDetail);
-    verify(padFileService, times(1)).mapFilesToForm(any(), eq(pwaApplicationDetail), eq(ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING));
+    verify(padFileManagementService, times(1)).mapFilesToForm(any(), eq(pwaApplicationDetail), eq(FileDocumentType.MEDIAN_LINE_CROSSING));
     assertThat(result).isTrue();
   }
 

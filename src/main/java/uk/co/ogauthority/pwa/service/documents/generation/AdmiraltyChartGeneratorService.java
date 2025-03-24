@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -30,9 +30,8 @@ public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator 
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
-
     Optional<String> admiraltyChartFileId = admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
-        .map(PadFile::getFileId);
+        .map(UploadedFileView::getFileId);
 
     // short-circuit early if no admiralty chart, nothing to show
     if (admiraltyChartFileId.isEmpty()) {
@@ -51,7 +50,6 @@ public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator 
     );
 
     return new DocumentSectionData("documents/consents/sections/admiraltyChart", modelMap);
-
   }
 
 }

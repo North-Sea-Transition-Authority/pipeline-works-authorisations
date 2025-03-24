@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -61,6 +62,8 @@ class CaseNoteControllerTest extends PwaAppProcessingContextAbstractControllerTe
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
 
+    when(caseNoteService.getFileUploadComponentAttributes(any(), any()))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test

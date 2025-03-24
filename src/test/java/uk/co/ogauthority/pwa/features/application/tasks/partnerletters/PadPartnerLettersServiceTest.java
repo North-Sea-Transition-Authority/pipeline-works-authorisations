@@ -15,19 +15,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFile;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -39,7 +38,7 @@ class PadPartnerLettersServiceTest {
   private PwaApplicationDetailService applicationDetailService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private PartnerLettersValidator validator;
 
@@ -50,7 +49,7 @@ class PadPartnerLettersServiceTest {
   void setUp() {
     validator = new PartnerLettersValidator();
     padPartnerLettersService = new PadPartnerLettersService(applicationDetailService,
-        validator, padFileService);
+        validator, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
@@ -58,7 +57,7 @@ class PadPartnerLettersServiceTest {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
     form.setPartnerLettersConfirmed(true);
-    FileUploadTestUtil.addDefaultUploadFileToForm(form);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     return form;
   }
 
@@ -96,17 +95,17 @@ class PadPartnerLettersServiceTest {
   @Test
   void saveEntityUsingForm_partnerLettersRequired() {
     padPartnerLettersService.saveEntityUsingForm(new PwaApplicationDetail(), createValidForm(), new WebUserAccount());
-    verify(padFileService, times(1)).updateFiles(any(), any() ,any(), any(), any());
+    verify(padFileManagementService, times(1)).saveFiles(any(), any() ,any());
   }
 
   @Test
   void saveEntityUsingForm_partnerLettersNotRequired() {
-    when(padFileService.getAllByPwaApplicationDetailAndPurpose(pwaApplicationDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS))
-        .thenReturn(List.of(new PadFile(), new PadFile(), new PadFile()));
+    when(padFileManagementService.getUploadedFiles(pwaApplicationDetail, FileDocumentType.PARTNER_LETTERS))
+        .thenReturn(List.of(new UploadedFile(), new UploadedFile(), new UploadedFile()));
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(false);
     padPartnerLettersService.saveEntityUsingForm(pwaApplicationDetail, form, new WebUserAccount());
-    verify(padFileService, times(3)).processFileDeletion(any(), any());
+    verify(padFileManagementService, times(3)).deleteUploadedFile(any());
   }
 
   @Test
@@ -115,8 +114,7 @@ class PadPartnerLettersServiceTest {
     var uploadedFileViews = List.of(
         new UploadedFileView(null,null,1L,null,null,null),
         new UploadedFileView(null,null,1L,null,null,null));
-    when(padFileService.getUploadedFileViews(appDetail, ApplicationDetailFilePurpose.PARTNER_LETTERS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(uploadedFileViews);
+    when(padFileManagementService.getUploadedFileViews(appDetail, FileDocumentType.PARTNER_LETTERS)).thenReturn(uploadedFileViews);
 
     var partnerLettersView = padPartnerLettersService.getPartnerLettersView(appDetail);
 

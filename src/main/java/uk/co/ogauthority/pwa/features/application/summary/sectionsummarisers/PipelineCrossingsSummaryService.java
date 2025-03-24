@@ -8,16 +8,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingUrlFactory;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -29,16 +28,17 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgr
 public class PipelineCrossingsSummaryService implements ApplicationSectionSummariser {
 
   private final PadPipelineCrossingService padPipelineCrossingService;
-  private final PadFileService padFileService;
   private final TaskListService taskListService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PipelineCrossingsSummaryService(
       PadPipelineCrossingService padPipelineCrossingService,
-      PadFileService padFileService, TaskListService taskListService) {
+      TaskListService taskListService,
+      PadFileManagementService padFileManagementService) {
     this.padPipelineCrossingService = padPipelineCrossingService;
-    this.padFileService = padFileService;
     this.taskListService = taskListService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -61,9 +61,7 @@ public class PipelineCrossingsSummaryService implements ApplicationSectionSummar
     summaryModel.put("pipelineCrossingViews", padPipelineCrossingService.getPipelineCrossingViews(pwaApplicationDetail));
     summaryModel.put("pipelineCrossingUrlFactory", new PipelineCrossingUrlFactory(pwaApplicationDetail));
     summaryModel.put("pipelineCrossingFiles",
-            padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
-                ApplicationFileLinkStatus.FULL)
-                .stream()
+            padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PIPELINE_CROSSINGS).stream()
               .sorted(Comparator.comparing(UploadedFileView::getFileName))
               .collect(Collectors.toList()));
 

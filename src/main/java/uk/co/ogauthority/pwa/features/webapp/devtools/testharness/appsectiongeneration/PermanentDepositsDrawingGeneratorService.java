@@ -9,8 +9,8 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
-import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.filehelper.TestHarnessPadFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementTestHarnessService;
 
 @Service
 @Profile("test-harness")
@@ -18,7 +18,7 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
 
   private final DepositDrawingsService depositDrawingsService;
   private final PermanentDepositService permanentDepositService;
-  private final TestHarnessPadFileService testHarnessPadFileService;
+  private final PadFileManagementTestHarnessService padFileManagementTestHarnessService;
 
   private static final ApplicationTask LINKED_APP_FORM_TASK = ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS;
 
@@ -26,25 +26,22 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
   public PermanentDepositsDrawingGeneratorService(
       DepositDrawingsService depositDrawingsService,
       PermanentDepositService permanentDepositService,
-      TestHarnessPadFileService testHarnessPadFileService) {
+      PadFileManagementTestHarnessService padFileManagementTestHarnessService) {
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositService = permanentDepositService;
-    this.testHarnessPadFileService = testHarnessPadFileService;
+    this.padFileManagementTestHarnessService = padFileManagementTestHarnessService;
   }
-
 
   @Override
   public ApplicationTask getLinkedAppFormTask() {
     return LINKED_APP_FORM_TASK;
   }
 
-
   @Override
   public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
     depositDrawingsService.addDrawing(
         appFormServiceParams.getApplicationDetail(), createForm(appFormServiceParams), appFormServiceParams.getUser());
   }
-
 
   private PermanentDepositDrawingForm createForm(TestHarnessAppFormServiceParams appFormServiceParams) {
 
@@ -60,16 +57,13 @@ class PermanentDepositsDrawingGeneratorService implements TestHarnessAppFormServ
     form.setSelectedDeposits(selectedDepositIds);
     form.setReference("Test_Harness_Deposit_Drawing_Reference");
 
-    var generatedFileId = testHarnessPadFileService.generateInitialUpload(
-        user, detail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
-    testHarnessPadFileService.setFileIdOnForm(generatedFileId, form.getUploadedFileWithDescriptionForms());
-    testHarnessPadFileService.updatePadFiles(
-        form, user, detail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES);
+    padFileManagementTestHarnessService.uploadFileAndMapToFormWithLegacyPadFileLink(
+        form,
+        detail,
+        FileDocumentType.DEPOSIT_DRAWINGS,
+        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS
+    );
 
     return form;
   }
-
-
-
-
 }

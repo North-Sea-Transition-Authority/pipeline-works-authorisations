@@ -16,7 +16,18 @@
     <@fdsForm.htmlForm>
 
         <@fdsTextInput.textInput path="form.reference" labelText="Schematic reference" hintText="This reference must be displayed on the drawing provided" inputClass="govuk-!-width-two-thirds"/>
-        <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=imageFileUploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" multiFile=false/>
+
+        <@fdsFileUpload.fileUpload
+            id="pipelineDrawing"
+            path="form.uploadedFiles"
+            uploadUrl=fileUploadAttributes.uploadUrl()
+            downloadUrl=fileUploadAttributes.downloadUrl()
+            deleteUrl=fileUploadAttributes.deleteUrl()
+            maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+            allowedExtensions=fileUploadAttributes.allowedExtensions()
+            existingFiles=fileUploadAttributes.existingFiles()
+            dropzoneText="Drag and drop your documents here"
+        />
 
       <hr class="govuk-section-break govuk-section-break--m"/>
 

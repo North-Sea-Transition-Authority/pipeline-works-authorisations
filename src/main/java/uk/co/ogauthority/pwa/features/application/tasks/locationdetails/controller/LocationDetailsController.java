@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.locationdetails.control
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,14 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
@@ -27,13 +19,13 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.HseSafetyZone;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacilityService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PsrNotification;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.controller.DevukRestController;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
@@ -41,7 +33,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
@@ -58,7 +49,7 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.DEPOSIT_CONSENT
 })
-public class LocationDetailsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class LocationDetailsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final DevukFacilityService devukFacilityService;
@@ -66,8 +57,9 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
   private final PadLocationDetailsService padLocationDetailsService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final ControllerHelperService controllerHelperService;
+  private final PadFileManagementService padFileManagementService;
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.LOCATION_DETAILS;
+  //private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.LOCATION_DETAILS;
 
   @Autowired
   public LocationDetailsController(
@@ -76,26 +68,19 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
       DevukFacilityService devukFacilityService,
       PadLocationDetailsService padLocationDetailsService,
       PwaApplicationRedirectService pwaApplicationRedirectService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
-    super(padFileService);
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.padLocationDetailsService = padLocationDetailsService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView getLocationModelAndView(PwaApplicationDetail detail, LocationDetailsForm form) {
-
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/locationDetails",
-        detail,
-        FILE_PURPOSE,
-        form
-    );
-
     var safetyZoneOptions = HseSafetyZone.stream().sorted()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, HseSafetyZone::getDisplayText));
 
@@ -109,7 +94,14 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
         "flowline to Platform and onward to the SAGE system, or used as fuel or lift gas."
         : "";
 
-    modelAndView.addObject("safetyZoneOptions", safetyZoneOptions)
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        detail,
+        FileDocumentType.LOCATION_DETAILS
+    );
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/locationDetails")
+        .addObject("safetyZoneOptions", safetyZoneOptions)
         .addObject("psrNotificationOptions", psrNotificationOptions)
         .addObject("facilityOptions", facilities.stream()
             .collect(
@@ -117,7 +109,8 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
         .addObject("facilityRestUrl",
             SearchSelectorService.route(on(DevukRestController.class).searchFacilities(null)))
         .addObject("requiredQuestions", padLocationDetailsService.getRequiredQuestions(detail))
-        .addObject("toShoreGuidanceText", toShoreGuidanceText);
+        .addObject("toShoreGuidanceText", toShoreGuidanceText)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     // Add preselection options in case validation fails
     if (form.getWithinSafetyZone() == HseSafetyZone.YES) {
@@ -144,7 +137,7 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
     var facilities = padFacilityService.getFacilities(applicationContext.getApplicationDetail());
     padLocationDetailsService.mapEntityToForm(locationDetail, form);
 
-    padFileService.mapFilesToForm(form, detail, FILE_PURPOSE);
+    padFileManagementService.mapFilesToForm(form, detail, FileDocumentType.LOCATION_DETAILS);
     var modelAndView = getLocationModelAndView(applicationContext.getApplicationDetail(), form);
     padFacilityService.mapFacilitiesToView(facilities, form, modelAndView);
     return modelAndView;
@@ -169,56 +162,11 @@ public class LocationDetailsController extends PwaApplicationDetailDataFileUploa
       padLocationDetailsService.saveEntityUsingForm(locationDetail, form);
       padFacilityService.setFacilities(detail, form);
 
-      padFileService.updateFiles(
-          form,
-          applicationContext.getApplicationDetail(),
-          FILE_PURPOSE,
-          FileUpdateMode.DELETE_UNLINKED_FILES,
-          applicationContext.getUser());
+      padFileManagementService.saveFiles(form, detail, FileDocumentType.LOCATION_DETAILS);
 
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
 
     });
 
   }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processInitialUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
-  }
-
 }

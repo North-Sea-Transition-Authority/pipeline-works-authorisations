@@ -11,8 +11,6 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartDocumentForm;
@@ -21,7 +19,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineSchematicsErrorCode;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -32,24 +31,25 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
   private final AdmiraltyChartFileService admiraltyChartFileService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final UmbilicalCrossSectionService umbilicalCrossSectionService;
-  private final PadFileService padFileService;
   private final PadOptionConfirmedService padOptionConfirmedService;
 
   private final List<MailMergeFieldMnem> techDrawingMailMergeFields =
       List.of(MailMergeFieldMnem.PL_DRAWING_REF_LIST, MailMergeFieldMnem.ADMIRALTY_CHART_REF);
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public TechnicalDrawingSectionService(
       AdmiraltyChartFileService admiraltyChartFileService,
       PadTechnicalDrawingService padTechnicalDrawingService,
       UmbilicalCrossSectionService umbilicalCrossSectionService,
-      PadFileService padFileService,
-      PadOptionConfirmedService padOptionConfirmedService) {
+      PadOptionConfirmedService padOptionConfirmedService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.umbilicalCrossSectionService = umbilicalCrossSectionService;
-    this.padFileService = padFileService;
     this.padOptionConfirmedService = padOptionConfirmedService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -71,7 +71,7 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
                                 PwaApplicationDetail pwaApplicationDetail) {
     var admiraltyForm = new AdmiraltyChartDocumentForm();
     if (admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)) {
-      padFileService.mapFilesToForm(admiraltyForm, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
+      padFileManagementService.mapFilesToForm(admiraltyForm, pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART);
       admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
     }
     padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
@@ -107,19 +107,8 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    var copiedUmbilicalDiagramEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
-        ApplicationFileLinkStatus.FULL
-    );
-
-    var copiedAdmiraltyChartEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        ApplicationDetailFilePurpose.ADMIRALTY_CHART,
-        ApplicationFileLinkStatus.FULL
-    );
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.ADMIRALTY_CHART);
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.UMBILICAL_CROSS_SECTION);
   }
 
   @Override
@@ -158,7 +147,7 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
     if (availableMergeFields.contains(MailMergeFieldMnem.ADMIRALTY_CHART_REF)) {
 
       admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
-          .ifPresent(file -> map.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, file.getDescription()));
+          .ifPresent(file -> map.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, file.getFileDescription()));
 
     }
 

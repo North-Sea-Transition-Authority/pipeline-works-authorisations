@@ -89,7 +89,17 @@
         </#list>
 
         <@fdsFieldset.fieldset legendHeading="${consultationResponseDocumentType.questionText}" legendHeadingClass="govuk-fieldset__legend--s" legendHeadingSize="h3" hintText="${consultationResponseDocumentType.questionGuidance}">
-            <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" />
+          <@fdsFileUpload.fileUpload
+            id="fileUpload"
+            path="form.uploadedFiles"
+            uploadUrl=fileUploadAttributes.uploadUrl()
+            downloadUrl=fileUploadAttributes.downloadUrl()
+            deleteUrl=fileUploadAttributes.deleteUrl()
+            maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+            allowedExtensions=fileUploadAttributes.allowedExtensions()
+            existingFiles=fileUploadAttributes.existingFiles()
+            dropzoneText="Drag and drop your documents here"
+          />
         </@fdsFieldset.fieldset>
 
         <#if previousResponses?has_content>

@@ -15,13 +15,12 @@ import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -40,7 +39,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
   private final LocationDetailsValidator validator;
   private final SearchSelectorService searchSelectorService;
   private final EntityCopyingService entityCopyingService;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PadLocationDetailsService(PadLocationDetailsRepository padLocationDetailsRepository,
@@ -49,14 +48,14 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
                                    LocationDetailsValidator validator,
                                    SearchSelectorService searchSelectorService,
                                    EntityCopyingService entityCopyingService,
-                                   PadFileService padFileService) {
+                                   PadFileManagementService padFileManagementService) {
     this.padLocationDetailsRepository = padLocationDetailsRepository;
     this.padFacilityService = padFacilityService;
     this.devukFacilityService = devukFacilityService;
     this.validator = validator;
     this.searchSelectorService = searchSelectorService;
     this.entityCopyingService = entityCopyingService;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   public PadLocationDetails getLocationDetailsForDraft(PwaApplicationDetail detail) {
@@ -190,8 +189,8 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     List<String> facilityNames =
         !(HseSafetyZone.NO).equals(locationDetails.getWithinSafetyZone()) ? getFacilityNames(pwaApplicationDetail) : List.of();
 
-    List<UploadedFileView> uploadedFileViews = padFileService.getUploadedFileViews(
-        pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS, ApplicationFileLinkStatus.FULL);
+    List<UploadedFileView> uploadedFileViews =
+        padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.LOCATION_DETAILS);
 
     String psrSubmissionDate = null;
     if (PsrNotification.YES.equals(locationDetails.getPsrNotificationSubmittedOption())) {
@@ -298,7 +297,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
     PadLocationDetails locationDetails = getLocationDetailsForDraft(detail);
     var locationDetailsForm = new LocationDetailsForm();
     mapEntityToForm(locationDetails, locationDetailsForm);
-    padFileService.mapFilesToForm(locationDetailsForm, detail, ApplicationDetailFilePurpose.LOCATION_DETAILS);
+    padFileManagementService.mapFilesToForm(locationDetailsForm, detail, FileDocumentType.LOCATION_DETAILS);
 
     var facilities = padFacilityService.getFacilities(detail);
 
@@ -399,13 +398,7 @@ public class PadLocationDetailsService implements ApplicationFormSectionService 
         PadFacility.class
     );
 
-    padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        ApplicationDetailFilePurpose.LOCATION_DETAILS,
-        ApplicationFileLinkStatus.FULL
-    );
-
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.LOCATION_DETAILS);
   }
 
   @Override

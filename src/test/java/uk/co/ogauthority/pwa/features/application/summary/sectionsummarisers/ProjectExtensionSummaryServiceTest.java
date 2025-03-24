@@ -12,12 +12,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummaryType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,13 +26,13 @@ class ProjectExtensionSummaryServiceTest {
   TaskListService taskListService;
 
   @Mock
-  PadFileService padFileService;
+  PadFileManagementService padFileManagementService;
 
   private ProjectExtensionSummaryService projectExtensionSummaryService;
 
   @BeforeEach
   void setup() {
-    projectExtensionSummaryService = new ProjectExtensionSummaryService(taskListService, padFileService);
+    projectExtensionSummaryService = new ProjectExtensionSummaryService(taskListService, padFileManagementService);
   }
 
   @Test
@@ -45,11 +44,11 @@ class ProjectExtensionSummaryServiceTest {
 
   @Test
   void summariseService_verifyServiceInteractions() {
-    projectExtensionSummaryService.summariseSection(new PwaApplicationDetail(),
+    var pwaApplicationDetail = new PwaApplicationDetail();
+
+    projectExtensionSummaryService.summariseSection(pwaApplicationDetail,
         ApplicationSectionSummaryType.PROJECT_EXTENSION.getTemplatePath());
 
-    verify(padFileService).getUploadedFileViews(any(PwaApplicationDetail.class),
-        eq(ApplicationDetailFilePurpose.PROJECT_EXTENSION),
-        eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService).getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_EXTENSION);
   }
 }

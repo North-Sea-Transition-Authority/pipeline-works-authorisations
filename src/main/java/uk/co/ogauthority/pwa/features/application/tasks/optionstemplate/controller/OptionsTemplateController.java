@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.control
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,28 +9,21 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateForm;
 import uk.co.ogauthority.pwa.features.application.tasks.optionstemplate.OptionsTemplateService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -41,46 +32,46 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 @RequestMapping("/pwa-application/{applicationType}/{applicationId}/options-template")
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
 @PwaApplicationTypeCheck(types = { PwaApplicationType.OPTIONS_VARIATION })
-public class OptionsTemplateController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class OptionsTemplateController {
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.OPTIONS_TEMPLATE;
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.OPTIONS_TEMPLATE;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final ControllerHelperService controllerHelperService;
   private final OptionsTemplateService optionsTemplateService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final String ogaOptionsTemplateLink;
-
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
-  public OptionsTemplateController(PadFileService padFileService,
-                                   ApplicationBreadcrumbService applicationBreadcrumbService,
+  public OptionsTemplateController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                    ControllerHelperService controllerHelperService,
                                    OptionsTemplateService optionsTemplateService,
                                    PwaApplicationRedirectService pwaApplicationRedirectService,
-                                   @Value("${oga.options.template.link}") String ogaOptionsTemplateLink) {
-    super(padFileService);
+                                   @Value("${oga.options.template.link}") String ogaOptionsTemplateLink,
+                                   PadFileManagementService padFileManagementService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.controllerHelperService = controllerHelperService;
     this.optionsTemplateService = optionsTemplateService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.ogaOptionsTemplateLink = ogaOptionsTemplateLink;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView getModelAndView(PwaApplicationContext applicationContext,
                                        OptionsTemplateForm form) {
-
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/options/optionsTemplate",
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
         applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        form
+        DOCUMENT_TYPE
     );
-    modelAndView.addObject("ogaOptionsTemplateLink", ogaOptionsTemplateLink);
+
+    var modelAndView = new ModelAndView("pwaApplication/options/optionsTemplate")
+        .addObject("ogaOptionsTemplateLink", ogaOptionsTemplateLink)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTaskList(applicationContext.getPwaApplication(), modelAndView, "Options template");
 
     return modelAndView;
-
   }
 
   @GetMapping
@@ -92,7 +83,7 @@ public class OptionsTemplateController extends PwaApplicationDetailDataFileUploa
                                             @ModelAttribute("form") OptionsTemplateForm form,
                                             AuthenticatedUserAccount user) {
     var detail = applicationContext.getApplicationDetail();
-    padFileService.mapFilesToForm(form, detail, FILE_PURPOSE);
+    padFileManagementService.mapFilesToForm(form, detail, DOCUMENT_TYPE);
     return getModelAndView(applicationContext, form);
   }
 
@@ -111,57 +102,8 @@ public class OptionsTemplateController extends PwaApplicationDetailDataFileUploa
     bindingResult = optionsTemplateService.validate(form, bindingResult, validationType, detail);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getModelAndView(applicationContext, form), () -> {
-
-      padFileService.updateFiles(
-          form,
-          applicationContext.getApplicationDetail(),
-          FILE_PURPOSE,
-          FileUpdateMode.DELETE_UNLINKED_FILES,
-          applicationContext.getUser());
-
+      padFileManagementService.saveFiles(form, detail, DOCUMENT_TYPE);
       return pwaApplicationRedirectService.getTaskListRedirect(detail.getPwaApplication());
-
     });
-
   }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processInitialUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
-  }
-
 }

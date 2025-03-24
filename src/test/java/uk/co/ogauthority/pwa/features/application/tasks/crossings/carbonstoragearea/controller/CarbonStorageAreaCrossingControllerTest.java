@@ -42,6 +42,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragea
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -77,6 +78,9 @@ public class CarbonStorageAreaCrossingControllerTest extends PwaApplicationConte
 
   @MockBean
   private EditCarbonStorageAreaCrossingFormValidator editFormValidator;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   @Mock
   private PadCrossedStorageArea crossedStorageArea;

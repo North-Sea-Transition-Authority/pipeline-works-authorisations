@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 
-public class LocationDetailsForm extends UploadMultipleFilesWithDescriptionForm {
+public class LocationDetailsForm extends FileUploadForm {
 
   private String approximateProjectLocationFromShore;
 

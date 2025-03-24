@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.model.form.appprocessing.casenotes;
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
-public class AddCaseNoteForm extends UploadMultipleFilesWithDescriptionForm {
+public class AddCaseNoteForm extends FileUploadForm {
 
   private String noteText;
 

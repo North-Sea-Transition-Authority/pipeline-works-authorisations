@@ -11,11 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
@@ -27,17 +26,19 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
   private final PadCableCrossingRepository padCableCrossingRepository;
   private final CableCrossingFileService cableCrossingFileService;
   private final EntityCopyingService entityCopyingService;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PadCableCrossingService(
       PadCableCrossingRepository padCableCrossingRepository,
       CableCrossingFileService cableCrossingFileService,
-      EntityCopyingService entityCopyingService, PadFileService padFileService) {
+      EntityCopyingService entityCopyingService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.padCableCrossingRepository = padCableCrossingRepository;
     this.cableCrossingFileService = cableCrossingFileService;
     this.entityCopyingService = entityCopyingService;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   public PadCableCrossing getCableCrossing(PwaApplicationDetail detail, Integer id) {
@@ -121,11 +122,6 @@ public class PadCableCrossingService implements ApplicationFormSectionService {
         PadCableCrossing.class
     );
 
-    padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        ApplicationDetailFilePurpose.CABLE_CROSSINGS,
-        ApplicationFileLinkStatus.FULL);
-
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.CABLE_CROSSINGS);
   }
 }

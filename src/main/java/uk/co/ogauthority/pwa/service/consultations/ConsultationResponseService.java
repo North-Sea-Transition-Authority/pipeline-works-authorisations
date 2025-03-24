@@ -1,10 +1,13 @@
 package uk.co.ogauthority.pwa.service.consultations;
 
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
+
 import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -12,6 +15,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
@@ -23,10 +29,13 @@ import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Workflo
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -42,13 +51,13 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 
 /**
  A service to create response/assign response to consultation request.
@@ -67,7 +76,10 @@ public class ConsultationResponseService implements AppProcessingService {
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository;
   private final AppFileService appFileService;
+  private final FileManagementService fileManagementService;
+  private final AppFileManagementService appFileManagementService;
 
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CONSULTATION_RESPONSE;
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
 
   @Autowired
@@ -81,7 +93,10 @@ public class ConsultationResponseService implements AppProcessingService {
                                      CaseLinkService caseLinkService,
                                      ConsultationResponseDataService consultationResponseDataService,
                                      ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
-                                     AppFileService appFileService) {
+                                     AppFileService appFileService,
+                                     FileManagementService fileManagementService,
+                                     AppFileManagementService appFileManagementService
+  ) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -93,6 +108,8 @@ public class ConsultationResponseService implements AppProcessingService {
     this.consultationResponseDataService = consultationResponseDataService;
     this.consultationResponseFileLinkRepository = consultationResponseFileLinkRepository;
     this.appFileService = appFileService;
+    this.fileManagementService = fileManagementService;
+    this.appFileManagementService = appFileManagementService;
   }
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
@@ -145,15 +162,32 @@ public class ConsultationResponseService implements AppProcessingService {
 
   }
 
+  public FileUploadComponentAttributes getFileUploadComponentAttributes(
+      List<UploadedFileForm> existingFiles,
+      PwaApplication pwaApplication,
+      ConsultationRequest request
+  ) {
+    var controller = ConsultationResponseFileController.class;
+
+    return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, DOCUMENT_TYPE)
+        .withUploadUrl(ReverseRouter.route(on(AppFileUploadRestController.class)
+            .upload(pwaApplication.getId(), FILE_PURPOSE.name(), null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplication.getId(), null, null),
+            Map.of("consultationRequestId", request.getId())))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplication.getId(), null, null),
+            Map.of("consultationRequestId", request.getId())))
+        .build();
+  }
+
   private void createConsultationResponseFileLinks(ConsultationResponseForm form,
                                                    ConsultationRequest consultationRequest,
                                                    ConsultationResponse consultationResponse,
                                                    WebUserAccount user) {
-    //keep unlinked files to prevent deleting other user's temporary uploaded files when submitting response
-    appFileService.updateFiles(form, consultationRequest.getPwaApplication(), FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, user);
+    appFileManagementService.saveFiles(form, consultationRequest.getPwaApplication(), DOCUMENT_TYPE);
 
-    var fileIds = form.getUploadedFileWithDescriptionForms().stream()
-        .map(UploadFileWithDescriptionForm::getUploadedFileId)
+    var fileIds = form.getUploadedFiles().stream()
+        .map(UploadedFileForm::getFileId)
+        .map(String::valueOf)
         .collect(Collectors.toList());
 
     if (!fileIds.isEmpty()) {

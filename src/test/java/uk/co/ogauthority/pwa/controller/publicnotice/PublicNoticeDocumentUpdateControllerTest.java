@@ -32,6 +32,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
@@ -58,6 +60,9 @@ class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingContextAb
 
   @MockBean
   private PublicNoticeDocumentUpdateService publicNoticeDocumentUpdateService;
+
+  @MockBean
+  private AppFileManagementService appFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
@@ -98,6 +103,9 @@ class PublicNoticeDocumentUpdateControllerTest extends PwaAppProcessingContextAb
 
     var publicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(publicNoticeDocument);
+
+    when(publicNoticeService.getFileUploadComponentAttributes(any(), any()))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
 

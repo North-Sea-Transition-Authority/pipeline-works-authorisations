@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.medianline.controller.MedianLineDocumentsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -29,9 +30,8 @@ public class MedianLineCrossingUrlFactory {
   }
 
   public String getFileDownloadUrl() {
-    return ReverseRouter.route(on(MedianLineDocumentsController.class)
-        // file id is full to allow templates to construct url as needed
-        .handleDownload(applicationType, pwaApplicationId, null, null));
+    // file id is null to allow templates to construct url as needed
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationId, null));
   }
 
 }

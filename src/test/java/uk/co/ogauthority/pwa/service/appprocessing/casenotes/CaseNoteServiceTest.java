@@ -7,10 +7,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,10 +23,18 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.util.unit.DataSize;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -38,10 +48,10 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.CaseHistoryItemView;
 import uk.co.ogauthority.pwa.model.view.appprocessing.casehistory.DataItemRow;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
@@ -62,8 +72,16 @@ class CaseNoteServiceTest {
   @Mock
   private CaseNoteFormValidator validator;
 
+  @Mock
+  private AppFileManagementService appFileManagementService;
+
+  @Mock
+  private FileManagementService fileManagementService;
+
   private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CASE_NOTES;
+  
   @Captor
   private ArgumentCaptor<CaseNote> caseNoteCaptor;
 
@@ -72,7 +90,15 @@ class CaseNoteServiceTest {
 
   @BeforeEach
   void setUp() {
-    caseNoteService = new CaseNoteService(caseNoteRepository, appFileService, clock, documentLinkRepository, validator);
+    caseNoteService = new CaseNoteService(
+        caseNoteRepository,
+        appFileService,
+        clock,
+        documentLinkRepository,
+        validator,
+        appFileManagementService,
+        fileManagementService
+    );
   }
 
   @Test
@@ -113,8 +139,6 @@ class CaseNoteServiceTest {
 
     verify(caseNoteRepository, times(1)).save(caseNoteCaptor.capture());
 
-    verify(appFileService, times(1)).updateFiles(form, app, AppFilePurpose.CASE_NOTES, FileUpdateMode.KEEP_UNLINKED_FILES, user);
-
     var caseNote = caseNoteCaptor.getValue();
 
     assertThat(caseNote.getPwaApplication()).isEqualTo(app);
@@ -134,9 +158,9 @@ class CaseNoteServiceTest {
 
     var form = new AddCaseNoteForm();
     form.setNoteText("some note text");
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("id", "desc", Instant.now()),
-        new UploadFileWithDescriptionForm("id2", "desc2", Instant.now().minusSeconds(1))
+    form.setUploadedFiles(List.of(
+        FileManagementValidatorTestUtils.createUploadedFileForm(),
+        FileManagementValidatorTestUtils.createUploadedFileForm()
     ));
 
     var appFile1 = new AppFile(app, "id", AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL);
@@ -151,7 +175,7 @@ class CaseNoteServiceTest {
 
     verify(caseNoteRepository, times(1)).save(caseNoteCaptor.capture());
 
-    verify(appFileService, times(1)).updateFiles(form, app, AppFilePurpose.CASE_NOTES, FileUpdateMode.KEEP_UNLINKED_FILES, user);
+    verify(appFileManagementService, times(1)).saveFiles(form, app, DOCUMENT_TYPE);
 
     var caseNote = caseNoteCaptor.getValue();
 
@@ -189,8 +213,7 @@ class CaseNoteServiceTest {
 
     var fileView1 = new UploadedFileView("id", "name", 1L, "desc", clock.instant(), "#id");
     var fileView2 = new UploadedFileView("id2", "abc", 2L, "desc2", clock.instant().minusSeconds(10), "#id2");
-    when(appFileService.getUploadedFileViews(app, AppFilePurpose.CASE_NOTES, ApplicationFileLinkStatus.FULL)).thenReturn(
-        List.of(fileView1, fileView2));
+    when(appFileManagementService.getUploadedFileViews(app, DOCUMENT_TYPE)).thenReturn(List.of(fileView1, fileView2));
 
     var appFile1 = new AppFile();
     appFile1.setFileId("id");
@@ -237,4 +260,28 @@ class CaseNoteServiceTest {
 
   }
 
+  @Test
+  void fileUploadComponentAttributes_VerifyMethodCall() {
+    var app = new PwaApplication();
+
+    List<UploadedFileForm> existingFileForms = Collections.emptyList();
+
+    var builder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofBytes(1));
+    when(fileManagementService.getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(caseNoteService.getFileUploadComponentAttributes(existingFileForms, app))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(AppFileUploadRestController.class).upload(app.getId(), DOCUMENT_TYPE.name(), null)),
+            ReverseRouter.route(on(CaseNoteFileManagementRestController.class).download(app.getId(), null)),
+            ReverseRouter.route(on(CaseNoteFileManagementRestController.class).delete(app.getId(), null))
+        );
+
+    verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
+  }
 }

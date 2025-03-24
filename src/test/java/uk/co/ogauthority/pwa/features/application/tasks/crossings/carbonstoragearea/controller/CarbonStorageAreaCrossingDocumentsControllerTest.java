@@ -23,6 +23,9 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -45,6 +48,9 @@ class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplicationCon
 
   @MockBean
   private CarbonStorageAreaCrossingFileService fileService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -76,7 +82,8 @@ class CarbonStorageAreaCrossingDocumentsControllerTest extends PwaApplicationCon
     when(pwaApplicationDetailService.getTipDetailByAppId(eq(APP_ID))).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-
+    when(padFileManagementService.getFileUploadComponentAttributes(any(), any(), eq(FileDocumentType.CARBON_STORAGE_CROSSINGS)))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test

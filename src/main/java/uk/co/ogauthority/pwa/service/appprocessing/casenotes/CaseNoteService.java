@@ -15,17 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteController;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNote;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.casenotes.CaseNoteDocumentLink;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
@@ -35,7 +39,6 @@ import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteDocument
 import uk.co.ogauthority.pwa.repository.appprocessing.casenotes.CaseNoteRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.casehistory.CaseHistoryItemService;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.validators.appprocessing.casenote.CaseNoteFormValidator;
 
 @Service
@@ -46,20 +49,28 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   private final Clock clock;
   private final CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository;
   private final CaseNoteFormValidator validator;
+  private final AppFileManagementService appFileManagementService;
 
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CASE_NOTES;
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CASE_NOTES;
+  private final FileManagementService fileManagementService;
 
   @Autowired
   public CaseNoteService(CaseNoteRepository caseNoteRepository,
                          AppFileService appFileService,
                          @Qualifier("utcClock") Clock clock,
                          CaseNoteDocumentLinkRepository caseNoteDocumentLinkRepository,
-                         CaseNoteFormValidator validator) {
+                         CaseNoteFormValidator validator,
+                         AppFileManagementService appFileManagementService,
+                         FileManagementService fileManagementService
+  ) {
     this.caseNoteRepository = caseNoteRepository;
     this.appFileService = appFileService;
     this.clock = clock;
     this.caseNoteDocumentLinkRepository = caseNoteDocumentLinkRepository;
     this.validator = validator;
+    this.appFileManagementService = appFileManagementService;
+    this.fileManagementService = fileManagementService;
   }
 
   @Override
@@ -80,12 +91,11 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
 
     caseNoteRepository.save(caseNote);
 
-    // need to keep unlinked files as we are searching across all case notes, don't want to delete files that
-    // aren't linked to our specific case note
-    appFileService.updateFiles(form, application, FILE_PURPOSE, FileUpdateMode.KEEP_UNLINKED_FILES, creatingUser);
+    appFileManagementService.saveFiles(form, application, DOCUMENT_TYPE);
 
-    var fileIds = form.getUploadedFileWithDescriptionForms().stream()
-        .map(UploadFileWithDescriptionForm::getUploadedFileId)
+    var fileIds = form.getUploadedFiles().stream()
+        .map(UploadedFileForm::getFileId)
+        .map(String::valueOf)
         .collect(Collectors.toList());
 
     if (!fileIds.isEmpty()) {
@@ -111,14 +121,14 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
 
     var caseNotes = caseNoteRepository.getAllByPwaApplication(pwaApplication);
 
-    var appFileIdToViewMap = appFileService.getUploadedFileViews(pwaApplication, FILE_PURPOSE, ApplicationFileLinkStatus.FULL).stream()
+    var appFileIdToViewMap = appFileManagementService.getUploadedFileViews(pwaApplication, DOCUMENT_TYPE).stream()
         .collect(Collectors.toMap(UploadedFileView::getFileId, Function.identity()));
 
     var caseNoteIdToDocLinksMap = caseNoteDocumentLinkRepository.findAllByCaseNoteIn(caseNotes).stream()
         .collect(Collectors.groupingBy(docLink -> docLink.getCaseNote().getId()));
 
-    var caseNoteFileDownloadUrl = ReverseRouter.route(on(CaseNoteController.class)
-        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)
+    var caseNoteFileDownloadUrl = ReverseRouter.route(on(CaseNoteFileManagementRestController.class)
+        .download(pwaApplication.getId(), null)
     );
 
     return caseNotes.stream()
@@ -151,6 +161,20 @@ public class CaseNoteService implements AppProcessingService, CaseHistoryItemSer
   public BindingResult validate(AddCaseNoteForm form, BindingResult bindingResult) {
     validator.validate(form, bindingResult);
     return bindingResult;
+  }
+
+  public FileUploadComponentAttributes getFileUploadComponentAttributes(
+      List<UploadedFileForm> existingFiles,
+      PwaApplication pwaApplication
+  ) {
+    var controller = CaseNoteFileManagementRestController.class;
+
+    return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, DOCUMENT_TYPE)
+        .withUploadUrl(ReverseRouter.route(on(AppFileUploadRestController.class)
+            .upload(pwaApplication.getId(), FILE_PURPOSE.name(), null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplication.getId(), null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplication.getId(), null)))
+        .build();
   }
 
 }

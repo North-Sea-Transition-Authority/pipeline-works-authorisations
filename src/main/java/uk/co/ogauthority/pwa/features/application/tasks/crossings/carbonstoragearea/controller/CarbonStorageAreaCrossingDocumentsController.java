@@ -1,10 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,32 +8,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -51,25 +39,27 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DEPOSIT_CONSENT,
     PwaApplicationType.DECOMMISSIONING
 })
-public class CarbonStorageAreaCrossingDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class CarbonStorageAreaCrossingDocumentsController {
+
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CARBON_STORAGE_CROSSINGS;
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CarbonStorageAreaCrossingFileService carbonStorageAreaCrossingFileService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final ControllerHelperService controllerHelperService;
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.CARBON_STORAGE_CROSSINGS;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public CarbonStorageAreaCrossingDocumentsController(ApplicationBreadcrumbService applicationBreadcrumbService,
                                                       CarbonStorageAreaCrossingFileService carbonStorageAreaCrossingFileService,
                                                       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-                                                      PadFileService padFileService,
-                                                      ControllerHelperService controllerHelperService) {
-    super(padFileService);
+                                                      ControllerHelperService controllerHelperService,
+                                                      PadFileManagementService padFileManagementService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.carbonStorageAreaCrossingFileService = carbonStorageAreaCrossingFileService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
 
@@ -81,8 +71,9 @@ public class CarbonStorageAreaCrossingDocumentsController extends PwaApplication
       @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
-    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(), FILE_PURPOSE);
-    return createCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var pwaApplicationDetail = applicationContext.getApplicationDetail();
+    padFileManagementService.mapFilesToForm(form, pwaApplicationDetail, DOCUMENT_TYPE);
+    return createCrossingModelAndView(pwaApplicationDetail, form);
   }
 
   @PostMapping
@@ -105,7 +96,7 @@ public class CarbonStorageAreaCrossingDocumentsController extends PwaApplication
     var modelAndView = createCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
 
-      padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, user);
+      padFileManagementService.saveFiles(form, detail, DOCUMENT_TYPE);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail,
           CrossingAgreementTask.CARBON_STORAGE_AREAS);
     });
@@ -113,69 +104,23 @@ public class CarbonStorageAreaCrossingDocumentsController extends PwaApplication
 
   private ModelAndView createCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                        CrossingDocumentsForm form) {
-    var modelAndView = createModelAndView(
-        "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
-            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
-            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
-            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        // only load fully linked (saved) files
-        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE)
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        pwaApplicationDetail,
+        FileDocumentType.CARBON_STORAGE_CROSSINGS
     );
 
-    modelAndView.addObject("pageTitle", "Carbon storage area crossing agreement documents")
+    var modelAndView = new ModelAndView("pwaApplication/form/uploadFiles")
+        .addObject("pageTitle", "Carbon storage area crossing agreement documents")
         .addObject("backButtonText", "Back to carbon storage areas")
         .addObject("backUrl",
             crossingAgreementsTaskListService.getRoute(pwaApplicationDetail,
-                CrossingAgreementTask.CARBON_STORAGE_AREAS));
+                CrossingAgreementTask.CARBON_STORAGE_AREAS))
+        .addObject("fileUploadAttributes", fileUploadAttributes);
+
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
         CrossingAgreementTask.CARBON_STORAGE_AREAS,
         "Carbon storage area crossing agreement documents");
     return modelAndView;
   }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processInitialUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
-  }
-
 }

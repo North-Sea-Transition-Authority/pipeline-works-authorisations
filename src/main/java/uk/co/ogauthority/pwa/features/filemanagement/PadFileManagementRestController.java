@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
     PwaApplicationType.HUOO_VARIATION
 })
 @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.EDIT})
-class PadFileManagementRestController {
+public class PadFileManagementRestController {
 
   private final FileService fileService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
@@ -46,14 +46,14 @@ class PadFileManagementRestController {
 
   @GetMapping("/download/{fileId}")
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  ResponseEntity<InputStreamResource> download(
+  public ResponseEntity<InputStreamResource> download(
       @PathVariable Integer applicationId,
       @PathVariable UUID fileId
   ) {
     var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationId);
 
     var file = fileService.find(fileId)
-        .orElseThrow(() -> padFileManagementService.getFileNotFoundException(fileId, pwaApplicationDetail));
+        .orElseThrow(() -> padFileManagementService.getFileNotFoundException(pwaApplicationDetail, fileId));
 
     padFileManagementService.throwIfFileDoesNotBelongToApplicationDetail(file, pwaApplicationDetail);
 
@@ -62,14 +62,14 @@ class PadFileManagementRestController {
 
   @PostMapping("/delete/{fileId}")
   //@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  FileDeleteResponse delete(
+  public FileDeleteResponse delete(
       @PathVariable Integer applicationId,
       @PathVariable UUID fileId
   ) {
     var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationId);
 
     var file = fileService.find(fileId)
-        .orElseThrow(() -> padFileManagementService.getFileNotFoundException(fileId, pwaApplicationDetail));
+        .orElseThrow(() -> padFileManagementService.getFileNotFoundException(pwaApplicationDetail, fileId));
 
     padFileManagementService.throwIfFileDoesNotBelongToApplicationDetail(file, pwaApplicationDetail);
 

@@ -1,7 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty;
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
-public class AdmiraltyChartDocumentForm extends UploadMultipleFilesWithDescriptionForm {
+public class AdmiraltyChartDocumentForm extends FileUploadForm {
 
 }

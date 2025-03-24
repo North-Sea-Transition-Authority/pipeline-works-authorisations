@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
@@ -28,7 +27,6 @@ import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.SamlProperties;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.WebSecurityConfig;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
@@ -136,14 +134,6 @@ public abstract class AbstractControllerTest {
     @Bean
     public HibernateQueryCounter hibernateQueryInterceptor() {
       return new HibernateQueryCounter();
-    }
-
-    @Bean
-    public FileUploadProperties fileUploadProperties() {
-      FileUploadProperties fileUploadProperties = new FileUploadProperties();
-      fileUploadProperties.setMaxFileSize(1000L);
-      fileUploadProperties.setAllowedExtensions(List.of("txt", "xls", "doc"));
-      return fileUploadProperties;
     }
 
     @Bean("messageSource")

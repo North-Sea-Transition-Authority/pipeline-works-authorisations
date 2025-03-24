@@ -1,32 +1,30 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.CrossingDocumentsForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class BlockCrossingFileService implements ApplicationFormSectionService {
 
   private final PadCrossedBlockRepository padCrossedBlockRepository;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public BlockCrossingFileService(PadCrossedBlockRepository padCrossedBlockRepository,
-                                  PadFileService padFileService) {
+                                  PadFileManagementService padFileManagementService) {
     this.padCrossedBlockRepository = padCrossedBlockRepository;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   public boolean requiresFullValidation(PwaApplicationDetail pwaApplicationDetail) {
@@ -40,7 +38,7 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new CrossingDocumentsForm();
-    padFileService.mapFilesToForm(form, detail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS);
+    padFileManagementService.mapFilesToForm(form, detail, FileDocumentType.BLOCK_CROSSINGS);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
@@ -50,13 +48,16 @@ public class BlockCrossingFileService implements ApplicationFormSectionService {
                                 BindingResult bindingResult,
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
+    var castedForm = (CrossingDocumentsForm) form;
 
-    List<Object> hints = new ArrayList<>();
     if (validationType.equals(ValidationType.FULL) && requiresFullValidation(pwaApplicationDetail)) {
-      hints.add(MandatoryUploadValidation.class);
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload at least one file")
+          .validate(bindingResult, castedForm.getUploadedFiles());
+    } else {
+      FileValidationUtils.validator()
+          .validate(bindingResult, castedForm.getUploadedFiles());
     }
-
-    FileUploadUtils.validateFiles((CrossingDocumentsForm) form, bindingResult, hints);
 
     return bindingResult;
 

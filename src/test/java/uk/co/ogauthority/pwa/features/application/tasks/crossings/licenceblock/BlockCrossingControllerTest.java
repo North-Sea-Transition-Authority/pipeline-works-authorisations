@@ -34,15 +34,15 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicensing.external.PearsBlockService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -86,6 +86,9 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
   @MockBean
   private CrossingAgreementsService crossingAgreementsService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -574,8 +577,8 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.BLOCK_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.BLOCK_CROSSINGS));
   }
 
   @Test
@@ -592,8 +595,8 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
-    verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.BLOCK_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.BLOCK_CROSSINGS));
   }
 
   @Test
@@ -610,8 +613,8 @@ class BlockCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.BLOCK_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.BLOCK_CROSSINGS));
   }
 
   @Test

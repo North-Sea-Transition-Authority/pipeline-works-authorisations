@@ -66,6 +66,8 @@ public class ConsentDocumentImageService {
 
   private String convertToBase64String(UploadedFileOld file) {
 
+    //TODO: PWARE-72 convert to new file upload system.
+
     try {
 
       Blob blobToConvert = Optional.ofNullable(file.getScaledImageData())

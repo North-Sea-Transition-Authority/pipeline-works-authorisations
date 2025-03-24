@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,22 +22,27 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
-import uk.co.ogauthority.pwa.service.fileupload.PadFileTestUtil;
+import uk.co.ogauthority.pwa.service.fileupload.PadFileManagementTestUtil;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 
 @ExtendWith(MockitoExtension.class)
 class DepositDrawingsServiceTest {
+
+  private static final String FILE_ID = String.valueOf(UUID.randomUUID());
 
   private DepositDrawingsService depositDrawingsService;
 
@@ -55,26 +61,31 @@ class DepositDrawingsServiceTest {
   @Mock
   private PermanentDepositsDrawingValidator validator;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
 
   @BeforeEach
   void setUp() {
     depositDrawingsService = new DepositDrawingsService(padDepositDrawingRepository,
-        padDepositDrawingLinkRepository, validator, padFileService, permanentDepositService);
+        padDepositDrawingLinkRepository, validator, padFileService, permanentDepositService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
   }
 
 
   @Test
   void addDrawing() {
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+
     var form = new PermanentDepositDrawingForm();
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(fileForm));
     form.setReference("ref");
     form.setSelectedDeposits(Set.of("1"));
 
-    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+    var padFile = new PadFile(pwaApplicationDetail, String.valueOf(fileForm.getFileId()), ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, String.valueOf(fileForm.getFileId()))).thenReturn(padFile);
 
     var padPermanentDeposit = new PadPermanentDeposit();
     padPermanentDeposit.setId(1);
@@ -94,13 +105,15 @@ class DepositDrawingsServiceTest {
 
   @Test
   void editDrawing() {
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+
     var form = new PermanentDepositDrawingForm();
-    form.setUploadedFileWithDescriptionForms(List.of(new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(fileForm));
     form.setReference("ref");
     form.setSelectedDeposits(Set.of("2"));
 
-    var padFile = new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
-    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, "1")).thenReturn(padFile);
+    var padFile = new PadFile(pwaApplicationDetail, String.valueOf(fileForm.getFileId()), ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL);
+    when(padFileService.getPadFileByPwaApplicationDetailAndFileId(pwaApplicationDetail, String.valueOf(fileForm.getFileId()))).thenReturn(padFile);
 
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setId(1);
@@ -110,7 +123,7 @@ class DepositDrawingsServiceTest {
     padPermanentDeposit.setId(2);
     when(permanentDepositService.getDepositById(2)).thenReturn(Optional.of(padPermanentDeposit));
     when(padDepositDrawingRepository.save(any(PadDepositDrawing.class))).thenReturn(depositDrawing);
-    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form, new WebUserAccount());
+    depositDrawingsService.editDepositDrawing(1, pwaApplicationDetail, form);
 
 
     var captor = ArgumentCaptor.forClass(PadDepositDrawing.class);
@@ -132,7 +145,7 @@ class DepositDrawingsServiceTest {
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setReference("ref");
     depositDrawing.setPwaApplicationDetail(pwaApplicationDetail);
-    depositDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
+    depositDrawing.setFile(new PadFile(pwaApplicationDetail, FILE_ID, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     depositDrawing.setId(1);
 
@@ -142,17 +155,17 @@ class DepositDrawingsServiceTest {
     padPermanentDeposit.setReference("my ref");
     drawingLink.setPadPermanentDeposit(padPermanentDeposit);
 
-    var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
+    var fileView = new UploadedFileView(FILE_ID, "1", 0L, "desc", Instant.now(), "#");
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(depositDrawing));
     when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(List.of(depositDrawing)))
         .thenReturn(List.of(drawingLink));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.DEPOSIT_DRAWINGS))
+        .thenReturn(List.of(fileView));
 
     var result = depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail);
-    PermanentDepositDrawingView summaryView = result.get(0);
+    PermanentDepositDrawingView summaryView = result.getFirst();
     assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
     assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
@@ -166,15 +179,14 @@ class DepositDrawingsServiceTest {
     var depositDrawing = new PadDepositDrawing();
     depositDrawing.setReference("drawing ref");
     depositDrawing.setPwaApplicationDetail(pwaApplicationDetail);
-    depositDrawing.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
+    depositDrawing.setFile(new PadFile(pwaApplicationDetail, FILE_ID, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     depositDrawing.setId(1);
-
 
     var depositDrawing2 = new PadDepositDrawing();
     depositDrawing2.setReference("drawing ref 2");
     depositDrawing2.setPwaApplicationDetail(pwaApplicationDetail);
-    depositDrawing2.setFile(new PadFile(pwaApplicationDetail, "1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
+    depositDrawing2.setFile(new PadFile(pwaApplicationDetail, FILE_ID, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
         ApplicationFileLinkStatus.FULL));
     depositDrawing2.setId(2);
 
@@ -189,17 +201,17 @@ class DepositDrawingsServiceTest {
     padPermanentDeposit2.setReference("my ref2");
     drawingLink2.setPadPermanentDeposit(padPermanentDeposit2);
 
-    var fileView = new UploadedFileView("1", "1", 0L, "desc", Instant.now(), "#");
+    var fileView = new UploadedFileView(FILE_ID, "1", 0L, "desc", Instant.now(), "#");
 
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail))
         .thenReturn(List.of(depositDrawing, depositDrawing2));
     when(padDepositDrawingLinkRepository.getAllByPadDepositDrawingIn(List.of(depositDrawing, depositDrawing2)))
         .thenReturn(List.of(drawingLink1, drawingLink2));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.DEPOSIT_DRAWINGS))
+        .thenReturn(List.of(fileView));
 
     var result = depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail);
-    PermanentDepositDrawingView summaryView = result.get(0);
+    PermanentDepositDrawingView summaryView = result.getFirst();
     assertThat(summaryView.getFileId()).isEqualTo(fileView.getFileId());
     assertThat(summaryView.getDocumentDescription()).isEqualTo(fileView.getFileDescription());
     assertThat(summaryView.getFileName()).isEqualTo(fileView.getFileName());
@@ -243,7 +255,7 @@ class DepositDrawingsServiceTest {
 
     verify(padDepositDrawingLinkRepository, times(1)).deleteAll(any());
     verify(padDepositDrawingRepository, times(1)).delete(any());
-    verify(padFileService,times(0)).processFileDeletion(any(), any());
+    verify(padFileService,times(0)).processFileDeletion(any());
   }
 
 
@@ -261,15 +273,15 @@ class DepositDrawingsServiceTest {
 
   @Test
   void getDepositDrawingSummaryScreenValidationResult_drawingsIncomplete_invalid() {
+    var uploadedFile = PadFileManagementTestUtil.createUploadedFile(pwaApplicationDetail, FileDocumentType.DEPOSIT_DRAWINGS);
 
-    var padFile = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
-        pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS).getPadFile();
+    var padFile = PadFileManagementTestUtil.createPadFileWithRandomFileIdAndData(
+        pwaApplicationDetail, uploadedFile.getId(), ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
     var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
-    when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
-        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+    var file = new UploadedFile();
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail, padFile.getFileId())).thenReturn(file);
 
     doAnswer(invocation -> {
       BindingResult result = invocation.getArgument(1);
@@ -295,14 +307,15 @@ class DepositDrawingsServiceTest {
     when(permanentDepositService.getPermanentDeposits(pwaApplicationDetail)).thenReturn(List.of(deposit));
     when(padDepositDrawingLinkRepository.getAllByPadPermanentDeposit(deposit)).thenReturn(List.of(new PadDepositDrawingLink()));
 
-    var padFile = PadFileTestUtil.createPadFileWithRandomFileIdAndData(
-        pwaApplicationDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS).getPadFile();
+    var uploadedFile = PadFileManagementTestUtil.createUploadedFile(pwaApplicationDetail, FileDocumentType.DEPOSIT_DRAWINGS);
+
+    var padFile = PadFileManagementTestUtil.createPadFileWithRandomFileIdAndData(
+        pwaApplicationDetail, uploadedFile.getId(), ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS);
     var depositDrawing = PadPermanentDepositTestUtil.createPadDepositDrawing(pwaApplicationDetail, padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
-    when(padFileService.getUploadedFileView(pwaApplicationDetail, padFile.getFileId(),
-        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+    var file = new UploadedFile();
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail, padFile.getFileId())).thenReturn(file);
 
     var summaryResult = depositDrawingsService.getDepositDrawingSummaryScreenValidationResult(pwaApplicationDetail);
 
@@ -317,13 +330,12 @@ class DepositDrawingsServiceTest {
     var depositDrawing = new PadDepositDrawing();
     var padFile = new PadFile();
     padFile.setId(1);
-    padFile.setFileId("1");
+    padFile.setFileId(UUID.fromString(FILE_ID));
     depositDrawing.setFile(padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_", 1L,"_", Instant.now(),"_");
-    when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
-        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+    var file = new UploadedFile();
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail,padFile.getFileId())).thenReturn(file);
 
     var deposit = new PadPermanentDeposit();
     deposit.setId(1);
@@ -364,13 +376,12 @@ class DepositDrawingsServiceTest {
     var depositDrawing = new PadDepositDrawing();
     var padFile = new PadFile();
     padFile.setId(1);
-    padFile.setFileId("1");
+    padFile.setFileId(UUID.fromString(FILE_ID));
     depositDrawing.setFile(padFile);
     when(padDepositDrawingRepository.getAllByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(List.of(depositDrawing));
 
-    var fileView = new UploadedFileView("1","_",Long.valueOf(1),"_", Instant.now(),"_");
-    when(padFileService.getUploadedFileView(pwaApplicationDetail,"1",
-        ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL)).thenReturn(fileView);
+    var file = new UploadedFile();
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail,padFile.getFileId())).thenReturn(file);
 
     var deposit1 = new PadPermanentDeposit();
     deposit1.setId(1);

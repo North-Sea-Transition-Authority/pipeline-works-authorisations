@@ -20,7 +20,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -48,7 +48,7 @@ class PadPipelineCrossingServiceTest {
   private EntityCopyingService entityCopyingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   @Spy
   private SearchSelectorService searchSelectorService;
@@ -67,7 +67,7 @@ class PadPipelineCrossingServiceTest {
         portalOrganisationsAccessor,
         searchSelectorService,
         entityCopyingService,
-        padFileService
+        padFileManagementService
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);

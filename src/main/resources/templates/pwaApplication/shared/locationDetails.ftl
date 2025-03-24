@@ -106,9 +106,17 @@
 
         <#-- TODO: PWA-432 Update guidance text with correct supporting documents. -->
         <#if requiredQuestions?seq_contains("ROUTE_DOCUMENTS")>
-            <@fdsFieldset.fieldset legendHeading="Pipeline route documents" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" optionalLabel=true hintText="You may attach supporting documents, such as bathymetric data">
-                <@fdsFileUpload.fileUpload id="project-doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
-            </@fdsFieldset.fieldset>
+            <@fdsFileUpload.fileUpload
+                id="routeDocuments"
+                path="form.uploadedFiles"
+                uploadUrl=fileUploadAttributes.uploadUrl()
+                downloadUrl=fileUploadAttributes.downloadUrl()
+                deleteUrl=fileUploadAttributes.deleteUrl()
+                maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                allowedExtensions=fileUploadAttributes.allowedExtensions()
+                existingFiles=fileUploadAttributes.existingFiles()
+                dropzoneText="Drag and drop your documents here"
+            />
         </#if>
 
         <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>

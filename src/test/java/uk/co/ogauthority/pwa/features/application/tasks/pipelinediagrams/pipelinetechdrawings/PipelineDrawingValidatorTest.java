@@ -17,12 +17,12 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class PipelineDrawingValidatorTest {
@@ -72,13 +72,13 @@ class PipelineDrawingValidatorTest {
   @Test
   void validate_emptyForm() {
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
-    assertThat(result).containsOnlyKeys("reference", "padPipelineIds", "uploadedFileWithDescriptionForms");
+    assertThat(result).containsOnlyKeys("reference", "padPipelineIds", "uploadedFiles");
   }
 
   @Test
   void validate_referenceWhitespace() {
     form.setReference(" ");
-    form.getUploadedFileWithDescriptionForms().add(fileForm);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getAddDrawingValidationHints());
     assertThat(result).containsOnlyKeys("reference", "padPipelineIds");
   }
@@ -96,7 +96,7 @@ class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
-    form.getUploadedFileWithDescriptionForms().add(fileForm);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -121,7 +121,7 @@ class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("Test");
-    form.getUploadedFileWithDescriptionForms().add(fileForm);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -137,7 +137,7 @@ class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
-    form.getUploadedFileWithDescriptionForms().add(fileForm);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -162,7 +162,7 @@ class PipelineDrawingValidatorTest {
 
     form.setPadPipelineIds(List.of(1));
     form.setReference("ref");
-    form.getUploadedFileWithDescriptionForms().add(fileForm);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     when(padPipelineService.getByIdList(pwaApplicationDetail, form.getPadPipelineIds()))
         .thenReturn(List.of(pipeline));
@@ -208,18 +208,4 @@ class PipelineDrawingValidatorTest {
     assertThat(result).extractingFromEntries(Map.Entry::getValue)
         .contains(Set.of("padPipelineIds" + FieldValidationErrorCodes.INVALID.getCode()));
   }
-
-  @Test
-  void validate_uploadedDrawingFileDescriptionOverMaxCharLength() {
-    form.setPadPipelineIds(List.of(1));
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-
-    var drawing = new PadTechnicalDrawing(1, pwaApplicationDetail, null, "ref");
-    var result = ValidatorTestUtils.getFormValidationErrors(validator, form, getEditDrawingValidationHints(drawing));
-    assertThat(result).contains(
-        Map.entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
-  }
-
 }

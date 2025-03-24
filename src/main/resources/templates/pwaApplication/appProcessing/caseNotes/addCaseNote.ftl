@@ -30,7 +30,17 @@
               <@fdsTextarea.textarea path="form.noteText" labelText="Note text" />
 
               <@fdsFieldset.fieldset legendHeading="Documents (optional)" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2">
-                  <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" />
+                  <@fdsFileUpload.fileUpload
+                    id="fileUpload"
+                    path="form.uploadedFiles"
+                    uploadUrl=fileUploadAttributes.uploadUrl()
+                    downloadUrl=fileUploadAttributes.downloadUrl()
+                    deleteUrl=fileUploadAttributes.deleteUrl()
+                    maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                    allowedExtensions=fileUploadAttributes.allowedExtensions()
+                    existingFiles=fileUploadAttributes.existingFiles()
+                    dropzoneText="Drag and drop your documents here"
+                  />
               </@fdsFieldset.fieldset>
 
               <@fdsAction.submitButtons primaryButtonText="Add case note" linkSecondaryAction=true secondaryLinkText="Back to case management" linkSecondaryActionUrl=springUrl(caseManagementUrl) />

@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.Objects;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.controller.AdmiraltyChartDocumentsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -24,12 +25,8 @@ public class AdmiraltyChartUrlFactory {
   }
 
   public String getDocumentsDownloadUrl() {
-    return ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
-        .handleDownload(applicationType, applicationId, null, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
   }
-
-
-
 
   @Override
   public boolean equals(Object o) {

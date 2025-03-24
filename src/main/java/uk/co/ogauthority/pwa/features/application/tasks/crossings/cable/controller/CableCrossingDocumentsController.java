@@ -1,10 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.controller;
 
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,32 +8,24 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.formhelpers.CrossingDocumentsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -50,49 +38,45 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.CAT_2_VARIATION,
     PwaApplicationType.DECOMMISSIONING
 })
-public class CableCrossingDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class CableCrossingDocumentsController {
+
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CABLE_CROSSINGS;
 
   private final CableCrossingFileService cableCrossingFileService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
   private final ControllerHelperService controllerHelperService;
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.CABLE_CROSSINGS;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public CableCrossingDocumentsController(
       CableCrossingFileService cableCrossingFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
-    super(padFileService);
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService) {
     this.cableCrossingFileService = cableCrossingFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView createCableCrossingModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                        CrossingDocumentsForm form) {
-    var modelAndView = createModelAndView(
-        "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
-            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
-            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(CableCrossingDocumentsController.class)
-            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        // only load fully linked (saved) files
-        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE)
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        pwaApplicationDetail,
+        FileDocumentType.CABLE_CROSSINGS
     );
 
-    modelAndView.addObject("pageTitle", "Cable crossing agreement documents")
+    var modelAndView = new ModelAndView("pwaApplication/form/uploadFiles")
+        .addObject("pageTitle", "Cable crossing agreement documents")
         .addObject("backButtonText", "Back to cable crossings")
         .addObject("backUrl",
-            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.CABLE_CROSSINGS));
+            crossingAgreementsTaskListService.getRoute(pwaApplicationDetail, CrossingAgreementTask.CABLE_CROSSINGS))
+        .addObject("fileUploadAttributes", fileUploadAttributes);
+
     applicationBreadcrumbService.fromCrossingSection(pwaApplicationDetail, modelAndView,
         CrossingAgreementTask.CABLE_CROSSINGS, "Cable crossing agreement documents");
     return modelAndView;
@@ -106,8 +90,9 @@ public class CableCrossingDocumentsController extends PwaApplicationDetailDataFi
       @ModelAttribute("form") CrossingDocumentsForm form,
       PwaApplicationContext applicationContext) {
 
-    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(), FILE_PURPOSE);
-    return createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
+    var pwaApplicationDetail = applicationContext.getApplicationDetail();
+    padFileManagementService.mapFilesToForm(form, pwaApplicationDetail, DOCUMENT_TYPE);
+    return createCableCrossingModelAndView(pwaApplicationDetail, form);
   }
 
   @PostMapping
@@ -129,49 +114,9 @@ public class CableCrossingDocumentsController extends PwaApplicationDetailDataFi
     );
     var modelAndView = createCableCrossingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-
-      padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES, user);
+      padFileManagementService.saveFiles(form, detail, DOCUMENT_TYPE);
       return crossingAgreementsTaskListService.getOverviewRedirect(detail, CrossingAgreementTask.CABLE_CROSSINGS);
     });
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processInitialUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 
 }

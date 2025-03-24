@@ -26,8 +26,8 @@ import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.CrossingOwner;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -71,7 +71,7 @@ class BlockCrossingServiceTest {
   private EntityCopyingService entityCopyingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private Clock clock = Clock.systemDefaultZone();
 
@@ -100,7 +100,7 @@ class BlockCrossingServiceTest {
         blockCrossingFileService,
         clock,
         entityCopyingService,
-        padFileService);
+        padFileManagementService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     APP_ID = pwaApplicationDetail.getMasterPwaApplicationId();

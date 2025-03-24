@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.controller.BlockCrossingDocumentsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -27,7 +28,6 @@ public class BlockCrossingUrlFactory {
 
   public String getBlockCrossingDocumentsUrl() {
     return ReverseRouter.route(on(BlockCrossingDocumentsController.class)
-
         .renderEditBlockCrossingDocuments(
             pwaApplicationDetail.getPwaApplicationType(),
             pwaApplicationDetail.getMasterPwaApplicationId(),
@@ -36,13 +36,8 @@ public class BlockCrossingUrlFactory {
   }
 
   public String getFileDownloadUrl() {
-    return ReverseRouter.route(on(BlockCrossingDocumentsController.class)
-        // file id is full to allow templates to construct url as needed
-        .handleDownload(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            null,
-            null));
+    // file id is null to allow templates to construct url as needed
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null));
   }
 
   public String getEditBlockCrossingUrl(int blockCrossingId) {

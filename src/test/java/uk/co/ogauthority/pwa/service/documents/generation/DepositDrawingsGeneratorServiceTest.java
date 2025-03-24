@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,24 +49,27 @@ class DepositDrawingsGeneratorServiceTest {
   private PadDepositDrawing drawing2;
 
   private PwaApplicationDetail detail = new PwaApplicationDetail();
+  
+  private static final String ID1 = String.valueOf(UUID.randomUUID());
+  private static final String ID2 = String.valueOf(UUID.randomUUID());
 
   @BeforeEach
   void setUp() throws Exception {
 
     drawing1 = new PadDepositDrawing();
     drawing1.setReference("drawing1Ref");
-    drawing1.setFile(new PadFile(detail, "id1", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
+    drawing1.setFile(new PadFile(detail, ID1, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
 
     drawing2 = new PadDepositDrawing();
     drawing2.setReference("drawing2Ref");
-    drawing2.setFile(new PadFile(detail, "id2", ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
+    drawing2.setFile(new PadFile(detail, ID2, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
 
     when(depositDrawingsService.getAllDepositDrawingsForDetail(any())).thenReturn(List.of(drawing1, drawing2));
 
-    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of("id1", "id2")))
+    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(ID1, ID2)))
         .thenReturn(Map.of(
-            "id1", "file1Uri",
-            "id2", "file2Uri"));
+            ID1, "file1Uri",
+            ID2, "file2Uri"));
 
   }
 
@@ -75,13 +79,13 @@ class DepositDrawingsGeneratorServiceTest {
 
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
 
-    verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of("id1", "id2"));
+    verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of(ID1, ID2));
 
     assertThat(docSectionData.getTemplatePath()).isEqualTo("documents/consents/sections/depositDrawings.ftl");
     assertThat(docSectionData.getTemplateModel()).containsOnly(
         entry("sectionName", DocumentSection.DEPOSIT_DRAWINGS.getDisplayName()),
-        entry("drawingRefToFileIdMap", Map.of("drawing1Ref", "id1", "drawing2Ref", "id2")),
-        entry("fileIdToImgSourceMap", Map.of("id1", "file1Uri", "id2", "file2Uri"))
+        entry("drawingRefToFileIdMap", Map.of("drawing1Ref", ID1, "drawing2Ref", ID2)),
+        entry("fileIdToImgSourceMap", Map.of(ID1, "file1Uri", ID2, "file2Uri"))
     );
 
   }

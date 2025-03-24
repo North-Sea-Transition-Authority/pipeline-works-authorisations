@@ -10,15 +10,14 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -27,13 +26,13 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 public class SupplementaryDocumentsSummaryService implements ApplicationSectionSummariser {
 
   private final TaskListService taskListService;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public SupplementaryDocumentsSummaryService(TaskListService taskListService,
-                                              PadFileService padFileService) {
+                                              PadFileManagementService padFileManagementService) {
     this.taskListService = taskListService;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -49,8 +48,8 @@ public class SupplementaryDocumentsSummaryService implements ApplicationSectionS
   @Override
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail, String templateName) {
 
-    var docFileViews = padFileService
-        .getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS, ApplicationFileLinkStatus.FULL)
+    var docFileViews = padFileManagementService
+        .getUploadedFileViews(pwaApplicationDetail, FileDocumentType.SUPPLEMENTARY_DOCUMENTS)
         .stream()
         .sorted(Comparator.comparing(UploadedFileView::getFileName))
         .collect(Collectors.toList());
@@ -59,8 +58,8 @@ public class SupplementaryDocumentsSummaryService implements ApplicationSectionS
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("docFileViews", docFileViews);
-    summaryModel.put("suppDocFileDownloadUrl", ReverseRouter.route(on(SupplementaryDocumentsController.class)
-        .handleDownload(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(), null, null)));
+    summaryModel.put("suppDocFileDownloadUrl", ReverseRouter.route(
+        on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
 
     return new ApplicationSectionSummary(
         templateName,

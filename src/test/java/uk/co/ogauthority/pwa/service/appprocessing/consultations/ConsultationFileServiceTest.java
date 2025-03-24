@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
@@ -22,6 +23,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequestTestUtil;
@@ -52,6 +55,9 @@ class ConsultationFileServiceTest {
   @Mock
   private PwaConsentService pwaConsentService;
 
+  @Mock
+  private AppFileManagementService appFileManagementService;
+
   private PwaApplication pwaApplication;
 
   private ConsultationResponse consultationResponse;
@@ -72,7 +78,7 @@ class ConsultationFileServiceTest {
   @BeforeEach
   void setup() {
     consultationFileService = new ConsultationFileService(appFileService, consultationResponseFileLinkRepository,
-        pwaConsentService);
+        pwaConsentService, appFileManagementService);
 
      pwaApplication = new PwaApplication();
      pwaApplication.setId(10);
@@ -95,20 +101,18 @@ class ConsultationFileServiceTest {
 
   @Test
   void getConsultationResponseIdToFileViewsMap_isPopulatedCorrectly() {
-    when(appFileService.getUploadedFileViewsWithNoUrl(any(), any(), any())).thenReturn(List.of(uploadedFileView));
+    when(appFileManagementService.getUploadedFileViews(any(), eq(FileDocumentType.CONSULTATION_RESPONSE))).thenReturn(List.of(uploadedFileView));
 
     when(consultationResponseFileLinkRepository.findAllByConsultationResponseIn(Set.of(consultationResponse))).thenReturn(Set.of(consultationResponseFileLink));
 
     var responseIdToFileViewsMap = consultationFileService.getConsultationResponseIdToFileViewsMap(pwaApplication, Set.of(consultationResponse));
     assertThat(responseIdToFileViewsMap).isEqualTo(Map.of(consultationResponse.getId(), List.of(uploadedFileView)));
-
   }
 
   @Test
   void getConsultationFileViewUrl_getsCorrectUrl() {
-    assertThat(consultationFileService.getConsultationFileViewUrl(consultationRequest)).isEqualTo(RouteUtils.routeWithUriVariables(on(
-        ConsultationResponseFileController.class)
-            .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null),
+    assertThat(consultationFileService.getConsultationFileViewUrl(consultationRequest)).isEqualTo(
+        RouteUtils.routeWithUriVariables(on(ConsultationResponseFileController.class).download(pwaApplication.getId(), null, null),
         Map.of("consultationRequestId", consultationRequest.getId())));
   }
 

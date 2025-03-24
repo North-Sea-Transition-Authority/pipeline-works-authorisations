@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.locationdetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.EnumSet;
 import java.util.List;
@@ -14,11 +13,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInput;
 import uk.co.ogauthority.pwa.util.forminputs.twofielddate.TwoFieldDateInputValidator;
 
@@ -66,7 +65,8 @@ class LocationDetailsValidatorTest {
         entry("facilitiesOffshore", Set.of("facilitiesOffshore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("withinLimitsOfDeviation",
             Set.of("withinLimitsOfDeviation" + FieldValidationErrorCodes.REQUIRED.getCode())),
-        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE))
     );
   }
 
@@ -105,7 +105,8 @@ class LocationDetailsValidatorTest {
         entry("facilitiesOffshore", Set.of("facilitiesOffshore" + FieldValidationErrorCodes.REQUIRED.getCode())),
         entry("withinLimitsOfDeviation",
             Set.of("withinLimitsOfDeviation" + FieldValidationErrorCodes.REQUIRED.getCode())),
-        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken" + FieldValidationErrorCodes.REQUIRED.getCode()))
+        entry("routeSurveyUndertaken", Set.of("routeSurveyUndertaken" + FieldValidationErrorCodes.REQUIRED.getCode())),
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE))
     );
   }
 
@@ -333,6 +334,7 @@ class LocationDetailsValidatorTest {
     form.setRouteSurveyNotUndertakenReason("reason");
     form.setPipelineRouteDetails("Detail text");
     form.setWithinLimitsOfDeviation(true);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     var result = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form,
         getValidationHintsFull(EnumSet.allOf(LocationDetailsQuestion.class)));
     assertThat(result).isEmpty();
@@ -347,7 +349,7 @@ class LocationDetailsValidatorTest {
     form.setPipelineAshoreLocation(ValidatorTestUtils.overMaxDefaultCharLength());
     form.setPsrNotificationSubmittedOption(PsrNotification.NOT_REQUIRED);
     form.setPsrNotificationNotRequiredReason(ValidatorTestUtils.overMaxDefaultCharLength());
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
+
 
     var errors = new BeanPropertyBindingResult(form, "form");
     locationDetailsValidator.validate(form, errors,
@@ -367,9 +369,7 @@ class LocationDetailsValidatorTest {
         entry("transportationMethodToShore", Set.of("transportationMethodToShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("transportationMethodFromShore", Set.of("transportationMethodFromShore" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
         entry("pipelineAshoreLocation", Set.of("pipelineAshoreLocation" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode())),
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+        entry("psrNotificationNotRequiredReason", Set.of("psrNotificationNotRequiredReason" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
 
@@ -572,8 +572,7 @@ class LocationDetailsValidatorTest {
   void validate_full_routeDocumentUploaded_hasDescription_valid() {
 
     var form = new LocationDetailsForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", "desc", Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
     assertThat(errorsMap).doesNotContain(
@@ -585,39 +584,24 @@ class LocationDetailsValidatorTest {
   void validate_full_routeDocumentUploaded_noDescription_invalid() {
 
     var form = new LocationDetailsForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", null, Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
     assertThat(errorsMap).contains(
-        Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
-            Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
+        Map.entry("uploadedFiles[0].uploadedFileDescription",
+            Set.of("uploadedFiles[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
   }
 
   @Test
   void validate_partial_routeDocumentUploaded_noDescription_valid() {
 
     var form = new LocationDetailsForm();
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("1", null, Instant.now())));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsPartial(Set.of()));
     assertThat(errorsMap).doesNotContain(
         Map.entry("uploadedFileWithDescriptionForms[0].uploadedFileDescription",
             Set.of("uploadedFileWithDescriptionForms[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode())));
-  }
-
-  @Test
-  void validate_full_routeDocumentUploaded_descriptionOverMaxLength_invalid() {
-
-    var form = new LocationDetailsForm();
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-
-    var errorsMap = ValidatorTestUtils.getFormValidationErrors(locationDetailsValidator, form, getValidationHintsFull(Set.of()));
-    assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
   }
 
 }

@@ -6,13 +6,12 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 
@@ -21,12 +20,12 @@ public class ProjectExtensionSummaryService implements ApplicationSectionSummari
 
   private final TaskListService taskListService;
 
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
-  public ProjectExtensionSummaryService(TaskListService taskListService, PadFileService padFileService) {
+  public ProjectExtensionSummaryService(TaskListService taskListService, PadFileManagementService padFileManagementService) {
     this.taskListService = taskListService;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -37,13 +36,11 @@ public class ProjectExtensionSummaryService implements ApplicationSectionSummari
   @Override
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail, String templateName) {
     var sectionDisplayText = ApplicationTask.PROJECT_EXTENSION.getDisplayName();
-    var permissionFile = padFileService.getUploadedFileViews(
-        pwaApplicationDetail,
-        ApplicationDetailFilePurpose.PROJECT_EXTENSION,
-        ApplicationFileLinkStatus.FULL);
+    var permissionFile = padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_EXTENSION);
+
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("permissionFile", permissionFile.isEmpty() ? null : permissionFile.get(0));
+    summaryModel.put("permissionFile", permissionFile.isEmpty() ? null : permissionFile.getFirst());
 
     return new ApplicationSectionSummary(
         templateName,

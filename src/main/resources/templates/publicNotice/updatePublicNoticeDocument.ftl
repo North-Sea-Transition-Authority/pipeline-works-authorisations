@@ -53,8 +53,18 @@
           </@fdsSummaryList.summaryListRowNoAction>
         </@fdsSummaryList.summaryList>
         <@fdsFieldset.fieldset legendHeading="Public notice document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h3" hintText="Upload the updated public notice document (parts A-D)">
-          <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl multiFile=false
-          maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl dropzoneText="Drag and drop your document here" />
+          <@fdsFileUpload.fileUpload
+            id="fileUpload"
+            path="form.uploadedFiles"
+            uploadUrl=fileUploadAttributes.uploadUrl()
+            downloadUrl=fileUploadAttributes.downloadUrl()
+            deleteUrl=fileUploadAttributes.deleteUrl()
+            maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+            allowedExtensions=fileUploadAttributes.allowedExtensions()
+            existingFiles=fileUploadAttributes.existingFiles()
+            dropzoneText="Drag and drop your documents here"
+            multiFile=false
+          />
         </@fdsFieldset.fieldset>
         <@fdsAction.submitButtons primaryButtonText="Submit to case officer" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
       </@fdsForm.htmlForm>

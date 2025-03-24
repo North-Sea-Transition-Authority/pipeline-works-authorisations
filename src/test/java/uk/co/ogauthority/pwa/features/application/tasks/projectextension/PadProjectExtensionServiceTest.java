@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,11 +18,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,13 +34,13 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 class PadProjectExtensionServiceTest {
 
   @Mock
-  PadFileService padFileService;
-
-  @Mock
   PadProjectInformationService padProjectInformationService;
 
   @Mock
   ProjectExtensionValidator projectExtensionValidator;
+
+  @Mock
+  PadFileManagementService padFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -42,9 +49,10 @@ class PadProjectExtensionServiceTest {
   @BeforeEach
   void setup() {
     projectExtensionService = new PadProjectExtensionService(
-        padFileService,
         padProjectInformationService,
-        projectExtensionValidator);
+        projectExtensionValidator,
+        padFileManagementService
+    );
 
     when(padProjectInformationService.getPadProjectInformationData(any(PwaApplicationDetail.class)))
         .thenReturn(getProjectInformation(PwaApplicationType.INITIAL));
@@ -165,6 +173,31 @@ class PadProjectExtensionServiceTest {
     assertThat(projectExtensionService.getProjectTimelineGuidance(getProjectInformation(PwaApplicationType.CAT_2_VARIATION).getPwaApplicationDetail()))
         .isEqualTo("For example, 31 3 2023 \n" +
             "This must be within 12 months of the proposed start of works date. ");
+  }
+
+  @Test
+  void copySectionInformation() {
+    pwaApplicationDetail = new PwaApplicationDetail();
+    var pwaApplicationDetail2 = new PwaApplicationDetail();
+
+    projectExtensionService.copySectionInformation(pwaApplicationDetail, pwaApplicationDetail2);
+
+    verify(padFileManagementService).copyUploadedFiles(pwaApplicationDetail, pwaApplicationDetail2, FileDocumentType.PROJECT_EXTENSION);
+  }
+
+  @Test
+  void removeExtensionsForProject() {
+    pwaApplicationDetail = new PwaApplicationDetail();
+    var pwaApplicationContext = new PwaApplicationContext(pwaApplicationDetail, new WebUserAccount(), Set.of());
+
+    var uploadedFile = new UploadedFile();
+
+    when(padFileManagementService.getUploadedFiles(pwaApplicationDetail, FileDocumentType.PROJECT_EXTENSION))
+        .thenReturn(List.of(uploadedFile));
+
+    projectExtensionService.removeExtensionsForProject(pwaApplicationContext);
+
+    verify(padFileManagementService).deleteUploadedFile(uploadedFile);
   }
 
   private PadProjectInformation getProjectInformation(PwaApplicationType applicationType) {

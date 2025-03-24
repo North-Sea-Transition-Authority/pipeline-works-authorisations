@@ -16,11 +16,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.form.appprocessing.casenotes.AddCaseNoteForm;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.service.controllers.typemismatch.TypeMismatchTestForm;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -91,8 +90,7 @@ class ControllerHelperServiceTest {
 
     var form = new AddCaseNoteForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    bindingResult.rejectValue(FileUploadUtils.UPLOADED_FILE_FIELD_NAME,
-        FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.errorCode(FileUploadUtils.UPLOADED_FILE_FIELD_NAME));
+    bindingResult.rejectValue(FileValidationUtils.FIELD_NAME, FileValidationUtils.ABOVE_LIMIT_ERROR_CODE);
 
     var result = controllerHelperService.checkErrorsAndRedirect(bindingResult, failedModelAndView, () -> passedModelAndView);
 
@@ -101,7 +99,7 @@ class ControllerHelperServiceTest {
 
     assertThat(errorItemList)
         .extracting(ErrorItem::getFieldName)
-        .containsExactly(FileUploadUtils.UPLOADED_FILE_ERROR_ELEMENT_ID);
+        .containsExactly(ControllerHelperService.UPLOADED_FILE_ERROR_ELEMENT_ID);
 
   }
 

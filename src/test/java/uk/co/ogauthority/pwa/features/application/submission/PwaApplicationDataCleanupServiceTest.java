@@ -127,7 +127,6 @@ class PwaApplicationDataCleanupServiceTest {
     verify(projectInformationService, times(1)).cleanupData(detail);
     verify(padPipelineTechInfoService, times(1)).cleanupData(detail);
     verify(padLocationDetailsService, times(1)).cleanupData(detail);
-    verify(padFileService, times(1)).deleteTemporaryFilesForDetail(detail, user);
 
   }
 

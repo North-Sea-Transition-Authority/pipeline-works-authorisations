@@ -16,11 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeDraftController;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeFileManagementRestController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
@@ -28,18 +32,20 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
@@ -84,15 +90,16 @@ public class PublicNoticeService implements AppProcessingService {
   private final PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository;
   private final PublicNoticeDatesRepository publicNoticeDatesRepository;
   private final PersonService personService;
+  private final AppFileManagementService appFileManagementService;
 
   private final CamundaWorkflowService camundaWorkflowService;
-  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
   private static final Set<PublicNoticeStatus> ENDED_STATUSES = Set.of(PublicNoticeStatus.ENDED, PublicNoticeStatus.WITHDRAWN);
   private static final Set<PublicNoticeStatus> APPLICANT_VIEW_STATUSES = Set.of(
       PublicNoticeStatus.WAITING, PublicNoticeStatus.PUBLISHED, PublicNoticeStatus.ENDED);
   private static final Set<PwaApplicationType> PUBLIC_NOTICE_APP_TYPES = EnumSet.of(
       PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION
   );
+  private final FileManagementService fileManagementService;
 
   @Autowired
   public PublicNoticeService(
@@ -104,7 +111,10 @@ public class PublicNoticeService implements AppProcessingService {
       PublicNoticeDocumentRepository publicNoticeDocumentRepository,
       PublicNoticeDocumentLinkRepository publicNoticeDocumentLinkRepository,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
-      PersonService personService, CamundaWorkflowService camundaWorkflowService) {
+      PersonService personService, CamundaWorkflowService camundaWorkflowService,
+      AppFileManagementService appFileManagementService,
+      FileManagementService fileManagementService
+  ) {
     this.templateTextService = templateTextService;
     this.publicNoticeDraftValidator = publicNoticeDraftValidator;
     this.appFileService = appFileService;
@@ -115,6 +125,8 @@ public class PublicNoticeService implements AppProcessingService {
     this.publicNoticeDatesRepository = publicNoticeDatesRepository;
     this.personService = personService;
     this.camundaWorkflowService = camundaWorkflowService;
+    this.appFileManagementService = appFileManagementService;
+    this.fileManagementService = fileManagementService;
   }
 
   @Override
@@ -300,23 +312,17 @@ public class PublicNoticeService implements AppProcessingService {
         form.setReasonDescription(publicNoticeRequest.getReasonDescription());
       }
 
-      try {
-        var appFileView = getPublicNoticeDocumentFileViewForPublicNotice(draftPublicNoticeOpt.get(), pwaApplication);
-        appFileService.mapFileToForm(form, appFileView);
-      } catch (EntityLatestVersionNotFoundException e) {
-        // do nothing here if there is no doc associated with the PN
-      }
+      appFileManagementService.mapFilesToForm(form, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
     }
 
     form.setCoverLetterText(coverLetterText);
   }
 
 
-  public PublicNoticeDocumentLink createPublicNoticeDocumentLinkFromForm(PwaApplication pwaApplication,
-                                                                         UploadFileWithDescriptionForm form,
-                                                                         PublicNoticeDocument publicNoticeDocument) {
-    var documentUploadedFileId = form.getUploadedFileId();
-    var docAppFile = appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, documentUploadedFileId);
+  public PublicNoticeDocumentLink createPublicNoticeDocumentLinkFromFileId(PwaApplication pwaApplication,
+                                                                           String fileId,
+                                                                           PublicNoticeDocument publicNoticeDocument) {
+    var docAppFile = appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, fileId);
     return new PublicNoticeDocumentLink(publicNoticeDocument, docAppFile);
   }
 
@@ -335,6 +341,20 @@ public class PublicNoticeService implements AppProcessingService {
     return getLatestPublicNoticeOpt(pwaApplication)
        .map(pn -> APPLICANT_VIEW_STATUSES.contains(pn.getStatus()))
        .orElse(false);
+  }
+
+  public FileUploadComponentAttributes getFileUploadComponentAttributes(
+      List<UploadedFileForm> existingFiles,
+      PwaApplication pwaApplication
+  ) {
+    var controller = CaseNoteFileManagementRestController.class;
+
+    return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, FileDocumentType.PUBLIC_NOTICE)
+        .withUploadUrl(ReverseRouter.route(on(AppFileUploadRestController.class)
+            .upload(pwaApplication.getId(), AppFilePurpose.PUBLIC_NOTICE.name(), null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplication.getId(), null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplication.getId(), null)))
+        .build();
   }
 
   private PublicNoticeView createViewFromPublicNotice(PublicNotice publicNotice) {
@@ -573,8 +593,7 @@ public class PublicNoticeService implements AppProcessingService {
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
 
-    return appFileService.getUploadedFileView(
-        pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
+    return appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId()));
   }
 
   public UploadedFileView getLatestPublicNoticeDocumentFileView(PwaApplication pwaApplication) {
@@ -598,8 +617,8 @@ public class PublicNoticeService implements AppProcessingService {
           .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
               "Couldn't find public notice document link with public notice document ID: %s", latestPublicNoticeDocument.getId())));
 
-      return Optional.of(appFileService
-          .getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL));
+      return Optional.of(appFileManagementService
+          .getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())));
     }
     return Optional.empty();
   }
@@ -621,16 +640,16 @@ public class PublicNoticeService implements AppProcessingService {
         .orElseThrow(() -> new EntityLatestVersionNotFoundException(String.format(
             "Couldn't find public notice document link with public notice document ID: %s", publicNoticeDocument.getId())));
 
-    return appFileService.getUploadedFileView(
-        publicNotice.getPwaApplication(), documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL);
+    return appFileManagementService.getUploadedFileView(
+        publicNotice.getPwaApplication(), UUID.fromString(documentLink.getAppFile().getFileId()));
   }
 
   private String getArchivedPublicNoticeDocumentDownloadUrl(PublicNotice publicNotice) {
     var pwaApplication = publicNotice.getPwaApplication();
     var fileId = getPublicNoticeDocumentFileViewForArchivedPublicNotice(publicNotice).getFileId();
 
-    return ReverseRouter.route(on(PublicNoticeDraftController.class)
-        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), fileId, null));
+    return ReverseRouter.route(on(PublicNoticeFileManagementRestController.class)
+        .download(pwaApplication.getId(), UUID.fromString(fileId)));
   }
 
   public BindingResult validate(PublicNoticeDraftForm form, BindingResult bindingResult) {

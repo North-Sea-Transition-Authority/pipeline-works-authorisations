@@ -4,8 +4,28 @@ import java.util.Optional;
 import java.util.Set;
 
 public enum FileDocumentType {
+  //app files
+  CASE_NOTES(),
+  PUBLIC_NOTICE(),
+  CONSULTATION_RESPONSE(),
 
-  PROJECT_LAYOUT();
+  //pad files
+  ADMIRALTY_CHART(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff")),
+  BLOCK_CROSSINGS(),
+  CABLE_CROSSINGS(),
+  CARBON_STORAGE_CROSSINGS(),
+  DEPOSIT_DRAWINGS(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff")),
+  LOCATION_DETAILS(),
+  MEDIAN_LINE_CROSSING(),
+  OPTIONS_TEMPLATE(),
+  PARTNER_LETTERS(),
+  PIPELINE_CROSSINGS(),
+  PIPELINE_DRAWINGS(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff")),
+  PROJECT_EXTENSION(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff")),
+  PROJECT_INFORMATION(),
+  SUPPLEMENTARY_DOCUMENTS(),
+  UMBILICAL_CROSS_SECTION(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff"))
+  ;
 
   private final Set<String> allowedExtensions;
 

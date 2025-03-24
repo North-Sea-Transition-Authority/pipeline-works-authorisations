@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller.CarbonStorageAreaCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.controller.CarbonStorageAreaCrossingDocumentsController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -37,12 +38,8 @@ public class CarbonStorageCrossingUrlFactory {
   }
 
   public String getFileDownloadUrl() {
-    return ReverseRouter.route(on(CarbonStorageAreaCrossingDocumentsController.class)
-        .handleDownload(
-            pwaApplicationDetail.getPwaApplicationType(),
-            pwaApplicationDetail.getMasterPwaApplicationId(),
-            null,
-            null));
+    // file id is null to allow templates to construct url as needed
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null));
   }
 
 

@@ -24,7 +24,6 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingOwnerService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingFileService;
@@ -32,8 +31,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.Pipel
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -68,6 +68,9 @@ class PipelineCrossingControllerTest extends PwaApplicationContextAbstractContro
 
   @MockBean
   private PipelineCrossingFormValidator pipelineCrossingFormValidator;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   @BeforeEach
   void setUp() {
@@ -109,8 +112,8 @@ class PipelineCrossingControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.PIPELINE_CROSSINGS));
   }
 
   @Test
@@ -128,8 +131,8 @@ class PipelineCrossingControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
-    verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.PIPELINE_CROSSINGS));
   }
 
   @Test
@@ -147,8 +150,8 @@ class PipelineCrossingControllerTest extends PwaApplicationContextAbstractContro
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.PIPELINE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.PIPELINE_CROSSINGS));
   }
 
   @Test

@@ -10,10 +10,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -27,6 +29,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.util.unit.DataSize;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.consultations.responses.ConsultationResponseFileController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -37,9 +43,13 @@ import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Workflo
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationMultiResponseReceivedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationResponseReceivedEmailProps;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -59,13 +69,13 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataFor
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -106,6 +116,12 @@ class ConsultationResponseServiceTest {
   @Mock
   private AppFileService appFileService;
 
+  @Mock
+  private AppFileManagementService appFileManagementService;
+
+  @Mock
+  private FileManagementService fileManagementService;
+
   @Captor
   private ArgumentCaptor<ConsultationResponse> responseCaptor;
 
@@ -117,6 +133,8 @@ class ConsultationResponseServiceTest {
 
   @Captor
   private ArgumentCaptor<List<ConsultationResponseFileLink>> consultationResponseFileLinkArgumentCaptor;
+
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CONSULTATION_RESPONSE;
 
   private Clock clock;
 
@@ -152,7 +170,10 @@ class ConsultationResponseServiceTest {
         caseLinkService,
         consultationResponseDataService,
         consultationResponseFileLinkRepository,
-        appFileService);
+        appFileService,
+        fileManagementService,
+        appFileManagementService
+    );
 
   }
 
@@ -274,11 +295,11 @@ class ConsultationResponseServiceTest {
 
     var dataForm = buildDataForm(ConsultationResponseOptionGroup.CONTENT);
 
+    var fileForm = FileManagementValidatorTestUtils.createUploadedFileForm();
+
     var form = new ConsultationResponseForm();
     form.setResponseDataForms(Map.of(ConsultationResponseOptionGroup.CONTENT, dataForm));
-    form.setUploadedFileWithDescriptionForms(List.of(
-        new UploadFileWithDescriptionForm("id", "desc", Instant.now())
-    ));
+    form.setUploadedFiles(List.of(fileForm));
 
     var response = new ConsultationResponse();
     when(consultationResponseRepository.save(any())).thenReturn(response);
@@ -305,7 +326,7 @@ class ConsultationResponseServiceTest {
             tuple(response, appFile)
         );
 
-    verify(appFileService, times(1)).updateFiles(form, consultationRequest.getPwaApplication(), AppFilePurpose.CONSULTATION_RESPONSE, FileUpdateMode.KEEP_UNLINKED_FILES, user);
+    verify(appFileManagementService, times(1)).saveFiles(form, consultationRequest.getPwaApplication(), DOCUMENT_TYPE);
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.RESPONDED);
 
   }
@@ -685,6 +706,35 @@ class ConsultationResponseServiceTest {
     var fileLink = new ConsultationResponseFileLink(null, null);
     consultationResponseFileLinkRepository.delete(fileLink);
     verify(consultationResponseFileLinkRepository).delete(fileLink);
+  }
+
+  @Test
+  void fileUploadComponentAttributes_VerifyMethodCall() {
+    List<UploadedFileForm> existingFileForms = Collections.emptyList();
+
+    var consultationRequest = new ConsultationRequest();
+    consultationRequest.setId(1);
+
+    var builder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofBytes(1));
+
+    when(fileManagementService.getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(consultationResponseService.getFileUploadComponentAttributes(existingFileForms, application, consultationRequest))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(AppFileUploadRestController.class).upload(application.getId(), DOCUMENT_TYPE.name(), null)),
+            ReverseRouter.route(on(ConsultationResponseFileController.class).download(application.getId(), null, null),
+                Map.of("consultationRequestId", "1")),
+            ReverseRouter.route(on(ConsultationResponseFileController.class).delete(application.getId(), null, null),
+                Map.of("consultationRequestId", "1"))
+        );
+
+    verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
   }
 
   private ConsultationRequest buildConsultationRequest() {

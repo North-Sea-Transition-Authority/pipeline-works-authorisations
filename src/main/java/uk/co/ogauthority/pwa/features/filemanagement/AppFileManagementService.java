@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
-import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
-import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -41,6 +39,17 @@ public class AppFileManagementService {
     );
   }
 
+  public UploadedFile getUploadedFile(PwaApplication pwaApplication, UUID fileId) {
+    var file = fileService.find(fileId).orElseThrow(() -> getFileNotFoundException(pwaApplication, fileId));
+
+    throwIfFileDoesNotBelongToApplicationOrDocumentType(file, pwaApplication, null);
+    return file;
+  }
+
+  public List<UploadedFile> getUploadedFiles(PwaApplication pwaApplication, FileDocumentType documentType) {
+    return fileService.findAll(getUsageId(pwaApplication), getUsageType(), documentType.name());
+  }
+
   public FileUploadForm mapFilesToForm(
       FileUploadForm fileUploadForm,
       PwaApplication pwaApplication,
@@ -54,35 +63,27 @@ public class AppFileManagementService {
     );
   }
 
-  public FileUploadComponentAttributes getFileUploadComponentAttributes(
-      List<UploadedFileForm> existingFiles,
-      FileDocumentType fileDocumentType,
-      PwaApplication pwaApplication
+  public void throwIfFileDoesNotBelongToApplicationOrDocumentType(
+      UploadedFile uploadedFile,
+      PwaApplication pwaApplication,
+      FileDocumentType fileDocumentType
   ) {
-    var controller = AppFileManagementRestController.class;
+    var docTypeString = fileDocumentType != null ? fileDocumentType.name() : null;
 
-    return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
-        .withUploadUrl(ReverseRouter.route(on(FileManagementRestController.class).upload(null)))
-        .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplication.getId(), null)))
-        .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplication.getId(), null)))
-        .build();
-  }
-
-  public void throwIfFileDoesNotBelongToApplication(UploadedFile uploadedFile, PwaApplication pwaApplication) {
     fileManagementService.throwIfFileDoesNotBelongToUsageType(
         uploadedFile,
         getUsageId(pwaApplication),
         getUsageType(),
-        null
+        docTypeString
     );
   }
 
-  public List<UploadedFile> getUploadedFiles(PwaApplication pwaApplication, FileDocumentType documentType) {
-    return fileService.findAll(getUsageId(pwaApplication), getUsageType(), documentType.name());
+  public ResponseStatusException getFileNotFoundException(PwaApplication pwaApplication, UUID fileId) {
+    return fileManagementService.getFileNotFoundException(fileId, getUsageType(), getUsageId(pwaApplication));
   }
 
-  public ResponseStatusException getFileNotFoundException(UUID fileId, PwaApplication pwaApplication) {
-    return fileManagementService.getFileNotFoundException(fileId, getUsageType(), getUsageId(pwaApplication));
+  public UploadedFileView getUploadedFileView(PwaApplication pwaApplication, UUID fileId) {
+    return createUploadedFileView(getUploadedFile(pwaApplication, fileId), pwaApplication);
   }
 
   public List<UploadedFileView> getUploadedFileViews(PwaApplication pwaApplication, FileDocumentType fileDocumentType) {
@@ -93,7 +94,7 @@ public class AppFileManagementService {
 
   private UploadedFileView createUploadedFileView(UploadedFile uploadedFile, PwaApplication pwaApplication) {
     return new UploadedFileView(
-        null,
+        String.valueOf(uploadedFile.getId()),
         uploadedFile.getName(),
         uploadedFile.getContentLength(),
         uploadedFile.getDescription(),

@@ -18,9 +18,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -40,7 +39,7 @@ class PadMedianLineAgreementServiceTest {
   private MedianLineCrossingFileService medianLineCrossingFileService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   @Mock
   private EntityCopyingService entityCopyingService;
@@ -55,8 +54,8 @@ class PadMedianLineAgreementServiceTest {
         padMedianLineAgreementRepository,
         medianLineAgreementValidator,
         medianLineCrossingFileService,
-        padFileService,
-        entityCopyingService
+        entityCopyingService,
+        padFileManagementService
     );
     pwaApplicationDetail = new PwaApplicationDetail();
   }
@@ -283,11 +282,7 @@ class PadMedianLineAgreementServiceTest {
     agreement.setAgreementStatus(MedianLineStatus.NEGOTIATIONS_COMPLETED);
 
     var fileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
-    when(padFileService.getUploadedFileViews(
-        pwaApplicationDetail,
-        ApplicationDetailFilePurpose.MEDIAN_LINE_CROSSING,
-        ApplicationFileLinkStatus.FULL
-    )).thenReturn(fileViews);
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.MEDIAN_LINE_CROSSING)).thenReturn(fileViews);
 
     when(padMedianLineAgreementRepository.findByPwaApplicationDetail(pwaApplicationDetail)).thenReturn(
         Optional.of(agreement));

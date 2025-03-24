@@ -40,6 +40,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.Location
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsValidator;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadFacilityService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -75,6 +77,9 @@ class LocationDetailsControllerTest extends PwaApplicationContextAbstractControl
 
   @SpyBean
   private TwoFieldDateInputValidator twoFieldDateInputValidator;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private WebUserAccount wua;
   private AuthenticatedUserAccount user;
@@ -257,6 +262,7 @@ class LocationDetailsControllerTest extends PwaApplicationContextAbstractControl
         .andExpect(status().is3xxRedirection());
     verify(padLocationDetailsService, times(1)).saveEntityUsingForm(any(), any());
     verify(padFacilityService, times(1)).setFacilities(any(), any());
+    verify(padFileManagementService, times(1)).saveFiles(any(), any(), eq(FileDocumentType.LOCATION_DETAILS));
   }
 
   @Test

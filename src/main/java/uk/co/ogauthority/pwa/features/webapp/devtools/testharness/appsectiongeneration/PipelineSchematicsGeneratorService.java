@@ -10,28 +10,27 @@ import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingForm;
-import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.filehelper.TestHarnessPadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementTestHarnessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 
 @Service
 @Profile("test-harness")
 class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
 
   private final PadTechnicalDrawingService padTechnicalDrawingService;
-  private final TestHarnessPadFileService testHarnessPadFileService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.TECHNICAL_DRAWINGS;
+  private final PadFileManagementTestHarnessService padFileManagementTestHarnessService;
 
   @Autowired
   public PipelineSchematicsGeneratorService(
       PadTechnicalDrawingService padTechnicalDrawingService,
-      TestHarnessPadFileService testHarnessPadFileService) {
+      PadFileManagementTestHarnessService padFileManagementTestHarnessService) {
     this.padTechnicalDrawingService = padTechnicalDrawingService;
-    this.testHarnessPadFileService = testHarnessPadFileService;
+    this.padFileManagementTestHarnessService = padFileManagementTestHarnessService;
   }
-
 
   @Override
   public ApplicationTask getLinkedAppFormTask() {
@@ -51,16 +50,9 @@ class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
     padTechnicalDrawingService.addDrawing(detail, pipelineDrawingForm);
   }
 
-
   private void createAdmiraltyChartDocumentFormAndGenerateUpload(WebUserAccount user, PwaApplicationDetail pwaApplicationDetail) {
-
-    var generatedFileId = testHarnessPadFileService.generateImageUpload(
-        user, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART);
     var admiraltyChartForm = new AdmiraltyChartDocumentForm();
-    testHarnessPadFileService.setFileIdOnForm(generatedFileId, admiraltyChartForm.getUploadedFileWithDescriptionForms());
-
-    testHarnessPadFileService.updatePadFiles(
-        admiraltyChartForm, user, pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART, FileUpdateMode.DELETE_UNLINKED_FILES);
+    padFileManagementTestHarnessService.uploadFileAndMapToForm(admiraltyChartForm, pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART);
   }
 
   private PipelineDrawingForm createPipelineDrawingFormAndGenerateUpload(WebUserAccount user, PwaApplicationDetail pwaApplicationDetail) {
@@ -70,21 +62,17 @@ class PipelineSchematicsGeneratorService implements TestHarnessAppFormService {
         .map(PipelineOverview::getPadPipelineId)
         .collect(Collectors.toList());
 
-    var generatedFileId = testHarnessPadFileService.generateImageUpload(
-        user, pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS);
-
     var pipelineDrawingForm = new PipelineDrawingForm();
     pipelineDrawingForm.setReference("My drawing reference");
     pipelineDrawingForm.setPadPipelineIds(pipelineIdsToLink);
 
-    testHarnessPadFileService.setFileIdOnForm(generatedFileId, pipelineDrawingForm.getUploadedFileWithDescriptionForms());
-    testHarnessPadFileService.updatePadFiles(pipelineDrawingForm, user, pwaApplicationDetail,
-        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS, FileUpdateMode.KEEP_UNLINKED_FILES);
+    padFileManagementTestHarnessService.uploadFileAndMapToFormWithLegacyPadFileLink(
+        pipelineDrawingForm,
+        pwaApplicationDetail,
+        FileDocumentType.PIPELINE_DRAWINGS,
+        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS
+    );
 
     return pipelineDrawingForm;
   }
-
-
-
-
 }

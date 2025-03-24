@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.model.form.publicnotice;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 
-public class PublicNoticeDraftForm extends UploadMultipleFilesWithDescriptionForm {
+public class PublicNoticeDraftForm extends FileUploadForm {
 
   private String coverLetterText;
   private PublicNoticeRequestReason reason;

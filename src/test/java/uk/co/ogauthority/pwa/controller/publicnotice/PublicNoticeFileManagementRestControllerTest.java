@@ -1,6 +1,8 @@
-package uk.co.ogauthority.pwa.features.filemanagement;
+package uk.co.ogauthority.pwa.controller.publicnotice;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -31,14 +33,18 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 
-@WebMvcTest(controllers = AppFileManagementRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
-class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractControllerTest {
+@WebMvcTest(controllers = PublicNoticeFileManagementRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
+class PublicNoticeFileManagementRestControllerTest extends PwaApplicationContextAbstractControllerTest {
   private static final Integer PWA_ID = 1;
   private static final UUID FILE_ID = UUID.randomUUID();
-  private static final Class<AppFileManagementRestController> CONTROLLER = AppFileManagementRestController.class;
+  private static final Class<PublicNoticeFileManagementRestController> CONTROLLER = PublicNoticeFileManagementRestController.class;
 
   @MockBean
   private FileService fileService;
@@ -48,6 +54,9 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @MockBean
   private PwaApplicationService pwaApplicationService;
+
+  @MockBean
+  private AppFileService appFileService;
 
   private AuthenticatedUserAccount user;
 
@@ -76,7 +85,7 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
             .with(user(user)))
         .andExpect(status().isOk());
 
-    verify(appFileManagementService).throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+    verify(appFileManagementService).throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
     verify(fileService).download(uploadedFile);
   }
 
@@ -85,13 +94,15 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(pwaApplicationService.getApplicationFromId(PWA_ID)).thenReturn(pwaApplication);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
-    when(appFileManagementService.getFileNotFoundException(FILE_ID, pwaApplication))
+    when(appFileManagementService.getFileNotFoundException(pwaApplication, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
             .download(PWA_ID, FILE_ID)))
             .with(user(user)))
         .andExpect(status().isNotFound());
+
+    verify(fileService, never()).download(any());
   }
 
   @Test
@@ -103,14 +114,15 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
     doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
         .when(appFileManagementService)
-        .throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+        .throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
             .download(PWA_ID, FILE_ID)))
             .with(user(user)))
         .andExpect(status().isNotFound());
 
-    verify(appFileManagementService).throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+    verify(appFileManagementService).throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
+    verify(fileService, never()).download(any());
   }
 
   @Test
@@ -122,13 +134,19 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
     when(fileService.delete(uploadedFile)).thenReturn(FileDeleteResponse.success(FILE_ID));
 
+    var appFile = new AppFile();
+
+    when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, String.valueOf(FILE_ID)))
+        .thenReturn(appFile);
+
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
             .delete(PWA_ID, FILE_ID)))
             .with(csrf())
             .with(user(user)))
         .andExpect(status().isOk());
 
-    verify(appFileManagementService).throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+    verify(appFileManagementService).throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
+    verify(appFileService).processFileDeletion(appFile);
     verify(fileService).delete(uploadedFile);
   }
 
@@ -137,7 +155,7 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(pwaApplicationService.getApplicationFromId(PWA_ID)).thenReturn(pwaApplication);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
-    when(appFileManagementService.getFileNotFoundException(FILE_ID, pwaApplication))
+    when(appFileManagementService.getFileNotFoundException(pwaApplication, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
@@ -145,6 +163,9 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
             .with(csrf())
             .with(user(user)))
         .andExpect(status().isNotFound());
+
+    verify(appFileService, never()).processFileDeletion(any());
+    verify(fileService, never()).delete(any());
   }
 
   @Test
@@ -156,7 +177,7 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
     doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
         .when(appFileManagementService)
-        .throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+        .throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
             .delete(PWA_ID, FILE_ID)))
@@ -164,6 +185,8 @@ class AppFileManagementRestControllerTest extends PwaApplicationContextAbstractC
             .with(user(user)))
         .andExpect(status().isNotFound());
 
-    verify(appFileManagementService).throwIfFileDoesNotBelongToApplication(uploadedFile, pwaApplication);
+    verify(appFileManagementService).throwIfFileDoesNotBelongToApplicationOrDocumentType(uploadedFile, pwaApplication, FileDocumentType.PUBLIC_NOTICE);
+    verify(appFileService, never()).processFileDeletion(any());
+    verify(fileService, never()).delete(any());
   }
 }

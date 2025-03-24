@@ -3,8 +3,10 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipeli
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
+import java.util.UUID;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.controller.PipelineDrawingController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -24,8 +26,8 @@ public class PipelineDrawingUrlFactory {
   }
 
   public String getPipelineDrawingDownloadUrl(String fileId) {
-    return ReverseRouter.route(on(PipelineDrawingController.class)
-        .handleDownload(applicationType, applicationId, fileId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class)
+        .download(applicationId, UUID.fromString(fileId)));
   }
 
   public String getPipelineDrawingRemoveUrl(Integer drawingId) {

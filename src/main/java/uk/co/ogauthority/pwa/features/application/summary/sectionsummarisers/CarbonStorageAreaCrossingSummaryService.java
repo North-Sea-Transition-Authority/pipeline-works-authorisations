@@ -6,15 +6,14 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingUrlFactory;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -26,17 +25,17 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgr
 public class CarbonStorageAreaCrossingSummaryService implements ApplicationSectionSummariser {
 
   private final CarbonStorageAreaCrossingService crossingService;
-  private final PadFileService padFileService;
   private final TaskListService taskListService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public CarbonStorageAreaCrossingSummaryService(
       CarbonStorageAreaCrossingService crossingService,
-      PadFileService padFileService,
-      TaskListService taskListService) {
+      TaskListService taskListService,
+      PadFileManagementService padFileManagementService) {
     this.crossingService = crossingService;
-    this.padFileService = padFileService;
     this.taskListService = taskListService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -57,8 +56,7 @@ public class CarbonStorageAreaCrossingSummaryService implements ApplicationSecti
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("carbonStorageCrossingViews", crossingService.getCrossedAreaViews(pwaApplicationDetail));
     summaryModel.put("carbonStorageCrossingFileViews",
-        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.CARBON_STORAGE_CROSSINGS,
-            ApplicationFileLinkStatus.FULL));
+        padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.CARBON_STORAGE_CROSSINGS));
     summaryModel.put("carbonStorageCrossingUrlFactory", new CarbonStorageCrossingUrlFactory(pwaApplicationDetail));
     summaryModel.put("isDocumentsRequired", crossingService.isDocumentsRequired(pwaApplicationDetail));
 

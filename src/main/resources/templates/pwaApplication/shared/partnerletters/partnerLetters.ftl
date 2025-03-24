@@ -29,7 +29,17 @@
 
             <@fdsRadio.radioYes path="form.partnerLettersRequired">
 
-                <@fdsFileUpload.fileUpload id="partner-letters-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here"/>
+                <@fdsFileUpload.fileUpload
+                    id="partnerLetterFiles"
+                    path="form.uploadedFiles"
+                    uploadUrl=fileUploadAttributes.uploadUrl()
+                    downloadUrl=fileUploadAttributes.downloadUrl()
+                    deleteUrl=fileUploadAttributes.deleteUrl()
+                    maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                    allowedExtensions=fileUploadAttributes.allowedExtensions()
+                    existingFiles=fileUploadAttributes.existingFiles()
+                    dropzoneText="Drag and drop your documents here"
+                />
 
                 <@fdsDetails.summaryDetails summaryTitle="What information do I need to provide on the partner approval letter?">
                     Partner approval letters should be drafted as per the ${templateLinkHtml}.

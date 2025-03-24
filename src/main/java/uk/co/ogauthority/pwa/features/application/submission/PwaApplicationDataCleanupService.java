@@ -34,7 +34,6 @@ public class PwaApplicationDataCleanupService {
 
     taskListService.getShownApplicationTasksForDetail(detail)
         .forEach(applicationTask -> applicationContext.getBean(applicationTask.getServiceClass()).cleanupData(detail));
-    padFileService.deleteTemporaryFilesForDetail(detail, userAccount);
   }
 
 }

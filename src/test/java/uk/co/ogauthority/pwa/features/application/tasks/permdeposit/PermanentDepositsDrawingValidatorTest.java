@@ -16,9 +16,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 public class PermanentDepositsDrawingValidatorTest {
@@ -36,7 +37,6 @@ public class PermanentDepositsDrawingValidatorTest {
     pwaApplicationDetail = new PwaApplicationDetail();
   }
 
-
   public Map<String, Set<String>> getErrorMap(PermanentDepositDrawingForm form) {
     var errors = new BeanPropertyBindingResult(form, "form");
     validator.validate(form, errors, service, pwaApplicationDetail);
@@ -44,14 +44,13 @@ public class PermanentDepositsDrawingValidatorTest {
         .collect(Collectors.groupingBy(FieldError::getField, Collectors.mapping(FieldError::getCode, Collectors.toSet())));
   }
 
-
   @Test
   void validate_form_empty() {
     var form = new PermanentDepositDrawingForm();
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(
         entry("reference", Set.of("reference.required")),
-        entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.getCode())),
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE)),
         entry("selectedDeposits", Set.of("selectedDeposits.required"))
     );
   }
@@ -91,29 +90,20 @@ public class PermanentDepositsDrawingValidatorTest {
     assertThat(errorsMap).doesNotContain((entry("reference", Set.of("reference.required"))));
   }
 
-
   @Test
   void validate_files_moreThanOneUploaded() {
     var form = new PermanentDepositDrawingForm();
-    form.setUploadedFileWithDescriptionForms(
-        List.of(FileUploadTestUtil.createDefaultUploadFileForm(), FileUploadTestUtil.createDefaultUploadFileForm()));
+    form.setUploadedFiles(
+        List.of(
+            FileManagementValidatorTestUtils.createUploadedFileForm(),
+            FileManagementValidatorTestUtils.createUploadedFileForm()
+        )
+    );
 
     Map<String, Set<String>> errorsMap = getErrorMap(form);
     assertThat(errorsMap).contains(entry(
-        "uploadedFileWithDescriptionForms",
-        Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode())));
-  }
-
-  @Test
-  void validate_uploadedDrawingDescriptionOverMaxCharLength_invalid() {
-    var form = new PermanentDepositDrawingForm();
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-    var errorsMap = getErrorMap(form);
-
-    assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
-    );
+        "uploadedFiles",
+        Set.of(FileValidationUtils.ABOVE_LIMIT_ERROR_CODE.formatted("uploadedFiles"))));
   }
 
   @Test
@@ -131,7 +121,6 @@ public class PermanentDepositsDrawingValidatorTest {
     assertThat(errorsMap).contains(entry("reference", Set.of("reference.maxLengthExceeded")));
   }
 
-
   @Test
   void validate_depositSelectionEmpty() {
     var form = new PermanentDepositDrawingForm();
@@ -140,9 +129,4 @@ public class PermanentDepositsDrawingValidatorTest {
     assertThat(errorsMap).contains(
         entry("selectedDeposits", Set.of(FieldValidationErrorCodes.REQUIRED.errorCode("selectedDeposits"))));
   }
-
-
-
-
-
 }

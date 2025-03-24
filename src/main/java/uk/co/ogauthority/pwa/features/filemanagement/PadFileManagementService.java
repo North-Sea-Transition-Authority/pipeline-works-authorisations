@@ -10,6 +10,7 @@ import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -41,6 +42,17 @@ public class PadFileManagementService {
     );
   }
 
+  public UploadedFile getUploadedFile(PwaApplicationDetail pwaApplicationDetail, UUID fileId) {
+    var file = fileService.find(fileId).orElseThrow(() -> getFileNotFoundException(pwaApplicationDetail, fileId));
+
+    throwIfFileDoesNotBelongToApplicationDetail(file, pwaApplicationDetail);
+    return file;
+  }
+
+  public List<UploadedFile> getUploadedFiles(PwaApplicationDetail pwaApplicationDetail, FileDocumentType documentType) {
+    return fileService.findAll(getUsageId(pwaApplicationDetail), getUsageType(), documentType.name());
+  }
+
   public FileUploadForm mapFilesToForm(
       FileUploadForm fileUploadForm,
       PwaApplicationDetail pwaApplicationDetail,
@@ -56,13 +68,29 @@ public class PadFileManagementService {
 
   public FileUploadComponentAttributes getFileUploadComponentAttributes(
       List<UploadedFileForm> existingFiles,
-      FileDocumentType fileDocumentType,
-      PwaApplicationDetail pwaApplicationDetail
+      PwaApplicationDetail pwaApplicationDetail,
+      FileDocumentType fileDocumentType
   ) {
     var controller = PadFileManagementRestController.class;
 
     return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
         .withUploadUrl(ReverseRouter.route(on(FileManagementRestController.class).upload(null)))
+        .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplicationDetail.getId(), null)))
+        .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplicationDetail.getId(), null)))
+        .build();
+  }
+
+  public FileUploadComponentAttributes getFileUploadComponentAttributesForLegacyPadFile(
+      List<UploadedFileForm> existingFiles,
+      PwaApplicationDetail pwaApplicationDetail,
+      FileDocumentType fileDocumentType,
+      ApplicationDetailFilePurpose legacyPadFilePurpose
+  ) {
+    var controller = PadFileManagementRestController.class;
+
+    return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, fileDocumentType)
+        .withUploadUrl(ReverseRouter.route(on(LegacyPadFileUploadRestController.class)
+                .upload(pwaApplicationDetail.getId(), legacyPadFilePurpose.name(), null)))
         .withDownloadUrl(ReverseRouter.route(on(controller).download(pwaApplicationDetail.getId(), null)))
         .withDeleteUrl(ReverseRouter.route(on(controller).delete(pwaApplicationDetail.getId(), null)))
         .build();
@@ -77,10 +105,6 @@ public class PadFileManagementService {
     );
   }
 
-  public List<UploadedFile> getUploadedFiles(PwaApplicationDetail pwaApplicationDetail, FileDocumentType documentType) {
-    return fileService.findAll(getUsageId(pwaApplicationDetail), getUsageType(), documentType.name());
-  }
-
   public void copyUploadedFiles(PwaApplicationDetail oldApplicationDetail,
                                 PwaApplicationDetail newApplicationDetail,
                                 FileDocumentType fileDocumentType) {
@@ -92,16 +116,20 @@ public class PadFileManagementService {
             uploadedFile,
             usageBuilder -> fileManagementService.buildFileUsage(
                 usageBuilder,
-                fileDocumentType.name(),
                 getUsageId(newApplicationDetail),
-                getUsageType()
+                getUsageType(),
+                fileDocumentType.name()
             )
         )
     );
   }
 
-  public ResponseStatusException getFileNotFoundException(UUID fileId, PwaApplicationDetail pwaApplicationDetail) {
+  public ResponseStatusException getFileNotFoundException(PwaApplicationDetail pwaApplicationDetail, UUID fileId) {
     return fileManagementService.getFileNotFoundException(fileId, getUsageType(), getUsageId(pwaApplicationDetail));
+  }
+
+  public UploadedFileView getUploadedFileView(PwaApplicationDetail pwaApplicationDetail, UUID fileId) {
+    return createUploadedFileView(getUploadedFile(pwaApplicationDetail, fileId), pwaApplicationDetail);
   }
 
   public List<UploadedFileView> getUploadedFileViews(PwaApplicationDetail pwaApplicationDetail, FileDocumentType fileDocumentType) {
@@ -110,9 +138,13 @@ public class PadFileManagementService {
         .toList();
   }
 
+  public void deleteUploadedFile(UploadedFile uploadedFile) {
+    fileService.delete(uploadedFile);
+  }
+
   private UploadedFileView createUploadedFileView(UploadedFile uploadedFile, PwaApplicationDetail pwaApplicationDetail) {
     return new UploadedFileView(
-        null,
+        String.valueOf(uploadedFile.getId()),
         uploadedFile.getName(),
         uploadedFile.getContentLength(),
         uploadedFile.getDescription(),

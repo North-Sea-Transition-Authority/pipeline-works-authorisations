@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overvie
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.TechnicalDrawingsSectionValidationSummary;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
@@ -63,6 +64,9 @@ class TechnicalDrawingsControllerTest extends PwaApplicationContextAbstractContr
 
   @MockBean
   private UmbilicalCrossSectionService umbilicalCrossSectionService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1),

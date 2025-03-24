@@ -15,6 +15,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,12 +32,16 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
+import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawingRepository;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingView;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositsDrawingValidator;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -69,6 +74,8 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
   @MockBean
   private PermanentDepositsDrawingValidator validator;
 
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -98,8 +105,13 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+    when(padFileManagementService.getFileUploadComponentAttributesForLegacyPadFile(
+        any(),
+        any(),
+        eq(FileDocumentType.DEPOSIT_DRAWINGS),
+        eq(ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS)
+    )).thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
-
 
   //Overview endpoint tests
   @Test
@@ -178,7 +190,6 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
-
 
   //ADD endpoint tests
   @Test
@@ -285,7 +296,6 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
     verify(depositDrawingsService, times(1)).validate(any(), any(), eq(ValidationType.FULL), any());
   }
 
-
   //REMOVE end points
   @Test
   void renderRemovePermanentDeposits_success() throws Exception {
@@ -367,7 +377,6 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
     endpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
   }
-
 
   //EDIT endpoints
   @Test
@@ -471,22 +480,18 @@ class PermanentDepositDrawingsControllerTest extends PwaApplicationContextAbstra
             .params(ControllerTestUtils.fullValidationPostParams()))
         .andExpect(status().is3xxRedirection());
 
-    verify(depositDrawingsService, times(1)).editDepositDrawing(anyInt(), any(), any(), any());
+    verify(depositDrawingsService, times(1)).editDepositDrawing(anyInt(), any(), any());
     verify(depositDrawingsService, times(1)).validateDrawingEdit(any(), any(), any(), anyInt());
   }
-
 
   private PermanentDepositDrawingView buildDepositDrawingView() {
     var view = new PermanentDepositDrawingView();
     view.setDepositDrawingId(1);
     view.setDepositReferences(Set.of("dep ref"));
     view.setReference("drawing ref");
-    view.setFileId("1");
+    view.setFileId(String.valueOf(UUID.randomUUID()));
     view.setDocumentDescription("description");
     view.setFileName("file name");
     return view;
   }
-
-
-
 }

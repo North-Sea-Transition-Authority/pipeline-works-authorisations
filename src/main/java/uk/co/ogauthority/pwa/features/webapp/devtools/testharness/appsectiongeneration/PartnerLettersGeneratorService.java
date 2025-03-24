@@ -3,29 +3,22 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.testharness.appsectiongen
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
-import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
-import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.filehelper.TestHarnessPadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementTestHarnessService;
 
 @Service
 @Profile("test-harness")
 class PartnerLettersGeneratorService implements TestHarnessAppFormService {
 
-  private final PadPartnerLettersService padPartnerLettersService;
-  private final TestHarnessPadFileService testHarnessPadFileService;
-
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.PARTNER_LETTERS;
+  private final PadFileManagementTestHarnessService padFileManagementTestHarnessService;
 
   @Autowired
-  public PartnerLettersGeneratorService(
-      PadPartnerLettersService padPartnerLettersService,
-      TestHarnessPadFileService testHarnessPadFileService) {
-    this.padPartnerLettersService = padPartnerLettersService;
-    this.testHarnessPadFileService = testHarnessPadFileService;
+  public PartnerLettersGeneratorService(PadFileManagementTestHarnessService padFileManagementTestHarnessService) {
+    this.padFileManagementTestHarnessService = padFileManagementTestHarnessService;
   }
-
 
   @Override
   public ApplicationTask getLinkedAppFormTask() {
@@ -36,24 +29,16 @@ class PartnerLettersGeneratorService implements TestHarnessAppFormService {
   @Override
   public void generateAppFormData(TestHarnessAppFormServiceParams appFormServiceParams) {
 
-    var uploadedFileId = testHarnessPadFileService.generateInitialUpload(
-        appFormServiceParams.getUser(), appFormServiceParams.getApplicationDetail(), ApplicationDetailFilePurpose.PARTNER_LETTERS);
-    var form = createForm(uploadedFileId);
-    padPartnerLettersService.saveEntityUsingForm(appFormServiceParams.getApplicationDetail(), form, appFormServiceParams.getUser());
-  }
-
-
-  private PartnerLettersForm createForm(String uploadedFileId) {
     var form = new PartnerLettersForm();
     form.setPartnerLettersRequired(true);
+
+    padFileManagementTestHarnessService.uploadFileAndMapToForm(
+        form,
+        appFormServiceParams.getApplicationDetail(),
+        FileDocumentType.PARTNER_LETTERS
+    );
+
     form.setPartnerLettersConfirmed(true);
-
-    testHarnessPadFileService.setFileIdOnForm(uploadedFileId, form.getUploadedFileWithDescriptionForms());
-
-    return form;
   }
-
-
-
 
 }

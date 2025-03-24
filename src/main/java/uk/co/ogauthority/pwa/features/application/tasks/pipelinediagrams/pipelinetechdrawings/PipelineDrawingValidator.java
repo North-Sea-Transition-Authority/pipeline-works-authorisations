@@ -11,10 +11,9 @@ import org.springframework.validation.ValidationUtils;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class PipelineDrawingValidator implements SmartValidator {
@@ -81,8 +80,10 @@ public class PipelineDrawingValidator implements SmartValidator {
           "The drawing reference is already in use");
     }
 
-    FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class));
-    FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a single drawing only");
+    FileValidationUtils.validator()
+        .withMinimumNumberOfFiles(1, "Upload at least one file")
+        .withMaximumNumberOfFiles(1, "Upload a single drawing only")
+            .validate(errors, form.getUploadedFiles());
 
     var pipelinesRequiringDrawings = pipelineList.stream()
         .filter(padPipeline -> padTechnicalDrawingService.isDrawingRequiredForPipeline(padPipeline.getPipelineStatus()))

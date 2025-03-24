@@ -10,26 +10,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
-import uk.co.ogauthority.pwa.util.fileupload.FileUploadTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class PublicNoticeDraftValidatorTest {
 
   private PublicNoticeDraftValidator validator;
 
-  private UploadFileWithDescriptionForm uploadedFileForm;
-
   @BeforeEach
   void setUp() {
     validator = new PublicNoticeDraftValidator();
-    uploadedFileForm = FileUploadTestUtil.createDefaultUploadFileForm();
   }
-
 
   @Test
   void validate_form_empty() {
@@ -37,7 +33,7 @@ class PublicNoticeDraftValidatorTest {
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).containsOnly(
         entry("coverLetterText", Set.of("coverLetterText" + FieldValidationErrorCodes.REQUIRED.getCode())),
-        entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.getCode())),
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE)),
         entry("reason", Set.of("reason" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
@@ -46,7 +42,7 @@ class PublicNoticeDraftValidatorTest {
   void validate_form_valid() {
     var form = new PublicNoticeDraftForm();
     form.setCoverLetterText("text");
-    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
     form.setReason(PublicNoticeRequestReason.ALL_CONSULTEES_CONTENT);
 
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
@@ -56,32 +52,24 @@ class PublicNoticeDraftValidatorTest {
   @Test
   void validate_form_fileCountExceeded() {
     var form = new PublicNoticeDraftForm();
-    form.setUploadedFileWithDescriptionForms(List.of(uploadedFileForm, uploadedFileForm));
+    form.setUploadedFiles(List.of(
+        FileManagementValidatorTestUtils.createUploadedFileForm(),
+        FileManagementValidatorTestUtils.createUploadedFileForm()
+    ));
     Map<String, Set<String>> errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
-        entry("uploadedFileWithDescriptionForms", Set.of("uploadedFileWithDescriptionForms" + FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.getCode()))
+        entry("uploadedFiles", Set.of(FileValidationUtils.ABOVE_LIMIT_ERROR_CODE))
     );
   }
 
   @Test
   void validate_form_fileDescriptionNull_invalid() {
     var form = new PublicNoticeDraftForm();
-    FileUploadTestUtil.addUploadFileWithoutDescriptionToForm(form);
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
     assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.REQUIRED.getCode()))
-    );
-  }
-
-  @Test
-  void validate_form_fileDescriptionOverMaxCharLength_invalid() {
-    var form = new PublicNoticeDraftForm();
-    FileUploadTestUtil.addUploadFileWithDescriptionOverMaxCharsToForm(form);
-    var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form);
-    assertThat(errorsMap).contains(
-        entry(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath(),
-            Set.of(FileUploadTestUtil.getFirstUploadedFileDescriptionFieldPath() + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
+        entry("uploadedFiles[0].uploadedFileDescription",
+            Set.of("uploadedFiles[0].uploadedFileDescription" + FieldValidationErrorCodes.REQUIRED.getCode()))
     );
   }
 
@@ -107,14 +95,4 @@ class PublicNoticeDraftValidatorTest {
         entry("reasonDescription", Set.of("reasonDescription" + FieldValidationErrorCodes.MAX_LENGTH_EXCEEDED.getCode()))
     );
   }
-
-
-
-
-
-
-
-
-
-
 }

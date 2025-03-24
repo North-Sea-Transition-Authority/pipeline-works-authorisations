@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,9 +20,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
-import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementValidatorTestUtils;
 import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransaction;
 import uk.co.ogauthority.pwa.integrations.energyportal.pearslicenceapplications.PearsLicenceTransactionService;
@@ -1097,11 +1096,7 @@ public class ProjectInformationValidatorTest {
   void validate_oneProjectLayoutDiagramFile() {
     var form = new ProjectInformationForm();
 
-    var fileForm = new UploadedFileForm();
-    fileForm.setFileId(UUID.randomUUID());
-    fileForm.setFileDescription("test");
-
-    form.setUploadedFiles(List.of(fileForm));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileForm()));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
@@ -1114,8 +1109,7 @@ public class ProjectInformationValidatorTest {
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
     assertThat(errorsMap).contains(
-        entry("uploadedFiles",
-            Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE.formatted("uploadedFiles")))
+        entry("uploadedFiles", Set.of(FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE))
     );
   }
 
@@ -1123,13 +1117,10 @@ public class ProjectInformationValidatorTest {
   void validate_tooManyProjectLayoutDiagramFiles() {
     var form = new ProjectInformationForm();
 
-    var fileForm = new UploadedFileForm();
-    fileForm.setFileId(UUID.randomUUID());
-
-    var fileForm2 = new UploadedFileForm();
-    fileForm2.setFileId(UUID.randomUUID());
-
-    form.setUploadedFiles(List.of(fileForm, fileForm2));
+    form.setUploadedFiles(List.of(
+        FileManagementValidatorTestUtils.createUploadedFileForm(),
+        FileManagementValidatorTestUtils.createUploadedFileForm()
+    ));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));
@@ -1140,10 +1131,7 @@ public class ProjectInformationValidatorTest {
   void validate_projectLayoutDiagramFile_noDescription() {
     var form = new ProjectInformationForm();
 
-    var fileForm = new UploadedFileForm();
-    fileForm.setFileId(UUID.randomUUID());
-
-    form.setUploadedFiles(List.of(fileForm));
+    form.setUploadedFiles(List.of(FileManagementValidatorTestUtils.createUploadedFileFormWithoutDescription()));
 
     var errorsMap = ValidatorTestUtils.getFormValidationErrors(validator, form,
         new ProjectInformationFormValidationHints(PwaApplicationType.INITIAL, PwaResourceType.PETROLEUM, ValidationType.FULL, Set.of(ProjectInformationQuestion.PROJECT_LAYOUT_DIAGRAM), false));

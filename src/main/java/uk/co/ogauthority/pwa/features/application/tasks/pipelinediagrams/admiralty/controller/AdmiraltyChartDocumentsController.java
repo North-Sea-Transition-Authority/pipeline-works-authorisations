@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admira
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,30 +10,23 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -46,52 +37,48 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.INITIAL,
     PwaApplicationType.CAT_1_VARIATION
 })
-public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class AdmiraltyChartDocumentsController {
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.ADMIRALTY_CHART;
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.ADMIRALTY_CHART;
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final ControllerHelperService controllerHelperService;
   private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public AdmiraltyChartDocumentsController(
       AdmiraltyChartFileService admiraltyChartFileService,
       ApplicationBreadcrumbService applicationBreadcrumbService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
-    super(padFileService);
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView createAdmiraltyChartModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                         AdmiraltyChartDocumentForm form) {
-    var modelAndView = createModelAndView(
-        "pwaApplication/form/uploadFiles",
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
-            .handleUpload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
-            .handleDownload(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        ReverseRouter.route(on(AdmiraltyChartDocumentsController.class)
-            .handleDelete(pwaApplicationDetail.getPwaApplicationType(),
-                pwaApplicationDetail.getMasterPwaApplicationId(), null, null)),
-        // only load fully linked (saved) files
-        padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE)
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
+        form.getUploadedFiles(),
+        pwaApplicationDetail,
+        DOCUMENT_TYPE
     );
 
-    modelAndView.addObject("pageTitle", "Admiralty chart")
+    var modelAndView = new ModelAndView("pwaApplication/form/uploadFiles")
+        .addObject("pageTitle", "Admiralty chart")
         .addObject("backButtonText", "Back to technical drawings")
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(pwaApplicationDetail.getPwaApplicationType(),
                 pwaApplicationDetail.getMasterPwaApplicationId(), null, null)))
         .addObject("singleFileUpload", true)
-        .addObject("restrictToImageFileTypes", true);
+        .addObject("fileUploadAttributes", fileUploadAttributes);
+
     applicationBreadcrumbService.fromTechnicalDrawings(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Admiralty chart");
+
     return modelAndView;
   }
 
@@ -102,8 +89,7 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
       @PathVariable("applicationId") Integer applicationId,
       @ModelAttribute("form") AdmiraltyChartDocumentForm form,
       PwaApplicationContext applicationContext) {
-
-    padFileService.mapFilesToForm(form, applicationContext.getApplicationDetail(), FILE_PURPOSE);
+    padFileManagementService.mapFilesToForm(form, applicationContext.getApplicationDetail(), DOCUMENT_TYPE);
     return createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
   }
 
@@ -125,46 +111,9 @@ public class AdmiraltyChartDocumentsController extends PwaApplicationDetailDataF
     );
     var modelAndView = createAdmiraltyChartModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-
-      padFileService.updateFiles(form, detail, FILE_PURPOSE, FileUpdateMode.DELETE_UNLINKED_FILES,
-          applicationContext.getUser());
+      padFileManagementService.saveFiles(form, applicationContext.getApplicationDetail(), DOCUMENT_TYPE);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, detail.getMasterPwaApplicationId(), null, null));
     });
-  }
-
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @PostMapping("/files/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-
-    return padFileService.processImageUpload(file, applicationContext.getApplicationDetail(), FILE_PURPOSE,
-        applicationContext.getUser());
-  }
-
-  @PostMapping("/files/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletion(applicationContext.getPadFile(), applicationContext.getUser());
   }
 }

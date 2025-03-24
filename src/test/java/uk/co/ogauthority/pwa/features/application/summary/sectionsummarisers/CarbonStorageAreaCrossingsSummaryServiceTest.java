@@ -14,13 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageAreaCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.carbonstoragearea.CarbonStorageCrossingView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -40,7 +39,7 @@ class CarbonStorageAreaCrossingsSummaryServiceTest {
   private CarbonStorageAreaCrossingService crossingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private CarbonStorageAreaCrossingSummaryService summaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -48,7 +47,7 @@ class CarbonStorageAreaCrossingsSummaryServiceTest {
   @BeforeEach
   void setUp() {
 
-    summaryService = new CarbonStorageAreaCrossingSummaryService(crossingService, padFileService, taskListService);
+    summaryService = new CarbonStorageAreaCrossingSummaryService(crossingService, taskListService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -79,8 +78,7 @@ class CarbonStorageAreaCrossingsSummaryServiceTest {
     when(crossingService.getCrossedAreaViews(pwaApplicationDetail)).thenReturn(List.of(crossingView));
 
     var fileView = new UploadedFileView(null, null, 1L, null, null, null);
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.CARBON_STORAGE_CROSSINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.CARBON_STORAGE_CROSSINGS)).thenReturn(List.of(fileView));
 
     when(crossingService.isDocumentsRequired(pwaApplicationDetail)).thenReturn(true);
 

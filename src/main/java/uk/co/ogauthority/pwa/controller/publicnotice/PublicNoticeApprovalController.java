@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.controller.publicnotice;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -53,7 +54,6 @@ public class PublicNoticeApprovalController  {
     this.controllerHelperService = controllerHelperService;
   }
 
-
   @GetMapping
   public ModelAndView renderApprovePublicNotice(@PathVariable("applicationId") Integer applicationId,
                                                 @PathVariable("applicationType")
@@ -74,7 +74,6 @@ public class PublicNoticeApprovalController  {
                   processingContext.getMasterPwaApplicationId());
         });
   }
-
 
   @PostMapping
   public ModelAndView postApprovePublicNotice(@PathVariable("applicationId") Integer applicationId,
@@ -107,7 +106,6 @@ public class PublicNoticeApprovalController  {
 
   }
 
-
   private ModelAndView getApprovePublicNoticeModelAndView(PwaAppProcessingContext processingContext) {
     var pwaApplication = processingContext.getPwaApplication();
 
@@ -118,8 +116,8 @@ public class PublicNoticeApprovalController  {
     var publicNoticeOverviewUrl = ReverseRouter.route(on(PublicNoticeOverviewController.class).renderPublicNoticeOverview(
         pwaApplication.getId(), pwaApplication.getApplicationType(), null, null));
 
-    var downloadPublicNoticeUrl = ReverseRouter.route(on(PublicNoticeDraftController.class)
-        .handleDownload(pwaApplication.getApplicationType(), pwaApplication.getId(), publicNoticeFileId, null));
+    var downloadPublicNoticeUrl = ReverseRouter.route(on(PublicNoticeFileManagementRestController.class)
+        .download(pwaApplication.getId(), UUID.fromString(publicNoticeFileId)));
 
     var modelAndView = new ModelAndView("publicNotice/approvePublicNotice")
         .addObject("appRef", pwaApplication.getAppReference())
@@ -134,10 +132,5 @@ public class PublicNoticeApprovalController  {
     appProcessingBreadcrumbService.fromCaseManagement(pwaApplication, modelAndView, "Review public notice request");
     return modelAndView;
   }
-
-
-
-
-
 
 }

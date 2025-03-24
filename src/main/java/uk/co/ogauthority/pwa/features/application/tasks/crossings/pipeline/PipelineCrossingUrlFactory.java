@@ -5,6 +5,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingDocumentsController;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
@@ -39,7 +40,7 @@ public class PipelineCrossingUrlFactory {
   }
 
   public String getFileDownloadUrl() {
-    return ReverseRouter.route(on(PipelineCrossingDocumentsController.class)
-        .handleDownload(applicationType, applicationId, null, null));
+    // file id is null to allow templates to construct url as needed
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
   }
 }

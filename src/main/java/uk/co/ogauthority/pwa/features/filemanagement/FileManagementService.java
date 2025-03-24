@@ -68,7 +68,7 @@ public class FileManagementService {
     return form;
   }
 
-  FileUploadComponentAttributes.Builder getFileUploadComponentAttributesBuilder(
+  public FileUploadComponentAttributes.Builder getFileUploadComponentAttributesBuilder(
       List<UploadedFileForm> existingFiles,
       FileDocumentType fileDocumentType
   ) {

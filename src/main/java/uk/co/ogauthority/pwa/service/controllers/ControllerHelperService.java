@@ -16,12 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
-import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 
 @Service
 public class ControllerHelperService {
+
+  public static final String UPLOADED_FILE_ERROR_ELEMENT_ID = FileValidationUtils.FIELD_NAME + "-error";
 
   private final MessageSource messageSource;
 
@@ -85,8 +86,9 @@ public class ControllerHelperService {
 
     var fieldName = fieldError.getField();
     var errorCodeToFieldNameOverrideMap = Map.of(
-        FieldValidationErrorCodes.EXCEEDED_MAXIMUM_FILE_UPLOAD_COUNT.errorCode(fieldName), FileUploadUtils.UPLOADED_FILE_ERROR_ELEMENT_ID,
-        FieldValidationErrorCodes.MIN_FILE_COUNT_NOT_REACHED.errorCode(fieldName), FileUploadUtils.UPLOADED_FILE_ERROR_ELEMENT_ID);
+        FileValidationUtils.ABOVE_LIMIT_ERROR_CODE, UPLOADED_FILE_ERROR_ELEMENT_ID,
+        FileValidationUtils.BELOW_THRESHOLD_ERROR_CODE, UPLOADED_FILE_ERROR_ELEMENT_ID
+    );
 
     if (fieldError.getCodes() == null) {
       return fieldName;

@@ -12,13 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectionView;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -36,7 +35,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final SearchSelectorService searchSelectorService;
   private final EntityCopyingService entityCopyingService;
-  private final PadFileService padFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PadPipelineCrossingService(
@@ -46,14 +45,14 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
       PortalOrganisationsAccessor portalOrganisationsAccessor,
       SearchSelectorService searchSelectorService,
       EntityCopyingService entityCopyingService,
-      PadFileService padFileService) {
+      PadFileManagementService padFileManagementService) {
     this.padPipelineCrossingRepository = padPipelineCrossingRepository;
     this.pipelineCrossingFileService = pipelineCrossingFileService;
     this.padPipelineCrossingOwnerService = padPipelineCrossingOwnerService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.searchSelectorService = searchSelectorService;
     this.entityCopyingService = entityCopyingService;
-    this.padFileService = padFileService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   public PadPipelineCrossing getPipelineCrossing(PwaApplicationDetail detail, Integer id) {
@@ -143,13 +142,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   @Transactional
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-
-    padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
-        ApplicationFileLinkStatus.FULL
-    );
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PIPELINE_CROSSINGS);
 
     var copiedPadPipelineCrossingEntityIds = entityCopyingService.duplicateEntitiesAndSetParent(
         () -> padPipelineCrossingRepository.getAllByPwaApplicationDetail(fromDetail),

@@ -33,15 +33,15 @@ import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerT
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsSection;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsValidationResult;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -69,6 +69,9 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
   @MockBean
   private CrossingAgreementsService crossingAgreementsService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -342,8 +345,8 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedTypes().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.CABLE_CROSSINGS));
 
   }
 
@@ -362,8 +365,8 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
-    verify(padFileService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedStatuses().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.CABLE_CROSSINGS));
   }
 
   @Test
@@ -381,8 +384,8 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
 
     endpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
-    verify(padFileService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
-        eq(ApplicationDetailFilePurpose.CABLE_CROSSINGS), eq(ApplicationFileLinkStatus.FULL));
+    verify(padFileManagementService, times(endpointTester.getAllowedAppPermissions().size())).getUploadedFileViews(any(),
+        eq(FileDocumentType.CABLE_CROSSINGS));
   }
 
   @Test

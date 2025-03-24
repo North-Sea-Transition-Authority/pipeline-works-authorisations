@@ -5,8 +5,6 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,14 +12,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
@@ -29,20 +21,20 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.controller.TechnicalDrawingsController;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingLinkService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingUrlFactory;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -56,44 +48,47 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-public class PipelineDrawingController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class PipelineDrawingController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
   private final ControllerHelperService controllerHelperService;
-
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PIPELINE_DRAWINGS;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public PipelineDrawingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadTechnicalDrawingService padTechnicalDrawingService,
       PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
-    super(padFileService);
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView getDrawingModelAndView(PwaApplicationDetail detail, PipelineDrawingForm form) {
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/techdrawings/addPipelineDrawing",
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributesForLegacyPadFile(
+        form.getUploadedFiles(),
         detail,
-        FILE_PURPOSE,
-        form)
+        FileDocumentType.PIPELINE_DRAWINGS,
+        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS
+    );
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/addPipelineDrawing")
         .addObject("pipelineViews", padTechnicalDrawingService.getUnlinkedApplicationPipelineOverviews(detail))
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
-        .addObject("actionType", ScreenActionType.ADD);
+        .addObject("actionType", ScreenActionType.ADD)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
         ScreenActionType.ADD.getActionText() + " pipeline schematic");
 
-    padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
   }
 
@@ -105,20 +100,23 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
         .collect(Collectors.toUnmodifiableList());
     var overviews = padTechnicalDrawingService.getUnlinkedAndSpecificApplicationPipelineOverviews(detail,
         linkedDrawingPipelineIds);
-    var modelAndView = this.createModelAndView(
-        "pwaApplication/shared/techdrawings/addPipelineDrawing",
+
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributesForLegacyPadFile(
+        form.getUploadedFiles(),
         detail,
-        FILE_PURPOSE,
-        form)
+        FileDocumentType.PIPELINE_DRAWINGS,
+        ApplicationDetailFilePurpose.PIPELINE_DRAWINGS
+    );
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/addPipelineDrawing")
         .addObject("pipelineViews", overviews)
         .addObject("backUrl", ReverseRouter.route(on(TechnicalDrawingsController.class)
             .renderOverview(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
-        .addObject("actionType", ScreenActionType.EDIT);
+        .addObject("actionType", ScreenActionType.EDIT)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTechnicalDrawings(detail.getPwaApplication(), modelAndView,
         ScreenActionType.EDIT.getActionText() + " pipeline schematic");
-
-    padFileService.getFilesLinkedToForm(form, detail, FILE_PURPOSE);
     return modelAndView;
   }
 
@@ -157,12 +155,7 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
         applicationContext.getApplicationDetail());
     var modelAndView = getDrawingModelAndView(applicationContext.getApplicationDetail(), form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      padFileService.updateFiles(
-          form,
-          applicationContext.getApplicationDetail(),
-          FILE_PURPOSE,
-          FileUpdateMode.KEEP_UNLINKED_FILES,
-          applicationContext.getUser());
+      padFileManagementService.saveFiles(form, applicationContext.getApplicationDetail(), FileDocumentType.PIPELINE_DRAWINGS);
       padTechnicalDrawingService.addDrawing(applicationContext.getApplicationDetail(), form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));
@@ -225,61 +218,11 @@ public class PipelineDrawingController extends PwaApplicationDetailDataFileUploa
     var drawing = padTechnicalDrawingService.getDrawing(applicationContext.getApplicationDetail(), drawingId);
     var modelAndView = getEditDrawingModelAndView(applicationContext.getApplicationDetail(), drawing, form);
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, modelAndView, () -> {
-      padFileService.updateFiles(
-          form,
-          applicationContext.getApplicationDetail(),
-          FILE_PURPOSE,
-          FileUpdateMode.KEEP_UNLINKED_FILES,
-          applicationContext.getUser());
+      padFileManagementService.saveFiles(form, applicationContext.getApplicationDetail(), FileDocumentType.PIPELINE_DRAWINGS);
       padTechnicalDrawingService.updateDrawing(applicationContext.getApplicationDetail(), drawingId, user, form);
       return ReverseRouter.redirect(on(TechnicalDrawingsController.class)
           .renderOverview(applicationType, applicationId, null, null));
     });
 
-  }
-
-  @Override
-  @PostMapping("/file/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processImageUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-  }
-
-  @Override
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @Override
-  @PostMapping("/file/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-
-    var detail = applicationContext.getApplicationDetail();
-    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(),
-        applicationContext.getUser(),
-        padFile -> padTechnicalDrawingService.getDrawingLinkedToPadFile(detail, padFile)
-            .ifPresent(padTechnicalDrawingService::unlinkFile));
   }
 }

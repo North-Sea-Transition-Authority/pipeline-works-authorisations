@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
@@ -31,6 +34,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller.P
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -61,6 +66,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
   private final PadFileService padFileService;
   private final PipelineDetailService pipelineDetailService;
   private final PadOptionConfirmedService padOptionConfirmedService;
+  private final PadFileManagementService padFileManagementService;
+  private final EntityManager entityManager;
 
   @Autowired
   public PermanentDepositService(
@@ -75,7 +82,10 @@ public class PermanentDepositService implements ApplicationFormSectionService {
       PipelineAndIdentViewFactory pipelineAndIdentViewFactory,
       PadFileService padFileService,
       PipelineDetailService pipelineDetailService,
-      PadOptionConfirmedService padOptionConfirmedService) {
+      PadOptionConfirmedService padOptionConfirmedService,
+      PadFileManagementService padFileManagementService,
+      EntityManager entityManager
+  ) {
     this.permanentDepositRepository = permanentDepositRepository;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositEntityMappingService = permanentDepositEntityMappingService;
@@ -88,6 +98,8 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     this.padFileService = padFileService;
     this.pipelineDetailService = pipelineDetailService;
     this.padOptionConfirmedService = padOptionConfirmedService;
+    this.padFileManagementService = padFileManagementService;
+    this.entityManager = entityManager;
   }
 
 
@@ -434,7 +446,19 @@ public class PermanentDepositService implements ApplicationFormSectionService {
         PadDepositDrawing.class
     );
 
-    //4. duplicate all drawing files and point duplicated drawings at new versions
+    // 4. copy uploaded files to new application detail
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.DEPOSIT_DRAWINGS);
+
+    var fromFiles = padFileManagementService.getUploadedFiles(fromDetail, FileDocumentType.DEPOSIT_DRAWINGS).stream()
+        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+
+    var toFiles = padFileManagementService.getUploadedFiles(toDetail, FileDocumentType.DEPOSIT_DRAWINGS).stream()
+        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+
+    var originalToCopiedFileIDs = fromFiles.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getValue().getId(), e -> toFiles.get(e.getKey()).getId()));
+
+    //5. duplicate all drawing files and point duplicated drawings at new versions
     var copiedDrawingPadFileEntityIds = padFileService.copyPadFilesToPwaApplicationDetail(
         fromDetail, toDetail, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL
     );
@@ -448,8 +472,15 @@ public class PermanentDepositService implements ApplicationFormSectionService {
     var duplicatedPadFileMap = copiedDrawingPadFileEntityIds.stream()
         .collect(Collectors.toMap(
             CopiedEntityIdTuple::getOriginalEntityId,
-            padFileCopiedEntityIdTuple -> toDetailDrawingPadFileLookup.get(
-                padFileCopiedEntityIdTuple.getDuplicateEntityId()))
+            padFileCopiedEntityIdTuple -> {
+              // point the new pad file to the new file id
+              var fileWithOldId = toDetailDrawingPadFileLookup.get(padFileCopiedEntityIdTuple.getDuplicateEntityId());
+              fileWithOldId.setFileId(originalToCopiedFileIDs.get(fileWithOldId.getFileId()));
+
+              entityManager.persist(fileWithOldId);
+
+              return fileWithOldId;
+            })
         );
 
     // use map of original pad file id to duplicated pad file id to set correct padFile link on deposit drawing.

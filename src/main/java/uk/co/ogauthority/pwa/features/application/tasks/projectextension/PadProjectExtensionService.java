@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.features.application.tasks.projectextension;
 
-import static uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose.PROJECT_EXTENSION;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -11,34 +10,35 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 
 @Service
 public class PadProjectExtensionService implements ApplicationFormSectionService {
 
-  private final PadFileService padFileService;
   private final PadProjectInformationService padProjectInformationService;
 
   private final ProjectExtensionValidator projectExtensionValidator;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
-  public PadProjectExtensionService(PadFileService padFileService,
-                                    PadProjectInformationService padProjectInformationService,
-                                    ProjectExtensionValidator projectExtensionValidator) {
-    this.padFileService = padFileService;
+  public PadProjectExtensionService(PadProjectInformationService padProjectInformationService,
+                                    ProjectExtensionValidator projectExtensionValidator,
+                                    PadFileManagementService padFileManagementService
+  ) {
     this.padProjectInformationService = padProjectInformationService;
     this.projectExtensionValidator = projectExtensionValidator;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var projectExtensionForm = new ProjectExtensionForm();
-    padFileService.mapFilesToForm(projectExtensionForm, detail, PROJECT_EXTENSION);
+    padFileManagementService.mapFilesToForm(projectExtensionForm, detail, FileDocumentType.PROJECT_EXTENSION);
     var bindingResult = new BeanPropertyBindingResult(projectExtensionForm, "form");
     validate(projectExtensionForm, bindingResult, ValidationType.FULL, detail);
 
@@ -74,17 +74,13 @@ public class PadProjectExtensionService implements ApplicationFormSectionService
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    padFileService.copyPadFilesToPwaApplicationDetail(fromDetail,
-        toDetail,
-        PROJECT_EXTENSION,
-        ApplicationFileLinkStatus.FULL);
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PROJECT_EXTENSION);
   }
 
   public void removeExtensionsForProject(PwaApplicationContext applicationContext) {
-    var extensionFiles = padFileService.getAllByPwaApplicationDetailAndPurpose(
-        applicationContext.getApplicationDetail(),
-        PROJECT_EXTENSION);
-    extensionFiles.forEach(file -> padFileService.processFileDeletion(file, applicationContext.getUser()));
+    var files = padFileManagementService.getUploadedFiles(applicationContext.getApplicationDetail(), FileDocumentType.PROJECT_EXTENSION);
+
+    files.forEach(padFileManagementService::deleteUploadedFile);
   }
 
   public String getProjectTimelineGuidance(PwaApplicationDetail pwaApplicationDetail) {

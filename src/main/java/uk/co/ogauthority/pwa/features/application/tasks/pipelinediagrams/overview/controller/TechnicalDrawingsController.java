@@ -16,8 +16,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.overview.TechnicalDrawingSectionService;
@@ -25,7 +23,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionUrlFactory;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -52,8 +51,8 @@ public class TechnicalDrawingsController {
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final TechnicalDrawingSectionService technicalDrawingSectionService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
-  private final PadFileService padFileService;
   private final UmbilicalCrossSectionService umbilicalCrossSectionService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public TechnicalDrawingsController(
@@ -62,23 +61,21 @@ public class TechnicalDrawingsController {
       PwaApplicationRedirectService pwaApplicationRedirectService,
       TechnicalDrawingSectionService technicalDrawingSectionService,
       PadTechnicalDrawingService padTechnicalDrawingService,
-      PadFileService padFileService,
-      UmbilicalCrossSectionService umbilicalCrossSectionService) {
+      UmbilicalCrossSectionService umbilicalCrossSectionService,
+      PadFileManagementService padFileManagementService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.admiraltyChartFileService = admiraltyChartFileService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.technicalDrawingSectionService = technicalDrawingSectionService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
-    this.padFileService = padFileService;
     this.umbilicalCrossSectionService = umbilicalCrossSectionService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView getOverviewModelAndView(PwaApplicationDetail detail) {
     var modelAndView = new ModelAndView("pwaApplication/shared/techdrawings/overview")
         .addObject("showAdmiraltyChart", admiraltyChartFileService.canUploadDocuments(detail))
-        .addObject("admiraltyChartFileViews",
-            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.ADMIRALTY_CHART,
-                ApplicationFileLinkStatus.FULL))
+        .addObject("admiraltyChartFileViews", padFileManagementService.getUploadedFileViews(detail, FileDocumentType.ADMIRALTY_CHART))
         .addObject("admiraltyOptional", !admiraltyChartFileService.isUploadRequired(detail))
         .addObject("admiraltyChartUrlFactory", new AdmiraltyChartUrlFactory(detail))
         .addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(detail.getPwaApplication()))
@@ -87,8 +84,7 @@ public class TechnicalDrawingsController {
         .addObject("showUmbilicalCrossSection", umbilicalCrossSectionService.canUploadDocuments(detail))
         .addObject("umbilicalCrossSectionUrlFactory", new UmbilicalCrossSectionUrlFactory(detail))
         .addObject("umbilicalCrossSectionFileViews",
-            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION,
-                ApplicationFileLinkStatus.FULL));
+            padFileManagementService.getUploadedFileViews(detail, FileDocumentType.UMBILICAL_CROSS_SECTION));
     applicationBreadcrumbService.fromTaskList(detail.getPwaApplication(), modelAndView,
         "Pipeline schematics and other diagrams");
     return modelAndView;
@@ -102,7 +98,6 @@ public class TechnicalDrawingsController {
                                      AuthenticatedUserAccount user) {
     return getOverviewModelAndView(applicationContext.getApplicationDetail());
   }
-
 
   @PostMapping
   public ModelAndView postOverview(@PathVariable("applicationType")

@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectextension.PadProj
 import uk.co.ogauthority.pwa.features.application.tasks.projectextension.ProjectExtensionForm;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -66,6 +70,9 @@ class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractCon
   @MockBean
   PadProjectExtensionService padProjectExtensionService;
 
+  @MockBean
+  PadFileManagementService padFileManagementService;
+
   @BeforeEach
   void setUp() {
     webUserAccount = new WebUserAccount(1);
@@ -84,16 +91,16 @@ class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractCon
     padProjectInformation.setProposedStartTimestamp(startTimestamp);
     padProjectInformation.setLatestCompletionTimestamp(endTimestamp);
 
-
-
     when(pwaApplicationDetailService.getTipDetailByAppId(APP_ID)).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
     when(padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail)).thenReturn(padProjectInformation);
-
   }
 
   @Test
   void renderProjectInformation_authenticatedUser_appTypeSmokeTest() throws Exception {
+    when(padFileManagementService.getFileUploadComponentAttributes(List.of(), pwaApplicationDetail, FileDocumentType.PROJECT_EXTENSION))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
+
     mockMvc.perform(
         get(ReverseRouter.route(on(
             PadProjectExtensionController.class)
@@ -127,6 +134,9 @@ class PadProjectExtensionControllerTest extends PwaApplicationContextAbstractCon
 
   @Test
   void postProjectInformation_validationFail_appTypeSmokeTest() throws Exception {
+    when(padFileManagementService.getFileUploadComponentAttributes(List.of(), pwaApplicationDetail, FileDocumentType.PROJECT_EXTENSION))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
+
     ControllerTestUtils.failValidationWhenPost(padProjectExtensionService, new ProjectExtensionForm(), ValidationType.FULL);
     mockMvc.perform(
             post(ReverseRouter.route(on(

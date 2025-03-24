@@ -18,8 +18,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.AddCableCrossingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView;
@@ -28,7 +26,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.A
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingAgreementsTaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.CrossingOverview;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.tasklist.controller.CrossingAgreementsController;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
@@ -52,21 +51,22 @@ public class CableCrossingController {
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PadCableCrossingService padCableCrossingService;
   private final CrossingAgreementsTaskListService crossingAgreementsTaskListService;
-  private final PadFileService padFileService;
   private final ControllerHelperService controllerHelperService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public CableCrossingController(
       ApplicationBreadcrumbService applicationBreadcrumbService,
       PadCableCrossingService padCableCrossingService,
       CrossingAgreementsTaskListService crossingAgreementsTaskListService,
-      PadFileService padFileService,
-      ControllerHelperService controllerHelperService) {
+      ControllerHelperService controllerHelperService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.padCableCrossingService = padCableCrossingService;
     this.crossingAgreementsTaskListService = crossingAgreementsTaskListService;
-    this.padFileService = padFileService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   private ModelAndView createOverviewModelAndView(PwaApplicationDetail detail) {
@@ -75,8 +75,7 @@ public class CableCrossingController {
         .addObject("cableCrossings", padCableCrossingService.getCableCrossingViews(detail))
         .addObject("cableCrossingUrlFactory", new CableCrossingUrlFactory(detail))
         .addObject("cableCrossingFiles",
-            padFileService.getUploadedFileViews(detail, ApplicationDetailFilePurpose.CABLE_CROSSINGS,
-                ApplicationFileLinkStatus.FULL))
+            padFileManagementService.getUploadedFileViews(detail, FileDocumentType.CABLE_CROSSINGS))
         .addObject("backUrl", ReverseRouter.route(on(CrossingAgreementsController.class)
             .renderCrossingAgreementsOverview(detail.getPwaApplicationType(),
                 detail.getMasterPwaApplicationId(), null,

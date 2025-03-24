@@ -14,29 +14,28 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.util.EnumSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.SupplementaryDocumentsForm;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.SupplementaryDocumentsService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.service.fileupload.FileUpdateMode;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
@@ -53,6 +52,9 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
 
+  @MockBean
+  private PadFileManagementService padFileManagementService;
+
   private PwaApplicationEndpointTestBuilder endpointTester;
 
   private PwaApplicationDetail pwaApplicationDetail;
@@ -61,7 +63,6 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
 
   @BeforeEach
   void setUp() {
-
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
         EnumSet.allOf(PwaUserPrivilege.class));
@@ -71,6 +72,8 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
         .setAllowedPermissions(PwaApplicationPermission.EDIT)
         .setAllowedStatuses(ApplicationState.INDUSTRY_EDITABLE);
 
+    when(padFileManagementService.getFileUploadComponentAttributes(any(), any(), eq(FileDocumentType.SUPPLEMENTARY_DOCUMENTS)))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test
@@ -172,12 +175,11 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
 
     verify(supplementaryDocumentsService, times(1)).updateDocumentFlag(eq(pwaApplicationDetail), any());
 
-    verify(padFileService, times(1)).updateFiles(
+    verify(padFileManagementService, times(1)).saveFiles(
         any(),
         eq(pwaApplicationDetail),
-        eq(ApplicationDetailFilePurpose.SUPPLEMENTARY_DOCUMENTS),
-        eq(FileUpdateMode.DELETE_UNLINKED_FILES),
-        any());
+        eq(FileDocumentType.SUPPLEMENTARY_DOCUMENTS)
+    );
 
   }
 
@@ -210,12 +212,11 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
 
     verify(supplementaryDocumentsService, times(0)).updateDocumentFlag(any(), any());
 
-    verify(padFileService, times(0)).updateFiles(
+    verify(padFileManagementService, times(0)).saveFiles(
         any(),
         any(),
-        any(),
-        any(),
-        any());
+        any()
+    );
 
   }
 

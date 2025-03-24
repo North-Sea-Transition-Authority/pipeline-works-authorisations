@@ -4,9 +4,12 @@ import jakarta.persistence.EntityManager;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -19,6 +22,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipe
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentData;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentDataService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdentService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.CopiedEntityIdTuple;
@@ -41,6 +46,8 @@ public class PadPipelineDataCopierService {
 
   private final EntityManager entityManager;
 
+  private final PadFileManagementService padFileManagementService;
+
   public PadPipelineDataCopierService(
       PadPipelineIdentService padPipelineIdentService,
       PadPipelineIdentDataService padPipelineIdentDataService,
@@ -56,7 +63,9 @@ public class PadPipelineDataCopierService {
       // which does not resolve the circular dependency and no time for large refactor.
       @Lazy PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
       PadFileService padFileService, EntityCopyingService entityCopyingService,
-      EntityManager entityManager) {
+      EntityManager entityManager,
+      PadFileManagementService padFileManagementService
+  ) {
     this.padPipelineIdentService = padPipelineIdentService;
     this.padPipelineIdentDataService = padPipelineIdentDataService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
@@ -64,6 +73,7 @@ public class PadPipelineDataCopierService {
     this.padFileService = padFileService;
     this.entityCopyingService = entityCopyingService;
     this.entityManager = entityManager;
+    this.padFileManagementService = padFileManagementService;
   }
 
 
@@ -114,7 +124,7 @@ public class PadPipelineDataCopierService {
                                        PwaApplicationDetail toDetail,
                                        Set<CopiedEntityIdTuple<Integer, PadPipeline>> copiedPadPipelineEntityIds) {
 
-    // 1. Copy the root pad file links and create lookup of old id to new PadFile
+    //1. Copy the root pad file links and create lookup of old id to new PadFile
     Map<Integer, PadFile> originalPadFileIdToDuplicateEntityReference = entityCopyingService
         .createMapOfOriginalIdToNewEntityReference(
             padFileService.copyPadFilesToPwaApplicationDetail(
@@ -137,18 +147,36 @@ public class PadPipelineDataCopierService {
             PadTechnicalDrawing.class
         );
 
-    // 4. manually set the drawing PadFile links as they still point to previous detail's files.
+    // 4. copy uploaded files to new application detail
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PIPELINE_DRAWINGS);
+
+    var fromFiles = padFileManagementService.getUploadedFiles(fromDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
+        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+
+    var toFiles = padFileManagementService.getUploadedFiles(toDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
+        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+
+    var originalToCopiedFileIDs = fromFiles.entrySet().stream()
+        .collect(Collectors.toMap(e -> e.getValue().getId(), e -> toFiles.get(e.getKey()).getId()));
+
+    // 5. manually set the drawing PadFile links as they still point to previous detail's files.
     var duplicatedTechnicalDrawings = padTechnicalDrawingService.getDrawings(toDetail);
 
     duplicatedTechnicalDrawings.forEach(padTechnicalDrawing -> {
+          // point the new pad file to the new file id
+          var fileWithOldId = originalPadFileIdToDuplicateEntityReference.get(padTechnicalDrawing.getFile().getId());
+          fileWithOldId.setFileId(originalToCopiedFileIDs.get(fileWithOldId.getFileId()));
+
+          entityManager.persist(fileWithOldId);
+
           padTechnicalDrawing.setFile(
-              originalPadFileIdToDuplicateEntityReference.get(padTechnicalDrawing.getFile().getId())
+              fileWithOldId
           );
           entityManager.persist(padTechnicalDrawing);
         }
     );
 
-    // 5. Duplicate the PadTechnicalDrawingLinks and reparent to the new technical drawings
+    // 6. Duplicate the PadTechnicalDrawingLinks and reparent to the new technical drawings
     Set<CopiedEntityIdTuple<Integer, PadTechnicalDrawingLink>> copiedPadTechnicalDrawingLinkEntityIds =
         entityCopyingService.duplicateEntitiesAndSetParentFromCopiedEntities(
             () -> padTechnicalDrawingLinkService.getLinksFromAppDetail(fromDetail),
@@ -156,7 +184,7 @@ public class PadPipelineDataCopierService {
             PadTechnicalDrawingLink.class
         );
 
-    // 6. Manually re-point the links to the duplicated PadPipeline as this is still looking at the previous detail's padPipeline.
+    // 7. Manually re-point the links to the duplicated PadPipeline as this is still looking at the previous detail's padPipeline.
     var duplicatedTechnicalDrawingLinks = padTechnicalDrawingLinkService.getLinksFromAppDetail(toDetail);
     duplicatedTechnicalDrawingLinks.forEach(padTechnicalDrawingLink -> {
       padTechnicalDrawingLink.setPipeline(

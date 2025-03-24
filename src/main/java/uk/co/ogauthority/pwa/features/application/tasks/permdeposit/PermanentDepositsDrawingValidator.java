@@ -1,16 +1,14 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import io.micrometer.core.instrument.util.StringUtils;
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
 import org.springframework.validation.ValidationUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 
 @Service
@@ -43,9 +41,10 @@ public class PermanentDepositsDrawingValidator implements SmartValidator {
           "reference", "Drawing reference must be unique, enter a different reference");
     }
 
-    FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class), "Upload a deposit drawing");
-    FileUploadUtils.validateMaxFileLimit(form, errors, 1, "Upload a maximum of one file");
-
+    FileValidationUtils.validator()
+        .withMinimumNumberOfFiles(1, "Upload a deposit drawing")
+        .withMaximumNumberOfFiles(1, "Upload a maximum of one file")
+        .validate(errors, form.getUploadedFiles());
 
     if (form.getSelectedDeposits() == null || form.getSelectedDeposits().isEmpty()) {
       errors.rejectValue("selectedDeposits",

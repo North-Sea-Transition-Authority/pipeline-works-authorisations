@@ -14,13 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -40,7 +39,7 @@ class LicenceBlockSummaryServiceTest {
   private BlockCrossingService blockCrossingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private LicenceBlockSummaryService licenceBlockSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -48,7 +47,7 @@ class LicenceBlockSummaryServiceTest {
   @BeforeEach
   void setUp() {
 
-    licenceBlockSummaryService = new LicenceBlockSummaryService(blockCrossingService, padFileService, taskListService);
+    licenceBlockSummaryService = new LicenceBlockSummaryService(blockCrossingService, taskListService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -79,8 +78,7 @@ class LicenceBlockSummaryServiceTest {
     when(blockCrossingService.getCrossedBlockViews(pwaApplicationDetail)).thenReturn(List.of(blockCrossingView));
 
     var fileView = new UploadedFileView(null, null, 1L, null, null, null);
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.BLOCK_CROSSINGS)).thenReturn(List.of(fileView));
 
     when(blockCrossingService.isDocumentsRequired(pwaApplicationDetail)).thenReturn(true);
 

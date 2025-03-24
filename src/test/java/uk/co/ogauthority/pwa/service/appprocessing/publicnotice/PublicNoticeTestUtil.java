@@ -5,10 +5,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -103,7 +104,7 @@ public final class PublicNoticeTestUtil {
   }
 
   static AppFile createAppFileForPublicNotice(PwaApplication pwaApplication) {
-    return new AppFile(pwaApplication, "fileID1", AppFilePurpose.PUBLIC_NOTICE, ApplicationFileLinkStatus.TEMPORARY);
+    return new AppFile(pwaApplication, String.valueOf(UUID.randomUUID()), AppFilePurpose.PUBLIC_NOTICE, ApplicationFileLinkStatus.TEMPORARY);
   }
 
   static PublicNoticeDraftForm createDefaultPublicNoticeDraftForm() {
@@ -114,9 +115,9 @@ public final class PublicNoticeTestUtil {
     return publicNoticeDraftForm;
   }
 
-  static PublicNoticeDraftForm createDefaultPublicNoticeDraftForm(List<UploadFileWithDescriptionForm> uploadFileWithDescriptionForms) {
+  static PublicNoticeDraftForm createDefaultPublicNoticeDraftForm(List<UploadedFileForm> uploadedFileForms) {
     var publicNoticeDraftForm = createDefaultPublicNoticeDraftForm();
-    publicNoticeDraftForm.setUploadedFileWithDescriptionForms(uploadFileWithDescriptionForms);
+    publicNoticeDraftForm.setUploadedFiles(uploadedFileForms);
     return publicNoticeDraftForm;
   }
 

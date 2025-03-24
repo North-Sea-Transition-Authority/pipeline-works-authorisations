@@ -3,8 +3,6 @@ package uk.co.ogauthority.pwa.features.application.tasks.permdeposit.controller;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,13 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import uk.co.ogauthority.pwa.config.fileupload.FileDeleteResult;
-import uk.co.ogauthority.pwa.config.fileupload.FileUploadResult;
-import uk.co.ogauthority.pwa.controller.files.PwaApplicationDetailDataFileUploadAndDownloadController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationPermissionCheck;
@@ -26,12 +18,13 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationTypeCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadPermanentDeposit;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositDrawingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.enums.ScreenActionType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -55,14 +48,16 @@ import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
     PwaApplicationType.DECOMMISSIONING,
     PwaApplicationType.OPTIONS_VARIATION
 })
-public class PermanentDepositDrawingsController extends PwaApplicationDetailDataFileUploadAndDownloadController {
+public class PermanentDepositDrawingsController {
 
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final PwaApplicationRedirectService pwaApplicationRedirectService;
   private final DepositDrawingsService depositDrawingsService;
   private final PermanentDepositService permanentDepositService;
   private final ControllerHelperService controllerHelperService;
+  private final PadFileManagementService padFileManagementService;
 
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.DEPOSIT_DRAWINGS;
   private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS;
 
   @Autowired
@@ -70,14 +65,14 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
                                             PwaApplicationRedirectService pwaApplicationRedirectService,
                                             DepositDrawingsService depositDrawingsService,
                                             PermanentDepositService permanentDepositService,
-                                            PadFileService padFileService,
-                                            ControllerHelperService controllerHelperService) {
-    super(padFileService);
+                                            ControllerHelperService controllerHelperService,
+                                            PadFileManagementService padFileManagementService) {
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.depositDrawingsService = depositDrawingsService;
     this.permanentDepositService = permanentDepositService;
     this.controllerHelperService = controllerHelperService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   //Form Endpoints
@@ -122,10 +117,8 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
                                                PwaApplicationContext applicationContext,
                                                @PathVariable("depositDrawingId") Integer depositDrawingId,
                                                @ModelAttribute("form") PermanentDepositDrawingForm form) {
-    return getRemoveDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, depositDrawingId);
+    return getRemoveDepositDrawingModelAndView(applicationContext.getApplicationDetail(), depositDrawingId);
   }
-
-
 
   @PostMapping
   @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
@@ -173,15 +166,15 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
                                              @PathVariable("applicationId") Integer applicationId,
                                              PwaApplicationContext applicationContext,
                                              @PathVariable("depositDrawingId") Integer depositDrawingId,
-                                            @ModelAttribute("form") PermanentDepositDrawingForm form,
-                                            BindingResult bindingResult) {
+                                             @ModelAttribute("form") PermanentDepositDrawingForm form,
+                                             BindingResult bindingResult) {
     bindingResult = depositDrawingsService.validateDrawingEdit(form,
         bindingResult, applicationContext.getApplicationDetail(), depositDrawingId);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult,
         getAddEditDepositDrawingModelAndView(applicationContext.getApplicationDetail(), form, ScreenActionType.EDIT), () -> {
           depositDrawingsService.editDepositDrawing(depositDrawingId, applicationContext.getApplicationDetail(),
-              form, applicationContext.getUser());
+              form);
           return ReverseRouter.redirect(on(PermanentDepositDrawingsController.class).renderDepositDrawingsOverview(
               pwaApplicationType, applicationId, null, null));
         });
@@ -216,31 +209,32 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
 
   private ModelAndView getAddEditDepositDrawingModelAndView(PwaApplicationDetail pwaApplicationDetail,
                                                             PermanentDepositDrawingForm form, ScreenActionType type) {
-    var modelAndView = this.createModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingsForm",
+    var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributesForLegacyPadFile(
+        form.getUploadedFiles(),
         pwaApplicationDetail,
-        FILE_PURPOSE,
-        form);
-    modelAndView.addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+        DOCUMENT_TYPE,
+        FILE_PURPOSE
+    );
+
+    var modelAndView = new ModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingsForm")
+        .addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
             .renderDepositDrawingsOverview(
                 pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("depositOptions", permanentDepositService.getPermanentDeposits(pwaApplicationDetail)
             .stream().collect(StreamUtils.toLinkedHashMap(
                 deposit -> String.valueOf(deposit.getId()), PadPermanentDeposit::getReference)))
-        .addObject("screenAction", type);
+        .addObject("screenAction", type)
+        .addObject("fileUploadAttributes", fileUploadAttributes);
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
-    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE);
     return modelAndView;
   }
 
   private ModelAndView getRemoveDepositDrawingModelAndView(PwaApplicationDetail pwaApplicationDetail,
-                                                           PermanentDepositDrawingForm form, Integer depositDrawingId) {
-    var modelAndView = this.createModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingRemove",
-        pwaApplicationDetail,
-        FILE_PURPOSE,
-        form);
-    modelAndView.addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
+                                                           Integer depositDrawingId) {
+    var modelAndView = new ModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingRemove")
+        .addObject("backUrl", ReverseRouter.route(on(PermanentDepositDrawingsController.class)
         .renderDepositDrawingsOverview(
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("depositDrawingView", depositDrawingsService.getDepositDrawingView(depositDrawingId, pwaApplicationDetail))
@@ -249,52 +243,6 @@ public class PermanentDepositDrawingsController extends PwaApplicationDetailData
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");
-    padFileService.getFilesLinkedToForm(form, pwaApplicationDetail, FILE_PURPOSE);
     return modelAndView;
   }
-
-  //File handling endpoints
-  @Override
-  @PostMapping("/file/upload")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileUploadResult handleUpload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @RequestParam("file") MultipartFile file,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processImageUpload(
-        file,
-        applicationContext.getApplicationDetail(),
-        FILE_PURPOSE,
-        applicationContext.getUser());
-  }
-
-  @Override
-  @GetMapping("/files/download/{fileId}")
-  @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
-  @ResponseBody
-  public ResponseEntity<Resource> handleDownload(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return serveFile(applicationContext.getPadFile());
-  }
-
-  @Override
-  @PostMapping("/file/delete/{fileId}")
-  @ResponseBody
-  @PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
-  public FileDeleteResult handleDelete(
-      @PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-      @PathVariable("applicationId") Integer applicationId,
-      @PathVariable("fileId") String fileId,
-      PwaApplicationContext applicationContext) {
-    return padFileService.processFileDeletionWithPreDeleteAction(applicationContext.getPadFile(), applicationContext.getUser(),
-        padFile -> depositDrawingsService.getDrawingLinkedToPadFile(
-            applicationContext.getApplicationDetail(), applicationContext.getPadFile())
-            .ifPresent(depositDrawingsService::unlinkFile));
-  }
-
 }

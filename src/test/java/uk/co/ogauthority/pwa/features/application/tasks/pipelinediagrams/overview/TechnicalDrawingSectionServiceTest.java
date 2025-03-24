@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartDocumentForm;
@@ -30,6 +29,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineSchematicsErrorCode;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
+import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
@@ -54,6 +55,9 @@ class TechnicalDrawingSectionServiceTest {
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
   private TechnicalDrawingSectionService technicalDrawingSectionService;
   private PwaApplicationDetail detail;
 
@@ -63,8 +67,8 @@ class TechnicalDrawingSectionServiceTest {
         admiraltyChartFileService,
         padTechnicalDrawingService,
         umbilicalCrossSectionService,
-        padFileService,
-        padOptionConfirmedService);
+        padOptionConfirmedService,
+        padFileManagementService);
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   }
 
@@ -209,8 +213,14 @@ class TechnicalDrawingSectionServiceTest {
 
     when(padTechnicalDrawingService.getDrawings(any())).thenReturn(List.of(drawing1, drawing2));
 
-    var admiraltyChartFile = new PadFile();
-    admiraltyChartFile.setDescription("admiralty desc");
+    var admiraltyChartFile = new UploadedFileView(
+        null,
+        null,
+        1L,
+        "admiralty desc",
+        null,
+        null
+    );
 
     when(admiraltyChartFileService.getAdmiraltyChartFile(any())).thenReturn(Optional.of(admiraltyChartFile));
 
@@ -227,7 +237,7 @@ class TechnicalDrawingSectionServiceTest {
       }
 
       if (MailMergeFieldMnem.ADMIRALTY_CHART_REF.appTypeIsSupported(appType)) {
-        expectedMergeFieldsMap.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, admiraltyChartFile.getDescription());
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, admiraltyChartFile.getFileDescription());
       }
 
       assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(expectedMergeFieldsMap);

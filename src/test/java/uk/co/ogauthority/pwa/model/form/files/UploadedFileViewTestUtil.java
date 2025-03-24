@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.model.form.files;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.UUID;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 
 public class UploadedFileViewTestUtil {
@@ -12,7 +13,7 @@ public class UploadedFileViewTestUtil {
 
   public static UploadedFileView createDefaultFileView() {
     return new UploadedFileView(
-        "FILE_ID",
+        String.valueOf(UUID.randomUUID()),
         "FILE_NAME",
         100L,
         "FILE_DESC",

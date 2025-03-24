@@ -86,14 +86,14 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
   public void mapEntityToForm(PadProjectInformation padProjectInformation,
                               ProjectInformationForm form) {
     projectInformationEntityMappingService.mapProjectInformationDataToForm(padProjectInformation, form);
-    padFileManagementService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_LAYOUT);
+    padFileManagementService.mapFilesToForm(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_INFORMATION);
     padLicenceTransactionService.mapApplicationsToForm(form, padProjectInformation);
   }
 
   public ProjectInformationView getProjectInformationView(PwaApplicationDetail pwaApplicationDetail) {
 
     var projectInformation = getPadProjectInformationData(pwaApplicationDetail);
-    var layoutDiagramFileViews = padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_LAYOUT);
+    var layoutDiagramFileViews = padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_INFORMATION);
 
     List<String> licenceApplications = Optional.of(projectInformation)
         .filter(entityManager::contains)
@@ -118,7 +118,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
                                   WebUserAccount user) {
     projectInformationEntityMappingService.setEntityValuesUsingForm(padProjectInformation, form);
     padProjectInformationRepository.save(padProjectInformation);
-    padFileManagementService.saveFiles(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_LAYOUT);
+    padFileManagementService.saveFiles(form, padProjectInformation.getPwaApplicationDetail(), FileDocumentType.PROJECT_INFORMATION);
 
     if (getRequiredQuestions(
         padProjectInformation.getPwaApplicationDetail().getPwaApplicationType(),
@@ -280,7 +280,7 @@ public class PadProjectInformationService implements ApplicationFormSectionServi
         toDetail,
         PadProjectInformation.class);
 
-    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PROJECT_LAYOUT);
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PROJECT_INFORMATION);
 
     padLicenceTransactionService.copyApplicationsToPad(
         getPadProjectInformationData(fromDetail),

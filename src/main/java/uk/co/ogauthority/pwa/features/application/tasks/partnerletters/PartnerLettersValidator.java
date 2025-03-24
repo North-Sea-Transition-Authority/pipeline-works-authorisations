@@ -1,15 +1,13 @@
 package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 
-import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.SmartValidator;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
 
 @Service
 public class PartnerLettersValidator implements SmartValidator {
@@ -37,8 +35,9 @@ public class PartnerLettersValidator implements SmartValidator {
 
       if (BooleanUtils.isTrue(form.getPartnerLettersRequired())) {
 
-        FileUploadUtils.validateFiles(form, errors, List.of(MandatoryUploadValidation.class),
-            "Upload at least one letter");
+        FileValidationUtils.validator()
+            .withMinimumNumberOfFiles(1, "Upload at least one letter")
+            .validate(errors, form.getUploadedFiles());
 
         if (!BooleanUtils.isTrue(form.getPartnerLettersConfirmed())) {
           errors.rejectValue("partnerLettersConfirmed",
@@ -48,10 +47,9 @@ public class PartnerLettersValidator implements SmartValidator {
       }
 
     } else {
-      FileUploadUtils.validateFilesDescriptionLength(form, errors);
+      FileValidationUtils.validator()
+          .validate(errors, form.getUploadedFiles());
     }
-
-
   }
 
 

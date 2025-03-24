@@ -21,6 +21,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PadPartnerLettersService;
 import uk.co.ogauthority.pwa.features.application.tasks.partnerletters.PartnerLettersForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -41,6 +44,9 @@ class PartnerLettersControllerTest extends PwaApplicationContextAbstractControll
 
   @MockBean
   private PadPartnerLettersService padPartnerLettersService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationEndpointTestBuilder endpointTester;
 
@@ -63,6 +69,9 @@ class PartnerLettersControllerTest extends PwaApplicationContextAbstractControll
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(eq(pwaApplicationDetail), any()))
         .thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+
+    when(padFileManagementService.getFileUploadComponentAttributes(any(), any(), eq(FileDocumentType.PARTNER_LETTERS)))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
 

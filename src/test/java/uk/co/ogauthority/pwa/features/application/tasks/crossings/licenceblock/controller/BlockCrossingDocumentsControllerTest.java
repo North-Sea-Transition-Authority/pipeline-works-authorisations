@@ -23,6 +23,9 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -45,6 +48,9 @@ class BlockCrossingDocumentsControllerTest extends PwaApplicationContextAbstract
 
   @MockBean
   private BlockCrossingFileService blockCrossingFileService;
+
+  @MockBean
+  private PadFileManagementService padFileManagementService;
 
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
@@ -76,7 +82,8 @@ class BlockCrossingDocumentsControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetailByAppId(eq(APP_ID))).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-
+    when(padFileManagementService.getFileUploadComponentAttributes(any(), any(), eq(FileDocumentType.BLOCK_CROSSINGS)))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test

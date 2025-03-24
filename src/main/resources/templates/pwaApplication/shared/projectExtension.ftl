@@ -36,17 +36,17 @@
         caption="Provide the email on which the CAM approved your request"
         hintText="If this has not been approved you should email the CAM at ${ogaConsentsEmail} with the background details and your justification."
         captionClass="govuk-caption-l">
-          <@fdsFileUpload.fileUpload
-            id="project-extension-upload-file-id"
-            path="form.uploadedFileWithDescriptionForms"
-            uploadUrl=uploadUrl
-            deleteUrl=deleteUrl
-            maxAllowedSize=fileuploadMaxUploadSize
-            allowedExtensions=imageFileUploadAllowedExtensions
-            downloadUrl=downloadUrl
-            existingFiles=uploadedFileViewList
-            dropzoneText="Drag and drop your documents here"
-            multiFile=false/>
+        <@fdsFileUpload.fileUpload
+          id="projectExtensionPermission"
+          path="form.uploadedFiles"
+          uploadUrl=fileUploadAttributes.uploadUrl()
+          downloadUrl=fileUploadAttributes.downloadUrl()
+          deleteUrl=fileUploadAttributes.deleteUrl()
+          maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+          allowedExtensions=fileUploadAttributes.allowedExtensions()
+          existingFiles=fileUploadAttributes.existingFiles()
+          dropzoneText="Drag and drop your documents here"
+        />
       </@fdsFieldset.fieldset>
       <@fdsAction.submitButtons primaryButtonText=submitPrimaryButtonText secondaryButtonText=submitSecondaryButtonText/>
   </@fdsForm.htmlForm>

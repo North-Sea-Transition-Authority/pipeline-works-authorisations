@@ -39,7 +39,7 @@ class FileManagementServiceTest {
   @Captor
   private ArgumentCaptor<Function<FileUsage.Builder, FileUsage>> fileUsageFunctionCaptor;
 
-  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.PROJECT_LAYOUT;
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.PROJECT_INFORMATION;
   private static final UUID FILE_ID = UUID.randomUUID();
   private static final String FILE_DESCRIPTION = "file description";
   private static final String USAGE_TYPE = PwaApplicationDetail.class.getSimpleName();

@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
@@ -87,7 +88,7 @@ public class PadTechnicalDrawing implements ChildEntity<Integer, PwaApplicationD
     return file;
   }
 
-  public String getFileId() {
+  public UUID getFileId() {
     return file.getFileId();
   }
 

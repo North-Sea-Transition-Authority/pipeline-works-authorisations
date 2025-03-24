@@ -22,8 +22,17 @@
     <@grid.gridRow>
       <@grid.twoThirdsColumn>
           <@fdsFieldset.fieldset legendHeading="Public notice document" legendHeadingClass="govuk-fieldset__legend--m" legendHeadingSize="h2" hintText="Provide a draft public notice document (parts A-D)">
-              <@fdsFileUpload.fileUpload id="doc-upload-file-id" path="form.uploadedFileWithDescriptionForms" uploadUrl=uploadUrl deleteUrl=deleteUrl
-              maxAllowedSize=fileuploadMaxUploadSize allowedExtensions=fileuploadAllowedExtensions downloadUrl=downloadUrl existingFiles=uploadedFileViewList dropzoneText="Drag and drop your documents here" />
+              <@fdsFileUpload.fileUpload
+                id="fileUpload"
+                path="form.uploadedFiles"
+                uploadUrl=fileUploadAttributes.uploadUrl()
+                downloadUrl=fileUploadAttributes.downloadUrl()
+                deleteUrl=fileUploadAttributes.deleteUrl()
+                maxAllowedSize=fileUploadAttributes.maxAllowedSize()
+                allowedExtensions=fileUploadAttributes.allowedExtensions()
+                existingFiles=fileUploadAttributes.existingFiles()
+                dropzoneText="Drag and drop your documents here"
+              />
           </@fdsFieldset.fieldset>
       </@grid.twoThirdsColumn>
     </@grid.gridRow>

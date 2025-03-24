@@ -1,9 +1,9 @@
 package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
-public class PartnerLettersForm extends UploadMultipleFilesWithDescriptionForm {
+public class PartnerLettersForm extends FileUploadForm {
 
   private Boolean partnerLettersRequired;
   private Boolean partnerLettersConfirmed;

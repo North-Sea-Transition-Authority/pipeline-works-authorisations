@@ -16,15 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossing;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPipelineCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PipelineCrossingView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -44,7 +43,7 @@ class PipelineCrossingsSummaryServiceTest {
   private PadPipelineCrossingService padPipelineCrossingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private PipelineCrossingsSummaryService pipelineCrossingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -52,7 +51,7 @@ class PipelineCrossingsSummaryServiceTest {
   @BeforeEach
   void setUp() {
 
-    pipelineCrossingsSummaryService = new PipelineCrossingsSummaryService(padPipelineCrossingService, padFileService, taskListService);
+    pipelineCrossingsSummaryService = new PipelineCrossingsSummaryService(padPipelineCrossingService, taskListService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -100,8 +99,7 @@ class PipelineCrossingsSummaryServiceTest {
     when(padPipelineCrossingService.getPipelineCrossingViews(pwaApplicationDetail)).thenReturn(pipelineCrossingViews);
 
     var fileView = new UploadedFileView(null, null, 1L, null, null, null);
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.PIPELINE_CROSSINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PIPELINE_CROSSINGS)).thenReturn(List.of(fileView));
 
     var appSummary = pipelineCrossingsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

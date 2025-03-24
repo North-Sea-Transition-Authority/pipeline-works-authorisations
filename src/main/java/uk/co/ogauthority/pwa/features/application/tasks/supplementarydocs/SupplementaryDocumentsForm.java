@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs;
 
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
-public class SupplementaryDocumentsForm extends UploadMultipleFilesWithDescriptionForm {
+public class SupplementaryDocumentsForm extends FileUploadForm {
 
   private Boolean hasFilesToUpload;
 

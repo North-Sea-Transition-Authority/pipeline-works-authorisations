@@ -16,15 +16,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.CableCrossingView;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossing;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.cable.PadCableCrossingService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -42,7 +41,7 @@ class CableCrossingsSummaryServiceTest {
   private PadCableCrossingService padCableCrossingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private CableCrossingsSummaryService cableCrossingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -50,7 +49,7 @@ class CableCrossingsSummaryServiceTest {
   @BeforeEach
   void setUp() {
 
-    cableCrossingsSummaryService = new CableCrossingsSummaryService(padCableCrossingService, taskListService, padFileService);
+    cableCrossingsSummaryService = new CableCrossingsSummaryService(padCableCrossingService, taskListService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -96,8 +95,7 @@ class CableCrossingsSummaryServiceTest {
     when(padCableCrossingService.getCableCrossingViews(pwaApplicationDetail)).thenReturn(cableCrossingViews);
 
     var fileView = new UploadedFileView(null, null, 1L, null, null, null);
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.CABLE_CROSSINGS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(fileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.CABLE_CROSSINGS)).thenReturn(List.of(fileView));
 
     var appSummary = cableCrossingsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import jakarta.persistence.EntityManager;
 import jakarta.validation.Validation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,6 +48,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectIn
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PermanentDepositMade;
 import uk.co.ogauthority.pwa.features.datatypes.coordinate.CoordinatePairTestUtil;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineAndIdentViewFactory;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -96,6 +98,12 @@ class PermanentDepositServiceTest {
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
+  @Mock
+  private EntityManager entityManager;
+
 
   private SpringValidatorAdapter groupValidator;
 
@@ -126,7 +134,9 @@ class PermanentDepositServiceTest {
         pipelineAndIdentViewFactory,
         padFileService,
         pipelineDetailService,
-        padOptionConfirmedService);
+        padOptionConfirmedService,
+        padFileManagementService,
+        entityManager);
 
     date = LocalDate.now();
 

@@ -18,6 +18,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,16 +38,17 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContextTestUtil;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -102,6 +104,12 @@ class PublicNoticeServiceTest {
   private PublicNoticeDatesRepository publicNoticeDatesRepository;
 
   @Mock
+  private AppFileManagementService appFileManagementService;
+
+  @Mock
+  private FileManagementService fileManagementService;
+
+  @Mock
   private Clock clock;
 
   @Mock
@@ -112,7 +120,9 @@ class PublicNoticeServiceTest {
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
-  private static AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.PUBLIC_NOTICE;
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.PUBLIC_NOTICE;
+  private static final UUID FILE_ID = UUID.randomUUID();
 
   @Captor
   private ArgumentCaptor<List<PublicNotice>> publicNoticesArgumentCaptor;
@@ -142,7 +152,9 @@ class PublicNoticeServiceTest {
         publicNoticeDocumentLinkRepository,
         publicNoticeDatesRepository,
         personService,
-        camundaWorkflowService
+        camundaWorkflowService,
+        appFileManagementService,
+        fileManagementService
     );
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -530,18 +542,13 @@ class PublicNoticeServiceTest {
     var publicNoticeDocumentLink = new PublicNoticeDocumentLink(latestPublicNoticeDocument, publicNoticeAppFile);
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(latestPublicNoticeDocument)).thenReturn(Optional.of(publicNoticeDocumentLink));
 
-    var appFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(
-        pwaApplication, publicNoticeDocumentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
-        .thenReturn(appFileView);
-
     var actualForm = new PublicNoticeDraftForm();
     publicNoticeService.mapPublicNoticeDraftToForm(pwaApplication, actualForm);
 
     assertThat(actualForm.getCoverLetterText()).isEqualTo(expectedForm.getCoverLetterText());
     assertThat(actualForm.getReason()).isEqualTo(expectedForm.getReason());
     assertThat(actualForm.getReasonDescription()).isEqualTo(expectedForm.getReasonDescription());
-    verify(appFileService).mapFileToForm(expectedForm, appFileView);
+    verify(appFileManagementService).mapFilesToForm(expectedForm, pwaApplication, DOCUMENT_TYPE);
   }
 
   @Test
@@ -566,8 +573,6 @@ class PublicNoticeServiceTest {
     assertThat(actualForm.getCoverLetterText()).isEqualTo(expectedForm.getCoverLetterText());
     assertThat(actualForm.getReason()).isEqualTo(expectedForm.getReason());
     assertThat(actualForm.getReasonDescription()).isEqualTo(expectedForm.getReasonDescription());
-    verifyNoInteractions(appFileService);
-
   }
 
   @Test
@@ -584,24 +589,23 @@ class PublicNoticeServiceTest {
     assertThat(actualForm.getCoverLetterText()).isEqualTo(coverLetterTemplateText);
     assertThat(actualForm.getReason()).isNull();
     assertThat(actualForm.getReasonDescription()).isNull();
-    verifyNoInteractions(appFileService);
+    verifyNoInteractions(appFileManagementService);
     verifyNoInteractions(publicNoticeRequestRepository);
   }
 
 
   @Test
-  void createPublicNoticeDocumentLinkFromForm() {
+  void createPublicNoticeDocumentLinkFromFileId() {
 
     var publicNotice = PublicNoticeTestUtil.createInitialPublicNotice(pwaApplication);
     var document = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
 
     var publicNoticeAppFile = PublicNoticeTestUtil.createAppFileForPublicNotice(pwaApplication);
-    var uploadFileWithDescriptionForm = new UploadFileWithDescriptionForm(
-        publicNoticeAppFile.getFileId(), "desc", clock.instant());
-    when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, publicNoticeAppFile.getFileId()))
+
+    when(appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, String.valueOf(FILE_ID)))
         .thenReturn(publicNoticeAppFile);
 
-    var documentLink = publicNoticeService.createPublicNoticeDocumentLinkFromForm(pwaApplication, uploadFileWithDescriptionForm, document);
+    var documentLink = publicNoticeService.createPublicNoticeDocumentLinkFromFileId(pwaApplication, String.valueOf(FILE_ID), document);
     assertThat(documentLink.getPublicNoticeDocument()).isEqualTo(document);
     assertThat(documentLink.getAppFile()).isEqualTo(publicNoticeAppFile);
   }
@@ -844,7 +848,7 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
         .thenReturn(documentFileView);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -926,7 +930,7 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
         .thenReturn(documentFileView);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -1023,7 +1027,7 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document2)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
         .thenReturn(documentFileView);
 
     var context = PwaAppProcessingContextTestUtil.withPermissions(
@@ -1138,7 +1142,7 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
         .thenReturn(documentFileView);
 
     var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileView(pwaApplication);
@@ -1174,7 +1178,7 @@ class PublicNoticeServiceTest {
     when(publicNoticeDocumentLinkRepository.findByPublicNoticeDocument(document)).thenReturn(Optional.of(documentLink));
 
     var documentFileView = UploadedFileViewTestUtil.createDefaultFileView();
-    when(appFileService.getUploadedFileView(pwaApplication, documentLink.getAppFile().getFileId(), FILE_PURPOSE, ApplicationFileLinkStatus.FULL))
+    when(appFileManagementService.getUploadedFileView(pwaApplication, UUID.fromString(documentLink.getAppFile().getFileId())))
         .thenReturn(documentFileView);
 
     var actualFileView = publicNoticeService.getLatestPublicNoticeDocumentFileViewIfExists(pwaApplication);

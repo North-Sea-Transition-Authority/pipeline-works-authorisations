@@ -1,10 +1,10 @@
 package uk.co.ogauthority.pwa.features.application.tasks.permdeposit;
 
 import java.util.Set;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileUploadForm;
 
 
-public class PermanentDepositDrawingForm extends UploadMultipleFilesWithDescriptionForm {
+public class PermanentDepositDrawingForm extends FileUploadForm {
 
   private Set<String> selectedDeposits;
   private String reference;

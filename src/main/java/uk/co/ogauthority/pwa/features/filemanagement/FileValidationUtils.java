@@ -8,8 +8,9 @@ import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 
 public class FileValidationUtils {
 
-  public static final String BELOW_THRESHOLD_ERROR_CODE = "%s.belowThreshold";
-  public static final String ABOVE_LIMIT_ERROR_CODE = "%s.limitExceeded";
+  public static final String FIELD_NAME = "uploadedFiles";
+  public static final String BELOW_THRESHOLD_ERROR_CODE = "%s.belowThreshold".formatted(FIELD_NAME);
+  public static final String ABOVE_LIMIT_ERROR_CODE = "%s.limitExceeded".formatted(FIELD_NAME);
 
   private FileValidationUtils() {
     throw new AssertionError();
@@ -26,7 +27,6 @@ public class FileValidationUtils {
 
     private int minimumNumberOfFiles = 0;
     private String minErrorMessage;
-    private boolean isPartialValidator = false;
 
     private Validator() {
     }
@@ -43,17 +43,12 @@ public class FileValidationUtils {
       return this;
     }
 
-    public Validator isPartiallyValidated() {
-      this.isPartialValidator = true;
-      return this;
-    }
+    public void validate(Errors errors, List<UploadedFileForm> fileUploadForms) {
 
-    public void validate(Errors errors, List<UploadedFileForm> fileUploadForms, String fieldName) {
-
-      if (!isPartialValidator && minimumNumberOfFiles > 0 && CollectionUtils.isEmpty(fileUploadForms)) {
+      if (minimumNumberOfFiles > 0 && CollectionUtils.isEmpty(fileUploadForms)) {
         errors.rejectValue(
-            fieldName,
-            BELOW_THRESHOLD_ERROR_CODE.formatted(fieldName),
+            FIELD_NAME,
+            BELOW_THRESHOLD_ERROR_CODE,
             minErrorMessage
         );
         return;
@@ -61,20 +56,18 @@ public class FileValidationUtils {
 
       if (fileUploadForms != null && fileUploadForms.size() > maximumNumberOfFiles) {
         errors.rejectValue(
-            fieldName,
-            ABOVE_LIMIT_ERROR_CODE.formatted(fieldName),
+            FIELD_NAME,
+            ABOVE_LIMIT_ERROR_CODE,
             maxErrorMessage
         );
         return;
       }
 
-      if (!isPartialValidator) {
-        FileUploadValidationUtils.rejectIfFileDescriptionsAreEmptyOrWhitespace(
-            errors,
-            Objects.requireNonNull(fileUploadForms),
-            fieldName
-        );
-      }
+      FileUploadValidationUtils.rejectIfFileDescriptionsAreEmptyOrWhitespace(
+          errors,
+          Objects.requireNonNull(fileUploadForms),
+          FIELD_NAME
+      );
     }
   }
 }

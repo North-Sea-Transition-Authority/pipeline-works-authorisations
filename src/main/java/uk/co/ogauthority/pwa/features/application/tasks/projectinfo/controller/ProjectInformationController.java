@@ -139,8 +139,8 @@ public class ProjectInformationController {
 
     var fileUploadAttributes = padFileManagementService.getFileUploadComponentAttributes(
         form.getUploadedFiles(),
-        FileDocumentType.PROJECT_LAYOUT,
-        pwaApplicationDetail
+        pwaApplicationDetail,
+        FileDocumentType.PROJECT_INFORMATION
     );
 
     var modelAndView = new ModelAndView("pwaApplication/shared/projectInformation")

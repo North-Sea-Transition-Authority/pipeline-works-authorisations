@@ -6,15 +6,14 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.licenceblock.BlockCrossingUrlFactory;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgreementTask;
@@ -26,16 +25,17 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.crossings.CrossingAgr
 public class LicenceBlockSummaryService implements ApplicationSectionSummariser {
 
   private final BlockCrossingService blockCrossingService;
-  private final PadFileService padFileService;
   private final TaskListService taskListService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public LicenceBlockSummaryService(
       BlockCrossingService blockCrossingService,
-      PadFileService padFileService, TaskListService taskListService) {
+      TaskListService taskListService,
+      PadFileManagementService padFileManagementService) {
     this.blockCrossingService = blockCrossingService;
-    this.padFileService = padFileService;
     this.taskListService = taskListService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -56,8 +56,7 @@ public class LicenceBlockSummaryService implements ApplicationSectionSummariser 
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("blockCrossingViews", blockCrossingService.getCrossedBlockViews(pwaApplicationDetail));
     summaryModel.put("blockCrossingFileViews",
-        padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.BLOCK_CROSSINGS,
-            ApplicationFileLinkStatus.FULL));
+        padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.BLOCK_CROSSINGS));
     summaryModel.put("blockCrossingUrlFactory", new BlockCrossingUrlFactory(pwaApplicationDetail));
     summaryModel.put("isDocumentsRequired", blockCrossingService.isDocumentsRequired(pwaApplicationDetail));
 

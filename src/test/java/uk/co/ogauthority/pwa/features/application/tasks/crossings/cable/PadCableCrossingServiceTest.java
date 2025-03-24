@@ -16,7 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
 
@@ -33,7 +33,7 @@ class PadCableCrossingServiceTest {
   private EntityCopyingService entityCopyingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
   private PadCableCrossingService padCableCrossingService;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -45,7 +45,7 @@ class PadCableCrossingServiceTest {
         padCableCrossingRepository,
         cableCrossingFileService,
         entityCopyingService,
-        padFileService
+        padFileManagementService
     );
     pwaApplicationDetail = new PwaApplicationDetail();
     padCableCrossing = new PadCableCrossing();

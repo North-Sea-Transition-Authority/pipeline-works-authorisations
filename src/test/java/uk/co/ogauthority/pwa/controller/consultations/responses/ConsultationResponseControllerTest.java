@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.ProcessingPermissionsDto;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermissionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -91,6 +92,8 @@ class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstract
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.CONSULTATION_RESPONDER)
         .setConsultationRequest(consultationRequest);
 
+    when(consultationResponseService.getFileUploadComponentAttributes(any(), any(), any()))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test

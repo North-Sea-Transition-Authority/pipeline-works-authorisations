@@ -16,6 +16,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -39,6 +40,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingValidator;
+import uk.co.ogauthority.pwa.features.filemanagement.FileManagementControllerTestUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
@@ -70,6 +73,9 @@ class PipelineDrawingControllerTest extends PwaApplicationContextAbstractControl
   @MockBean
   private PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
 
+  @MockBean
+  private PadFileManagementService padFileManagementService;
+
   private PwaApplicationDetail pwaApplicationDetail;
   private AuthenticatedUserAccount user;
 
@@ -99,7 +105,7 @@ class PipelineDrawingControllerTest extends PwaApplicationContextAbstractControl
         ApplicationFileLinkStatus.FULL);
     padFile.setDescription("desc");
     var techDrawing = new PadTechnicalDrawing(1, pwaApplicationDetail, padFile, "ref");
-    var fileView = new UploadedFileView("id1", "file", 0L, "file desc", Instant.now(), "#");
+    var fileView = new UploadedFileView(String.valueOf(UUID.randomUUID()), "file", 0L, "file desc", Instant.now(), "#");
     var summaryView = new PipelineDrawingSummaryView(techDrawing, List.of(), fileView);
     when(padTechnicalDrawingService.getPipelineSummaryView(any(), any())).thenReturn(summaryView);
 
@@ -110,6 +116,9 @@ class PipelineDrawingControllerTest extends PwaApplicationContextAbstractControl
         invocationOnMock.getArgument(0));
     when(padTechnicalDrawingService.validateDrawing(any(), any(), any(), any())).thenAnswer(invocationOnMock ->
         invocationOnMock.getArgument(1));
+
+    when(padFileManagementService.getFileUploadComponentAttributesForLegacyPadFile(any(), any(), any(), any()))
+        .thenReturn(FileManagementControllerTestUtils.createUploadFileAttributes());
   }
 
   @Test

@@ -82,7 +82,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
-    when(padFileManagementService.getFileNotFoundException(FILE_ID, pwaApplicationDetail))
+    when(padFileManagementService.getFileNotFoundException(pwaApplicationDetail, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
@@ -134,7 +134,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
-    when(padFileManagementService.getFileNotFoundException(FILE_ID, pwaApplicationDetail))
+    when(padFileManagementService.getFileNotFoundException(pwaApplicationDetail, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)

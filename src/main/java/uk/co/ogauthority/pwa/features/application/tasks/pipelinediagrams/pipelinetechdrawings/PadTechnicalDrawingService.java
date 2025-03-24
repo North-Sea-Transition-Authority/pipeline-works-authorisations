@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.fileuploadlibrary.FileUploadLibraryUtils;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
@@ -23,10 +24,10 @@ import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipelineService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadFileWithDescriptionForm;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.util.CleanupUtils;
@@ -36,23 +37,26 @@ public class PadTechnicalDrawingService {
 
   private final PadTechnicalDrawingRepository padTechnicalDrawingRepository;
   private final PadTechnicalDrawingLinkService padTechnicalDrawingLinkService;
-  private final PadFileService padFileService;
   private final PadPipelineService padPipelineService;
   private final PipelineDrawingValidator pipelineDrawingValidator;
-
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.PIPELINE_DRAWINGS;
+  private final PadFileManagementService padFileManagementService;
+  private final PadFileService padFileService;
 
   @Autowired
   public PadTechnicalDrawingService(
       PadTechnicalDrawingRepository padTechnicalDrawingRepository,
       PadTechnicalDrawingLinkService padTechnicalDrawingLinkService,
-      PadFileService padFileService, PadPipelineService padPipelineService,
-      PipelineDrawingValidator pipelineDrawingValidator) {
+      PadPipelineService padPipelineService,
+      PipelineDrawingValidator pipelineDrawingValidator,
+      PadFileManagementService padFileManagementService,
+      PadFileService padFileService
+  ) {
     this.padTechnicalDrawingRepository = padTechnicalDrawingRepository;
     this.padTechnicalDrawingLinkService = padTechnicalDrawingLinkService;
-    this.padFileService = padFileService;
     this.padPipelineService = padPipelineService;
     this.pipelineDrawingValidator = pipelineDrawingValidator;
+    this.padFileManagementService = padFileManagementService;
+    this.padFileService = padFileService;
   }
 
   public List<PadTechnicalDrawing> getDrawings(PwaApplicationDetail detail) {
@@ -82,11 +86,9 @@ public class PadTechnicalDrawingService {
         .collect(Collectors.toUnmodifiableList());
 
     if (drawing.getFile() != null) {
-      var file = padFileService.getUploadedFileView(detail, drawing.getFileId(),
-          FILE_PURPOSE,
-          ApplicationFileLinkStatus.FULL);
-      form.setUploadedFileWithDescriptionForms(List.of(
-          new UploadFileWithDescriptionForm(file.getFileId(), file.getFileDescription(), file.getFileUploadedTime())));
+      var fileForm = FileUploadLibraryUtils.asForm(padFileManagementService.getUploadedFile(detail, drawing.getFileId()));
+
+      form.setUploadedFiles(List.of(fileForm));
     }
 
     form.setReference(drawing.getReference());
@@ -104,8 +106,11 @@ public class PadTechnicalDrawingService {
                           PadTechnicalDrawing drawing) {
     // The form should be successfully validated at this point
     // This means it will contain a single file.
-    PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(detail,
-        form.getUploadedFileWithDescriptionForms().get(0).getUploadedFileId());
+    PadFile file = padFileService.getPadFileByPwaApplicationDetailAndFileId(
+        detail,
+        String.valueOf(form.getUploadedFiles().getFirst().getUploadedFileId())
+    );
+
     drawing.setFile(file);
     drawing.setPwaApplicationDetail(detail);
     drawing.setReference(form.getReference());
@@ -133,9 +138,8 @@ public class PadTechnicalDrawingService {
     Map<PadTechnicalDrawing, List<PadTechnicalDrawingLink>> linkMap = links.stream()
         .collect(Collectors.groupingBy(PadTechnicalDrawingLink::getTechnicalDrawing));
 
-    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
-        FILE_PURPOSE,
-        ApplicationFileLinkStatus.FULL);
+    List<UploadedFileView> fileViews = padFileManagementService.getUploadedFileViews(detail,
+        FileDocumentType.PIPELINE_DRAWINGS);
 
     var summaryList = new ArrayList<PipelineDrawingSummaryView>();
 
@@ -183,7 +187,7 @@ public class PadTechnicalDrawingService {
 
     if (technicalDrawing.getFile() != null) {
       UploadedFileView fileView = fileViewList.stream()
-          .filter(uploadedFileView -> uploadedFileView.getFileId().equals(technicalDrawing.getFileId()))
+          .filter(uploadedFileView -> uploadedFileView.getFileId().equals(String.valueOf(technicalDrawing.getFileId())))
           .findFirst()
           .orElseThrow(() -> new PwaEntityNotFoundException(
               "Unable to get UploadedFileView of file with ID: " + technicalDrawing.getFileId()));
@@ -196,9 +200,7 @@ public class PadTechnicalDrawingService {
   public PipelineDrawingSummaryView getPipelineDrawingSummaryViewFromDrawing(PwaApplicationDetail detail,
                                                                              PadTechnicalDrawing drawing) {
     var links = padTechnicalDrawingLinkService.getLinksFromDrawing(drawing);
-    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(detail,
-        FILE_PURPOSE,
-        ApplicationFileLinkStatus.FULL);
+    List<UploadedFileView> fileViews = padFileManagementService.getUploadedFileViews(detail, FileDocumentType.PIPELINE_DRAWINGS);
     return buildSummaryView(drawing, links, fileViews);
   }
 
@@ -208,7 +210,9 @@ public class PadTechnicalDrawingService {
     padTechnicalDrawingLinkService.unlinkDrawing(detail, drawing);
     padTechnicalDrawingRepository.delete(drawing);
     if (drawing.getFile() != null) {
-      padFileService.processFileDeletion(drawing.getFile(), webUserAccount);
+      var file = padFileManagementService.getUploadedFile(detail, drawing.getFile().getFileId());
+      padFileManagementService.deleteUploadedFile(file);
+      padFileService.processFileDeletion(drawing.getFile());
     }
   }
 
@@ -323,16 +327,14 @@ public class PadTechnicalDrawingService {
         .map(drawing -> drawing.getFile().getId())
         .collect(Collectors.toList());
 
-    padFileService.cleanupFiles(detail, FILE_PURPOSE, padFileIdsOnDrawings);
-
+    padFileService.cleanupFiles(detail, ApplicationDetailFilePurpose.PIPELINE_DRAWINGS, padFileIdsOnDrawings);
   }
 
   public Map<PipelineId, PipelineDrawingSummaryView> getPipelineDrawingViewsMap(PwaApplicationDetail pwaApplicationDetail) {
 
     var drawingLinks =  padTechnicalDrawingLinkService.getLinksFromAppDetail(pwaApplicationDetail);
-    List<UploadedFileView> fileViews = padFileService.getUploadedFileViews(pwaApplicationDetail,
-        FILE_PURPOSE,
-        ApplicationFileLinkStatus.FULL);
+    List<UploadedFileView> fileViews = padFileManagementService.getUploadedFileViews(pwaApplicationDetail,
+        FileDocumentType.PIPELINE_DRAWINGS);
 
     Map<PipelineId, PipelineDrawingSummaryView> pipelineIdDrawingViewMap = new HashMap<>();
     drawingLinks.forEach(drawingLink -> {

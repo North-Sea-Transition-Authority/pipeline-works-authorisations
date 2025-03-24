@@ -9,6 +9,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.Location
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.LocationDetailsQuestion;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PadLocationDetailsService;
 import uk.co.ogauthority.pwa.features.application.tasks.locationdetails.PsrNotification;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementTestHarnessService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service
@@ -18,12 +20,16 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
   private final PadLocationDetailsService padLocationDetailsService;
 
   private static final ApplicationTask linkedAppFormTask = ApplicationTask.LOCATION_DETAILS;
+  private final PadFileManagementTestHarnessService padFileManagementTestHarnessService;
 
 
   @Autowired
   public LocationDetailsGeneratorService(
-      PadLocationDetailsService padLocationDetailsService) {
+      PadLocationDetailsService padLocationDetailsService,
+      PadFileManagementTestHarnessService padFileManagementTestHarnessService
+  ) {
     this.padLocationDetailsService = padLocationDetailsService;
+    this.padFileManagementTestHarnessService = padFileManagementTestHarnessService;
   }
 
   @Override
@@ -85,6 +91,8 @@ class LocationDetailsGeneratorService implements TestHarnessAppFormService {
     if (requiredQuestions.contains(LocationDetailsQuestion.WITHIN_LIMITS_OF_DEVIATION)) {
       form.setWithinLimitsOfDeviation(true);
     }
+
+    padFileManagementTestHarnessService.uploadFileAndMapToForm(form, pwaApplicationDetail, FileDocumentType.LOCATION_DETAILS);
 
     return form;
   }

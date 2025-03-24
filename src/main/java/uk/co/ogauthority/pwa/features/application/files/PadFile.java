@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.Objects;
+import java.util.UUID;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.entitycopier.ChildEntity;
@@ -81,12 +82,12 @@ public class PadFile implements ChildEntity<Integer, PwaApplicationDetail> {
     this.pwaApplicationDetail = pwaApplicationDetail;
   }
 
-  public String getFileId() {
-    return fileId;
+  public UUID getFileId() {
+    return UUID.fromString(fileId);
   }
 
-  public void setFileId(String fileId) {
-    this.fileId = fileId;
+  public void setFileId(UUID fileId) {
+    this.fileId = String.valueOf(fileId);
   }
 
   public String getDescription() {

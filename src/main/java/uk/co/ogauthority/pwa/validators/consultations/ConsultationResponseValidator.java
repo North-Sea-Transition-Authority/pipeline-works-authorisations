@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseDataForm;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationResponseForm;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -46,10 +46,12 @@ public class ConsultationResponseValidator implements Validator {
         .anyMatch(ConsultationResponseOption::requireDocumentUpload);
 
     if (fileRequired) {
-      FileUploadUtils.validateFileUploaded(form, errors, "Upload at least one file to support your decision");
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload at least one file to support your decision")
+          .validate(errors, form.getUploadedFiles());
     }
 
-    FileUploadUtils.validateFilesDescriptionLength(form, errors);
+    FileValidationUtils.validator().validate(errors, form.getUploadedFiles());
   }
 
 }

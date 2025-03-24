@@ -1,38 +1,32 @@
 package uk.co.ogauthority.pwa.features.application.tasks.optionstemplate;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadMultipleFilesWithDescriptionForm;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.FileValidationUtils;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
-import uk.co.ogauthority.pwa.util.FileUploadUtils;
-import uk.co.ogauthority.pwa.util.validationgroups.MandatoryUploadValidation;
-import uk.co.ogauthority.pwa.util.validationgroups.PartialValidation;
 
 @Service
 public class OptionsTemplateService implements ApplicationFormSectionService {
 
-  private final PadFileService padFileService;
+  private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.OPTIONS_TEMPLATE;
 
-  private static final ApplicationDetailFilePurpose FILE_PURPOSE = ApplicationDetailFilePurpose.OPTIONS_TEMPLATE;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
-  public OptionsTemplateService(PadFileService padFileService) {
-    this.padFileService = padFileService;
+  public OptionsTemplateService(PadFileManagementService padFileManagementService) {
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
   public boolean isComplete(PwaApplicationDetail detail) {
     var form = new OptionsTemplateForm();
-    padFileService.mapFilesToForm(form, detail, FILE_PURPOSE);
+    padFileManagementService.mapFilesToForm(form, detail, DOCUMENT_TYPE);
     var bindingResult = new BeanPropertyBindingResult(form, "form");
     return !validate(form, bindingResult, ValidationType.FULL, detail).hasErrors();
   }
@@ -43,34 +37,25 @@ public class OptionsTemplateService implements ApplicationFormSectionService {
                                 ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
 
-    List<Object> validationHints = new ArrayList<>();
+    var castedForm = (OptionsTemplateForm) form;
 
     if (validationType.equals(ValidationType.FULL)) {
-      validationHints.add(MandatoryUploadValidation.class);
+      FileValidationUtils.validator()
+          .withMinimumNumberOfFiles(1, "Upload at least one file")
+          .withMaximumNumberOfFiles(1, "Provide a single template upload")
+          .validate(bindingResult, castedForm.getUploadedFiles());
     } else {
-      validationHints.add(PartialValidation.class);
+      FileValidationUtils.validator()
+          .withMaximumNumberOfFiles(1, "Provide a single template upload")
+          .validate(bindingResult, castedForm.getUploadedFiles());
     }
 
-    FileUploadUtils.validateFiles((OptionsTemplateForm) form, bindingResult, validationHints);
-
-    FileUploadUtils.validateMaxFileLimit(
-        (UploadMultipleFilesWithDescriptionForm) form,
-        bindingResult,
-        1,
-        "Provide a single template upload");
-
     return bindingResult;
-
   }
 
   @Override
   public void copySectionInformation(PwaApplicationDetail fromDetail, PwaApplicationDetail toDetail) {
-    padFileService.copyPadFilesToPwaApplicationDetail(
-        fromDetail,
-        toDetail,
-        FILE_PURPOSE,
-        ApplicationFileLinkStatus.FULL
-    );
+    padFileManagementService.copyUploadedFiles(fromDetail, toDetail, DOCUMENT_TYPE);
   }
 
 }

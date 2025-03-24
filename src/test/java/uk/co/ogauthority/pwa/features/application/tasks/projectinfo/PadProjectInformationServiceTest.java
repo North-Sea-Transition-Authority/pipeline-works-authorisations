@@ -115,7 +115,7 @@ public class PadProjectInformationServiceTest {
 
     var uploadedFileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
 
-    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_LAYOUT))
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_INFORMATION))
         .thenReturn(uploadedFileViews);
 
     var licenceApplications = List.of("application");
@@ -136,7 +136,7 @@ public class PadProjectInformationServiceTest {
 
     var uploadedFileViews = List.of(UploadedFileViewTestUtil.createDefaultFileView());
 
-    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_LAYOUT))
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.PROJECT_INFORMATION))
         .thenReturn(uploadedFileViews);
 
     List<String> expectedLicenceApplications = List.of();
@@ -172,7 +172,7 @@ public class PadProjectInformationServiceTest {
     verify(padFileManagementService, times(1)).saveFiles(
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
-        FileDocumentType.PROJECT_LAYOUT
+        FileDocumentType.PROJECT_INFORMATION
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
     verify(padLicenceTransactionService).saveApplicationsToPad(padProjectInformation, form);
@@ -195,7 +195,7 @@ public class PadProjectInformationServiceTest {
     verify(padFileManagementService, times(1)).saveFiles(
         form,
         this.padProjectInformation.getPwaApplicationDetail(),
-        FileDocumentType.PROJECT_LAYOUT
+        FileDocumentType.PROJECT_INFORMATION
     );
     verify(padProjectInformationRepository, times(1)).save(padProjectInformation);
     verify(padLicenceTransactionService, never()).saveApplicationsToPad(padProjectInformation, form);
@@ -211,7 +211,7 @@ public class PadProjectInformationServiceTest {
         .mapProjectInformationDataToForm(padProjectInformation, form);
 
     verify(padFileManagementService, times(1))
-        .mapFilesToForm(form, pwaApplicationDetail, FileDocumentType.PROJECT_LAYOUT);
+        .mapFilesToForm(form, pwaApplicationDetail, FileDocumentType.PROJECT_INFORMATION);
 
     verify(padLicenceTransactionService).mapApplicationsToForm(
         form,
@@ -460,7 +460,7 @@ public class PadProjectInformationServiceTest {
         .duplicateEntityAndSetParent(any(), eq(copyToDetail), eq(PadProjectInformation.class));
 
     verify(padFileManagementService, times(1))
-        .copyUploadedFiles(pwaApplicationDetail, copyToDetail, FileDocumentType.PROJECT_LAYOUT);
+        .copyUploadedFiles(pwaApplicationDetail, copyToDetail, FileDocumentType.PROJECT_INFORMATION);
 
     verify(padLicenceTransactionService)
         .copyApplicationsToPad(oldProjectInformation, newProjectInformation);

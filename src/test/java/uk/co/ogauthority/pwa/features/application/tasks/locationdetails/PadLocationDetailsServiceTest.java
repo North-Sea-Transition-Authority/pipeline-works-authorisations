@@ -25,12 +25,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacility;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfacilities.external.DevukFacilityService;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.searchselector.SearchSelectable;
 import uk.co.ogauthority.pwa.service.entitycopier.EntityCopyingService;
@@ -60,7 +59,7 @@ class PadLocationDetailsServiceTest {
   private EntityCopyingService entityCopyingService;
 
   @Mock
-  private PadFileService padFileService;
+  private PadFileManagementService padFileManagementService;
 
 
   private PadLocationDetailsService padLocationDetailsService;
@@ -78,7 +77,7 @@ class PadLocationDetailsServiceTest {
         validator,
         searchSelectorService,
         entityCopyingService,
-        padFileService);
+        padFileManagementService);
 
     pwaApplicationDetail = new PwaApplicationDetail();
     padLocationDetails = buildEntity();
@@ -313,8 +312,8 @@ class PadLocationDetailsServiceTest {
     when(facilityService.getFacilities(pwaApplicationDetail)).thenReturn(List.of(padFacility));
 
     var uploadedFileView = new UploadedFileView("1", "name", 0L, "desc", Instant.now(), "#");
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.LOCATION_DETAILS,
-        ApplicationFileLinkStatus.FULL)).thenReturn(List.of(uploadedFileView));
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.LOCATION_DETAILS))
+        .thenReturn(List.of(uploadedFileView));
 
     var locationDetailsView = padLocationDetailsService.getLocationDetailsView(pwaApplicationDetail);
 

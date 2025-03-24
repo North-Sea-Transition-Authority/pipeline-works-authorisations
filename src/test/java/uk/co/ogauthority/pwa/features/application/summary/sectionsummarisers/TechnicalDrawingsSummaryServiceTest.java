@@ -14,15 +14,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartUrlFactory;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionUrlFactory;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
@@ -30,15 +29,10 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @ExtendWith(MockitoExtension.class)
 class TechnicalDrawingsSummaryServiceTest {
 
-
-
   private final String TEMPLATE = "TEMPLATE";
 
   @Mock
   private TaskListService taskListService;
-
-  @Mock
-  private PadFileService padFileService;
 
   @Mock
   private AdmiraltyChartFileService admiraltyChartFileService;
@@ -46,13 +40,15 @@ class TechnicalDrawingsSummaryServiceTest {
   @Mock
   private UmbilicalCrossSectionService umbilicalCrossSectionService;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
   private TechnicalDrawingsSummaryService technicalDrawingsSummaryService;
   private PwaApplicationDetail pwaApplicationDetail;
 
   @BeforeEach
   void setUp() {
-
-    technicalDrawingsSummaryService = new TechnicalDrawingsSummaryService(taskListService, padFileService, admiraltyChartFileService, umbilicalCrossSectionService);
+    technicalDrawingsSummaryService = new TechnicalDrawingsSummaryService(taskListService, admiraltyChartFileService, umbilicalCrossSectionService, padFileManagementService);
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 2);
   }
 
@@ -81,13 +77,12 @@ class TechnicalDrawingsSummaryServiceTest {
 
   @Test
   void summariseSection_verifyServiceInteractions() {
-
     var admiraltyChartFileViews = List.of(new UploadedFileView("", "", 1L, null, null, null));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.ADMIRALTY_CHART, ApplicationFileLinkStatus.FULL))
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART))
         .thenReturn(admiraltyChartFileViews);
 
     var umbilicalFileViews = List.of(new UploadedFileView("", "", 1L, null, null, null));
-    when(padFileService.getUploadedFileViews(pwaApplicationDetail, ApplicationDetailFilePurpose.UMBILICAL_CROSS_SECTION, ApplicationFileLinkStatus.FULL))
+    when(padFileManagementService.getUploadedFileViews(pwaApplicationDetail, FileDocumentType.UMBILICAL_CROSS_SECTION))
         .thenReturn(umbilicalFileViews);
 
     var canShowAdmiraltyChart = true;

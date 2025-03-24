@@ -1,15 +1,15 @@
 package uk.co.ogauthority.pwa.service.fileupload;
 
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
-import uk.co.ogauthority.pwa.model.entity.files.UploadedFileOld;
 
 public class PadFileTestContainer {
 
   private final PadFile padFile;
 
-  private final UploadedFileOld uploadedFile;
+  private final UploadedFile uploadedFile;
 
-  public PadFileTestContainer(PadFile padFile, UploadedFileOld uploadedFile) {
+  public PadFileTestContainer(PadFile padFile, UploadedFile uploadedFile) {
     this.padFile = padFile;
     this.uploadedFile = uploadedFile;
   }
@@ -18,7 +18,7 @@ public class PadFileTestContainer {
     return padFile;
   }
 
-  public UploadedFileOld getUploadedFile() {
+  public UploadedFile getUploadedFile() {
     return uploadedFile;
   }
 }
