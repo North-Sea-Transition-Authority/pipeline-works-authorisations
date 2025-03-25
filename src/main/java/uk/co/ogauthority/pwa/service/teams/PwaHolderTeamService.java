@@ -13,6 +13,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -20,6 +21,11 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamScopeReference;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @Service
 public class PwaHolderTeamService {
@@ -27,30 +33,34 @@ public class PwaHolderTeamService {
   private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final PwaHolderService pwaHolderService;
+  private final TeamQueryService teamQueryService;
+  private final UserAccountService userAccountService;
 
   @Autowired
   public PwaHolderTeamService(TeamService teamService,
                               PortalOrganisationsAccessor portalOrganisationsAccessor,
-                              PwaHolderService pwaHolderService) {
+                              PwaHolderService pwaHolderService, TeamQueryService teamQueryService,
+                              UserAccountService userAccountService) {
     this.teamService = teamService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.pwaHolderService = pwaHolderService;
+    this.teamQueryService = teamQueryService;
+    this.userAccountService = userAccountService;
   }
 
-  public boolean isPersonInHolderTeam(MasterPwa masterPwa, Person person) {
+  public boolean isPersonInHolderTeam(MasterPwa masterPwa, WebUserAccount user) {
 
     var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(masterPwa);
 
-    return teamService
-        .getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class))
-        .stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .anyMatch(holderOrgGroups::contains);
+    return holderOrgGroups.stream()
+        .anyMatch(portalOrganisationGroup -> userIsInOrgTeam(user, portalOrganisationGroup));
   }
 
-  // overload
-  public boolean isPersonInHolderTeam(PwaApplicationDetail detail, Person person) {
-    return isPersonInHolderTeam(detail.getMasterPwa(), person);
+  private boolean userIsInOrgTeam(WebUserAccount user, PortalOrganisationGroup portalOrganisationGroup) {
+    var teamType = TeamType.ORGANISATION;
+    var scopeRef = TeamScopeReference.from(String.valueOf(portalOrganisationGroup.getOrgGrpId()), teamType);
+
+    return teamQueryService.userHasAtLeastOneScopedRole((long) user.getWuaId(), teamType, scopeRef, EnumSet.allOf(Role.class));
   }
 
   public boolean isPersonInHolderTeamWithRole(MasterPwa masterPwa, Person person, PwaOrganisationRole pwaOrganisationRole) {
@@ -158,14 +168,24 @@ public class PwaHolderTeamService {
   }
 
   public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
+    TeamType teamType = TeamType.ORGANISATION;
 
+    // get the portal org group
     var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa());
-    var orgTeams = teamService.getOrganisationTeamsForOrganisationGroups(holderOrgGroups);
 
-    return orgTeams.stream()
-        .flatMap(holderOrgTeam -> teamService.getTeamMembers(holderOrgTeam).stream())
-        .map(PwaTeamMember::getPerson)
+    return holderOrgGroups.stream()
+        .map(portalOrganisationGroup ->
+            TeamScopeReference.from(String.valueOf(portalOrganisationGroup.getOrgGrpId()), teamType)
+        )
+        .flatMap(teamScopeReference -> teamQueryService.getMembersOfScopedTeam(teamType, teamScopeReference).stream())
+        .map(this::getPersonFromMember)
         .collect(toSet());
+  }
+
+  // Todo: remove this in PWARE-73
+  Person getPersonFromMember(TeamMemberView member) {
+    var webUserAccount = userAccountService.getWebUserAccount(Math.toIntExact(member.wuaId()));
+    return webUserAccount.getLinkedPerson();
   }
 
 }

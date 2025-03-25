@@ -5,8 +5,12 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
@@ -29,8 +34,12 @@ class TeamMemberQueryServiceTest {
   private TeamRoleRepository teamRoleRepository;
 
   @Mock
+  private TeamRepository teamRepository;
+
+  @Mock
   private UserApi userApi;
-  
+
+  @Spy
   @InjectMocks
   private TeamMemberQueryService teamMemberQueryService;
 
@@ -177,4 +186,69 @@ class TeamMemberQueryServiceTest {
             )
         );
   }
+
+  @Test
+  void getTeamMemberViewsByTeamAndRole() {
+    var role = regTeamUser1RoleManage.getRole();
+    var teamMember = TeamMemberView.fromEpaUser(user1, regTeam.getId(), List.of(role));
+
+    when(teamRoleRepository.findByTeamAndRole(regTeam, role)).thenReturn(List.of(regTeamUser1RoleManage));
+    doReturn(teamMember).when(teamMemberQueryService).getTeamMemberView(regTeam, regTeamUser1RoleManage.getWuaId());
+
+    var teamMemberViews = teamMemberQueryService.getTeamMemberViewsByTeamAndRole(regTeam, role);
+
+    assertThat(teamMemberViews)
+        .isNotNull()
+        .hasSize(1);
+    verify(teamRoleRepository).findByTeamAndRole(regTeam, role);
+  }
+
+  @Test
+  void getTeamMemberViewsByTeamAndRole_NoRoles() {
+    var team = mock(Team.class);
+    var role = Role.TEAM_ADMINISTRATOR;
+
+    when(teamRoleRepository.findByTeamAndRole(team, role)).thenReturn(Collections.emptyList());
+
+    var teamMemberViews = teamMemberQueryService.getTeamMemberViewsByTeamAndRole(team, role);
+
+    assertThat(teamMemberViews)
+        .isNotNull()
+        .isEmpty();
+    verify(teamRoleRepository).findByTeamAndRole(team, role);
+  }
+
+  @Test
+  void getTeamMemberViewsByScopedTeam() {
+    var teamType = TeamType.ORGANISATION;
+    var scopeId = "1";
+    Team team = mock(Team.class);
+    var teamMember = TeamMemberView.fromEpaUser(user1, regTeam.getId(), List.of(regTeamUser1RoleManage.getRole()));
+
+    when(teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, teamType.getScopeType(), scopeId))
+        .thenReturn(Optional.of(team));
+    when(teamMemberQueryService.getTeamMemberViewsForTeam(team)).thenReturn(List.of(teamMember));
+
+    var teamMemberViews = teamMemberQueryService.getTeamMemberViewsByScopedTeam(teamType, TeamScopeReference.from(scopeId, teamType));
+
+    assertThat(teamMemberViews)
+        .containsExactly(teamMember);
+    verify(teamRepository).findByTeamTypeAndScopeTypeAndScopeId(teamType, teamType.getScopeType(), scopeId);
+  }
+
+  @Test
+  void getTeamMemberViewsByScopedTeam_NoTeams() {
+    var teamType = TeamType.ORGANISATION;
+    var scopeId = "1";
+
+    when(teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, teamType.getScopeType(), scopeId))
+        .thenReturn(Optional.empty());
+
+    var teamMemberViews = teamMemberQueryService.getTeamMemberViewsByScopedTeam(teamType, TeamScopeReference.from(scopeId, teamType));
+
+    assertThat(teamMemberViews).isEmpty();
+    verify(teamRepository).findByTeamTypeAndScopeTypeAndScopeId(teamType, teamType.getScopeType(), scopeId);
+  }
+
+
 }

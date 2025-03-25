@@ -14,7 +14,7 @@ public enum TeamType {
   REGULATOR(
       "Regulator",
       "regulator",
-      false,
+      null,
       List.of(
           Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
@@ -30,7 +30,7 @@ public enum TeamType {
   CONSULTEE(
       "Consultees",
       "consultee",
-      false,
+      null,
       List.of(
           Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
@@ -42,7 +42,7 @@ public enum TeamType {
   ORGANISATION(
       "Organisations",
       "organisation",
-      true,
+      "ORGGRP",
       List.of(
           Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
@@ -57,13 +57,15 @@ public enum TeamType {
   private final String displayName;
   private final String urlSlug;
   private final boolean isScoped;
+  private final String scopeType;
   private final List<Role> allowedRoles;
   private final Supplier<String> createNewInstanceRoute;
 
-  TeamType(String displayName, String urlSlug, boolean isScoped, List<Role> allowedRoles, Supplier<String> createNewInstanceRoute) {
+  TeamType(String displayName, String urlSlug, String scopeType, List<Role> allowedRoles, Supplier<String> createNewInstanceRoute) {
     this.displayName = displayName;
     this.urlSlug = urlSlug;
-    this.isScoped = isScoped;
+    this.scopeType = scopeType;
+    this.isScoped = scopeType != null;
     this.allowedRoles = allowedRoles;
     this.createNewInstanceRoute = createNewInstanceRoute;
   }
@@ -78,6 +80,10 @@ public enum TeamType {
 
   public boolean isScoped() {
     return isScoped;
+  }
+
+  public String getScopeType() {
+    return scopeType;
   }
 
   public List<Role> getAllowedRoles() {

@@ -45,7 +45,7 @@ class PwaPermissionServiceTest {
   @Test
   void getPwaPermissions_userInHolderTeam() {
 
-    when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()))
+    when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user))
         .thenReturn(true);
 
     var permissions = pwaPermissionService.getPwaPermissions(masterPwa, user);
@@ -69,7 +69,7 @@ class PwaPermissionServiceTest {
   @Test
   void getPwaPermissions_userNotInHolderTeam_userIsRegulator() {
 
-    when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson()))
+    when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user))
         .thenReturn(false);
 
     int pwaRegulatorTeamId = 1;

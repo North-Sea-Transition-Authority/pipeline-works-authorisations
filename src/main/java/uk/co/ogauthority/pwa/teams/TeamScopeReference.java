@@ -18,4 +18,8 @@ public interface TeamScopeReference {
       }
     };
   }
+
+  static TeamScopeReference from(String id, TeamType teamType) {
+    return from(id, teamType.getScopeType());
+  }
 }

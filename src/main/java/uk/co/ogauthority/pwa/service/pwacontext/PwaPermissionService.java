@@ -30,12 +30,12 @@ public class PwaPermissionService {
                                               AuthenticatedUserAccount user) {
     return Arrays.stream(PwaPermission.values())
         .filter(permission -> switch (permission) {
-          case VIEW_PWA_PIPELINE -> pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
+          case VIEW_PWA_PIPELINE -> pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user)
               || userIsRegulator(user)
               || user.hasPrivilege(PwaUserPrivilege.PIPELINE_VIEW);
           case VIEW_PWA, SHOW_PWA_NAVIGATION ->
               // split out show nav priv so users with external access only do not see other system areas they cannot access.
-              pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user.getLinkedPerson())
+              pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user)
               || userIsRegulator(user);
           default -> false;
         })

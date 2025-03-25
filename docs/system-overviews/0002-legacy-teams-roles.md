@@ -39,13 +39,13 @@ All Organisation roles have:
 - the `UPDATE_PUBLIC_NOTICE_DOC`, `VIEW_CONSENT_DOCUMENT`, `VIEW_PAYMENT_DETAILS_IF_EXISTS`, `CASE_MANAGEMENT_INDUSTRY` PwaAppProcessingPermissions
 - the `VIEW` PwaApplicationPermission
 
-| **Role (`PwaOrganisationRole`)**  | ** Additional Privileges (`PwaUserPrivilege`)** | **Additional Processing permissions (`PwaAppProcessingPermission`)** | **Additional Application permissions (`PwaApplicationPermission`)** |
-|-----------------------------------|-------------------------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------|
-| `TEAM_ADMINISTRATOR`              | `PWA_CONSENT_SEARCH`, `PWA_ORG_ADMIN`           |                                                                      |                                                                     |
-| `APPLICATION_CREATOR`             | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_CREATE`  |                                                                      | `MANAGE_CONTACTS`                                                   |
-| `APPLICATION_SUBMITTER`           | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_SUBMIT`  |                                                                      | `MANAGE_CONTACTS`, `SUBMIT`                                         |
-| `FINANCE_ADMIN`                   |                                                 | `PAY_FOR_APPLICATION`                                                |                                                                     |
-| `AS_BUILT_NOTIFICATION_SUBMITTER` | `PWA_ASBUILT_WORKAREA`                          |                                                                      |                                                                     |
+| **Role (`PwaOrganisationRole`)**  | **Additional Privileges (`PwaUserPrivilege`)** | **Additional Processing permissions (`PwaAppProcessingPermission`)** | **Additional Application permissions (`PwaApplicationPermission`)** |
+|-----------------------------------|------------------------------------------------|----------------------------------------------------------------------|---------------------------------------------------------------------|
+| `TEAM_ADMINISTRATOR`              | `PWA_CONSENT_SEARCH`, `PWA_ORG_ADMIN`          |                                                                      |                                                                     |
+| `APPLICATION_CREATOR`             | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_CREATE` |                                                                      | `MANAGE_CONTACTS`                                                   |
+| `APPLICATION_SUBMITTER`           | `PWA_CONSENT_SEARCH`, `PWA_APPLICATION_SUBMIT` |                                                                      | `MANAGE_CONTACTS`, `SUBMIT`                                         |
+| `FINANCE_ADMIN`                   |                                                | `PAY_FOR_APPLICATION`                                                |                                                                     |
+| `AS_BUILT_NOTIFICATION_SUBMITTER` | `PWA_ASBUILT_WORKAREA`                         |                                                                      |                                                                     |
 
 
 ## 3. Consultee Group Team

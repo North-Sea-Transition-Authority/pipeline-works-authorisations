@@ -15,12 +15,15 @@ import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 public class TeamMemberQueryService {
   private final TeamRoleRepository teamRoleRepository;
   private final UserApi userApi;
+  private final TeamRepository teamRepository;
 
   @Autowired
   public TeamMemberQueryService(TeamRoleRepository teamRoleRepository,
-                                UserApi userApi) {
+                                UserApi userApi,
+                                TeamRepository teamRepository) {
     this.teamRoleRepository = teamRoleRepository;
     this.userApi = userApi;
+    this.teamRepository = teamRepository;
   }
 
   public TeamMemberView getTeamMemberView(Team team, Long wuaId) {
@@ -85,6 +88,19 @@ public class TeamMemberQueryService {
           return TeamMemberView.fromEpaUser(epaUser, team.getId(), orderedUserRoles);
         })
         .sorted(Comparator.comparing(TeamMemberView::forename).thenComparing(TeamMemberView::surname))
+        .toList();
+  }
+
+  List<TeamMemberView> getTeamMemberViewsByTeamAndRole(Team team, Role role) {
+    return teamRoleRepository.findByTeamAndRole(team, role).stream()
+        .map(teamRole -> getTeamMemberView(teamRole.getTeam(), teamRole.getWuaId()))
+        .toList();
+  }
+
+  public List<TeamMemberView> getTeamMemberViewsByScopedTeam(TeamType teamType, TeamScopeReference teamScopeReference) {
+    return teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, teamScopeReference.getType(), teamScopeReference.getId())
+        .stream()
+        .flatMap(team -> getTeamMemberViewsForTeam(team).stream())
         .toList();
   }
 }

@@ -47,7 +47,7 @@ public class PwaHolderService {
         .stream()
         .map(PwaHolderOrgUnit::getOrgGrpId)
         .distinct()
-        .collect(toList());
+        .toList();
 
     return portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(holderOrgGrpIdsForMasterPwa)
         .stream()

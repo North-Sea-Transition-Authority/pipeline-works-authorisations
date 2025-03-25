@@ -32,9 +32,7 @@ public class TeamQueryService {
 
   public boolean userHasAtLeastOneStaticRole(Long wuaId, TeamType teamType, Set<Role> roles) {
     assertRolesValidForTeamType(roles, teamType);
-    if (teamType.isScoped()) {
-      throw new IllegalArgumentException("TeamType %s is not static".formatted(teamType));
-    }
+    assertTeamTypeIsStatic(teamType);
 
     return teamRepository.findByTeamType(teamType).stream()
         .findFirst()
@@ -48,9 +46,7 @@ public class TeamQueryService {
 
   public boolean userHasAtLeastOneScopedRole(Long wuaId, TeamType teamType, TeamScopeReference scopeRef, Set<Role> roles) {
     assertRolesValidForTeamType(roles, teamType);
-    if (!teamType.isScoped()) {
-      throw new IllegalArgumentException("TeamType %s is not scoped".formatted(teamType));
-    }
+    assertTeamTypeIsScoped(teamType);
     return teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, scopeRef.getType(), scopeRef.getId())
         .filter(team -> userHasAtLeastOneRole(wuaId, team, roles))
         .isPresent();
@@ -69,23 +65,37 @@ public class TeamQueryService {
     });
   }
 
+  private void assertTeamTypeIsScoped(TeamType teamType) {
+    if (!teamType.isScoped()) {
+      throw new IllegalArgumentException("TeamType %s is not scoped".formatted(teamType));
+    }
+  }
+
+  private void assertTeamTypeIsStatic(TeamType teamType) {
+    if (teamType.isScoped()) {
+      throw new IllegalArgumentException("TeamType %s is not static".formatted(teamType));
+    }
+  }
+
   public boolean userIsMemberOfAnyTeam(long wuaId) {
     var teamRoles = teamRoleRepository.findAllByWuaId(wuaId);
     return !teamRoles.isEmpty();
   }
 
+  public List<TeamMemberView> getMembersOfScopedTeam(TeamType teamType, TeamScopeReference teamScopeReference) {
+    assertTeamTypeIsScoped(teamType);
+    return teamMemberQueryService.getTeamMemberViewsByScopedTeam(teamType, teamScopeReference);
+  }
+
   public List<TeamMemberView> getMembersOfStaticTeamWithRole(TeamType teamType, Role role) {
     var team = getStaticTeamByTeamType(teamType);
-    return teamRoleRepository.findByTeamAndRole(team, role).stream()
-        .map(teamRole -> teamMemberQueryService.getTeamMemberView(teamRole.getTeam(), teamRole.getWuaId()))
-        .toList();
+
+    return teamMemberQueryService.getTeamMemberViewsByTeamAndRole(team, role);
   }
 
   @VisibleForTesting
   Team getStaticTeamByTeamType(TeamType teamType) {
-    if (teamType.isScoped()) {
-      throw new IllegalArgumentException("TeamType %s is not static".formatted(teamType));
-    }
+    assertTeamTypeIsStatic(teamType);
 
     return teamRepository.findByTeamType(teamType).stream()
         .findFirst()

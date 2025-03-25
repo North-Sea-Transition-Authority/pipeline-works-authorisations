@@ -100,7 +100,4 @@ public class IssueConsentEmailsService {
     consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
         caseOfficerPerson.getFullName(), returningUserName, returnReason);
   }
-
-
-
 }

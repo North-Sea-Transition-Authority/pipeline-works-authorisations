@@ -56,13 +56,13 @@ public class PwaUserPrivilegeService {
   }
 
   private Set<PwaUserPrivilege> getConsulteeGrantedPrivs(Person person) {
-    var teamMemberList = consulteeGroupTeamService.getTeamMemberByPerson(person);
+    var teamMember = consulteeGroupTeamService.getTeamMemberByPerson(person);
 
     var privSet = new HashSet<PwaUserPrivilege>();
 
-    if (!teamMemberList.isEmpty()) {
+    if (teamMember.isPresent()) {
 
-      boolean isAccessManager = teamMemberList.stream()
+      boolean isAccessManager = teamMember.stream()
           .flatMap(groupTeamMember -> groupTeamMember.getRoles().stream())
           .anyMatch(role -> role.equals(ConsulteeGroupMemberRole.ACCESS_MANAGER));
 

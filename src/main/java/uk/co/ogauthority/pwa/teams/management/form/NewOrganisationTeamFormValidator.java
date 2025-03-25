@@ -20,8 +20,9 @@ public class NewOrganisationTeamFormValidator {
       return false;
     }
 
-    var scopeRef = TeamScopeReference.from(form.getOrgGroupId(), "ORGGRP");
-    if (teamManagementService.doesScopedTeamWithReferenceExist(TeamType.ORGANISATION, scopeRef)) {
+    var teamType = TeamType.ORGANISATION;
+    var scopeRef = TeamScopeReference.from(form.getOrgGroupId(), teamType);
+    if (teamManagementService.doesScopedTeamWithReferenceExist(teamType, scopeRef)) {
       errors.rejectValue("orgGroupId", "orgGroupId.alreadyExists", "A team for this organisation already exists");
     }
 

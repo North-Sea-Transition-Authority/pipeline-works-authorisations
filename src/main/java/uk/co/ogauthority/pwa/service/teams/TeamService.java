@@ -70,11 +70,13 @@ public class TeamService {
 
     var orgGroupUrefs = organisationGroups
         .stream()
-        .map(PortalOrganisationGroup::getUrefValue).collect(Collectors.toSet());
+        .map(PortalOrganisationGroup::getUrefValue)
+        .collect(Collectors.toSet());
+
     List<PortalTeamDto> orgTeams = portalTeamAccessor.getPortalTeamsByPortalTeamType(PwaTeamType.ORGANISATION.getPortalTeamType())
         .stream()
         .filter(portalTeamDto -> orgGroupUrefs.contains(portalTeamDto.getScope().getPrimaryScope()))
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
 
     return pwaTeamsDtoFactory.createOrganisationTeamList(orgTeams);
   }
