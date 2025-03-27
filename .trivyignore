@@ -1,6 +1,7 @@
 # spring-security-core needs 6.3.2 (not released yet)
 CVE-2024-38810
 CVE-2024-38827
+CVE-2025-22223
 
 # org.springframework.security:spring-security-crypto
 CVE-2025-22228
