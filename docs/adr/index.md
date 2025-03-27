@@ -17,6 +17,10 @@ This log lists the architectural decisions for PWA.
 - [ADR-0010](0010-use-ftlvariables-in-templates.md) - Define ftlvariables in .ftl templates to assist devs and avoid IntelliJ warnings
 - [ADR-0011](0011-use-enum-parameters-over-booleans.md) - Use enum parameters over booleans when defining method parameters, return types etc
 - [ADR-0012](0012-use-spring-message-validation-for-type-mismatches.md) - Use spring message validation for type mismatches when binding to forms
+- [ADR-0013](0013-enable-idempotency-for-post-requests.md) - Enable post requests to be idempotent to prevent duplicate submissions
+- [ADR-0014](0014-pwa-api-adr.md) - API to retrieve PWAs and pipelines
+- [ADR-0015](0015-pwa-initial-consent-date-in-api.md) - Adding initial consent date to PWA
+- [ADR-0016](0016-how-to-handle-pwa-privileges-in-conversion-teams-pattern.md) - How to handle PWA Privileges in conversion to Teams Pattern
 
 <!-- adrlogstop -->
 
