@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.teams;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -100,5 +101,13 @@ public class TeamQueryService {
     return teamRepository.findByTeamType(teamType).stream()
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("No team found for static team of TeamType %s".formatted(teamType)));
+  }
+
+  public List<Team> getTeamsOfTypeUserHasAnyRoleIn(long wuaId, TeamType teamType, Collection<Role> roles) {
+    return teamRoleRepository.findByWuaIdAndTeam_TeamTypeAndRoleIn(wuaId, teamType, roles).stream()
+        .map(TeamRole::getTeam)
+        .distinct()
+        .toList();
+
   }
 }

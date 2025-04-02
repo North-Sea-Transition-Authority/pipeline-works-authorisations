@@ -32,7 +32,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.controller.
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.search.SearchScreenView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -46,6 +45,7 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchParametersBuilder;
 import uk.co.ogauthority.pwa.service.searchselector.SearchSelectorService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
@@ -205,7 +205,7 @@ public class ApplicationSearchController {
     if (useLimitedOrgSearch) {
       limitedOrgUnitOptions = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
           searchContext.getAuthenticatedUserAccount(),
-          EnumSet.allOf(PwaOrganisationRole.class)
+          EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())
       ).stream()
           .sorted(Comparator.comparing(PortalOrganisationUnit::getSelectionText))
           .collect(StreamUtils.toLinkedHashMap(

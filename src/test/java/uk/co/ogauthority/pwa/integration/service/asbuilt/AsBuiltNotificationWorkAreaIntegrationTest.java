@@ -24,15 +24,14 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupStatus;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaView;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaViewTestUtil;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnitTestUtil;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationDtoRepositoryImpl;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.service.workarea.applications.WorkAreaPageServiceTestUtil;
 import uk.co.ogauthority.pwa.teams.Role;
 
@@ -53,9 +52,6 @@ class AsBuiltNotificationWorkAreaIntegrationTest {
 
   @MockBean
   private PwaHolderTeamService pwaHolderTeamService;
-
-  @MockBean
-  private PwaTeamService pwaTeamService;
 
 
   private final AuthenticatedUserAccount adminUser = AuthenticatedUserAccountTestUtil.createAllPrivUserAccount(1);
@@ -82,15 +78,14 @@ class AsBuiltNotificationWorkAreaIntegrationTest {
     setupViews();
     setupPwaHolderUnits();
     persistItems();
-    when(pwaTeamService.getPeopleWithRegulatorRole(Role.AS_BUILT_NOTIFICATION_ADMIN))
-        .thenReturn(Set.of(adminUser.getLinkedPerson()));
   }
 
   @Transactional
   @Test
   void getAsBuiltNotifications_adminUser_getsAllNonCompleteAsBuiltNotifications() {
-    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(adminUser,
-        PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1, group2));
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn((WebUserAccount) adminUser,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(List.of(group1, group2));
 
     var result = asBuiltNotificationDtoRepository.findAllAsBuiltNotificationsForUser(
         adminUser,
@@ -105,8 +100,9 @@ class AsBuiltNotificationWorkAreaIntegrationTest {
   @Transactional
   @Test
   void getAsBuiltNotifications_industryUser_getsOnlyOwnOrganisationNonCompleteAsBuiltNotifications() {
-    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(industryUser,
-        PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER)).thenReturn(List.of(group1));
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn((WebUserAccount) industryUser,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)))
+        .thenReturn(List.of(group1));
 
     var result = asBuiltNotificationDtoRepository.findAllAsBuiltNotificationsForUser(
         industryUser,
@@ -119,7 +115,8 @@ class AsBuiltNotificationWorkAreaIntegrationTest {
   @Transactional
   @Test
   void getAsBuiltNotifications_unrelatedUser_getsNoAsBuiltNotifications() {
-    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(unrelatedUser, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER))
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn((WebUserAccount) unrelatedUser,
+        Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER)))
         .thenReturn(List.of());
 
     var result = asBuiltNotificationDtoRepository.findAllAsBuiltNotificationsForUser(

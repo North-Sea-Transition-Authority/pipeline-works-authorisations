@@ -2,16 +2,17 @@ package uk.co.ogauthority.pwa.features.application.creation;
 
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
 import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -33,10 +34,8 @@ public class PickedPwaRetrievalService {
 
   public PickableMasterPwaOptions getPickablePwaOptions(WebUserAccount webUserAccount, PwaResourceType resourceType) {
 
-    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
-        webUserAccount,
-        PwaOrganisationRole.APPLICATION_CREATOR
-    );
+    var potentialHolderOrganisationUnits = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount,
+        Set.of(Role.APPLICATION_CREATOR));
 
     var consentedMasterPwaMap = consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(
         potentialHolderOrganisationUnits)
@@ -60,9 +59,9 @@ public class PickedPwaRetrievalService {
 
   public MasterPwa getPickedConsentedPwa(Integer pickedPwaId, WebUserAccount user) {
 
-    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
+    var potentialHolderOrganisationUnits = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
         user,
-        PwaOrganisationRole.APPLICATION_CREATOR
+        Set.of(Role.APPLICATION_CREATOR)
     );
 
     return consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(potentialHolderOrganisationUnits)
@@ -76,9 +75,9 @@ public class PickedPwaRetrievalService {
 
   public MasterPwa getPickedNonConsentedPwa(Integer pickedPwaId, WebUserAccount user) {
 
-    var potentialHolderOrganisationUnits =  pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
+    var potentialHolderOrganisationUnits = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
         user,
-        PwaOrganisationRole.APPLICATION_CREATOR
+        Set.of(Role.APPLICATION_CREATOR)
     );
 
     return nonConsentedPwaService.getNonConsentedMasterPwaDetailByHolderOrgUnits(potentialHolderOrganisationUnits)

@@ -11,6 +11,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,9 +24,7 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationWorkareaVie
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.search.ApplicationDetailView_;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit;
 import uk.co.ogauthority.pwa.model.entity.search.consents.PwaHolderOrgUnit_;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -35,16 +34,14 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
 
   private final EntityManager entityManager;
 
-  private final PwaTeamService pwaTeamService;
   private final PwaHolderTeamService pwaHolderTeamService;
   private final TeamQueryService teamQueryService;
 
   @Autowired
   public AsBuiltNotificationDtoRepositoryImpl(EntityManager entityManager,
-                                              PwaTeamService pwaTeamService,
-                                              PwaHolderTeamService pwaHolderTeamService, TeamQueryService teamQueryService) {
+                                              PwaHolderTeamService pwaHolderTeamService,
+                                              TeamQueryService teamQueryService) {
     this.entityManager = entityManager;
-    this.pwaTeamService = pwaTeamService;
     this.pwaHolderTeamService = pwaHolderTeamService;
     this.teamQueryService = teamQueryService;
   }
@@ -86,7 +83,7 @@ public class AsBuiltNotificationDtoRepositoryImpl implements AsBuiltNotification
   }
 
   private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
-    return pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER);
+    return pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(user, Set.of(Role.AS_BUILT_NOTIFICATION_SUBMITTER));
   }
 
   private Predicate getHolderOrgApplicationsPredicate(List<PortalOrganisationGroup> organisationGroups,

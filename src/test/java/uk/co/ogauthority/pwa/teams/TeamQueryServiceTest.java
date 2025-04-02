@@ -252,6 +252,28 @@ class TeamQueryServiceTest {
     assertThat(actualTeam).isEqualTo(expectedTeam);
   }
 
+  @Test
+  void getTeamsOfTypeUserHasAnyRoleIn_ReturnsDistinctTeam() {
+    var teamType = TeamType.ORGANISATION;
+    var roles = Set.of(Role.TEAM_ADMINISTRATOR, Role.APPLICATION_SUBMITTER);
+
+    Team team = mock(Team.class);
+
+    TeamRole teamRole1 = new TeamRole();
+    teamRole1.setTeam(team);
+
+    TeamRole teamRole2 = new TeamRole();
+    teamRole2.setTeam(team);
+
+    when(teamRoleRepository.findByWuaIdAndTeam_TeamTypeAndRoleIn(1L, teamType, roles))
+        .thenReturn(List.of(teamRole1, teamRole2));
+
+    var result = teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(1L, teamType, roles);
+
+    assertThat(result)
+        .containsExactly(team);
+  }
+
   private void setupStaticTeamAndRoles(Long wuaId, TeamType teamType, List<Role> roles) {
     var team = new Team(UUID.randomUUID());
     team.setTeamType(teamType);

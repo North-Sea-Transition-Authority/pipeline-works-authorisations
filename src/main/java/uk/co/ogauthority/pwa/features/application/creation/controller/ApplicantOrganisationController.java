@@ -4,6 +4,7 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 
 import java.util.Comparator;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,12 +28,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.ApplicantOrganisationForm;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -116,8 +117,10 @@ public class ApplicantOrganisationController {
 
     var pwaDetail = masterPwaService.getCurrentDetailOrThrow(masterPwa);
 
-    String userOrgGroupsCsv = pwaHolderTeamService
-        .getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.APPLICATION_CREATOR)
+    String userOrgGroupsCsv = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+            user,
+            Set.of(Role.APPLICATION_CREATOR)
+        )
         .stream()
         .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
         .map(PortalOrganisationGroup::getName)

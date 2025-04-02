@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @Service
 public class ApplicantOrganisationService {
@@ -29,9 +29,8 @@ public class ApplicantOrganisationService {
 
     var holderOrgUnits = pwaHolderService.getPwaHolderOrgUnits(masterPwa);
 
-    var orgUnitsHolderHasAccessTo = new HashSet<>(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(
-        webUserAccount,
-        PwaOrganisationRole.APPLICATION_CREATOR));
+    var orgUnitsHolderHasAccessTo = new HashSet<>(
+        pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)));
 
     return Sets.intersection(holderOrgUnits, orgUnitsHolderHasAccessTo);
 

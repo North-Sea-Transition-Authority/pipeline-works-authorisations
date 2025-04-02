@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.teams;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.util.EnumSet;
@@ -22,6 +21,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -74,43 +74,26 @@ public class PwaHolderTeamService {
         .anyMatch(holderOrgGroups::contains);
   }
 
-  public List<PortalOrganisationUnit> getPortalOrganisationUnitsWhereUserHasOrgRole(WebUserAccount webUserAccount,
-                                                                                    PwaOrganisationRole pwaOrganisationRole) {
-
-    var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
-        webUserAccount.getLinkedPerson(), Set.of(pwaOrganisationRole));
-
-    // all org units, including ended ones, if they still exist in the org grp.
-    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
-        organisationTeams.stream()
-            .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-            .collect(toList())
-    );
-  }
-
   public List<PortalOrganisationUnit> getPortalOrganisationUnitsWhereUserHasAnyOrgRole(WebUserAccount webUserAccount,
-                                                                                       Set<PwaOrganisationRole> pwaOrganisationRoles) {
+                                                                                       Set<Role> roles) {
 
-    var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
-        webUserAccount.getLinkedPerson(), pwaOrganisationRoles);
+    List<PortalOrganisationGroup> portalOrganisationGroups = getPortalOrganisationGroupsWhereUserHasRoleIn(webUserAccount, roles);
 
     // all org units, including ended ones, if they still exist in the org grp.
-    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(
-        organisationTeams.stream()
-            .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-            .collect(toList())
-    );
+    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(portalOrganisationGroups);
   }
 
-  public List<PortalOrganisationGroup> getPortalOrganisationGroupsWhereUserHasOrgRole(WebUserAccount webUserAccount,
-                                                                                     PwaOrganisationRole pwaOrganisationRole) {
+  public List<PortalOrganisationGroup> getPortalOrganisationGroupsWhereUserHasRoleIn(WebUserAccount webUserAccount,
+                                                                                     Set<Role> roles) {
 
-    var organisationTeams = teamService.getOrganisationTeamListIfPersonInRole(
-        webUserAccount.getLinkedPerson(), Set.of(pwaOrganisationRole));
+    var orgGroupIdList = teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(webUserAccount.getWuaId(), TeamType.ORGANISATION, roles
+        )
+        .stream()
+        .map(Team::getScopeId) // team scope id is the org group id
+        .map(Integer::valueOf)
+        .toList();
 
-    return organisationTeams.stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(toList());
+    return portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(orgGroupIdList);
   }
 
   /**

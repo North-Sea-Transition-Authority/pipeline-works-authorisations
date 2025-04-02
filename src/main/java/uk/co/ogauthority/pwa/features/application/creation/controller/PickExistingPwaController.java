@@ -7,6 +7,7 @@ import com.google.common.base.Stopwatch;
 import jakarta.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +31,11 @@ import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalSer
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -90,7 +91,10 @@ public class PickExistingPwaController {
                                               PwaResourceType resourceType) {
     var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, resourceType);
 
-    List<String> ogList = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasOrgRole(user, PwaOrganisationRole.APPLICATION_CREATOR)
+    List<String> ogList = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+            user,
+            Set.of(Role.APPLICATION_CREATOR)
+        )
         .stream()
         .sorted(Comparator.comparing(PortalOrganisationGroup::getName))
         .map(PortalOrganisationGroup::getName)

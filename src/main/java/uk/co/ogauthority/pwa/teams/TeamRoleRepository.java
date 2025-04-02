@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.teams;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.repository.CrudRepository;
@@ -20,4 +21,6 @@ public interface TeamRoleRepository extends CrudRepository<TeamRole, UUID> {
   boolean existsByTeamAndWuaId(Team team, Long wuaId);
 
   List<TeamRole> findAllByWuaId(long wuaId);
+
+  List<TeamRole> findByWuaIdAndTeam_TeamTypeAndRoleIn(Long wuaId, TeamType teamType, Collection<Role> roles);
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,10 +20,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.ConsentedMasterPwaService;
 import uk.co.ogauthority.pwa.service.masterpwas.NonConsentedPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @ExtendWith(MockitoExtension.class)
 class PickedPwaRetrievalServiceTest {
@@ -54,7 +55,8 @@ class PickedPwaRetrievalServiceTest {
 
   @Test
   void getPickablePwaOptions_UserNotInOrganisation() {
-    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
+
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)))
         .thenReturn(Collections.emptyList());
 
     var options = pickedPwaRetrievalService.getPickablePwaOptions(webUserAccount, PwaResourceType.PETROLEUM);
@@ -80,7 +82,8 @@ class PickedPwaRetrievalServiceTest {
   @Test
   void getPickablePwaOptions_filterByResourceType_Petroleum() {
     var orgUnit = new PortalOrganisationUnit();
-    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
+
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of(orgUnit));
     when(consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(List.of(orgUnit)))
         .thenReturn(getConsentedPwas());
@@ -102,7 +105,8 @@ class PickedPwaRetrievalServiceTest {
   @Test
   void getPickablePwaOptions_filterByResourceType_Hydrogen() {
     var orgUnit = new PortalOrganisationUnit();
-    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
+
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of(orgUnit));
     when(consentedMasterPwaService.getMasterPwaDetailsWhereAnyPortalOrgUnitsHolder(List.of(orgUnit)))
         .thenReturn(getConsentedPwas());

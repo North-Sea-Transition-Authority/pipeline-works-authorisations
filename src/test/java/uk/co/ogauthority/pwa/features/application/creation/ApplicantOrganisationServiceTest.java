@@ -14,9 +14,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicantOrganisationServiceTest {
@@ -50,7 +50,7 @@ class ApplicantOrganisationServiceTest {
   @Test
   void getPotentialApplicantOrganisations_userIsInAHolderTeam_onlyRelevantOrgsReturned() {
 
-    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of(linkedOrg1, linkedOrg2));
 
     var orgs = applicantOrganisationService.getPotentialApplicantOrganisations(masterPwa, webUserAccount);
@@ -62,7 +62,7 @@ class ApplicantOrganisationServiceTest {
   @Test
   void getPotentialApplicantOrganisations_userNotInAnyRelevantTeams_nothingReturned() {
 
-    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasOrgRole(webUserAccount, PwaOrganisationRole.APPLICATION_CREATOR))
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(webUserAccount, Set.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of());
 
     var orgs = applicantOrganisationService.getPotentialApplicantOrganisations(masterPwa, webUserAccount);
