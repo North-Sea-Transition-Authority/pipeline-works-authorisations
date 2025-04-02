@@ -18,7 +18,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
@@ -60,7 +59,7 @@ class AsBuiltNotificationAuthServiceTest {
 
     when(asBuiltNotificationGroupService.getMasterPwaForAsBuiltNotificationGroup(NOTIFICATION_GROUP_ID)).thenReturn(masterPwa);
     when(teamQueryService.userHasStaticRole(1L, TeamType.REGULATOR, Role.AS_BUILT_NOTIFICATION_ADMIN)).thenReturn(true);
-    when(pwaHolderTeamService.isPersonInHolderTeamWithRole(masterPwa, industryAsBuiltSubmitter.getLinkedPerson(), PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER))
+    when(pwaHolderTeamService.isPersonInHolderTeamWithRole(masterPwa, industryAsBuiltSubmitter, Role.AS_BUILT_NOTIFICATION_SUBMITTER))
         .thenReturn(true);
   }
 

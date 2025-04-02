@@ -27,10 +27,10 @@ import uk.co.ogauthority.pwa.features.application.authorisation.involvement.Appl
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 
@@ -179,7 +179,7 @@ class ApplicationLandingPageServiceTest {
 
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         detail.getPwaApplication(),
-        EnumSet.allOf(PwaOrganisationRole.class)
+        EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);

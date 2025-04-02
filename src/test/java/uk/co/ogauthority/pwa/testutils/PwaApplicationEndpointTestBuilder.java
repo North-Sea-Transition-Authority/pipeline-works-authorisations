@@ -321,7 +321,7 @@ public class PwaApplicationEndpointTestBuilder {
 
     var defaultPermissions = EnumSet.allOf(PwaApplicationPermission.class);
     if (pwaApplicationPermissionService != null) {
-      when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(defaultPermissions);
+      when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(defaultPermissions);
     }
 
     if (padPipelineService != null) {

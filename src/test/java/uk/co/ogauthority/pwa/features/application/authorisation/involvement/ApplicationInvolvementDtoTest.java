@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
+import uk.co.ogauthority.pwa.teams.Role;
 
 class ApplicationInvolvementDtoTest {
 
@@ -53,7 +53,7 @@ class ApplicationInvolvementDtoTest {
         false,
         false,
         false,
-        Set.of(PwaOrganisationRole.APPLICATION_CREATOR),
+        Set.of(Role.APPLICATION_CREATOR),
         false,
         null);
 

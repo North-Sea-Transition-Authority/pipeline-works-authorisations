@@ -156,7 +156,7 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user)).thenReturn(
         EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(SupplementaryDocumentsController.class)
@@ -193,7 +193,7 @@ class SupplementaryDocumentsControllerTest extends PwaApplicationContextAbstract
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user)).thenReturn(
         EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(SupplementaryDocumentsController.class)

@@ -8,8 +8,9 @@ import java.util.stream.Stream;
 import org.apache.commons.collections4.SetUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * Used to map permissions for a specific operation on a PWA application to the various roles in different teams
@@ -18,28 +19,28 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 public enum PwaApplicationPermission {
   SUBMIT(
       EnumSet.noneOf(PwaContactRole.class),
-      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER),
+      EnumSet.of(Role.APPLICATION_SUBMITTER),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   EDIT(
       EnumSet.of(PwaContactRole.PREPARER),
-      EnumSet.noneOf(PwaOrganisationRole.class),
+      Set.of(),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   MANAGE_CONTACTS(
       EnumSet.of(PwaContactRole.ACCESS_MANAGER),
-      EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER, PwaOrganisationRole.APPLICATION_CREATOR),
+      EnumSet.of(Role.APPLICATION_SUBMITTER, Role.APPLICATION_CREATOR),
       EnumSet.noneOf(PwaRegulatorRole.class),
       EnumSet.noneOf(ConsulteeGroupMemberRole.class)
   ),
 
   VIEW(
       EnumSet.allOf(PwaContactRole.class),
-      EnumSet.allOf(PwaOrganisationRole.class),
+      EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()),
       EnumSet.allOf(PwaRegulatorRole.class),
       EnumSet.allOf(ConsulteeGroupMemberRole.class)),
 
@@ -53,7 +54,7 @@ public enum PwaApplicationPermission {
 
   // Capture the roles a user must have one of in order to qualify for the permission
   private final Set<PwaContactRole> contactRoles;
-  private final Set<PwaOrganisationRole> holderTeamRoles;
+  private final Set<Role> holderTeamRoles;
   private final Set<PwaRegulatorRole> regulatorRoles;
   private final Set<ConsulteeGroupMemberRole> consulteeRoles;
   // define a function to override default permission behaviour. Allows specification of complex permission checks.
@@ -65,7 +66,7 @@ public enum PwaApplicationPermission {
    * Use this constructor when you simply want the user to have any of the specified roles to qualify for permission.
    */
   PwaApplicationPermission(Set<PwaContactRole> contactRoles,
-                           Set<PwaOrganisationRole> holderTeamRoles,
+                           Set<Role> holderTeamRoles,
                            Set<PwaRegulatorRole> regulatorRoles,
                            Set<ConsulteeGroupMemberRole> consulteeRoles) {
     this(
@@ -82,7 +83,7 @@ public enum PwaApplicationPermission {
   PwaApplicationPermission(Function<UserRolesForApplicationDto, Boolean> permissionOverrideFunction) {
     this(
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         EnumSet.noneOf(PwaRegulatorRole.class),
         EnumSet.noneOf(ConsulteeGroupMemberRole.class),
         permissionOverrideFunction);
@@ -93,7 +94,7 @@ public enum PwaApplicationPermission {
    * Use the alternative constructors that determine defaults values for you.
    */
   PwaApplicationPermission(Set<PwaContactRole> contactRoles,
-                           Set<PwaOrganisationRole> holderTeamRoles,
+                           Set<Role> holderTeamRoles,
                            Set<PwaRegulatorRole> regulatorRoles,
                            Set<ConsulteeGroupMemberRole> consulteeRoles,
                            Function<UserRolesForApplicationDto, Boolean> permissionOverrideFunction) {
@@ -104,13 +105,11 @@ public enum PwaApplicationPermission {
     this.permissionOverrideFunction = permissionOverrideFunction;
   }
 
-
-
   public Set<PwaContactRole> getContactRoles() {
     return contactRoles;
   }
 
-  public Set<PwaOrganisationRole> getHolderTeamRoles() {
+  public Set<Role> getHolderTeamRoles() {
     return holderTeamRoles;
   }
 

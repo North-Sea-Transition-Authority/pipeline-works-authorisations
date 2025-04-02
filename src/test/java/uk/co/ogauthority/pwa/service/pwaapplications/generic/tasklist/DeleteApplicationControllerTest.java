@@ -120,7 +120,7 @@ class DeleteApplicationControllerTest extends PwaApplicationContextAbstractContr
   @Test
   void deleteApplication_success() throws Exception {
 
-    when(pwaApplicationPermissionService.getPermissions(any(), eq(person))).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+    when(pwaApplicationPermissionService.getPermissions(any(), eq(user))).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(
             post(ReverseRouter.route(on(DeleteApplicationController.class)

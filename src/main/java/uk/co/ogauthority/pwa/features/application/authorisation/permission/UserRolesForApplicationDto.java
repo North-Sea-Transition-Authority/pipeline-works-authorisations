@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
+import uk.co.ogauthority.pwa.teams.Role;
 
 /**
  * Essentially a cut down ApplicationInvolvement that simply deals with team membership on an application.
@@ -14,12 +14,12 @@ import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 public class UserRolesForApplicationDto {
 
   private final Set<PwaContactRole> userContactRoles;
-  private final Set<PwaOrganisationRole> userHolderTeamRoles;
+  private final Set<Role> userHolderTeamRoles;
   private final Set<PwaRegulatorRole> userRegulatorRoles;
   private final Set<ConsulteeGroupMemberRole> userConsulteeRoles;
 
   UserRolesForApplicationDto(Set<PwaContactRole> userContactRoles,
-                             Set<PwaOrganisationRole> userHolderTeamRoles,
+                             Set<Role> userHolderTeamRoles,
                              Set<PwaRegulatorRole> userRegulatorRoles,
                              Set<ConsulteeGroupMemberRole> userConsulteeRoles) {
     this.userContactRoles = userContactRoles;
@@ -32,7 +32,7 @@ public class UserRolesForApplicationDto {
     return userContactRoles;
   }
 
-  public Set<PwaOrganisationRole> getUserHolderTeamRoles() {
+  public Set<Role> getUserHolderTeamRoles() {
     return userHolderTeamRoles;
   }
 

@@ -13,9 +13,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.ApplicationUpdateRequestService;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ReviewAndSubmitApplicationForm;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.ValidatorUtils;
 
 @Service
@@ -86,7 +86,7 @@ public class ReviewAndSubmitApplicationFormValidator implements SmartValidator {
 
           // verify that person matches a suitable submitter candidate
           boolean validSubmitterPerson = pwaHolderTeamService
-              .getPeopleWithHolderTeamRole(appContext.getApplicationDetail(), PwaOrganisationRole.APPLICATION_SUBMITTER)
+              .getPeopleWithHolderTeamRole(appContext.getApplicationDetail(), Role.APPLICATION_SUBMITTER)
               .stream()
               .anyMatch(submitter -> submitter.getId().asInt() == form.getSubmitterPersonId());
 

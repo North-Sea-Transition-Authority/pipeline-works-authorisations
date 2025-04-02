@@ -37,10 +37,10 @@ import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetailTestUtil;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -88,7 +88,7 @@ class AsBuiltGroupDeadlineServiceTest {
         .thenReturn(orgToMasterPwaIdMultiMap);
     when(asBuiltNotificationGroupStatusService.getAllNonCompleteAsBuiltNotificationGroups()).thenReturn(
         List.of(asBuiltGroup));
-    when(pwaHolderTeamService.getPeopleWithHolderTeamRoleForOrgGroup(portalOrganisationGroup, PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER))
+    when(pwaHolderTeamService.getPeopleWithHolderTeamRoleForOrgGroup(portalOrganisationGroup, Role.AS_BUILT_NOTIFICATION_SUBMITTER))
         .thenReturn(Set.of(person));
   }
 

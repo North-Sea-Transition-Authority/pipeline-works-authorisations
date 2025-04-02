@@ -354,7 +354,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "ORGGRP", "OG");
 
@@ -377,7 +377,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
         detail.setStatus(status);
 
         when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
             Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
@@ -404,7 +404,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
         Set.of(PwaApplicationPermission.MANAGE_CONTACTS));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
@@ -427,7 +427,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     detail.setStatus(PwaApplicationStatus.CASE_OFFICER_REVIEW);
 
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
         Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
@@ -451,7 +451,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
         detail.setStatus(status);
 
         when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
             Set.of(PwaApplicationPermission.MANAGE_CONTACTS, PwaApplicationPermission.EDIT));
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)
@@ -482,7 +482,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
         detail.setStatus(status);
 
         when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(detail);
-        when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+        when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
             Set.of(PwaApplicationPermission.EDIT));
 
         mockMvc.perform(get(ReverseRouter.route(on(PwaContactController.class)

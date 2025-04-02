@@ -99,7 +99,7 @@ class SubmitConfirmationControllerTest extends PwaApplicationContextAbstractCont
         "Some User"
     );
 
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(
         EnumSet.allOf(PwaApplicationPermission.class));
 
     when(applicationSummaryFactory.createSubmissionSummary(any())).thenReturn(applicationSubmissionSummary);

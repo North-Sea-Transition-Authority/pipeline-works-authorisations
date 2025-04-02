@@ -16,9 +16,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @Service
 public class PwaAppProcessingPermissionService {
@@ -57,7 +57,7 @@ public class PwaAppProcessingPermissionService {
                 PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT.equals(detail.getStatus())
                 && (
                     appInvolvement.hasAnyOfTheseContactRoles(PwaContactRole.PREPARER, PwaContactRole.ACCESS_MANAGER)
-                    || appInvolvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.FINANCE_ADMIN)
+                    || appInvolvement.hasAnyOfTheseHolderRoles(Role.FINANCE_ADMIN)
                 )
             );
             case VIEW_PAYMENT_DETAILS_IF_EXISTS:

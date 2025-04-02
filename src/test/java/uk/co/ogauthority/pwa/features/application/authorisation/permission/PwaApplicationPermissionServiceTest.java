@@ -11,20 +11,21 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRole;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
@@ -48,16 +49,18 @@ class PwaApplicationPermissionServiceTest {
   private Person person;
   private PwaApplication app;
   private PwaApplicationDetail detail;
+  private AuthenticatedUserAccount user;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     permissionService = new PwaApplicationPermissionService(pwaContactService, pwaHolderTeamService, teamService, applicationInvolvementService);
 
     app = new PwaApplication();
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(app);
-    person = PersonTestUtil.createDefaultPerson();
+    user = AuthenticatedUserAccountTestUtil.createAllPrivWebUserAccount(1, person);
+    person = user.getLinkedPerson();
 
   }
 
@@ -71,9 +74,9 @@ class PwaApplicationPermissionServiceTest {
           var contactRole = permission.getContactRoles().iterator().next();
 
           when(pwaContactService.getContactRoles(app, person)).thenReturn(Set.of(contactRole));
-          when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(Set.of());
+          when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(Set.of());
 
-          var permissions = permissionService.getPermissions(detail, person);
+          var permissions = permissionService.getPermissions(detail, user);
           AssertionTestUtils.assertNotEmptyAndContains(permissions, permission);
 
         });
@@ -90,9 +93,9 @@ class PwaApplicationPermissionServiceTest {
           var holderRole = permission.getHolderTeamRoles().iterator().next();
 
           when(pwaContactService.getContactRoles(app, person)).thenReturn(Set.of());
-          when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(Set.of(holderRole));
+          when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(Set.of(holderRole));
 
-          var permissions = permissionService.getPermissions(detail, person);
+          var permissions = permissionService.getPermissions(detail, user);
           AssertionTestUtils.assertNotEmptyAndContains(permissions, permission);
 
         });
@@ -111,7 +114,7 @@ class PwaApplicationPermissionServiceTest {
           var teamMember = new PwaTeamMember(null, person, Set.of(new PwaRole(regRole.getPortalTeamRoleName(), null, null, 10)));
           when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.of(teamMember));
 
-          var permissions = permissionService.getPermissions(detail, person);
+          var permissions = permissionService.getPermissions(detail, user);
           AssertionTestUtils.assertNotEmptyAndContains(permissions, permission);
 
         });
@@ -130,7 +133,7 @@ class PwaApplicationPermissionServiceTest {
           when(applicationInvolvementService.getConsultationInvolvement(app, person))
               .thenReturn(Optional.of(new ConsultationInvolvementDto(null, Set.of(consulteeRole), null, null, false)));
 
-          var permissions = permissionService.getPermissions(detail, person);
+          var permissions = permissionService.getPermissions(detail, user);
           AssertionTestUtils.assertNotEmptyAndContains(permissions, permission);
 
         });
@@ -141,9 +144,9 @@ class PwaApplicationPermissionServiceTest {
   void getPermissions_allRoles_allStandardPermissions() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
-    when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()));
 
-    assertThat(permissionService.getPermissions(detail, person))
+    assertThat(permissionService.getPermissions(detail, user))
         .containsExactlyInAnyOrderElementsOf(EnumSet.of(
             PwaApplicationPermission.SUBMIT,
             PwaApplicationPermission.EDIT,
@@ -157,7 +160,7 @@ class PwaApplicationPermissionServiceTest {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
 
-    assertThat(permissionService.getPermissions(detail, person))
+    assertThat(permissionService.getPermissions(detail, user))
         .doesNotContain(PwaApplicationPermission.SET_PIPELINE_REFERENCE);
 
   }
@@ -171,7 +174,7 @@ class PwaApplicationPermissionServiceTest {
     when(teamService.getRegulatorTeam()).thenReturn(regTeam);
     when(teamService.getMembershipOfPersonInTeam(regTeam, person)).thenReturn(Optional.of(regTeamMember));
 
-    assertThat(permissionService.getPermissions(detail, person))
+    assertThat(permissionService.getPermissions(detail, user))
         .contains(PwaApplicationPermission.SET_PIPELINE_REFERENCE);
 
   }
@@ -180,9 +183,9 @@ class PwaApplicationPermissionServiceTest {
   void getPermissions_noRoles_noPermissions() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(Set.of());
-    when(pwaHolderTeamService.getRolesInHolderTeam(detail, person)).thenReturn(Set.of());
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(Set.of());
 
-    assertThat(permissionService.getPermissions(detail, person)).isEmpty();
+    assertThat(permissionService.getPermissions(detail, user)).isEmpty();
 
   }
 

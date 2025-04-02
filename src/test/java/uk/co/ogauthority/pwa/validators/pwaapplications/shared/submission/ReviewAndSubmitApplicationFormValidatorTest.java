@@ -18,9 +18,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.shared.submission.ReviewAndSubmitApplicationForm;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,7 +115,7 @@ class ReviewAndSubmitApplicationFormValidatorTest {
 
     var person = PersonTestUtil.createDefaultPerson();
 
-    when(pwaHolderTeamService.getPeopleWithHolderTeamRole(applicationContext.getApplicationDetail(), PwaOrganisationRole.APPLICATION_SUBMITTER))
+    when(pwaHolderTeamService.getPeopleWithHolderTeamRole(applicationContext.getApplicationDetail(), Role.APPLICATION_SUBMITTER))
         .thenReturn(Set.of(person));
 
     form.setSubmitterPersonId(person.getId().asInt());
@@ -129,7 +129,7 @@ class ReviewAndSubmitApplicationFormValidatorTest {
   @Test
   void validate_noUpdateRequest_editPermission_submitterPersonIdNotValid_submitterErrorOnly() {
 
-    when(pwaHolderTeamService.getPeopleWithHolderTeamRole(applicationContext.getApplicationDetail(), PwaOrganisationRole.APPLICATION_SUBMITTER))
+    when(pwaHolderTeamService.getPeopleWithHolderTeamRole(applicationContext.getApplicationDetail(), Role.APPLICATION_SUBMITTER))
         .thenReturn(Set.of());
 
     form.setSubmitterPersonId(5);

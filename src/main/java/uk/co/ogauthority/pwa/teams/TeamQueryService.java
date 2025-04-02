@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
@@ -88,6 +89,10 @@ public class TeamQueryService {
     return teamMemberQueryService.getTeamMemberViewsByScopedTeam(teamType, teamScopeReference);
   }
 
+  public List<TeamMemberView> getMembersOfTeam(Team team) {
+    return teamMemberQueryService.getTeamMemberViewsForTeam(team);
+  }
+
   public List<TeamMemberView> getMembersOfStaticTeamWithRole(TeamType teamType, Role role) {
     var team = getStaticTeamByTeamType(teamType);
 
@@ -109,5 +114,24 @@ public class TeamQueryService {
         .distinct()
         .toList();
 
+  }
+
+  public Set<Role> getRolesForUserInScopedTeams(long wuaId,
+                                                TeamType teamType,
+                                                Collection<String> scopeIds) {
+    assertTeamTypeIsScoped(teamType);
+
+    return teamRoleRepository.findAllByWuaId(wuaId).stream()
+        .filter(teamRole -> {
+          var team = teamRole.getTeam();
+          return team.getTeamType() == teamType && scopeIds.contains(team.getScopeId());
+        })
+        .map(TeamRole::getRole)
+        .collect(Collectors.toSet());
+  }
+
+  public Set<Team> getScopedTeamsByScopeIds(TeamType teamType, Collection<String> scopeIds) {
+    assertTeamTypeIsScoped(teamType);
+    return teamRepository.findAllByTeamTypeAndScopeTypeAndScopeIdIn(teamType, teamType.getScopeType(), scopeIds);
   }
 }

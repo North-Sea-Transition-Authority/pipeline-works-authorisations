@@ -35,11 +35,11 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoT
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
 import uk.co.ogauthority.pwa.service.documents.DocumentService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -439,7 +439,7 @@ class PrepareConsentTaskServiceTest {
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var processingContext = new PwaAppProcessingContext(detail, null, Set.of(), null,
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(detail.getPwaApplication(), EnumSet.allOf(PwaOrganisationRole.class)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(detail.getPwaApplication(), EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())),
         Set.of());
     var taskAccessible = prepareConsentTaskService.taskAccessible(processingContext);
 
@@ -473,7 +473,7 @@ class PrepareConsentTaskServiceTest {
                 ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION
             ),
             Set.of(),
-            EnumSet.allOf(PwaOrganisationRole.class),
+            EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()),
             null
         ),
         Set.of());
@@ -705,7 +705,7 @@ class PrepareConsentTaskServiceTest {
         EnumSet.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION,
             ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED),
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         ConsultationInvolvementDtoTestUtil.emptyConsultationInvolvement()
     );
   }

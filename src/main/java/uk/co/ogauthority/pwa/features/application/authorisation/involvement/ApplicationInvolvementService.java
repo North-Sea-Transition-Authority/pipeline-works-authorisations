@@ -26,7 +26,6 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -37,6 +36,7 @@ import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationC
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 /**
  * A service to find out how a user is related to an application, e.g. are they part of the contacts team, a consultee,
@@ -96,11 +96,11 @@ public class ApplicationInvolvementService {
 
     // INDUSTRY data
     Set<PwaContactRole> appContactRoles = Set.of();
-    Set<PwaOrganisationRole> userHolderTeamRoles = Set.of();
+    Set<Role> userHolderTeamRoles = Set.of();
 
     if (userTypes.contains(UserType.INDUSTRY)) {
 
-      userHolderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson());
+      userHolderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user);
 
       appContactRoles = pwaContactService.getContactRoles(application, user.getLinkedPerson());
 

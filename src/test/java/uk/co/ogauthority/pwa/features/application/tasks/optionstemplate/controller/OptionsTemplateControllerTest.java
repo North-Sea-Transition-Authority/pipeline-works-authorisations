@@ -158,7 +158,7 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user)).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(OptionsTemplateController.class)
         .postOptionsTemplate(
@@ -192,7 +192,7 @@ class OptionsTemplateControllerTest extends PwaApplicationContextAbstractControl
     when(pwaApplicationDetailService.getTipDetailByAppId(pwaApplicationDetail.getMasterPwaApplicationId()))
         .thenReturn(pwaApplicationDetail);
 
-    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
+    when(pwaApplicationPermissionService.getPermissions(pwaApplicationDetail, user)).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
     mockMvc.perform(post(ReverseRouter.route(on(OptionsTemplateController.class)
         .postOptionsTemplate(

@@ -8,8 +8,8 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
+import uk.co.ogauthority.pwa.teams.Role;
 
 public class ApplicationInvolvementDto {
 
@@ -30,7 +30,7 @@ public class ApplicationInvolvementDto {
 
   private final boolean userIsIndustryOnly;
 
-  private final Set<PwaOrganisationRole> holderTeamRoles;
+  private final Set<Role> holderTeamRoles;
 
   private final OpenConsentReview openConsentReview;
 
@@ -40,7 +40,7 @@ public class ApplicationInvolvementDto {
                                    boolean userIsAssignedCaseOfficer,
                                    boolean pwaManagerStage,
                                    boolean atLeastOneSatisfactoryVersion,
-                                   Set<PwaOrganisationRole> holderTeamRoles,
+                                   Set<Role> holderTeamRoles,
                                    boolean userIsIndustryOnly,
                                    OpenConsentReview openConsentReview) {
     this.pwaApplication = pwaApplication;
@@ -81,11 +81,11 @@ public class ApplicationInvolvementDto {
         .anyMatch(contactRoles::contains);
   }
 
-  public boolean hasAnyOfTheseHolderRoles(PwaOrganisationRole... roles) {
+  public boolean hasAnyOfTheseHolderRoles(Role... roles) {
     return hasAnyOfTheseHolderRoles(Arrays.asList(roles));
   }
 
-  public boolean hasAnyOfTheseHolderRoles(Collection<PwaOrganisationRole> roles) {
+  public boolean hasAnyOfTheseHolderRoles(Collection<Role> roles) {
     return roles.stream()
         .anyMatch(holderTeamRoles::contains);
   }

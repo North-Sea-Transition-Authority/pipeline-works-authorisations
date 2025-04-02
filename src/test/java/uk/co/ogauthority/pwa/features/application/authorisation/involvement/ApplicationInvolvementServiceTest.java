@@ -40,7 +40,6 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
@@ -52,6 +51,8 @@ import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationC
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -172,7 +173,7 @@ class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
-    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.allOf(PwaOrganisationRole.class));
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -191,7 +192,7 @@ class ApplicationInvolvementServiceTest {
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.INDUSTRY));
     when(pwaContactService.getContactRoles(application, user.getLinkedPerson())).thenReturn(Set.of());
-    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.noneOf(PwaOrganisationRole.class));
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(Set.of());
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -287,7 +288,7 @@ class ApplicationInvolvementServiceTest {
     when(camundaWorkflowService.getAllActiveWorkflowTasks(application)).thenReturn(
         Set.of(new WorkflowTaskInstance(application, PwaApplicationWorkflowTask.APPLICATION_REVIEW)));
 
-    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user.getLinkedPerson())).thenReturn(EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+    when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(EnumSet.of(Role.APPLICATION_SUBMITTER));
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
@@ -295,7 +296,7 @@ class ApplicationInvolvementServiceTest {
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
-    assertThat(involvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.APPLICATION_SUBMITTER)).isTrue();
+    assertThat(involvement.hasAnyOfTheseHolderRoles(Role.APPLICATION_SUBMITTER)).isTrue();
     assertThat(involvement.isUserInHolderTeam()).isTrue();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();
@@ -319,7 +320,7 @@ class ApplicationInvolvementServiceTest {
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
     assertThat(involvement.isUserInAppContactTeam()).isTrue();
-    assertThat(involvement.hasAnyOfTheseHolderRoles(PwaOrganisationRole.values())).isFalse();
+    assertThat(involvement.hasAnyOfTheseHolderRoles(TeamType.ORGANISATION.getAllowedRoles())).isFalse();
     assertThat(involvement.isUserInHolderTeam()).isFalse();
     assertThat(involvement.getConsultationInvolvement()).isEmpty();
     assertThat(involvement.isUserAssignedCaseOfficer()).isFalse();

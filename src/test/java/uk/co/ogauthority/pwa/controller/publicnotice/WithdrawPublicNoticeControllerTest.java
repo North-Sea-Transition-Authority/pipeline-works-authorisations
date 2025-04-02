@@ -13,6 +13,7 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -37,7 +38,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.WithdrawPublicNoticeService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -78,7 +78,7 @@ class WithdrawPublicNoticeControllerTest extends PwaAppProcessingContextAbstract
         pwaApplicationDetail.getPwaApplication(),
         EnumSet.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION),
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         ConsultationInvolvementDtoTestUtil.emptyConsultationInvolvement());
     var permissionsDto = new ProcessingPermissionsDto(appInvolvement, EnumSet.allOf(PwaAppProcessingPermission.class));
 

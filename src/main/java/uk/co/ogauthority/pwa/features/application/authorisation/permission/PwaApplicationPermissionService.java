@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
@@ -33,11 +34,12 @@ public class PwaApplicationPermissionService {
     this.applicationInvolvementService = applicationInvolvementService;
   }
 
-  private UserRolesForApplicationDto getUserRolesForApplication(PwaApplicationDetail detail, Person person) {
+  private UserRolesForApplicationDto getUserRolesForApplication(PwaApplicationDetail detail, WebUserAccount user) {
 
+    var person = user.getLinkedPerson();
     var contactRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), person);
 
-    var holderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, person);
+    var holderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user);
 
     var regulatorRoles = teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)
         .map(member -> member.getRoleSet().stream()
@@ -54,9 +56,9 @@ public class PwaApplicationPermissionService {
 
   }
 
-  public Set<PwaApplicationPermission> getPermissions(PwaApplicationDetail detail, Person person) {
+  public Set<PwaApplicationPermission> getPermissions(PwaApplicationDetail detail, WebUserAccount user) {
 
-    var userRolesForApplication = getUserRolesForApplication(detail, person);
+    var userRolesForApplication = getUserRolesForApplication(detail, user);
 
     return PwaApplicationPermission.stream()
         .filter(permission -> userHasPermission(permission, userRolesForApplication))

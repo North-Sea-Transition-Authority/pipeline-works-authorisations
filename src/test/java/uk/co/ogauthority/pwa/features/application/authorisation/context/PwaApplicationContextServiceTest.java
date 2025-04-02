@@ -89,7 +89,7 @@ class PwaApplicationContextServiceTest {
         metricsProvider);
 
     when(detailService.getTipDetailByAppId(1)).thenReturn(detail);
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.EDIT));
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(Set.of(PwaApplicationPermission.EDIT));
 
     var padPipeline = new PadPipeline();
     padPipeline.setPwaApplicationDetail(detail);
@@ -119,7 +119,7 @@ class PwaApplicationContextServiceTest {
 
   @Test
   void validateAndCreate_noChecks_userHasNoRolesForApp() {
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of());
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(Set.of());
     var contextBuilder = new PwaApplicationContextParams(1, user);
     contextService.validateAndCreate(contextBuilder);
   }
@@ -158,7 +158,7 @@ class PwaApplicationContextServiceTest {
 
   @Test
   void validateAndCreate_permissionsCheck_invalid() {
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of(PwaApplicationPermission.VIEW));
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(Set.of(PwaApplicationPermission.VIEW));
     var builder = new PwaApplicationContextParams(1, user)
           .requiredUserPermissions(Set.of(PwaApplicationPermission.EDIT));
     assertThrows(AccessDeniedException.class, () ->
@@ -169,7 +169,7 @@ class PwaApplicationContextServiceTest {
   void validateAndCreate_permissionsCheck_invalid_noPermissions() {
     var builder = new PwaApplicationContextParams(1, user)
           .requiredUserPermissions(Set.of(PwaApplicationPermission.SUBMIT));
-    when(pwaApplicationPermissionService.getPermissions(detail, user.getLinkedPerson())).thenReturn(Set.of());
+    when(pwaApplicationPermissionService.getPermissions(detail, user)).thenReturn(Set.of());
     assertThrows(AccessDeniedException.class, () ->
 
       contextService.validateAndCreate(builder));

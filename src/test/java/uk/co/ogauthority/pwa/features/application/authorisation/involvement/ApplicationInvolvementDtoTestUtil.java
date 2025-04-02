@@ -11,8 +11,8 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
+import uk.co.ogauthority.pwa.teams.Role;
 
 public final class ApplicationInvolvementDtoTestUtil {
 
@@ -36,7 +36,7 @@ public final class ApplicationInvolvementDtoTestUtil {
   public static ApplicationInvolvementDto generateAppInvolvement(PwaApplication pwaApplication,
                                                                  Set<InvolvementFlag> versionFlags,
                                                                  Set<PwaContactRole> pwaContactRoles,
-                                                                 Set<PwaOrganisationRole> pwaOrganisationRoles,
+                                                                 Set<Role> pwaOrganisationRoles,
                                                                  ConsultationInvolvementDto consultationInvolvementDto) {
     return new ApplicationInvolvementDto(
         pwaApplication,
@@ -53,7 +53,7 @@ public final class ApplicationInvolvementDtoTestUtil {
 
   public static ApplicationInvolvementDto generatePwaHolderTeamInvolvement(PwaApplication pwaApplication,
                                                                            Set<InvolvementFlag> versionFlags,
-                                                                           Set<PwaOrganisationRole> pwaOrganisationRoles) {
+                                                                           Set<Role> pwaOrganisationRoles) {
     return generateAppInvolvement(
         pwaApplication,
         versionFlags,
@@ -71,7 +71,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         pwaApplication,
         versionFlags,
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         consultationInvolvementDto
     );
 
@@ -88,7 +88,7 @@ public final class ApplicationInvolvementDtoTestUtil {
   }
 
   public static ApplicationInvolvementDto generatePwaHolderTeamInvolvement(PwaApplication pwaApplication,
-                                                                           Set<PwaOrganisationRole> pwaOrganisationRoles) {
+                                                                           Set<Role> pwaOrganisationRoles) {
     var flags = getDefaultFlags();
     flags.add(INDUSTRY_INVOLVEMENT_ONLY);
 
@@ -107,7 +107,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         pwaApplication,
         EnumSet.noneOf(InvolvementFlag.class),
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         null
     );
 
@@ -118,7 +118,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         pwaApplication,
         involvementFlags,
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         null
     );
 
@@ -132,7 +132,7 @@ public final class ApplicationInvolvementDtoTestUtil {
         pwaApplication,
         flags,
         pwaContactRoleSet,
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         null
     );
 

@@ -35,12 +35,12 @@ import uk.co.ogauthority.pwa.model.entity.files.AppFile;
 import uk.co.ogauthority.pwa.model.entity.files.AppFilePurpose;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationResponseFileLinkRepository;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 
@@ -121,7 +121,7 @@ class ConsultationFileServiceTest {
     var processingContext = PwaAppProcessingContextTestUtil.withAppInvolvement(
         PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL),
         ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(pwaApplication,
-            Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)));
+            Set.of(Role.APPLICATION_SUBMITTER)));
     when(pwaConsentService.getConsentByPwaApplication(processingContext.getPwaApplication()))
         .thenReturn(Optional.of(new PwaConsent()));
     assertTrue(consultationFileService.industryUserCanAccessFile(processingContext));

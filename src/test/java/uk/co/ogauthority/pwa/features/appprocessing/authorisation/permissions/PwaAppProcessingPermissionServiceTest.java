@@ -29,9 +29,10 @@ import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 
@@ -355,7 +356,7 @@ class PwaAppProcessingPermissionServiceTest {
     user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-        application, Set.of(PwaOrganisationRole.APPLICATION_CREATOR));
+        application, Set.of(Role.APPLICATION_CREATOR));
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
     var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -540,7 +541,7 @@ class PwaAppProcessingPermissionServiceTest {
   private void setUserAsHolderTeamMember() {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         application,
-        EnumSet.allOf(PwaOrganisationRole.class)
+        EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())
     );
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
   }
@@ -1067,7 +1068,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1088,7 +1089,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1108,7 +1109,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1128,7 +1129,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1149,7 +1150,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1170,7 +1171,7 @@ class PwaAppProcessingPermissionServiceTest {
           replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-              application, EnumSet.of(PwaOrganisationRole.APPLICATION_SUBMITTER));
+              application, EnumSet.of(Role.APPLICATION_SUBMITTER));
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
           var permissions = processingPermissionService.getProcessingPermissionsDto(detail, user).getProcessingPermissions();
@@ -1424,7 +1425,7 @@ class PwaAppProcessingPermissionServiceTest {
     detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-        application, EnumSet.of(PwaOrganisationRole.FINANCE_ADMIN)
+        application, EnumSet.of(Role.FINANCE_ADMIN)
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1438,7 +1439,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_payForApplicationPermission_notInAwaitingPaymentStatus_holderTeamFinanceRole() {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
-        application, EnumSet.of(PwaOrganisationRole.FINANCE_ADMIN)
+        application, EnumSet.of(Role.FINANCE_ADMIN)
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1537,7 +1538,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         application,
-        Set.of(PwaOrganisationRole.FINANCE_ADMIN)
+        Set.of(Role.FINANCE_ADMIN)
     );
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -1551,7 +1552,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_manageAppContacts_hasRequiredHolderRoles() {
 
     var holderRoles = PwaApplicationPermission.MANAGE_CONTACTS.getHolderTeamRoles();
-    for (PwaOrganisationRole role : holderRoles) {
+    for (Role role : holderRoles) {
       var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
           application,
           Set.of(role)
@@ -1618,7 +1619,7 @@ class PwaAppProcessingPermissionServiceTest {
       detail.setStatus(appStatus);
       var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
           application,
-          Set.of(PwaOrganisationRole.APPLICATION_CREATOR)
+          Set.of(Role.APPLICATION_CREATOR)
       );
       when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -1632,7 +1633,7 @@ class PwaAppProcessingPermissionServiceTest {
 
       var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
           application,
-          Set.of(PwaOrganisationRole.FINANCE_ADMIN)
+          Set.of(Role.FINANCE_ADMIN)
       );
       when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 

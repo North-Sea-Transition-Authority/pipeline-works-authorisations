@@ -11,7 +11,6 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pr
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDtoTestUtil;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 
 public class PwaAppProcessingContextDtoTestUtils {
 
@@ -35,7 +34,7 @@ public class PwaAppProcessingContextDtoTestUtils {
         null,
         EnumSet.noneOf(ApplicationInvolvementDtoTestUtil.InvolvementFlag.class),
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         consultationInvolvement
     );
 
@@ -86,7 +85,7 @@ public class PwaAppProcessingContextDtoTestUtils {
         application,
         EnumSet.of(ApplicationInvolvementDtoTestUtil.InvolvementFlag.AT_LEAST_ONE_SATISFACTORY_VERSION),
         EnumSet.noneOf(PwaContactRole.class),
-        EnumSet.noneOf(PwaOrganisationRole.class),
+        Set.of(),
         ConsultationInvolvementDtoTestUtil.emptyConsultationInvolvement()
     );
   }

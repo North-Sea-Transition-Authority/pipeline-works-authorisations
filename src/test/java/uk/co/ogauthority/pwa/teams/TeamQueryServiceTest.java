@@ -274,6 +274,45 @@ class TeamQueryServiceTest {
         .containsExactly(team);
   }
 
+  @Test
+  void getRolesForUserInScopedTeams_FiltersTeamTypeAndCorrectScopeIds() {
+    var teamType = TeamType.ORGANISATION;
+
+    var scopeId1 = "1";
+    var team1 = new Team();
+    team1.setTeamType(teamType);
+    team1.setScopeId(scopeId1);
+
+    var scopeId2 = "2";
+    var team2 = new Team();
+    team2.setTeamType(teamType);
+    team2.setScopeId(scopeId2);
+
+    var team3 = new Team();
+    team3.setTeamType(TeamType.CONSULTEE);
+    team3.setScopeId("1");
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setTeam(team1);
+    teamRole1.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole2 = new TeamRole();
+    teamRole2.setTeam(team2);
+    teamRole2.setRole(Role.APPLICATION_SUBMITTER);
+
+    var teamRole3 = new TeamRole();
+    teamRole3.setTeam(team3);
+    teamRole3.setRole(Role.RECIPIENT);
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of(teamRole1, teamRole3));
+
+    var result = teamQueryService.getRolesForUserInScopedTeams(1L, teamType, Set.of(scopeId1));
+
+    assertThat(result)
+        .containsOnly(Role.TEAM_ADMINISTRATOR);
+  }
+
   private void setupStaticTeamAndRoles(Long wuaId, TeamType teamType, List<Role> roles) {
     var team = new Team(UUID.randomUUID());
     team.setTeamType(teamType);

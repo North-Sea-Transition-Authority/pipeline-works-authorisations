@@ -18,10 +18,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupDetail;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltDeadlineReminderType;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.repository.asbuilt.AsBuiltNotificationGroupDetailRepository;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 /**
  * Perform database interactions for as--built notification group deadline changes.
@@ -116,8 +116,10 @@ class AsBuiltGroupDeadlineService {
                                                           AsBuiltDeadlineReminderType deadlineReminderType) {
     holderToAsBuiltNotificationGroupMultiMap.asMap().forEach((orgGroup, asBuiltNotificationGroupList) -> {
 
-      var allAsBuiltSubmitters = pwaHolderTeamService.getPeopleWithHolderTeamRoleForOrgGroup(orgGroup,
-          PwaOrganisationRole.AS_BUILT_NOTIFICATION_SUBMITTER);
+      var allAsBuiltSubmitters = pwaHolderTeamService.getPeopleWithHolderTeamRoleForOrgGroup(
+          orgGroup,
+          Role.AS_BUILT_NOTIFICATION_SUBMITTER
+      );
 
       sendDeadlineEmailToHolderOrgPeople(allAsBuiltSubmitters, new ArrayList<>(asBuiltNotificationGroupList), deadlineReminderType);
       LOGGER.info("Sent {} emails to {}", deadlineReminderType.getDeadlineTypeText(), allAsBuiltSubmitters.stream()

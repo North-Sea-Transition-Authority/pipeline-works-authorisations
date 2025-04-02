@@ -44,7 +44,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroup;
 import uk.co.ogauthority.pwa.model.entity.asbuilt.AsBuiltNotificationGroupTestUtil;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.model.view.banner.PageBannerView;
 import uk.co.ogauthority.pwa.model.view.notificationbanner.NotificationBannerView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -57,6 +56,7 @@ import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -378,7 +378,7 @@ class TasksTabContentServiceTest {
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
     var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(Role.APPLICATION_SUBMITTER)),
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
@@ -406,7 +406,7 @@ class TasksTabContentServiceTest {
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
     var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(Role.APPLICATION_SUBMITTER)),
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
@@ -435,7 +435,7 @@ class TasksTabContentServiceTest {
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
     var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(Role.APPLICATION_SUBMITTER)),
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
@@ -468,7 +468,7 @@ class TasksTabContentServiceTest {
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
     var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(Role.APPLICATION_SUBMITTER)),
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY, PwaAppProcessingPermission.VIEW_PAYMENT_DETAILS_IF_EXISTS);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
@@ -485,7 +485,7 @@ class TasksTabContentServiceTest {
     var taskListGroupsList = List.of(new TaskListGroup("test", 10, List.of()));
 
     var processingContext = createContextFromInvolvementAndPermissions(
-        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(PwaOrganisationRole.APPLICATION_SUBMITTER)),
+        ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(null, Set.of(Role.APPLICATION_SUBMITTER)),
         PwaAppProcessingPermission.CASE_MANAGEMENT_INDUSTRY);
 
     when(taskListService.getTaskListGroups(processingContext)).thenReturn(taskListGroupsList);
