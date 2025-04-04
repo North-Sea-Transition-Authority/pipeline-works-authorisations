@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.application.tasks.huoo;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,30 +16,24 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 
 @Service
 public class EditHuooValidator implements SmartValidator {
 
   private final PadOrganisationRoleService padOrganisationRoleService;
-  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final TeamService teamService;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   @Autowired
   public EditHuooValidator(
       PadOrganisationRoleService padOrganisationRoleService,
-      PortalOrganisationsAccessor portalOrganisationsAccessor,
-      TeamService teamService) {
+      PwaHolderTeamService pwaHolderTeamService) {
     this.padOrganisationRoleService = padOrganisationRoleService;
-    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.teamService = teamService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
   }
 
   @Override
@@ -111,7 +105,10 @@ public class EditHuooValidator implements SmartValidator {
 
       if (detail.getPwaApplicationType().equals(PwaApplicationType.INITIAL) && holderSelected) {
 
-        var userAccessibleOrgUnitIdToOrgUnitMap = getOrgUnitsUserCanAccess(authenticatedUser)
+        var userAccessibleOrgUnitIdToOrgUnitMap = pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
+                authenticatedUser,
+                Set.of(Role.APPLICATION_CREATOR)
+            )
             .stream()
             .collect(Collectors.toMap(OrganisationUnitId::from, o -> o));
 
@@ -175,14 +172,5 @@ public class EditHuooValidator implements SmartValidator {
     }
   }
 
-
-  private List<PortalOrganisationUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
-    var orgGroupsUserCanAccess = teamService.getOrganisationTeamListIfPersonInRole(
-        user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
-    return portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(orgGroupsUserCanAccess);
-  }
 
 }

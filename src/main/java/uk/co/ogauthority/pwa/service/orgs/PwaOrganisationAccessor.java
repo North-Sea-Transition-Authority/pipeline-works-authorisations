@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.orgs;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -9,11 +8,12 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * Wrapper class for PortalOrganisationsAccessor to retrieve organisations that a user has permission to access.
@@ -21,17 +21,17 @@ import uk.co.ogauthority.pwa.service.users.UserTypeService;
 @Service
 public class PwaOrganisationAccessor {
 
-  private final TeamService teamService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final UserTypeService userTypeService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
-  public PwaOrganisationAccessor(TeamService teamService,
-                                 PortalOrganisationsAccessor portalOrganisationsAccessor,
-                                 UserTypeService userTypeService) {
-    this.teamService = teamService;
+  public PwaOrganisationAccessor(PortalOrganisationsAccessor portalOrganisationsAccessor,
+                                 UserTypeService userTypeService,
+                                 TeamQueryService teamQueryService) {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.userTypeService = userTypeService;
+    this.teamQueryService = teamQueryService;
   }
 
   public List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
@@ -40,12 +40,18 @@ public class PwaOrganisationAccessor {
       return portalOrganisationsAccessor.getAllOrganisationGroups();
     }
 
-    return teamService.getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), List.of(PwaOrganisationRole.APPLICATION_CREATOR))
+    var orgGroupIdList = teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(
+            user.getWuaId(),
+            TeamType.ORGANISATION,
+            List.of(Role.APPLICATION_CREATOR)
+        )
         .stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
-  }
+        .map(Team::getScopeId)
+        .map(Integer::valueOf)
+        .toList();
 
+    return portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(orgGroupIdList);
+  }
 
   public List<PortalOrganisationGroup> findOrganisationGroupsWhereNameContains(String searchTerm) {
     return portalOrganisationsAccessor.getAllOrganisationGroupsWhereNameContains(searchTerm);
@@ -64,7 +70,9 @@ public class PwaOrganisationAccessor {
       return portalOrganisationsAccessor.getAllActiveOrganisationUnitsSearch();
     }
 
-    return portalOrganisationsAccessor.getSearchableOrganisationUnitsForOrganisationGroupsIn(getOrgGroupsUserCanAccess(user));
+    var orgGroups = getOrgGroupsUserCanAccess(user);
+
+    return portalOrganisationsAccessor.getSearchableOrganisationUnitsForOrganisationGroupsIn(orgGroups);
   }
 
 }

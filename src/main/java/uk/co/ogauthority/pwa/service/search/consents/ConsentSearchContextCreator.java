@@ -7,23 +7,22 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.search.consents.ConsentSearchContext;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class ConsentSearchContextCreator {
 
   private final UserTypeService userTypeService;
-  private final TeamService teamService;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   @Autowired
   public ConsentSearchContextCreator(UserTypeService userTypeService,
-                                     TeamService teamService) {
+                                     PwaHolderTeamService pwaHolderTeamService) {
     this.userTypeService = userTypeService;
-    this.teamService = teamService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
   }
 
   public ConsentSearchContext createContext(AuthenticatedUserAccount user) {
@@ -32,10 +31,10 @@ public class ConsentSearchContextCreator {
 
     if (context.getUserType() == UserType.INDUSTRY) {
 
-      var orgGroupsUserIsInTeamFor = teamService
-          .getOrganisationTeamListIfPersonInRole(user.getLinkedPerson(), EnumSet.allOf(PwaOrganisationRole.class))
-          .stream()
-          .map(PwaOrganisationTeam::getPortalOrganisationGroup)
+      var orgGroupsUserIsInTeamFor = pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(
+              user,
+              EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())
+          ).stream()
           .map(PortalOrganisationGroup::getOrgGrpId)
           .collect(Collectors.toSet());
 

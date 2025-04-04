@@ -3,9 +3,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.huoo;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.teams.Role.APPLICATION_CREATOR;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -15,10 +15,9 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
@@ -29,17 +28,16 @@ import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.TreatyAgreement;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
+//@MockitoSettings(strictness = Strictness.LENIENT)
 class EditHuooValidatorTest {
   
   private static final OrganisationUnitId ORG_UNIT_1_ID = OrganisationUnitId.fromInt(1);
@@ -48,11 +46,9 @@ class EditHuooValidatorTest {
   private PadOrganisationRoleService organisationRoleService;
 
   @Mock
-  private PortalOrganisationsAccessor portalOrganisationsAccessor;
+  private PwaHolderTeamService pwaHolderTeamService;
 
-  @Mock
-  private TeamService teamService;
-
+  @InjectMocks
   private EditHuooValidator validator;
 
   private PwaApplicationDetail detail;
@@ -76,8 +72,6 @@ class EditHuooValidatorTest {
 
     orgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
 
-    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
-
     portalOrgRole.setOrganisationUnit(orgUnit);
 
     var treatyOrgRole = new PadOrganisationRole();
@@ -87,9 +81,6 @@ class EditHuooValidatorTest {
 
     portalOrgRoles = List.of(portalOrgRole);
     treatyOrgRoles = List.of(treatyOrgRole);
-
-    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
-    validator = new EditHuooValidator(organisationRoleService, portalOrganisationsAccessor, teamService);
   }
 
   @Test
@@ -99,12 +90,14 @@ class EditHuooValidatorTest {
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));
     form.setOrganisationUnitId(portalOrgRoles.get(0).getOrganisationUnit().getOuId());
 
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(authenticatedUserAccount, Set.of(APPLICATION_CREATOR)))
+        .thenReturn(List.of(orgUnit));
 
     var result = ValidatorTestUtils.getFormValidationErrors(
         validator, form, detail, getValidationView(portalOrgRoles), authenticatedUserAccount);
 
-    verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
+    verify(organisationRoleService).getOrgRolesForDetail(detail);
 
     assertThat(result).isEmpty();
 
@@ -120,7 +113,9 @@ class EditHuooValidatorTest {
     orgUnit = PortalOrganisationTestUtils.getInactiveOrganisationUnitInOrgGroup();
     portalOrgRole.setOrganisationUnit(orgUnit);
 
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any())).thenReturn(List.of(orgUnit));
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(authenticatedUserAccount, Set.of(APPLICATION_CREATOR)))
+        .thenReturn(List.of(orgUnit));
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.HOLDER, HuooRole.OWNER));
@@ -137,6 +132,7 @@ class EditHuooValidatorTest {
 
   @Test
   void valid_treaty_dataPresent() {
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
 
     var form = new HuooForm();
     form.setHuooType(HuooType.TREATY_AGREEMENT);
@@ -144,7 +140,7 @@ class EditHuooValidatorTest {
     var result = ValidatorTestUtils.getFormValidationErrors(
         validator, form, detail, getValidationView(treatyOrgRoles), authenticatedUserAccount);
 
-    verify(organisationRoleService, times(1)).getOrgRolesForDetail(detail);
+    verify(organisationRoleService).getOrgRolesForDetail(detail);
 
     assertThat(result).isEmpty();
 
@@ -152,6 +148,7 @@ class EditHuooValidatorTest {
 
   @Test
   void invalid_mandatory_huooType_portalOrg() {
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
 
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
@@ -188,6 +185,7 @@ class EditHuooValidatorTest {
 
     form.setOrganisationUnitId(99);
 
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
     when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
 
     var result = ValidatorTestUtils.getFormValidationErrors(
@@ -201,6 +199,8 @@ class EditHuooValidatorTest {
 
   @Test
   void invalid_huooType_portalOrg_lastHolder() {
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
 
     var form = buildForm();
     form.setHuooRoles(Set.of(HuooRole.OWNER));
@@ -218,6 +218,8 @@ class EditHuooValidatorTest {
 
   @Test
   void unitSelectedIsPartOfUsersOrg_valid() {
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -258,7 +260,8 @@ class EditHuooValidatorTest {
     portalOrgRoles = List.of(
         new PadOrganisationRole(HuooRole.HOLDER)
     );
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any()))
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+    when(pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(authenticatedUserAccount, Set.of(APPLICATION_CREATOR)))
         .thenReturn(List.of(PortalOrganisationTestUtils.generateOrganisationUnit(2, "name")));
 
     var result = ValidatorTestUtils.getFormValidationErrors(
@@ -279,6 +282,8 @@ class EditHuooValidatorTest {
    */
   @Test
   void unitSelectedIsPartOfUsersOrg_invalid_wasHolder() {
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -289,8 +294,6 @@ class EditHuooValidatorTest {
     portalOrgRoles = List.of(
         new PadOrganisationRole(HuooRole.HOLDER)
     );
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(any()))
-        .thenReturn(List.of(PortalOrganisationTestUtils.generateOrganisationUnit(2, "name")));
 
     var result = ValidatorTestUtils.getFormValidationErrors(
         validator, form, detail, getValidationView(portalOrgRoles), authenticatedUserAccount);
@@ -310,6 +313,8 @@ class EditHuooValidatorTest {
    */
   @Test
   void unitSelectedIsPartOfUsersOrg_invalid_nonHolder() {
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
@@ -329,13 +334,14 @@ class EditHuooValidatorTest {
 
   @Test
   void unitSelectedIsPartOfUsersOrg_variationPwa() {
+    when(organisationRoleService.organisationExistsAndActive(any())).thenReturn(true);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setOrganisationUnitId(ORG_UNIT_1_ID.asInt());
     form.setHuooRoles(Set.of());
     var application = new PwaApplication(null, PwaApplicationType.HUOO_VARIATION, null);
     detail.setPwaApplication(application);
-
 
     var result = ValidatorTestUtils.getFormValidationErrors(
         validator, form, detail, getValidationView(portalOrgRoles), authenticatedUserAccount);
@@ -348,6 +354,8 @@ class EditHuooValidatorTest {
 
   @Test
   void validateHolderCountLessThanOverallPwa_invalid() {
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));
@@ -371,6 +379,8 @@ class EditHuooValidatorTest {
 
   @Test
   void validateHolderCountLessThanOverallPwa_valid() {
+    when(organisationRoleService.getOrgRolesForDetail(detail)).thenReturn(portalOrgRoles);
+
     var form = new HuooForm();
     form.setHuooType(HuooType.PORTAL_ORG);
     form.setHuooRoles(Set.of(HuooRole.HOLDER));

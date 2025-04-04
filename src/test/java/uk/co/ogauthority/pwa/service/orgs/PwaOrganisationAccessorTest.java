@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.orgs;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -24,11 +24,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -38,11 +39,12 @@ class PwaOrganisationAccessorTest {
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Mock
-  private TeamService teamService;
+  private TeamQueryService teamQueryService;
 
   @Mock
   private UserTypeService userTypeService;
 
+  @InjectMocks
   private PwaOrganisationAccessor pwaOrganisationAccessor;
 
   private AuthenticatedUserAccount industryUser, ogaUser;
@@ -58,8 +60,6 @@ class PwaOrganisationAccessorTest {
     when(userTypeService.getPriorityUserType(industryUser)).thenReturn(UserType.INDUSTRY);
     when(userTypeService.getPriorityUserType(ogaUser)).thenReturn(UserType.OGA);
 
-    pwaOrganisationAccessor = new PwaOrganisationAccessor(teamService, portalOrganisationsAccessor, userTypeService);
-
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1,"ONE", "O");
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(2,"TWO", "T");
 
@@ -68,14 +68,17 @@ class PwaOrganisationAccessorTest {
   @Test
   void industryUser_getOrgGrps_restricted() {
 
-    var team = TeamTestingUtils.getOrganisationTeam(organisationGroup1);
+    var team = new Team();
+    var teamId = 1;
+    team.setScopeId(String.valueOf(teamId));
 
-    when(teamService.getOrganisationTeamListIfPersonInRole(industryUser.getLinkedPerson(), List.of(PwaOrganisationRole.APPLICATION_CREATOR)))
+    when(teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(industryUser.getWuaId(), TeamType.ORGANISATION, List.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of(team));
+    when(portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(List.of(teamId))).thenReturn(List.of(organisationGroup1));
 
-    var groups = pwaOrganisationAccessor.getOrgGroupsUserCanAccess(industryUser);
+    var result = pwaOrganisationAccessor.getOrgGroupsUserCanAccess(industryUser);
 
-    assertThat(groups).containsExactly(organisationGroup1);
+    assertThat(result).containsExactly(organisationGroup1);
 
   }
 
@@ -97,14 +100,17 @@ class PwaOrganisationAccessorTest {
   @Test
   void industryUser_getOrgUnits_restricted() {
 
-    var team = TeamTestingUtils.getOrganisationTeam(organisationGroup1);
+    var team = new Team();
+    var teamId = 1;
+    team.setScopeId(String.valueOf(teamId));
 
-    when(teamService.getOrganisationTeamListIfPersonInRole(industryUser.getLinkedPerson(), List.of(PwaOrganisationRole.APPLICATION_CREATOR)))
+    when(teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(industryUser.getWuaId(), TeamType.ORGANISATION, List.of(Role.APPLICATION_CREATOR)))
         .thenReturn(List.of(team));
+    when(portalOrganisationsAccessor.getOrganisationGroupsWhereIdIn(List.of(teamId))).thenReturn(List.of(organisationGroup1));
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(industryUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getSearchableOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
+    verify(portalOrganisationsAccessor).getSearchableOrganisationUnitsForOrganisationGroupsIn(List.of(organisationGroup1));
 
   }
 
@@ -113,7 +119,7 @@ class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgGroupsUserCanAccess(ogaUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getAllOrganisationGroups();
+    verify(portalOrganisationsAccessor).getAllOrganisationGroups();
 
   }
 
@@ -122,7 +128,7 @@ class PwaOrganisationAccessorTest {
 
     pwaOrganisationAccessor.getOrgUnitsUserCanAccess(ogaUser);
 
-    verify(portalOrganisationsAccessor, times(1)).getAllActiveOrganisationUnitsSearch();
+    verify(portalOrganisationsAccessor).getAllActiveOrganisationUnitsSearch();
 
   }
 
