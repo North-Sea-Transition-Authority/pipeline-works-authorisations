@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
@@ -30,21 +30,21 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ConsultationRequestService consultationRequestService;
   private final CaseLinkService caseLinkService;
-  private final NotifyService notifyService;
 
   private final PadPipelineTransferService pipelineTransferService;
+  private final EmailService emailService;
 
   @Autowired
   public ConfirmSatisfactoryApplicationService(PwaApplicationDetailService pwaApplicationDetailService,
                                                ConsultationRequestService consultationRequestService,
                                                CaseLinkService caseLinkService,
-                                               NotifyService notifyService,
-                                               PadPipelineTransferService pipelineTransferService) {
+                                               PadPipelineTransferService pipelineTransferService,
+                                               EmailService emailService) {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.consultationRequestService = consultationRequestService;
     this.caseLinkService = caseLinkService;
-    this.notifyService = notifyService;
     this.pipelineTransferService = pipelineTransferService;
+    this.emailService = emailService;
   }
 
   @Override
@@ -158,6 +158,6 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
         consulteeGroupName,
         caseManagementLink);
 
-    notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+    emailService.sendEmail(emailProps, recipient, consultationRequest.getPwaApplication().getAppReference());
   }
 }

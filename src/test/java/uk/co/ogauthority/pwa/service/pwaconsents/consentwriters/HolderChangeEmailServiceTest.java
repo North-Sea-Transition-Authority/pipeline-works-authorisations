@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents.consentwriters;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -29,7 +31,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
@@ -54,7 +56,7 @@ class HolderChangeEmailServiceTest {
   private TeamService teamService;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Mock
   private MasterPwaService masterPwaService;
@@ -63,7 +65,7 @@ class HolderChangeEmailServiceTest {
   private ArgumentCaptor<HolderChangeConsentedEmailProps> emailPropsCaptor;
 
   @Captor
-  private ArgumentCaptor<String> emailAddressCaptor;
+  private ArgumentCaptor<EmailRecipient> emailRecipientArgumentCaptor;
 
   private HolderChangeEmailService holderChangeEmailService;
 
@@ -88,7 +90,7 @@ class HolderChangeEmailServiceTest {
   @BeforeEach
   void setUp() throws Exception {
 
-    holderChangeEmailService = new HolderChangeEmailService(portalOrganisationsAccessor, teamService, notifyService, masterPwaService);
+    holderChangeEmailService = new HolderChangeEmailService(portalOrganisationsAccessor, teamService, masterPwaService, emailService);
 
     shellOrgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "Shell", "S");
     shellOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell", shellOrgGroup);
@@ -181,7 +183,7 @@ class HolderChangeEmailServiceTest {
 
     holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellUkConsentHolderRole), List.of(shellClairConsentHolderRole));
 
-    verify(notifyService, never()).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
+    verify(emailService, never()).sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), any());
   }
 
   @Test
@@ -195,7 +197,8 @@ class HolderChangeEmailServiceTest {
 
     holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellConsentHolderRole), List.of(bpConsentHolderRole));
 
-    verify(notifyService, times(6)).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
+    verify(emailService, times(6))
+        .sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(detail.getPwaApplicationRef()));
 
     assertThat(emailPropsCaptor.getAllValues())
         .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreatorPerson.getFullName()))
@@ -214,13 +217,13 @@ class HolderChangeEmailServiceTest {
 
         });
 
-    assertThat(emailAddressCaptor.getAllValues())
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellFinancePerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpFinancePerson.getEmailAddress()));
+    assertThat(emailRecipientArgumentCaptor.getAllValues())
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellCreatorPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellSubmitterPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellFinancePerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpCreatorPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpSubmitterPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpFinancePerson.getEmailAddress()));
 
   }
 
@@ -235,7 +238,8 @@ class HolderChangeEmailServiceTest {
 
     holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellConsentHolderRole, wintershallConsentHolderRole), List.of(bpConsentHolderRole));
 
-    verify(notifyService, times(9)).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
+    verify(emailService, times(9))
+        .sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(detail.getPwaApplicationRef()));
 
     assertThat(emailPropsCaptor.getAllValues())
         .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreatorPerson.getFullName()))
@@ -257,16 +261,16 @@ class HolderChangeEmailServiceTest {
 
         });
 
-    assertThat(emailAddressCaptor.getAllValues())
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(shellFinancePerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(bpFinancePerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(wintershallCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(wintershallSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailAddress -> assertThat(emailAddress).isEqualTo(wintershallFinancePerson.getEmailAddress()));
+    assertThat(emailRecipientArgumentCaptor.getAllValues())
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellCreatorPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellSubmitterPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellFinancePerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpCreatorPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpSubmitterPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpFinancePerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallCreatorPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallSubmitterPerson.getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallFinancePerson.getEmailAddress()));
 
   }
 

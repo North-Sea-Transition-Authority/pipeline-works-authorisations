@@ -55,7 +55,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequestTestUtil;
@@ -93,9 +93,6 @@ class ConsultationResponseServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
 
   @Mock
@@ -121,6 +118,9 @@ class ConsultationResponseServiceTest {
 
   @Mock
   private FileManagementService fileManagementService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ConsultationResponse> responseCaptor;
@@ -164,7 +164,6 @@ class ConsultationResponseServiceTest {
         consultationResponseRepository,
         camundaWorkflowService,
         clock,
-        notifyService,
         consulteeGroupDetailService,
         workflowAssignmentService,
         caseLinkService,
@@ -172,7 +171,8 @@ class ConsultationResponseServiceTest {
         consultationResponseFileLinkRepository,
         appFileService,
         fileManagementService,
-        appFileManagementService
+        appFileManagementService,
+        emailService
     );
 
   }
@@ -210,7 +210,8 @@ class ConsultationResponseServiceTest {
 
     verify(consultationResponseDataService, times(1)).createAndSaveResponseData(response, form);
 
-    verify(notifyService, times(1)).sendEmail(singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson),
+        eq(consultationRequest.getPwaApplication().getAppReference()));
 
     var props = singleResponseEmailPropsCaptor.getValue();
 
@@ -267,7 +268,8 @@ class ConsultationResponseServiceTest {
 
     verify(consultationResponseDataService, times(1)).createAndSaveResponseData(response, form);
 
-    verify(notifyService, times(1)).sendEmail(multiResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(multiResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson),
+        eq(consultationRequest.getPwaApplication().getAppReference()));
 
     var props = multiResponseEmailPropsCaptor.getValue();
 
@@ -372,8 +374,8 @@ class ConsultationResponseServiceTest {
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(notifyService, times(1)).sendEmail(
-        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson), eq(consultationRequest.getPwaApplication().getAppReference()));
     var props = singleResponseEmailPropsCaptor.getValue();
 
     assertThat(ConsultationResponseOption.PROVIDE_ADVICE.getEmailText()).isPresent();
@@ -395,8 +397,8 @@ class ConsultationResponseServiceTest {
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(notifyService, times(1)).sendEmail(
-        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson), eq(consultationRequest.getPwaApplication().getAppReference()));
     var props = singleResponseEmailPropsCaptor.getValue();
 
     assertThat(ConsultationResponseOption.NO_ADVICE.getEmailText()).isPresent();
@@ -418,8 +420,8 @@ class ConsultationResponseServiceTest {
     var user = new WebUserAccount(1, new Person(1, null, null, null, null));
     consultationResponseService.saveResponseAndCompleteWorkflow(form, consultationRequest, user);
 
-    verify(notifyService, times(1)).sendEmail(
-        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(
+        singleResponseEmailPropsCaptor.capture(), eq(caseOfficerPerson), eq(consultationRequest.getPwaApplication().getAppReference()));
 
     var props = singleResponseEmailPropsCaptor.getValue();
 

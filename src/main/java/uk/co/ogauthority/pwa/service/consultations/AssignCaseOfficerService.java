@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -31,25 +31,25 @@ public class AssignCaseOfficerService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
   private final OldTeamManagementService teamManagementService;
-  private final NotifyService notifyService;
   private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
   private final CaseLinkService caseLinkService;
+  private final EmailService emailService;
 
   @Autowired
   public AssignCaseOfficerService(
       WorkflowAssignmentService workflowAssignmentService,
       OldTeamManagementService teamManagementService,
-      NotifyService notifyService,
       PersonService personService,
       AssignCaseOfficerValidator assignCaseOfficerValidator,
-      CaseLinkService caseLinkService) {
+      CaseLinkService caseLinkService,
+      EmailService emailService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.teamManagementService = teamManagementService;
-    this.notifyService = notifyService;
     this.personService = personService;
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
     this.caseLinkService = caseLinkService;
+    this.emailService = emailService;
   }
 
   /**
@@ -119,7 +119,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
         applicationDetail.getPwaApplicationRef(),
         caseOfficer.getFullName(),
         caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
-    notifyService.sendEmail(props, submitterPerson.getEmailAddress());
+    emailService.sendEmail(props, submitterPerson, applicationDetail.getPwaApplicationRef());
 
   }
 
@@ -132,7 +132,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
         applicationDetail.getPwaApplicationRef(),
         assigningPerson.getFullName(),
         caseLinkService.generateCaseManagementLink(applicationDetail.getPwaApplication()));
-    notifyService.sendEmail(props, caseOfficer.getEmailAddress());
+    emailService.sendEmail(props, caseOfficer, applicationDetail.getPwaApplicationRef());
 
   }
 

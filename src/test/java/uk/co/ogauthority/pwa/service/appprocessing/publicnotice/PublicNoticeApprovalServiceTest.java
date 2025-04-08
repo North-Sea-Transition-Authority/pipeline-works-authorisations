@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
@@ -61,9 +61,6 @@ class PublicNoticeApprovalServiceTest {
   private Clock clock;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
@@ -74,6 +71,9 @@ class PublicNoticeApprovalServiceTest {
 
   @Mock
   private AssignmentService assignmentService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
@@ -91,8 +91,8 @@ class PublicNoticeApprovalServiceTest {
   void setUp() {
 
     publicNoticeApprovalService = new PublicNoticeApprovalService(publicNoticeService, validator,
-        camundaWorkflowService, clock, notifyService, caseLinkService, pwaContactService,
-        personService, assignmentService);
+        camundaWorkflowService, clock, caseLinkService, pwaContactService,
+        personService, assignmentService, emailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -164,7 +164,7 @@ class PublicNoticeApprovalServiceTest {
           pwaApplication.getAppReference(),
           caseManagementLink);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(emailService, times(1)).sendEmail(expectedEmailProps, recipient, pwaApplication.getAppReference());
     });
   }
 
@@ -213,7 +213,7 @@ class PublicNoticeApprovalServiceTest {
           form.getRequestRejectedReason(),
           caseManagementLink);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, caseOfficerPerson.getEmailAddress());
+      verify(emailService, times(1)).sendEmail(expectedEmailProps, caseOfficerPerson, pwaApplication.getAppReference());
     });
 
   }

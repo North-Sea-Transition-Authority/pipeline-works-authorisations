@@ -4,12 +4,13 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ApplicationSubmittedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -22,22 +23,22 @@ import uk.co.ogauthority.pwa.teams.TeamType;
 @Service
 class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmissionService {
 
-  private final NotifyService notifyService;
   private final PadPipelineNumberingService padPipelineNumberingService;
   private final CaseLinkService caseLinkService;
   private final TeamQueryService teamQueryService;
+  private final EmailService emailService;
 
 
   @Autowired
-  public PwaApplicationFirstDraftSubmissionService(NotifyService notifyService,
-                                                   PadPipelineNumberingService padPipelineNumberingService,
+  public PwaApplicationFirstDraftSubmissionService(PadPipelineNumberingService padPipelineNumberingService,
                                                    CaseLinkService caseLinkService,
-                                                   TeamQueryService teamQueryService) {
+                                                   TeamQueryService teamQueryService,
+                                                   EmailService emailService) {
 
-    this.notifyService = notifyService;
     this.padPipelineNumberingService = padPipelineNumberingService;
     this.caseLinkService = caseLinkService;
     this.teamQueryService = teamQueryService;
+    this.emailService = emailService;
   }
 
   @Override
@@ -82,8 +83,11 @@ class PwaApplicationFirstDraftSubmissionService implements ApplicationSubmission
           detail.getPwaApplicationType().getDisplayName(),
           caseLinkService.generateCaseManagementLink(detail.getPwaApplication()));
 
-      notifyService.sendEmail(submittedEmailProps, pwaManager.email());
-
+      emailService.sendEmail(
+          submittedEmailProps,
+          EmailRecipient.directEmailAddress(pwaManager.email()),
+          detail.getPwaApplicationRef()
+      );
     });
 
   }

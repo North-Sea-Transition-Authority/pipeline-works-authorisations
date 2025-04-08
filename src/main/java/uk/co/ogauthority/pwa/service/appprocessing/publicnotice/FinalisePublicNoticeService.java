@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.Public
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticePublicationUpdateEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
@@ -43,9 +43,9 @@ public class FinalisePublicNoticeService {
   private final PublicNoticeDatesRepository publicNoticeDatesRepository;
   private final String serviceName;
   private final PwaContactService pwaContactService;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final Clock clock;
+  private final EmailService emailService;
 
 
   @Autowired
@@ -55,18 +55,19 @@ public class FinalisePublicNoticeService {
       CamundaWorkflowService camundaWorkflowService,
       PublicNoticeDatesRepository publicNoticeDatesRepository,
       @Value("${service.full-name}") String serviceName,
-      PwaContactService pwaContactService, NotifyService notifyService,
+      PwaContactService pwaContactService,
       CaseLinkService caseLinkService,
-      @Qualifier("utcClock") Clock clock) {
+      @Qualifier("utcClock") Clock clock,
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.finalisePublicNoticeValidator = finalisePublicNoticeValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.publicNoticeDatesRepository = publicNoticeDatesRepository;
     this.serviceName = serviceName;
     this.pwaContactService = pwaContactService;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
     this.clock = clock;
+    this.emailService = emailService;
   }
 
 
@@ -115,7 +116,7 @@ public class FinalisePublicNoticeService {
           caseManagementLink,
           DateUtils.formatDate(startDate),
           serviceName);
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+      emailService.sendEmail(emailProps, recipient, pwaApplication.getAppReference());
     });
   }
 
@@ -182,7 +183,7 @@ public class FinalisePublicNoticeService {
           pwaApplication.getAppReference(),
           caseManagementLink,
           DateUtils.formatDate(startDate));
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+      emailService.sendEmail(emailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

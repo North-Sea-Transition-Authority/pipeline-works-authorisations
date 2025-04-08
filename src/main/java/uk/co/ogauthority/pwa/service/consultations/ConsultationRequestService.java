@@ -22,7 +22,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -52,11 +52,11 @@ public class ConsultationRequestService {
   private final OldTeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
 
   private static final Set<ConsultationRequestStatus> ENDED_STATUSES =
       Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN);
+  private final EmailService emailService;
 
   @Autowired
   public ConsultationRequestService(
@@ -67,8 +67,8 @@ public class ConsultationRequestService {
       OldTeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
-      NotifyService notifyService,
-      CaseLinkService caseLinkService) {
+      CaseLinkService caseLinkService,
+      EmailService emailService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
     this.consultationRequestValidator = consultationRequestValidator;
@@ -76,8 +76,8 @@ public class ConsultationRequestService {
     this.teamManagementService = teamManagementService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationsStatusViewFactory = consultationsStatusViewFactory;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
+    this.emailService = emailService;
   }
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroups() {
@@ -97,7 +97,8 @@ public class ConsultationRequestService {
     emailRecipients.forEach(recipient -> {
       var caseManagementLink = caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
       var emailProps = buildRequestReceivedEmailProps(recipient, consultationRequest, consulteeGroupName, caseManagementLink);
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+
+      emailService.sendEmail(emailProps, recipient, consultationRequest.getPwaApplication().getAppReference());
     });
 
   }

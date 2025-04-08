@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.Public
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
@@ -33,8 +33,8 @@ public class WithdrawPublicNoticeService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaTeamService pwaTeamService;
   private final PwaContactService pwaContactService;
-  private final NotifyService notifyService;
   private final Clock clock;
+  private final EmailService emailService;
 
 
   @Autowired
@@ -44,15 +44,15 @@ public class WithdrawPublicNoticeService {
       CamundaWorkflowService camundaWorkflowService,
       PwaTeamService pwaTeamService,
       PwaContactService pwaContactService,
-      NotifyService notifyService,
-      @Qualifier("utcClock") Clock clock) {
+      @Qualifier("utcClock") Clock clock,
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.withdrawPublicNoticeValidator = withdrawPublicNoticeValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaTeamService = pwaTeamService;
     this.pwaContactService = pwaContactService;
-    this.notifyService = notifyService;
     this.clock = clock;
+    this.emailService = emailService;
   }
 
   public boolean publicNoticeCanBeWithdrawn(PwaApplication pwaApplication) {
@@ -111,8 +111,7 @@ public class WithdrawPublicNoticeService {
           pwaApplication.getAppReference(),
           authenticatedUserAccount.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
-
-      notifyService.sendEmail(withdrawnEmailProps, recipient.getEmailAddress());
+      emailService.sendEmail(withdrawnEmailProps, recipient, pwaApplication.getAppReference());
     });
 
   }

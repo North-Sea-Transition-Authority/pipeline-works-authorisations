@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
@@ -29,18 +29,18 @@ public class HolderChangeEmailService {
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
   private final TeamService teamService;
-  private final NotifyService notifyService;
   private final MasterPwaService masterPwaService;
+  private final EmailService emailService;
 
   @Autowired
   public HolderChangeEmailService(PortalOrganisationsAccessor portalOrganisationsAccessor,
                                   TeamService teamService,
-                                  NotifyService notifyService,
-                                  MasterPwaService masterPwaService) {
+                                  MasterPwaService masterPwaService,
+                                  EmailService emailService) {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
     this.teamService = teamService;
-    this.notifyService = notifyService;
     this.masterPwaService = masterPwaService;
+    this.emailService = emailService;
   }
 
   public void sendHolderChangeEmail(PwaApplication pwaApplication,
@@ -123,8 +123,7 @@ public class HolderChangeEmailService {
           newHolderCsv
       );
 
-      notifyService.sendEmail(emailProps, person.getEmailAddress());
-
+      emailService.sendEmail(emailProps, person, pwaApplication.getAppReference());
     });
 
   }

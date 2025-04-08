@@ -31,7 +31,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
@@ -59,7 +59,7 @@ class ConsulteeGroupTeamServiceTest {
   private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ConsulteeGroupTeamMember> teamMemberArgumentCaptor;
@@ -83,7 +83,7 @@ class ConsulteeGroupTeamServiceTest {
     groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository,
         groupTeamMemberRepository,
         nonFoxTeamMemberEventPublisher,
-        notifyService);
+        emailService);
 
     user = new WebUserAccount(1, new Person(1, "forename", "surname", null, null));
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
@@ -419,7 +419,7 @@ class ConsulteeGroupTeamServiceTest {
     groupTeamService.updateUserRoles(emtGroupDetail.getConsulteeGroup(), person, form);
 
     var emailProps = new AddedToTeamEmailProps(person.getFullName(), emtGroupDetail.getName(), "* " + ConsulteeGroupMemberRole.RECIPIENT.getDisplayName());
-    verify(notifyService).sendEmail(emailProps, "person.person@person.co.uk");
+    verify(emailService).sendEmail(emailProps, person, String.valueOf(emtGroupDetail.getConsulteeGroupId()));
   }
 
   private UserRolesForm getRolesFormWithRoles(Set<ConsulteeGroupMemberRole> roles) {

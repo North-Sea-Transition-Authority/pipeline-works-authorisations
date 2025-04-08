@@ -27,11 +27,12 @@ public class EmailProperties {
     this.recipientFullName = recipientFullName;
   }
 
-  /**
-   * Retrieve the name of the email template.
-   */
-  public String getTemplateName() {
-    return template.getTemplateName();
+  public String getTemplateId() {
+    return template.getTemplateId();
+  }
+
+  public String getDomainTypeName() {
+    return template.getDomainType().getTypeName();
   }
 
   public NotifyTemplate getTemplate() {

@@ -23,7 +23,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.Public
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocument;
@@ -59,7 +59,7 @@ class PublicNoticeDocumentUpdateRequestServiceTest {
   private PwaContactService pwaContactService;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
@@ -76,7 +76,7 @@ class PublicNoticeDocumentUpdateRequestServiceTest {
   void setUp() {
 
     publicNoticeDocumentUpdateRequestService = new PublicNoticeDocumentUpdateRequestService(publicNoticeService, validator,
-        publicNoticeDocumentRepository, camundaWorkflowService, caseLinkService, pwaContactService, notifyService);
+        publicNoticeDocumentRepository, camundaWorkflowService, caseLinkService, pwaContactService, emailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -172,7 +172,7 @@ class PublicNoticeDocumentUpdateRequestServiceTest {
           form.getComments(),
           caseManagementLink);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(emailService, times(1)).sendEmail(expectedEmailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

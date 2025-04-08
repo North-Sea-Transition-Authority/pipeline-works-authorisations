@@ -25,7 +25,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.internal.PersonRep
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
@@ -48,16 +48,17 @@ public class OldTeamManagementService {
   private final TeamService teamService;
   private final PersonRepository personRepository;
   private final WebUserAccountRepository webUserAccountRepository;
-
-  private final NotifyService notifyService;
+  private final EmailService emailService;
 
   public OldTeamManagementService(TeamService teamService,
-                               PersonRepository personRepository,
-                               WebUserAccountRepository webUserAccountRepository, NotifyService notifyService) {
+                                  PersonRepository personRepository,
+                                  WebUserAccountRepository webUserAccountRepository,
+                                  EmailService emailService
+  ) {
     this.teamService = teamService;
     this.personRepository = personRepository;
     this.webUserAccountRepository = webUserAccountRepository;
-    this.notifyService = notifyService;
+    this.emailService = emailService;
   }
 
   public PwaTeam getTeamOrError(Integer resId) {
@@ -277,9 +278,8 @@ public class OldTeamManagementService {
                                            .map(PwaRole::getTitle)
                                            .map(str -> "* " + str)
                                            .collect(Collectors.joining("\n"));
-
     var emailProps = new AddedToTeamEmailProps(person.getFullName(), team.getName(), mdFormattedRoles);
-    notifyService.sendEmail(emailProps, person.getEmailAddress());
+    emailService.sendEmail(emailProps, person, String.valueOf(team.getId()));
   }
 
   /**

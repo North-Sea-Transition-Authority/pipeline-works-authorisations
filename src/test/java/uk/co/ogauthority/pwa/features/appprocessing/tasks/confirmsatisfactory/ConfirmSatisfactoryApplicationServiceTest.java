@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -56,7 +56,7 @@ class ConfirmSatisfactoryApplicationServiceTest {
   @Mock
   private CaseLinkService caseLinkService;
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Mock
   private PadPipelineTransferService pipelineTransferService;
@@ -64,7 +64,7 @@ class ConfirmSatisfactoryApplicationServiceTest {
   @BeforeEach
   void setUp() {
     confirmSatisfactoryApplicationService = new ConfirmSatisfactoryApplicationService(pwaApplicationDetailService,
-        consultationRequestService, caseLinkService, notifyService, pipelineTransferService);
+        consultationRequestService, caseLinkService, pipelineTransferService, emailService);
   }
 
   @Test
@@ -335,7 +335,7 @@ class ConfirmSatisfactoryApplicationServiceTest {
 
     // actual behaviour tested in app detail service unit test
     verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
-    verify(notifyService, times(1)).sendEmail(emailProps, assignedResponder.getEmailAddress());
+    verify(emailService, times(1)).sendEmail(emailProps, assignedResponder, detail.getPwaApplication().getAppReference());
 
   }
 
@@ -380,9 +380,9 @@ class ConfirmSatisfactoryApplicationServiceTest {
     verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
 
 
-    verify(notifyService, times(2)).sendEmail(any(), any());
-    verify(notifyService, atLeastOnce()).sendEmail(emailPropsRecipient1, consultationRecipient1.getEmailAddress());
-    verify(notifyService, atLeastOnce()).sendEmail(emailPropsRecipient2, consultationRecipient2.getEmailAddress());
+    verify(emailService, times(2)).sendEmail(any(), any(), any());
+    verify(emailService, atLeastOnce()).sendEmail(emailPropsRecipient1, consultationRecipient1, detail.getPwaApplication().getAppReference());
+    verify(emailService, atLeastOnce()).sendEmail(emailPropsRecipient2, consultationRecipient2, detail.getPwaApplication().getAppReference());
 
   }
 

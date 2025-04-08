@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -47,8 +47,8 @@ public class PublicNoticeDocumentUpdateService {
   private final PersonService personService;
   private final AssignmentService assignmentService;
   private final CaseLinkService caseLinkService;
-  private final NotifyService notifyService;
   private final AppFileManagementService appFileManagementService;
+  private final EmailService emailService;
 
   @Autowired
   public PublicNoticeDocumentUpdateService(
@@ -60,9 +60,8 @@ public class PublicNoticeDocumentUpdateService {
       PersonService personService,
       AssignmentService assignmentService,
       CaseLinkService caseLinkService,
-      NotifyService notifyService,
-      AppFileManagementService appFileManagementService
-  ) {
+      AppFileManagementService appFileManagementService,
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDocumentUpdateValidator = publicNoticeDocumentUpdateValidator;
     this.publicNoticeDocumentRepository = publicNoticeDocumentRepository;
@@ -71,8 +70,8 @@ public class PublicNoticeDocumentUpdateService {
     this.personService = personService;
     this.assignmentService = assignmentService;
     this.caseLinkService = caseLinkService;
-    this.notifyService = notifyService;
     this.appFileManagementService = appFileManagementService;
+    this.emailService = emailService;
   }
 
   public boolean publicNoticeDocumentCanBeUpdated(PwaApplication pwaApplication) {
@@ -138,7 +137,7 @@ public class PublicNoticeDocumentUpdateService {
         caseOfficerPerson.getFullName(),
         pwaApplication.getAppReference(),
         caseManagementLink);
-    notifyService.sendEmail(emailProps, caseOfficerPerson.getEmailAddress());
+    emailService.sendEmail(emailProps, caseOfficerPerson, pwaApplication.getAppReference());
   }
 
   @Transactional

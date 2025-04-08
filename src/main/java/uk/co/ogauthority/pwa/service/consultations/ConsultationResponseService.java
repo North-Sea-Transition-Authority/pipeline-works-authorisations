@@ -41,7 +41,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
@@ -69,7 +69,6 @@ public class ConsultationResponseService implements AppProcessingService {
   private final ConsultationResponseRepository consultationResponseRepository;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
-  private final NotifyService notifyService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final CaseLinkService caseLinkService;
@@ -81,13 +80,13 @@ public class ConsultationResponseService implements AppProcessingService {
 
   private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CONSULTATION_RESPONSE;
   private static final AppFilePurpose FILE_PURPOSE = AppFilePurpose.CONSULTATION_RESPONSE;
+  private final EmailService emailService;
 
   @Autowired
   public ConsultationResponseService(ConsultationRequestService consultationRequestService,
                                      ConsultationResponseRepository consultationResponseRepository,
                                      CamundaWorkflowService camundaWorkflowService,
                                      @Qualifier("utcClock") Clock clock,
-                                     NotifyService notifyService,
                                      ConsulteeGroupDetailService consulteeGroupDetailService,
                                      WorkflowAssignmentService workflowAssignmentService,
                                      CaseLinkService caseLinkService,
@@ -95,13 +94,12 @@ public class ConsultationResponseService implements AppProcessingService {
                                      ConsultationResponseFileLinkRepository consultationResponseFileLinkRepository,
                                      AppFileService appFileService,
                                      FileManagementService fileManagementService,
-                                     AppFileManagementService appFileManagementService
-  ) {
+                                     AppFileManagementService appFileManagementService,
+                                     EmailService emailService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseRepository = consultationResponseRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
-    this.notifyService = notifyService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.caseLinkService = caseLinkService;
@@ -110,6 +108,7 @@ public class ConsultationResponseService implements AppProcessingService {
     this.appFileService = appFileService;
     this.fileManagementService = fileManagementService;
     this.appFileManagementService = appFileManagementService;
+    this.emailService = emailService;
   }
 
   public List<ConsultationResponse> getResponsesByConsultationRequests(List<ConsultationRequest> consultationRequests) {
@@ -217,7 +216,6 @@ public class ConsultationResponseService implements AppProcessingService {
             String.format("Expected to find a case officer for application with ID: %s", application.getId())));
 
     String caseOfficerName = caseOfficerPerson.getFullName();
-    String caseOfficerEmail = caseOfficerPerson.getEmailAddress();
 
     var tipGroupDetail = consulteeGroupDetailService
         .getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consultationRequest.getConsulteeGroup());
@@ -254,7 +252,7 @@ public class ConsultationResponseService implements AppProcessingService {
 
     }
 
-    notifyService.sendEmail(emailProps, caseOfficerEmail);
+    emailService.sendEmail(emailProps, caseOfficerPerson, application.getAppReference());
 
   }
 

@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
@@ -66,7 +66,7 @@ class TeamManagementServiceTest {
   private WebUserAccountRepository webUserAccountRepository;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   private PwaRegulatorTeam regulatorTeam;
   private PwaRole regTeamAdminRole;
@@ -96,7 +96,7 @@ class TeamManagementServiceTest {
   @BeforeEach
   void setUp() {
 
-    teamManagementService = new OldTeamManagementService(teamService, personRepository, webUserAccountRepository, notifyService);
+    teamManagementService = new OldTeamManagementService(teamService, personRepository, webUserAccountRepository, emailService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
 
@@ -377,7 +377,7 @@ class TeamManagementServiceTest {
                                                             regulatorTeam.getName(),
                                                             expectedRoles);
 
-    verify(notifyService).sendEmail(expectedEmailProperties, regulatorTeamAdminPerson.getEmailAddress());
+    verify(emailService).sendEmail(expectedEmailProperties, regulatorTeamAdminPerson, String.valueOf(regulatorTeam.getId()));
   }
 
   @Test

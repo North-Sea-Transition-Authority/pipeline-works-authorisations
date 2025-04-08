@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -16,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
@@ -28,7 +31,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOffi
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -44,13 +47,13 @@ class AppChargeEmailServiceTest {
   private TeamQueryService teamQueryService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
   private PwaContactService pwaContactService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<CaseOfficerAssignmentFailEmailProps> assignmentFailEmailPropsCaptor;
@@ -101,8 +104,8 @@ class AppChargeEmailServiceTest {
 
     appChargeEmailService.sendFailedToAssignCaseOfficerEmail(pwaApplication);
 
-    verify(notifyService).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager1.email()));
-    verify(notifyService).sendEmail(assignmentFailEmailPropsCaptor.capture(), eq(pwaManager2.email()));
+    verify(emailService, times(2)).sendEmail(assignmentFailEmailPropsCaptor.capture(), refEq(EmailRecipient.directEmailAddress(pwaManager1.email())),
+        eq(pwaApplication.getAppReference()));
 
     assertThat(assignmentFailEmailPropsCaptor.getAllValues())
         .hasSize(2)
@@ -123,8 +126,8 @@ class AppChargeEmailServiceTest {
 
     appChargeEmailService.sendChargeRequestIssuedEmail(pwaApplication);
 
-    verify(notifyService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
-    verify(notifyService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
+    verify(emailService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact1Person), eq(pwaApplication.getAppReference()));
+    verify(emailService).sendEmail(requestIssuedEmailPropsCaptor.capture(), eq(appContact2Person), eq(pwaApplication.getAppReference()));
 
     assertThat(requestIssuedEmailPropsCaptor.getAllValues())
         .hasSize(2)
@@ -143,8 +146,8 @@ class AppChargeEmailServiceTest {
   void sendChargeRequestCancelledEmail_emailsAppContacts() {
     appChargeEmailService.sendChargeRequestCancelledEmail(pwaApplication);
 
-    verify(notifyService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact1Person.getEmailAddress()));
-    verify(notifyService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact2Person.getEmailAddress()));
+    verify(emailService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact1Person), eq(pwaApplication.getAppReference()));
+    verify(emailService).sendEmail(requestCancelledEmailPropsCaptor.capture(), eq(appContact2Person), eq(pwaApplication.getAppReference()));
 
     assertThat(requestCancelledEmailPropsCaptor.getAllValues())
         .hasSize(2)

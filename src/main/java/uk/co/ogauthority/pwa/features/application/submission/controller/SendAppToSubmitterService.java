@@ -9,23 +9,23 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.applicationupdate.Appl
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ReviewAndSubmitApplicationEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service
 public class SendAppToSubmitterService {
 
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final ApplicationUpdateRequestService applicationUpdateRequestService;
+  private final EmailService emailService;
 
   @Autowired
-  public SendAppToSubmitterService(NotifyService notifyService,
-                                   CaseLinkService caseLinkService,
-                                   ApplicationUpdateRequestService applicationUpdateRequestService) {
-    this.notifyService = notifyService;
+  public SendAppToSubmitterService(CaseLinkService caseLinkService,
+                                   ApplicationUpdateRequestService applicationUpdateRequestService,
+                                   EmailService emailService) {
     this.caseLinkService = caseLinkService;
     this.applicationUpdateRequestService = applicationUpdateRequestService;
+    this.emailService = emailService;
   }
 
   @Transactional
@@ -44,8 +44,7 @@ public class SendAppToSubmitterService {
         sentByPerson.getFullName(),
         caseLinkService.generateReviewAndSubmitLink(detail.getPwaApplication()));
 
-    notifyService.sendEmail(emailProps, submitterPersonSendingTo.getEmailAddress());
-
+    emailService.sendEmail(emailProps, submitterPersonSendingTo, detail.getPwaApplicationRef());
   }
 
 }

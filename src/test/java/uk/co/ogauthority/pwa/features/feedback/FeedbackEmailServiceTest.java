@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.feedback;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -12,21 +13,22 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.features.email.emailproperties.feedback.FeedbackFailedToSendEmailProperties;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 
 @ExtendWith(MockitoExtension.class)
 class FeedbackEmailServiceTest {
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   private FeedbackEmailService feedbackEmailService;
 
   @BeforeEach
   void setup() {
-    feedbackEmailService = new FeedbackEmailService(notifyService);
+    feedbackEmailService = new FeedbackEmailService(emailService);
   }
 
   @Test
@@ -38,7 +40,8 @@ class FeedbackEmailServiceTest {
     feedbackEmailService.sendFeedbackFailedToSendEmail(feedbackContent, emailAddress, recipientName);
 
     ArgumentCaptor<EmailProperties> emailCaptor = ArgumentCaptor.forClass(EmailProperties.class);
-    verify(notifyService, times(1)).sendEmail(emailCaptor.capture(), eq(emailAddress));
+    verify(emailService, times(1))
+        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(emailAddress)), eq(""));
     FeedbackFailedToSendEmailProperties emailProperties = (FeedbackFailedToSendEmailProperties) emailCaptor.getValue();
 
     final var expectedEmailProperties = new HashMap<String, String>();

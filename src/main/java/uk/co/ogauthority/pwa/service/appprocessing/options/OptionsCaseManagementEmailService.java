@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.
 import uk.co.ogauthority.pwa.features.email.emailproperties.optionsapplications.ApplicationOptionsApprovedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentOrganisationRoleService;
@@ -36,8 +36,6 @@ class OptionsCaseManagementEmailService {
 
   private final CaseLinkService caseLinkService;
 
-  private final NotifyService notifyService;
-
   private final PwaContactService pwaContactService;
 
   private final PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService;
@@ -46,18 +44,20 @@ class OptionsCaseManagementEmailService {
 
   private final PadOptionConfirmedService padOptionConfirmedService;
 
+  private final EmailService emailService;
+
   public OptionsCaseManagementEmailService(CaseLinkService caseLinkService,
-                                           NotifyService notifyService,
                                            PwaContactService pwaContactService,
                                            PwaConsentOrganisationRoleService pwaConsentOrganisationRoleService,
                                            ApplicationInvolvementService applicationInvolvementService,
-                                           PadOptionConfirmedService padOptionConfirmedService) {
+                                           PadOptionConfirmedService padOptionConfirmedService,
+                                           EmailService emailService) {
     this.caseLinkService = caseLinkService;
-    this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaConsentOrganisationRoleService = pwaConsentOrganisationRoleService;
     this.applicationInvolvementService = applicationInvolvementService;
     this.padOptionConfirmedService = padOptionConfirmedService;
+    this.emailService = emailService;
   }
 
   public void sendInitialOptionsApprovedEmail(PwaApplicationDetail pwaApplicationDetail, Instant deadlineDate) {
@@ -76,7 +76,7 @@ class OptionsCaseManagementEmailService {
 
     if (!recipients.isEmpty()) {
       recipients.forEach(person ->
-          notifyService.sendEmail(
+          emailService.sendEmail(
               new ApplicationOptionsApprovedEmailProps(
                   person.getFullName(),
                   pwaApplication.getAppReference(),
@@ -84,7 +84,8 @@ class OptionsCaseManagementEmailService {
                   formattedDeadlineDate,
                   caseLink
               ),
-              person.getEmailAddress()
+              person,
+              pwaApplication.getAppReference()
           )
       );
 
@@ -118,14 +119,15 @@ class OptionsCaseManagementEmailService {
 
     if (!recipients.isEmpty()) {
       recipients.forEach(person ->
-          notifyService.sendEmail(
+          emailService.sendEmail(
               new ApplicationOptionsApprovalDeadlineChangedEmailProps(
                   person.getFullName(),
                   pwaApplication.getAppReference(),
                   formattedDeadlineDate,
                   caseLink
               ),
-              person.getEmailAddress()
+              person,
+              pwaApplication.getAppReference()
           )
       );
 
@@ -174,7 +176,8 @@ class OptionsCaseManagementEmailService {
           closingPerson.getFullName(),
           caseLinkService.generateCaseManagementLink(pwaApplication)
       );
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+
+      emailService.sendEmail(emailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -57,9 +57,6 @@ class WithdrawPublicNoticeServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private PwaTeamService pwaTeamService;
 
   @Mock
@@ -67,6 +64,9 @@ class WithdrawPublicNoticeServiceTest {
 
   @Mock
   private Clock clock;
+
+  @Mock
+  private EmailService emailService;
 
   @InjectMocks
   private WithdrawPublicNoticeService withdrawPublicNoticeService;
@@ -162,9 +162,9 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
+      verify(emailService).sendEmail(expectedEmailProps, pwaManager, pwaApplication.getAppReference());
     });
-    verify(notifyService, times(emailRecipients.size())).sendEmail(any(), any());
+    verify(emailService, times(emailRecipients.size())).sendEmail(any(), any(), any());
   }
 
   @Test
@@ -208,9 +208,9 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService).sendEmail(expectedEmailProps, pwaManager.getEmailAddress());
+      verify(emailService).sendEmail(expectedEmailProps, pwaManager, pwaApplication.getAppReference());
     });
-    verify(notifyService, times(emailRecipients.size())).sendEmail(any(), any());
+    verify(emailService, times(emailRecipients.size())).sendEmail(any(), any(), any());
   }
 
   @Test
@@ -252,7 +252,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(notifyService).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(emailService).sendEmail(expectedEmailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

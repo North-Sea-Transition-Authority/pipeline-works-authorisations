@@ -4,6 +4,8 @@ package uk.co.ogauthority.pwa.features.application.submission;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -17,6 +19,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationSubmitResult;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
@@ -24,7 +27,7 @@ import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -40,9 +43,6 @@ class PwaApplicationFirstDraftSubmissionServiceTest {
   private static final String SUBMISSION_DESC = "desc";
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private TeamQueryService teamQueryService;
 
   @Mock
@@ -50,6 +50,9 @@ class PwaApplicationFirstDraftSubmissionServiceTest {
 
   @Mock
   private CaseLinkService caseLinkService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropsCaptor;
@@ -86,7 +89,7 @@ class PwaApplicationFirstDraftSubmissionServiceTest {
   void doBeforeSubmit_verifyServiceInteractions() {
     pwaApplicationFirstDraftSubmissionService.doBeforeSubmit(pwaApplicationDetail, person, SUBMISSION_DESC);
       verify(padPipelineNumberingService).assignPipelineReferences(pwaApplicationDetail);
-      verifyNoMoreInteractions(padPipelineNumberingService, notifyService, teamQueryService);
+      verifyNoMoreInteractions(padPipelineNumberingService, emailService, teamQueryService);
   }
 
   @Test
@@ -106,12 +109,14 @@ class PwaApplicationFirstDraftSubmissionServiceTest {
 
     pwaApplicationFirstDraftSubmissionService.doAfterSubmit(pwaApplicationDetail);
 
-    verify(notifyService).sendEmail(emailPropsCaptor.capture(), eq("manager1@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
+    verify(emailService, times(2)).sendEmail(
+        emailPropsCaptor.capture(),
+        refEq(EmailRecipient.directEmailAddress("manager1@pwa.co.uk")),
+        eq(pwaApplicationDetail.getPwaApplicationRef())
+    );
+    assertThat(emailPropsCaptor.getAllValues().getFirst().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
         "Mr. PWA Manager1");
-
-    verify(notifyService).sendEmail(emailPropsCaptor.capture(), eq("manager2@pwa.co.uk"));
-    assertThat(emailPropsCaptor.getValue().getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
+    assertThat(emailPropsCaptor.getAllValues().get(1).getEmailPersonalisation().get("RECIPIENT_FULL_NAME")).isEqualTo(
         "Ms. PWA Manager2");
 
     emailPropsCaptor.getAllValues().forEach(emailProps -> {

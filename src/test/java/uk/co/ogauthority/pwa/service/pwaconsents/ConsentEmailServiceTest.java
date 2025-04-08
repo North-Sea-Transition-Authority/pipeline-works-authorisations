@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.pwaconsents;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
@@ -33,15 +35,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class ConsentEmailServiceTest {
-
-  @Mock
-  private NotifyService notifyService;
 
   @Mock
   private CaseLinkService caseLinkService;
@@ -51,6 +50,9 @@ class ConsentEmailServiceTest {
 
   @Mock
   private AssignmentService assignmentService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ConsentReviewReturnedEmailProps> consentReviewReturnedEmailCaptor;
@@ -75,7 +77,7 @@ class ConsentEmailServiceTest {
   @BeforeEach
   void setUp() {
 
-    consentEmailService = new ConsentEmailService(notifyService, caseLinkService, personService, assignmentService);
+    consentEmailService = new ConsentEmailService(caseLinkService, personService, assignmentService, emailService);
 
   }
 
@@ -86,8 +88,11 @@ class ConsentEmailServiceTest {
 
     consentEmailService.sendConsentReviewReturnedEmail(pwaApplicationDetail, caseOfficerPerson.getEmailAddress(),
         caseOfficerPerson.getFullName(), returningUser.getLinkedPerson().getFullName(), "return reason");
-    verify(notifyService).sendEmail(consentReviewReturnedEmailCaptor.capture(),
-        eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService).sendEmail(
+        consentReviewReturnedEmailCaptor.capture(),
+        refEq(EmailRecipient.directEmailAddress(caseOfficerPerson.getEmailAddress())),
+        eq(pwaApplicationDetail.getPwaApplicationRef())
+    );
 
     assertThat(consentReviewReturnedEmailCaptor.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
         "RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName(),
@@ -104,8 +109,8 @@ class ConsentEmailServiceTest {
     when(assignmentService.getAssignmentsForWorkflowAssignment(pwaApplicationDetail.getPwaApplication(), WorkflowAssignment.CASE_OFFICER))
         .thenReturn(Optional.of(assignment));
     consentEmailService.sendCaseOfficerConsentIssuedEmail(pwaApplicationDetail, "PWA Admin");
-    verify(notifyService).sendEmail(caseOfficerConsentIssuedEmailCaptor.capture(),
-        eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService).sendEmail(caseOfficerConsentIssuedEmailCaptor.capture(),
+        eq(caseOfficerPerson), eq(pwaApplicationDetail.getPwaApplicationRef()));
 
     assertThat(caseOfficerConsentIssuedEmailCaptor.getValue().getEmailPersonalisation()).containsAllEntriesOf(Map.of(
         "RECIPIENT_FULL_NAME", caseOfficerPerson.getFullName(),
@@ -135,8 +140,11 @@ class ConsentEmailServiceTest {
           emailRecipientPersons);
 
       emailRecipientPersons.forEach(recipientPerson -> {
-        verify(notifyService, atLeastOnce()).sendEmail(consentIssuedEmailPropsCaptor.capture(),
-            eq(recipientPerson.getEmailAddress()));
+        verify(emailService, atLeastOnce()).sendEmail(
+            consentIssuedEmailPropsCaptor.capture(),
+            eq(recipientPerson),
+            eq(pwaApplicationDetail.getPwaApplicationRef())
+        );
 
         var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
 
@@ -181,8 +189,11 @@ class ConsentEmailServiceTest {
 
       emailRecipientPersons.forEach(recipientPerson -> {
 
-        verify(notifyService, atLeastOnce()).sendEmail(consentIssuedEmailPropsCaptor.capture(),
-            eq(recipientPerson.getEmailAddress()));
+        verify(emailService, atLeastOnce()).sendEmail(
+            consentIssuedEmailPropsCaptor.capture(),
+            eq(recipientPerson),
+            eq(pwaApplicationDetail.getPwaApplicationRef())
+        );
 
         assertThat(consentIssuedEmailPropsCaptor.getValue().getTemplate()).isEqualTo(pwaApplicationType.getConsentIssueEmail().getNonHolderEmailTemplate());
 

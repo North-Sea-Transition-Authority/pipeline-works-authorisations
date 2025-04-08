@@ -36,7 +36,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.withdraw.WithdrawApplicationForm;
 import uk.co.ogauthority.pwa.service.consultations.WithdrawConsultationService;
@@ -61,11 +61,11 @@ class WithdrawApplicationServiceTest {
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
   @Mock
-  private NotifyService notifyService;
-  @Mock
   private PwaContactService pwaContactService;
   @Mock
   private CaseLinkService caseLinkService;
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<PwaApplicationDetail> appDetailDeleteCaptor;
@@ -92,9 +92,9 @@ class WithdrawApplicationServiceTest {
         camundaWorkflowService,
         withdrawConsultationService,
         applicationUpdateRequestService,
-        notifyService,
         pwaContactService,
-        caseLinkService);
+        caseLinkService,
+        emailService);
 
     pwaApplication = new PwaApplication(null, PwaApplicationType.INITIAL, null);
     pwaApplicationDetail = new PwaApplicationDetail(pwaApplication, null, null, null);
@@ -126,9 +126,9 @@ class WithdrawApplicationServiceTest {
 
     verify(camundaWorkflowService, times(1)).deleteProcessInstanceAndThenTasks(pwaApplicationDetail.getPwaApplication());
     verify(withdrawConsultationService, times(1)).withdrawAllOpenConsultationRequests(pwaApplicationDetail.getPwaApplication(), withdrawingUser);
-    verify(notifyService, times(2)).sendEmail(any(), any());
-    verify(notifyService, atLeastOnce()).sendEmail(emailProps, appPerson.getEmailAddress());
-    verify(notifyService, atLeastOnce()).sendEmail(emailProps, withdrawingPerson.getEmailAddress());
+    verify(emailService, times(2)).sendEmail(any(), any(), any());
+    verify(emailService, atLeastOnce()).sendEmail(emailProps, appPerson, pwaApplication.getAppReference());
+    verify(emailService, atLeastOnce()).sendEmail(emailProps, withdrawingPerson, pwaApplication.getAppReference());
     verify(pwaApplicationDetailService).doWithLastSubmittedDetailIfExists(eq(pwaApplication), any(Consumer.class));
     verify(pwaApplicationDetailService).doWithCurrentUpdateRequestedDetailIfExists(eq(pwaApplication), any(Consumer.class));
   }

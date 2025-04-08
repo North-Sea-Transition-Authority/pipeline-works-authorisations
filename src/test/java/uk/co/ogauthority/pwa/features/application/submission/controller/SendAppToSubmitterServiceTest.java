@@ -21,21 +21,21 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class SendAppToSubmitterServiceTest {
 
-  @Mock
-  private NotifyService notifyService;
-
   @Spy
   private CaseLinkService caseLinkService;
 
   @Mock
   private ApplicationUpdateRequestService applicationUpdateRequestService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ReviewAndSubmitApplicationEmailProps> emailPropsCaptor;
@@ -47,7 +47,7 @@ class SendAppToSubmitterServiceTest {
   @BeforeEach
   void setUp() throws Exception {
 
-    sendAppToSubmitterService = new SendAppToSubmitterService(notifyService, caseLinkService, applicationUpdateRequestService);
+    sendAppToSubmitterService = new SendAppToSubmitterService(caseLinkService, applicationUpdateRequestService, emailService);
 
     detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
@@ -63,7 +63,7 @@ class SendAppToSubmitterServiceTest {
 
     verify(applicationUpdateRequestService, times(1)).storeResponseWithoutSubmitting(detail, sendingPerson, "update text");
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(recipientPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(recipientPerson), eq(detail.getPwaApplicationRef()));
 
     verifyEmailProps(sendingPerson, recipientPerson);
 
@@ -79,7 +79,7 @@ class SendAppToSubmitterServiceTest {
 
     verify(applicationUpdateRequestService, times(0)).storeResponseWithoutSubmitting(any(), any(), any());
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(recipientPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(recipientPerson), eq(detail.getPwaApplicationRef()));
 
     verifyEmailProps(sendingPerson, recipientPerson);
 

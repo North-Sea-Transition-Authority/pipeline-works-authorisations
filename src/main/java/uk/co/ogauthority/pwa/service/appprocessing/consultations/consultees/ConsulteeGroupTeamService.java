@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.email.teammangement.AddedToTeamEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -41,18 +41,18 @@ public class ConsulteeGroupTeamService {
   private final ConsulteeGroupDetailRepository groupDetailRepository;
   private final ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
   private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
-
-  private final NotifyService notifyService;
+  private final EmailService emailService;
 
   @Autowired
   public ConsulteeGroupTeamService(ConsulteeGroupDetailRepository groupDetailRepository,
                                    ConsulteeGroupTeamMemberRepository groupTeamMemberRepository,
                                    NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher,
-                                   NotifyService notifyService) {
+                                   EmailService emailService
+  ) {
     this.groupDetailRepository = groupDetailRepository;
     this.groupTeamMemberRepository = groupTeamMemberRepository;
     this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
-    this.notifyService = notifyService;
+    this.emailService = emailService;
   }
 
   public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(AuthenticatedUserAccount user) {
@@ -154,7 +154,7 @@ public class ConsulteeGroupTeamService {
 
       var groupName = consulteeGroupDetail.get().getName();
       var emailProps = new AddedToTeamEmailProps(person.getFullName(), groupName, mdFormattedRoles);
-      notifyService.sendEmail(emailProps, person.getEmailAddress());
+      emailService.sendEmail(emailProps, person, String.valueOf(consulteeGroup.getId()));
     }
   }
 

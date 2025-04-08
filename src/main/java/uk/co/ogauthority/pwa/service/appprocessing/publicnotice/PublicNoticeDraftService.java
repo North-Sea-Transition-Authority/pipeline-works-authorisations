@@ -6,6 +6,7 @@ import java.time.Instant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.ActionNotAllowedException;
@@ -17,7 +18,7 @@ import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestReason;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
@@ -38,27 +39,27 @@ public class PublicNoticeDraftService {
   private final PublicNoticeService publicNoticeService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final TeamQueryService teamQueryService;
   private final AppFileManagementService appFileManagementService;
+  private final EmailService emailService;
 
   @Autowired
   public PublicNoticeDraftService(
       PublicNoticeService publicNoticeService,
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock,
-      NotifyService notifyService,
       CaseLinkService caseLinkService,
       TeamQueryService teamQueryService,
-      AppFileManagementService appFileManagementService) {
+      AppFileManagementService appFileManagementService,
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
     this.teamQueryService = teamQueryService;
     this.appFileManagementService = appFileManagementService;
+    this.emailService = emailService;
   }
 
   /*
@@ -156,7 +157,7 @@ public class PublicNoticeDraftService {
           pwaApplication.getAppReference(),
           publicNoticeReason,
           caseManagementLink);
-      notifyService.sendEmail(emailProps, pwaManager.email());
+      emailService.sendEmail(emailProps, EmailRecipient.directEmailAddress(pwaManager.email()), pwaApplication.getAppReference());
     });
   }
 

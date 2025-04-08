@@ -12,7 +12,6 @@ import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.validation.beanvalidation.SpringValidatorAdapter;
-import uk.gov.service.notify.NotificationClient;
 
 @Configuration
 @EnableSchedulerLock(defaultLockAtMostFor = "10m")
@@ -43,15 +41,6 @@ public class BeanConfig {
   @Bean
   public SpringValidatorAdapter groupValidator() {
     return new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
-  }
-
-  @Bean
-  public NotificationClient notificationClient(@Value("${notify.apiKey}") String apiKey,
-                                               @Value("${pwa.proxy.host:#{null}}") String proxyHost,
-                                               @Value("${pwa.proxy.port:#{null}}") String proxyPort) {
-    Proxy proxy = createProxy(proxyHost, proxyPort);
-
-    return new NotificationClient(apiKey, proxy);
   }
 
   private Proxy createProxy(String proxyHost, String proxyPort) {

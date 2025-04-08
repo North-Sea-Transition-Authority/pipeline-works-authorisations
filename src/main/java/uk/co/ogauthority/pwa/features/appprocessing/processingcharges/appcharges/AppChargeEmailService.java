@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharge
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -10,7 +11,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationpayments.ApplicationPaymentRequestIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.assignments.CaseOfficerAssignmentFailEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -19,18 +20,19 @@ import uk.co.ogauthority.pwa.teams.TeamType;
 class AppChargeEmailService {
 
   private final PwaContactService pwaContactService;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final TeamQueryService teamQueryService;
+  private final EmailService emailService;
 
   @Autowired
   AppChargeEmailService(PwaContactService pwaContactService,
-                        NotifyService notifyService,
-                        CaseLinkService caseLinkService, TeamQueryService teamQueryService) {
+                        CaseLinkService caseLinkService,
+                        TeamQueryService teamQueryService,
+                        EmailService emailService) {
     this.pwaContactService = pwaContactService;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
     this.teamQueryService = teamQueryService;
+    this.emailService = emailService;
   }
 
   public void sendFailedToAssignCaseOfficerEmail(PwaApplication pwaApplication) {
@@ -45,7 +47,7 @@ class AppChargeEmailService {
           caseLink
       );
 
-      notifyService.sendEmail(emailProps, pwaManager.email());
+      emailService.sendEmail(emailProps, EmailRecipient.directEmailAddress(pwaManager.email()), pwaApplication.getAppReference());
     }
 
   }
@@ -64,7 +66,7 @@ class AppChargeEmailService {
           caseLink
       );
 
-      notifyService.sendEmail(emailProps, appContactPerson.getEmailAddress());
+      emailService.sendEmail(emailProps, appContactPerson, pwaApplication.getAppReference());
     }
 
   }
@@ -81,7 +83,7 @@ class AppChargeEmailService {
           pwaApplication.getAppReference()
       );
 
-      notifyService.sendEmail(emailProps, appContactPerson.getEmailAddress());
+      emailService.sendEmail(emailProps, appContactPerson, pwaApplication.getAppReference());
     }
   }
 

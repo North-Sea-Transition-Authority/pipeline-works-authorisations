@@ -42,7 +42,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.ConfirmedOptionType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -64,9 +64,6 @@ class OptionsCaseManagementEmailServiceTest {
   private CaseLinkService caseLinkService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private PwaContactService pwaContactService;
 
   @Mock
@@ -77,6 +74,9 @@ class OptionsCaseManagementEmailServiceTest {
 
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ApplicationOptionsApprovedEmailProps> optionsApprovedEmailCaptor;
@@ -127,20 +127,20 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService = new OptionsCaseManagementEmailService(
         caseLinkService,
-        notifyService,
         pwaContactService,
         pwaConsentOrganisationRoleService,
         applicationInvolvementService,
-        padOptionConfirmedService);
+        padOptionConfirmedService,
+        emailService);
   }
 
   @Test
   void sendInitialOptionsApprovedEmail_whenRecipientsFound_andSingleHoldersFound() {
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
-    verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
-        eq(preparerContactPerson.getEmailAddress()));
-    verifyNoMoreInteractions(notifyService);
+    verify(emailService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
+        eq(preparerContactPerson), eq(pwaApplicationDetail.getPwaApplication().getAppReference()));
+    verifyNoMoreInteractions(emailService);
 
     var emailProps = optionsApprovedEmailCaptor.getValue();
     assertThat(emailProps.getEmailPersonalisation()).containsOnly(
@@ -163,7 +163,7 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
-    verifyNoInteractions(notifyService);
+    verifyNoInteractions(emailService);
 
   }
 
@@ -178,8 +178,8 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendInitialOptionsApprovedEmail(pwaApplicationDetail, deadline);
 
-    verify(notifyService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
-        eq(preparerContactPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(optionsApprovedEmailCaptor.capture(),
+        eq(preparerContactPerson), eq(pwaApplicationDetail.getPwaApplication().getAppReference()));
 
     var emailProps = optionsApprovedEmailCaptor.getValue();
     assertThat(emailProps.getEmailPersonalisation()).containsEntry(
@@ -195,10 +195,10 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendOptionsDeadlineChangedEmail(pwaApplicationDetail, deadline);
 
-    verify(notifyService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
-        eq(preparerContactPerson.getEmailAddress()));
-    verify(notifyService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
-        eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
+        eq(preparerContactPerson), eq(pwaApplicationDetail.getPwaApplication().getAppReference()));
+    verify(emailService, times(1)).sendEmail(optionsDeadlineChangedEmailCaptor.capture(),
+        eq(caseOfficerPerson), eq(pwaApplicationDetail.getPwaApplication().getAppReference()));
 
     var emailProps = optionsDeadlineChangedEmailCaptor.getAllValues();
 
@@ -219,7 +219,7 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, caseOfficerPerson);
 
-    verify(notifyService, never()).sendEmail(optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(), any());
+    verify(emailService, never()).sendEmail(optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(), any(), any());
 
     var emailProps = optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.getAllValues();
 
@@ -233,8 +233,11 @@ class OptionsCaseManagementEmailServiceTest {
 
     optionsCaseManagementEmailService.sendOptionsCloseOutEmailsIfRequired(pwaApplicationDetail, caseOfficerPerson);
 
-    verify(notifyService).sendEmail(optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(),
-        eq(preparerContactPerson.getEmailAddress()));
+    verify(emailService).sendEmail(
+        optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.capture(),
+        eq(preparerContactPerson),
+        eq(pwaApplicationDetail.getPwaApplicationRef())
+    );
 
     var emailProps = optionsVariationClosedWithoutConsentEmailPropsArgumentCaptor.getAllValues();
 

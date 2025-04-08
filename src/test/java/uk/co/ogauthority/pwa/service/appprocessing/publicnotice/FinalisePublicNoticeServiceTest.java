@@ -35,7 +35,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNotice;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDate;
@@ -68,13 +68,13 @@ class FinalisePublicNoticeServiceTest {
   private PwaContactService pwaContactService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
   private Clock clock;
+
+  @Mock
+  private EmailService emailService;
 
   @Value("${service.full-name}")
   private String serviceName;
@@ -94,8 +94,8 @@ class FinalisePublicNoticeServiceTest {
   void setUp() {
 
     finalisePublicNoticeService = new FinalisePublicNoticeService(publicNoticeService, validator,
-        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService, notifyService,
-        caseLinkService, clock);
+        camundaWorkflowService, publicNoticeDatesRepository, serviceName, pwaContactService,
+        caseLinkService, clock, emailService);
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -245,7 +245,7 @@ class FinalisePublicNoticeServiceTest {
           DateUtils.formatDate(LocalDate.of(form.getStartYear(), form.getStartMonth(), form.getStartDay())),
           serviceName);
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(emailService, times(1)).sendEmail(expectedEmailProps, recipient, pwaApplication.getAppReference());
     });
   }
 
@@ -351,7 +351,7 @@ class FinalisePublicNoticeServiceTest {
           caseManagementLink,
           DateUtils.formatDate(LocalDate.of(form.getStartYear(), form.getStartMonth(), form.getStartDay())));
 
-      verify(notifyService, times(1)).sendEmail(expectedEmailProps, recipient.getEmailAddress());
+      verify(emailService, times(1)).sendEmail(expectedEmailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

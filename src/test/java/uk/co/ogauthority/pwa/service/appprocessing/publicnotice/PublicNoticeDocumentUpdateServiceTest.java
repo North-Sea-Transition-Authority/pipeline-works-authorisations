@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeAction;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeDocumentType;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
@@ -77,9 +77,6 @@ class PublicNoticeDocumentUpdateServiceTest {
   private CaseLinkService caseLinkService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private PersonService personService;
 
   @Mock
@@ -87,6 +84,9 @@ class PublicNoticeDocumentUpdateServiceTest {
 
   @Mock
   private AppFileManagementService appFileManagementService;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<PublicNotice> publicNoticeArgumentCaptor;
@@ -106,7 +106,7 @@ class PublicNoticeDocumentUpdateServiceTest {
 
     publicNoticeDocumentUpdateService = new PublicNoticeDocumentUpdateService(publicNoticeService, validator,
         publicNoticeDocumentRepository, publicNoticeDocumentLinkRepository, camundaWorkflowService,
-        personService, assignmentService, caseLinkService, notifyService, appFileManagementService);
+        personService, assignmentService, caseLinkService, appFileManagementService, emailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
@@ -247,7 +247,7 @@ class PublicNoticeDocumentUpdateServiceTest {
         pwaApplication.getAppReference(),
         caseManagementLink);
 
-    verify(notifyService, times(1)).sendEmail(expectedEmailProps, caseOfficerPerson.getEmailAddress());
+    verify(emailService, times(1)).sendEmail(expectedEmailProps, caseOfficerPerson, pwaApplication.getAppReference());
 
   }
 

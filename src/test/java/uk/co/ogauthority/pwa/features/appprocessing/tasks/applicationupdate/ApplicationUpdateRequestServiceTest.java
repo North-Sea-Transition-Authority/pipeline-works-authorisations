@@ -28,6 +28,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
@@ -48,7 +49,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
@@ -86,9 +87,6 @@ class ApplicationUpdateRequestServiceTest {
   private ApplicationUpdateRequestRepository applicationUpdateRequestRepository;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private PwaContactService pwaContactService;
 
   @Mock
@@ -106,6 +104,9 @@ class ApplicationUpdateRequestServiceTest {
   @Mock
   private CaseLinkService caseLinkService;
 
+  @Mock
+  private EmailService emailService;
+
   private Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
   private ApplicationUpdateRequestService applicationUpdateRequestService;
@@ -114,7 +115,7 @@ class ApplicationUpdateRequestServiceTest {
   private ArgumentCaptor<ApplicationUpdateRequest> appUpdateArgCapture;
 
   @Captor
-  private ArgumentCaptor<String> stringArgCaptor;
+  private ArgumentCaptor<EmailRecipient> recipientArgumentCaptor;
 
   @Captor
   private ArgumentCaptor<EmailProperties> emailPropertiesArgumentCaptor;
@@ -146,13 +147,13 @@ class ApplicationUpdateRequestServiceTest {
     applicationUpdateRequestService = new ApplicationUpdateRequestService(
         applicationUpdateRequestRepository,
         clock,
-        notifyService,
         pwaContactService,
         pwaApplicationDetailVersioningService,
         workflowAssignmentService,
         personService,
         approveOptionsService,
-        caseLinkService);
+        caseLinkService,
+        emailService);
 
     defaultUpdateRequest = new ApplicationUpdateRequest();
     defaultUpdateRequest.setRequestedByPersonId(REQUESTER_PERSON_ID);
@@ -210,22 +211,22 @@ class ApplicationUpdateRequestServiceTest {
 
     applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, responderPerson);
 
-    verify(notifyService, times(2)).sendEmail(emailPropertiesArgumentCaptor.capture(), stringArgCaptor.capture());
+    verify(emailService, times(2)).sendEmail(emailPropertiesArgumentCaptor.capture(), recipientArgumentCaptor.capture(), eq(pwaApplicationDetail.getPwaApplicationRef()));
 
     var email1Properties = emailPropertiesArgumentCaptor.getAllValues().get(0);
-    var email1Address = stringArgCaptor.getAllValues().get(0);
+    var recipient1 = recipientArgumentCaptor.getAllValues().get(0);
 
     var email2Properties = emailPropertiesArgumentCaptor.getAllValues().get(1);
-    var email2Address = stringArgCaptor.getAllValues().get(1);
+    var recipient2 = recipientArgumentCaptor.getAllValues().get(1);
 
     assertThat(emailPropertiesArgumentCaptor.getAllValues()).allSatisfy(emailProperties ->
         assertThat(emailProperties.getTemplate().equals(NotifyTemplate.APPLICATION_UPDATE_REQUESTED))
     );
 
-    assertThat(email1Address).isEqualTo(PREPARER_1_EMAIL);
+    assertThat(recipient1).isEqualTo(preparer1);
     assertEmailPropertiesAsExpected(email1Properties, PREPARER_1_FULL_NAME);
 
-    assertThat(email2Address).isEqualTo(PREPARER_2_EMAIL);
+    assertThat(recipient2).isEqualTo(preparer2);
     assertEmailPropertiesAsExpected(email2Properties, PREPARER_2_FULL_NAME);
   }
 
@@ -234,7 +235,7 @@ class ApplicationUpdateRequestServiceTest {
 
     applicationUpdateRequestService.sendApplicationUpdateRequestedEmail(pwaApplicationDetail, responderPerson);
 
-    verify(notifyService, times(0)).sendEmail(any(), any());
+    verify(emailService, times(0)).sendEmail(any(), any(), any());
   }
 
 
@@ -254,7 +255,7 @@ class ApplicationUpdateRequestServiceTest {
 
     applicationUpdateRequestService.submitApplicationUpdateRequest(pwaApplicationDetail, user, form);
     verify(applicationUpdateRequestRepository, times(1)).save(any());
-    verify(notifyService, times(1)).sendEmail(any(), eq(PREPARER_1_EMAIL));
+    verify(emailService, times(1)).sendEmail(any(), eq(preparer1), eq(pwaApplicationDetail.getPwaApplicationRef()));
     verify(pwaApplicationDetailVersioningService, times(1)).createNewApplicationVersion(pwaApplicationDetail, user);
     verify(workflowAssignmentService, times(1))
         .triggerWorkflowMessageAndAssertTaskExists(
@@ -358,7 +359,8 @@ class ApplicationUpdateRequestServiceTest {
 
     verify(personService, times(1)).getPersonById(REQUESTER_PERSON_ID);
 
-    verify(notifyService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson),
+        eq(pwaApplicationDetail.getPwaApplicationRef()));
 
     assertThat(emailPropertiesArgumentCaptor.getValue()).satisfies(emailProperties -> {
       assertThat(emailProperties.getRecipientFullName()).isEqualTo(requesterPerson.getFullName());
@@ -394,7 +396,8 @@ class ApplicationUpdateRequestServiceTest {
 
     verify(personService, times(1)).getPersonById(REQUESTER_PERSON_ID);
 
-    verify(notifyService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropertiesArgumentCaptor.capture(), eq(requesterPerson),
+        eq(pwaApplicationDetail.getPwaApplicationRef()));
 
     assertThat(emailPropertiesArgumentCaptor.getValue()).satisfies(emailProperties -> {
       assertThat(emailProperties.getRecipientFullName()).isEqualTo(requesterPerson.getFullName());
@@ -431,7 +434,7 @@ class ApplicationUpdateRequestServiceTest {
       assertThat(applicationUpdateRequest.getStatus()).isEqualTo(ApplicationUpdateRequestStatus.OPEN);
     });
 
-    verifyNoInteractions(notifyService);
+    verifyNoInteractions(emailService);
 
   }
 

@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeApprovalForm;
@@ -37,11 +37,11 @@ public class PublicNoticeApprovalService {
   private final PublicNoticeApprovalValidator publicNoticeApprovalValidator;
   private final CamundaWorkflowService camundaWorkflowService;
   private final Clock clock;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final PwaContactService pwaContactService;
   private final PersonService personService;
   private final AssignmentService assignmentService;
+  private final EmailService emailService;
 
   @Autowired
   public PublicNoticeApprovalService(
@@ -49,19 +49,20 @@ public class PublicNoticeApprovalService {
       PublicNoticeApprovalValidator publicNoticeApprovalValidator,
       CamundaWorkflowService camundaWorkflowService,
       @Qualifier("utcClock") Clock clock,
-      NotifyService notifyService,
       CaseLinkService caseLinkService,
       PwaContactService pwaContactService,
-      PersonService personService, AssignmentService assignmentService) {
+      PersonService personService,
+      AssignmentService assignmentService,
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeApprovalValidator = publicNoticeApprovalValidator;
     this.camundaWorkflowService = camundaWorkflowService;
     this.clock = clock;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
     this.pwaContactService = pwaContactService;
     this.personService = personService;
     this.assignmentService = assignmentService;
+    this.emailService = emailService;
   }
 
 
@@ -105,7 +106,7 @@ public class PublicNoticeApprovalService {
         .forEach(recipient -> {
           var emailProps = buildApprovalEmailProps(
               pwaApplication, requestIsApproved, recipient.getFullName(), form.getRequestRejectedReason());
-          notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+          emailService.sendEmail(emailProps, recipient, pwaApplication.getAppReference());
         });
   }
 

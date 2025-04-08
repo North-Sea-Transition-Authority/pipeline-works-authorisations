@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
@@ -28,7 +30,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -68,7 +70,7 @@ class WithdrawConsultationServiceTest {
   private WorkflowAssignmentService workflowAssignmentService;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ConsultationRequest> consultationRequestArgumentCaptor;
@@ -94,8 +96,8 @@ class WithdrawConsultationServiceTest {
         teamManagementService,
         consulteeGroupTeamService,
         workflowAssignmentService,
-        notifyService,
-        clock);
+        clock,
+        emailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
 
@@ -144,7 +146,7 @@ class WithdrawConsultationServiceTest {
         consultationRequest.getPwaApplication().getAppReference(),
         consulteeGroupDetail.getName(),
         authenticatedUserAccount.getLinkedPerson().getFullName());
-    verify(notifyService, times(1)).sendEmail(expectedEmailProps, respondingPerson.getEmailAddress());
+    verify(emailService, times(1)).sendEmail(expectedEmailProps, respondingPerson, consultationRequest.getPwaApplication().getAppReference());
 
     verify(workflowAssignmentService).clearAssignments(consultationRequest);
   }
@@ -189,8 +191,9 @@ class WithdrawConsultationServiceTest {
 
     //Test email templates and recipient email addresses
     ArgumentCaptor<ConsultationWithdrawnEmailProps> expectedEmailProps = ArgumentCaptor.forClass(ConsultationWithdrawnEmailProps.class);
-    ArgumentCaptor<String> expectedToEmailAddress = ArgumentCaptor.forClass(String.class);
-    verify(notifyService, times(2)).sendEmail(expectedEmailProps.capture(), expectedToEmailAddress.capture());
+    ArgumentCaptor<EmailRecipient> expectedRecipient = ArgumentCaptor.forClass(EmailRecipient.class);
+    verify(emailService, times(2)).sendEmail(expectedEmailProps.capture(), expectedRecipient.capture(),
+        eq(consultationRequest.getPwaApplication().getAppReference()));
 
     List<ConsultationWithdrawnEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
     assertTrue(expectedEmailPropsValues.contains(new ConsultationWithdrawnEmailProps(
@@ -205,10 +208,9 @@ class WithdrawConsultationServiceTest {
         consulteeGroupDetail.getName(),
         authenticatedUserAccount.getLinkedPerson().getFullName())));
 
-    List<String> expectedToEmailValues = expectedToEmailAddress.getAllValues();
-    assertTrue(expectedToEmailValues.contains(teamMember1.getPerson().getEmailAddress()));
-    assertTrue(expectedToEmailValues.contains(teamMember2.getPerson().getEmailAddress()));
-    assertFalse(expectedToEmailValues.contains(teamMember3.getPerson().getEmailAddress()));
+    List<EmailRecipient> expectedEmailRecipients = expectedRecipient.getAllValues();
+    assertTrue(expectedEmailRecipients.contains(teamMember1.getPerson()));
+    assertTrue(expectedEmailRecipients.contains(teamMember2.getPerson()));
 
     verify(workflowAssignmentService).clearAssignments(consultationRequest);
   }

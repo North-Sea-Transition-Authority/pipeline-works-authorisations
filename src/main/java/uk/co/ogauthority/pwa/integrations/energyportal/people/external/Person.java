@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.Objects;
 import org.hibernate.annotations.Immutable;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 
 
 /**
@@ -15,7 +16,7 @@ import org.hibernate.annotations.Immutable;
 @Entity
 @Immutable
 @Table(name = "people")
-public class Person implements Serializable {
+public class Person implements Serializable, EmailRecipient {
 
   private static final long serialVersionUID = 1;
 
@@ -74,6 +75,7 @@ public class Person implements Serializable {
     return forename + " " + surname;
   }
 
+  @Override
   public String getEmailAddress() {
     return emailAddress;
   }

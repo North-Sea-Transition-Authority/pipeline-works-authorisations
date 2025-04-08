@@ -21,7 +21,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
@@ -42,8 +42,8 @@ public class AssignResponderService implements AppProcessingService {
   private final OldTeamManagementService teamManagementService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
+  private final EmailService emailService;
 
   @Autowired
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
@@ -52,16 +52,16 @@ public class AssignResponderService implements AppProcessingService {
                                 OldTeamManagementService teamManagementService,
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
-                                NotifyService notifyService,
-                                CaseLinkService caseLinkService) {
+                                CaseLinkService caseLinkService,
+                                EmailService emailService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.teamManagementService = teamManagementService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
-    this.notifyService = notifyService;
     this.caseLinkService = caseLinkService;
+    this.emailService = emailService;
   }
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
@@ -104,7 +104,7 @@ public class AssignResponderService implements AppProcessingService {
     if (!Objects.equals(responderPerson, assigningPerson)) {
       var caseManagementLink = caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication());
       var emailProps = buildAssignedEmailProps(responderPerson, consultationRequest, assigningPerson, caseManagementLink);
-      notifyService.sendEmail(emailProps, responderPerson.getEmailAddress());
+      emailService.sendEmail(emailProps, responderPerson, consultationRequest.getPwaApplication().getAppReference());
 
     }
 

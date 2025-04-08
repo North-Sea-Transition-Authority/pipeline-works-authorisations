@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.GenericMessageEvent;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.options.ApproveOptionsService;
 import uk.co.ogauthority.pwa.service.appprocessing.options.OptionsApprovalStatus;
@@ -48,33 +48,33 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
   private final ApplicationUpdateRequestRepository applicationUpdateRequestRepository;
   private final Clock clock;
-  private final NotifyService notifyService;
   private final PwaContactService pwaContactService;
   private final PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final PersonService personService;
   private final ApproveOptionsService approveOptionsService;
   private final CaseLinkService caseLinkService;
+  private final EmailService emailService;
 
   @Autowired
   public ApplicationUpdateRequestService(ApplicationUpdateRequestRepository applicationUpdateRequestRepository,
                                          @Qualifier("utcClock") Clock clock,
-                                         NotifyService notifyService,
                                          PwaContactService pwaContactService,
                                          PwaApplicationDetailVersioningService pwaApplicationDetailVersioningService,
                                          WorkflowAssignmentService workflowAssignmentService,
                                          PersonService personService,
                                          ApproveOptionsService approveOptionsService,
-                                         CaseLinkService caseLinkService) {
+                                         CaseLinkService caseLinkService,
+                                         EmailService emailService) {
     this.applicationUpdateRequestRepository = applicationUpdateRequestRepository;
     this.clock = clock;
-    this.notifyService = notifyService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationDetailVersioningService = pwaApplicationDetailVersioningService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.personService = personService;
     this.approveOptionsService = approveOptionsService;
     this.caseLinkService = caseLinkService;
+    this.emailService = emailService;
   }
 
 
@@ -194,13 +194,14 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
 
     if (!recipients.isEmpty()) {
       recipients.forEach(person ->
-          notifyService.sendEmail(
+          emailService.sendEmail(
               new ApplicationUpdateRequestEmailProps(
                   person.getFullName(),
                   pwaApplicationDetail.getPwaApplicationRef(),
                   requestingPerson.getFullName(),
                   caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
-              person.getEmailAddress()
+              person,
+              pwaApplicationDetail.getPwaApplicationRef()
           )
       );
 
@@ -212,15 +213,14 @@ public class ApplicationUpdateRequestService implements AppProcessingService {
   }
 
   private void sendApplicationUpdateRespondedEmail(PwaApplicationDetail pwaApplicationDetail, Person requestedByperson) {
-
-    notifyService.sendEmail(
+    emailService.sendEmail(
         new ApplicationUpdateResponseEmailProps(
             requestedByperson.getFullName(),
             pwaApplicationDetail.getPwaApplicationRef(),
             caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication())),
-        requestedByperson.getEmailAddress()
+        requestedByperson,
+        pwaApplicationDetail.getPwaApplicationRef()
     );
-
   }
 
   public boolean applicationHasOpenUpdateRequest(PwaApplicationDetail pwaApplicationDetail) {

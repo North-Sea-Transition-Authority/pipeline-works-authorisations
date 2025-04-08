@@ -33,7 +33,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -55,15 +55,16 @@ class AssignCaseOfficerServiceTest {
   private OldTeamManagementService teamManagementService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private PersonService personService;
 
   @Mock
   private CaseLinkService caseLinkService;
+
   @Mock
   private AssignCaseOfficerValidator assignCaseOfficerValidator;
+
+  @Mock
+  private EmailService emailService;
 
   private PwaApplicationDetail appDetail;
 
@@ -84,10 +85,10 @@ class AssignCaseOfficerServiceTest {
     assignCaseOfficerService = new AssignCaseOfficerService(
         workflowAssignmentService,
         teamManagementService,
-        notifyService,
         personService,
         assignCaseOfficerValidator,
-        caseLinkService);
+        caseLinkService,
+        emailService);
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
 
     assigningPerson = new Person(1, "m", "assign", "assign@assign.com", null);
@@ -121,8 +122,8 @@ class AssignCaseOfficerServiceTest {
   }
 
   private void verifyEmailsSentAndPropsPopulatedCorrectly() {
-    verify(notifyService).sendEmail(caseOfficerAssignedEmailPropsCaptor.capture(), eq(assigningUser.getLinkedPerson().getEmailAddress()));
-    verify(notifyService).sendEmail(applicationAssignedToYouEmailPropsCaptor.capture(), eq(caseOfficerPerson.getEmailAddress()));
+    verify(emailService).sendEmail(caseOfficerAssignedEmailPropsCaptor.capture(), eq(assigningUser.getLinkedPerson()), eq(appDetail.getPwaApplicationRef()));
+    verify(emailService).sendEmail(applicationAssignedToYouEmailPropsCaptor.capture(), eq(caseOfficerPerson), eq(appDetail.getPwaApplicationRef()));
 
     var caseOfficerAssignedProps = caseOfficerAssignedEmailPropsCaptor.getValue();
     assertThat(caseOfficerAssignedProps.getEmailPersonalisation()).contains(
@@ -176,7 +177,7 @@ class AssignCaseOfficerServiceTest {
 
     assignCaseOfficerService.autoAssignCaseOfficer(appDetail, caseOfficerPerson, assigningPerson);
 
-    verifyNoInteractions(notifyService);
+    verifyNoInteractions(emailService);
 
   }
 

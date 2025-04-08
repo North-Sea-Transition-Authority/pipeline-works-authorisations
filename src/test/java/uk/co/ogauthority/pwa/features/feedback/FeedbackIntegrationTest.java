@@ -2,7 +2,7 @@ package uk.co.ogauthority.pwa.features.feedback;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +40,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.fivium.feedbackmanagementservice.client.FeedbackClientService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
@@ -53,7 +54,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailProperties;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.enums.ServiceContactDetail;
 import uk.co.ogauthority.pwa.model.enums.feedback.ServiceFeedbackRating;
 import uk.co.ogauthority.pwa.mvc.DefaultExceptionResolver;
@@ -94,7 +95,7 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
   PwaApplicationDetailRepository pwaApplicationDetailRepository;
 
   @MockBean
-  NotifyService notifyService;
+  private EmailService emailService;
 
   private AuthenticatedUserAccount user;
   private Person person;
@@ -134,7 +135,7 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
             .param("feedback", COMMENT))
         .andExpect(redirectedUrlTemplate("/work-area"));
 
-    verify(notifyService, never()).sendEmail(any(EmailProperties.class), any());
+    verify(emailService, never()).sendEmail(any(EmailProperties.class), any(), any());
 
     var observedRequest = mockWebServer.takeRequest();
     assertThat(observedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
@@ -154,7 +155,8 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
             .param("feedback", COMMENT))
         .andExpect(redirectedUrlTemplate("/work-area"));
 
-    verify(notifyService, times(1)).sendEmail(any(EmailProperties.class), eq(SUPPORT_EMAIl));
+    verify(emailService, times(1))
+        .sendEmail(any(EmailProperties.class), refEq(EmailRecipient.directEmailAddress(SUPPORT_EMAIl)), any());
   }
 
   @Test
@@ -247,11 +249,11 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
             .param("feedback", COMMENT))
         .andExpect(redirectedUrlTemplate("/work-area"));
 
-    verify(notifyService, times(1)).sendEmail(any(EmailProperties.class), eq(SUPPORT_EMAIl));
+    verify(emailService, times(1)).sendEmail(any(EmailProperties.class), refEq(EmailRecipient.directEmailAddress(SUPPORT_EMAIl)), any());
   }
 
   @Test
-  void saveFeedback_unexpectedRespone() throws Exception {
+  void saveFeedback_unexpectedResponse() throws Exception {
     mockWebServer.enqueue(new MockResponse()
         .addHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
         .setResponseCode(500)
@@ -264,7 +266,7 @@ class FeedbackIntegrationTest extends PwaApplicationContextAbstractControllerTes
             .param("feedback", COMMENT))
         .andExpect(redirectedUrlTemplate("/work-area"));
 
-    verify(notifyService, times(1)).sendEmail(any(EmailProperties.class), eq(SUPPORT_EMAIl));
+    verify(emailService, times(1)).sendEmail(any(EmailProperties.class), refEq(EmailRecipient.directEmailAddress(SUPPORT_EMAIl)), any());
   }
 
   @TestConfiguration

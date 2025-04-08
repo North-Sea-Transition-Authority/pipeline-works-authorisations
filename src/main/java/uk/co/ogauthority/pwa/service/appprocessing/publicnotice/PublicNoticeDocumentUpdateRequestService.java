@@ -11,7 +11,7 @@ import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeUpdateRequestEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDocumentUpdateRequestForm;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
@@ -29,7 +29,7 @@ public class PublicNoticeDocumentUpdateRequestService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final CaseLinkService caseLinkService;
   private final PwaContactService pwaContactService;
-  private final NotifyService notifyService;
+  private final EmailService emailService;
 
   @Autowired
   public PublicNoticeDocumentUpdateRequestService(
@@ -39,14 +39,14 @@ public class PublicNoticeDocumentUpdateRequestService {
       CamundaWorkflowService camundaWorkflowService,
       CaseLinkService caseLinkService,
       PwaContactService pwaContactService,
-      NotifyService notifyService) {
+      EmailService emailService) {
     this.publicNoticeService = publicNoticeService;
     this.publicNoticeDocumentUpdateRequestValidator = publicNoticeDocumentUpdateRequestValidator;
     this.publicNoticeDocumentRepository = publicNoticeDocumentRepository;
     this.camundaWorkflowService = camundaWorkflowService;
     this.caseLinkService = caseLinkService;
     this.pwaContactService = pwaContactService;
-    this.notifyService = notifyService;
+    this.emailService = emailService;
   }
 
 
@@ -78,7 +78,7 @@ public class PublicNoticeDocumentUpdateRequestService {
           pwaApplication.getAppReference(),
           comments,
           caseManagementLink);
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+      emailService.sendEmail(emailProps, recipient, pwaApplication.getAppReference());
     });
   }
 

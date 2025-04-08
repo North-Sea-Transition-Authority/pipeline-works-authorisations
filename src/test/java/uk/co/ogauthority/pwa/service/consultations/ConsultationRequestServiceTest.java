@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
@@ -34,7 +36,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -75,13 +77,13 @@ class ConsultationRequestServiceTest {
   private ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
   private ConsultationsStatusViewFactory consultationsStatusViewFactory;
+
+  @Mock
+  private EmailService emailService;
 
   @Captor
   private ArgumentCaptor<ConsultationRequest> consultationRequestArgumentCaptor;
@@ -110,8 +112,8 @@ class ConsultationRequestServiceTest {
         teamManagementService,
         consulteeGroupTeamService,
         consultationsStatusViewFactory,
-        notifyService,
-        caseLinkService);
+        caseLinkService,
+        emailService);
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
 
@@ -155,8 +157,9 @@ class ConsultationRequestServiceTest {
 
     //email assertions
     ArgumentCaptor<ConsultationRequestReceivedEmailProps> expectedEmailProps = ArgumentCaptor.forClass(ConsultationRequestReceivedEmailProps.class);
-    ArgumentCaptor<String> expectedToEmailAddress = ArgumentCaptor.forClass(String.class);
-    verify(notifyService, times(2)).sendEmail(expectedEmailProps.capture(), expectedToEmailAddress.capture());
+    ArgumentCaptor<EmailRecipient> expectedRecipient = ArgumentCaptor.forClass(EmailRecipient.class);
+    verify(emailService, times(2)).sendEmail(expectedEmailProps.capture(), expectedRecipient.capture(),
+        eq(pwaApplicationDetail.getPwaApplication().getAppReference()));
 
     var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
     List<ConsultationRequestReceivedEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
@@ -174,9 +177,9 @@ class ConsultationRequestServiceTest {
         DateUtils.formatDate(dueDate),
         caseManagementLink)));
 
-    List<String> expectedToEmailValues = expectedToEmailAddress.getAllValues();
-    assertTrue(expectedToEmailValues.contains(teamMember1.getPerson().getEmailAddress()));
-    assertTrue(expectedToEmailValues.contains(teamMember2.getPerson().getEmailAddress()));
+    List<EmailRecipient> expectedToEmailRecipients = expectedRecipient.getAllValues();
+    assertTrue(expectedToEmailRecipients.contains(teamMember1.getPerson()));
+    assertTrue(expectedToEmailRecipients.contains(teamMember2.getPerson()));
 
   }
 

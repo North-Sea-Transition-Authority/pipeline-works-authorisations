@@ -21,6 +21,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -33,7 +34,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeRequestStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.entity.files.AppFile;
@@ -43,12 +44,10 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeRequest;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
-import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
-import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -64,13 +63,13 @@ class PublicNoticeDraftServiceTest {
   private Clock clock;
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
   private TeamQueryService teamQueryService;
+
+  @Mock
+  private EmailService emailService;
 
   @InjectMocks
   private PublicNoticeDraftService publicNoticeDraftService;
@@ -82,7 +81,7 @@ class PublicNoticeDraftServiceTest {
   private ArgumentCaptor<PublicNoticeApprovalRequestEmailProps> approvalRequestEmailPropsCaptor;
 
   @Captor
-  private ArgumentCaptor<String> emailAddressCaptor;
+  private ArgumentCaptor<EmailRecipient> emailRecipientArgumentCaptor;
 
   private PwaApplication pwaApplication;
   private AuthenticatedUserAccount user;
@@ -107,10 +106,10 @@ class PublicNoticeDraftServiceTest {
         publicNoticeService,
         camundaWorkflowService,
         clock,
-        notifyService,
         caseLinkService,
         teamQueryService,
-        appFileManagementService
+        appFileManagementService,
+        emailService
     );
 
     var pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -194,7 +193,7 @@ class PublicNoticeDraftServiceTest {
 
     publicNoticeDraftService.submitPublicNoticeDraft(publicNoticeDraftForm, pwaApplication, user);
 
-    verify(notifyService, times(pwaManagers.size())).sendEmail(approvalRequestEmailPropsCaptor.capture(), emailAddressCaptor.capture());
+    verify(emailService, times(pwaManagers.size())).sendEmail(approvalRequestEmailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(pwaApplication.getAppReference()));
 
     assertThat(approvalRequestEmailPropsCaptor.getAllValues()).allSatisfy(emailProps -> {
 
@@ -209,10 +208,10 @@ class PublicNoticeDraftServiceTest {
     });
 
     assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.email());
+    assertThat(emailRecipientArgumentCaptor.getAllValues().get(0).getEmailAddress()).isEqualTo(pwaManager1.email());
 
     assertThat(approvalRequestEmailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.email());
+    assertThat(emailRecipientArgumentCaptor.getAllValues().get(1).getEmailAddress()).isEqualTo(pwaManager2.email());
   }
 
 

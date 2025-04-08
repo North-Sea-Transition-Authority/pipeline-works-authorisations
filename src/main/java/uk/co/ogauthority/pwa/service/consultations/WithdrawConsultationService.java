@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.Consul
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
@@ -36,8 +36,8 @@ public class WithdrawConsultationService {
   private final OldTeamManagementService teamManagementService;
   private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final WorkflowAssignmentService workflowAssignmentService;
-  private final NotifyService notifyService;
   private final Clock clock;
+  private final EmailService emailService;
 
   @Autowired
   public WithdrawConsultationService(
@@ -47,16 +47,16 @@ public class WithdrawConsultationService {
       OldTeamManagementService teamManagementService,
       ConsulteeGroupTeamService consulteeGroupTeamService,
       WorkflowAssignmentService workflowAssignmentService,
-      NotifyService notifyService,
-      @Qualifier("utcClock") Clock clock) {
+      @Qualifier("utcClock") Clock clock,
+      EmailService emailService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.teamManagementService = teamManagementService;
     this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.workflowAssignmentService = workflowAssignmentService;
-    this.notifyService = notifyService;
     this.clock = clock;
+    this.emailService = emailService;
   }
 
 
@@ -95,7 +95,7 @@ public class WithdrawConsultationService {
         consultationRequest.getConsulteeGroup()).getName();
     emailRecipients.forEach(recipient -> {
       var emailProps = buildWithdrawnEmailProps(recipient, consultationRequest, consulteeGroupName, user.getLinkedPerson());
-      notifyService.sendEmail(emailProps, recipient.getEmailAddress());
+      emailService.sendEmail(emailProps, recipient, consultationRequest.getPwaApplication().getAppReference());
     });
 
     workflowAssignmentService.clearAssignments(consultationRequest);

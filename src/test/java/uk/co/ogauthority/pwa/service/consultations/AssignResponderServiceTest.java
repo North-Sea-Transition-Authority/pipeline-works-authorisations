@@ -2,7 +2,9 @@ package uk.co.ogauthority.pwa.service.consultations;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -40,7 +42,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
@@ -82,7 +84,7 @@ class AssignResponderServiceTest {
   private ConsultationRequestService consultationRequestService;
 
   @Mock
-  private NotifyService notifyService;
+  private EmailService emailService;
 
   @Mock
   private CaseLinkService caseLinkService;
@@ -99,8 +101,8 @@ class AssignResponderServiceTest {
         teamManagementService,
         camundaWorkflowService,
         consultationRequestService,
-        notifyService,
-        caseLinkService);
+        caseLinkService,
+        emailService);
   }
 
   @Test
@@ -155,7 +157,8 @@ class AssignResponderServiceTest {
 
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson),
+        eq(consultationRequest.getPwaApplication().getAppReference()));
 
     var emailProps = emailPropsCaptor.getValue();
 
@@ -207,7 +210,7 @@ class AssignResponderServiceTest {
 
     verify(consultationRequestService, times(1)).saveConsultationRequest(consultationRequest);
 
-    verifyNoInteractions(notifyService);
+    verifyNoInteractions(emailService);
 
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
 
@@ -249,7 +252,8 @@ class AssignResponderServiceTest {
 
     verify(consultationRequestService, times(0)).saveConsultationRequest(consultationRequest);
 
-    verify(notifyService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson.getEmailAddress()));
+    verify(emailService, times(1)).sendEmail(emailPropsCaptor.capture(), eq(responderPerson),
+        eq(consultationRequest.getPwaApplication().getAppReference()));
 
     var emailProps = emailPropsCaptor.getValue();
 
@@ -300,7 +304,7 @@ class AssignResponderServiceTest {
 
     verify(consultationRequestService, times(0)).saveConsultationRequest(consultationRequest);
 
-    verifyNoInteractions(notifyService);
+    verifyNoInteractions(emailService);
 
     assertThat(consultationRequest.getStatus()).isEqualTo(ConsultationRequestStatus.AWAITING_RESPONSE);
 

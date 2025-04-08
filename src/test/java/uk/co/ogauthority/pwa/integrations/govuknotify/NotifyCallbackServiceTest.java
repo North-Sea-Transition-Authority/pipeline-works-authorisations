@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.integrations.govuknotify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.gov.service.notify.Notification;
 import uk.gov.service.notify.NotificationClientApi;
 
@@ -25,10 +27,10 @@ class NotifyCallbackServiceTest {
   private static final String BOUNCE_BACK_EMAIL_BOX = "bounceback@pwa.co.uk";
 
   @Mock
-  private NotifyService notifyServiceMock;
+  private NotificationClientApi notificationClientMock;
 
   @Mock
-  private NotificationClientApi notificationClientMock;
+  private EmailService emailService;
 
   private Notification notification;
   private NotifyCallback notifyCallback;
@@ -37,7 +39,7 @@ class NotifyCallbackServiceTest {
   @BeforeEach
   void setup() {
 
-    notifyCallbackService = new NotifyCallbackService(notifyServiceMock, notificationClientMock, BOUNCE_BACK_EMAIL_BOX, CALLBACK_TOKEN);
+    notifyCallbackService = new NotifyCallbackService(notificationClientMock, emailService, BOUNCE_BACK_EMAIL_BOX, CALLBACK_TOKEN);
 
     notifyCallback = new NotifyCallback(
         "be0a4c7d-1657-4b83-8771-2a40e7408d67",
@@ -76,7 +78,7 @@ class NotifyCallbackServiceTest {
   @Test
   void handleCallback_emailDelivered() throws Exception {
     notifyCallbackService.handleCallback(notifyCallback);
-    verifyNoInteractions(notifyServiceMock);
+    verifyNoInteractions(emailService);
   }
 
   @Test
@@ -85,7 +87,7 @@ class NotifyCallbackServiceTest {
     notifyCallback.setTo(BOUNCE_BACK_EMAIL_BOX);
 
     notifyCallbackService.handleCallback(notifyCallback);
-    verifyNoInteractions(notifyServiceMock);
+    verifyNoInteractions(emailService);
   }
 
   @Test
@@ -98,7 +100,8 @@ class NotifyCallbackServiceTest {
 
     ArgumentCaptor<EmailProperties> emailCaptor = ArgumentCaptor.forClass(EmailProperties.class);
 
-    verify(notifyServiceMock, times(1)).sendEmail(emailCaptor.capture(), eq(BOUNCE_BACK_EMAIL_BOX));
+    verify(emailService, times(1))
+        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(BOUNCE_BACK_EMAIL_BOX)), eq(""));
 
     EmailDeliveryFailedEmailProps failedEmail = (EmailDeliveryFailedEmailProps)emailCaptor.getValue();
 

@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,13 +18,14 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentDocumentEmailService;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.enums.notify.NotifyTemplate;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -36,13 +38,13 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 class ConsentDocumentEmailServiceTest {
 
   @Mock
-  private NotifyService notifyService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
   private TeamQueryService teamQueryService;
+
+  @Mock
+  private EmailService emailService;
 
   @InjectMocks
   private ConsentDocumentEmailService consentDocumentEmailService;
@@ -51,7 +53,7 @@ class ConsentDocumentEmailServiceTest {
   private ArgumentCaptor<ConsentReviewEmailProps> emailPropsCaptor;
 
   @Captor
-  private ArgumentCaptor<String> emailAddressCaptor;
+  private ArgumentCaptor<EmailRecipient> emailRecipientArgumentCaptor;
 
   private final PwaApplicationDetail detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   private final Person person = PersonTestUtil.createDefaultPerson();
@@ -72,7 +74,7 @@ class ConsentDocumentEmailServiceTest {
 
     consentDocumentEmailService.sendConsentReviewStartedEmail(detail, person);
 
-    verify(notifyService, times(pwaManagers.size())).sendEmail(emailPropsCaptor.capture(), emailAddressCaptor.capture());
+    verify(emailService, times(pwaManagers.size())).sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(detail.getPwaApplicationRef()));
 
     assertThat(emailPropsCaptor.getAllValues()).allSatisfy(emailProps -> {
 
@@ -87,10 +89,10 @@ class ConsentDocumentEmailServiceTest {
     });
 
     assertThat(emailPropsCaptor.getAllValues().get(0).getRecipientFullName()).isEqualTo(pwaManager1.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(0)).isEqualTo(pwaManager1.email());
+    assertThat(emailRecipientArgumentCaptor.getAllValues().get(0).getEmailAddress()).isEqualTo(pwaManager1.email());
 
     assertThat(emailPropsCaptor.getAllValues().get(1).getRecipientFullName()).isEqualTo(pwaManager2.getFullName());
-    assertThat(emailAddressCaptor.getAllValues().get(1)).isEqualTo(pwaManager2.email());
+    assertThat(emailRecipientArgumentCaptor.getAllValues().get(1).getEmailAddress()).isEqualTo(pwaManager2.email());
 
   }
 

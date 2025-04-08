@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
@@ -12,26 +13,26 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
-import uk.co.ogauthority.pwa.integrations.govuknotify.NotifyService;
+import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 
 @Service
 public class ConsentEmailService {
 
-  private final NotifyService notifyService;
   private final CaseLinkService caseLinkService;
   private final PersonService personService;
   private final AssignmentService assignmentService;
+  private final EmailService emailService;
 
   @Autowired
-  public ConsentEmailService(NotifyService notifyService,
-                             CaseLinkService caseLinkService,
+  public ConsentEmailService(CaseLinkService caseLinkService,
                              PersonService personService,
-                             AssignmentService assignmentService) {
-    this.notifyService = notifyService;
+                             AssignmentService assignmentService,
+                             EmailService emailService) {
     this.caseLinkService = caseLinkService;
     this.personService = personService;
     this.assignmentService = assignmentService;
+    this.emailService = emailService;
   }
 
   public void sendConsentReviewReturnedEmail(PwaApplicationDetail pwaApplicationDetail,
@@ -46,8 +47,11 @@ public class ConsentEmailService {
         returnReason,
         caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication()));
 
-    notifyService.sendEmail(emailProps, recipientEmail);
-
+    emailService.sendEmail(
+        emailProps,
+        EmailRecipient.directEmailAddress(recipientEmail),
+        pwaApplicationDetail.getPwaApplicationRef()
+    );
   }
 
   public void sendCaseOfficerConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail,
@@ -59,8 +63,7 @@ public class ConsentEmailService {
         issuingPersonName
     );
 
-    notifyService.sendEmail(emailProps, caseOfficerPerson.getEmailAddress());
-
+    emailService.sendEmail(emailProps, caseOfficerPerson, pwaApplicationDetail.getPwaApplicationRef());
   }
 
   public void sendHolderAndSubmitterConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail,
@@ -83,8 +86,7 @@ public class ConsentEmailService {
           caseManagementLink
       );
 
-      notifyService.sendEmail(emailProps, emailRecipientPerson.getEmailAddress());
-
+      emailService.sendEmail(emailProps, emailRecipientPerson, pwaApplicationDetail.getPwaApplicationRef());
     });
 
   }
@@ -109,7 +111,7 @@ public class ConsentEmailService {
           caseManagementLink
       );
 
-      notifyService.sendEmail(emailProps, emailRecipientPerson.getEmailAddress());
+      emailService.sendEmail(emailProps, emailRecipientPerson, pwaApplicationDetail.getPwaApplicationRef());
 
     });
 
