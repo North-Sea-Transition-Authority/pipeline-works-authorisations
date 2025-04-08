@@ -1,44 +1,35 @@
 package uk.co.ogauthority.pwa.features.webapp.devtools.testharness;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 
 @Profile("test-harness")
 @Service
 public class TestHarnessOrganisationUnitService {
-
-  private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final TeamService teamService;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   @Autowired
-  public TestHarnessOrganisationUnitService(PortalOrganisationsAccessor portalOrganisationsAccessor,
-                                            TeamService teamService) {
-    this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.teamService = teamService;
+  public TestHarnessOrganisationUnitService(PwaHolderTeamService pwaHolderTeamService) {
+    this.pwaHolderTeamService = pwaHolderTeamService;
   }
 
   public PortalOrganisationUnit getFirstOrgUnitUserCanAccessOrThrow(WebUserAccount webUserAccount) {
 
-    var orgGroupsUserCanAccess = teamService.getOrganisationTeamListIfPersonInRole(
-            webUserAccount.getLinkedPerson(),
-            List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
-
-    return portalOrganisationsAccessor.getActiveOrganisationUnitsForOrganisationGroupsIn(orgGroupsUserCanAccess).stream()
+    return pwaHolderTeamService.getPortalOrganisationUnitsWhereUserHasAnyOrgRole(
+            webUserAccount,
+            Set.of(Role.APPLICATION_CREATOR)
+        )
+        .stream()
+        .filter(PortalOrganisationUnit::isActive)
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(String.format(
-            "User with WUA ID: %s does not have access to any organisation units", webUserAccount.getWuaId())));
-
+        .orElseThrow(() -> new IllegalStateException(
+            "User with WUA ID: %d does not have access to any organisation units".formatted(webUserAccount.getWuaId())
+        ));
   }
-
 }

@@ -31,11 +31,11 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.CreatePaymentAttemptResult;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.display.ApplicationPaymentSummariser;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -143,7 +143,7 @@ public class IndustryPaymentController {
         .addObject("appPaymentDisplaySummary", appPaymentDisplaySummary)
         .addObject("paymentLandingPageUrl", landingPageRoute(processingContext))
         .addObject("pwaHolderOrgNames", pwaHolderOrgNames)
-        .addObject("financeRoleName", PwaOrganisationRole.FINANCE_ADMIN.getDisplayName())
+        .addObject("financeRoleName", Role.FINANCE_ADMIN.getName())
         .addObject("errorList", List.of());
 
     breadcrumbService.fromCaseManagement(processingContext.getPwaApplication(), modelAndView, PAY_FOR_APP_LANDING_PAGE);

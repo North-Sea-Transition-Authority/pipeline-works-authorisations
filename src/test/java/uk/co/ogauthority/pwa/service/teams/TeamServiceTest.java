@@ -320,38 +320,6 @@ class TeamServiceTest {
   }
 
   @Test
-  void isUserInHolderTeam_userInTeam() {
-
-    List<PortalTeamDto> foundOrganisationTeams = List.of(organisationTeamAsPortalTeamDto1);
-    when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        eq(organisationPerson),
-        eq(PwaTeamType.ORGANISATION.getPortalTeamType()),
-        any()))
-        .thenReturn(foundOrganisationTeams);
-
-    when(pwaTeamsDtoFactory.createOrganisationTeamList(foundOrganisationTeams))
-        .thenReturn(List.of(organisationTeam1));
-
-    var userInHolderTeam = teamService.isUserInHolderTeam(
-        organisationPerson, Set.of(organisationTeam1.getPortalOrganisationGroup()));
-    assertThat(userInHolderTeam).isTrue();
-  }
-
-  @Test
-  void isUserInHolderTeam_userNotInTeam() {
-
-    when(portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        eq(organisationPerson),
-        eq(PwaTeamType.ORGANISATION.getPortalTeamType()),
-        any()))
-        .thenReturn(List.of());
-
-    var userInHolderTeam = teamService.isUserInHolderTeam(
-        organisationPerson, Set.of(organisationTeam1.getPortalOrganisationGroup()));
-    assertThat(userInHolderTeam).isFalse();
-  }
-
-  @Test
   void removePersonFromTeam_verifyServiceInteraction() {
     teamService.removePersonFromTeam(regulatorTeam, regulatorPerson, someWebUserAccount);
     verify(portalTeamAccessor, times(1)).removePersonFromTeam(regulatorTeam.getId(), regulatorPerson, someWebUserAccount);
@@ -371,23 +339,6 @@ class TeamServiceTest {
         .thenReturn(List.of(TeamTestingUtils.getTeamAdminRoleDto(regulatorTeam), TeamTestingUtils.getTeamAdminRoleDto(regulatorTeam)));
 
     assertThat(teamService.getAllRolesForTeam(regulatorTeam)).containsExactly(mockRole, mockRole);
-  }
-
-  @Test
-  void getOrganisationTeamsPersonIsMemberOf_verifyServiceInteractions() {
-    teamService.getOrganisationTeamsPersonIsMemberOf(organisationPerson);
-
-    verify(portalTeamAccessor, times(1)).getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        eq(organisationPerson),
-        eq(PwaTeamType.ORGANISATION.getPortalTeamType()),
-        stringListCaptor.capture()
-    );
-
-    List<String> expectedRoles = EnumSet.allOf(PwaOrganisationRole.class).stream()
-        .map(PwaOrganisationRole::getPortalTeamRoleName)
-        .collect(Collectors.toList());
-
-    assertThat(stringListCaptor.getValue()).containsExactlyInAnyOrderElementsOf(expectedRoles);
   }
 
   @Test

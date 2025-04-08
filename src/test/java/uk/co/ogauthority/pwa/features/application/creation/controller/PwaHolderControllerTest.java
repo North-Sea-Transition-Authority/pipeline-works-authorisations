@@ -50,6 +50,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
@@ -79,6 +80,9 @@ class PwaHolderControllerTest extends AbstractControllerTest {
 
   @MockBean
   private MetricsProvider metricsProvider;
+
+  @MockBean
+  private PwaHolderTeamService pwaHolderTeamService;
 
   @Mock
   private Appender appender;
@@ -219,9 +223,9 @@ class PwaHolderControllerTest extends AbstractControllerTest {
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(orgUnit));
 
-    var controller = new PwaHolderController(teamService, pwaApplicationCreationService, pwaApplicationDetailService,
+    var controller = new PwaHolderController(pwaApplicationCreationService, pwaApplicationDetailService,
         portalOrganisationsAccessor, pwaApplicationRedirectService, pwaHolderFormValidator, padOrganisationRoleService,
-        Mockito.mock(ControllerHelperService.class), "", metricsProvider);
+        Mockito.mock(ControllerHelperService.class), "", metricsProvider, pwaHolderTeamService);
 
     var form = new PwaHolderForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");

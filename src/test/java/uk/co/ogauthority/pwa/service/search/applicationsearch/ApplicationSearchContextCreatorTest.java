@@ -12,6 +12,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -27,9 +28,10 @@ import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationSearchContextCreatorTest {
@@ -46,9 +48,11 @@ class ApplicationSearchContextCreatorTest {
   @Mock
   private ConsulteeGroupTeamService consulteeGroupTeamService;
 
-  private ApplicationSearchContextCreator applicationSearchContextCreator;
+  @Mock
+  private PwaHolderTeamService pwaHolderTeamService;
 
-  private ConsulteeGroup consulteeGroup;
+  @InjectMocks
+  private ApplicationSearchContextCreator applicationSearchContextCreator;
 
   private AuthenticatedUserAccount authenticatedUserAccount;
   private Person person;
@@ -57,12 +61,6 @@ class ApplicationSearchContextCreatorTest {
   void setup() {
     person = PersonTestUtil.createDefaultPerson();
     authenticatedUserAccount = new AuthenticatedUserAccount(new WebUserAccount(1, person), Collections.emptyList());
-
-    applicationSearchContextCreator = new ApplicationSearchContextCreator(
-        userTypeService,
-        teamService,
-        portalOrganisationsAccessor,
-        consulteeGroupTeamService);
   }
 
   @Test
@@ -73,8 +71,7 @@ class ApplicationSearchContextCreatorTest {
 
     var orgUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
     var orgGrp = orgUnit.getPortalOrganisationGroup().get();
-    var orgTeam = TeamTestingUtils.getOrganisationTeam(orgGrp);
-    consulteeGroup = new ConsulteeGroup();
+    ConsulteeGroup consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
     var consultationGroupTeamMember = new ConsulteeGroupTeamMember(
         consulteeGroup,
@@ -82,8 +79,9 @@ class ApplicationSearchContextCreatorTest {
         EnumSet.allOf(ConsulteeGroupMemberRole.class)
     );
 
-    when(teamService.getOrganisationTeamsPersonIsMemberOf(person)).thenReturn(List.of(orgTeam));
-    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(Set.of(orgGrp)))
+    when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(authenticatedUserAccount, EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())))
+        .thenReturn(List.of(orgGrp));
+    when(portalOrganisationsAccessor.getOrganisationUnitsForOrganisationGroupsIn(List.of(orgGrp)))
         .thenReturn(List.of(orgUnit));
     when(consulteeGroupTeamService.getTeamMemberByPerson(person)).thenReturn(Optional.of(consultationGroupTeamMember));
 

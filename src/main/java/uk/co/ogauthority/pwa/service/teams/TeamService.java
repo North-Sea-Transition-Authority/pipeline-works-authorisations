@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.teams;
 
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -154,12 +153,6 @@ public class TeamService {
     return pwaTeamsDtoFactory.createOrganisationTeamList(orgTeamList);
   }
 
-  public boolean isUserInHolderTeam(Person person, Set<PortalOrganisationGroup> holderOrgGroups) {
-    return getOrganisationTeamListIfPersonInRole(person, EnumSet.allOf(PwaOrganisationRole.class)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .anyMatch(holderOrgGroups::contains);
-  }
-
   private PwaRegulatorTeam createRegulatorTeamOrError(List<PortalTeamDto> teams) {
     if (teams.size() != 1) {
       throw new RuntimeException("Expected 1 REGULATOR type team but got " + teams.size());
@@ -174,7 +167,6 @@ public class TeamService {
   public void removePersonFromTeam(PwaTeam team, Person personToRemove, WebUserAccount actionPerformedBy) {
     portalTeamAccessor.removePersonFromTeam(team.getId(), personToRemove, actionPerformedBy);
   }
-
 
   /**
    * Add (or update) the roles a given person in a team has.
@@ -197,17 +189,6 @@ public class TeamService {
     return portalTeamAccessor.getAllPortalRolesForTeam(team.getId()).stream()
         .map(pwaTeamsDtoFactory::createPwaRole)
         .collect(Collectors.toList());
-  }
-
-  /**
-   * Get all organisation teams where user is a member.
-   */
-  public List<PwaOrganisationTeam> getOrganisationTeamsPersonIsMemberOf(Person person) {
-    return getOrganisationTeamListIfPersonInRole(
-        person,
-        EnumSet.allOf(PwaOrganisationRole.class)
-    );
-
   }
 
   public Set<PwaUserPrivilege> getAllUserPrivilegesForPerson(Person person) {

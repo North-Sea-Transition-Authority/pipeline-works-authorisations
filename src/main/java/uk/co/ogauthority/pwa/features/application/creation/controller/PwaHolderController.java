@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +35,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
@@ -50,7 +50,6 @@ import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 @RequestMapping("/pwa-application/create-initial-pwa")
 public class PwaHolderController {
 
-  private final TeamService teamService;
   private final PwaApplicationCreationService pwaApplicationCreationService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
@@ -60,13 +59,13 @@ public class PwaHolderController {
   private final ControllerHelperService controllerHelperService;
   private final String ogaServiceDeskEmail;
   private final MetricsProvider metricsProvider;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaHolderController.class);
 
 
   @Autowired
-  public PwaHolderController(TeamService teamService,
-                             PwaApplicationCreationService pwaApplicationCreationService,
+  public PwaHolderController(PwaApplicationCreationService pwaApplicationCreationService,
                              PwaApplicationDetailService pwaApplicationDetailService,
                              PortalOrganisationsAccessor portalOrganisationsAccessor,
                              PwaApplicationRedirectService pwaApplicationRedirectService,
@@ -74,8 +73,8 @@ public class PwaHolderController {
                              PadOrganisationRoleService padOrganisationRoleService,
                              ControllerHelperService controllerHelperService,
                              @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail,
-                             MetricsProvider metricsProvider) {
-    this.teamService = teamService;
+                             MetricsProvider metricsProvider,
+                             PwaHolderTeamService pwaHolderTeamService) {
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -85,6 +84,7 @@ public class PwaHolderController {
     this.controllerHelperService = controllerHelperService;
     this.ogaServiceDeskEmail = ogaServiceDeskEmail;
     this.metricsProvider = metricsProvider;
+    this.pwaHolderTeamService = pwaHolderTeamService;
   }
 
   /**
@@ -169,11 +169,7 @@ public class PwaHolderController {
   }
 
   private List<PortalOrganisationGroup> getOrgGroupsUserCanAccess(AuthenticatedUserAccount user) {
-    return teamService.getOrganisationTeamListIfPersonInRole(
-        user.getLinkedPerson(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR)).stream()
-        .map(PwaOrganisationTeam::getPortalOrganisationGroup)
-        .collect(Collectors.toList());
+    return pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(user, Set.of(Role.APPLICATION_CREATOR));
   }
 
   private List<PortalOrganisationSearchUnit> getOrgUnitsUserCanAccess(AuthenticatedUserAccount user) {
