@@ -21,6 +21,7 @@ This log lists the architectural decisions for PWA.
 - [ADR-0014](0014-pwa-api-adr.md) - API to retrieve PWAs and pipelines
 - [ADR-0015](0015-pwa-initial-consent-date-in-api.md) - Adding initial consent date to PWA
 - [ADR-0016](0016-how-to-handle-pwa-privileges-in-conversion-teams-pattern.md) - How to handle PWA Privileges in conversion to Teams Pattern
+- [ADR-0017](0017-migrate-files-from-oracle-to-s3-for-conversion-to-the-file-upload-library) - Migrate files from Oracle to s3 for conversion to the File Upload Library
 
 <!-- adrlogstop -->
 
