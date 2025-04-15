@@ -3,13 +3,14 @@ package uk.co.ogauthority.pwa.service.documents.generation;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineDrawingSummaryView;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentDiffableView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
@@ -34,6 +35,7 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
   private final ConsentDocumentImageService consentDocumentImageService;
   private final PadTechnicalDrawingService padTechnicalDrawingService;
   private final MarkdownService markdownService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public TableAGeneratorService(
@@ -41,12 +43,15 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
       PadProjectInformationService padProjectInformationService,
       ConsentDocumentImageService consentDocumentImageService,
       PadTechnicalDrawingService padTechnicalDrawingService,
-      MarkdownService markdownService) {
+      MarkdownService markdownService,
+      PadFileManagementService padFileManagementService
+  ) {
     this.pipelineDiffableSummaryService = pipelineDiffableSummaryService;
     this.padProjectInformationService = padProjectInformationService;
     this.consentDocumentImageService = consentDocumentImageService;
     this.padTechnicalDrawingService = padTechnicalDrawingService;
     this.markdownService = markdownService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -56,7 +61,7 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
     var drawingForPipelineSummaryMap = getDrawingForPipelineSummaryMap(pwaApplicationDetail);
     var projectName = padProjectInformationService.getPadProjectInformationData(pwaApplicationDetail).getProjectName();
-    var drawingForTableAViews = mapDrawingsAndPipelinesToDrawingTableAView(projectName, drawingForPipelineSummaryMap);
+    var drawingForTableAViews = mapDrawingsAndPipelinesToDrawingTableAView(projectName, drawingForPipelineSummaryMap, pwaApplicationDetail);
 
     // if no pipelines or drawings, nothing to show, exit early
     if (drawingForTableAViews.isEmpty()) {
@@ -90,7 +95,10 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
 
   private List<DrawingForTableAView> mapDrawingsAndPipelinesToDrawingTableAView(
       String projectName,
-      Map<PipelineDrawingSummaryView, List<PipelineDiffableSummary>> drawingForPipelineSummaryMap) {
+      Map<PipelineDrawingSummaryView,
+      List<PipelineDiffableSummary>> drawingForPipelineSummaryMap,
+      PwaApplicationDetail pwaApplicationDetail
+  ) {
 
     return drawingForPipelineSummaryMap.entrySet()
         .stream().map(entry -> {
@@ -108,14 +116,15 @@ public class TableAGeneratorService implements DocumentSectionGenerator {
               projectName,
               drawingSummary.getFileId(),
               drawingSummary.getReference(),
-              getImgSource(drawingSummary.getFileId()));
+              getImgSource(drawingSummary.getFileId(), pwaApplicationDetail));
         })
         .collect(Collectors.toList());
   }
 
-  private String getImgSource(String fileId) {
-    Map<String, String> fileIdToImgSourceMap = consentDocumentImageService.convertFilesToImageSourceMap(Set.of(fileId));
-    return fileIdToImgSourceMap.get(fileId);
+  private String getImgSource(String fileId, PwaApplicationDetail pwaApplicationDetail) {
+    return consentDocumentImageService.convertFileToImageSource(
+        padFileManagementService.getUploadedFile(pwaApplicationDetail, UUID.fromString(fileId))
+    );
   }
 
 

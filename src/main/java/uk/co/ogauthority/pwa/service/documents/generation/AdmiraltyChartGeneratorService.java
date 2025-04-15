@@ -1,12 +1,10 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -17,36 +15,29 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 public class AdmiraltyChartGeneratorService implements DocumentSectionGenerator {
 
   private final ConsentDocumentImageService consentDocumentImageService;
-  private final AdmiraltyChartFileService admiraltyChartFileService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
-  public AdmiraltyChartGeneratorService(AdmiraltyChartFileService admiraltyChartFileService,
-                                        ConsentDocumentImageService consentDocumentImageService) {
-    this.admiraltyChartFileService = admiraltyChartFileService;
+  public AdmiraltyChartGeneratorService(ConsentDocumentImageService consentDocumentImageService,
+                                        PadFileManagementService padFileManagementService) {
     this.consentDocumentImageService = consentDocumentImageService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
   public DocumentSectionData getDocumentSectionData(PwaApplicationDetail pwaApplicationDetail,
                                                     DocumentInstance documentInstance,
                                                     DocGenType docGenType) {
-    Optional<String> admiraltyChartFileId = admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
-        .map(UploadedFileView::getFileId);
+    var files = padFileManagementService.getUploadedFiles(pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART);
 
     // short-circuit early if no admiralty chart, nothing to show
-    if (admiraltyChartFileId.isEmpty()) {
+    if (files.isEmpty()) {
       return null;
     }
 
-    Map<String, String> fileIdToImgSourceMap = admiraltyChartFileId
-        .map(fileId -> consentDocumentImageService.convertFilesToImageSourceMap(Set.of(fileId)))
-        .orElse(Map.of());
-
-    String imgSource = fileIdToImgSourceMap.getOrDefault(admiraltyChartFileId.orElse(""), "");
-
     Map<String, Object> modelMap = Map.of(
         "sectionName", DocumentSection.ADMIRALTY_CHART.getDisplayName(),
-        "admiraltyChartImgSource", imgSource
+        "admiraltyChartImgSource", consentDocumentImageService.convertFileToImageSource(files.getFirst())
     );
 
     return new DocumentSectionData("documents/consents/sections/admiraltyChart", modelMap);

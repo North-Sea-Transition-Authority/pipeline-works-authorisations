@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +7,8 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.documents.generation.DocumentSectionData;
 import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
@@ -20,14 +21,18 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
   private final DepositDrawingsService depositDrawingsService;
   private final ConsentDocumentImageService consentDocumentImageService;
   private final PermanentDepositService permanentDepositService;
+  private final PadFileManagementService padFileManagementService;
 
   @Autowired
   public DepositDrawingsGeneratorService(DepositDrawingsService depositDrawingsService,
                                          ConsentDocumentImageService consentDocumentImageService,
-                                         PermanentDepositService permanentDepositService) {
+                                         PermanentDepositService permanentDepositService,
+                                         PadFileManagementService padFileManagementService
+  ) {
     this.depositDrawingsService = depositDrawingsService;
     this.consentDocumentImageService = consentDocumentImageService;
     this.permanentDepositService = permanentDepositService;
+    this.padFileManagementService = padFileManagementService;
   }
 
   @Override
@@ -48,8 +53,9 @@ public class DepositDrawingsGeneratorService implements DocumentSectionGenerator
     var drawingRefToFileIdMap = drawings.stream()
         .collect(Collectors.toMap(PadDepositDrawing::getReference, d -> String.valueOf(d.getFile().getFileId())));
 
-    Map<String, String> fileIdToImgSourceMap = consentDocumentImageService
-        .convertFilesToImageSourceMap(new HashSet<>(drawingRefToFileIdMap.values()));
+    var drawingFiles = padFileManagementService.getUploadedFiles(pwaApplicationDetail, FileDocumentType.DEPOSIT_DRAWINGS);
+
+    Map<String, String> fileIdToImgSourceMap = consentDocumentImageService.convertFilesToImageSourceMap(drawingFiles);
 
     Map<String, Object> modelMap = Map.of(
         "sectionName", DocumentSection.DEPOSIT_DRAWINGS.getDisplayName(),

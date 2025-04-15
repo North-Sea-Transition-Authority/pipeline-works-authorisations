@@ -145,10 +145,11 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
     }
 
     if (availableMergeFields.contains(MailMergeFieldMnem.ADMIRALTY_CHART_REF)) {
+      var chartFiles = padFileManagementService.getUploadedFiles(pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART);
 
-      admiraltyChartFileService.getAdmiraltyChartFile(pwaApplicationDetail)
-          .ifPresent(file -> map.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, file.getFileDescription()));
-
+      if (!chartFiles.isEmpty()) {
+        map.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, chartFiles.getFirst().getDescription());
+      }
     }
 
     return map;

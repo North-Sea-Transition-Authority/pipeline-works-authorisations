@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,8 +19,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.files.PadFileService;
 import uk.co.ogauthority.pwa.features.application.tasks.optionconfirmation.PadOptionConfirmedService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartDocumentForm;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.admiralty.AdmiraltyChartFileService;
@@ -29,8 +28,8 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelin
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PadTechnicalDrawingService;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.pipelinetechdrawings.PipelineSchematicsErrorCode;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelinediagrams.umbilical.UmbilicalCrossSectionService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.generic.SummaryForm;
@@ -48,9 +47,6 @@ class TechnicalDrawingSectionServiceTest {
 
   @Mock
   private UmbilicalCrossSectionService umbilicalCrossSectionService;
-
-  @Mock
-  private PadFileService padFileService;
 
   @Mock
   private PadOptionConfirmedService padOptionConfirmedService;
@@ -213,16 +209,11 @@ class TechnicalDrawingSectionServiceTest {
 
     when(padTechnicalDrawingService.getDrawings(any())).thenReturn(List.of(drawing1, drawing2));
 
-    var admiraltyChartFile = new UploadedFileView(
-        null,
-        null,
-        1L,
-        "admiralty desc",
-        null,
-        null
-    );
+    var uploadedFile = new UploadedFile();
+    uploadedFile.setDescription("admiralty desc");
 
-    when(admiraltyChartFileService.getAdmiraltyChartFile(any())).thenReturn(Optional.of(admiraltyChartFile));
+    when(padFileManagementService.getUploadedFiles(any(PwaApplicationDetail.class), eq(FileDocumentType.ADMIRALTY_CHART)))
+        .thenReturn(List.of(uploadedFile));
 
     PwaApplicationType.stream().forEach(appType -> {
 
@@ -237,7 +228,7 @@ class TechnicalDrawingSectionServiceTest {
       }
 
       if (MailMergeFieldMnem.ADMIRALTY_CHART_REF.appTypeIsSupported(appType)) {
-        expectedMergeFieldsMap.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, admiraltyChartFile.getFileDescription());
+        expectedMergeFieldsMap.put(MailMergeFieldMnem.ADMIRALTY_CHART_REF, uploadedFile.getDescription());
       }
 
       assertThat(mergeFieldsMap).containsExactlyInAnyOrderEntriesOf(expectedMergeFieldsMap);

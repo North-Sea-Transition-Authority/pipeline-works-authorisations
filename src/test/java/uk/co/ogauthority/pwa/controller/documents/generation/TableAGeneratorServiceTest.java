@@ -7,14 +7,14 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineType;
@@ -28,6 +28,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeli
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.idents.PadPipelineIdent;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformation;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.IdentView;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummary;
 import uk.co.ogauthority.pwa.features.generalcase.pipelineview.PipelineDiffableSummaryService;
@@ -64,6 +65,9 @@ class TableAGeneratorServiceTest {
   @Mock
   private MarkdownService markdownService;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
   private PwaApplicationDetail pwaApplicationDetail;
 
   private TableAGeneratorService tableAGeneratorService;
@@ -81,8 +85,8 @@ class TableAGeneratorServiceTest {
   private static String DRAWING_REF1 = "Drawing Ref 1";
   private static String DRAWING_REF2 = "Drawing Ref 2";
 
-  private static String FILE_ID1 = "1";
-  private static String FILE_ID2 = "2";
+  private static String FILE_ID1 = String.valueOf(UUID.randomUUID());
+  private static String FILE_ID2 = String.valueOf(UUID.randomUUID());
 
   private static String IMG_SRC1 = "source 1 url";
   private static String IMG_SRC2 = "source 2 url";
@@ -99,7 +103,9 @@ class TableAGeneratorServiceTest {
         padProjectInformationService,
         consentDocumentImageService,
         padTechnicalDrawingService,
-        markdownService);
+        markdownService,
+        padFileManagementService
+    );
 
     projectInfo = new PadProjectInformation();
     projectInfo.setProjectName("project name");
@@ -222,10 +228,14 @@ class TableAGeneratorServiceTest {
         null
     );
 
-    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID1))).thenReturn(
-        Map.of(FILE_ID1, IMG_SRC1));
-    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(FILE_ID2))).thenReturn(
-        Map.of(FILE_ID2, IMG_SRC2));
+    var uploadedFile1 = new UploadedFile();
+    var uploadedFile2 = new UploadedFile();
+
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail, UUID.fromString(FILE_ID1))).thenReturn(uploadedFile1);
+    when(padFileManagementService.getUploadedFile(pwaApplicationDetail, UUID.fromString(FILE_ID2))).thenReturn(uploadedFile2);
+
+    when(consentDocumentImageService.convertFileToImageSource(uploadedFile1)).thenReturn(IMG_SRC1);
+    when(consentDocumentImageService.convertFileToImageSource(uploadedFile2)).thenReturn(IMG_SRC2);
 
     when(pipelineDiffableSummaryService.getApplicationDetailPipelines(pwaApplicationDetail)).thenReturn(List.of(
         pipelineSummary1ForDrawing1,

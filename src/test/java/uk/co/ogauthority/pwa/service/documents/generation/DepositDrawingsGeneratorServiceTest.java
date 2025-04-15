@@ -3,13 +3,10 @@ package uk.co.ogauthority.pwa.service.documents.generation;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,11 +16,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.DepositDrawingsService;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PadDepositDrawing;
 import uk.co.ogauthority.pwa.features.application.tasks.permdeposit.PermanentDepositService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementService;
 import uk.co.ogauthority.pwa.model.entity.enums.ApplicationFileLinkStatus;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
@@ -42,6 +42,9 @@ class DepositDrawingsGeneratorServiceTest {
   @Mock
   private ConsentDocumentImageService consentDocumentImageService;
 
+  @Mock
+  private PadFileManagementService padFileManagementService;
+
   @InjectMocks
   private DepositDrawingsGeneratorService depositDrawingsGeneratorService;
 
@@ -54,7 +57,7 @@ class DepositDrawingsGeneratorServiceTest {
   private static final String ID2 = String.valueOf(UUID.randomUUID());
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     drawing1 = new PadDepositDrawing();
     drawing1.setReference("drawing1Ref");
@@ -65,21 +68,21 @@ class DepositDrawingsGeneratorServiceTest {
     drawing2.setFile(new PadFile(detail, ID2, ApplicationDetailFilePurpose.DEPOSIT_DRAWINGS, ApplicationFileLinkStatus.FULL));
 
     when(depositDrawingsService.getAllDepositDrawingsForDetail(any())).thenReturn(List.of(drawing1, drawing2));
-
-    when(consentDocumentImageService.convertFilesToImageSourceMap(Set.of(ID1, ID2)))
-        .thenReturn(Map.of(
-            ID1, "file1Uri",
-            ID2, "file2Uri"));
-
   }
 
   @Test
   void getDocumentSectionData() {
+    var uploadedFile = new UploadedFile();
+
+    when(padFileManagementService.getUploadedFiles(detail, FileDocumentType.DEPOSIT_DRAWINGS)).thenReturn(List.of(uploadedFile));
     when(permanentDepositService.permanentDepositsAreToBeMadeOnApp(detail)).thenReturn(true);
+    when(consentDocumentImageService.convertFilesToImageSourceMap(List.of(uploadedFile)))
+        .thenReturn(Map.of(
+            ID1, "file1Uri",
+            ID2, "file2Uri")
+        );
 
     var docSectionData = depositDrawingsGeneratorService.getDocumentSectionData(detail, null, DocGenType.PREVIEW);
-
-    verify(consentDocumentImageService, times(1)).convertFilesToImageSourceMap(Set.of(ID1, ID2));
 
     assertThat(docSectionData.getTemplatePath()).isEqualTo("documents/consents/sections/depositDrawings.ftl");
     assertThat(docSectionData.getTemplateModel()).containsOnly(
