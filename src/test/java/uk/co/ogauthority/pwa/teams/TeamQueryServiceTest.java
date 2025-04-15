@@ -275,6 +275,30 @@ class TeamQueryServiceTest {
   }
 
   @Test
+  void getTeamsUserIsMemberOf_ReturnsDistinctTeams() {
+
+    Team team1 = mock(Team.class);
+    Team team2 = mock(Team.class);
+
+    TeamRole teamRole1 = new TeamRole();
+    teamRole1.setTeam(team1);
+
+    TeamRole teamRole2 = new TeamRole();
+    teamRole2.setTeam(team2);
+
+    TeamRole teamRole3 = new TeamRole();
+    teamRole3.setTeam(team2);
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of(teamRole1, teamRole2, teamRole3));
+
+    var result = teamQueryService.getTeamsUserIsMemberOf(1L);
+
+    assertThat(result)
+        .containsExactly(team1, team2);
+  }
+
+  @Test
   void getRolesForUserInScopedTeams_FiltersTeamTypeAndCorrectScopeIds() {
     var teamType = TeamType.ORGANISATION;
 

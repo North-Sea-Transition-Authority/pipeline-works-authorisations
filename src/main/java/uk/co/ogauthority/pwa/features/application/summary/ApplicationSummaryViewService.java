@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.appsummary.ApplicationSummaryView;
@@ -19,6 +18,8 @@ import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
@@ -27,14 +28,17 @@ public class ApplicationSummaryViewService {
   private final ApplicationSummaryService applicationSummaryService;
   private final TemplateRenderingService templateRenderingService;
   private final PwaApplicationDetailService pwaApplicationDetailService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ApplicationSummaryViewService(ApplicationSummaryService applicationSummaryService,
                                        TemplateRenderingService templateRenderingService,
-                                       PwaApplicationDetailService pwaApplicationDetailService) {
+                                       PwaApplicationDetailService pwaApplicationDetailService,
+                                       TeamQueryService teamQueryService) {
     this.applicationSummaryService = applicationSummaryService;
     this.templateRenderingService = templateRenderingService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
+    this.teamQueryService = teamQueryService;
   }
 
   public ApplicationSummaryView getApplicationSummaryView(PwaApplicationDetail pwaApplicationDetail) {
@@ -75,10 +79,10 @@ public class ApplicationSummaryViewService {
         .stream().filter(detail -> !ApplicationState.INDUSTRY_EDITABLE.includes(detail.getStatus()))
         .collect(Collectors.toList());
 
-    if (user.getUserPrivileges().contains(PwaUserPrivilege.PWA_CONSULTEE)) {
+    if (teamQueryService.userIsMemberOfAnyScopedTeamOfType((long) user.getWuaId(), TeamType.CONSULTEE)) {
       applicationDetails = applicationDetails.stream()
           .filter(pwaApplicationDetail -> pwaApplicationDetail.getConfirmedSatisfactoryTimestamp() != null)
-          .collect(Collectors.toList());
+          .toList();
     }
 
     //group all the details by the day they were submitted (for easier order tagging of updates made on the same day)

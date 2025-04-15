@@ -2,29 +2,29 @@ package uk.co.ogauthority.pwa.service.enums.users;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * Used to distinguish between the different groups of users on the system.
  */
 public enum UserType {
 
-  INDUSTRY(80, PwaUserPrivilege.PWA_INDUSTRY),
+  INDUSTRY(80, TeamType.ORGANISATION),
 
-  OGA(100, PwaUserPrivilege.PWA_REGULATOR),
+  OGA(100, TeamType.REGULATOR),
 
-  CONSULTEE(60, PwaUserPrivilege.PWA_CONSULTEE);
+  CONSULTEE(60, TeamType.CONSULTEE);
 
   /**
    * Higher priority user types tend to open up more permissions within the application.
    */
   private final int priority;
 
-  private final PwaUserPrivilege qualifyingPrivilege;
+  private final TeamType teamType;
 
-  UserType(int priority, PwaUserPrivilege qualifyingPrivilege) {
+  UserType(int priority, TeamType teamType) {
     this.priority = priority;
-    this.qualifyingPrivilege = qualifyingPrivilege;
+    this.teamType = teamType;
   }
 
   /**
@@ -34,8 +34,8 @@ public enum UserType {
     return priority;
   }
 
-  public PwaUserPrivilege getQualifyingPrivilege() {
-    return qualifyingPrivilege;
+  public TeamType getTeamType() {
+    return teamType;
   }
 
   public static Stream<UserType> stream() {

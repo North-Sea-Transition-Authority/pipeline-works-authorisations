@@ -8,24 +8,29 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class UserTypeService {
 
-  public UserType getPriorityUserType(AuthenticatedUserAccount authenticatedUserAccount) {
+  private final TeamQueryService teamQueryService;
 
-    return findPriorityUserTypeFrom(getUserTypes(authenticatedUserAccount))
-        .orElseThrow(() -> new IllegalStateException(
-                String.format(
-                    "User with WUA ID: %s doesn't match a recognised user type.",
-                    authenticatedUserAccount.getWuaId()
-                )
-            )
-        );
-
+  public UserTypeService(TeamQueryService teamQueryService) {
+    this.teamQueryService = teamQueryService;
   }
 
-  public Optional<UserType> findPriorityUserTypeFrom(Collection<UserType> userTypeCollection) {
+  public UserType getPriorityUserTypeOrThrow(AuthenticatedUserAccount authenticatedUserAccount) {
+    Set<UserType> userTypes = getUserTypes(authenticatedUserAccount);
+
+    return findPriorityUserTypeFrom(userTypes)
+        .orElseThrow(() -> new IllegalStateException(
+            "User with WUA ID: %d doesn't match a recognised user type.".formatted(authenticatedUserAccount.getWuaId())
+        ));
+  }
+
+  private Optional<UserType> findPriorityUserTypeFrom(Collection<UserType> userTypeCollection) {
     return userTypeCollection
         .stream()
         .max(Comparator.comparing(UserType::getPriority));
@@ -33,9 +38,14 @@ public class UserTypeService {
   }
 
   public Set<UserType> getUserTypes(AuthenticatedUserAccount authenticatedUserAccount) {
+    Set<TeamType> teamTypes = teamQueryService.getTeamsUserIsMemberOf(authenticatedUserAccount.getWuaId())
+        .stream()
+        .map(Team::getTeamType)
+        .collect(Collectors.toSet());
+
     return UserType.stream()
-        .filter(userType -> authenticatedUserAccount.hasPrivilege(userType.getQualifyingPrivilege()))
-        .collect(Collectors.toUnmodifiableSet());
+        .filter(userType -> teamTypes.contains(userType.getTeamType()))
+        .collect(Collectors.toSet());
   }
 
 }

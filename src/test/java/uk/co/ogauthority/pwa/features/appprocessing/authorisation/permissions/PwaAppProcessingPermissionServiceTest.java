@@ -211,8 +211,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasAssignResponderPermission_recipient() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RECIPIENT))
@@ -228,8 +226,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasAssignResponderPermission_responder() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER))
@@ -243,8 +239,6 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppProcessingPermissions_noAssignResponderPermission() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER))
@@ -260,8 +254,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasConsultationResponderPermission_ifAssignedAsResponder() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(true, Set.of(ConsulteeGroupMemberRole.RESPONDER))
@@ -275,8 +267,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_noConsultationResponderPermission_ifNotAssignedAsResponder() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER))
@@ -289,8 +279,6 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppProcessingPermissions_noConsultationResponderPermission() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
@@ -621,8 +609,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppPermissions_consulteeAdvicePermission_whenConsultee_andHistoricRequest() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
@@ -638,8 +624,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppPermissions_noConsulteeAdvicePermission_whenConsultee_noHistoricRequest() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
-
     var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
@@ -654,8 +638,6 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppPermissions_noConsulteeAdvicePermission_whenConsultee_noInvolvement() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_CONSULTEE);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);

@@ -104,7 +104,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
   @BeforeEach
   void setUp() {
     var webUserAccount = new WebUserAccount(1);
-    user = new AuthenticatedUserAccount(webUserAccount, Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE));
+    user = new AuthenticatedUserAccount(webUserAccount, Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(PWA_ID);

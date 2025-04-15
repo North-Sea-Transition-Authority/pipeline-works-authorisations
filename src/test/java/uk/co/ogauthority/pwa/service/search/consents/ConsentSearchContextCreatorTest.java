@@ -47,7 +47,7 @@ class ConsentSearchContextCreatorTest {
     int orgGroupId = 1;
     var orgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(orgGroupId, "OG", "OG");
 
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.INDUSTRY);
     when(pwaHolderTeamService.getPortalOrganisationGroupsWhereUserHasRoleIn(user, EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles())))
         .thenReturn(List.of(orgGroup));
 
@@ -62,7 +62,7 @@ class ConsentSearchContextCreatorTest {
   @Test
   void createContext_regulatorUser() {
 
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.OGA);
 
     var context = consentSearchContextCreator.createContext(user);
     verifyNoInteractions(pwaHolderTeamService);

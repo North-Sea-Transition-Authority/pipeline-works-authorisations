@@ -30,7 +30,7 @@ public class UserTypeConsentSearchPredicateProvider implements ConsentSearchPred
 
   @Override
   public boolean shouldApplyToSearch(ConsentSearchParams searchParams, ConsentSearchContext searchContext) {
-    return userTypeService.getPriorityUserType(searchContext.getUser()) == UserType.INDUSTRY;
+    return userTypeService.getPriorityUserTypeOrThrow(searchContext.getUser()) == UserType.INDUSTRY;
   }
 
   @Override

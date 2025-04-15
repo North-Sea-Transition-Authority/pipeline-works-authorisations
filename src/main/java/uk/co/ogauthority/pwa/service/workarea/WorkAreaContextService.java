@@ -6,7 +6,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,7 +41,7 @@ public class WorkAreaContextService {
     return WorkAreaTab.stream()
         .filter(tab -> isUserAllowedToAccessTab(authenticatedUserAccount, tab, privs))
         .sorted(Comparator.comparing(WorkAreaTab::getDisplayOrder))
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
   }
 
   private boolean isUserAllowedToAccessTab(AuthenticatedUserAccount userAccount, WorkAreaTab tab,
@@ -52,7 +51,7 @@ public class WorkAreaContextService {
         .stream()
         .filter(type -> type.equals(UserType.CONSULTEE))
         .findFirst()
-        .orElse(userTypeService.getPriorityUserType(userAccount));
+        .orElse(userTypeService.getPriorityUserTypeOrThrow(userAccount));
 
     var allPrivsMatch = !SetUtils.intersection(tab.getPwaUserPrivileges(), pwaUserPrivileges).isEmpty();
 

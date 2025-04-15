@@ -18,16 +18,18 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.rendering.TemplateRenderingService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
@@ -43,6 +45,10 @@ class ApplicationSummaryViewServiceTest {
   @Mock
   private PwaApplicationDetailService pwaApplicationDetailService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @InjectMocks
   private ApplicationSummaryViewService applicationSummaryViewService;
 
   private PwaApplicationDetail detail;
@@ -63,7 +69,6 @@ class ApplicationSummaryViewServiceTest {
 
   @BeforeEach
   void setUp() {
-    applicationSummaryViewService = new ApplicationSummaryViewService(applicationSummaryService, templateRenderingService, pwaApplicationDetailService);
     detail = new PwaApplicationDetail();
     user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
 
@@ -207,7 +212,9 @@ class ApplicationSummaryViewServiceTest {
     when(pwaApplicationDetailService.getAllDetailsForApplication(pwaApplication)).thenReturn(
         List.of(appDetailNonSatisfactory, appDetailSatisfactory));
 
-    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of(PwaUserPrivilege.PWA_CONSULTEE));
+    when(teamQueryService.userIsMemberOfAnyScopedTeamOfType((long) user.getWuaId(), TeamType.CONSULTEE)).thenReturn(true);
+
+    user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), List.of());
     var visibleApplicationVersionOptionsForUser =
         applicationSummaryViewService.getVisibleApplicationVersionOptionsForUser(pwaApplication, user);
     var visibleApplicationVersionOptionsForUserEntries = visibleApplicationVersionOptionsForUser

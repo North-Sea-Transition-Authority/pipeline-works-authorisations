@@ -71,7 +71,7 @@ class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstract
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplicationDetail.getPwaApplication().setId(1);
@@ -88,7 +88,7 @@ class ConsultationResponseControllerTest extends PwaAppProcessingContextAbstract
         EnumSet.allOf(PwaAppProcessingPermission.class));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setUserPrivileges(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE)
+        .setUserPrivileges(PwaUserPrivilege.PWA_ACCESS)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.CONSULTATION_RESPONDER)
         .setConsultationRequest(consultationRequest);
 

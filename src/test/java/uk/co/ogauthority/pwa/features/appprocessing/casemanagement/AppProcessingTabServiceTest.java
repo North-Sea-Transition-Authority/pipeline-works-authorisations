@@ -83,7 +83,7 @@ class AppProcessingTabServiceTest {
   @Test
   void getTabsAvailableToUser_consulteeOnly() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_CONSULTEE));
+    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of());
 
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 

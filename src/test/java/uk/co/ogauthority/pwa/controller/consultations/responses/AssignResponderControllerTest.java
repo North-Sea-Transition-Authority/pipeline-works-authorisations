@@ -63,7 +63,7 @@ class AssignResponderControllerTest extends PwaAppProcessingContextAbstractContr
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE));
+        EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1);
     when(pwaApplicationDetailService.getLatestDetailForUser(pwaApplicationDetail.getMasterPwaApplicationId(), user))
@@ -80,7 +80,7 @@ class AssignResponderControllerTest extends PwaAppProcessingContextAbstractContr
     );
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationDetailService, pwaAppProcessingPermissionService)
-        .setUserPrivileges(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_CONSULTEE)
+        .setUserPrivileges(PwaUserPrivilege.PWA_ACCESS)
         .setAllowedProcessingPermissions(PwaAppProcessingPermission.ASSIGN_RESPONDER)
         .setConsultationRequest(consultationRequest);
 

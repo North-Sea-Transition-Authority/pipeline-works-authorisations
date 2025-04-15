@@ -3,8 +3,10 @@ package uk.co.ogauthority.pwa.teams;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.teams.management.ScopedTeamManagementController;
@@ -88,6 +90,10 @@ public enum TeamType {
 
   public List<Role> getAllowedRoles() {
     return allowedRoles;
+  }
+
+  public Set<Role> getAllowedRolesAsSet() {
+    return EnumSet.copyOf(allowedRoles);
   }
 
   public String getCreateNewInstanceRoute() {

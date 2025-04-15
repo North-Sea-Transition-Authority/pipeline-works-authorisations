@@ -57,8 +57,8 @@ class PwaOrganisationAccessorTest {
     industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonFrom(new PersonId(1))), Set.of());
     ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(2))), Set.of());
 
-    when(userTypeService.getPriorityUserType(industryUser)).thenReturn(UserType.INDUSTRY);
-    when(userTypeService.getPriorityUserType(ogaUser)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(industryUser)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserTypeOrThrow(ogaUser)).thenReturn(UserType.OGA);
 
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(1,"ONE", "O");
     organisationGroup1 = PortalOrganisationTestUtils.generateOrganisationGroup(2,"TWO", "T");

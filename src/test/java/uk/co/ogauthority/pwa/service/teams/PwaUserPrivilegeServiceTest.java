@@ -66,7 +66,6 @@ class PwaUserPrivilegeServiceTest {
 
     assertThat(privSet).containsExactlyInAnyOrder(
         PwaUserPrivilege.PWA_WORKAREA,
-        PwaUserPrivilege.PWA_CONSULTEE,
         PwaUserPrivilege.PWA_APPLICATION_SEARCH
     );
 
@@ -85,7 +84,6 @@ class PwaUserPrivilegeServiceTest {
     assertThat(privSet).containsExactlyInAnyOrder(
         PwaUserPrivilege.PWA_WORKAREA,
         PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN,
-        PwaUserPrivilege.PWA_CONSULTEE,
         PwaUserPrivilege.PWA_APPLICATION_SEARCH
     );
 
@@ -138,7 +136,6 @@ class PwaUserPrivilegeServiceTest {
     assertThat(privSet).containsExactlyInAnyOrder(
         PwaUserPrivilege.PWA_WORKAREA,
         PwaUserPrivilege.PWA_INDUSTRY,
-        PwaUserPrivilege.PWA_CONSULTEE,
         PwaUserPrivilege.PWA_APPLICATION_SEARCH
         );
 

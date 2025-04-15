@@ -51,7 +51,7 @@ class WorkAreaContextServiceTest {
 
   @Test
   void getTabsAvailableToUser_regulatorOnly() {
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.OGA);
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
 
     assertThat(tabs).containsExactly(WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS);
@@ -61,7 +61,7 @@ class WorkAreaContextServiceTest {
   @Test
   void getTabsAvailableToUser_industryOnly() {
 
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.INDUSTRY);
 
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
 
@@ -73,7 +73,7 @@ class WorkAreaContextServiceTest {
   @Test
   void getTabsAvailableToUser_consulteeOnly() {
 
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.CONSULTEE);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.CONSULTEE);
 
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
 
@@ -84,7 +84,7 @@ class WorkAreaContextServiceTest {
   void getTabsAvailableToUser_regulatorAndConsultee() {
 
     when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.CONSULTEE, UserType.OGA));
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.OGA);
 
     var tabs = workAreaContextService.getTabsAvailableToUser(user);
     assertThat(tabs).containsExactly(WorkAreaTab.OPEN_CONSULTATIONS);
@@ -103,7 +103,7 @@ class WorkAreaContextServiceTest {
   @Test
   void getTabsAvailableToUser_filterByPwaUserPriviledge_asBuiltNotifications() {
 
-    when(userTypeService.getPriorityUserType(user)).thenReturn(UserType.OGA);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(UserType.OGA);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
         .thenReturn(Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA));
 
@@ -117,7 +117,7 @@ class WorkAreaContextServiceTest {
   @Test
   void getTabsAvailableToUser_whenNoUserType_filterByPwaUserPrivilege_asBuiltNotifications() {
     when(userTypeService.getUserTypes(any())).thenReturn(Set.of());
-    when(userTypeService.getPriorityUserType(user)).thenReturn(null);
+    when(userTypeService.getPriorityUserTypeOrThrow(user)).thenReturn(null);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
         .thenReturn(Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA));
 
@@ -128,7 +128,7 @@ class WorkAreaContextServiceTest {
 
   @Test
   void getTabsAvailableToUser_whenIndustry_allPwaUserPrivileges_assertIndustryAndAsBuilt() {
-    when(userTypeService.getPriorityUserType(any()))
+    when(userTypeService.getPriorityUserTypeOrThrow(any()))
         .thenReturn(UserType.INDUSTRY);
     when(teamService.getAllUserPrivilegesForPerson(user.getLinkedPerson()))
         .thenReturn(Set.of(PwaUserPrivilege.values()));

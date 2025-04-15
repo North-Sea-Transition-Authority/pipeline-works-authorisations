@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.search.consents;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -11,15 +12,14 @@ import java.util.Set;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -42,10 +42,10 @@ import uk.co.ogauthority.pwa.model.view.search.consents.ConsentSearchResultView;
 import uk.co.ogauthority.pwa.repository.search.consents.ConsentSearchItemRepository;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.search.consents.predicates.ConsentSearchPredicateProvider;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
 
 // IJ seems to give spurious warnings when running with embedded H2
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
@@ -53,6 +53,8 @@ import uk.co.ogauthority.pwa.testutils.ConsentSearchItemTestUtils;
 @ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 class ConsentSearchServiceTest {
+  @MockBean
+  private UserTypeService userTypeService;
 
   @Autowired
   private EntityManager entityManager;
@@ -60,10 +62,10 @@ class ConsentSearchServiceTest {
   @Autowired
   private List<ConsentSearchPredicateProvider> predicateProviders;
 
-  private ConsentSearchService consentSearchService;
-
   @Mock
   private ConsentSearchItemRepository consentSearchItemRepository;
+
+  private ConsentSearchService consentSearchService;
 
   private ConsentSearchItem pwa1Shell, pwa3Bp, pwa2ShellWintershall;
 
@@ -72,14 +74,18 @@ class ConsentSearchServiceTest {
   private PortalOrganisationGroup shell, bp, wintershall;
   private PortalOrganisationUnit shellOrg1, shellOrg2, bpOrg, wintershallOrg;
 
-  private AuthenticatedUserAccount industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
-      PwaUserPrivilege.PWA_INDUSTRY, PwaUserPrivilege.PWA_CONSENT_SEARCH));
+  private final AuthenticatedUserAccount industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
+      PwaUserPrivilege.PWA_CONSENT_SEARCH));
 
-  private AuthenticatedUserAccount ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(12))), Set.of(
-      PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_CONSENT_SEARCH));
+  private final AuthenticatedUserAccount ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(12))), Set.of(
+      PwaUserPrivilege.PWA_CONSENT_SEARCH));
+
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
+
+    when(userTypeService.getPriorityUserTypeOrThrow(industryUser)).thenReturn(UserType.INDUSTRY);
+    when(userTypeService.getPriorityUserTypeOrThrow(ogaUser)).thenReturn(UserType.OGA);
 
     consentSearchService = new ConsentSearchService(entityManager, predicateProviders, consentSearchItemRepository);
 

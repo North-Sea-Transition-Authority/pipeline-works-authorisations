@@ -28,6 +28,13 @@ public class TeamQueryService {
     return teamRoleRepository.existsByTeamAndWuaId(team, wuaId);
   }
 
+  public boolean userIsMemberOfAnyScopedTeamOfType(Long wuaId, TeamType teamType) {
+    assertTeamTypeIsScoped(teamType);
+
+    return teamRoleRepository.findAllByWuaId(wuaId).stream()
+        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType);
+  }
+
   public boolean userHasStaticRole(Long wuaId, TeamType teamType, Role role) {
     return userHasAtLeastOneStaticRole(wuaId, teamType, Set.of(role));
   }
@@ -110,6 +117,14 @@ public class TeamQueryService {
 
   public List<Team> getTeamsOfTypeUserHasAnyRoleIn(long wuaId, TeamType teamType, Collection<Role> roles) {
     return teamRoleRepository.findByWuaIdAndTeam_TeamTypeAndRoleIn(wuaId, teamType, roles).stream()
+        .map(TeamRole::getTeam)
+        .distinct()
+        .toList();
+
+  }
+
+  public List<Team> getTeamsUserIsMemberOf(long wuaId) {
+    return teamRoleRepository.findAllByWuaId(wuaId).stream()
         .map(TeamRole::getTeam)
         .distinct()
         .toList();

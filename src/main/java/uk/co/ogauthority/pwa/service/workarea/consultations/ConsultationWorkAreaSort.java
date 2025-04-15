@@ -18,7 +18,9 @@ public enum ConsultationWorkAreaSort implements WorkAreaSort {
   }
 
   ConsultationWorkAreaSort(String sortAttribute, Sort.Direction sortDirection) {
-    this(sortAttribute, sortDirection, Sort.NullHandling.NULLS_LAST);
+    this(sortAttribute, sortDirection, Sort.NullHandling.NATIVE);
+    // Using Sort.NullHandling.NATIVE because JPA 3.2 doesn't support Sort.NullHandling.NULLS_LAST
+    // which was previously ignored, but now throws UnsupportedOperationException
   }
 
   @Override
