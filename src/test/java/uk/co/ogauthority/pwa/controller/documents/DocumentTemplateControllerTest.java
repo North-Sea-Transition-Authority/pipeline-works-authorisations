@@ -1,7 +1,9 @@
 package uk.co.ogauthority.pwa.controller.documents;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -14,16 +16,18 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.documents.view.DocumentView;
 import uk.co.ogauthority.pwa.model.documents.view.SectionClauseVersionView;
@@ -36,10 +40,13 @@ import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.service.generic.GenericBreadcrumbService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @WebMvcTest(DocumentTemplateController.class)
-@Import(PwaMvcTestConfiguration.class)
-class DocumentTemplateControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = DocumentTemplateController.class)
+@WithDefaultPageControllerAdvice
+class DocumentTemplateControllerTest extends ResolverAbstractControllerTest {
 
   @MockBean
   private DocumentTemplateService documentTemplateService;
@@ -58,10 +65,10 @@ class DocumentTemplateControllerTest extends AbstractControllerTest {
   private DocumentView documentView;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
-    templateClauseManager = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE));
-    caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_CASE_OFFICER));
+    templateClauseManager = new AuthenticatedUserAccount(new WebUserAccount(1), List.of(PwaUserPrivilege.PWA_ACCESS));
+    caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(2), List.of(PwaUserPrivilege.PWA_ACCESS));
 
     var docSource = new TemplateDocumentSource(DocumentSpec.INITIAL_PETROLEUM_CONSENT_DOCUMENT);
 
@@ -71,6 +78,11 @@ class DocumentTemplateControllerTest extends AbstractControllerTest {
 
     var clause = new DocumentTemplateSectionClauseVersion();
     when(documentTemplateService.getTemplateClauseVersionByClauseIdOrThrow(any())).thenReturn(clause);
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(templateClauseManager, Map.of(TeamType.REGULATOR, Set.of(Role.TEMPLATE_CLAUSE_MANAGER))))
+        .thenReturn(true);
+    doCallRealMethod().when(hasTeamRoleService).userHasAnyRoleInTeamType(any(AuthenticatedUserAccount.class),
+        eq(TeamType.REGULATOR), anySet());
 
   }
 

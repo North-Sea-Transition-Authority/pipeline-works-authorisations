@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.service.workarea;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 
@@ -17,7 +18,7 @@ public enum WorkAreaTab {
       "attentionRegApplications",
       10,
       Set.of(UserType.OGA),
-      Set.of(),
+      null,
       WorkAreaTabCategory.FOR_ATTENTION),
 
   REGULATOR_WAITING_ON_OTHERS(
@@ -26,7 +27,7 @@ public enum WorkAreaTab {
       "waitingRegApplications",
       15,
       Set.of(UserType.OGA),
-      Set.of(),
+      null,
       WorkAreaTabCategory.BACKGROUND),
 
   INDUSTRY_OPEN_APPLICATIONS(
@@ -35,7 +36,7 @@ public enum WorkAreaTab {
       "openIndApplications",
       20,
       Set.of(UserType.INDUSTRY),
-      Set.of(),
+      null,
       WorkAreaTabCategory.FOR_ATTENTION),
 
   INDUSTRY_SUBMITTED_APPLICATIONS(
@@ -44,7 +45,7 @@ public enum WorkAreaTab {
       "submittedIndApplications",
       30,
       Set.of(UserType.INDUSTRY),
-      Set.of(),
+      null,
       WorkAreaTabCategory.BACKGROUND),
 
   OPEN_CONSULTATIONS(
@@ -53,7 +54,7 @@ public enum WorkAreaTab {
       "openConsultations",
       40,
       Set.of(UserType.CONSULTEE),
-      Set.of(),
+      null,
       WorkAreaTabCategory.FOR_ATTENTION),
 
   AS_BUILT_NOTIFICATIONS(
@@ -62,7 +63,7 @@ public enum WorkAreaTab {
       "asBuiltNotifications",
       50,
       Set.of(),
-      Set.of(PwaUserPrivilege.PWA_ASBUILT_WORKAREA),
+      RoleGroup.ASBUILT_WORKAREA,
       WorkAreaTabCategory.FOR_ATTENTION);
 
   private final String label;
@@ -70,21 +71,22 @@ public enum WorkAreaTab {
   private final String value;
   private final int displayOrder;
   private final Set<UserType> userTypes;
-  private final Set<PwaUserPrivilege> pwaUserPrivileges;
+  private final RoleGroup roleGroup;
   private final WorkAreaTabCategory workAreaTabCategory;
 
   WorkAreaTab(String label,
               String anchor,
               String value,
               int displayOrder,
-              Set<UserType> userTypes, Set<PwaUserPrivilege> pwaUserPrivileges,
+              Set<UserType> userTypes,
+              RoleGroup roleGroup,
               WorkAreaTabCategory workAreaTabCategory) {
     this.label = label;
     this.anchor = anchor;
     this.value = value;
     this.displayOrder = displayOrder;
     this.userTypes = userTypes;
-    this.pwaUserPrivileges = pwaUserPrivileges;
+    this.roleGroup = roleGroup;
     this.workAreaTabCategory = workAreaTabCategory;
   }
 
@@ -108,8 +110,8 @@ public enum WorkAreaTab {
     return userTypes;
   }
 
-  public Set<PwaUserPrivilege> getPwaUserPrivileges() {
-    return pwaUserPrivileges;
+  public Optional<RoleGroup> getRoleGroup() {
+    return Optional.ofNullable(roleGroup);
   }
 
   public WorkAreaTabCategory getWorkAreaTabCategory() {

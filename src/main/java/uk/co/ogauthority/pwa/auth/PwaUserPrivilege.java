@@ -4,33 +4,14 @@ import java.util.List;
 
 public enum PwaUserPrivilege {
 
-  // GENERIC
+  // INTERNAL ACCESS
   PWA_ACCESS,
-  PWA_WORKAREA,
-  PWA_APPLICATION_SEARCH,
-  PWA_ASBUILT_WORKAREA,
-
-  // INDUSTRY + REGULATOR
-  PWA_CONSENT_SEARCH,
-
-  // INDUSTRY
-  PWA_INDUSTRY,
-  PWA_APPLICATION_CREATE,
-  PWA_APPLICATION_SUBMIT,
 
   // TODO: Remove in PWARE-63
-  // REGULATOR
-  PWA_REGULATOR,
+  PWA_WORKAREA,
   PWA_ORG_ADMIN,
   PWA_REGULATOR_ADMIN,
   PWA_REG_ORG_MANAGE,
-  PWA_MANAGER,
-  PWA_CASE_OFFICER,
-  PWA_TEMPLATE_CLAUSE_MANAGE,
-
-  // CONSULTEE
-  PWA_CONSULTEE_GROUP_ADMIN,
-  PWA_CONSULTEE,
 
   // EXTERNAL ACCESS
   PIPELINE_VIEW;
@@ -38,6 +19,4 @@ public enum PwaUserPrivilege {
   public static List<PwaUserPrivilege> asList() {
     return List.of(PwaUserPrivilege.values());
   }
-
-
 }

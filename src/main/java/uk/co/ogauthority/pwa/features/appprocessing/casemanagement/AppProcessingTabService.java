@@ -7,17 +7,21 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class AppProcessingTabService {
 
   private final List<? extends AppProcessingTabContentService> tabContentServices;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
-  public AppProcessingTabService(List<? extends AppProcessingTabContentService> tabContentServices) {
+  public AppProcessingTabService(List<? extends AppProcessingTabContentService> tabContentServices,
+                                 TeamQueryService teamQueryService) {
     this.tabContentServices = tabContentServices;
+    this.teamQueryService = teamQueryService;
   }
 
   public List<AppProcessingTab> getTabsAvailableToUser(AuthenticatedUserAccount webUserAccount) {
@@ -25,9 +29,7 @@ public class AppProcessingTabService {
     var tabList = new ArrayList<AppProcessingTab>();
     tabList.add(AppProcessingTab.TASKS);
 
-    var userPrivs = webUserAccount.getUserPrivileges();
-
-    if (userPrivs.contains(PwaUserPrivilege.PWA_REGULATOR)) {
+    if (teamQueryService.userIsMemberOfStaticTeam((long) webUserAccount.getWuaId(), TeamType.REGULATOR)) {
       tabList.add(AppProcessingTab.CASE_HISTORY);
     }
 

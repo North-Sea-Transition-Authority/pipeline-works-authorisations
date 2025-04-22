@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -33,6 +33,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 
 @Service
@@ -42,23 +44,25 @@ public class ConsulteeGroupTeamService {
   private final ConsulteeGroupTeamMemberRepository groupTeamMemberRepository;
   private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
   private final EmailService emailService;
+  private final HasTeamRoleService hasTeamRoleService;
 
   @Autowired
   public ConsulteeGroupTeamService(ConsulteeGroupDetailRepository groupDetailRepository,
                                    ConsulteeGroupTeamMemberRepository groupTeamMemberRepository,
                                    NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher,
-                                   EmailService emailService
-  ) {
+                                   EmailService emailService,
+                                   HasTeamRoleService hasTeamRoleService) {
     this.groupDetailRepository = groupDetailRepository;
     this.groupTeamMemberRepository = groupTeamMemberRepository;
     this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
     this.emailService = emailService;
+    this.hasTeamRoleService = hasTeamRoleService;
   }
 
   public List<ConsulteeGroupDetail> getManageableGroupDetailsForUser(AuthenticatedUserAccount user) {
 
-    boolean isOgaTeamAdmin = user.getUserPrivileges().stream()
-        .anyMatch(priv -> priv.equals(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
+    boolean isOgaTeamAdmin =
+        hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.TEAM_ADMINISTRATOR));
 
     // if user is an OGA team admin, they can administer any consultee group
     if (isOgaTeamAdmin) {

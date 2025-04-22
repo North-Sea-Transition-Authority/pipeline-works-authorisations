@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -21,11 +22,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -36,16 +38,17 @@ import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchContextCreator
 import uk.co.ogauthority.pwa.service.search.consents.ConsentSearchService;
 
 @WebMvcTest(ConsentSearchController.class)
-@Import(PwaMvcTestConfiguration.class)
-class ConsentSearchControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = ConsentSearchController.class)
+@WithDefaultPageControllerAdvice
+class ConsentSearchControllerTest extends ResolverAbstractControllerTest {
 
   private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(
       new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_CONSENT_SEARCH));
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
   private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+      new WebUserAccount(2, new Person()),
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
   @MockBean
   private ConsentSearchService consentSearchService;
@@ -57,7 +60,12 @@ class ConsentSearchControllerTest extends AbstractControllerTest {
   private PwaOrganisationAccessor pwaOrganisationAccessor;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(permittedUser, RoleGroup.CONSENT_SEARCH.getRolesByTeamType()))
+        .thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(prohibitedUser, RoleGroup.CONSENT_SEARCH.getRolesByTeamType()))
+        .thenReturn(false);
   }
 
   @Test
@@ -71,7 +79,6 @@ class ConsentSearchControllerTest extends AbstractControllerTest {
     verifyNoInteractions(consentSearchContextCreator);
     verify(consentSearchService, times(0)).search(any(), any());
     verify(pwaOrganisationAccessor, times(1)).getOrgUnitsUserCanAccess(permittedUser);
-
   }
 
   @Test

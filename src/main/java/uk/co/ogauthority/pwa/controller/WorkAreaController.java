@@ -69,6 +69,8 @@ public class WorkAreaController {
                                      AuthenticatedUserAccount authenticatedUserAccount,
                                      RedirectAttributes redirectAttributes) {
 
+    checkCanAccessWorkAreaOrThrow(authenticatedUserAccount);
+
     var workAreaContext = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
     var defaultTab = workAreaContext.getDefaultTab()
@@ -93,6 +95,8 @@ public class WorkAreaController {
                                         @CookieValue(name = AnalyticsUtils.GA_CLIENT_ID_COOKIE_NAME, required = false)
                                         Optional<String> analyticsClientId) {
 
+    checkCanAccessWorkAreaOrThrow(authenticatedUserAccount);
+
     var context = workAreaContextService.createWorkAreaContext(authenticatedUserAccount);
 
     var tabs = context.getSortedUserTabs();
@@ -114,6 +118,12 @@ public class WorkAreaController {
 
     return getWorkAreaModelAndView(context, tab, page);
 
+  }
+
+  private void checkCanAccessWorkAreaOrThrow(AuthenticatedUserAccount authenticatedUserAccount) {
+    if (!systemAreaAccessService.canAccessWorkArea(authenticatedUserAccount)) {
+      throw new AccessDeniedException("User %d does not have access to work area".formatted(authenticatedUserAccount.getWuaId()));
+    }
   }
 
   private ModelAndView getWorkAreaModelAndView(WorkAreaContext workareaContext, WorkAreaTab tab, int page) {

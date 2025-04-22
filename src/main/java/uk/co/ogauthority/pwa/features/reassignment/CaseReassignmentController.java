@@ -18,8 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -29,11 +28,14 @@ import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/reassign-cases")
+@HasAnyRole(teamType = TeamType.REGULATOR, roles = {Role.PWA_MANAGER})
 public class CaseReassignmentController {
 
   private final CaseReassignmentService caseReassignmentService;
@@ -67,7 +69,7 @@ public class CaseReassignmentController {
                                              @ModelAttribute("form") CaseReassignmentCasesForm caseReassignmentCasesForm,
                                              BindingResult bindingResult,
                                              @ModelAttribute("filterForm") CaseReassignmentFilterForm caseReassignmentFilterForm) {
-    checkUserPrivilege(authenticatedUserAccount);
+
     var workItems = caseReassignmentService.findAllReassignableCases();
 
     var caseOfficerCandidates = workItems.stream()
@@ -128,7 +130,6 @@ public class CaseReassignmentController {
                                              @ModelAttribute("form") CaseReassignmentCasesForm caseReassignmentCasesForm,
                                              BindingResult bindingResult,
                                              RedirectAttributes redirectAttributes) {
-    checkUserPrivilege(authenticatedUserAccount);
 
     var validatedBindingResult = caseReassignmentService.validateCasesForm(caseReassignmentCasesForm, bindingResult);
 
@@ -157,7 +158,7 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentOfficerForm caseReassignmentOfficerForm,
                                               BindingResult bindingResult,
                                               RedirectAttributes redirectAttributes) {
-    checkUserPrivilege(authenticatedUserAccount);
+
     var selectedIds = caseReassignmentCasesForm.getSelectedApplicationIds()
         .stream()
         .map(Integer::valueOf)
@@ -189,7 +190,7 @@ public class CaseReassignmentController {
                                               @ModelAttribute("form") CaseReassignmentOfficerForm caseReassignmentOfficerForm,
                                               RedirectAttributes redirectAttributes,
                                               BindingResult bindingResult) {
-    checkUserPrivilege(authenticatedUserAccount);
+
     var validatedBindingResult = caseReassignmentService.validateOfficerForm(caseReassignmentOfficerForm, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         validatedBindingResult,
@@ -227,12 +228,6 @@ public class CaseReassignmentController {
               null,
               null));
         });
-  }
-
-  private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
-    if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
-      throw new AccessDeniedException("User does not have access to bulk reassignment");
-    }
   }
 
   private ModelAndView renderFormError(CaseReassignmentCasesForm caseReassignmentCasesForm,

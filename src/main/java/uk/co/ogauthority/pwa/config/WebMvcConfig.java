@@ -16,6 +16,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.resource.ResourceUrlEncodingFilter;
 import org.springframework.web.servlet.resource.VersionResourceResolver;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleInterceptor;
 import uk.co.ogauthority.pwa.component.RequestLogger;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextArgumentResolver;
@@ -35,6 +36,8 @@ import uk.co.ogauthority.pwa.util.converters.PwaStringToCollectionConverter;
 @Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
+  public static final String ASSETS_PATH = "/assets/**";
+
   private final PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver;
   private final PwaAppProcessingContextArgumentResolver pwaAppProcessingContextArgumentResolver;
   private final PwaContextArgumentResolver pwaContextArgumentResolver;
@@ -42,6 +45,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
   private final AnalyticsService analyticsService;
   private final ConfigurableEnvironment configurableEnvironment;
   private final TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
+  private final HasAnyRoleInterceptor hasAnyRoleInterceptor;
 
   @Autowired
   public WebMvcConfig(PwaApplicationContextArgumentResolver pwaApplicationContextArgumentResolver,
@@ -50,7 +54,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                       Optional<RequestLogger> requestLoggerOpt,
                       AnalyticsService analyticsService,
                       ConfigurableEnvironment configurableEnvironment,
-                      TeamManagementHandlerInterceptor teamManagementHandlerInterceptor) {
+                      TeamManagementHandlerInterceptor teamManagementHandlerInterceptor,
+                      HasAnyRoleInterceptor hasAnyRoleInterceptor) {
     this.pwaApplicationContextArgumentResolver = pwaApplicationContextArgumentResolver;
     this.pwaAppProcessingContextArgumentResolver = pwaAppProcessingContextArgumentResolver;
     this.pwaContextArgumentResolver = pwaContextArgumentResolver;
@@ -58,6 +63,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     this.analyticsService = analyticsService;
     this.configurableEnvironment = configurableEnvironment;
     this.teamManagementHandlerInterceptor = teamManagementHandlerInterceptor;
+    this.hasAnyRoleInterceptor = hasAnyRoleInterceptor;
   }
 
   @Override
@@ -73,13 +79,16 @@ public class WebMvcConfig implements WebMvcConfigurer {
   public void addInterceptors(InterceptorRegistry registry) {
 
     registry.addInterceptor(new ResponseBufferSizeHandlerInterceptor())
-        .excludePathPatterns("/assets/**");
+        .excludePathPatterns(ASSETS_PATH);
 
     registry.addInterceptor(new PwaApplicationRouteInterceptor(analyticsService))
         .addPathPatterns("/pwa-application/**");
 
     registry.addInterceptor(teamManagementHandlerInterceptor)
         .addPathPatterns("/team-management/**");
+
+    registry.addInterceptor(hasAnyRoleInterceptor)
+        .excludePathPatterns(ASSETS_PATH);
 
     requestLoggerOpt.ifPresent(requestLogger -> registry.addInterceptor(requestLogger)
           .excludePathPatterns("/assets/**"));

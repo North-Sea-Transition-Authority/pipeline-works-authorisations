@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -24,11 +24,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ContextConfiguration;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
@@ -49,8 +48,9 @@ import uk.co.ogauthority.pwa.service.workarea.applications.PwaApplicationWorkAre
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @WebMvcTest(WorkAreaController.class)
-@Import(PwaMvcTestConfiguration.class)
-class WorkAreaControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = WorkAreaController.class)
+@WithDefaultPageControllerAdvice
+class WorkAreaControllerTest extends ResolverAbstractControllerTest {
 
   @MockBean
   private WorkAreaService workAreaService;
@@ -70,11 +70,10 @@ class WorkAreaControllerTest extends AbstractControllerTest {
 
   private Timer timer;
 
-  private AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_WORKAREA));
+  private final AuthenticatedUserAccount pwaManagerUser = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()),
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
-  private WorkAreaContext pwaManagerWorkAreaContext = WorkAreaContextTestUtil.createPwaManagerContext(pwaManagerUser);
+  private final WorkAreaContext pwaManagerWorkAreaContext = WorkAreaContextTestUtil.createPwaManagerContext(pwaManagerUser);
 
   @BeforeEach
   void setup() {
@@ -91,6 +90,9 @@ class WorkAreaControllerTest extends AbstractControllerTest {
     timer = TimerMetricTestUtils.setupTimerMetric(
         WorkAreaController.class, "pwa.workAreaTabTimer", appender);
     when(metricsProvider.getWorkAreaTabTimer()).thenReturn(timer);
+
+    when(hasTeamRoleService.userIsMemberOfAnyTeam(pwaManagerUser))
+        .thenReturn(true);
 
   }
 
@@ -144,7 +146,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
-    verify(workAreaService, times(1))
+    verify(workAreaService)
         .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 0);
 
     verifyNoInteractions(analyticsService);
@@ -158,7 +160,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
             .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
-    verify(workAreaService, times(1))
+    verify(workAreaService)
         .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_WAITING_ON_OTHERS, 0);
 
     verify(analyticsService).sendAnalyticsEvent(any(), eq(AnalyticsEventCategory.BACKGROUND_WORKAREA_TAB),
@@ -173,7 +175,7 @@ class WorkAreaControllerTest extends AbstractControllerTest {
         .with(user(pwaManagerUser)))
         .andExpect(status().isOk());
 
-    verify(workAreaService, times(1))
+    verify(workAreaService)
         .getWorkAreaResult(pwaManagerWorkAreaContext, WorkAreaTab.REGULATOR_REQUIRES_ATTENTION, 100);
   }
 
@@ -207,8 +209,10 @@ class WorkAreaControllerTest extends AbstractControllerTest {
   @Test
   void getWorkAreaModelAndView_timerMetricStarted_timeRecordedAndLogged() {
 
+    var systemAreaAccessService = mock(SystemAreaAccessService.class);
+    when(systemAreaAccessService.canAccessWorkArea(pwaManagerUser)).thenReturn(true);
     var controller = new WorkAreaController(workAreaService, workAreaContextService,
-        Mockito.mock(SystemAreaAccessService.class), metricsProvider, analyticsService);
+        systemAreaAccessService, metricsProvider, analyticsService);
 
     controller.renderWorkArea(null, pwaManagerUser, null);
 

@@ -19,7 +19,6 @@ import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
@@ -27,7 +26,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
@@ -80,7 +78,7 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_REGULATOR));
+        Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);

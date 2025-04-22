@@ -21,6 +21,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleInterceptor;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.config.ExternalApiAuthenticationEntryPoint;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
@@ -61,7 +63,8 @@ import uk.co.ogauthority.pwa.teams.management.access.TeamManagementHandlerInterc
     WebSecurityConfig.class,
     RequestLogFilter.class,
     PostAuthenticationRequestMdcFilter.class,
-    TeamManagementHandlerInterceptor.class
+    TeamManagementHandlerInterceptor.class,
+    HasAnyRoleInterceptor.class
 })
 public abstract class AbstractControllerTest {
 
@@ -110,6 +113,9 @@ public abstract class AbstractControllerTest {
   @MockBean
   protected TeamQueryService teamQueryService;
 
+  @MockBean
+  protected HasTeamRoleService hasTeamRoleService;
+
   @Autowired
   protected TeamManagementHandlerInterceptor teamManagementHandlerInterceptor;
 
@@ -127,8 +133,9 @@ public abstract class AbstractControllerTest {
   public static class AbstractControllerTestConfiguration {
 
     @Bean
-    public SystemAreaAccessService systemAreaAccessService(TeamQueryService teamQueryService) {
-      return new SystemAreaAccessService(true, teamQueryService);
+    public SystemAreaAccessService systemAreaAccessService(HasTeamRoleService hasTeamRoleService,
+                                                           PwaContactService pwaContactService) {
+      return new SystemAreaAccessService(true, hasTeamRoleService, pwaContactService);
     }
 
     @Bean

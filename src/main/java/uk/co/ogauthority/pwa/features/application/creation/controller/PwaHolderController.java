@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
@@ -30,6 +31,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -41,6 +43,7 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
@@ -48,6 +51,7 @@ import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @Controller
 @RequestMapping("/pwa-application/create-initial-pwa")
+@HasAnyRole(teamType = TeamType.ORGANISATION, roles = {Role.APPLICATION_CREATOR})
 public class PwaHolderController {
 
   private final PwaApplicationCreationService pwaApplicationCreationService;
@@ -62,6 +66,7 @@ public class PwaHolderController {
   private final PwaHolderTeamService pwaHolderTeamService;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaHolderController.class);
+  private final SystemAreaAccessService systemAreaAccessService;
 
 
   @Autowired
@@ -74,7 +79,7 @@ public class PwaHolderController {
                              ControllerHelperService controllerHelperService,
                              @Value("${oga.servicedesk.email}") String ogaServiceDeskEmail,
                              MetricsProvider metricsProvider,
-                             PwaHolderTeamService pwaHolderTeamService) {
+                             PwaHolderTeamService pwaHolderTeamService, SystemAreaAccessService systemAreaAccessService) {
     this.pwaApplicationCreationService = pwaApplicationCreationService;
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
@@ -85,6 +90,7 @@ public class PwaHolderController {
     this.ogaServiceDeskEmail = ogaServiceDeskEmail;
     this.metricsProvider = metricsProvider;
     this.pwaHolderTeamService = pwaHolderTeamService;
+    this.systemAreaAccessService = systemAreaAccessService;
   }
 
   /**
@@ -95,6 +101,7 @@ public class PwaHolderController {
       @ModelAttribute("form") PwaHolderForm form,
       @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
       AuthenticatedUserAccount user) {
+    systemAreaAccessService.canStartApplicationOrThrow(user);
 
     return getHolderModelAndView(user, form);
 
@@ -111,6 +118,8 @@ public class PwaHolderController {
       AuthenticatedUserAccount user) {
 
     var stopwatch = Stopwatch.createStarted();
+    systemAreaAccessService.canStartApplicationOrThrow(user);
+
     pwaHolderFormValidator.validate(form, bindingResult);
 
     var modelAndView =  controllerHelperService.checkErrorsAndRedirect(bindingResult,

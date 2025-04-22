@@ -6,57 +6,61 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class WorkAreaContextService {
 
   private final UserTypeService userTypeService;
-  private final TeamService teamService;
   private final PwaContactService pwaContactService;
+  private final HasTeamRoleService hasTeamRoleService;
 
   @Autowired
   public WorkAreaContextService(UserTypeService userTypeService,
-                                TeamService teamService,
-                                PwaContactService pwaContactService) {
+                                PwaContactService pwaContactService,
+                                HasTeamRoleService hasTeamRoleService) {
 
     this.userTypeService = userTypeService;
-    this.teamService = teamService;
     this.pwaContactService = pwaContactService;
+    this.hasTeamRoleService = hasTeamRoleService;
   }
 
   @VisibleForTesting
   List<WorkAreaTab> getTabsAvailableToUser(AuthenticatedUserAccount authenticatedUserAccount) {
-    //either get tabs based on user type or based on specific privs
-    var privs = teamService.getAllUserPrivilegesForPerson(authenticatedUserAccount.getLinkedPerson());
+    var userType = getUserTypePrioritisingConsultee(authenticatedUserAccount);
 
     return WorkAreaTab.stream()
-        .filter(tab -> isUserAllowedToAccessTab(authenticatedUserAccount, tab, privs))
+        .filter(tab -> hasUserTypeInAllowedUserTypes(tab, userType) || hasRoleInAllowedRoleGroup(authenticatedUserAccount, tab))
         .sorted(Comparator.comparing(WorkAreaTab::getDisplayOrder))
         .toList();
   }
 
-  private boolean isUserAllowedToAccessTab(AuthenticatedUserAccount userAccount, WorkAreaTab tab,
-                                           Set<PwaUserPrivilege> pwaUserPrivileges) {
-
-    var userType = userTypeService.getUserTypes(userAccount)
+  private UserType getUserTypePrioritisingConsultee(AuthenticatedUserAccount authenticatedUserAccount) {
+    return userTypeService.getUserTypes(authenticatedUserAccount)
         .stream()
         .filter(type -> type.equals(UserType.CONSULTEE))
         .findFirst()
-        .orElse(userTypeService.getPriorityUserTypeOrThrow(userAccount));
+        .orElseGet(() -> userTypeService.getPriorityUserType(authenticatedUserAccount).orElse(null));
+  }
 
-    var allPrivsMatch = !SetUtils.intersection(tab.getPwaUserPrivileges(), pwaUserPrivileges).isEmpty();
+  private boolean hasRoleInAllowedRoleGroup(AuthenticatedUserAccount userAccount, WorkAreaTab tab) {
+    return tab.getRoleGroup()
+        .filter(roleGroup -> hasTeamRoleService.userHasAnyRoleInTeamTypes(userAccount, roleGroup.getRolesByTeamType()))
+        .isPresent();
+  }
 
-    return Objects.nonNull(userType) && tab.getUserTypes().contains(userType) || allPrivsMatch;
-
+  private boolean hasUserTypeInAllowedUserTypes(WorkAreaTab tab, UserType userType) {
+    return Objects.nonNull(userType) && tab.getUserTypes().contains(userType);
   }
 
   public WorkAreaContext createWorkAreaContext(AuthenticatedUserAccount authenticatedUserAccount) {
@@ -66,11 +70,11 @@ public class WorkAreaContextService {
     // if the selected tab is available to the user get it.
     var userTabs = getTabsAvailableToUser(authenticatedUserAccount);
 
-    if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_MANAGER)) {
+    if (hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.REGULATOR, Set.of(Role.PWA_MANAGER))) {
       userAppEventSubscriberTypes.add(WorkAreaUserType.PWA_MANAGER);
     }
 
-    if (authenticatedUserAccount.getUserPrivileges().contains(PwaUserPrivilege.PWA_CASE_OFFICER)) {
+    if (hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.REGULATOR, Set.of(Role.CASE_OFFICER))) {
       userAppEventSubscriberTypes.add(WorkAreaUserType.CASE_OFFICER);
     }
 

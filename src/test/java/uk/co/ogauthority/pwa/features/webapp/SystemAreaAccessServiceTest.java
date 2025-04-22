@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.webapp;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
@@ -12,11 +13,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.teams.TeamQueryService;
-import uk.co.ogauthority.pwa.testutils.AuthTestingUtils;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class SystemAreaAccessServiceTest {
@@ -27,32 +31,17 @@ class SystemAreaAccessServiceTest {
   );
 
   @Mock
-  private TeamQueryService teamQueryService;
+  private HasTeamRoleService hasTeamRoleService;
+
+  @Mock
+  private PwaContactService pwaContactService;
 
   @InjectMocks
   private SystemAreaAccessService underTest;
 
   @Test
-  void constructor_allowStartApplicationIsFalse_userHasAllPrivs() {
-    var service = new SystemAreaAccessService(false, teamQueryService);
-
-    assertThat(service.getStartApplicationGrantedAuthorities()).isEmpty();
-    assertThat(service.validStartApplicationPrivileges).isEmpty();
-    assertThat(service.canStartApplication(authenticatedUserAccount)).isFalse();
-  }
-
-  @Test
-  void constructor_allowStartApplicationIsTrue_userHasAllPrivs() {
-    var service = new SystemAreaAccessService(true, teamQueryService);
-
-    assertThat(service.getStartApplicationGrantedAuthorities()).containsExactly(PwaUserPrivilege.PWA_APPLICATION_CREATE.name());
-    assertThat(service.validStartApplicationPrivileges).containsExactly(PwaUserPrivilege.PWA_APPLICATION_CREATE);
-    assertThat(service.canStartApplication(authenticatedUserAccount)).isTrue();
-  }
-
-  @Test
   void canAccessTeamManagement_IsMemberOfAnyTeam_ReturnsTrue() {
-    when(teamQueryService.userIsMemberOfAnyTeam(authenticatedUserAccount.getWuaId())).thenReturn(true);
+    when(hasTeamRoleService.userIsMemberOfAnyTeam(authenticatedUserAccount)).thenReturn(true);
 
     boolean result = underTest.canAccessTeamManagement(authenticatedUserAccount);
 
@@ -61,7 +50,7 @@ class SystemAreaAccessServiceTest {
 
   @Test
   void canAccessTeamManagement_IsNotMemberOfAnyTeam_ReturnsFalse() {
-    when(teamQueryService.userIsMemberOfAnyTeam(authenticatedUserAccount.getWuaId())).thenReturn(false);
+    when(hasTeamRoleService.userIsMemberOfAnyTeam(authenticatedUserAccount)).thenReturn(false);
 
     boolean result = underTest.canAccessTeamManagement(authenticatedUserAccount);
 
@@ -69,42 +58,85 @@ class SystemAreaAccessServiceTest {
   }
 
   @Test
-  void canAccessWorkArea() {
-    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_WORKAREA),
-        underTest::canAccessWorkArea
-    );
+  void canAccessWorkArea_UserIsMemberOfAnyTeam() {
+    when(hasTeamRoleService.userIsMemberOfAnyTeam(authenticatedUserAccount))
+        .thenReturn(true);
+
+    boolean result = underTest.canAccessWorkArea(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
   }
 
   @Test
-  void canStartApplication() {
-    var service = new SystemAreaAccessService(true, teamQueryService);
+  void canAccessWorkArea_PersonIsApplicationContact() {
+    when(pwaContactService.isPersonApplicationContact(authenticatedUserAccount.getLinkedPerson()))
+        .thenReturn(true);
 
-    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE),
-        service::canStartApplication);
+    boolean result = underTest.canAccessWorkArea(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void canStartApplication_IsApplicationCreatorAndCanStartApplicationFlagIsTrue_ReturnsTrue() {
+    var service = new SystemAreaAccessService(true, hasTeamRoleService, pwaContactService);
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))).thenReturn(true);
+
+    boolean result = service.canStartApplication(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void canStartApplication_IsNotApplicationCreatorAndCanStartApplicationFlagIsTrue_ReturnsFalse() {
+    var service = new SystemAreaAccessService(true, hasTeamRoleService, pwaContactService);
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))).thenReturn(false);
+
+    boolean result = service.canStartApplication(authenticatedUserAccount);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void canStartApplication_IsApplicationCreatorButCanStartApplicationFlagIsFalse_ReturnsFalse() {
+    var service = new SystemAreaAccessService(false, hasTeamRoleService, pwaContactService);
+
+    lenient().when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))).thenReturn(true);
+
+    boolean result = service.canStartApplication(authenticatedUserAccount);
+
+    assertThat(result).isFalse();
   }
 
   @Test
   void canAccessApplicationSearch(){
-    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_APPLICATION_SEARCH),
-        underTest::canAccessApplicationSearch);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(authenticatedUserAccount, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType()))
+        .thenReturn(true);
+
+    boolean result = underTest.canAccessApplicationSearch(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
   }
 
   @Test
   void canAccessConsentSearch(){
-    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER,
-            PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE),
-        underTest::canAccessConsentSearch);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(authenticatedUserAccount, RoleGroup.CONSENT_SEARCH.getRolesByTeamType()))
+        .thenReturn(true);
+
+    boolean result = underTest.canAccessConsentSearch(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
   }
 
   @Test
-  void canAccessDocumentTemplateManagement() {
-    AuthTestingUtils.testPrivilegeBasedAuthenticationFunction(
-        Set.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE),
-        underTest::canAccessTemplateClauseManagement);
-  }
+  void canAccessTemplateClauseManagement(){
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.REGULATOR, Set.of(Role.TEMPLATE_CLAUSE_MANAGER)))
+        .thenReturn(true);
 
+    boolean result = underTest.canAccessTemplateClauseManagement(authenticatedUserAccount);
+
+    assertThat(result).isTrue();
+  }
 }

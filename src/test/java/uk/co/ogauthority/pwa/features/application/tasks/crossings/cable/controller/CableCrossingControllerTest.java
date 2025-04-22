@@ -87,7 +87,7 @@ class CableCrossingControllerTest extends PwaApplicationContextAbstractControlle
     when(pwaApplicationDetailService.getTipDetailByAppId(anyInt())).thenReturn(pwaApplicationDetail);
     when(pwaApplicationPermissionService.getPermissions(any(), any())).thenReturn(EnumSet.allOf(PwaApplicationPermission.class));
 
-    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_APPLICATION_CREATE));
+    user = new AuthenticatedUserAccount(new WebUserAccount(1), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     endpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(

@@ -19,12 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.controller.appprocessing.consultations.consultees.ConsulteeGroupTeamManagementController;
 import uk.co.ogauthority.pwa.exception.LastUserInRoleRemovedException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -43,6 +44,8 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupDetailRepository;
 import uk.co.ogauthority.pwa.repository.appprocessing.consultations.consultees.ConsulteeGroupTeamMemberRepository;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -61,9 +64,13 @@ class ConsulteeGroupTeamServiceTest {
   @Mock
   private EmailService emailService;
 
+  @Mock
+  private HasTeamRoleService hasTeamRoleService;
+
   @Captor
   private ArgumentCaptor<ConsulteeGroupTeamMember> teamMemberArgumentCaptor;
 
+  @InjectMocks
   private ConsulteeGroupTeamService groupTeamService;
 
   private WebUserAccount user;
@@ -80,11 +87,6 @@ class ConsulteeGroupTeamServiceTest {
 
     when(groupDetailRepository.findAllByEndTimestampIsNull()).thenReturn(List.of(emtGroupDetail, oduGroupDetail));
 
-    groupTeamService = new ConsulteeGroupTeamService(groupDetailRepository,
-        groupTeamMemberRepository,
-        nonFoxTeamMemberEventPublisher,
-        emailService);
-
     user = new WebUserAccount(1, new Person(1, "forename", "surname", null, null));
     authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
 
@@ -93,7 +95,9 @@ class ConsulteeGroupTeamServiceTest {
   @Test
   void getManageableGroupDetailsForUser_isRegulatorAdmin() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
+    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.REGULATOR, Set.of(Role.TEAM_ADMINISTRATOR))).thenReturn(true);
 
     assertThat(groupTeamService.getManageableGroupDetailsForUser(authenticatedUserAccount)).containsExactlyInAnyOrder(emtGroupDetail, oduGroupDetail);
 
@@ -117,7 +121,9 @@ class ConsulteeGroupTeamServiceTest {
   @Test
   void getManageableGroupTeamViewsForUser_isRegulatorAdmin() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of(PwaUserPrivilege.PWA_REGULATOR_ADMIN));
+    authenticatedUserAccount = new AuthenticatedUserAccount(user, List.of());
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(authenticatedUserAccount, TeamType.REGULATOR, Set.of(Role.TEAM_ADMINISTRATOR))).thenReturn(true);
 
     assertThat(groupTeamService.getManageableGroupTeamViewsForUser(authenticatedUserAccount))
         .extracting(ConsulteeGroupTeamView::getConsulteeGroupId, ConsulteeGroupTeamView::getName, ConsulteeGroupTeamView::getManageUrl)

@@ -14,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.teams.Team;
@@ -25,6 +26,9 @@ class UserTypeServiceTest {
 
   @Mock
   private TeamQueryService teamQueryService;
+
+  @Mock
+  private PwaContactService pwaContactService;
 
   @InjectMocks
   private UserTypeService userTypeService;
@@ -43,6 +47,16 @@ class UserTypeServiceTest {
     Team team = new Team();
     team.setTeamType(TeamType.ORGANISATION);
     when(teamQueryService.getTeamsUserIsMemberOf(user.getWuaId())).thenReturn(Collections.singletonList(team));
+
+    user = new AuthenticatedUserAccount(webUserAccount, Set.of());
+
+    assertThat(userTypeService.getPriorityUserTypeOrThrow(user)).isEqualTo(UserType.INDUSTRY);
+  }
+
+  @Test
+  void getPriorityUserTypeOrThrow_whenAppContact() {
+    when(teamQueryService.getTeamsUserIsMemberOf(user.getWuaId())).thenReturn(Collections.emptyList());
+    when(pwaContactService.isPersonApplicationContact(user.getLinkedPerson())).thenReturn(true);
 
     user = new AuthenticatedUserAccount(webUserAccount, Set.of());
 

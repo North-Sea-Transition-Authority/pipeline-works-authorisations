@@ -2,6 +2,10 @@ package uk.co.ogauthority.pwa.features.application.creation.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -15,9 +19,9 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,16 +29,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -42,6 +45,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermissionService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
 import uk.co.ogauthority.pwa.features.application.tasks.huoo.PadOrganisationRoleService;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
@@ -51,6 +55,8 @@ import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaHolderForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.ControllerTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
@@ -58,8 +64,9 @@ import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 import uk.co.ogauthority.pwa.validators.PwaHolderFormValidator;
 
 @WebMvcTest(controllers = PwaHolderController.class)
-@Import(PwaMvcTestConfiguration.class)
-class PwaHolderControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = PwaHolderController.class)
+@WithDefaultPageControllerAdvice
+class PwaHolderControllerTest extends ResolverAbstractControllerTest {
 
   private static final int APP_ID = 1;
 
@@ -84,6 +91,7 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaHolderTeamService pwaHolderTeamService;
 
+
   @Mock
   private Appender appender;
 
@@ -92,11 +100,11 @@ class PwaHolderControllerTest extends AbstractControllerTest {
 
   private Timer timer;
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
-      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+  private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
-  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
-      Collections.emptyList());
+  private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(new WebUserAccount(999),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
   private PortalOrganisationUnit orgUnit;
 
@@ -125,6 +133,13 @@ class PwaHolderControllerTest extends AbstractControllerTest {
     timer = TimerMetricTestUtils.setupTimerMetric(
         PwaHolderController.class, "pwa.startAppTimer", appender);
     when(metricsProvider.getStartAppTimer()).thenReturn(timer);
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(permittedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(prohibitedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(false);
+    doCallRealMethod().when(hasTeamRoleService).userHasAnyRoleInTeamType(any(AuthenticatedUserAccount.class),
+        eq(TeamType.ORGANISATION), anySet());
   }
 
   @Test
@@ -132,7 +147,7 @@ class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
         .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
-        .with(user(user))
+        .with(user(permittedUser))
     ).andExpect(status().isOk());
 
   }
@@ -142,7 +157,7 @@ class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaHolderController.class)
         .renderHolderScreen(null, PwaResourceType.PETROLEUM, null)))
-        .with(user(userNoPrivs))
+        .with(user(prohibitedUser))
     ).andExpect(status().isForbidden());
 
   }
@@ -150,12 +165,12 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   void postHolderScreen_withHolderOrgId() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, permittedUser, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, user)))
-        .with(user(user))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, permittedUser)))
+        .with(user(permittedUser))
         .with(csrf())
         .param("holderOuId", "111"))
         .andExpect(status().is3xxRedirection());
@@ -165,12 +180,12 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   void postHolderScreen_withHolderOrgId_noPrivileges() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, permittedUser, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
-        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, userNoPrivs)))
-        .with(user(userNoPrivs))
+        .postHolderScreen(null, PwaResourceType.PETROLEUM, null, prohibitedUser)))
+        .with(user(prohibitedUser))
         .with(csrf())
         .param("holderOuId", "111"))
         .andExpect(status().isForbidden());
@@ -180,14 +195,14 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   void postHolderScreen_noHolderOrgSelected() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, permittedUser, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
 
     ControllerTestUtils.mockValidatorErrors(pwaHolderFormValidator, List.of("holderOuId"));
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("holderOuId", ""))
         .andExpect(status().isOk())
@@ -200,7 +215,7 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   void postHolderScreen_holderOrgExists_andUserDoesntHaveAccessToOrg() throws Exception {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, permittedUser, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitById(44)).thenReturn(Optional.of(orgUnit));
@@ -208,7 +223,7 @@ class PwaHolderControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaHolderController.class)
         .postHolderScreen(null, PwaResourceType.PETROLEUM, null, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("holderOuId", "44"))
         .andExpect(status().is4xxClientError());
@@ -219,17 +234,17 @@ class PwaHolderControllerTest extends AbstractControllerTest {
   @Test
   void postHolderScreen_timerMetricStarted_timeRecordedAndLogged() {
 
-    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, user, PwaResourceType.PETROLEUM)).thenReturn(detail);
+    when(pwaApplicationCreationService.createInitialPwaApplication(orgUnit, permittedUser, PwaResourceType.PETROLEUM)).thenReturn(detail);
     when(pwaApplicationDetailService.getTipDetailByAppId(detail.getPwaApplication().getId())).thenReturn(detail);
     when(portalOrganisationsAccessor.getOrganisationUnitById(anyInt())).thenReturn(Optional.of(orgUnit));
 
     var controller = new PwaHolderController(pwaApplicationCreationService, pwaApplicationDetailService,
         portalOrganisationsAccessor, pwaApplicationRedirectService, pwaHolderFormValidator, padOrganisationRoleService,
-        Mockito.mock(ControllerHelperService.class), "", metricsProvider, pwaHolderTeamService);
+        mock(ControllerHelperService.class), "", metricsProvider, mock(PwaHolderTeamService.class), mock(SystemAreaAccessService.class));
 
     var form = new PwaHolderForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    controller.postHolderScreen(form, PwaResourceType.PETROLEUM, bindingResult, user);
+    controller.postHolderScreen(form, PwaResourceType.PETROLEUM, bindingResult, permittedUser);
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Initial application started");
   }

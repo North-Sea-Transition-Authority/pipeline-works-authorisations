@@ -8,24 +8,38 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.creation.ApplicationTypeUtils;
 import uk.co.ogauthority.pwa.features.application.creation.MedianLineImplication;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{resourceType}/variation/new")
+@HasAnyRole(teamType = TeamType.ORGANISATION, roles = {Role.APPLICATION_CREATOR})
 public class StartVariationController {
 
+  private final SystemAreaAccessService systemAreaAccessService;
+
+  public StartVariationController(SystemAreaAccessService systemAreaAccessService) {
+    this.systemAreaAccessService = systemAreaAccessService;
+  }
+
   @GetMapping
-  public ModelAndView renderVariationTypeStartPage(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+  public ModelAndView renderVariationTypeStartPage(AuthenticatedUserAccount user,
+                                                   @PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                                    @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
     ModelAndView modelAndView;
 
+    systemAreaAccessService.canStartApplicationOrThrow(user);
     checkApplicationResourceType(applicationType, resourceType);
 
     switch (applicationType) {
@@ -61,12 +75,14 @@ public class StartVariationController {
         .addObject("pageHeading", "Start new " + applicationType.getDisplayName())
         .addObject("typeDisplay", applicationType.getDisplayName())
         .addObject("formattedDuration", ApplicationTypeUtils.getFormattedDuration(applicationType))
-        .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(applicationType, resourceType)));
+        .addObject("buttonUrl", ReverseRouter.route(on(this.getClass()).startVariation(user, applicationType, resourceType)));
   }
 
   @PostMapping
-  public ModelAndView startVariation(@PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
+  public ModelAndView startVariation(AuthenticatedUserAccount user,
+                                     @PathVariable @ApplicationTypeUrl PwaApplicationType applicationType,
                                      @PathVariable @ResourceTypeUrl PwaResourceType resourceType) {
+    systemAreaAccessService.canStartApplicationOrThrow(user);
     checkApplicationResourceType(applicationType, resourceType);
 
     switch (applicationType) {
@@ -77,7 +93,7 @@ public class StartVariationController {
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
         return ReverseRouter.redirect(on(PickExistingPwaController.class)
-            .renderPickPwaToStartApplication(applicationType, resourceType, null, null));
+            .renderPickPwaToStartApplication(applicationType, resourceType, null, user));
       default:
         throw new AccessDeniedException(String.format("Application type not supported %s", applicationType));
     }

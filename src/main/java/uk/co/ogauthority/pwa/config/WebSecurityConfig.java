@@ -78,33 +78,14 @@ public class WebSecurityConfig {
 
     httpSecurity
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-            .requestMatchers("/work-area/**")
-            .hasAnyAuthority(systemAreaAccessService.getValidWorkAreaGrantedAuthorities())
-
-            .requestMatchers("/application-search")
-            .hasAnyAuthority(systemAreaAccessService.getValidApplicationSearchGrantedAuthorities())
-
-            .requestMatchers("/consents/search")
-            .hasAnyAuthority(systemAreaAccessService.getValidConsentSearchGrantedAuthorities())
 
             // TODO: Remove in PWARE-63
             .requestMatchers("/portal-team-management", "/portal-team-management/**")
             .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
 
+            // TODO: Remove in PWARE-63
             .requestMatchers("/create-organisation-team/**")
             .hasAnyAuthority(systemAreaAccessService.getValidCreateOrganisationTeamGrantedAuthorities())
-
-            .requestMatchers("/document-templates/**")
-            .hasAnyAuthority(systemAreaAccessService.getValidDocumentTemplateGrantedAuthorities())
-
-            .requestMatchers(
-                "/start-application/**",
-                "/pwa-application/*/*/pick-pwa-for-application",
-                "/pwa-application/create-initial-pwa/**",
-                "/pwa-application/*/new",
-                "/pwa-application/*/*/variation/new"
-            )
-            .hasAnyAuthority(systemAreaAccessService.getStartApplicationGrantedAuthorities())
 
             .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
 

@@ -223,7 +223,7 @@ class SamlResponseParserTest {
     String email = "john.doe@example.com";
     String wuaId = "456";
     Integer proxyWuaId = 999;
-    List<String> portalPrivileges = Arrays.asList("PWA_WORKAREA", "PWA_APPLICATION_SEARCH");
+    List<String> portalPrivileges = Arrays.asList("PWA_WORKAREA", "PWA_ACCESS");
 
     AuthenticatedUserAccount result = samlResponseParser.getAuthenticatedUserAccount(
         personId, forename, surname, email, wuaId, proxyWuaId, portalPrivileges
@@ -246,7 +246,7 @@ class SamlResponseParserTest {
     assertThat(result.getUserPrivileges())
         .hasSize(2)
         .extracting(PwaUserPrivilege::name)
-        .containsExactlyInAnyOrder("PWA_WORKAREA", "PWA_APPLICATION_SEARCH");
+        .containsExactlyInAnyOrder("PWA_WORKAREA", "PWA_ACCESS");
 
     // Proxy
     assertThat(result.getProxyUserWuaId().orElse(null)).isEqualTo(proxyWuaId);

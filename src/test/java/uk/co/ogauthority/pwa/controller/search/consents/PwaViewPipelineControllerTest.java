@@ -17,7 +17,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineId;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.transfers.PadPipelineTransferService;
@@ -88,7 +87,7 @@ class PwaViewPipelineControllerTest extends PwaContextAbstractControllerTest {
 
     user = new AuthenticatedUserAccount(
         new WebUserAccount(1),
-        Set.of(PwaUserPrivilege.PWA_REGULATOR));
+        Set.of());
 
     this.masterPwa = new MasterPwa();
     this.masterPwa.setId(1);

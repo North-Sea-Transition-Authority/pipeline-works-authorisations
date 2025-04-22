@@ -34,7 +34,7 @@ public class PwaContextTestUtil {
   public static PwaContext createPwaContext() {
     var masterPwa = MasterPwaTestUtil.create();
     var user = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
-        PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_CONSENT_SEARCH));
+        PwaUserPrivilege.PWA_ACCESS));
     return createPwaContext(masterPwa, user, Set.of(PwaPermission.VIEW_PWA));
   }
 

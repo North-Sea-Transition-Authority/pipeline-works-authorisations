@@ -32,9 +32,8 @@ class AsBuiltWorkAreaPageServiceTest {
   @Mock
   private AsBuiltNotificationDtoRepository asBuiltNotificationDtoRepository;
 
-  private final AuthenticatedUserAccount user = new AuthenticatedUserAccount(
-      new WebUserAccount(10),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+  private final AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(10),
+      EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
 
   @BeforeEach

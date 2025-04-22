@@ -19,19 +19,18 @@ import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.Errors;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.PadProjectInformationService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignmentService;
@@ -41,10 +40,13 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @WebMvcTest(CaseReassignmentController.class)
-@Import(PwaMvcTestConfiguration.class)
-class CaseReassignmentControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = CaseReassignmentController.class)
+@WithDefaultPageControllerAdvice
+class CaseReassignmentControllerTest extends ResolverAbstractControllerTest {
 
   private AuthenticatedUserAccount userAccount;
 
@@ -65,9 +67,10 @@ class CaseReassignmentControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setup() {
-    userAccount = new AuthenticatedUserAccount(
-        new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
+    userAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(userAccount, Map.of(TeamType.REGULATOR, Set.of(Role.PWA_MANAGER))))
+        .thenReturn(true);
   }
 
   @Test

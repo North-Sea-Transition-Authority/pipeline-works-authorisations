@@ -1,8 +1,8 @@
 package uk.co.ogauthority.pwa.features.appprocessing.casemanagement;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -16,6 +16,8 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaAppProcessingContext;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class AppProcessingTabServiceTest {
@@ -26,6 +28,9 @@ class AppProcessingTabServiceTest {
   @Mock
   private CaseHistoryTabContentService caseHistoryTabContentService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
   private AppProcessingTabService tabService;
 
   private WebUserAccount wua;
@@ -34,7 +39,7 @@ class AppProcessingTabServiceTest {
   @BeforeEach
   void setUp() {
 
-    tabService = new AppProcessingTabService(List.of(tasksTabContentService, caseHistoryTabContentService));
+    tabService = new AppProcessingTabService(List.of(tasksTabContentService, caseHistoryTabContentService), teamQueryService);
 
     wua = new WebUserAccount(1);
     authenticatedUserAccount = new AuthenticatedUserAccount(wua, EnumSet.allOf(PwaUserPrivilege.class));
@@ -44,6 +49,7 @@ class AppProcessingTabServiceTest {
   @Test
   void getTabsAvailableToUser_all() {
 
+    when(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR)).thenReturn(true);
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
     assertThat(tabs).containsExactly(
@@ -56,7 +62,7 @@ class AppProcessingTabServiceTest {
   @Test
   void getTabsAvailableToUser_industryOnly() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_INDUSTRY));
+    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of());
 
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
@@ -69,7 +75,9 @@ class AppProcessingTabServiceTest {
   @Test
   void getTabsAvailableToUser_regulatorOnly() {
 
-    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of(PwaUserPrivilege.PWA_REGULATOR));
+    when(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR)).thenReturn(true);
+
+    authenticatedUserAccount = new AuthenticatedUserAccount(wua, Set.of());
 
     var tabs = tabService.getTabsAvailableToUser(authenticatedUserAccount);
 
@@ -98,8 +106,8 @@ class AppProcessingTabServiceTest {
 
     tabService.getTabContentModelMap(context, AppProcessingTab.TASKS);
 
-    verify(tasksTabContentService, times(1)).getTabContent(context, AppProcessingTab.TASKS);
-    verify(caseHistoryTabContentService, times(1)).getTabContent(context, AppProcessingTab.TASKS);
+    verify(tasksTabContentService).getTabContent(context, AppProcessingTab.TASKS);
+    verify(caseHistoryTabContentService).getTabContent(context, AppProcessingTab.TASKS);
 
   }
 

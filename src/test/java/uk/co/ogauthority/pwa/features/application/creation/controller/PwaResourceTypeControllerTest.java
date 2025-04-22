@@ -1,7 +1,11 @@
 package uk.co.ogauthority.pwa.features.application.creation.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -11,38 +15,51 @@ import static org.springframework.web.servlet.mvc.method.annotation.MvcUriCompon
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @WebMvcTest(controllers = PwaResourceTypeController.class)
-@Import(PwaMvcTestConfiguration.class)
-class PwaResourceTypeControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = PwaResourceTypeController.class)
+@WithDefaultPageControllerAdvice
+class PwaResourceTypeControllerTest extends ResolverAbstractControllerTest {
 
   @MockBean
   PwaResourceTypeFormValidator validator;
 
+  private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
-      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+  private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(new WebUserAccount(999),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
-  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
-      Collections.emptyList());
+  @BeforeEach
+  void setUp() {
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(permittedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(prohibitedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(false);
+    doCallRealMethod().when(hasTeamRoleService).userHasAnyRoleInTeamType(any(AuthenticatedUserAccount.class),
+        eq(TeamType.ORGANISATION), anySet());
+  }
 
   @Test
   void renderResourceScreen_withAuthenticatedUser() throws Exception {
@@ -52,7 +69,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
         .renderResourceTypeForm(null, null)))
-        .with(user(user)))
+        .with(user(permittedUser)))
         .andExpect(status().isOk())
         .andExpect(model().attribute("resourceOptions", resourceOptions));
   }
@@ -61,7 +78,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
   void renderResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(PwaResourceTypeController.class)
         .renderResourceTypeForm(null, null)))
-        .with(user(userNoPrivs)))
+        .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
   }
 
@@ -69,7 +86,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
   void postResourceScreen_noPrivileges() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(null, null, null)))
-        .with(user(userNoPrivs)))
+        .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
   }
 
@@ -82,7 +99,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("resourceType", PwaResourceType.HYDROGEN.name()));
     verify(validator).validate(any(), any());
@@ -98,7 +115,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("resourceType", PwaResourceType.PETROLEUM.name()));
     verify(validator).validate(any(), any());
@@ -114,7 +131,7 @@ class PwaResourceTypeControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PwaResourceTypeController.class)
         .postResourceType(form, bindingResult, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("resourceType", PwaResourceType.CCUS.name()));
     verify(validator).validate(any(), any());

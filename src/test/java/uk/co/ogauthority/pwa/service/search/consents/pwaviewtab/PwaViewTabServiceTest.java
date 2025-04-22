@@ -17,6 +17,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
@@ -43,6 +44,8 @@ import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.testutil.PwaViewTabTestUtil;
 import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView;
 import uk.co.ogauthority.pwa.service.search.consents.testutil.PwaContextTestUtil;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
 class PwaViewTabServiceTest {
@@ -54,11 +57,18 @@ class PwaViewTabServiceTest {
   private PwaConsentDtoRepository pwaConsentDtoRepository;
 
   @Mock
+  private Clock clock;
+
+  @Mock
   private AsBuiltViewerService asBuiltViewerService;
 
   @Mock
   private MasterPwaService masterPwaService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @InjectMocks
   private PwaViewTabService pwaViewTabService;
 
   private PwaContext pwaContext;
@@ -67,18 +77,8 @@ class PwaViewTabServiceTest {
   private final String PIPELINE_REF_ID2 = "PL002";
   private final String PIPELINE_REF_ID3 = "PL003";
 
-  private final Instant clockTime = Instant.now();
-  private final Clock clock = Clock.fixed(Instant.from(clockTime), ZoneId.systemDefault());
-
   @BeforeEach
   void setUp() throws Exception {
-
-    pwaViewTabService = new PwaViewTabService(
-        pipelineDetailService,
-        pwaConsentDtoRepository,
-        asBuiltViewerService,
-        clock,
-        masterPwaService);
 
     pwaContext = PwaContextTestUtil.createPwaContext();
 
@@ -271,4 +271,21 @@ class PwaViewTabServiceTest {
 
   }
 
+  @Test
+  void getTabContentModelMap_TransferLinksVisibleWhenUserIsRegulator() {
+    when(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR)).thenReturn(true);
+
+    var result = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.PIPELINES);
+
+    assertThat(result).containsEntry("transferLinksVisible", true);
+  }
+
+  @Test
+  void getTabContentModelMap_TransferLinksVisibleWhenUserIsNotRegulator() {
+    when(teamQueryService.userIsMemberOfStaticTeam(1L, TeamType.REGULATOR)).thenReturn(false);
+
+    var result = pwaViewTabService.getTabContentModelMap(pwaContext, PwaViewTab.CONSENT_HISTORY);
+
+    assertThat(result).containsEntry("transferLinksVisible", false);
+  }
 }

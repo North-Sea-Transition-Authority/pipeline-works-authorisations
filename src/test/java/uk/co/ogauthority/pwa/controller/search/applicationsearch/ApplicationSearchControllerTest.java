@@ -14,7 +14,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,14 +22,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
@@ -56,19 +56,18 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
-@WebMvcTest(ApplicationSearchController.class)
-@Import(PwaMvcTestConfiguration.class)
-class ApplicationSearchControllerTest extends AbstractControllerTest {
+@WebMvcTest(controllers = ApplicationSearchController.class)
+@ContextConfiguration(classes = ApplicationSearchController.class)
+@WithDefaultPageControllerAdvice
+class ApplicationSearchControllerTest extends ResolverAbstractControllerTest {
 
   private static final String APP_REF_SEARCH = "SEARCH_REF";
 
   private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_APPLICATION_SEARCH));
+      new WebUserAccount(1, new Person()), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
   private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_WORKAREA));
+      new WebUserAccount(2, new Person()), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
   @MockBean
   private ApplicationDetailSearchService applicationDetailSearchService;
@@ -88,14 +87,14 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
   @MockBean
   private PwaHolderTeamService pwaHolderTeamService;
 
-  private PortalOrganisationUnit portalOrganisationUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
+  private final PortalOrganisationUnit portalOrganisationUnit = PortalOrganisationTestUtils.getOrganisationUnitInOrgGroup();
 
   private ApplicationSearchContext permittedUserSearchContext;
 
   private ApplicationSearchController applicationSearchController;
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
     applicationSearchController = new ApplicationSearchController(
         applicationDetailSearchService,
         applicationSearchContextCreator,
@@ -109,13 +108,18 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
     when(applicationSearchContextCreator.createContext(permittedUser)).thenReturn(permittedUserSearchContext);
     when(applicationDetailSearchService.validateSearchParamsUsingContext(any(), any()))
         .thenAnswer(invocation -> new BeanPropertyBindingResult(invocation.getArgument(0), "form"));
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(permittedUser, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType()))
+        .thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(prohibitedUser, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType()))
+        .thenReturn(false);
   }
 
   @Test
   void getSearchResults_whenPermitted_landingEntry() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+            permittedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(user(permittedUser)))
         .andExpect(status().isOk())
@@ -135,7 +139,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
 
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+            permittedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(user(permittedUser)))
         .andExpect(status().isOk())
@@ -151,7 +155,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
 
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+            permittedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(user(permittedUser)))
         .andExpect(status().isOk())
@@ -169,7 +173,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
         .thenReturn(Optional.of(portalOrganisationUnit));
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+            permittedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(user(permittedUser))
         .param("holderOrgUnitId", portalOrganisationUnit.getSelectionId()))
@@ -211,7 +215,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
   void getSearchResults_whenProhibited() throws Exception {
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.LANDING, null
+            prohibitedUser, ApplicationSearchController.AppSearchEntryState.LANDING, null
     )))
         .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());
@@ -239,7 +243,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
         .createApplicationSearchParameters();
 
     mockMvc.perform(get(ReverseRouter.routeWithQueryParamMap(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.SEARCH, null
+                permittedUser, ApplicationSearchController.AppSearchEntryState.SEARCH, null
     ), paramsAsMap(params)
         ))
         .with(user(permittedUser)))
@@ -264,7 +268,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
         });
 
     mockMvc.perform(get(ReverseRouter.routeWithQueryParamMap(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.SEARCH, null
+            permittedUser, ApplicationSearchController.AppSearchEntryState.SEARCH, null
         ), paramsAsMap(params)
     ))
         .with(user(permittedUser)))
@@ -287,7 +291,7 @@ class ApplicationSearchControllerTest extends AbstractControllerTest {
         .createApplicationSearchParameters();
 
     mockMvc.perform(get(ReverseRouter.route(on(ApplicationSearchController.class).getSearchResults(
-        null, ApplicationSearchController.AppSearchEntryState.SEARCH, params
+            prohibitedUser, ApplicationSearchController.AppSearchEntryState.SEARCH, params
     )))
         .with(user(prohibitedUser)))
         .andExpect(status().isForbidden());

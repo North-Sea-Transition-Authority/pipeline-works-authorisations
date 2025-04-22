@@ -35,6 +35,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.pipelines.PipelineDetailService
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.search.consents.PwaViewTab;
 import uk.co.ogauthority.pwa.service.search.consents.tabcontentviews.PwaPipelineView;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 
 @Service
@@ -45,18 +47,20 @@ public class PwaViewTabService {
   private final AsBuiltViewerService asBuiltViewerService;
   private final Clock clock;
   private final MasterPwaService masterPwaService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public PwaViewTabService(PipelineDetailService pipelineDetailService,
                            PwaConsentDtoRepository pwaConsentDtoRepository,
                            AsBuiltViewerService asBuiltViewerService,
                            @Qualifier("utcClock") Clock clock,
-                           MasterPwaService masterPwaService) {
+                           MasterPwaService masterPwaService, TeamQueryService teamQueryService) {
     this.pipelineDetailService = pipelineDetailService;
     this.pwaConsentDtoRepository = pwaConsentDtoRepository;
     this.asBuiltViewerService = asBuiltViewerService;
     this.clock = clock;
     this.masterPwaService = masterPwaService;
+    this.teamQueryService = teamQueryService;
   }
 
 
@@ -71,9 +75,14 @@ public class PwaViewTabService {
       tabContentMap.put("pwaConsentHistoryViews", getConsentHistoryTabContent(pwaContext));
     }
 
+    tabContentMap.put("transferLinksVisible", isUserIsRegulator(pwaContext));
+
     return tabContentMap;
   }
 
+  private boolean isUserIsRegulator(PwaContext pwaContext) {
+    return teamQueryService.userIsMemberOfStaticTeam((long) pwaContext.getUser().getWuaId(), TeamType.REGULATOR);
+  }
 
   private List<PwaPipelineView> getPipelineTabContent(PwaContext pwaContext) {
 

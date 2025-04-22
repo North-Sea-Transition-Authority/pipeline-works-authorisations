@@ -36,7 +36,7 @@ public class PwaApplicationRedirectService {
     switch (applicationType) {
       case INITIAL:
         return ReverseRouter.redirect(on(StartInitialPwaController.class)
-            .renderStartPage(resourceType));
+            .renderStartPage(null, resourceType));
       case CAT_1_VARIATION:
       case HUOO_VARIATION:
       case CAT_2_VARIATION:
@@ -44,7 +44,7 @@ public class PwaApplicationRedirectService {
       case OPTIONS_VARIATION:
       case DECOMMISSIONING:
         return ReverseRouter.redirect(on(StartVariationController.class)
-            .renderVariationTypeStartPage(applicationType, resourceType));
+            .renderVariationTypeStartPage(null, applicationType, resourceType));
       default:
         return ReverseRouter.redirect(on(StartPwaApplicationController.class)
             .renderStartApplication(null, resourceType));

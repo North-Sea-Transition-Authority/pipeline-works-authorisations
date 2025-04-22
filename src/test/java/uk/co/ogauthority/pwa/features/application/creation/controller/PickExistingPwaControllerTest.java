@@ -2,7 +2,10 @@ package uk.co.ogauthority.pwa.features.application.creation.controller;
 
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -18,7 +21,6 @@ import ch.qos.logback.classic.spi.LoggingEvent;
 import ch.qos.logback.core.Appender;
 import io.micrometer.core.instrument.Timer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
@@ -27,17 +29,16 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.validation.BeanPropertyBindingResult;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -47,6 +48,7 @@ import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.PickableMasterPwaOptions;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -55,12 +57,15 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.testutils.TimerMetricTestUtils;
 
 @WebMvcTest(controllers = PickExistingPwaController.class)
-@Import(PwaMvcTestConfiguration.class)
-class PickExistingPwaControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = PickExistingPwaController.class)
+@WithDefaultPageControllerAdvice
+class PickExistingPwaControllerTest extends ResolverAbstractControllerTest {
 
   private static final int MASTER_PWA_ID = 1;
 
@@ -94,15 +99,15 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
 
   private Timer timer;
 
-  private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(123),
-      Set.of(PwaUserPrivilege.PWA_APPLICATION_CREATE));
+  private final AuthenticatedUserAccount permittedUser = new AuthenticatedUserAccount(new WebUserAccount(123),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
-  private AuthenticatedUserAccount userNoPrivs = new AuthenticatedUserAccount(new WebUserAccount(999),
-      Collections.emptyList());
+  private final AuthenticatedUserAccount prohibitedUser = new AuthenticatedUserAccount(new WebUserAccount(999),
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
   private MasterPwa masterPwa;
 
-  private PortalOrganisationUnit applicantOrganisation = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ACME");
+  private final PortalOrganisationUnit applicantOrganisation = PortalOrganisationTestUtils.generateOrganisationUnit(1, "ACME");
 
   @BeforeEach
   void setup() {
@@ -132,6 +137,12 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
         PickExistingPwaController.class, "pwa.startAppTimer", appender);
     when(metricsProvider.getStartAppTimer()).thenReturn(timer);
 
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(permittedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(prohibitedUser, Map.of(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR))))
+        .thenReturn(false);
+    doCallRealMethod().when(hasTeamRoleService).userHasAnyRoleInTeamType(any(AuthenticatedUserAccount.class),
+        eq(TeamType.ORGANISATION), anySet());
   }
 
   @Test
@@ -151,7 +162,7 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
         mockMvc.perform(
             get(ReverseRouter.route(on(PickExistingPwaController.class)
                 .renderPickPwaToStartApplication(appType, PwaResourceType.PETROLEUM, null, null)
-            )).with(user(user))
+            )).with(user(permittedUser))
                 .with(csrf()))
             .andExpect(expectedStatus);
       } catch (AssertionError e) {
@@ -167,7 +178,7 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
       mockMvc.perform(
           get(ReverseRouter.route(on(PickExistingPwaController.class)
               .renderPickPwaToStartApplication(appType,PwaResourceType.PETROLEUM, null, null)))
-              .with(user(userNoPrivs))
+              .with(user(prohibitedUser))
               .with(csrf()))
           .andExpect(status().isForbidden());
     }
@@ -190,7 +201,7 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
       try {
         mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(appType, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(user(user))
+            .with(user(permittedUser))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
             .andExpect(expectedStatus);
@@ -206,12 +217,12 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
   void pickPwaAndStartApplication_consentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN,null, null, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
 
-    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
+    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, permittedUser);
 
   }
 
@@ -222,13 +233,14 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, null, null, null)))
-            .with(user(user))
+            .with(user(permittedUser))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
 
-    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
-    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, applicantOrganisation, user);
+    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, permittedUser);
+    verify(pwaApplicationCreationService, times(1)).createVariationPwaApplication(masterPwa, PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, applicantOrganisation,
+        permittedUser);
 
   }
 
@@ -240,12 +252,12 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
 
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
             .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-            .with(user(user))
+            .with(user(permittedUser))
             .with(csrf())
             .param("consentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
 
-    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, user);
+    verify(pickedPwaRetrievalService, times(1)).getPickedConsentedPwa(MASTER_PWA_ID, permittedUser);
     verifyNoInteractions(pwaApplicationCreationService);
 
   }
@@ -254,12 +266,12 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
   void pickPwaAndStartApplication_nonconsentedPwaPicked() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.DEPOSIT_CONSENT, PwaResourceType.PETROLEUM, null, null, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is3xxRedirection());
 
-    verify(pickedPwaRetrievalService, times(1)).getPickedNonConsentedPwa(MASTER_PWA_ID, user);
+    verify(pickedPwaRetrievalService, times(1)).getPickedNonConsentedPwa(MASTER_PWA_ID, permittedUser);
 
   }
 
@@ -267,7 +279,7 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
   void pickPwaAndStartApplication_nonconsentedPwaPicked_notDepositType() throws Exception {
     mockMvc.perform(post(ReverseRouter.route(on(PickExistingPwaController.class)
         .pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.HYDROGEN, null, null, null)))
-        .with(user(user))
+        .with(user(permittedUser))
         .with(csrf())
         .param("nonConsentedMasterPwaId", String.valueOf(MASTER_PWA_ID)))
         .andExpect(status().is5xxServerError());
@@ -281,16 +293,18 @@ class PickExistingPwaControllerTest extends AbstractControllerTest {
     var controller = new PickExistingPwaController(
         pwaApplicationRedirectService,
         pickedPwaRetrievalService,
-        Mockito.mock(ControllerHelperService.class),
+        mock(ControllerHelperService.class),
         pwaHolderTeamService,
         pwaApplicationCreationService,
         pickPwaFormValidator,
         metricsProvider,
-        applicantOrganisationService);
+        applicantOrganisationService,
+        mock(SystemAreaAccessService.class));
 
     var form = new PickPwaForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    controller.pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, form,  bindingResult, user);
+    controller.pickPwaAndStartApplication(PwaApplicationType.CAT_1_VARIATION, PwaResourceType.PETROLEUM, form,  bindingResult,
+        permittedUser);
 
     TimerMetricTestUtils.assertTimeLogged(loggingEventCaptor, appender, "Variation application started");
   }

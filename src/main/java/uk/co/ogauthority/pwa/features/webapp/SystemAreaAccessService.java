@@ -1,60 +1,48 @@
 package uk.co.ogauthority.pwa.features.webapp;
 
-import static uk.co.ogauthority.pwa.auth.PwaUserPrivilege.PWA_MANAGER;
-
-import java.util.EnumSet;
+import java.util.Arrays;
 import java.util.Set;
-import org.apache.commons.lang3.BooleanUtils;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
+import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class SystemAreaAccessService {
-
-
-  public final Set<PwaUserPrivilege> validWorkAreaPrivs = EnumSet.of(
-      PwaUserPrivilege.PWA_WORKAREA);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SystemAreaAccessService.class);
 
   // TODO: Remove in PWARE-63
-  public final Set<PwaUserPrivilege> validTeamManagementPrivileges = EnumSet.of(
-      PwaUserPrivilege.PWA_REG_ORG_MANAGE,
-      PwaUserPrivilege.PWA_REGULATOR_ADMIN,
-      PwaUserPrivilege.PWA_ORG_ADMIN,
-      PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN);
+  public static final Set<PwaUserPrivilege> ALL_PWA_USER_PRIVILEGES = Arrays.stream(PwaUserPrivilege.values())
+      .collect(Collectors.toSet());
 
-  public final Set<PwaUserPrivilege> validApplicationSearchPrivileges = EnumSet.of(
-      PwaUserPrivilege.PWA_APPLICATION_SEARCH);
+  // TODO: Remove in PWARE-63
+  public final Set<PwaUserPrivilege> validTeamManagementPrivileges = ALL_PWA_USER_PRIVILEGES;
 
-  public final Set<PwaUserPrivilege> validStartApplicationPrivileges;
+  // TODO: Remove in PWARE-63
+  public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = ALL_PWA_USER_PRIVILEGES;
 
-  public final Set<PwaUserPrivilege> validConsentSearchPrivileges = EnumSet.of(
-      PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER,
-      PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
-
-  public final Set<PwaUserPrivilege> validDocumentTemplatePrivileges = EnumSet.of(PwaUserPrivilege.PWA_TEMPLATE_CLAUSE_MANAGE);
-
-  public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = EnumSet.of(
-      PwaUserPrivilege.PWA_REG_ORG_MANAGE);
-
-  public final Set<PwaUserPrivilege> validManagerPrivileges = EnumSet.of(
-      PWA_MANAGER);
-
-  private final TeamQueryService teamQueryService;
+  private final Boolean allowStartApplication;
+  private final HasTeamRoleService hasTeamRoleService;
+  private final PwaContactService pwaContactService;
 
   @Autowired
   public SystemAreaAccessService(@Value("${pwa.features.start-application}") Boolean allowStartApplication,
-                                 TeamQueryService teamQueryService) {
-    this.teamQueryService = teamQueryService;
+                                 HasTeamRoleService hasTeamRoleService, PwaContactService pwaContactService) {
+    this.allowStartApplication = allowStartApplication;
+    this.hasTeamRoleService = hasTeamRoleService;
+    this.pwaContactService = pwaContactService;
 
-    if (!BooleanUtils.isTrue(allowStartApplication)) {
-      validStartApplicationPrivileges = EnumSet.noneOf(PwaUserPrivilege.class);
-    } else {
-      validStartApplicationPrivileges = EnumSet.of(PwaUserPrivilege.PWA_APPLICATION_CREATE);
-    }
+    LOGGER.info("allowStartApplication = {}", allowStartApplication);
   }
 
   /**
@@ -67,6 +55,7 @@ public class SystemAreaAccessService {
         .toArray(String[]::new);
   }
 
+  // TODO: Remove in PWARE-63
   public String[] getValidCreateOrganisationTeamGrantedAuthorities() {
     return validCreateOrganisationTeamPrivileges.stream()
         .map(PwaUserPrivilege::name)
@@ -74,84 +63,41 @@ public class SystemAreaAccessService {
   }
 
   public boolean canAccessTeamManagement(AuthenticatedUserAccount user) {
-    return teamQueryService.userIsMemberOfAnyTeam(user.getWuaId());
+    return hasTeamRoleService.userIsMemberOfAnyTeam(user);
   }
 
   public boolean isManagement(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validManagerPrivileges::contains);
-  }
-
-  /**
-   * For use in WebSecurityConfig. In other instances call canAccessWorkArea
-   */
-  public String[] getValidWorkAreaGrantedAuthorities() {
-    return validWorkAreaPrivs.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
+    return hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.PWA_MANAGER));
   }
 
   public boolean canAccessWorkArea(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validWorkAreaPrivs::contains);
-  }
-
-  /**
-   * For use in WebSecurityConfig. In other instances call canStartApplication
-   */
-  public String[] getStartApplicationGrantedAuthorities() {
-    return validStartApplicationPrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
+    return hasTeamRoleService.userIsMemberOfAnyTeam(user) || pwaContactService.isPersonApplicationContact(user.getLinkedPerson());
   }
 
   public boolean canStartApplication(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validStartApplicationPrivileges::contains);
+    return allowStartApplication
+        && hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR));
   }
 
-  /**
-   * For use in WebSecurityConfig. In other instances call canAccessApplicationSearch
-   */
-  public String[] getValidApplicationSearchGrantedAuthorities() {
-    return validApplicationSearchPrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
+  public void canStartApplicationOrThrow(AuthenticatedUserAccount user) {
+    if (!canStartApplication(user)) {
+      throw new AccessDeniedException("User %d cannot create an application".formatted(user.getWuaId()));
+    }
   }
 
   public boolean canAccessApplicationSearch(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validApplicationSearchPrivileges::contains);
-  }
-
-  /**
-   * For use in WebSecurityConfig. In other instances call canAccessConsentSearch
-   */
-  public String[] getValidConsentSearchGrantedAuthorities() {
-    return validConsentSearchPrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
+    return hasTeamRoleService.userHasAnyRoleInTeamTypes(user, RoleGroup.APPLICATION_SEARCH.getRolesByTeamType());
   }
 
   public boolean canAccessConsentSearch(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validConsentSearchPrivileges::contains);
-  }
-
-  public String[] getValidDocumentTemplateGrantedAuthorities() {
-    return validDocumentTemplatePrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
+    return hasTeamRoleService.userHasAnyRoleInTeamTypes(user, RoleGroup.CONSENT_SEARCH.getRolesByTeamType());
   }
 
   public boolean canAccessTemplateClauseManagement(AuthenticatedUserAccount user) {
-    return user.getUserPrivileges().stream()
-        .anyMatch(validDocumentTemplatePrivileges::contains);
+    return hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.TEMPLATE_CLAUSE_MANAGER));
   }
 
   public boolean canAccessFeePeriodManagement(AuthenticatedUserAccount user) {
-    return  user.getUserPrivileges()
-        .stream()
-        .anyMatch(PWA_MANAGER::equals);
+    return hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.PWA_MANAGER));
   }
 }

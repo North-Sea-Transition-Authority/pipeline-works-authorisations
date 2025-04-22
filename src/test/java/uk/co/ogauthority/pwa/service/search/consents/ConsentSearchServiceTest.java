@@ -75,10 +75,10 @@ class ConsentSearchServiceTest {
   private PortalOrganisationUnit shellOrg1, shellOrg2, bpOrg, wintershallOrg;
 
   private final AuthenticatedUserAccount industryUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createDefaultPerson()), Set.of(
-      PwaUserPrivilege.PWA_CONSENT_SEARCH));
+      PwaUserPrivilege.PWA_ACCESS));
 
   private final AuthenticatedUserAccount ogaUser = new AuthenticatedUserAccount(new WebUserAccount(2, PersonTestUtil.createPersonFrom(new PersonId(12))), Set.of(
-      PwaUserPrivilege.PWA_CONSENT_SEARCH));
+      PwaUserPrivilege.PWA_ACCESS));
 
 
   @BeforeEach

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.mailmerge.MailMergeField;
@@ -28,10 +29,13 @@ import uk.co.ogauthority.pwa.service.documents.templates.DocumentTemplateService
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 import uk.co.ogauthority.pwa.service.generic.GenericBreadcrumbService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
 @RequestMapping("/document-templates/{documentSpec}")
+@HasAnyRole(teamType = TeamType.REGULATOR, roles = {Role.TEMPLATE_CLAUSE_MANAGER})
 public class DocumentTemplateController {
 
   private final GenericBreadcrumbService breadcrumbService;

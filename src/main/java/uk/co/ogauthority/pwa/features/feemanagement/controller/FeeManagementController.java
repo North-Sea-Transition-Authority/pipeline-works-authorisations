@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.feemanagement.display.FeePeriodDisplayService;
 import uk.co.ogauthority.pwa.features.feemanagement.service.FeePeriodService;
@@ -26,10 +25,13 @@ import uk.co.ogauthority.pwa.features.feemanagement.service.FeePeriodValidator;
 import uk.co.ogauthority.pwa.model.form.feeperiod.FeePeriodForm;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 
 @Controller
 @RequestMapping("/fee-management")
+@HasAnyRole(teamType = TeamType.REGULATOR, roles = {Role.PWA_MANAGER})
 public class FeeManagementController {
 
   private final FeePeriodDisplayService displayService;
@@ -58,7 +60,7 @@ public class FeeManagementController {
 
   @GetMapping
   public ModelAndView renderFeeManagementOverview(AuthenticatedUserAccount authenticatedUser) {
-    checkUserPrivilege(authenticatedUser);
+
     return new ModelAndView("fees/management/feeManagement")
         .addObject("feePeriods", displayService.listAllPeriods())
         .addObject("newPeriodUrl", ReverseRouter.route(on(
@@ -75,7 +77,7 @@ public class FeeManagementController {
 
   @GetMapping("/period")
   public ModelAndView renderFeePeriodDetail(AuthenticatedUserAccount authenticatedUser, Integer periodId) {
-    checkUserPrivilege(authenticatedUser);
+
     var feePeriodOptional = displayService.findPeriodById(periodId);
     if (feePeriodOptional.isEmpty()) {
       String errorMessage = String.format("No fee period found for id %s", periodId);
@@ -93,7 +95,7 @@ public class FeeManagementController {
   @GetMapping("/new")
   public ModelAndView renderNewPeriodForm(AuthenticatedUserAccount authenticatedUser,
                                           @ModelAttribute("form") FeePeriodForm form) {
-    checkUserPrivilege(authenticatedUser);
+
     if (feePeriodService.pendingPeriodExists()) {
       return ReverseRouter.redirect(on(FeeManagementController.class)
           .renderFeeManagementOverview(authenticatedUser));
@@ -111,7 +113,6 @@ public class FeeManagementController {
                                         BindingResult bindingResult,
                                         RedirectAttributes redirectAttributes) {
 
-    checkUserPrivilege(authenticatedUser);
     if (feePeriodService.pendingPeriodExists()) {
       LOGGER.debug("Only one pending fee period allowed at any one time - rerouting to management screen");
       return ReverseRouter.redirect(on(FeeManagementController.class)
@@ -136,7 +137,6 @@ public class FeeManagementController {
                                            @PathVariable Integer periodId,
                                            @ModelAttribute("form") FeePeriodForm form) {
 
-    checkUserPrivilege(authenticatedUser);
     displayService.populatePeriodFormForEdit(form, periodId);
     return createEditPeriodFormModelAndView(periodId, form);
 
@@ -159,7 +159,6 @@ public class FeeManagementController {
                                          BindingResult bindingResult,
                                          RedirectAttributes redirectAttributes) {
 
-    checkUserPrivilege(authenticatedUser);
     validator.validate(form, bindingResult);
     var modelAndView = createEditPeriodFormModelAndView(periodId, form);
 
@@ -168,11 +167,5 @@ public class FeeManagementController {
       FlashUtils.success(redirectAttributes, "Success", "Period edited successfully");
       return ReverseRouter.redirect(on(FeeManagementController.class).renderFeeManagementOverview(null));
     });
-  }
-
-  private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
-    if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
-      throw new AccessDeniedException("Access to fee management denied");
-    }
   }
 }

@@ -10,22 +10,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
-import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.controller.ResolverAbstractControllerTest;
+import uk.co.ogauthority.pwa.controller.WithDefaultPageControllerAdvice;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -36,10 +33,13 @@ import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaTestUtil;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @WebMvcTest(TermsAndConditionsFormController.class)
-@Import(PwaMvcTestConfiguration.class)
-class TermsAndConditionsFormControllerTest extends AbstractControllerTest {
+@ContextConfiguration(classes = TermsAndConditionsFormController.class)
+@WithDefaultPageControllerAdvice
+class TermsAndConditionsFormControllerTest extends ResolverAbstractControllerTest {
 
   @MockBean
   TermsAndConditionsService termsAndConditionsService;
@@ -57,17 +57,17 @@ class TermsAndConditionsFormControllerTest extends AbstractControllerTest {
 
   @BeforeEach
   void setup() {
-    userAccount = new AuthenticatedUserAccount(
-        new WebUserAccount(1, new Person()),
-        EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_MANAGER));
+    userAccount = new AuthenticatedUserAccount(new WebUserAccount(1, new Person()), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
-    userAccountNoAuth = new AuthenticatedUserAccount(
-        new WebUserAccount(1, new Person()), Set.of());
+    userAccountNoAuth = new AuthenticatedUserAccount(new WebUserAccount(2, new Person()), Set.of(PwaUserPrivilege.PWA_ACCESS));
 
     masterPwa = MasterPwaTestUtil.create(1);
     masterPwaDetail = new MasterPwaDetail();
     masterPwaDetail.setMasterPwa(masterPwa);
     masterPwaDetail.setReference("1/W/23");
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(userAccount, Map.of(TeamType.REGULATOR, Set.of(Role.PWA_MANAGER))))
+        .thenReturn(true);
   }
 
   @Test

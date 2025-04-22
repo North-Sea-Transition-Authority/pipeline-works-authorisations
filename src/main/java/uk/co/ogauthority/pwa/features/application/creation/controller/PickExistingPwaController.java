@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
@@ -29,6 +30,7 @@ import uk.co.ogauthority.pwa.features.application.creation.PickPwaForm;
 import uk.co.ogauthority.pwa.features.application.creation.PickPwaFormValidator;
 import uk.co.ogauthority.pwa.features.application.creation.PickedPwaRetrievalService;
 import uk.co.ogauthority.pwa.features.application.creation.PwaApplicationCreationService;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -36,6 +38,7 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.ControllerUtils;
 import uk.co.ogauthority.pwa.util.MetricTimerUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
@@ -43,6 +46,7 @@ import uk.co.ogauthority.pwa.util.converters.ResourceTypeUrl;
 
 @Controller
 @RequestMapping("/pwa-application/{applicationType}/{resourceType}/pick-pwa-for-application")
+@HasAnyRole(teamType = TeamType.ORGANISATION, roles = {Role.APPLICATION_CREATOR})
 public class PickExistingPwaController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PickExistingPwaController.class);
@@ -56,6 +60,7 @@ public class PickExistingPwaController {
   private final PickPwaFormValidator pickPwaFormValidator;
   private final MetricsProvider metricsProvider;
   private final ApplicantOrganisationService applicantOrganisationService;
+  private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
   public PickExistingPwaController(
@@ -66,7 +71,7 @@ public class PickExistingPwaController {
       PwaApplicationCreationService pwaApplicationCreationService,
       PickPwaFormValidator pickPwaFormValidator,
       MetricsProvider metricsProvider,
-      ApplicantOrganisationService applicantOrganisationService) {
+      ApplicantOrganisationService applicantOrganisationService, SystemAreaAccessService systemAreaAccessService) {
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
     this.pickedPwaRetrievalService = pickPwaService;
     this.controllerHelperService = controllerHelperService;
@@ -75,6 +80,7 @@ public class PickExistingPwaController {
     this.pickPwaFormValidator = pickPwaFormValidator;
     this.metricsProvider = metricsProvider;
     this.applicantOrganisationService = applicantOrganisationService;
+    this.systemAreaAccessService = systemAreaAccessService;
   }
 
   @GetMapping
@@ -82,6 +88,7 @@ public class PickExistingPwaController {
                                                       @PathVariable @ResourceTypeUrl PwaResourceType resourceType,
                                                       @ModelAttribute("form") PickPwaForm form,
                                                       AuthenticatedUserAccount user) {
+    systemAreaAccessService.canStartApplicationOrThrow(user);
     ControllerUtils.startVariationControllerCheckAppType(applicationType);
     return getPickPwaModelAndView(user, applicationType, resourceType);
   }
@@ -120,6 +127,7 @@ public class PickExistingPwaController {
                                                  AuthenticatedUserAccount user) {
 
     var stopwatch = Stopwatch.createStarted();
+    systemAreaAccessService.canStartApplicationOrThrow(user);
     ControllerUtils.startVariationControllerCheckAppType(applicationType);
 
     pickPwaFormValidator.validate(form, bindingResult, applicationType);

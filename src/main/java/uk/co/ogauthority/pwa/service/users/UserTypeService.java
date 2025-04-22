@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
@@ -16,18 +17,24 @@ import uk.co.ogauthority.pwa.teams.TeamType;
 public class UserTypeService {
 
   private final TeamQueryService teamQueryService;
+  private final PwaContactService pwaContactService;
 
-  public UserTypeService(TeamQueryService teamQueryService) {
+  public UserTypeService(TeamQueryService teamQueryService, PwaContactService pwaContactService) {
     this.teamQueryService = teamQueryService;
+    this.pwaContactService = pwaContactService;
   }
 
   public UserType getPriorityUserTypeOrThrow(AuthenticatedUserAccount authenticatedUserAccount) {
-    Set<UserType> userTypes = getUserTypes(authenticatedUserAccount);
-
-    return findPriorityUserTypeFrom(userTypes)
+    return getPriorityUserType(authenticatedUserAccount)
         .orElseThrow(() -> new IllegalStateException(
             "User with WUA ID: %d doesn't match a recognised user type.".formatted(authenticatedUserAccount.getWuaId())
         ));
+  }
+
+  public Optional<UserType> getPriorityUserType(AuthenticatedUserAccount authenticatedUserAccount) {
+    Set<UserType> userTypes = getUserTypes(authenticatedUserAccount);
+
+    return findPriorityUserTypeFrom(userTypes);
   }
 
   private Optional<UserType> findPriorityUserTypeFrom(Collection<UserType> userTypeCollection) {
@@ -43,9 +50,15 @@ public class UserTypeService {
         .map(Team::getTeamType)
         .collect(Collectors.toSet());
 
-    return UserType.stream()
+    var userTypes = UserType.stream()
         .filter(userType -> teamTypes.contains(userType.getTeamType()))
         .collect(Collectors.toSet());
+
+    if (pwaContactService.isPersonApplicationContact(authenticatedUserAccount.getLinkedPerson())) {
+      userTypes.add(UserType.INDUSTRY);
+    }
+
+    return userTypes;
   }
 
 }

@@ -29,6 +29,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleInterceptor;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.SamlProperties;
@@ -57,6 +59,7 @@ import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
     PwaMvcTestConfiguration.class,
     WebSecurityConfig.class,
     SamlProperties.class,
+    HasAnyRoleInterceptor.class
 })
 @EnableConfigurationProperties({ExternalApiConfiguration.class, EnergyPortalAccessApiConfiguration.class})
 @ActiveProfiles("test")
@@ -111,6 +114,9 @@ class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   private TeamQueryService teamQueryService;
+
+  @MockBean
+  private HasTeamRoleService hasTeamRoleService;
 
   private final AuthenticatedUserAccount testUser = AuthenticatedUserAccountTestUtil.defaultAllPrivUserAccount();
 

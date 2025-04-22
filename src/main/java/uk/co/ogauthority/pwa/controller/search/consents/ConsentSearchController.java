@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleByGroup;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsUtils;
@@ -31,6 +33,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/consents/search")
+@HasAnyRoleByGroup(roleGroup = RoleGroup.CONSENT_SEARCH)
 public class ConsentSearchController {
 
   private final ConsentSearchService consentSearchService;

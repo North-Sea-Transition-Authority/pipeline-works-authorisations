@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRoleByGroup;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsEventCategory;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
@@ -50,6 +52,7 @@ import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Controller
 @RequestMapping("/application-search")
+@HasAnyRoleByGroup(roleGroup = RoleGroup.APPLICATION_SEARCH)
 public class ApplicationSearchController {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationSearchController.class);

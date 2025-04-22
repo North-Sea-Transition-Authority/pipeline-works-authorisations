@@ -66,6 +66,13 @@ public class TeamQueryService {
         .anyMatch(teamRole -> roles.contains(teamRole.getRole()));
   }
 
+  public boolean userHasAtLeastOneRole(Long wuaId, TeamType teamType, Set<Role> roles) {
+    assertRolesValidForTeamType(roles, teamType);
+
+    return teamRoleRepository.findAllByWuaId(wuaId).stream()
+        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType && roles.contains(teamRole.getRole()));
+  }
+
   private void assertRolesValidForTeamType(Set<Role> roles, TeamType teamType) {
     roles.forEach(role -> {
       if (!teamType.getAllowedRoles().contains(role)) {

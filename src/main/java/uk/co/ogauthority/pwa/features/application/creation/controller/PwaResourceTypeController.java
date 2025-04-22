@@ -14,16 +14,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeForm;
 import uk.co.ogauthority.pwa.model.form.pwaapplications.PwaResourceTypeFormValidator;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Controller
 @RequestMapping("/start-application/resource")
+@HasAnyRole(teamType = TeamType.ORGANISATION, roles = {Role.APPLICATION_CREATOR})
 public class PwaResourceTypeController {
 
   private final PwaResourceTypeFormValidator validator;
@@ -31,14 +36,16 @@ public class PwaResourceTypeController {
   private final ControllerHelperService controllerHelperService;
 
   private final PwaApplicationRedirectService redirectService;
+  private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
   public PwaResourceTypeController(PwaResourceTypeFormValidator validator,
                                    ControllerHelperService controllerHelperService,
-                                   PwaApplicationRedirectService redirectService) {
+                                   PwaApplicationRedirectService redirectService, SystemAreaAccessService systemAreaAccessService) {
     this.validator = validator;
     this.controllerHelperService = controllerHelperService;
     this.redirectService = redirectService;
+    this.systemAreaAccessService = systemAreaAccessService;
   }
 
   /**
@@ -49,6 +56,8 @@ public class PwaResourceTypeController {
   @GetMapping
   public ModelAndView renderResourceTypeForm(@ModelAttribute("form") PwaResourceTypeForm form,
                                              AuthenticatedUserAccount user) {
+    systemAreaAccessService.canStartApplicationOrThrow(user);
+
     var resourceOptions = Arrays.stream(PwaResourceType.values())
         .sorted(Comparator.comparingInt(PwaResourceType::getDisplayOrder))
         .collect(Collectors.toList());
@@ -67,6 +76,8 @@ public class PwaResourceTypeController {
   public ModelAndView postResourceType(@ModelAttribute("form") PwaResourceTypeForm form,
                                        BindingResult bindingResult,
                                        AuthenticatedUserAccount user) {
+    systemAreaAccessService.canStartApplicationOrThrow(user);
+
     validator.validate(form, bindingResult);
     return controllerHelperService.checkErrorsAndRedirect(
         bindingResult,

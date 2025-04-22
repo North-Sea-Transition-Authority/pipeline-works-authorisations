@@ -15,13 +15,11 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
-import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -119,7 +117,7 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
   @Test
   void renderCaseManagement_taskGroupNameWarningMessageMap_hasWarningMsgForCaseOfficer() {
 
-    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
+    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
@@ -150,7 +148,7 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
   @Test
   void renderCaseManagement_taskGroupNameWarningMessageMap_userIsNotAssignedCaseOfficer_noWarningMessage() {
 
-    var user = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_INDUSTRY));
+    var user = new AuthenticatedUserAccount(new WebUserAccount(10), Set.of());
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
@@ -178,7 +176,7 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
   @Test
   void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_isOga_hasWarningMessage() {
 
-    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_CASE_OFFICER));
+    var caseOfficer = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
@@ -215,7 +213,7 @@ class CaseManagementControllerTest extends PwaAppProcessingContextAbstractContro
   @Test
   void renderCaseManagement_taskGroupNameWarningMessageMap_consentIssueFailed_userNotOga_noWarningMessage() {
 
-    var user = new AuthenticatedUserAccount(new WebUserAccount(10), EnumSet.of(PwaUserPrivilege.PWA_INDUSTRY));
+    var user = new AuthenticatedUserAccount(new WebUserAccount(10), Set.of());
     var detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(

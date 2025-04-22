@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
@@ -50,13 +50,12 @@ class TeamServiceTest {
   @Mock
   private PwaTeamsDtoFactory pwaTeamsDtoFactory;
 
-  @Mock
-  private PwaUserPrivilegeService pwaUserPrivilegeService;
-
   @Captor
   private ArgumentCaptor<List<String>> stringListCaptor;
 
+  @InjectMocks
   private TeamService teamService;
+
   private Person regulatorPerson;
   private Person organisationPerson;
   private PwaRegulatorTeam regulatorTeam;
@@ -69,14 +68,12 @@ class TeamServiceTest {
   private PortalTeamDto organisationTeamAsPortalTeamDto2;
   private PortalTeamDto globalTeamAsPortalTeamDto;
   private PwaGlobalTeam globalTeam;
-  private WebUserAccount someWebUserAccount = new WebUserAccount(99);
+  private final WebUserAccount someWebUserAccount = new WebUserAccount(99);
 
   @BeforeEach
   void setup() {
     regulatorPerson = new Person(1, "reg", "person", "reg@person.com", "0");
     organisationPerson = new Person(2, "org", "person", "org@person.com", "0");
-
-    teamService = new TeamService(portalTeamAccessor, pwaTeamsDtoFactory, pwaUserPrivilegeService);
 
     regulatorTeam = TeamTestingUtils.getRegulatorTeam();
     regulatorTeamAsPortalTeamDto = TeamTestingUtils.portalTeamDtoFrom(regulatorTeam);
@@ -339,58 +336,6 @@ class TeamServiceTest {
         .thenReturn(List.of(TeamTestingUtils.getTeamAdminRoleDto(regulatorTeam), TeamTestingUtils.getTeamAdminRoleDto(regulatorTeam)));
 
     assertThat(teamService.getAllRolesForTeam(regulatorTeam)).containsExactly(mockRole, mockRole);
-  }
-
-  @Test
-  void getAllUserPrivilegesForPerson_portalPrivs_noAppPrivs() {
-
-    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE));
-
-    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of());
-
-    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
-
-    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
-
-  }
-
-  @Test
-  void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_noOverlap() {
-
-    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE));
-
-    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA));
-
-    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
-
-    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
-
-  }
-
-  @Test
-  void getAllUserPrivilegesForPerson_portalPrivs_appPrivs_overlap() {
-
-    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of(PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_WORKAREA));
-
-    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA));
-
-    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
-
-    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_REG_ORG_MANAGE);
-
-  }
-
-  @Test
-  void getAllUserPrivilegesForPerson_NoPortalPrivs_appPrivs() {
-
-    when(pwaTeamsDtoFactory.createPwaUserPrivilegeSet(any())).thenReturn(Set.of());
-
-    when(pwaUserPrivilegeService.getPwaUserPrivilegesForPerson(organisationPerson)).thenReturn(Set.of(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN));
-
-    var privSet = teamService.getAllUserPrivilegesForPerson(organisationPerson);
-
-    assertThat(privSet).containsExactlyInAnyOrder(PwaUserPrivilege.PWA_WORKAREA, PwaUserPrivilege.PWA_CONSULTEE_GROUP_ADMIN);
-
   }
 
 }

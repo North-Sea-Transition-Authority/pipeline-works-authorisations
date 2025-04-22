@@ -6,18 +6,18 @@ import static org.mockito.Mockito.when;
 import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.CASE_OFFICER_STAGE_AND_USER_ASSIGNED;
 import static uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementDtoTestUtil.InvolvementFlag.PWA_MANAGER_STAGE;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
+import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
@@ -31,6 +31,8 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
@@ -42,6 +44,13 @@ class PwaAppProcessingPermissionServiceTest {
   @Mock
   private ApplicationInvolvementService applicationInvolvementService;
 
+  @Mock
+  private UserTypeService userTypeService;
+
+  @Mock
+  private HasTeamRoleService hasTeamRoleService;
+
+  @InjectMocks
   private PwaAppProcessingPermissionService processingPermissionService;
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(new WebUserAccount(1), List.of());
@@ -49,28 +58,23 @@ class PwaAppProcessingPermissionServiceTest {
   private PwaApplicationDetail detail;
   private PwaApplication application;
   private static Set<PwaApplicationType> VALID_PUBLIC_NOTICE_APP_TYPES;
-  private static Set<PwaUserPrivilege> VALID_VIEW_CONSENT_DOC_PRIVILEGES;
 
   @BeforeEach
   void setUp() {
 
-    processingPermissionService = new PwaAppProcessingPermissionService(applicationInvolvementService);
-
     application = new PwaApplication();
+    application.setApplicationType(PwaApplicationType.INITIAL);
     detail = new PwaApplicationDetail();
     detail.setPwaApplication(application);
     VALID_PUBLIC_NOTICE_APP_TYPES = Set.of(PwaApplicationType.INITIAL, PwaApplicationType.CAT_1_VARIATION);
-    VALID_VIEW_CONSENT_DOC_PRIVILEGES = Set.of(PwaUserPrivilege.PWA_CONSENT_SEARCH, PwaUserPrivilege.PWA_MANAGER,
-        PwaUserPrivilege.PWA_CASE_OFFICER, PwaUserPrivilege.PWA_REGULATOR, PwaUserPrivilege.PWA_REG_ORG_MANAGE, PwaUserPrivilege.PWA_INDUSTRY);
 
   }
 
   @Test
   void getGenericProcessingPermissions_acceptInitialReviewPermission_success() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = false;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
 
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ACCEPT_INITIAL_REVIEW);
 
@@ -81,7 +85,9 @@ class PwaAppProcessingPermissionServiceTest {
 
     clearPrivileges(user);
 
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = false;
+    boolean userIsPwaManager = false;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
 
     assertThat(permissions).isEmpty();
 
@@ -90,9 +96,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_acceptAssignCaseOfficerPermission_success() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
 
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ASSIGN_CASE_OFFICER);
 
@@ -101,9 +107,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_hasAddCaseNotePermission_pwaManager() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ADD_CASE_NOTE);
 
   }
@@ -111,19 +117,18 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_hasAddCaseNotePermission_caseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = false;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.ADD_CASE_NOTE);
 
   }
 
   @Test
   void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerOnly_hasPermission() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = false;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
 
   }
@@ -131,9 +136,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_hasShowAllTasks_pwaManagerAndCaseOfficer_noPermission() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER, PwaUserPrivilege.PWA_CASE_OFFICER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndDoesNotContain(permissions, PwaAppProcessingPermission.SHOW_ALL_TASKS_AS_PWA_MANAGER_ONLY);
 
   }
@@ -141,9 +146,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_acceptViewAllConsultationsPermission_co_success() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = false;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
 
   }
@@ -151,9 +156,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_acceptViewAllConsultationsPermission_pwaManager_success() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.VIEW_ALL_CONSULTATIONS);
 
   }
@@ -161,9 +166,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getGenericProcessingPermissions_consentReview_pwaManager_success() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
-
-    var permissions = processingPermissionService.getGenericProcessingPermissions(user);
+    boolean userIsCaseOfficer = true;
+    boolean userIsPwaManager = true;
+    var permissions = processingPermissionService.getGenericProcessingPermissions(userIsCaseOfficer, userIsPwaManager);
     AssertionTestUtils.assertNotEmptyAndContains(permissions, PwaAppProcessingPermission.CONSENT_REVIEW);
 
   }
@@ -171,7 +176,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_acceptWithdrawConsultationsPermission_assignedCo_success() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -186,7 +191,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_acceptWithdrawConsultationsPermission_notAssignedCo_failed() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -295,7 +300,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasEditConsentDocumentPermission_assignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -310,8 +315,7 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppProcessingPermissions_hasEditConsentDocumentPermission_notAssignedCaseOfficer() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -324,7 +328,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasEditConsentDocumentPermission_pwaManager() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -341,7 +345,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasViewConsentDocumentPermission_userInHolderTeam() {
 
-    user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
+    user = new AuthenticatedUserAccount(user, Set.of());
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
         application, Set.of(Role.APPLICATION_CREATOR));
@@ -355,7 +359,9 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasViewConsentDocumentPermission_validUserPrivileges() {
 
-    user = new AuthenticatedUserAccount(user, VALID_VIEW_CONSENT_DOC_PRIVILEGES);
+    user = new AuthenticatedUserAccount(user, Set.of());
+
+    when(hasTeamRoleService.userHasAnyRoleInTeamTypes(user, RoleGroup.CONSENT_SEARCH.getRolesByTeamType())).thenReturn(true);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -371,8 +377,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_noViewConsentDocumentPermission_invalidUserPrivileges() {
 
-    var invalidViewConsentDocPrivileges = EnumSet.complementOf(EnumSet.copyOf(VALID_VIEW_CONSENT_DOC_PRIVILEGES));
-    user = new AuthenticatedUserAccount(user, invalidViewConsentDocPrivileges);
+    user = new AuthenticatedUserAccount(user, Set.of());
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -535,7 +540,7 @@ class PwaAppProcessingPermissionServiceTest {
   }
 
   private void setUserAsCaseOfficer() {
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
@@ -567,9 +572,7 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppPermissions_hasCaseManagementOgaPermission_andViewApplicationSummary() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_REGULATOR);
-
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.OGA));
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -650,8 +653,6 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppPermissions_noConsulteeAdvicePermission_whenIndustry() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
-
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -662,9 +663,7 @@ class PwaAppProcessingPermissionServiceTest {
 
   @Test
   void getAppPermissions_noConsulteeAdvicePermission_whenRegulator() {
-
-    replacePrivileges(user, PwaUserPrivilege.PWA_REGULATOR);
-
+    when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.OGA));
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -676,7 +675,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasConfirmSatisfactoryPermission_assignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
@@ -692,7 +692,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_hasConfirmSatisfactoryPermission_notAssignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -705,7 +705,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_requestUpdate_assignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
@@ -721,7 +721,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_requestUpdate_notAssignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -733,7 +733,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_requestUpdate_pwaManager_andPwaManagerStage() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(PWA_MANAGER_STAGE)
@@ -749,7 +750,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_cancelPayment_pwaManager_andAwaitingPayment() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(
@@ -766,7 +768,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_cancelPayment_pwaManager_andNotAwaitingPayment() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var noCancelPaymentPermissionStatuses = EnumSet.allOf(PwaApplicationStatus.class);
     noCancelPaymentPermissionStatuses.remove(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
 
@@ -795,7 +798,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_requestUpdate_pwaManager_andNotPwaManagerStage() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
@@ -810,7 +814,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_withdrawApplication_assignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
@@ -825,7 +830,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_withdrawApplication_notAssignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -837,7 +842,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_withdrawApplication_pwaManager_andPwaManagerStage() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(PWA_MANAGER_STAGE)
@@ -852,7 +858,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_withdrawApplication_pwaManager_andNotPwaManagerStage() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
         application,
         EnumSet.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED)
@@ -873,7 +880,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -891,7 +898,9 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+
+          mockUserIsPwaManager();
+
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -909,7 +918,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -931,7 +940,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -949,7 +958,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+          mockUserIsPwaManager();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
           when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -967,7 +976,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsPwaManager();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -989,7 +998,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1007,7 +1016,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_hasDraftPublicNoticePermission_validAppType_notAssignedCaseOfficer() {
 
     detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1025,7 +1034,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1047,7 +1056,6 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1068,7 +1076,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1086,9 +1094,9 @@ class PwaAppProcessingPermissionServiceTest {
     PwaApplicationType.stream()
         .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
         .forEach(pwaApplicationType -> {
+          when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY));
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1108,7 +1116,6 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1129,7 +1136,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1149,8 +1156,9 @@ class PwaAppProcessingPermissionServiceTest {
         .filter(appType -> VALID_PUBLIC_NOTICE_APP_TYPES.contains(appType))
         .forEach(pwaApplicationType -> {
 
+          when(userTypeService.getUserTypes(user)).thenReturn(Set.of(UserType.INDUSTRY));
+
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_INDUSTRY);
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.generatePwaHolderTeamInvolvement(
               application, EnumSet.of(Role.APPLICATION_SUBMITTER));
@@ -1170,7 +1178,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1192,7 +1200,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1210,7 +1218,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_hasRequestPublicNoticeUpdatePermission_notAssignedCaseOfficer() {
 
     detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1228,7 +1236,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1250,7 +1258,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1272,7 +1280,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1290,7 +1298,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_hasWithdrawPublicNoticePermission_notAssignedCaseOfficer() {
 
     detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1308,7 +1316,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1330,7 +1338,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1352,7 +1360,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1369,7 +1377,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_hasFinalisePublicNoticePermission_notAssignedCaseOfficer() {
 
     detail.getPwaApplication().setApplicationType(VALID_PUBLIC_NOTICE_APP_TYPES.iterator().next());
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -1387,7 +1395,7 @@ class PwaAppProcessingPermissionServiceTest {
         .forEach(pwaApplicationType -> {
 
           detail.getPwaApplication().setApplicationType(pwaApplicationType);
-          replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+          mockUserIsCaseOfficer();
 
           var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(
               application,
@@ -1482,7 +1490,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_sendConsentForApproval_assignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
     var appInvolvement = ApplicationInvolvementDtoTestUtil.fromInvolvementFlags(application, Set.of(CASE_OFFICER_STAGE_AND_USER_ASSIGNED));
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -1494,7 +1502,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_sendConsentForApproval_notAssignedCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_CASE_OFFICER);
+    mockUserIsCaseOfficer();
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -1506,7 +1514,8 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppProcessingPermissions_sendConsentForApproval_notCaseOfficer() {
 
-    replacePrivileges(user, PwaUserPrivilege.PWA_MANAGER);
+    mockUserIsPwaManager();
+
     var appInvolvement = ApplicationInvolvementDtoTestUtil.noInvolvementAndNoFlags(application);
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -1655,13 +1664,19 @@ class PwaAppProcessingPermissionServiceTest {
     user = new AuthenticatedUserAccount(userArg, Set.of());
   }
 
-  private void replacePrivileges(AuthenticatedUserAccount userArg, PwaUserPrivilege... privileges) {
-    user = new AuthenticatedUserAccount(userArg, Arrays.stream(privileges).collect(Collectors.toSet()));
-  }
-
   private ConsultationInvolvementDto getConsultationInvolvement(boolean assignedResponder,
                                                                 Set<ConsulteeGroupMemberRole> consulteeRoles) {
     return new ConsultationInvolvementDto(null, consulteeRoles, null, null, assignedResponder);
+  }
+
+  private void mockUserIsCaseOfficer() {
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.PWA_MANAGER))).thenReturn(false);
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.CASE_OFFICER))).thenReturn(true);
+  }
+
+  private void mockUserIsPwaManager() {
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.PWA_MANAGER))).thenReturn(true);
+    when(hasTeamRoleService.userHasAnyRoleInTeamType(user, TeamType.REGULATOR, Set.of(Role.CASE_OFFICER))).thenReturn(false);
   }
 
 }

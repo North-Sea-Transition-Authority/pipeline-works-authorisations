@@ -12,19 +12,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.auth.HasAnyRole;
 import uk.co.ogauthority.pwa.features.termsandconditions.model.TermsAndConditionsFilterForm;
 import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditionsService;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.objects.FormObjectMapper;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Controller
 @RequestMapping("/terms-and-conditions")
+@HasAnyRole(teamType = TeamType.REGULATOR, roles = {Role.PWA_MANAGER})
 public class TermsAndConditionsManagementController {
 
   private final TermsAndConditionsService termsAndConditionsService;
-
 
   public TermsAndConditionsManagementController(TermsAndConditionsService termsAndConditionsService) {
     this.termsAndConditionsService = termsAndConditionsService;
@@ -34,7 +35,6 @@ public class TermsAndConditionsManagementController {
   public ModelAndView renderTermsAndConditionsManagement(@ModelAttribute("form") TermsAndConditionsFilterForm form,
                                                          @RequestParam(defaultValue = "0", name = "page") Integer page,
                                                          AuthenticatedUserAccount user) {
-    checkUserPrivilege(user);
     return new ModelAndView("termsandconditions/termsAndConditionsManagement")
         .addObject("termsAndConditionsPageView",
             termsAndConditionsService.getPwaManagementScreenPageView(page, form.getPwaReference() != null ? form.getPwaReference() : ""))
@@ -49,19 +49,12 @@ public class TermsAndConditionsManagementController {
   public ModelAndView filterTermsAndConditions(@ModelAttribute("form") TermsAndConditionsFilterForm form,
                                        BindingResult bindingResult,
                                        AuthenticatedUserAccount user) {
-    checkUserPrivilege(user);
 
     var paramMap = new LinkedMultiValueMap<String, String>();
     paramMap.setAll(FormObjectMapper.toMap(form));
 
     return ReverseRouter.redirectWithQueryParamMap(on(TermsAndConditionsManagementController.class)
        .renderTermsAndConditionsManagement(form, null, null), paramMap);
-  }
-
-  private void checkUserPrivilege(AuthenticatedUserAccount authenticatedUser) {
-    if (!authenticatedUser.hasPrivilege(PwaUserPrivilege.PWA_MANAGER)) {
-      throw new AccessDeniedException("Access to terms and conditions denied");
-    }
   }
 
 }

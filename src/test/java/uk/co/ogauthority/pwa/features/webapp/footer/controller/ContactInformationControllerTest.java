@@ -23,12 +23,11 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 @Import(PwaMvcTestConfiguration.class)
 class ContactInformationControllerTest extends AbstractControllerTest {
 
-  private AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
-      EnumSet.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PWA_WORKAREA));
+  private final AuthenticatedUserAccount authenticatedUserAccount = new AuthenticatedUserAccount(
+      new WebUserAccount(1, new Person()), EnumSet.of(PwaUserPrivilege.PWA_ACCESS));
 
   private static final AuthenticatedUserAccount unAuthenticatedUser = new AuthenticatedUserAccount(
-      new WebUserAccount(1, new Person()),
+      new WebUserAccount(2, new Person()),
       Set.of());
 
 
