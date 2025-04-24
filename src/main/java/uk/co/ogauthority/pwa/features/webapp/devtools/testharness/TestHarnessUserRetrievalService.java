@@ -6,8 +6,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
@@ -17,16 +15,12 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @Profile("test-harness")
 public class TestHarnessUserRetrievalService {
 
-  private final PersonService personService;
   private final TeamService teamService;
   private final WebUserAccountRepository webUserAccountRepository;
 
 
   @Autowired
-  public TestHarnessUserRetrievalService(
-      PersonService personService,
-      TeamService teamService, WebUserAccountRepository webUserAccountRepository) {
-    this.personService = personService;
+  public TestHarnessUserRetrievalService(TeamService teamService, WebUserAccountRepository webUserAccountRepository) {
     this.teamService = teamService;
     this.webUserAccountRepository = webUserAccountRepository;
   }
@@ -36,13 +30,12 @@ public class TestHarnessUserRetrievalService {
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find web user account for id: " + wuaId));
   }
 
-  public WebUserAccount getWebUserAccount(Integer personId) {
-    var person = personService.getPersonById(new PersonId(personId));
+  public WebUserAccount getWebUserAccount(Integer wuaId) {
 
-    return webUserAccountRepository.findAllByPersonAndAccountStatusIn(
-        person, List.of(WebUserAccountStatus.ACTIVE, WebUserAccountStatus.NEW))
-        .stream().findAny().orElseThrow(() -> new PwaEntityNotFoundException(
-            "Could not find web user account for person id: " + personId));
+    return webUserAccountRepository.findAllByWuaIdAndAccountStatusIn(wuaId, List.of(WebUserAccountStatus.ACTIVE, WebUserAccountStatus.NEW))
+        .stream()
+        .findAny()
+        .orElseThrow(() -> new PwaEntityNotFoundException("Could not find web user account with id: " + wuaId));
   }
 
   public AuthenticatedUserAccount createAuthenticatedUserAccount(int wuaId) {
@@ -51,9 +44,9 @@ public class TestHarnessUserRetrievalService {
     return createAuthenticatedUserAccount(webUserAccount);
   }
 
-  public AuthenticatedUserAccount createAuthenticatedUserAccount(Integer personId) {
+  public AuthenticatedUserAccount createAuthenticatedUserAccount(Integer wuaId) {
 
-    var webUserAccount = getWebUserAccount(personId);
+    var webUserAccount = getWebUserAccount(wuaId);
     return createAuthenticatedUserAccount(webUserAccount);
   }
 

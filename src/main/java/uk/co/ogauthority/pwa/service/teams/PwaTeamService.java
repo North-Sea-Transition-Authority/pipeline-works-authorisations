@@ -1,6 +1,7 @@
 package uk.co.ogauthority.pwa.service.teams;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,10 @@ public class PwaTeamService {
     return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role).stream()
         .map(this::getPersonIdFromWuaId)
         .collect(Collectors.toSet());
+  }
+
+  public List<TeamMemberView> getTeamMembersWithRegulatorRole(Role role) {
+    return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role);
   }
 
   @VisibleForTesting

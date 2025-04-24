@@ -2,6 +2,9 @@ package uk.co.ogauthority.pwa.teams;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
@@ -49,6 +52,10 @@ public class TeamMemberQueryService {
   public List<TeamMemberView> getTeamMemberViewsForTeam(Team team) {
     var teamRoles = teamRoleRepository.findByTeam(team);
 
+    return getTeamMemberViewsByTeamRoles(teamRoles);
+  }
+
+  public List<TeamMemberView> getTeamMemberViewsByTeamRoles(List<TeamRole> teamRoles) {
     var memberWuaIds = teamRoles.stream()
         .map(TeamRole::getWuaId)
         .distinct()
@@ -65,27 +72,35 @@ public class TeamMemberQueryService {
     var memberWuaIdInts = memberWuaIds.stream()
         .map(Math::toIntExact)
         .toList();
-    var epaUsers = userApi.searchUsersByIds(memberWuaIdInts, userProjection,
-        new RequestPurpose("Fetch users in team"));
+
+    var epaUsers = userApi.searchUsersByIds(memberWuaIdInts, userProjection, new RequestPurpose("Fetch users in team"));
 
     return memberWuaIds.stream()
-        .map(wuaId -> {
+        .flatMap(wuaId -> {
           var epaUser = epaUsers.stream()
               .filter(u -> u.getWebUserAccountId().equals(Math.toIntExact(wuaId)))
               .findFirst()
               .orElseThrow(() -> new TeamManagementException("WuaId %s not found in EPA user set".formatted(wuaId)));
 
-          List<Role> userRoles = teamRoles.stream()
+          Map<Team, Set<Role>> teamRoleMap = teamRoles.stream()
               .filter(teamRole -> teamRole.getWuaId().equals(wuaId))
-              .map(TeamRole::getRole)
+              .collect(Collectors.groupingBy(TeamRole::getTeam, Collectors.mapping(TeamRole::getRole, Collectors.toSet())));
+
+          List<TeamMemberView> teamMemberViews = teamRoleMap.entrySet().stream()
+              .map(teamRolesEntry -> {
+                var team = teamRolesEntry.getKey();
+                var userRoles = teamRolesEntry.getValue();
+
+                List<Role> orderedUserRoles = team.getTeamType().getAllowedRoles()
+                    .stream()
+                    .filter(userRoles::contains)
+                    .toList();
+
+                return TeamMemberView.fromEpaUser(epaUser, team.getId(), orderedUserRoles);
+              })
               .toList();
 
-          List<Role> orderedUserRoles = team.getTeamType().getAllowedRoles()
-              .stream()
-              .filter(userRoles::contains)
-              .toList();
-
-          return TeamMemberView.fromEpaUser(epaUser, team.getId(), orderedUserRoles);
+          return teamMemberViews.stream();
         })
         .sorted(Comparator.comparing(TeamMemberView::forename).thenComparing(TeamMemberView::surname))
         .toList();

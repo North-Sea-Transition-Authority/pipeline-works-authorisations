@@ -62,7 +62,7 @@ public class TestHarnessJobCreationService {
     jobDetail.getJobDataMap().put("applicationStatus", form.getApplicationStatus());
     jobDetail.getJobDataMap().put("pipelineQuantity", form.getPipelineQuantity());
     jobDetail.getJobDataMap().put("assignedCaseOfficerId", form.getAssignedCaseOfficerId());
-    jobDetail.getJobDataMap().put("applicantPersonId", form.getApplicantPersonId());
+    jobDetail.getJobDataMap().put("applicantPersonId", form.getApplicantWuaId());
     jobDetail.getJobDataMap().put("resourceType", form.getResourceType());
   }
 

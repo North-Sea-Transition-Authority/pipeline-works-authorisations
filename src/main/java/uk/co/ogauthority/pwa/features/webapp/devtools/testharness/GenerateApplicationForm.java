@@ -10,7 +10,7 @@ public class GenerateApplicationForm {
   private Integer pipelineQuantity;
   private PwaApplicationStatus applicationStatus;
   private Integer assignedCaseOfficerId;
-  private Integer applicantPersonId;
+  private Integer applicantWuaId;
 
   private PwaResourceType resourceType;
 
@@ -46,12 +46,12 @@ public class GenerateApplicationForm {
     this.assignedCaseOfficerId = assignedCaseOfficerId;
   }
 
-  public Integer getApplicantPersonId() {
-    return applicantPersonId;
+  public Integer getApplicantWuaId() {
+    return applicantWuaId;
   }
 
-  public void setApplicantPersonId(Integer applicantPersonId) {
-    this.applicantPersonId = applicantPersonId;
+  public void setApplicantWuaId(Integer applicantWuaId) {
+    this.applicantWuaId = applicantWuaId;
   }
 
   public PwaResourceType getResourceType() {

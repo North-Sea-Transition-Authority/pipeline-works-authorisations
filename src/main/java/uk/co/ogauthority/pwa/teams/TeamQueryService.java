@@ -156,4 +156,13 @@ public class TeamQueryService {
     assertTeamTypeIsScoped(teamType);
     return teamRepository.findAllByTeamTypeAndScopeTypeAndScopeIdIn(teamType, teamType.getScopeType(), scopeIds);
   }
+
+  public List<TeamMemberView> getMembersOfTeamTypeWithRoleIn(TeamType teamType, Collection<Role> roles) {
+    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
+        .stream()
+        .filter(teamRole -> roles.contains(teamRole.getRole()))
+        .toList();
+
+    return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
+  }
 }

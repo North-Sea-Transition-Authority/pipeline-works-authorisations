@@ -188,6 +188,126 @@ class TeamMemberQueryServiceTest {
   }
 
   @Test
+  void getTeamMemberViewsByTeamRoles() {
+    var teamA = new Team(UUID.randomUUID());
+    teamA.setTeamType(TeamType.ORGANISATION);
+
+    var teamB = new Team(UUID.randomUUID());
+    teamB.setTeamType(TeamType.ORGANISATION);
+
+    var teamC = new Team(UUID.randomUUID());
+    teamC.setTeamType(TeamType.REGULATOR);
+
+    var teamRole1 = new TeamRole(UUID.randomUUID());
+    teamRole1.setWuaId(1L);
+    teamRole1.setTeam(teamA);
+    teamRole1.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole2 = new TeamRole(UUID.randomUUID());
+    teamRole2.setWuaId(1L);
+    teamRole2.setTeam(teamC);
+    teamRole2.setRole(Role.PWA_MANAGER);
+
+    var teamRole3 = new TeamRole(UUID.randomUUID());
+    teamRole3.setWuaId(2L);
+    teamRole3.setTeam(teamB);
+    teamRole3.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole4 = new TeamRole(UUID.randomUUID());
+    teamRole4.setWuaId(2L);
+    teamRole4.setTeam(teamC);
+    teamRole4.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole5 = new TeamRole(UUID.randomUUID());
+    teamRole5.setWuaId(2L);
+    teamRole5.setTeam(teamC);
+    teamRole5.setRole(Role.ORGANISATION_MANAGER);
+
+    var expectedProjection = new UsersProjectionRoot()
+        .webUserAccountId()
+        .title()
+        .forename()
+        .surname()
+        .primaryEmailAddress()
+        .telephoneNumber();
+
+    var user1 = new User();
+    user1.setWebUserAccountId(1);
+    user1.setTitle("Ms");
+    user1.setForename("Test");
+    user1.setSurname("User");
+    user1.setPrimaryEmailAddress("test@example.com");
+    user1.setTelephoneNumber("0123456789");
+
+    var user2 = new User();
+    user2.setWebUserAccountId(2);
+    user2.setTitle("Mr");
+    user2.setForename("Example");
+    user2.setSurname("User");
+    user2.setPrimaryEmailAddress("example@example.com");
+    user2.setTelephoneNumber("9876543210");
+
+    when(userApi.searchUsersByIds(eq(List.of(1, 2)), refEq(expectedProjection), any(RequestPurpose.class)))
+        .thenReturn(List.of(user1, user2));
+
+    var result = teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(teamRole1, teamRole2, teamRole3, teamRole4, teamRole5));
+
+    assertThat(result)
+        .extracting(
+            TeamMemberView::wuaId,
+            TeamMemberView::title,
+            TeamMemberView::forename,
+            TeamMemberView::surname,
+            TeamMemberView::email,
+            TeamMemberView::telNo,
+            TeamMemberView::teamId,
+            TeamMemberView::roles
+        )
+        .containsExactlyInAnyOrder(
+            tuple(
+                Long.valueOf(user1.getWebUserAccountId()),
+                user1.getTitle(),
+                user1.getForename(),
+                user1.getSurname(),
+                user1.getPrimaryEmailAddress(),
+                user1.getTelephoneNumber(),
+                teamA.getId(),
+                List.of(Role.TEAM_ADMINISTRATOR)
+            ),
+            tuple(
+                Long.valueOf(user1.getWebUserAccountId()),
+                user1.getTitle(),
+                user1.getForename(),
+                user1.getSurname(),
+                user1.getPrimaryEmailAddress(),
+                user1.getTelephoneNumber(),
+                teamC.getId(),
+                List.of(Role.PWA_MANAGER)
+            ),
+            tuple(
+                Long.valueOf(user2.getWebUserAccountId()),
+                user2.getTitle(),
+                user2.getForename(),
+                user2.getSurname(),
+                user2.getPrimaryEmailAddress(),
+                user2.getTelephoneNumber(),
+                teamB.getId(),
+                List.of(Role.TEAM_ADMINISTRATOR)
+            ),
+            tuple(
+                Long.valueOf(user2.getWebUserAccountId()),
+                user2.getTitle(),
+                user2.getForename(),
+                user2.getSurname(),
+                user2.getPrimaryEmailAddress(),
+                user2.getTelephoneNumber(),
+                teamC.getId(),
+                List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)
+            )
+        );
+  }
+
+  @Test
   void getTeamMemberViewsByTeamAndRole() {
     var role = regTeamUser1RoleManage.getRole();
     var teamMember = TeamMemberView.fromEpaUser(user1, regTeam.getId(), List.of(role));

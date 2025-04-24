@@ -23,13 +23,13 @@ import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.GenerateVariat
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.TestHarnessService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.TestHarnessUserRetrievalService;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.quartzjob.TestHarnessJobCreationService;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.util.RouteUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
@@ -88,7 +88,7 @@ public class TestHarnessController {
                 form.getPipelineQuantity(),
                 form.getApplicationStatus().name(),
                 form.getAssignedCaseOfficerId(),
-                form.getApplicantPersonId(),
+                form.getApplicantWuaId(),
                 form.getResourceType().name(),
                 null));
           }
@@ -109,11 +109,10 @@ public class TestHarnessController {
     var applicationStatusMap = TestHarnessService.getTestHarnessAppStatuses().stream()
         .collect(StreamUtils.toLinkedHashMap(Enum::name, PwaApplicationStatus::getDisplayName));
 
-    var caseOfficerCandidates = pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER)
+    var caseOfficerCandidates = pwaTeamService.getTeamMembersWithRegulatorRole(Role.CASE_OFFICER)
         .stream()
-        .sorted(Comparator.comparing(Person::getFullName))
-        .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-            Person::getFullName));
+        .sorted(Comparator.comparing(TeamMemberView::getFullName))
+        .collect(StreamUtils.toLinkedHashMap(member -> String.valueOf(member.wuaId()), TeamMemberView::getFullName));
 
     var appTypesForPipelines = TestHarnessService.getAppTypesForPipelines()
         .stream().map(PwaApplicationType::getDisplayName).collect(Collectors.joining(", "));
@@ -159,7 +158,7 @@ public class TestHarnessController {
 
   private ModelAndView getSelectPwaModelAndView(GenerateVariationApplicationForm form) {
 
-    var user = testHarnessUserRetrievalService.getWebUserAccount(form.getApplicantPersonId());
+    var user = testHarnessUserRetrievalService.getWebUserAccount(form.getApplicantWuaId());
     var pickableOptions = pickedPwaRetrievalService.getPickablePwaOptions(user, PwaResourceType.PETROLEUM);
     var showNonConsentedOptions = !pickableOptions.getNonconsentedPickablePwas().isEmpty()
         && PwaApplicationType.DEPOSIT_CONSENT.equals(form.getApplicationType());

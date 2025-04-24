@@ -2,10 +2,8 @@ package uk.co.ogauthority.pwa.features.webapp.devtools.testharness;
 
 import jakarta.transaction.Transactional;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,15 +14,14 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.applicationstage.TestHarnessApplicationStageService;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamMemberDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
@@ -51,6 +48,7 @@ public class TestHarnessService {
 
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestHarnessService.class);
+  private final TeamQueryService teamQueryService;
 
 
   @Autowired
@@ -61,7 +59,7 @@ public class TestHarnessService {
       PersonService personService,
       GenerateApplicationService generateApplicationService,
       TestHarnessApplicationStageService testHarnessApplicationStageService,
-      TestHarnessUserRetrievalService testHarnessUserRetrievalService) {
+      TestHarnessUserRetrievalService testHarnessUserRetrievalService, TeamQueryService teamQueryService) {
     this.generateApplicationValidator = generateApplicationValidator;
     this.generateVariationApplicationValidator = generateVariationApplicationValidator;
     this.portalTeamAccessor = portalTeamAccessor;
@@ -69,6 +67,7 @@ public class TestHarnessService {
     this.generateApplicationService = generateApplicationService;
     this.testHarnessApplicationStageService = testHarnessApplicationStageService;
     this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;
+    this.teamQueryService = teamQueryService;
   }
 
   @Transactional
@@ -78,13 +77,13 @@ public class TestHarnessService {
                                     PwaApplicationStatus targetAppStatus,
                                     Integer pipelineQuantity,
                                     Integer assignedCaseOfficerId,
-                                    Integer applicantPersonId,
+                                    Integer applicantWuaId,
                                     PwaResourceType resourceType) {
 
 
     LOGGER.info("Starting application generation");
 
-    var applicantUser = testHarnessUserRetrievalService.getWebUserAccount(applicantPersonId);
+    var applicantUser = testHarnessUserRetrievalService.getWebUserAccount(applicantWuaId);
     PwaApplicationDetail pwaApplicationDetail;
 
     switch (applicationType) {
@@ -117,23 +116,10 @@ public class TestHarnessService {
   }
 
 
-
-
   public Map<String, String> getApplicantsSelectorMap() {
 
-    var orgTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
-        PwaTeamType.ORGANISATION.getPortalTeamType(),
-        List.of(PwaOrganisationRole.APPLICATION_CREATOR.getPortalTeamRoleName()));
-    var resIds = orgTeams.stream().map(PortalTeamDto::getResId).collect(Collectors.toList());
-
-    var portalTeamMembers = portalTeamAccessor.getPortalTeamMembers(resIds)
-        .stream()
-        .map(PortalTeamMemberDto::getPersonId)
-        .collect(Collectors.toList());
-
-    return personService.findAllByIdIn(portalTeamMembers).stream()
-        .collect(StreamUtils.toLinkedHashMap(person -> String.valueOf(person.getId().asInt()),
-            Person::getFullName));
+    return teamQueryService.getMembersOfTeamTypeWithRoleIn(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR)).stream()
+        .collect(StreamUtils.toLinkedHashMap(member -> String.valueOf(member.wuaId()), TeamMemberView::getFullName));
   }
 
 
