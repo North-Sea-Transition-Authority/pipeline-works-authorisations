@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.SetUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,6 @@ import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
-import uk.co.ogauthority.pwa.util.StreamUtils;
 
 @Service
 @Profile("test-harness")
@@ -119,7 +119,11 @@ public class TestHarnessService {
   public Map<String, String> getApplicantsSelectorMap() {
 
     return teamQueryService.getMembersOfTeamTypeWithRoleIn(TeamType.ORGANISATION, Set.of(Role.APPLICATION_CREATOR)).stream()
-        .collect(StreamUtils.toLinkedHashMap(member -> String.valueOf(member.wuaId()), TeamMemberView::getFullName));
+        .collect(Collectors.toMap(
+            (TeamMemberView teamMemberView) -> teamMemberView.wuaId().toString(),
+            TeamMemberView::getDisplayName,
+            (existing, replacement) -> existing // keep existing entry if a duplicate is found
+        ));
   }
 
 

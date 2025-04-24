@@ -136,7 +136,7 @@ public class TestHarnessController {
                                       @RequestParam Integer pipelineQuantity,
                                       @RequestParam String applicationStatus,
                                       @RequestParam Integer assignedCaseOfficerId,
-                                      @RequestParam Integer applicantPersonId,
+                                      @RequestParam Integer applicantWuaId,
                                       @RequestParam String resourceType,
                                       @ModelAttribute("form") GenerateVariationApplicationForm form) {
     return getSelectPwaModelAndView(form);

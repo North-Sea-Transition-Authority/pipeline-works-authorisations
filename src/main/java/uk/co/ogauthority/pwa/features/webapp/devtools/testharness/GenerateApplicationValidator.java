@@ -43,8 +43,8 @@ public class GenerateApplicationValidator implements SmartValidator {
           "assignedCaseOfficerId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select a case officer");
     }
 
-    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "applicantPersonId",
-        "applicantPersonId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select an applicant");
+    ValidationUtils.rejectIfEmptyOrWhitespace(errors, "applicantWuaId",
+        "applicantWuaId" + FieldValidationErrorCodes.REQUIRED.getCode(), "Select an applicant");
   }
 
 

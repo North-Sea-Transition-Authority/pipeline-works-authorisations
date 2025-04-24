@@ -49,7 +49,7 @@ class TestHarnessBean extends QuartzJobBean {
           (PwaApplicationStatus) jobDataMap.get("applicationStatus"),
           (Integer) jobDataMap.get("pipelineQuantity"),
           (Integer) jobDataMap.get("assignedCaseOfficerId"),
-          (Integer) jobDataMap.get("applicantPersonId"),
+          (Integer) jobDataMap.get("applicantWuaId"),
           (PwaResourceType) jobDataMap.get("resourceType"));
     } catch (Exception e) {
       throw new JobExecutionException(e);

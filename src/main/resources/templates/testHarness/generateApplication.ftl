@@ -27,7 +27,7 @@
 
         <@fdsSearchSelector.searchSelectorEnhanced path="form.assignedCaseOfficerId" options=caseOfficerCandidates labelText="Select a case officer" hintText="Only required for: ${appStatusesForCaseOfficer}" />
 
-        <@fdsSearchSelector.searchSelectorEnhanced path="form.applicantPersonId" options=applicantUsersMap labelText="Select an applicant" />
+        <@fdsSearchSelector.searchSelectorEnhanced path="form.applicantWuaId" options=applicantUsersMap labelText="Select an applicant" />
 
 
         <@fdsAction.submitButtons primaryButtonText="Generate application" linkSecondaryAction=true secondaryLinkText="Cancel" linkSecondaryActionUrl=springUrl(cancelUrl)/>
