@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
@@ -70,12 +71,14 @@ public class TechnicalDrawingSectionService implements ApplicationFormSectionSer
   public BindingResult validate(Object form, BindingResult bindingResult, ValidationType validationType,
                                 PwaApplicationDetail pwaApplicationDetail) {
     var admiraltyForm = new AdmiraltyChartDocumentForm();
+    var admiraltyFormBindingResult = new BeanPropertyBindingResult(admiraltyForm, "admiraltyChartDocumentForm");
+
     if (admiraltyChartFileService.canUploadDocuments(pwaApplicationDetail)) {
       padFileManagementService.mapFilesToForm(admiraltyForm, pwaApplicationDetail, FileDocumentType.ADMIRALTY_CHART);
-      admiraltyChartFileService.validate(admiraltyForm, bindingResult, validationType, pwaApplicationDetail);
+      admiraltyChartFileService.validate(admiraltyForm, admiraltyFormBindingResult, validationType, pwaApplicationDetail);
     }
-    padTechnicalDrawingService.validateSection(bindingResult, pwaApplicationDetail);
-    return bindingResult;
+    padTechnicalDrawingService.validateSection(admiraltyFormBindingResult, pwaApplicationDetail);
+    return admiraltyFormBindingResult;
   }
 
   public TechnicalDrawingsSectionValidationSummary getValidationSummary(BindingResult bindingResult) {

@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -75,7 +76,7 @@ class TechnicalDrawingSectionServiceTest {
 
     when(admiraltyChartFileService.canUploadDocuments(detail)).thenReturn(false);
     technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-    verify(padTechnicalDrawingService, times(1)).validateSection(bindingResult, detail);
+    verify(padTechnicalDrawingService, times(1)).validateSection(any(BindingResult.class), eq(detail));
     verify(admiraltyChartFileService, never()).validate(any(), any(), any(), any());
   }
 
@@ -86,8 +87,8 @@ class TechnicalDrawingSectionServiceTest {
 
     when(admiraltyChartFileService.canUploadDocuments(detail)).thenReturn(true);
     technicalDrawingSectionService.validate(form, bindingResult, ValidationType.FULL, detail);
-    verify(padTechnicalDrawingService, times(1)).validateSection(bindingResult, detail);
-    verify(admiraltyChartFileService, times(1)).validate(any(), eq(bindingResult), eq(ValidationType.FULL), eq(detail));
+    verify(padTechnicalDrawingService, times(1)).validateSection(any(BindingResult.class), eq(detail));
+    verify(admiraltyChartFileService, times(1)).validate(any(), any(BindingResult.class), eq(ValidationType.FULL), eq(detail));
   }
 
   @Test
