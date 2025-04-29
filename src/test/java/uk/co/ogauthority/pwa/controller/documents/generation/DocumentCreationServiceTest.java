@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
@@ -56,6 +57,7 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @ExtendWith(MockitoExtension.class)
 class DocumentCreationServiceTest {
 
+  public static final String DIV_CLASS_PAGE_BREAK = "<div class='page-break'/>";
   @Mock
   private ApplicationContext springApplicationContext;
 
@@ -176,6 +178,8 @@ class DocumentCreationServiceTest {
     var documentSectionGenerator = documentSectionGeneratorFunction.apply(docGenType);
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
+    when(templateRenderingService.getRenderedTemplate("documents/consents/fragments/pageBreak.ftl", Map.of()))
+        .thenReturn(DIV_CLASS_PAGE_BREAK);
 
     documentCreationService.createConsentDocument(docgenRun);
 
@@ -213,6 +217,7 @@ class DocumentCreationServiceTest {
   void nbspSuccessfulGeneration() {
     Map<String, Object> dataMap = Map.of("testing", "test\u00A0ing");
     when(templateRenderingService.render(anyString(), eq(dataMap), anyBoolean())).thenReturn("test\u00A0ing");
+
     testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef(), docGenType -> {
       var documentSectionGenerator = mock(DocumentSectionGenerator.class);
       when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
@@ -225,6 +230,32 @@ class DocumentCreationServiceTest {
 
     var sectionHtml = (String) captor.getValue().get("sectionHtml");
     assertThat(sectionHtml).doesNotContain("\u00A0");
+  }
+
+  @Test
+  public void pageBreakSuccessfulGeneration() {
+    Map<String, Object> dataMap = Map.of("testing", "testing");
+    when(templateRenderingService.render(anyString(), eq(dataMap), anyBoolean())).thenReturn(MailMergeFieldMnem.PAGE_BREAK.asMailMergeTag()+"testing");
+
+    testAndAssertGeneration(
+        DocGenType.PREVIEW,
+        true,
+        pwaApplicationDetail.getPwaApplicationRef(),
+        docGenType -> {
+          var documentSectionGenerator = mock(DocumentSectionGenerator.class);
+          when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
+              .thenReturn(new DocumentSectionData("TEMPLATE", dataMap));
+          return documentSectionGenerator;
+        }
+    );
+
+    var captor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderingService).render(eq("documents/consents/consentDocument.ftl"), captor.capture(), anyBoolean());
+
+    var sectionHtml = (String) captor.getValue().get("sectionHtml");
+    assertThat(sectionHtml)
+        .doesNotContain(MailMergeFieldMnem.PAGE_BREAK.asMailMergeTag())
+        .contains("testing" + DIV_CLASS_PAGE_BREAK + "testing");
   }
 
 }

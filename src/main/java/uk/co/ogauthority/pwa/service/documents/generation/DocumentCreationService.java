@@ -21,6 +21,7 @@ import uk.co.ogauthority.pwa.model.entity.documents.instances.DocumentInstance;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.repository.docgen.DocgenRunSectionDataRepository;
@@ -135,8 +136,11 @@ public class DocumentCreationService {
         .map(PwaConsent::getReference)
         .orElse(latestSubmittedDetail.getPwaApplicationRef());
 
-    var htmlString = combinedHtmlStringBuilder.toString();
-    htmlString = htmlString.replace(NON_BREAKING_SPACE_CHAR, " ");
+    var pageBreakHtml = templateRenderingService.getRenderedTemplate("documents/consents/fragments/pageBreak.ftl", Map.of());
+
+    var htmlString = combinedHtmlStringBuilder.toString()
+        .replace(NON_BREAKING_SPACE_CHAR, " ")
+        .replace(MailMergeFieldMnem.PAGE_BREAK.asMailMergeTag(), pageBreakHtml);
 
     // render the main consent doc template using the joined-up section html as the 'data'
     Map<String, Object> docModelAndView = Map.of(

@@ -6,6 +6,9 @@ CVE-2025-22223
 # org.springframework.security:spring-security-crypto
 CVE-2025-22228
 
+# org.springframework.security:spring-security-crypto
+CVE-2025-22228
+
 # io.netty:netty-common
 CVE-2024-47535
 
@@ -20,19 +23,6 @@ CVE-2024-12801
 CVE-2024-50379
 CVE-2024-56337
 CVE-2025-24813
-
-# org.bouncycastle:bcprov-jdk18on/bcpkix-jdk18on
-CVE-2023-33201
-CVE-2023-33202
-CVE-2024-29857
-CVE-2024-30171
-CVE-2024-34447
-
-# com.google.protobuf:protobuf-java
-CVE-2024-7254
-
-# net.minidev:json-smart
-CVE-2024-57699
 
 # io.netty:netty-common
 CVE-2025-25193

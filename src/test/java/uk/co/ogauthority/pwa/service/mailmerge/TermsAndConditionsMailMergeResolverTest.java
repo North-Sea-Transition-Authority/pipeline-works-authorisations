@@ -15,7 +15,6 @@ import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditi
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @ExtendWith(MockitoExtension.class)
 class TermsAndConditionsMailMergeResolverTest {

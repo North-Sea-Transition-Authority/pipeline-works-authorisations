@@ -6,7 +6,7 @@
 
   <#list docView.sections as section>
     <#list section.clauses as clauseView>
-      <ul class="no-bullet">
+      <ul class="digital-signature">
         <@pwaClauseList.clause clauseView=clauseView clauseActionsUrlProvider="" listClass="" isLastInList=false addAndRemoveClauseAllowed=false showClauseHeading=false/>
       </ul>
     </#list>

@@ -34,15 +34,16 @@ public class TemplateRenderingService {
       HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
       viewModel.put("springMacroRequestContext", new RequestContext(request, null, null, null));
     }
-    String renderedTemplate;
+    return getRenderedTemplate(template, viewModel);
+  }
+
+  public String getRenderedTemplate(String template, Map<String, Object> viewModel) {
     try {
       Template t = freemarkerConfig.getTemplate(template, Locale.ENGLISH);
-      renderedTemplate = FreeMarkerTemplateUtils.processTemplateIntoString(t, viewModel);
-      return renderedTemplate;
+      return FreeMarkerTemplateUtils.processTemplateIntoString(t, viewModel);
     } catch (IOException | TemplateException e) {
       throw new TemplateRenderingException("Could not render template: " + template, e);
     }
   }
-
 
 }

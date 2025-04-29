@@ -201,10 +201,12 @@
       margin-top: 15px;
     }
 
-    .no-bullet {
+    .digital-signature {
       list-style: none;
       padding: 0;
       margin: 0;
+      min-height: 55px;
+      page-break-inside: avoid;
     }
 
     .multi-line-text {
@@ -239,6 +241,10 @@
 
     .full-width {
       width: 1000px;
+    }
+
+    .page-break {
+      page-break-after: always;
     }
 
   </style>

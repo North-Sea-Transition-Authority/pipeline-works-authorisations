@@ -1,6 +1,6 @@
 package uk.co.ogauthority.pwa.service.mailmerge;
 
-import static uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem.DIGITAL_SIGNATURE;
+import static uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem.PAGE_BREAK;
 
 import java.util.List;
 import java.util.Map;
@@ -13,10 +13,10 @@ import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
 
 @Service
-public class SignaturePlaceholderMailMergeResolver implements DocumentSourceMailMergeResolver {
+public class PageBreakMailMergeResolver implements DocumentSourceMailMergeResolver {
 
   private final Set<Class<? extends DocumentSource>> supportedClasses = Set.of(PwaApplication.class, TemplateDocumentSource.class);
-  private final List<MailMergeFieldMnem> mmFields = List.of(DIGITAL_SIGNATURE);
+  private final List<MailMergeFieldMnem> mmFields = List.of(PAGE_BREAK);
 
   @Override
   public boolean supportsDocumentSource(DocumentSource documentSource) {
@@ -31,6 +31,6 @@ public class SignaturePlaceholderMailMergeResolver implements DocumentSourceMail
   @Override
   public Map<String, String> resolveMergeFields(DocumentSource documentSource) {
     return mmFields.stream()
-        .collect(Collectors.toMap(Enum::name, MailMergeFieldMnem::asMailMergeTag));
+        .collect(Collectors.toMap(MailMergeFieldMnem::name, MailMergeFieldMnem::asMailMergeTag));
   }
 }
