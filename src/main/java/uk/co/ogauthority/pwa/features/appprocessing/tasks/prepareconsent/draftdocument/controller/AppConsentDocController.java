@@ -2,11 +2,14 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftd
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -20,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -42,6 +47,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddoc
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.PreSendForApprovalChecksView;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.SendConsentForApprovalForm;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatusResult;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.DocumentTemplateMnem;
@@ -58,7 +65,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.markdown.MarkdownService;
 import uk.co.ogauthority.pwa.service.template.TemplateTextService;
-import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 import uk.co.ogauthority.pwa.util.FlashUtils;
 import uk.co.ogauthority.pwa.util.converters.ApplicationTypeUrl;
 
@@ -79,6 +85,8 @@ public class AppConsentDocController {
   private final MarkdownService markdownService;
   private final ConsentFileViewerService consentFileViewerService;
   private final AnalyticsService analyticsService;
+  private final FileService fileService;
+  private final AppFileManagementService appFileManagementService;
 
   @Autowired
   public AppConsentDocController(AppProcessingBreadcrumbService breadcrumbService,
@@ -92,7 +100,10 @@ public class AppConsentDocController {
                                  DocgenService docgenService,
                                  MarkdownService markdownService,
                                  ConsentFileViewerService consentFileViewerService,
-                                 AnalyticsService analyticsService) {
+                                 AnalyticsService analyticsService,
+                                 FileService fileService,
+                                 AppFileManagementService appFileManagementService
+  ) {
     this.breadcrumbService = breadcrumbService;
     this.documentService = documentService;
     this.prepareConsentTaskService = prepareConsentTaskService;
@@ -105,6 +116,8 @@ public class AppConsentDocController {
     this.markdownService = markdownService;
     this.consentFileViewerService = consentFileViewerService;
     this.analyticsService = analyticsService;
+    this.fileService = fileService;
+    this.appFileManagementService = appFileManagementService;
   }
 
   @GetMapping
@@ -258,36 +271,25 @@ public class AppConsentDocController {
   @GetMapping("/download/{docgenRunId}")
   @ResponseBody
   @PwaApplicationStatusCheck(statuses = { PwaApplicationStatus.CASE_OFFICER_REVIEW, PwaApplicationStatus.CONSENT_REVIEW})
-  public ResponseEntity<Resource> downloadPdf(@PathVariable("applicationId") Integer applicationId,
-                                              @PathVariable("applicationType")
-                                              @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
-                                              @PathVariable Long docgenRunId,
-                                              PwaAppProcessingContext processingContext,
-                                              AuthenticatedUserAccount authenticatedUserAccount) {
+  public ResponseEntity<InputStreamResource> downloadPdf(@PathVariable("applicationId") Integer applicationId,
+                                                         @PathVariable("applicationType")
+                                                         @ApplicationTypeUrl PwaApplicationType pwaApplicationType,
+                                                         @PathVariable Long docgenRunId,
+                                                         PwaAppProcessingContext processingContext,
+                                                         AuthenticatedUserAccount authenticatedUserAccount) {
+    var docgenRun = docgenService.getDocgenRun(docgenRunId);
 
-    return resourceWhenPrepareConsentAvailable(
-        processingContext,
-        () -> {
+    checkDocgenRunAccessible(docgenRun, processingContext);
 
-          try {
+    var files = appFileManagementService.getUploadedFiles(processingContext.getPwaApplication(), FileDocumentType.CONSENT_PREVIEW).stream()
+        .sorted(Comparator.comparing(UploadedFile::getUploadedAt).reversed())
+        .toList();
 
-            var docgenRun = docgenService.getDocgenRun(docgenRunId);
+    if (files.isEmpty()) {
+      throw new ResourceNotFoundException("No consent preview found for application: " + applicationId);
+    }
 
-            checkDocgenRunAccessible(docgenRun, processingContext);
-
-            var blob = docgenService.getDocgenRun(docgenRunId).getGeneratedDocument();
-
-            var inputStream = blob.getBinaryStream();
-
-            String filename = processingContext.getPwaApplication().getAppReference().replace("/", "-") + " consent preview.pdf";
-            return FileDownloadUtils.getResourceResponseEntity(blob, inputStream, filename);
-
-          } catch (Exception e) {
-            throw new RuntimeException("Error serving document", e);
-          }
-
-        });
-
+    return fileService.download(files.getFirst());
   }
 
   @PostMapping

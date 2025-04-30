@@ -1,12 +1,10 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
 import com.google.common.annotations.VisibleForTesting;
-import java.sql.Blob;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
-import javax.sql.rowset.serial.SerialBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +70,7 @@ public class DocumentCreationService {
     this.documentSigningService = documentSigningService;
   }
 
-  public Blob createConsentDocument(DocgenRun docgenRun) {
+  public ByteArrayResource createConsentDocument(DocgenRun docgenRun) {
 
     var documentInstance = docgenRun.getDocumentInstance();
     var docGenType = docgenRun.getDocGenType();
@@ -159,7 +157,7 @@ public class DocumentCreationService {
   }
 
   @VisibleForTesting
-  SerialBlob signPdf(boolean isPreview, ByteArrayResource unsignedPdf, Person user) {
+  ByteArrayResource signPdf(boolean isPreview, ByteArrayResource unsignedPdf, Person user) {
     if (isPreview) {
       return documentSigningService.previewPdfSignature(unsignedPdf);
     } else {

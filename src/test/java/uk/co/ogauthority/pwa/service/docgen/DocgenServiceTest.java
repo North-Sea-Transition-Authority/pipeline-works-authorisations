@@ -5,14 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.quartz.JobKey.jobKey;
 
-import java.sql.SQLException;
 import java.util.Optional;
-import javax.sql.rowset.serial.SerialBlob;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +22,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
+import org.springframework.core.io.ByteArrayResource;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileSource;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
@@ -44,6 +50,12 @@ class DocgenServiceTest {
 
   @Mock
   private DocumentCreationService documentCreationService;
+  
+  @Mock
+  private FileService fileService;
+  
+  @Mock
+  private AppFileManagementService appFileManagementService;
 
   private DocgenService docgenService;
 
@@ -53,15 +65,24 @@ class DocgenServiceTest {
   @Captor
   private ArgumentCaptor<JobDetail> jobDetailCaptor;
 
+  @Captor
+  private ArgumentCaptor<UploadedFileForm> uploadedFileCaptor;
+
   private final Person person = PersonTestUtil.createDefaultPerson();
   private DocumentInstance documentInstance;
-
+  private PwaApplication application;
+  
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
-    docgenService = new DocgenService(scheduler, docgenRunRepository, documentCreationService);
+    docgenService = new DocgenService(scheduler, docgenRunRepository, documentCreationService, appFileManagementService, fileService);
 
+    application = new PwaApplication();
+    application.setAppReference("app reference");
+    application.setConsentReference("consent reference");
+    
     documentInstance = new DocumentInstance();
+    documentInstance.setPwaApplication(application);
 
   }
 
@@ -76,7 +97,7 @@ class DocgenServiceTest {
 
     docgenService.scheduleDocumentGeneration(run);
 
-    verify(scheduler, times(1)).addJob(jobDetailCaptor.capture(), eq(false));
+    verify(scheduler).addJob(jobDetailCaptor.capture(), eq(false));
 
     assertThat(jobDetailCaptor.getValue()).satisfies(jobDetail -> {
       assertThat(jobDetail.getKey()).isEqualTo(jobKey(String.valueOf(run.getId()), "DocGen"));
@@ -86,7 +107,7 @@ class DocgenServiceTest {
 
     var jobDetail = jobDetailCaptor.getValue();
 
-    verify(scheduler, times(1)).triggerJob(jobDetail.getKey());
+    verify(scheduler).triggerJob(jobDetail.getKey());
 
   }
 
@@ -95,7 +116,7 @@ class DocgenServiceTest {
 
     docgenService.createDocgenRun(documentInstance, DocGenType.FULL, person);
 
-    verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
+    verify(docgenRunRepository).save(docgenRunCaptor.capture());
 
     assertThat(docgenRunCaptor.getValue()).satisfies(run -> {
       assertThat(run.getDocumentInstance()).isEqualTo(documentInstance);
@@ -150,31 +171,83 @@ class DocgenServiceTest {
   }
 
   @Test
-  void processDocgenRun_complete() throws SQLException {
+  void processDocgenRun_complete_full() {
 
     var run = new DocgenRun();
     run.setDocGenType(DocGenType.FULL);
-    var docInstance = new DocumentInstance();
-    run.setDocumentInstance(docInstance);
-
-    var blob = new SerialBlob(new byte[1]);
+    run.setDocumentInstance(documentInstance);
+    var byteArrayResource = new ByteArrayResource(new byte[1]);
 
     when(documentCreationService.createConsentDocument(run))
-        .thenReturn(blob);
+        .thenReturn(byteArrayResource);
+
+    var response = FileUploadResponse.success(UUID.randomUUID(), mock(FileSource.class));
+
+    when(fileService.upload(any())).thenReturn(response);
 
     docgenService.processDocgenRun(run);
 
-    verify(documentCreationService, times(1))
+    verify(documentCreationService)
         .createConsentDocument(run);
 
-    verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
+    verify(docgenRunRepository).save(docgenRunCaptor.capture());
 
     assertThat(docgenRunCaptor.getValue()).satisfies(docgenRun -> {
-      assertThat(docgenRun.getGeneratedDocument()).isEqualTo(blob);
+      assertThat(docgenRun.getGeneratedDocument()).isNull();
       assertThat(docgenRun.getStatus()).isEqualTo(DocgenRunStatus.COMPLETE);
       assertThat(docgenRun.getCompletedOn()).isNotNull();
     });
 
+    verify(appFileManagementService).saveConsentDocument(
+        uploadedFileCaptor.capture(),
+        eq(run.getDocumentInstance().getPwaApplication()),
+        eq(run.getDocGenType())
+    );
+
+    assertThat(uploadedFileCaptor.getValue()).satisfies(uploadedFileForm -> {
+      assertThat(uploadedFileForm.getFileId()).isEqualTo(response.getFileId());
+      assertThat(uploadedFileForm.getFileName()).isEqualTo(DocgenService.FILENAME.formatted(application.getConsentReference()));
+    });
+  }
+
+  @Test
+  void processDocgenRun_complete_preview() {
+
+    var run = new DocgenRun();
+    run.setDocGenType(DocGenType.PREVIEW);
+    run.setDocumentInstance(documentInstance);
+    var byteArrayResource = new ByteArrayResource(new byte[1]);
+
+    when(documentCreationService.createConsentDocument(run))
+        .thenReturn(byteArrayResource);
+
+    var response = FileUploadResponse.success(UUID.randomUUID(), mock(FileSource.class));
+
+    when(fileService.upload(any())).thenReturn(response);
+
+    docgenService.processDocgenRun(run);
+
+    verify(documentCreationService)
+        .createConsentDocument(run);
+
+    verify(docgenRunRepository).save(docgenRunCaptor.capture());
+
+    assertThat(docgenRunCaptor.getValue()).satisfies(docgenRun -> {
+      assertThat(docgenRun.getGeneratedDocument()).isNull();
+      assertThat(docgenRun.getStatus()).isEqualTo(DocgenRunStatus.COMPLETE);
+      assertThat(docgenRun.getCompletedOn()).isNotNull();
+    });
+
+    verify(appFileManagementService).saveConsentDocument(
+        uploadedFileCaptor.capture(),
+        eq(run.getDocumentInstance().getPwaApplication()),
+        eq(run.getDocGenType())
+    );
+
+    assertThat(uploadedFileCaptor.getValue()).satisfies(uploadedFileForm -> {
+      assertThat(uploadedFileForm.getFileId()).isEqualTo(response.getFileId());
+      assertThat(uploadedFileForm.getFileName()).isEqualTo(DocgenService.PREVIEW_FILENAME.formatted(application.getAppReference()));
+    });
   }
 
   @Test
@@ -195,7 +268,7 @@ class DocgenServiceTest {
 
     assertThat(exceptionCaught).isTrue();
 
-    verify(docgenRunRepository, times(1)).save(docgenRunCaptor.capture());
+    verify(docgenRunRepository).save(docgenRunCaptor.capture());
 
     assertThat(docgenRunCaptor.getValue()).satisfies(docgenRun -> {
       assertThat(docgenRun.getGeneratedDocument()).isNull();

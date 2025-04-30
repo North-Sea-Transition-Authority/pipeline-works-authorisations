@@ -8,13 +8,13 @@ import static org.mockito.Mockito.when;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import javax.sql.rowset.serial.SerialException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import uk.co.fivium.ftss.client.FtssClient;
@@ -22,9 +22,8 @@ import uk.co.fivium.ftss.client.FtssSignerProperties;
 import uk.co.fivium.ftss.client.FtssVisualSignatureProperties;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
-import uk.co.ogauthority.pwa.util.documents.BlobUtils;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentSigningServiceTest {
 
   @Mock
@@ -69,7 +68,7 @@ public class DocumentSigningServiceTest {
         new ByteArrayResource(new ClassPathResource("signing/signature-placeholder-page1-top.pdf").getContentAsByteArray());
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     documentSigningService = new DocumentSigningService(ftssClient, digitalSignatureProperties);
   }
@@ -82,7 +81,7 @@ public class DocumentSigningServiceTest {
 
     var result = documentSigningService.previewPdfSignature(document);
 
-    assertThat(result.getBinaryStream().readAllBytes()).isEqualTo(BlobUtils.toSerialBlob(signedPdf).getBinaryStream().readAllBytes());
+    assertThat(result.getContentAsByteArray()).isEqualTo(signedPdf.getContentAsByteArray());
     assertThat(inputStreamCaptor.getValue().readAllBytes()).isEqualTo(document.getContentAsByteArray());
   }
 
@@ -94,7 +93,7 @@ public class DocumentSigningServiceTest {
 
     var result = documentSigningService.signPdf(document, signingUser.getLinkedPerson());
 
-    assertThat(result.getBinaryStream().readAllBytes()).isEqualTo(BlobUtils.toSerialBlob(signedPdf).getBinaryStream().readAllBytes());
+    assertThat(result.getContentAsByteArray()).isEqualTo(signedPdf.getContentAsByteArray());
     assertThat(inputStreamCaptor.getValue().readAllBytes()).isEqualTo(document.getContentAsByteArray());
   }
 }

@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.documents.signing;
 
-import javax.sql.rowset.serial.SerialBlob;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
@@ -8,7 +7,6 @@ import org.springframework.stereotype.Service;
 import uk.co.fivium.ftss.client.FtssClient;
 import uk.co.fivium.ftss.client.FtssVisualSignatureProperties;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.util.documents.BlobUtils;
 
 @Service
 public class DocumentSigningService {
@@ -24,7 +22,7 @@ public class DocumentSigningService {
     this.digitalSignatureProperties = digitalSignatureProperties;
   }
 
-  public SerialBlob previewPdfSignature(ByteArrayResource pdfResource) {
+  public ByteArrayResource previewPdfSignature(ByteArrayResource pdfResource) {
     var visualSignatureProperties = getVisualSignatureProperties(
         pdfResource,
         digitalSignatureProperties.line1(),
@@ -34,17 +32,15 @@ public class DocumentSigningService {
     var ftssSignerProperties = digitalSignatureProperties.asFtssSignerProperties();
 
     try {
-      var signedPdf = new ByteArrayResource(
+      return new ByteArrayResource(
           ftssClient.previewPdf(pdfResource.getInputStream(), ftssSignerProperties, visualSignatureProperties).readAllBytes()
       );
-
-      return BlobUtils.toSerialBlob(signedPdf);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to preview signature", e);
     }
   }
 
-  public SerialBlob signPdf(ByteArrayResource pdfResource, Person signingUser) {
+  public ByteArrayResource signPdf(ByteArrayResource pdfResource, Person signingUser) {
     var visualSignatureProperties = getVisualSignatureProperties(
         pdfResource,
         digitalSignatureProperties.line1(),
@@ -54,11 +50,9 @@ public class DocumentSigningService {
     var ftssSignerProperties = digitalSignatureProperties.asFtssSignerProperties();
 
     try {
-      var signedPdf = new ByteArrayResource(
+      return new ByteArrayResource(
           ftssClient.signPdf(pdfResource.getInputStream(), ftssSignerProperties, visualSignatureProperties).readAllBytes()
       );
-
-      return BlobUtils.toSerialBlob(signedPdf);
     } catch (Exception e) {
       throw new IllegalStateException("Failed to sign PDF", e);
     }

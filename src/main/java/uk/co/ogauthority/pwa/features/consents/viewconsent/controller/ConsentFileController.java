@@ -1,17 +1,20 @@
 package uk.co.ogauthority.pwa.features.consents.viewconsent.controller;
 
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
-import uk.co.ogauthority.pwa.service.docgen.DocgenService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaPermission;
@@ -19,7 +22,6 @@ import uk.co.ogauthority.pwa.service.pwacontext.PwaPermissionCheck;
 import uk.co.ogauthority.pwa.service.search.consents.SearchPwaBreadcrumbService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewTabService;
 import uk.co.ogauthority.pwa.service.search.consents.pwaviewtab.PwaViewUrlFactory;
-import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 
 @Controller
 @RequestMapping("/consents/pwa-view/{pwaId}/consent/{pwaConsentId}/documents")
@@ -27,22 +29,26 @@ import uk.co.ogauthority.pwa.util.FileDownloadUtils;
 public class ConsentFileController {
 
   private final PwaViewTabService pwaViewTabService;
-  private final DocgenService docgenService;
   private final PwaConsentService pwaConsentService;
   private final ConsentFileViewerService consentFileViewerService;
   private final SearchPwaBreadcrumbService breadcrumbService;
+  private final FileService fileService;
+  private final AppFileManagementService appFileManagementService;
+
 
   @Autowired
   public ConsentFileController(PwaViewTabService pwaViewTabService,
-                               DocgenService docgenService,
                                PwaConsentService pwaConsentService,
                                ConsentFileViewerService consentFileViewerService,
-                               SearchPwaBreadcrumbService breadcrumbService) {
+                               SearchPwaBreadcrumbService breadcrumbService,
+                               FileService fileService,
+                               AppFileManagementService appFileManagementService) {
     this.pwaViewTabService = pwaViewTabService;
-    this.docgenService = docgenService;
     this.pwaConsentService = pwaConsentService;
     this.consentFileViewerService = consentFileViewerService;
     this.breadcrumbService = breadcrumbService;
+    this.fileService = fileService;
+    this.appFileManagementService = appFileManagementService;
   }
 
   @GetMapping
@@ -74,33 +80,19 @@ public class ConsentFileController {
 
   }
 
-  @GetMapping("/download/{docgenRunId}")
-  public ResponseEntity<Resource> downloadConsentDocument(@PathVariable("pwaId") Integer pwaId,
-                                                          PwaContext pwaContext,
-                                                          @PathVariable Integer pwaConsentId,
-                                                          @PathVariable Long docgenRunId) {
+  @GetMapping("/download")
+  public ResponseEntity<InputStreamResource> downloadConsentDocument(@PathVariable("pwaId") Integer pwaId,
+                                                                     PwaContext pwaContext,
+                                                                     @PathVariable Integer pwaConsentId) {
 
-    try {
+    var pwaApplication = pwaConsentService.getConsentById(pwaConsentId).getSourcePwaApplication();
+    var files = appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT);
 
-      var docgenRun = docgenService.getDocgenRun(docgenRunId);
-
-      var pwaConsent = pwaConsentService.getConsentById(pwaConsentId);
-
-      pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, pwaContext);
-
-      var blob = docgenRun.getGeneratedDocument();
-
-      var inputStream = blob.getBinaryStream();
-
-      String filename = pwaConsent.getReference().replace("/", "-") + " consent document.pdf";
-      return FileDownloadUtils.getResourceResponseEntity(blob, inputStream, filename);
-
-    } catch (Exception e) {
-      throw new RuntimeException(String.format("Error serving document with doc gen run ID %s for consent ID %s",
-          docgenRunId, pwaConsentId), e);
+    if (files.isEmpty()) {
+      throw new ResourceNotFoundException("No consent document found for application: " + pwaApplication.getId());
     }
 
+    return fileService.download(files.getFirst());
   }
-
 
 }

@@ -1,19 +1,15 @@
 package uk.co.ogauthority.pwa.service.search.consents.pwaviewtab;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.List;
-import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,15 +18,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
-import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
 import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.aabuilt.AsBuiltNotificationStatus;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
@@ -213,62 +204,6 @@ class PwaViewTabServiceTest {
     var transferredPwaUrl = ReverseRouter.route(on(PwaViewController.class).renderViewPwa(transferredPwa.getId(), PwaViewTab.PIPELINES, null, null, false));
     assertThat(actualPwaPipelineViews).containsExactly(new PwaPipelineView(unOrderedPipelineOverviews.get(0), null, null,
         transferredPwaDetail.getReference(), transferredPwaUrl));
-  }
-
-  @Test
-  void verifyConsentDocumentDownloadable_allOk() throws IllegalAccessException {
-
-    var docgenRun = new DocgenRun();
-    docgenRun.setId(2L);
-    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
-    docgenRun.setDocGenType(DocGenType.FULL);
-
-    var pwaConsent = new PwaConsent();
-    pwaConsent.setId(3);
-    pwaConsent.setDocgenRunId(docgenRun.getId());
-
-    var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), docgenRun);
-    FieldUtils.writeField(dto, "consentId", pwaConsent.getId(), true);
-    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
-    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(dto, migratedDto));
-
-    pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext());
-
-  }
-
-  @Test
-  void verifyConsentDocumentDownloadable_notFullRun_exception() throws IllegalAccessException {
-    var docgenRun = new DocgenRun();
-    docgenRun.setId(2L);
-    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
-    docgenRun.setDocGenType(DocGenType.PREVIEW);
-    var pwaConsent = new PwaConsent();
-    pwaConsent.setDocgenRunId(docgenRun.getId());
-    pwaConsent.setId(3);
-    var dto = PwaViewTabTestUtil.createConsentApplicationDto(Instant.now(), docgenRun);
-    FieldUtils.writeField(dto, "consentId", pwaConsent.getId(), true);
-    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
-    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(dto, migratedDto));
-    assertThrows(AccessDeniedException.class, () ->
-
-      pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext()));
-
-  }
-
-  @Test
-  void verifyConsentDocumentDownloadable_notLinkedToPwa_exception() {
-    var docgenRun = new DocgenRun();
-    docgenRun.setId(2L);
-    docgenRun.setStatus(DocgenRunStatus.COMPLETE);
-    docgenRun.setDocGenType(DocGenType.FULL);
-    var pwaConsent = new PwaConsent();
-    pwaConsent.setDocgenRunId(docgenRun.getId());
-    var migratedDto = PwaViewTabTestUtil.createMigratedConsentApplicationDto(Instant.now().minus(5, ChronoUnit.HOURS));
-    when(pwaConsentDtoRepository.getConsentAndApplicationDtos(any())).thenReturn(List.of(migratedDto));
-    assertThrows(AccessDeniedException.class, () ->
-
-      pwaViewTabService.verifyConsentDocumentDownloadable(docgenRun, pwaConsent, PwaContextTestUtil.createPwaContext()));
-
   }
 
   @Test

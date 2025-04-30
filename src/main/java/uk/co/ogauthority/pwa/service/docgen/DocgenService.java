@@ -8,10 +8,15 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.FileSource;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.exception.documents.DocgenException;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
@@ -24,17 +29,27 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationServic
 @Service
 public class DocgenService {
 
+  public static final String FILENAME = "%s consent document.pdf";
+  public static final String PREVIEW_FILENAME = "%s consent preview.pdf";
+
   private final Scheduler scheduler;
   private final DocgenRunRepository docgenRunRepository;
   private final DocumentCreationService documentCreationService;
+  private final AppFileManagementService appFileManagementService;
+  private final FileService fileService;
 
   @Autowired
   public DocgenService(Scheduler scheduler,
                        DocgenRunRepository docgenRunRepository,
-                       DocumentCreationService documentCreationService) {
+                       DocumentCreationService documentCreationService,
+                       AppFileManagementService appFileManagementService,
+                       FileService fileService
+  ) {
     this.scheduler = scheduler;
     this.docgenRunRepository = docgenRunRepository;
     this.documentCreationService = documentCreationService;
+    this.appFileManagementService = appFileManagementService;
+    this.fileService = fileService;
   }
 
   /**
@@ -103,9 +118,10 @@ public class DocgenService {
 
   private void processAndCompleteRun(DocgenRun docgenRun) {
 
-    var docBlob = documentCreationService.createConsentDocument(docgenRun);
+    var docResource = documentCreationService.createConsentDocument(docgenRun);
 
-    docgenRun.setGeneratedDocument(docBlob);
+    uploadDocument(docgenRun, docResource);
+
     docgenRun.setStatus(DocgenRunStatus.COMPLETE);
     docgenRun.setCompletedOn(Instant.now());
     docgenRunRepository.save(docgenRun);
@@ -118,4 +134,35 @@ public class DocgenService {
     docgenRunRepository.save(docgenRun);
   }
 
+  private void uploadDocument(DocgenRun docgenRun, ByteArrayResource docResource) {
+    var pwaApplication = docgenRun.getDocumentInstance().getPwaApplication();
+
+    var filename = docgenRun.getDocGenType().equals(DocGenType.FULL)
+        ? FILENAME.formatted(pwaApplication.getConsentReference().replace("/", "-"))
+        : PREVIEW_FILENAME.formatted(pwaApplication.getAppReference().replace("/", "-"));
+
+    var fileSource = FileSource.fromInputStreamSource(
+        docResource,
+        filename,
+        "application/pdf",
+        docResource.contentLength()
+    );
+
+    var uploadResponse = fileService.upload(builder -> builder
+        .withFileSource(fileSource)
+        .build()
+    );
+
+    var uploadedFile = new UploadedFileForm();
+    uploadedFile.setFileId(uploadResponse.getFileId());
+    uploadedFile.setFileName(filename);
+    uploadedFile.setFileDescription("");
+    uploadedFile.setFileSize(uploadedFile.getUploadedFileSize());
+    uploadedFile.setFileUploadedAt(Instant.now());
+
+    if (uploadResponse.getError() != null) {
+      throw new DocgenException(uploadResponse.getError());
+    }
+    appFileManagementService.saveConsentDocument(uploadedFile, pwaApplication, docgenRun.getDocGenType());
+  }
 }

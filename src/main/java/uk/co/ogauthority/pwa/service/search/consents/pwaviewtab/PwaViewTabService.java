@@ -10,7 +10,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -20,12 +19,8 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.controller.search.consents.PwaViewController;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
-import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
-import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentDtoRepository;
@@ -159,40 +154,6 @@ public class PwaViewTabService {
         .stream()
         .sorted(Comparator.comparing(PwaConsentApplicationDto::getConsentInstant).reversed())
         .collect(Collectors.toList());
-  }
-
-  public void verifyConsentDocumentDownloadable(DocgenRun docgenRun,
-                                                PwaConsent pwaConsent,
-                                                PwaContext pwaContext) {
-
-    boolean docgenRunLinkedToConsentOnPwa = getConsentHistoryTabContent(pwaContext).stream()
-        .anyMatch(consentAppDto -> consentIdAndDocgenRunMatches(consentAppDto, docgenRun, pwaConsent));
-
-    if (!docgenRunLinkedToConsentOnPwa) {
-      throw new AccessDeniedException(
-          String.format("User tried to access docgen run (ID: %s) for a consent on a different PWA than the one they are viewing (ID: %s)",
-              docgenRun.getId(), pwaContext.getMasterPwa().getId()));
-    }
-
-    if (docgenRun.getDocGenType() != DocGenType.FULL) {
-      throw new AccessDeniedException(String.format(
-          "User tried to access a non-FULL docgen run (ID: %s) using the consent doc endpoint for PWA with ID: %s", docgenRun.getId(),
-          pwaContext.getMasterPwa().getId()));
-    }
-
-  }
-
-  private boolean consentIdAndDocgenRunMatches(PwaConsentApplicationDto consentAppDto,
-                                               DocgenRun docgenRun,
-                                               PwaConsent pwaConsent) {
-
-    boolean consentIsOnPwa = pwaConsent.getId() == consentAppDto.getConsentId();
-    boolean consentDocgenRunIsRequestedRun = consentAppDto.getDocgenRunId()
-        .map(runId -> Objects.equals(runId, docgenRun.getId()))
-        .orElse(false);
-
-    return consentIsOnPwa && consentDocgenRunIsRequestedRun;
-
   }
 
 }

@@ -6,8 +6,10 @@ import java.util.Set;
 public enum FileDocumentType {
   //app files
   CASE_NOTES(),
-  PUBLIC_NOTICE(),
+  CONSENT_DOCUMENT(),
+  CONSENT_PREVIEW(),
   CONSULTATION_RESPONSE(),
+  PUBLIC_NOTICE(),
 
   //pad files
   ADMIRALTY_CHART(Set.of("bmp", "gif", "jpeg", "jpg", "png",  "tif", "tiff")),

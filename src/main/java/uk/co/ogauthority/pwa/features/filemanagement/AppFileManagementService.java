@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Service
@@ -36,6 +38,19 @@ public class AppFileManagementService {
         getUsageId(pwaApplication),
         getUsageType(),
         fileDocumentType
+    );
+  }
+
+  public void saveConsentDocument(
+      UploadedFileForm uploadedFileForm,
+      PwaApplication pwaApplication,
+      DocGenType docGenType
+  ) {
+    fileManagementService.saveFiles(
+        List.of(uploadedFileForm),
+        getUsageId(pwaApplication),
+        getUsageType(),
+        docGenType.getFileDocumentType()
     );
   }
 

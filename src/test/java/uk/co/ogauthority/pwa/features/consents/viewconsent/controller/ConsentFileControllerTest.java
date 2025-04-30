@@ -2,19 +2,17 @@ package uk.co.ogauthority.pwa.features.consents.viewconsent.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 import static uk.co.ogauthority.pwa.util.TestUserProvider.user;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.List;
 import java.util.Set;
 import javax.sql.rowset.serial.SerialBlob;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,14 +21,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
-import uk.co.ogauthority.pwa.exception.AccessDeniedException;
+import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -65,11 +65,18 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
   @MockBean
   private PwaConsentService pwaConsentService;
 
+  @MockBean
+  private FileService fileService;
+
+  @MockBean
+  private AppFileManagementService appFileManagementService;
+
   private MasterPwa masterPwa;
   private AuthenticatedUserAccount user;
 
   private PwaConsent consent;
   private DocgenRun docgenRun;
+  private PwaApplication pwaApplication;
 
   @BeforeEach
   void setup() throws SQLException {
@@ -87,9 +94,12 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
     when(pwaPermissionService.getPwaPermissions(masterPwa, user)).thenReturn(Set.of(PwaPermission.VIEW_PWA));
 
+    pwaApplication = new PwaApplication();
+
     consent = new PwaConsent();
     consent.setId(1);
     consent.setReference("2/W/22");
+    consent.setSourcePwaApplication(pwaApplication);
     when(pwaConsentService.getConsentById(any())).thenReturn(consent);
 
     docgenRun = new DocgenRun();
@@ -100,11 +110,12 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
   @Test
   void downloadConsentDocument_processingPermissionSmokeTest() {
+    when(appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT)).thenReturn(List.of(new UploadedFile()));
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(ConsentFileController.class)
-                .downloadConsentDocument(1, null, 1, 1L)));
+                .downloadConsentDocument(1, null, 1)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -113,31 +124,17 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
   @Test
   void downloadConsentDocument_success() throws Exception {
 
-    var blob = docgenRun.getGeneratedDocument();
+    var uploadedFile = new UploadedFile();
+
+    when(appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT)).thenReturn(List.of(uploadedFile));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
-        .downloadConsentDocument(1, null, 1, 1L)))
+        .downloadConsentDocument(1, null, 1)))
         .with(user(user))
         .with(csrf()))
-        .andExpect(status().isOk())
-        .andExpect(content().bytes(blob.getBytes(1, (int) blob.length())))
-        .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-        .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"2-W-22 consent document.pdf\""));
+        .andExpect(status().isOk());
 
-  }
-
-  @Test
-  void downloadConsentDocument_notAllowed() throws Exception {
-
-    doThrow(new AccessDeniedException(""))
-        .when(pwaViewTabService).verifyConsentDocumentDownloadable(eq(docgenRun), eq(consent), any());
-
-    mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
-        .downloadConsentDocument(1, null, 1, 1L)))
-        .with(user(user))
-        .with(csrf()))
-        .andExpect(status().isForbidden());
-
+    verify(fileService).download(uploadedFile);
   }
 
 }

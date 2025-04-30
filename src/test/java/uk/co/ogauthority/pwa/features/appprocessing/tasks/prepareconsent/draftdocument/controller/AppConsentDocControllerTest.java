@@ -25,15 +25,15 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.validation.Errors;
+import uk.co.fivium.fileuploadlibrary.core.FileService;
+import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaAppProcessingContextAbstractControllerTest;
@@ -49,6 +49,8 @@ import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.draftdo
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.reviewdocument.ConsentReviewService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.prepareconsent.senddocforapproval.PreSendForApprovalChecksViewTestUtil;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
@@ -101,6 +103,12 @@ class AppConsentDocControllerTest extends PwaAppProcessingContextAbstractControl
 
   @MockBean
   private ConsentFileViewerService consentFileViewerService;
+
+  @MockBean
+  private FileService fileService;
+
+  @MockBean
+  private AppFileManagementService appFileManagementService;
 
   private PwaApplicationEndpointTestBuilder editDocumentEndpointTester;
   private PwaApplicationEndpointTestBuilder sendForApprovalEndpointTester;
@@ -762,6 +770,23 @@ class AppConsentDocControllerTest extends PwaAppProcessingContextAbstractControl
 
     verify(markdownService, times(1)).convertMarkdownToHtml("mytext", container);
 
+  }
+
+  @Test
+  void downloadPdf() throws Exception {
+
+    setupDocRunCheckEndpoint();
+
+    var uploadedFile = new UploadedFile();
+
+    when(appFileManagementService.getUploadedFiles(pwaApplicationDetail.getPwaApplication(), FileDocumentType.CONSENT_PREVIEW)).thenReturn(List.of(uploadedFile));
+
+    mockMvc.perform(get(ReverseRouter.route(on(AppConsentDocController.class).downloadPdf(pwaApplicationDetail.getMasterPwaApplicationId(), pwaApplicationDetail.getPwaApplicationType(), 1L, null, null)))
+            .with(user(user))
+            .with(csrf()))
+        .andExpect(status().isOk());
+
+    verify(fileService).download(uploadedFile);
   }
 
 }
