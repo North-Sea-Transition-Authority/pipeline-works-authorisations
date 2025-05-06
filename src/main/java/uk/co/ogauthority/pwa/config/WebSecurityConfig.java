@@ -43,7 +43,8 @@ public class WebSecurityConfig {
       "/assets/**",
       "/error",
       "/api/v1/logout/*",
-      "/analytics/collect"
+      "/analytics/collect",
+      "/devtool/**"
   };
 
   private final SystemAreaAccessService systemAreaAccessService;
