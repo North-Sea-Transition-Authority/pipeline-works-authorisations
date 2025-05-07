@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -62,7 +62,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
   private static TeamMemberView regTeamMemberView;
   private static AuthenticatedUserAccount invokingUser;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() {
     regTeam = new Team(UUID.randomUUID());
     regTeam.setTeamType(TeamType.REGULATOR);
@@ -132,6 +132,26 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     assertThat(teamTypeViews)
         .extracting(TeamTypeView::teamTypeName)
         .containsExactly(TeamType.ORGANISATION.getDisplayName(), TeamType.REGULATOR.getDisplayName());
+  }
+
+  @Test
+  public void renderTeamTypeList_regWithCgManageCanSeeCgTeams() throws Exception {
+    when(teamManagementService.getTeamTypesUserIsMemberOf(invokingUser.getWuaId()))
+        .thenReturn(Set.of(TeamType.REGULATOR));
+
+    when(teamQueryService.userHasStaticRole((long) invokingUser.getWuaId(), TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER))
+        .thenReturn(true);
+
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class).renderTeamTypeList(null)))
+        .with(user(invokingUser)))
+        .andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    var teamTypeViews = (List<TeamTypeView>) modelAndView.getModel().get("teamTypeViews");
+
+    assertThat(teamTypeViews)
+        .extracting(TeamTypeView::teamTypeName)
+        .containsExactly(TeamType.CONSULTEE.getDisplayName(), TeamType.REGULATOR.getDisplayName());
   }
 
   @Test
@@ -216,7 +236,8 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(TeamType.ORGANISATION, (long) invokingUser.getWuaId()))
         .thenReturn(Set.of());
 
-    when(teamQueryService.userHasStaticRole((long) invokingUser.getWuaId(), TeamType.REGULATOR, Role.ORGANISATION_MANAGER))
+    when(teamQueryService.userHasAtLeastOneStaticRole((long) invokingUser.getWuaId(), TeamType.REGULATOR,
+        Set.of(Role.ORGANISATION_MANAGER, Role.CONSULTEE_GROUP_MANAGER)))
         .thenReturn(true);
 
     var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class)
@@ -231,6 +252,26 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
         .isEqualTo(TeamType.ORGANISATION.getCreateNewInstanceRoute());
   }
 
+  @Test
+  public void renderTeamsOfType_noManageableTeams_cgAdminNotForbidden() throws Exception {
+    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(TeamType.CONSULTEE, (long) invokingUser.getWuaId()))
+        .thenReturn(Set.of());
+
+    when(teamQueryService.userHasAtLeastOneStaticRole((long) invokingUser.getWuaId(), TeamType.REGULATOR,
+        Set.of(Role.ORGANISATION_MANAGER, Role.CONSULTEE_GROUP_MANAGER)))
+        .thenReturn(true);
+
+    var modelAndView = mockMvc.perform(get(ReverseRouter.route(on(TeamManagementController.class)
+        .renderTeamsOfType(TeamType.CONSULTEE.getUrlSlug(), null)))
+        .with(user(invokingUser)))
+        .andExpect(status().isOk())
+        .andReturn().getModelAndView();
+
+    var createNewInstanceUrl = (String) modelAndView.getModel().get("createNewInstanceUrl");
+
+    assertThat(createNewInstanceUrl)
+        .isEqualTo(TeamType.CONSULTEE.getCreateNewInstanceRoute());
+  }
 
   @Test
   public void renderTeamMemberList_whenNotMemberOfTeam_thenForbidden() throws Exception {
@@ -580,7 +621,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
             Map.entry(Role.CASE_OFFICER.name(), Role.CASE_OFFICER.getName()),
             Map.entry(Role.CONSENT_VIEWER.name(), Role.CONSENT_VIEWER.getName()),
             Map.entry(Role.ORGANISATION_MANAGER.name(), Role.ORGANISATION_MANAGER.getName()),
-            Map.entry(Role.PWA_ACCESS.name(), Role.PWA_ACCESS.getName()),
+            Map.entry(Role.CONSULTEE_GROUP_MANAGER.name(), Role.CONSULTEE_GROUP_MANAGER.getName()),
             Map.entry(Role.PWA_MANAGER.name(), Role.PWA_MANAGER.getName()),
             Map.entry(Role.TEAM_ADMINISTRATOR.name(), Role.TEAM_ADMINISTRATOR.getName()),
             Map.entry(Role.TEMPLATE_CLAUSE_MANAGER.name(), Role.TEMPLATE_CLAUSE_MANAGER.getName())
@@ -593,12 +634,12 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
 
     assertThat(rolesInTeam)
         .contains(
-            Role.PWA_ACCESS,
             Role.PWA_MANAGER,
             Role.CASE_OFFICER,
             Role.AS_BUILT_NOTIFICATION_ADMIN,
             Role.TEMPLATE_CLAUSE_MANAGER,
             Role.ORGANISATION_MANAGER,
+            Role.CONSULTEE_GROUP_MANAGER,
             Role.CONSENT_VIEWER,
             Role.TEAM_ADMINISTRATOR
         );

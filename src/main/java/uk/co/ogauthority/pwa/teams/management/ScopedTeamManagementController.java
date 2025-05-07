@@ -21,10 +21,13 @@ import uk.co.fivium.energyportalapi.generated.client.OrganisationGroupsProjectio
 import uk.co.fivium.energyportalapi.generated.types.OrganisationGroup;
 import uk.co.ogauthority.pwa.fds.searchselector.SearchSelectorResults;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.management.access.InvokingUserHasStaticRole;
+import uk.co.ogauthority.pwa.teams.management.form.NewConsulteeGroupTeamForm;
+import uk.co.ogauthority.pwa.teams.management.form.NewConsulteeGroupTeamFormValidator;
 import uk.co.ogauthority.pwa.teams.management.form.NewOrganisationTeamForm;
 import uk.co.ogauthority.pwa.teams.management.form.NewOrganisationTeamFormValidator;
 
@@ -34,28 +37,36 @@ public class ScopedTeamManagementController {
   private final TeamManagementService teamManagementService;
   private final OrganisationApi organisationApi;
   private final NewOrganisationTeamFormValidator newOrganisationTeamFormValidator;
+  private final NewConsulteeGroupTeamFormValidator newConsulteeGroupTeamFormValidator;
+  private final ConsulteeGroupDetailService consulteeGroupDetailService;
 
   public ScopedTeamManagementController(TeamManagementService teamManagementService,
                                         OrganisationApi organisationApi,
-                                        NewOrganisationTeamFormValidator newOrganisationTeamFormValidator) {
+                                        NewOrganisationTeamFormValidator newOrganisationTeamFormValidator,
+                                        NewConsulteeGroupTeamFormValidator newConsulteeGroupTeamFormValidator,
+                                        ConsulteeGroupDetailService consulteeGroupDetailService) {
     this.teamManagementService = teamManagementService;
     this.organisationApi = organisationApi;
     this.newOrganisationTeamFormValidator = newOrganisationTeamFormValidator;
+    this.newConsulteeGroupTeamFormValidator = newConsulteeGroupTeamFormValidator;
+    this.consulteeGroupDetailService = consulteeGroupDetailService;
   }
 
   // Add one of these get/post handlers for every scoped team time you want users to be able to create themselves.
   // only this creation logic needs to be added, once team is created normal TeamManagementController can be used.
+
+  // Scope type: Organisation
   @GetMapping("/team-management/organisation/new")
   @InvokingUserHasStaticRole(teamType = TeamType.REGULATOR, role = Role.ORGANISATION_MANAGER)
   public ModelAndView renderCreateNewOrgTeam(@ModelAttribute("form") NewOrganisationTeamForm form) {
-    return getModelAndView();
+    return getCreateOrgModelAndView();
   }
 
   @PostMapping("/team-management/organisation/new")
   @InvokingUserHasStaticRole(teamType = TeamType.REGULATOR, role = Role.ORGANISATION_MANAGER)
   public ModelAndView handleCreateNewOrgTeam(@ModelAttribute("form") NewOrganisationTeamForm form, BindingResult bindingResult) {
     if (!newOrganisationTeamFormValidator.isValid(form, bindingResult)) {
-      return getModelAndView();
+      return getCreateOrgModelAndView();
     }
 
     var projection = new OrganisationGroupProjectionRoot()
@@ -92,12 +103,53 @@ public class ScopedTeamManagementController {
     return new SearchSelectorResults(selectorResults);
   }
 
-  private ModelAndView getModelAndView() {
+  private ModelAndView getCreateOrgModelAndView() {
     return new ModelAndView("teamManagement/scoped/createOrganisationTeam")
         .addObject(
             "organisationSearchUrl",
             StringUtils.stripEnd(
                 ReverseRouter.route(on(ScopedTeamManagementController.class).searchOrganisation(null)),
+                "?term"));
+  }
+
+  // Scope type: Consultee group
+  @GetMapping("/team-management/consultee-group/new")
+  @InvokingUserHasStaticRole(teamType = TeamType.REGULATOR, role = Role.CONSULTEE_GROUP_MANAGER)
+  public ModelAndView renderCreateNewConsulteeGroupTeam(@ModelAttribute("form") NewConsulteeGroupTeamForm form) {
+    return getCreateConsulteeGroupModelAndView();
+  }
+
+  @PostMapping("/team-management/consultee-group/new")
+  @InvokingUserHasStaticRole(teamType = TeamType.REGULATOR, role = Role.CONSULTEE_GROUP_MANAGER)
+  public ModelAndView handleCreateNewConsulteeGroupTeam(@ModelAttribute("form") NewConsulteeGroupTeamForm form,
+                                                        BindingResult bindingResult) {
+    if (!newConsulteeGroupTeamFormValidator.isValid(form, bindingResult)) {
+      return getCreateConsulteeGroupModelAndView();
+    }
+
+    var consulteeGroup = consulteeGroupDetailService.getConsulteeGroupDetailById(Integer.parseInt(form.getConsulteeGroupId()));
+
+    var teamType = TeamType.CONSULTEE;
+    var scopeRef = TeamScopeReference.from(consulteeGroup.getConsulteeGroupId().toString(), teamType);
+    var team = teamManagementService.createScopedTeam(consulteeGroup.getName(), teamType, scopeRef);
+    return ReverseRouter.redirect(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null));
+  }
+
+  @GetMapping("/team-management/consultee-group/search")
+  @ResponseBody
+  public Object searchConsulteeGroup(@RequestParam("term") String searchTerm) {
+
+    var selectorResults = consulteeGroupDetailService.searchConsulteeGroups(searchTerm);
+
+    return new SearchSelectorResults(selectorResults);
+  }
+
+  private ModelAndView getCreateConsulteeGroupModelAndView() {
+    return new ModelAndView("teamManagement/scoped/createConsulteeGroupTeam")
+        .addObject(
+            "consulteeGroupSearchUrl",
+            StringUtils.stripEnd(
+                ReverseRouter.route(on(ScopedTeamManagementController.class).searchConsulteeGroup(null)),
                 "?term"));
   }
 

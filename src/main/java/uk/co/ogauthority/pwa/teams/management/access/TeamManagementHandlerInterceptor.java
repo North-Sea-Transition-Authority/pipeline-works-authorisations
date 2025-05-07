@@ -119,15 +119,27 @@ public class TeamManagementHandlerInterceptor implements HandlerInterceptor {
 
     var team = getTeamFromRequest(request);
 
-    if (teamManagementService.isMemberOfTeam(team, wuaId) || (TeamType.ORGANISATION.equals(team.getTeamType())
-        && teamManagementService.userCanManageAnyOrganisationTeam(wuaId))) {
+    if (teamManagementService.isMemberOfTeam(team, wuaId)
+        || canManageAnyOrgTeam(wuaId, team)
+        || canManageAnyConsulteeGroupTeam(wuaId, team)
+    ) {
       return true;
-    } else {
-      throw new ResponseStatusException(
-          HttpStatus.FORBIDDEN,
-          "wuaId %s is not a member of team %s".formatted(wuaId, team.getId())
-      );
     }
+
+    throw new ResponseStatusException(
+        HttpStatus.FORBIDDEN,
+        "wuaId %s is not a member of team %s".formatted(wuaId, team.getId())
+    );
+  }
+
+  private boolean canManageAnyOrgTeam(Long wuaId, Team team) {
+    return TeamType.ORGANISATION.equals(team.getTeamType())
+        && teamManagementService.userCanManageAnyOrganisationTeam(wuaId);
+  }
+
+  private boolean canManageAnyConsulteeGroupTeam(Long wuaId, Team team) {
+    return TeamType.CONSULTEE.equals(team.getTeamType())
+        && teamManagementService.userCanManageAnyConsulteeGroupTeam(wuaId);
   }
 
   @SuppressWarnings("unchecked")

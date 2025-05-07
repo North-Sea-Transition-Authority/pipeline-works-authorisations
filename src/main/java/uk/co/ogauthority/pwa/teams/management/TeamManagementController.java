@@ -60,10 +60,11 @@ public class TeamManagementController {
 
     var teamTypes = new HashSet<>(teamManagementService.getTeamTypesUserIsMemberOf(user.getWuaId()));
 
-    if (teamQueryService.userHasStaticRole((long) user.getWuaId(), TeamType.REGULATOR, Role.ORGANISATION_MANAGER)) {
-      // regulator with priv can manage org teams
-      teamTypes.add(TeamType.ORGANISATION);
-    }
+    // regulator with priv can manage org teams
+    addScopedTeamIfUserCanManage(teamTypes, TeamType.ORGANISATION, user, Role.ORGANISATION_MANAGER);
+
+    // regulator with priv can manage consultee group teams
+    addScopedTeamIfUserCanManage(teamTypes, TeamType.CONSULTEE, user, Role.CONSULTEE_GROUP_MANAGER);
 
     if (teamTypes.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No manageable teams for wuaId %d".formatted((long) user.getWuaId()));
@@ -87,6 +88,15 @@ public class TeamManagementController {
         .addObject("teamTypeViews", teamTypeViews);
   }
 
+  private void addScopedTeamIfUserCanManage(HashSet<TeamType> teamTypes,
+                                            TeamType teamType,
+                                            AuthenticatedUserAccount user,
+                                            Role scopedTeamManagerRole) {
+    if (teamQueryService.userHasStaticRole((long) user.getWuaId(), TeamType.REGULATOR, scopedTeamManagerRole)) {
+      teamTypes.add(teamType);
+    }
+  }
+
   @GetMapping("/{teamTypeSlug}")
   public ModelAndView renderTeamsOfType(@PathVariable String teamTypeSlug, AuthenticatedUserAccount user) {
     var teamType = TeamType.fromUrlSlug(teamTypeSlug)
@@ -97,16 +107,16 @@ public class TeamManagementController {
     if (teamType.isScoped()) {
       // if it's a scoped team, show the list of instances
 
-      boolean userCanCreateOrgs = teamQueryService.userHasStaticRole(
+      boolean userCanCreateScopedTeams = teamQueryService.userHasAtLeastOneStaticRole(
           (long) user.getWuaId(),
           TeamType.REGULATOR,
-          Role.ORGANISATION_MANAGER
+          Set.of(Role.ORGANISATION_MANAGER, Role.CONSULTEE_GROUP_MANAGER)
       );
 
       Set<Team> teams = new HashSet<>(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(teamType, (long) user.getWuaId()));
 
-      if (teams.isEmpty() && !userCanCreateOrgs) {
-        // If user can create orgs, don't error as they need to be able to create new teams.
+      if (teams.isEmpty() && !userCanCreateScopedTeams) {
+        // If user can create orgs or consultee groups, don't error as they need to be able to create new teams.
         throw new ResponseStatusException(
             HttpStatus.FORBIDDEN,
             "No manageable teams of type %s for wuaId %d".formatted(teamType, (long) user.getWuaId()));
@@ -128,7 +138,8 @@ public class TeamManagementController {
       var modelAndView = new ModelAndView("teamManagement/teamInstances")
           .addObject("teamViews", teamsViews);
 
-      if (userCanCreateOrgs) {
+
+      if (userCanCreateScopedTeams) {
         modelAndView.addObject("createNewInstanceUrl", teamType.getCreateNewInstanceRoute());
       }
 

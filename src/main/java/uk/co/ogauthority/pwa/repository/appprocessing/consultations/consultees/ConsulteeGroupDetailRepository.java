@@ -23,4 +23,6 @@ public interface ConsulteeGroupDetailRepository extends CrudRepository<Consultee
 
   List<ConsulteeGroupDetail> findAllByConsulteeGroupInAndTipFlagIsTrue(Iterable<ConsulteeGroup> groups);
 
+  List<ConsulteeGroupDetail> findAllByTipFlagIsTrueAndNameContainsIgnoreCase(String partialName);
+
 }

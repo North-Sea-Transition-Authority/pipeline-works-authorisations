@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.teams.management;
 
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -105,10 +106,7 @@ public class TeamManagementService {
     }
     var teams = new ArrayList<>(getTeamsOfTypeUserCanManage(teamType, wuaId));
 
-    if (teamType.equals(TeamType.ORGANISATION) && userCanManageAnyOrganisationTeam(wuaId)) {
-      // If we want org teams, and the user is a regulator who can manage any org team, include all the org teams.
-      teams.addAll(getAllScopedTeamsOfType(TeamType.ORGANISATION));
-    }
+    addScopedTeamTypesUserCanManage(teams, teamType, wuaId);
 
     return teams.stream()
         .distinct() // Remove possible dupes from adding all scoped teams the user may already be a team manager of
@@ -123,12 +121,22 @@ public class TeamManagementService {
 
     var teams = new HashSet<>(getTeamsOfTypeUserIsMemberOf(teamType, wuaId));
 
+    addScopedTeamTypesUserCanManage(teams, teamType, wuaId);
+
+    return new HashSet<>(teams);
+  }
+
+  private void addScopedTeamTypesUserCanManage(Collection<Team> teams, TeamType teamType, Long wuaId) {
     if (teamType.equals(TeamType.ORGANISATION) && userCanManageAnyOrganisationTeam(wuaId)) {
       // If we want org teams, and the user is a regulator who can manage any org team, include all the org teams.
       teams.addAll(getAllScopedTeamsOfType(TeamType.ORGANISATION));
     }
 
-    return new HashSet<>(teams);
+    if (teamType.equals(TeamType.CONSULTEE) && userCanManageAnyConsulteeGroupTeam(wuaId)) {
+      // If we want consultee groups, and the user is a regulator who can manage any consultee group team,
+      // include all the consultee group teams.
+      teams.addAll(getAllScopedTeamsOfType(TeamType.CONSULTEE));
+    }
   }
 
   public Optional<Team> getTeam(UUID teamId) {
@@ -256,6 +264,10 @@ public class TeamManagementService {
     return teamQueryService.userHasStaticRole(wuaId, TeamType.REGULATOR, Role.ORGANISATION_MANAGER);
   }
 
+  public boolean userCanManageAnyConsulteeGroupTeam(long wuaId) {
+    return teamQueryService.userHasStaticRole(wuaId, TeamType.REGULATOR, Role.CONSULTEE_GROUP_MANAGER);
+  }
+
   private List<Team> getAllScopedTeamsOfType(TeamType teamType) {
     if (!teamType.isScoped()) {
       throw new TeamManagementException("TeamType %s is static, expected scoped".formatted(teamType));
@@ -293,5 +305,4 @@ public class TeamManagementService {
         .filter(team -> team.getTeamType().equals(teamType))
         .collect(Collectors.toSet());
   }
-
 }

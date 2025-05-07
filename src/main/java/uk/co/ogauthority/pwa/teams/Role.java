@@ -2,11 +2,11 @@ package uk.co.ogauthority.pwa.teams;
 
 public enum Role {
   // Global
-  PWA_ACCESS("PWA access", "Access to PWA functionalities"),
   TEAM_ADMINISTRATOR("Team administrator", "Add, remove and update members of this team"),
 
   // Regulator
   ORGANISATION_MANAGER("Organisation team manager", "Manage organisation access to PWAs"),
+  CONSULTEE_GROUP_MANAGER("Consultee group manager", "Manage consultee group access to PWAs"),
   PWA_MANAGER("PWA manager", "Accept applications and allocate case officers"),
   CASE_OFFICER("Case officer", "Process applications and run consultations"),
   CONSENT_VIEWER("PWA consent viewer", "Search for and view consented PWA data"),

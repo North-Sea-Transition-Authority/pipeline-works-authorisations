@@ -18,9 +18,9 @@ public enum TeamType {
       "regulator",
       null,
       List.of(
-          Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
           Role.ORGANISATION_MANAGER,
+          Role.CONSULTEE_GROUP_MANAGER,
           Role.PWA_MANAGER,
           Role.CASE_OFFICER,
           Role.CONSENT_VIEWER,
@@ -32,21 +32,19 @@ public enum TeamType {
   CONSULTEE(
       "Consultees",
       "consultee",
-      null,
+      "CONSULTEE",
       List.of(
-          Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
           Role.RECIPIENT,
           Role.RESPONDER
       ),
-      null
+          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewConsulteeGroupTeam(null))
   ),
   ORGANISATION(
       "Organisations",
       "organisation",
       "ORGGRP",
       List.of(
-          Role.PWA_ACCESS,
           Role.TEAM_ADMINISTRATOR,
           Role.APPLICATION_CREATOR,
           Role.APPLICATION_SUBMITTER,
