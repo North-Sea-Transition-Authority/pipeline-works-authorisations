@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
+import java.io.InputStream;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.fileuploadlibrary.configuration.FileUploadProperties;
@@ -27,11 +28,16 @@ public class ConsentDocumentMigrationService {
 
   void verify() throws S3Exception {
     verifyBuckets();
+    var csvStream = downloadCsv();
   }
 
   private void verifyBuckets() throws S3Exception {
     pwaS3FileService.verifyBucketOrThrow(fileUploadProperties.s3().defaultBucket());
     pwaS3FileService.verifyBucketOrThrow(devtoolsProperties.migrationS3Bucket());
+  }
+
+  private InputStream downloadCsv() throws S3Exception {
+    return pwaS3FileService.downloadFile(devtoolsProperties.migrationS3Bucket(), devtoolsProperties.migrationCsvFileKey());
   }
 
 }

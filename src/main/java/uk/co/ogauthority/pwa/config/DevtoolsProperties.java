@@ -7,5 +7,5 @@ import org.springframework.context.annotation.Profile;
 @ConfigurationProperties(prefix = "devtools")
 public record DevtoolsProperties(
     String migrationS3Bucket,
-    String migrationS3Url
+    String migrationCsvFileKey
 ) {}

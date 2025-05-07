@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
+import java.io.InputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,16 +28,16 @@ class ConsentDocumentMigrationServiceTest {
   @Mock
   private FileUploadProperties fileUploadProperties;
 
-  @Mock
-  private DevtoolsProperties devtoolsProperties;
+  private final DevtoolsProperties devtoolsProperties = new DevtoolsProperties("pwa-migration", "csv-key");
 
-  @InjectMocks
   private ConsentDocumentMigrationService consentDocumentMigrationService;
 
   private FileUploadProperties.S3 s3Properties;
 
   @BeforeEach
   void setUp() {
+    consentDocumentMigrationService = new ConsentDocumentMigrationService(pwaS3FileService, fileUploadProperties, devtoolsProperties);
+
     s3Properties = new FileUploadProperties.S3(
         "key",
         "token",
@@ -52,12 +52,16 @@ class ConsentDocumentMigrationServiceTest {
   @Test
   void verify() throws S3Exception {
     when(fileUploadProperties.s3()).thenReturn(s3Properties);
-    when(devtoolsProperties.migrationS3Bucket()).thenReturn("pwa-migration");
+
+    var csvInputStream = Mockito.mock(InputStream.class);
+
+    when(pwaS3FileService.downloadFile(devtoolsProperties.migrationS3Bucket(), devtoolsProperties.migrationCsvFileKey()))
+        .thenReturn(csvInputStream);
 
     assertThatNoException().isThrownBy(() -> consentDocumentMigrationService.verify());
 
     Mockito.verify(pwaS3FileService).verifyBucketOrThrow(s3Properties.defaultBucket());
-    Mockito.verify(pwaS3FileService).verifyBucketOrThrow("pwa-migration");
+    Mockito.verify(pwaS3FileService).verifyBucketOrThrow(devtoolsProperties.migrationS3Bucket());
   }
 
   @Test
@@ -65,6 +69,15 @@ class ConsentDocumentMigrationServiceTest {
     when(fileUploadProperties.s3()).thenReturn(s3Properties);
 
     doThrow(new S3Exception("")).when(pwaS3FileService).verifyBucketOrThrow(s3Properties.defaultBucket());
+
+    assertThatExceptionOfType(S3Exception.class).isThrownBy(() -> consentDocumentMigrationService.verify());
+  }
+
+  @Test
+  void verify_missingCsv() throws S3Exception {
+    when(fileUploadProperties.s3()).thenReturn(s3Properties);
+
+    doThrow(new S3Exception("")).when(pwaS3FileService).downloadFile(devtoolsProperties.migrationS3Bucket(), devtoolsProperties.migrationCsvFileKey());
 
     assertThatExceptionOfType(S3Exception.class).isThrownBy(() -> consentDocumentMigrationService.verify());
   }
