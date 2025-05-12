@@ -123,6 +123,22 @@ steps:
         path: /var/webfiles
     when:
       status: [ success, failure ]
+         
+  - name: scan-and-sync-public-repo
+    image: quay.io/fivium/drone-trufflehog-plugin:v1.0
+    settings:
+      scan_since_commit_hash: 6065b98867ea96b00874ff205d8e54eda3f13ce5
+      sync_to_mirror: true
+      mirror_remote_url: git@github.com:North-Sea-Transition-Authority/pipeline-works-authorisations.git
+      mirror_branch_to_sync: develop
+      mirror_remote_ssh_key:
+        from_secret: sync_ssh_key
+    when:
+      event:
+        - push
+      branch:
+        - develop
+
 
   - name: slack-all
     image: plugins/slack:linux-amd64
@@ -281,3 +297,9 @@ data: KSzkLoOzzqPdiR8pHtYvlrMH49LmBDj+FN5GpDxvAqZDsWDJFNr03anOsTgGy4QKLrq0AgN8+E
 kind: secret
 name: slack_webhook
 data: Tm25dzBnG4pzE8LN/DYTumOfEx6jEnod6UGxGA2SMhIjkngk97+j4OhqMcGLBmpJjATCmMGhvYlL8Zw0fvP/I6DUHmeQgDA0Zk9DxK427A4HMYO8vhzi7rYnPCUNKwQdFiJZr9ROy6As5W0=
+
+---
+
+kind: secret
+name: sync_ssh_key
+data: 0EsCwoXnA6J5g8M4IyXz31ih5970ceq2W2CQ1jXUbsnphAnv6E/heR0LZQj7L2pds9IVS1S0A5YrMAWM0UoBujDMBc48M+habM7Nfs6mPCIPwIgClHZqefuqhDjMPf93X6Yyct/EPiWy3YXgIo3HZf6ncaGfizOUD+sVhZaVJOhjUjzOjaAraWwi0tT8sR/b+vHGLAbKsmuAv7bhT6HWcAt8VyCBibeUBBdKSFyyN4c2fNxf9SeyMZAdbG7Hq7cNzourAhy4yzcCkytQXeggcmzjRHNrKcvFBhdk9X6DtZL2mMrPZ0ty0L1RjRLzfNLm40FJxvwGraOP+Cn0sFnJi0R0XDh/3nAM0xKZUxg7iF+Ezmfle9+NLBXc8nnJ6wPiswInispJ5kn4cQGizXJ8E2cs+WFu/FAtyvDgyrsZois9roKdfdIWWIEnd33lopidFbDNO0q1dPC2RXCighCUA09sl0nzIwup2KIyqP+TSOW6aU40mrDifaIgJ6BNHVXYyuJsargSUiFnXZRmhSxXqfWSgzRmcjsqlfKRzEUgqOWmD0vBYLuXDMxssKGbL0Z5/DkTGFgbpcJe7VXJVhRfB4kyOzOiLDRMSL8U8RM=
