@@ -25,7 +25,7 @@ public class TestHarnessUserRetrievalService {
     this.webUserAccountRepository = webUserAccountRepository;
   }
 
-  public WebUserAccount getWebUserAccount(int wuaId) {
+  private WebUserAccount getWebUserAccount(int wuaId) {
     return webUserAccountRepository.findById(wuaId)
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find web user account for id: " + wuaId));
   }

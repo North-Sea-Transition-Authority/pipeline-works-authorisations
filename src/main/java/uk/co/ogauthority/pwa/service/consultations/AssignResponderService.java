@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.service.consultations;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,15 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamScopeReference;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidationHints;
 import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
@@ -38,30 +41,29 @@ public class AssignResponderService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
   private final AssignResponderValidator assignResponderValidator;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final OldTeamManagementService teamManagementService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
   private final CaseLinkService caseLinkService;
   private final EmailService emailService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
                                 AssignResponderValidator assignResponderValidator,
-                                ConsulteeGroupTeamService consulteeGroupTeamService,
                                 OldTeamManagementService teamManagementService,
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
                                 CaseLinkService caseLinkService,
-                                EmailService emailService) {
+                                EmailService emailService, TeamQueryService teamQueryService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.teamManagementService = teamManagementService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
     this.caseLinkService = caseLinkService;
     this.emailService = emailService;
+    this.teamQueryService = teamQueryService;
   }
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
@@ -128,11 +130,15 @@ public class AssignResponderService implements AppProcessingService {
   }
 
   public boolean isUserMemberOfRequestGroup(WebUserAccount user, ConsultationRequest consultationRequest) {
-    return consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())
-        .filter(member -> member.getConsulteeGroup().equals(consultationRequest.getConsulteeGroup()))
-        .map(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT)
-            || member.getRoles().contains(ConsulteeGroupMemberRole.RESPONDER))
-        .orElse(false);
+    var consulteeGroupId = consultationRequest.getConsulteeGroup().getId();
+    var teamType = TeamType.CONSULTEE;
+    var teamScopeReference = TeamScopeReference.from(consulteeGroupId, teamType);
+    return teamQueryService.userHasAtLeastOneScopedRole(
+        (long) user.getWuaId(),
+        teamType,
+        teamScopeReference,
+        Set.of(Role.RECIPIENT, Role.RESPONDER)
+    );
   }
 
   public BindingResult validate(AssignResponderForm form, BindingResult bindingResult, ConsultationRequest consultationRequest) {

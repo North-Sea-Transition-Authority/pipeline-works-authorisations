@@ -81,7 +81,7 @@ public class ScopedTeamManagementController {
             "Org group with id %s not found".formatted(form.getOrgGroupId())));
 
     var teamType = TeamType.ORGANISATION;
-    var scopeRef = TeamScopeReference.from(organisationGroup.getOrganisationGroupId().toString(), teamType);
+    var scopeRef = TeamScopeReference.from(organisationGroup.getOrganisationGroupId(), teamType);
     var team = teamManagementService.createScopedTeam(organisationGroup.getName(), teamType, scopeRef);
     return ReverseRouter.redirect(on(TeamManagementController.class).renderTeamMemberList(team.getId(), null));
   }

@@ -25,7 +25,6 @@ public class ConsulteeGroupDetailService {
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group detail with ID: %s", entityID)));
   }
 
-  // TODO: Remove in PWARE-63
   public ConsulteeGroupDetail getConsulteeGroupDetailByGroupAndTipFlagIsTrue(ConsulteeGroup consulteeGroup) {
     return groupDetailRepository.findByConsulteeGroupAndTipFlagIsTrue(consulteeGroup)
         .orElseThrow(() -> new PwaEntityNotFoundException(

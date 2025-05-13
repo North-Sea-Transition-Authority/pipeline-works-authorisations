@@ -20,7 +20,7 @@ import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
-import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 
 @Service
 public class PwaHolderTeamService {
@@ -50,7 +50,7 @@ public class PwaHolderTeamService {
   }
 
   private boolean userIsInOrgTeamWithAnyRoleIn(WebUserAccount user, PortalOrganisationGroup portalOrganisationGroup, Set<Role> roles) {
-    var scopeRef = TeamScopeReference.from(String.valueOf(portalOrganisationGroup.getOrgGrpId()), TeamType.ORGANISATION);
+    var scopeRef = TeamScopeReference.from(portalOrganisationGroup.getOrgGrpId(), TeamType.ORGANISATION);
 
     return teamQueryService.userHasAtLeastOneScopedRole((long) user.getWuaId(), TeamType.ORGANISATION, scopeRef, roles);
   }
@@ -120,30 +120,29 @@ public class PwaHolderTeamService {
 
     var orgTeams = teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, holderOrgGroupIds);
 
-    return orgTeams.stream()
-        .flatMap(team -> teamQueryService.getMembersOfTeam(team).stream())
+    Set<Integer> wuaIdSet = orgTeams.stream()
+        .flatMap(team -> teamQueryService.getUsersOfTeam(team).stream())
         .filter(teamMemberView -> teamMemberView.roles().contains(role))
-        .map(this::getPersonFromMember)
+        .map(UserTeamRolesView::wuaId)
+        .map(Long::intValue)
         .collect(Collectors.toSet());
+
+    return userAccountService.getPersonsByWuaIdSet(wuaIdSet);
   }
 
   public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
     // get the portal org group
     var holderOrgGroups = pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa());
 
-    return holderOrgGroups.stream()
+    var wuaIdSet = holderOrgGroups.stream()
         .map(portalOrganisationGroup ->
-            TeamScopeReference.from(String.valueOf(portalOrganisationGroup.getOrgGrpId()), TeamType.ORGANISATION)
+            TeamScopeReference.from(portalOrganisationGroup.getOrgGrpId(), TeamType.ORGANISATION)
         )
-        .flatMap(teamScopeReference -> teamQueryService.getMembersOfScopedTeam(TeamType.ORGANISATION, teamScopeReference).stream())
-        .map(this::getPersonFromMember)
+        .flatMap(teamScopeReference -> teamQueryService.getUsersOfScopedTeam(TeamType.ORGANISATION, teamScopeReference).stream())
+        .map(UserTeamRolesView::wuaId)
+        .map(Long::intValue)
         .collect(Collectors.toSet());
-  }
 
-  // Todo: remove this in PWARE-73
-  Person getPersonFromMember(TeamMemberView member) {
-    var webUserAccount = userAccountService.getWebUserAccount(Math.toIntExact(member.wuaId()));
-    return webUserAccount.getLinkedPerson();
+    return userAccountService.getPersonsByWuaIdSet(wuaIdSet);
   }
-
 }

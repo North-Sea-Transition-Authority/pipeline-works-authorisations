@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +25,7 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -40,6 +40,7 @@ import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
 import uk.co.ogauthority.pwa.service.enums.workflow.publicnotice.PwaApplicationPublicNoticeWorkflowTask;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.publicnotice.WithdrawPublicNoticeValidator;
 
@@ -138,8 +139,8 @@ class WithdrawPublicNoticeServiceTest {
     var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
 
-    var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
-    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
+    var emailRecipients = List.of(new TeamMemberView(2L, "Mr.", "test", "surname", "manager@email.com", null, null, List.of()));
+    when(pwaTeamService.getMembersWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
@@ -162,7 +163,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(emailService).sendEmail(expectedEmailProps, pwaManager, pwaApplication.getAppReference());
+      verify(emailService).sendEmail(expectedEmailProps, EmailRecipientWithName.from(pwaManager), pwaApplication.getAppReference());
     });
     verify(emailService, times(emailRecipients.size())).sendEmail(any(), any(), any());
   }
@@ -184,8 +185,8 @@ class WithdrawPublicNoticeServiceTest {
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice))
         .thenThrow(EntityLatestVersionNotFoundException.class);
 
-    var emailRecipients = Set.of(PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com"));
-    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
+    var emailRecipients = List.of(new TeamMemberView(2L, "Mr.", "test", "surname", "manager@email.com", null, null, List.of()));
+    when(pwaTeamService.getMembersWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(emailRecipients);
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
@@ -208,7 +209,7 @@ class WithdrawPublicNoticeServiceTest {
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());
 
-      verify(emailService).sendEmail(expectedEmailProps, pwaManager, pwaApplication.getAppReference());
+      verify(emailService).sendEmail(expectedEmailProps, EmailRecipientWithName.from(pwaManager), pwaApplication.getAppReference());
     });
     verify(emailService, times(emailRecipients.size())).sendEmail(any(), any(), any());
   }
@@ -230,13 +231,14 @@ class WithdrawPublicNoticeServiceTest {
     var latestPublicNoticeDocument = PublicNoticeTestUtil.createInitialPublicNoticeDocument(publicNotice);
     when(publicNoticeService.getLatestPublicNoticeDocument(publicNotice)).thenReturn(latestPublicNoticeDocument);
 
-    var pwaManager = PersonTestUtil.createPersonFrom(new PersonId(200), "manager@email.com");
-    when(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(Set.of(pwaManager));
+    var pwaManager = new TeamMemberView(2L, "Mr.", "test", "surname", "manager@email.com", null, null, List.of());
+    when(pwaTeamService.getMembersWithRegulatorRole(Role.PWA_MANAGER)).thenReturn(List.of(pwaManager));
 
     var applicant = PersonTestUtil.createPersonFrom(new PersonId(300), "applicant@email.com");
     when(pwaContactService.getPeopleInRoleForPwaApplication(pwaApplication,
         PwaContactRole.PREPARER)).thenReturn(List.of(applicant));
-    var emailRecipients = List.of(pwaManager, applicant);
+
+    var emailRecipients = List.of(EmailRecipientWithName.from(pwaManager), EmailRecipientWithName.from(applicant));
 
     withdrawPublicNoticeService.withdrawPublicNotice(pwaApplication, form, user);
 
@@ -247,7 +249,7 @@ class WithdrawPublicNoticeServiceTest {
 
     emailRecipients.forEach(recipient -> {
       var expectedEmailProps = new PublicNoticeWithdrawnEmailProps(
-          recipient.getFullName(),
+          recipient.fullName(),
           pwaApplication.getAppReference(),
           user.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());

@@ -17,6 +17,10 @@ public class ConsulteeGroupId {
     return new ConsulteeGroupId(consulteeGroup.getId());
   }
 
+  public static ConsulteeGroupId from(Integer consulteeGroupId) {
+    return new ConsulteeGroupId(consulteeGroupId);
+  }
+
   public int asInt() {
     return this.id;
   }

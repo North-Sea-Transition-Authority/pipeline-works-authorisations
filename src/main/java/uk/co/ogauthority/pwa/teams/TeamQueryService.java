@@ -106,19 +106,34 @@ public class TeamQueryService {
     return !teamRoles.isEmpty();
   }
 
-  public List<TeamMemberView> getMembersOfScopedTeam(TeamType teamType, TeamScopeReference teamScopeReference) {
+  public List<UserTeamRolesView> getUsersOfScopedTeam(TeamType teamType, TeamScopeReference teamScopeReference) {
     assertTeamTypeIsScoped(teamType);
-    return teamMemberQueryService.getTeamMemberViewsByScopedTeam(teamType, teamScopeReference);
+
+    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
+        .stream()
+        .filter(teamRole -> teamScopeReferenceMatchesTeam(teamScopeReference, teamRole.getTeam()))
+        .toList();
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
-  public List<TeamMemberView> getMembersOfTeam(Team team) {
-    return teamMemberQueryService.getTeamMemberViewsForTeam(team);
+  public List<UserTeamRolesView> getUsersOfTeam(Team team) {
+    var teamRoles = teamRoleRepository.findByTeam(team);
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
   public List<TeamMemberView> getMembersOfStaticTeamWithRole(TeamType teamType, Role role) {
     var team = getStaticTeamByTeamType(teamType);
 
     return teamMemberQueryService.getTeamMemberViewsByTeamAndRole(team, role);
+  }
+
+  public List<UserTeamRolesView> getUsersOfStaticTeamWithRole(TeamType teamType, Role role) {
+    var team = getStaticTeamByTeamType(teamType);
+
+    var teamRoles = teamRoleRepository.findByTeamAndRole(team, role);
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
   @VisibleForTesting
@@ -183,18 +198,43 @@ public class TeamQueryService {
     return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
   }
 
+  public List<UserTeamRolesView> getUsersOfTeamTypeWithRoleIn(TeamType teamType, Collection<Role> roles) {
+    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
+        .stream()
+        .filter(teamRole -> roles.contains(teamRole.getRole()))
+        .toList();
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
+  }
+
   public List<TeamMemberView> getMembersOfScopedTeamWithRoleIn(TeamType teamType,
                                                                TeamScopeReference teamScopeReference,
                                                                Collection<Role> roles) {
     assertTeamTypeIsScoped(teamType);
 
-    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
+    var teamRoles = getTeamRolesByScopeReferenceAndRolesIn(teamType, teamScopeReference, roles);
+
+    return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
+  }
+
+  public List<UserTeamRolesView> getUsersOfScopedTeamWithRoleIn(TeamType teamType,
+                                                               TeamScopeReference teamScopeReference,
+                                                               Collection<Role> roles) {
+    assertTeamTypeIsScoped(teamType);
+
+    var teamRoles = getTeamRolesByScopeReferenceAndRolesIn(teamType, teamScopeReference, roles);
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
+  }
+
+  private List<TeamRole> getTeamRolesByScopeReferenceAndRolesIn(TeamType teamType,
+                                                                TeamScopeReference teamScopeReference,
+                                                                Collection<Role> roles) {
+    return teamRoleRepository.findAllByTeam_TeamType(teamType)
         .stream()
         .filter(teamRole -> teamScopeReferenceMatchesTeam(teamScopeReference, teamRole.getTeam()))
         .filter(teamRole -> roles.contains(teamRole.getRole()))
         .toList();
-
-    return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
   }
 
   private boolean teamScopeReferenceMatchesTeam(TeamScopeReference teamScopeReference, Team team) {

@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.service.teams;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -8,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
-// TODO: Remove when we remove use of Person
 /**
  * TeamService wrapper that answers common PWA team questions.
  */
@@ -29,19 +30,32 @@ public class PwaTeamService {
     this.userAccountService = userAccountService;
   }
 
+  public List<TeamMemberView> getMembersWithRegulatorRole(Role role) {
+    return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role);
+  }
+
   public Set<Person> getPeopleWithRegulatorRole(Role role) {
-    return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role).stream()
-        .map(this::getPersonIdFromWuaId)
+    Set<Integer> wuaIdSet = teamQueryService.getUsersOfStaticTeamWithRole(TeamType.REGULATOR, role).stream()
+        .map(UserTeamRolesView::wuaId)
+        .map(Long::intValue)
         .collect(Collectors.toSet());
+
+    return userAccountService.getPersonsByWuaIdSet(wuaIdSet);
   }
 
   public List<TeamMemberView> getTeamMembersWithRegulatorRole(Role role) {
     return teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, role);
   }
 
-  @VisibleForTesting
-  Person getPersonIdFromWuaId(TeamMemberView member) {
-    var webUserAccount = userAccountService.getWebUserAccount(Math.toIntExact(member.wuaId()));
-    return webUserAccount.getLinkedPerson();
+  public Set<Person> getPeopleByConsulteeGroupAndRoleIn(ConsulteeGroup consulteeGroup, Set<Role> roles) {
+    var teamType = TeamType.CONSULTEE;
+    var teamScopeReference = TeamScopeReference.from(consulteeGroup.getId(), teamType);
+    Set<Integer> wuaIdSet = teamQueryService.getUsersOfScopedTeam(teamType, teamScopeReference).stream()
+        .filter(member -> member.roles().stream().anyMatch(roles::contains))
+        .map(UserTeamRolesView::wuaId)
+        .map(Long::intValue)
+        .collect(Collectors.toSet());
+
+    return userAccountService.getPersonsByWuaIdSet(wuaIdSet);
   }
 }

@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.service.teams;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -34,7 +33,7 @@ import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
-import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -155,13 +154,12 @@ class PwaHolderTeamServiceTest {
   @Test
   void getPeopleWithHolderTeamRole_singlePersonInHolderTeam() {
     var team = mock(Team.class);
-    var teamMemberView = mock(TeamMemberView.class);
     var role = Role.APPLICATION_CREATOR;
-    when(teamMemberView.roles()).thenReturn(List.of(role, Role.APPLICATION_SUBMITTER));
+    var userTeamRolesView = new UserTeamRolesView(1L, null, null, List.of(role, Role.APPLICATION_SUBMITTER));
     when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
     when(teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(Set.of(team));
-    when(teamQueryService.getMembersOfTeam(team)).thenReturn(List.of(teamMemberView));
-    when(userAccountService.getWebUserAccount(anyInt())).thenReturn(webUserAccount);
+    when(teamQueryService.getUsersOfTeam(team)).thenReturn(List.of(userTeamRolesView));
+    when(userAccountService.getPersonsByWuaIdSet(Set.of(1))).thenReturn(Set.of(person));
 
     var result = pwaHolderTeamService.getPeopleWithHolderTeamRole(detail, role);
 
@@ -171,11 +169,10 @@ class PwaHolderTeamServiceTest {
   @Test
   void getPeopleWithHolderTeamRole_PersonDoesntHaveTheRole() {
     var team = mock(Team.class);
-    var teamMemberView = mock(TeamMemberView.class);
-    when(teamMemberView.roles()).thenReturn(List.of(Role.APPLICATION_CREATOR, Role.APPLICATION_SUBMITTER));
+    var userTeamRolesView = new UserTeamRolesView(1L, null, null, List.of(Role.APPLICATION_CREATOR, Role.APPLICATION_SUBMITTER));
     when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
     when(teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(Set.of(team));
-    when(teamQueryService.getMembersOfTeam(team)).thenReturn(List.of(teamMemberView));
+    when(teamQueryService.getUsersOfTeam(team)).thenReturn(List.of(userTeamRolesView));
 
     var result = pwaHolderTeamService.getPeopleWithHolderTeamRole(detail, Role.TEAM_ADMINISTRATOR);
 
@@ -184,11 +181,11 @@ class PwaHolderTeamServiceTest {
 
   @Test
   void getPersonsInHolderTeam_singlePersonInHolderTeam() {
-    var teamMemberView = mock(TeamMemberView.class);
+    var userTeamRolesView = new UserTeamRolesView(1L, null, null, List.of());
     when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
-    when(teamQueryService.getMembersOfScopedTeam(eq(TeamType.ORGANISATION), any(TeamScopeReference.class)))
-        .thenReturn(List.of(teamMemberView));
-    when(userAccountService.getWebUserAccount(anyInt())).thenReturn(webUserAccount);
+    when(teamQueryService.getUsersOfScopedTeam(eq(TeamType.ORGANISATION), any(TeamScopeReference.class)))
+        .thenReturn(List.of(userTeamRolesView));
+    when(userAccountService.getPersonsByWuaIdSet(Set.of(1))).thenReturn(Set.of(person));
 
     var people = pwaHolderTeamService.getPersonsInHolderTeam(detail);
 

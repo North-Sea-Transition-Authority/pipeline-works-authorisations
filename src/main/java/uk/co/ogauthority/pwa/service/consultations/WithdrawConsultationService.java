@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -117,10 +118,10 @@ public class WithdrawConsultationService {
     var consulteeGroupId = consultationRequest.getConsulteeGroup().getId();
     var teamScopeReference = TeamScopeReference.from(consulteeGroupId, TeamType.CONSULTEE);
 
-    var membersOfConsulteeGroup = teamQueryService.getMembersOfScopedTeam(TeamType.CONSULTEE, teamScopeReference);
+    var membersOfConsulteeGroup =
+        teamQueryService.getMembersOfScopedTeamWithRoleIn(TeamType.CONSULTEE, teamScopeReference, Set.of(Role.RECIPIENT));
 
     return membersOfConsulteeGroup.stream()
-        .filter(teamMemberView -> teamMemberView.roles().contains(Role.RECIPIENT))
         .map(EmailRecipientWithName::from)
         .toList();
   }

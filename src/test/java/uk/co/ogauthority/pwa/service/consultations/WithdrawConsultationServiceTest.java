@@ -14,6 +14,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -161,9 +162,8 @@ class WithdrawConsultationServiceTest {
 
     var teamMember1 = new TeamMemberView(1L, "Mr.", "test", "surname", "myEmail1@mail.com", null, null, List.of(Role.RECIPIENT));
     var teamMember2 = new TeamMemberView(2L, "Mr.", "test", "surname", "myEmail3@mail.com", null, null, List.of(Role.RECIPIENT));
-    var teamMember3 = new TeamMemberView(3L, "Mr.", "test", "surname", "myEmail3@mail.com", null, null, List.of());
 
-    when(teamQueryService.getMembersOfScopedTeam(eq(CONSULTEE), any())).thenReturn(List.of(teamMember1, teamMember2, teamMember3));
+    when(teamQueryService.getMembersOfScopedTeamWithRoleIn(eq(CONSULTEE), any(), eq(Set.of(Role.RECIPIENT)))).thenReturn(List.of(teamMember1, teamMember2));
 
     var consulteeGroupDetail = new ConsulteeGroupDetail();
     consulteeGroupDetail.setName("my group");

@@ -3,18 +3,19 @@ package uk.co.ogauthority.pwa.service.workflow.assignment;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -34,10 +35,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
@@ -62,10 +60,9 @@ class WorkflowAssignmentServiceTest {
   private ConsultationRequestService consultationRequestService;
 
   @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
-
-  @Mock
   private OldTeamManagementService teamManagementService;
+
+  @InjectMocks
 
   private WorkflowAssignmentService workflowAssignmentService;
 
@@ -84,9 +81,6 @@ class WorkflowAssignmentServiceTest {
     notCaseOfficerPerson = new Person(2, null, null, null, null);
 
     when(pwaTeamService.getPeopleWithRegulatorRole(Role.CASE_OFFICER)).thenReturn(Set.of(caseOfficerPerson));
-
-    workflowAssignmentService = new WorkflowAssignmentService(camundaWorkflowService,
-        pwaTeamService, consulteeGroupTeamService, consultationRequestService, teamManagementService, assignmentService);
 
     pwaApplicationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION);
     consultationSubject = new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION_CONSULTATION);
@@ -112,15 +106,9 @@ class WorkflowAssignmentServiceTest {
   void getAssignmentCandidates_consultationResponder_respondersExist() {
 
     var person1 = new Person(1, null, null, null, null);
-    var person2 = new Person(2, null, null, null, null);
 
-    when(consulteeGroupTeamService.getTeamMembersForGroup(eq(consulteeGroupDetail.getConsulteeGroup()))).thenReturn(
-        List.of(
-            new ConsulteeGroupTeamMember(consulteeGroupDetail.getConsulteeGroup(), person1, Set.of(
-                ConsulteeGroupMemberRole.RESPONDER, ConsulteeGroupMemberRole.RECIPIENT)),
-            new ConsulteeGroupTeamMember(consulteeGroupDetail.getConsulteeGroup(), person2,
-                Set.of(ConsulteeGroupMemberRole.RECIPIENT))
-        ));
+    when(pwaTeamService.getPeopleByConsulteeGroupAndRoleIn(eq(consulteeGroupDetail.getConsulteeGroup()), anySet()))
+        .thenReturn(Set.of(person1));
 
     var responderPeople = workflowAssignmentService.getAssignmentCandidates(consultationSubject,
         PwaApplicationConsultationWorkflowTask.RESPONSE);
@@ -132,13 +120,8 @@ class WorkflowAssignmentServiceTest {
   @Test
   void getAssignmentCandidates_consultationResponder_noResponders() {
 
-    when(consulteeGroupTeamService.getTeamMembersForGroup(eq(consulteeGroupDetail.getConsulteeGroup()))).thenReturn(
-        List.of(
-            new ConsulteeGroupTeamMember(consulteeGroupDetail.getConsulteeGroup(), new Person(),
-                Set.of(ConsulteeGroupMemberRole.RECIPIENT)),
-            new ConsulteeGroupTeamMember(consulteeGroupDetail.getConsulteeGroup(), new Person(),
-                Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER))
-        ));
+    when(pwaTeamService.getPeopleByConsulteeGroupAndRoleIn(eq(consulteeGroupDetail.getConsulteeGroup()), anySet()))
+        .thenReturn(Set.of());
 
     assertThat(workflowAssignmentService.getAssignmentCandidates(consultationSubject,
         PwaApplicationConsultationWorkflowTask.RESPONSE)).isEmpty();

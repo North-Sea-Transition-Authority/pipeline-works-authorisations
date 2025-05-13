@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,11 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BeanPropertyBindingResult;
@@ -45,14 +46,14 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamScopeReference;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -63,13 +64,8 @@ import uk.co.ogauthority.pwa.validators.consultations.AssignResponderValidator;
 @ExtendWith(MockitoExtension.class)
 class AssignResponderServiceTest {
 
-  private AssignResponderService assignResponderService;
-
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
-
-  @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
 
   @Mock
   private AssignResponderValidator validator;
@@ -89,21 +85,14 @@ class AssignResponderServiceTest {
   @Mock
   private CaseLinkService caseLinkService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @InjectMocks
+  private AssignResponderService assignResponderService;
+
   @Captor
   private ArgumentCaptor<ConsultationAssignedToYouEmailProps> emailPropsCaptor;
-
-  @BeforeEach
-  void setUp() {
-    assignResponderService = new AssignResponderService(
-        workflowAssignmentService,
-        validator,
-        consulteeGroupTeamService,
-        teamManagementService,
-        camundaWorkflowService,
-        consultationRequestService,
-        caseLinkService,
-        emailService);
-  }
 
   @Test
   void getAllRespondersForRequest() {
@@ -330,42 +319,38 @@ class AssignResponderServiceTest {
 
   @Test
   void isUserMemberOfRequestGroup_valid() {
-    var usersGroup = new ConsulteeGroup();
-    usersGroup.setId(1);
-
-    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
-    consulteeGroupTeamMember.setConsulteeGroup(usersGroup);
-    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.RESPONDER));
-
     var user = new WebUserAccount(1);
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(2);
     var consultationRequest = new ConsultationRequest();
-    consultationRequest.setConsulteeGroup(usersGroup);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
 
-    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
-    boolean isMemberOfRequestGroup = assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest);
+    when(teamQueryService.userHasAtLeastOneScopedRole(
+        eq((long) user.getWuaId()),
+        eq(TeamType.CONSULTEE),
+        any(TeamScopeReference.class),
+        anySet()
+    )).thenReturn(true);
 
-    assertTrue(isMemberOfRequestGroup);
+    assertTrue(assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest));
   }
 
   @Test
   void isUserMemberOfRequestGroup_invalid() {
-    var usersGroup = new ConsulteeGroup();
-    usersGroup.setId(1);
-
-    var consulteeGroupTeamMember = new ConsulteeGroupTeamMember();
-    consulteeGroupTeamMember.setConsulteeGroup(usersGroup);
-    consulteeGroupTeamMember.setRoles(Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER));
-
     var user = new WebUserAccount(1);
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(2);
     var consultationRequest = new ConsultationRequest();
-    var requestGroup = new ConsulteeGroup();
-    requestGroup.setId(2);
-    consultationRequest.setConsulteeGroup(requestGroup);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
 
-    when(consulteeGroupTeamService.getTeamMemberByPerson(user.getLinkedPerson())).thenReturn(Optional.of(consulteeGroupTeamMember));
-    boolean isMemberOfRequestGroup = assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest);
+    when(teamQueryService.userHasAtLeastOneScopedRole(
+        eq((long) user.getWuaId()),
+        eq(TeamType.CONSULTEE),
+        any(TeamScopeReference.class),
+        anySet()
+    )).thenReturn(false);
 
-    assertFalse(isMemberOfRequestGroup);
+    assertFalse(assignResponderService.isUserMemberOfRequestGroup(user, consultationRequest));
   }
 
   @Test
@@ -374,8 +359,8 @@ class AssignResponderServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         null,
         new ConsultationInvolvementDto(null, Set.of(), null, List.of(), false)
-    )
-        ;
+    );
+
     var processingContext = new PwaAppProcessingContext(
         null,
         null,

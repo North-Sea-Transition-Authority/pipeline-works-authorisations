@@ -55,20 +55,6 @@ public class WebUserAccount implements Serializable {
     this.person = person;
   }
 
-  // TODO: Remove in PWARE-63
-  @VisibleForTesting
-  WebUserAccount(int wuaId,
-                 String emailAddress,
-                 String loginId,
-                 WebUserAccountStatus accountStatus,
-                 Person person) {
-    this.wuaId = wuaId;
-    this.emailAddress = emailAddress;
-    this.loginId = loginId;
-    this.accountStatus = accountStatus;
-    this.person = person;
-  }
-
   public void setWuaId(int wuaId) {
     this.wuaId = wuaId;
   }

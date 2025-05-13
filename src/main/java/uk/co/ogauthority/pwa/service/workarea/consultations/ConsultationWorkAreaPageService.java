@@ -10,28 +10,29 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.controller.WorkAreaController;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.mvc.PageView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearchItem;
 import uk.co.ogauthority.pwa.service.consultations.search.ConsultationRequestSearcher;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.workarea.WorkAreaTab;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.Team;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.util.WorkAreaUtils;
 
 @Service
 public class ConsultationWorkAreaPageService {
 
   private final ConsultationRequestSearcher consultationRequestSearcher;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ConsultationWorkAreaPageService(ConsultationRequestSearcher consultationRequestSearcher,
-                                         ConsulteeGroupTeamService consulteeGroupTeamService) {
+                                         TeamQueryService teamQueryService) {
     this.consultationRequestSearcher = consultationRequestSearcher;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
+    this.teamQueryService = teamQueryService;
   }
 
   public PageView<ConsultationRequestWorkAreaItem> getPageView(AuthenticatedUserAccount authenticatedUserAccount,
@@ -53,13 +54,13 @@ public class ConsultationWorkAreaPageService {
                                                                            Set<Integer> consultationRequestIdList,
                                                                            int pageRequest) {
 
-    Optional<ConsulteeGroupTeamMember> userConsulteeGroupMembership = consulteeGroupTeamService
-        .getTeamMemberByPerson(userAccount.getLinkedPerson());
-
-    Integer consulteeGroupIdToGetAllocationRequestsFor = userConsulteeGroupMembership
-        .filter(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RECIPIENT))
-        .map(member -> member.getConsulteeGroup().getId())
-        .orElse(null);
+    var consulteeGroupIdToGetAllocationRequestsFor =
+        teamQueryService.getTeamsOfTypeUserHasAnyRoleIn(userAccount.getWuaId(), TeamType.CONSULTEE, Set.of(Role.RECIPIENT))
+            .stream()
+            .findFirst()
+            .map(Team::getScopeId)
+            .map(Integer::valueOf)
+            .orElse(null);
 
     return consultationRequestSearcher.searchByStatusForGroupIdsOrConsultationRequestIds(
         WorkAreaUtils.getWorkAreaPageRequest(pageRequest, ConsultationWorkAreaSort.DEADLINE_DATE_ASC),

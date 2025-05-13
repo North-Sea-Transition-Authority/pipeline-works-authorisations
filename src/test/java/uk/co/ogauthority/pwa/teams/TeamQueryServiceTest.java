@@ -264,6 +264,39 @@ class TeamQueryServiceTest {
   }
 
   @Test
+  void getUsersOfScopedTeam_returnsUserTeamRolesViewsForMatchingScope() {
+    var teamType = TeamType.ORGANISATION;
+    var scopeRef = TeamScopeReference.from("scope123", teamType);
+
+    var matchingTeam = new Team(UUID.randomUUID());
+    matchingTeam.setScopeId("scope123");
+    matchingTeam.setScopeType(teamType.getScopeType());
+    matchingTeam.setTeamType(teamType);
+
+    var nonMatchingTeam = new Team(UUID.randomUUID());
+    nonMatchingTeam.setScopeId("otherScope");
+    nonMatchingTeam.setScopeType(teamType.getScopeType());
+    nonMatchingTeam.setTeamType(teamType);
+
+    var matchingTeamRole = new TeamRole();
+    matchingTeamRole.setTeam(matchingTeam);
+
+    var nonMatchingScopeTeamRole = new TeamRole();
+    nonMatchingScopeTeamRole.setTeam(nonMatchingTeam);
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingScopeTeamRole));
+
+    List<UserTeamRolesView> expectedViews = List.of(mock(UserTeamRolesView.class));
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getUsersOfScopedTeam(teamType, scopeRef);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
+  @Test
   void getStaticTeamByTeamType_throwsIllegalArgumentException_whenScopedTeamType() {
     TeamType scopedTeamType = mock(TeamType.class);
     when(scopedTeamType.isScoped()).thenReturn(true);
@@ -459,6 +492,31 @@ class TeamQueryServiceTest {
   }
 
   @Test
+  void getUsersOfTeamTypeWithRoleIn_returnsUserTeamRolesViewsForMatchingRoles() {
+    var teamType = TeamType.REGULATOR;
+    var roles = Set.of(Role.TEAM_ADMINISTRATOR, Role.PWA_MANAGER);
+
+    var matchingTeamRole = new TeamRole();
+    matchingTeamRole.setRole(Role.TEAM_ADMINISTRATOR);
+    matchingTeamRole.setTeam(new Team());
+
+    var nonMatchingTeamRole = new TeamRole();
+    nonMatchingTeamRole.setRole(Role.CONSENT_VIEWER);
+    nonMatchingTeamRole.setTeam(new Team());
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingTeamRole));
+
+    var expectedViews = List.of(mock(UserTeamRolesView.class));
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getUsersOfTeamTypeWithRoleIn(teamType, roles);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
+  @Test
   void getMembersOfScopedTeamWithRoleIn_returnsMemberViewsForMatchingScopeAndRoles() {
     var teamType = TeamType.CONSULTEE;
     var scopeRef = TeamScopeReference.from("scope123", teamType);
@@ -492,6 +550,44 @@ class TeamQueryServiceTest {
         .thenReturn(expectedViews);
 
     var result = teamQueryService.getMembersOfScopedTeamWithRoleIn(teamType, scopeRef, roles);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
+  @Test
+  void getUsersOfScopedTeamWithRoleIn_returnsMemberViewsForMatchingScopeAndRoles() {
+    var teamType = TeamType.CONSULTEE;
+    var scopeRef = TeamScopeReference.from("scope123", teamType);
+    var roles = Set.of(Role.RECIPIENT, Role.RESPONDER);
+
+    var matchingTeam = new Team();
+    matchingTeam.setScopeId("scope123");
+    matchingTeam.setScopeType(teamType.getScopeType());
+
+    var nonMatchingTeam = new Team();
+    nonMatchingTeam.setScopeId("otherScope");
+    nonMatchingTeam.setScopeType(teamType.getScopeType());
+
+    var matchingTeamRole = new TeamRole();
+    matchingTeamRole.setTeam(matchingTeam);
+    matchingTeamRole.setRole(Role.RECIPIENT);
+
+    var nonMatchingRoleTeamRole = new TeamRole();
+    nonMatchingRoleTeamRole.setTeam(matchingTeam);
+    nonMatchingRoleTeamRole.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var nonMatchingScopeTeamRole = new TeamRole();
+    nonMatchingScopeTeamRole.setTeam(nonMatchingTeam);
+    nonMatchingScopeTeamRole.setRole(Role.RECIPIENT);
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingRoleTeamRole, nonMatchingScopeTeamRole));
+
+    var expectedViews = List.of(mock(UserTeamRolesView.class));
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getUsersOfScopedTeamWithRoleIn(teamType, scopeRef, roles);
 
     assertThat(result).isEqualTo(expectedViews);
   }

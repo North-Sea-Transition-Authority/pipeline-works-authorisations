@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,10 +14,10 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.publicnotices.PublicNoticeWithdrawnEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.PublicNoticeStatus;
 import uk.co.ogauthority.pwa.model.form.publicnotice.WithdrawPublicNoticeForm;
@@ -92,22 +93,32 @@ public class WithdrawPublicNoticeService {
       // do nothing if there's no doc attached to the PN, no work to do
     }
 
-    var emailRecipients = new ArrayList<Person>();
+    var emailRecipients = new ArrayList<EmailRecipientWithName>();
     var statusesDeterminingPublicNoticeWasSentToApplicant = Set.of(
         PublicNoticeStatus.APPLICANT_UPDATE, PublicNoticeStatus.CASE_OFFICER_REVIEW, PublicNoticeStatus.WAITING);
 
     if (statusesDeterminingPublicNoticeWasSentToApplicant.contains(publicNoticeStatusBeforeWithdrawal)) {
-      emailRecipients.addAll(pwaContactService.getPeopleInRoleForPwaApplication(
-          pwaApplication,
-          PwaContactRole.PREPARER
-      ));
+      var recipients = pwaContactService.getPeopleInRoleForPwaApplication(
+              pwaApplication,
+              PwaContactRole.PREPARER
+          )
+          .stream()
+          .map(EmailRecipientWithName::from)
+          .collect(Collectors.toSet());
+
+      emailRecipients.addAll(recipients);
     }
 
-    emailRecipients.addAll(pwaTeamService.getPeopleWithRegulatorRole(Role.PWA_MANAGER));
+    Set<EmailRecipientWithName> recipientsWithRegulatorRole = pwaTeamService.getMembersWithRegulatorRole(Role.PWA_MANAGER)
+        .stream()
+        .map(EmailRecipientWithName::from)
+        .collect(Collectors.toSet());
+
+    emailRecipients.addAll(recipientsWithRegulatorRole);
     emailRecipients.forEach(recipient -> {
 
       var withdrawnEmailProps = new PublicNoticeWithdrawnEmailProps(
-          recipient.getFullName(),
+          recipient.fullName(),
           pwaApplication.getAppReference(),
           authenticatedUserAccount.getLinkedPerson().getFullName(),
           form.getWithdrawalReason());

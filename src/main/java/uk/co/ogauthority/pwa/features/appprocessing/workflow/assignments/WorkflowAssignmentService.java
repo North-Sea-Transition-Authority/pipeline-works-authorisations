@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments;
 import jakarta.transaction.Transactional;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.WorkflowAssignmentException;
@@ -14,9 +13,6 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowSubject;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
@@ -27,7 +23,6 @@ public class WorkflowAssignmentService {
 
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaTeamService pwaTeamService;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationRequestService consultationRequestService;
   private final OldTeamManagementService teamManagementService;
   private final AssignmentService assignmentService;
@@ -35,13 +30,11 @@ public class WorkflowAssignmentService {
   @Autowired
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
                                    PwaTeamService pwaTeamService,
-                                   ConsulteeGroupTeamService consulteeGroupTeamService,
                                    ConsultationRequestService consultationRequestService,
                                    OldTeamManagementService teamManagementService,
                                    AssignmentService assignmentService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaTeamService = pwaTeamService;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationRequestService = consultationRequestService;
     this.teamManagementService = teamManagementService;
     this.assignmentService = assignmentService;
@@ -72,10 +65,7 @@ public class WorkflowAssignmentService {
         var consulteeGroup = consultationRequestService.getConsultationRequestByIdOrThrow(workflowSubject.getBusinessKey())
             .getConsulteeGroup();
 
-        return consulteeGroupTeamService.getTeamMembersForGroup(consulteeGroup).stream()
-            .filter(member -> member.getRoles().contains(ConsulteeGroupMemberRole.RESPONDER))
-            .map(ConsulteeGroupTeamMember::getPerson)
-            .collect(Collectors.toSet());
+        return pwaTeamService.getPeopleByConsulteeGroupAndRoleIn(consulteeGroup, Set.of(Role.RESPONDER));
 
       default:
         return Set.of();
