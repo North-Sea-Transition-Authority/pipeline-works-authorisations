@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.teams.management.form;
 
+import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Errors;
@@ -16,7 +17,7 @@ public class AddMemberFormValidator {
     this.teamManagementService = teamManagementService;
   }
 
-  public boolean isValid(AddMemberForm form, Errors errors) {
+  public boolean isValid(AddMemberForm form, UUID teamId, Errors errors) {
 
     if (StringUtils.isBlank(form.getUsername())) {
       errors.rejectValue(FIELD_NAME, FIELD_NAME + ".required", "Enter an Energy Portal username");
@@ -34,13 +35,24 @@ public class AddMemberFormValidator {
           "More than one Energy Portal user exists with this email address. Enter the username of the user instead.");
     }
 
-    if (users.get(0).getIsAccountShared()) {
+    var user = users.getFirst();
+    if (user.getIsAccountShared()) {
       errors.rejectValue(FIELD_NAME, FIELD_NAME + ".sharedAccount", "You cannot add shared accounts to this service");
     }
 
-    if (!users.get(0).getCanLogin()) {
+    if (!user.getCanLogin()) {
       errors.rejectValue(FIELD_NAME, FIELD_NAME + ".inactiveAccount",
           "This user does not have login access to the Energy Portal and can't be added to this service");
+    }
+
+    var team = teamManagementService.getTeam(teamId)
+        .orElseThrow(() -> new IllegalStateException("Team %s not found".formatted(teamId)));
+
+    if (team.getTeamType().isScoped()
+        && !teamManagementService.canAddUserToTeam(user.getWebUserAccountId(), team)
+    ) {
+      errors.rejectValue(FIELD_NAME, FIELD_NAME + ".alreadyInTeamType",
+          "This user is already member of a %s team".formatted(team.getTeamType().getDisplayName()));
     }
 
     return !errors.hasErrors();

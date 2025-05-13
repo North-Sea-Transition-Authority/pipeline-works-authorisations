@@ -192,7 +192,7 @@ public class TeamManagementController {
   public ModelAndView handleAddMemberToTeam(@PathVariable UUID teamId,
                                             @ModelAttribute("form") AddMemberForm form,
                                             BindingResult bindingResult) {
-    if (!addMemberFormValidator.isValid(form, bindingResult)) {
+    if (!addMemberFormValidator.isValid(form, teamId, bindingResult)) {
       return new ModelAndView("teamManagement/addMember")
           .addObject(
               "cancelUrl",

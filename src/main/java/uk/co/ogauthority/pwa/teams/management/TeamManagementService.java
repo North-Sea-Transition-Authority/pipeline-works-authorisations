@@ -256,6 +256,23 @@ public class TeamManagementService {
     }
   }
 
+  public boolean canAddUserToTeam(long wuaId, Team team) {
+    var teamType = team.getTeamType();
+
+    if (!teamType.isScoped()) {
+      return true;
+    }
+
+    return switch (teamType.getUserMembershipRestriction()) {
+      case SINGLE_TEAM -> !isMemberOfAnyTeamInTeamType(wuaId, teamType);
+      case MULTIPLE_TEAMS -> true;
+    };
+  }
+
+  private boolean isMemberOfAnyTeamInTeamType(long wuaId, TeamType teamType) {
+    return !getScopedTeamsOfTypeUserIsMemberOf(teamType, wuaId).isEmpty();
+  }
+
   public boolean isMemberOfTeam(Team team, long wuaId) {
     return teamRoleRepository.existsByTeamAndWuaId(team, wuaId);
   }

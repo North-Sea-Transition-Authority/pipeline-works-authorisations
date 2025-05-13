@@ -527,7 +527,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getStaticTeamOfTypeUserCanManage(regTeam.getTeamType(), (long) invokingUser.getWuaId()))
         .thenReturn(Optional.of(regTeam));
 
-    when(addMemberFormValidator.isValid(any(), any()))
+    when(addMemberFormValidator.isValid(any(), any(), any()))
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))
@@ -549,7 +549,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getStaticTeamOfTypeUserCanManage(regTeam.getTeamType(), (long) invokingUser.getWuaId()))
         .thenReturn(Optional.of(regTeam));
 
-    when(addMemberFormValidator.isValid(any(), any()))
+    when(addMemberFormValidator.isValid(any(), any(), any()))
         .thenReturn(false);
 
     when(energyPortalConfiguration.registrationUrl())
@@ -569,7 +569,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
     when(teamManagementService.getStaticTeamOfTypeUserCanManage(regTeam.getTeamType(), (long) invokingUser.getWuaId()))
         .thenReturn(Optional.of(regTeam));
 
-    when(addMemberFormValidator.isValid(any(), any()))
+    when(addMemberFormValidator.isValid(any(), any(), any()))
         .thenReturn(true);
 
     when(teamManagementService.getEnergyPortalUser("foo"))

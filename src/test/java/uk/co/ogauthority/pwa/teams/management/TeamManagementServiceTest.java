@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
@@ -67,6 +69,7 @@ class TeamManagementServiceTest {
   @Mock
   private TeamMemberQueryService teamMemberQueryService;
 
+  @Spy
   @InjectMocks
   private TeamManagementService teamManagementService;
 
@@ -534,6 +537,52 @@ class TeamManagementServiceTest {
 
     assertThat(teamManagementService.doesScopedTeamWithReferenceExist(TeamType.ORGANISATION, scopeRef))
         .isFalse();
+  }
+
+  @Test
+  void canAddUserToTeam_staticTeamType_alwaysTrue() {
+    var staticTeam = new Team(UUID.randomUUID());
+    staticTeam.setTeamType(TeamType.REGULATOR); // not a scoped team
+
+    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, staticTeam);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void canAddUserToTeam_scopedTeamType_singleTeamUserNotMember_returnsTrue() {
+    var scopedTeam = new Team(UUID.randomUUID());
+    scopedTeam.setTeamType(TeamType.CONSULTEE); // scoped type with SINGLE_TEAM restriction
+
+    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), user1WuaId))
+        .thenReturn(Collections.emptySet());
+
+    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
+  void canAddUserToTeam_scopedTeamType_singleTeamUserIsMember_returnsFalse() {
+    var scopedTeam = new Team(UUID.randomUUID());
+    scopedTeam.setTeamType(TeamType.CONSULTEE); // scoped type with SINGLE_TEAM restriction
+
+    when(teamManagementService.getScopedTeamsOfTypeUserIsMemberOf(scopedTeam.getTeamType(), user1WuaId))
+        .thenReturn(Set.of(new Team()));
+
+    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+
+    assertThat(result).isFalse();
+  }
+
+  @Test
+  void canAddUserToTeam_scopedTeamType_multipleTeamsAlwaysTrue() {
+    var scopedTeam = new Team(UUID.randomUUID());
+    scopedTeam.setTeamType(TeamType.ORGANISATION); // scoped type with MULTIPLE_TEAMS restriction
+
+    boolean result = teamManagementService.canAddUserToTeam(user1WuaId, scopedTeam);
+
+    assertThat(result).isTrue();
   }
 
   @Test

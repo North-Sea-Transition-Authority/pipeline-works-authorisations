@@ -27,10 +27,11 @@ public enum TeamType {
           Role.AS_BUILT_NOTIFICATION_ADMIN,
           Role.TEMPLATE_CLAUSE_MANAGER
       ),
-      null
+      null,
+      UserMembershipRestriction.SINGLE_TEAM
   ),
   CONSULTEE(
-      "Consultees",
+      "Consultee Groups",
       "consultee",
       "CONSULTEE",
       List.of(
@@ -38,7 +39,8 @@ public enum TeamType {
           Role.RECIPIENT,
           Role.RESPONDER
       ),
-          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewConsulteeGroupTeam(null))
+          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewConsulteeGroupTeam(null)),
+      UserMembershipRestriction.SINGLE_TEAM
   ),
   ORGANISATION(
       "Organisations",
@@ -51,8 +53,12 @@ public enum TeamType {
           Role.FINANCE_ADMIN,
           Role.AS_BUILT_NOTIFICATION_SUBMITTER
       ),
-          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewOrgTeam(null))
-  );
+          () -> ReverseRouter.route(on(ScopedTeamManagementController.class).renderCreateNewOrgTeam(null)),
+      UserMembershipRestriction.MULTIPLE_TEAMS
+  ),
+  ;
+
+  public enum UserMembershipRestriction { SINGLE_TEAM, MULTIPLE_TEAMS }
 
   private final String displayName;
   private final String urlSlug;
@@ -60,14 +66,21 @@ public enum TeamType {
   private final String scopeType;
   private final List<Role> allowedRoles;
   private final Supplier<String> createNewInstanceRoute;
+  private final UserMembershipRestriction userMembershipRestriction;
 
-  TeamType(String displayName, String urlSlug, String scopeType, List<Role> allowedRoles, Supplier<String> createNewInstanceRoute) {
+  TeamType(String displayName,
+           String urlSlug,
+           String scopeType,
+           List<Role> allowedRoles,
+           Supplier<String> createNewInstanceRoute,
+           UserMembershipRestriction userMembershipRestriction) {
     this.displayName = displayName;
     this.urlSlug = urlSlug;
     this.scopeType = scopeType;
     this.isScoped = scopeType != null;
     this.allowedRoles = allowedRoles;
     this.createNewInstanceRoute = createNewInstanceRoute;
+    this.userMembershipRestriction = userMembershipRestriction;
   }
 
   public String getDisplayName() {
@@ -96,6 +109,10 @@ public enum TeamType {
 
   public String getCreateNewInstanceRoute() {
     return createNewInstanceRoute.get();
+  }
+
+  public UserMembershipRestriction getUserMembershipRestriction() {
+    return userMembershipRestriction;
   }
 
   public static Optional<TeamType> fromUrlSlug(String urlSlug) {
