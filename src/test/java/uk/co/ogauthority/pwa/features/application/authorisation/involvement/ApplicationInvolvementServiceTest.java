@@ -14,6 +14,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -33,16 +34,12 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
@@ -52,7 +49,9 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -65,9 +64,6 @@ class ApplicationInvolvementServiceTest {
   private PwaContactService pwaContactService;
 
   @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
-
-  @Mock
   private ConsultationRequestService consultationRequestService;
 
   @Mock
@@ -78,9 +74,6 @@ class ApplicationInvolvementServiceTest {
 
   @Mock
   private ConsulteeGroupDetailService consulteeGroupDetailService;
-
-  @Mock
-  private PersonService personService;
 
   @Mock
   private ConfirmSatisfactoryApplicationService confirmSatisfactoryApplicationService;
@@ -100,6 +93,10 @@ class ApplicationInvolvementServiceTest {
   @Mock
   private AssignmentService assignmentService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @InjectMocks
   private ApplicationInvolvementService applicationInvolvementService;
 
   private PwaApplicationDetail detail;
@@ -108,21 +105,6 @@ class ApplicationInvolvementServiceTest {
 
   @BeforeEach
   void setUp() {
-
-    applicationInvolvementService = new ApplicationInvolvementService(
-        consulteeGroupTeamService,
-        pwaContactService,
-        consultationRequestService,
-        camundaWorkflowService,
-        userTypeService,
-        consulteeGroupDetailService,
-        personService,
-        confirmSatisfactoryApplicationService,
-        pwaHolderTeamService,
-        pwaAppAssignmentViewRepository,
-        pwaApplicationDetailService,
-        consentReviewService,
-        assignmentService);
 
     detail = new PwaApplicationDetail();
     application = new PwaApplication();
@@ -142,7 +124,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
@@ -159,7 +141,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -177,7 +159,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -196,7 +178,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(camundaWorkflowService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -215,7 +197,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(pwaContactService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -232,7 +214,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(pwaContactService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -251,7 +233,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, pwaContactService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(pwaContactService, consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -270,7 +252,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -292,7 +274,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).isEmpty();
@@ -315,7 +297,7 @@ class ApplicationInvolvementServiceTest {
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
 
-    verifyNoInteractions(consulteeGroupTeamService, consultationRequestService, consulteeGroupDetailService);
+    verifyNoInteractions(consultationRequestService, consulteeGroupDetailService);
 
     assertThat(involvement.getPwaApplication()).isEqualTo(application);
     assertThat(involvement.getContactRoles()).containsExactly(PwaContactRole.PREPARER);
@@ -334,12 +316,8 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
-        new ConsulteeGroupTeamMember(
-            groupDetail.getConsulteeGroup(),
-            user.getLinkedPerson(),
-            Set.of(ConsulteeGroupMemberRole.RECIPIENT))
-    ));
+    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+        .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of());
 
     var involvement = applicationInvolvementService.getApplicationInvolvementDto(detail, user);
@@ -368,13 +346,9 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
-        new ConsulteeGroupTeamMember(
-            groupDetail.getConsulteeGroup(),
-            user.getLinkedPerson(),
-            Set.of(ConsulteeGroupMemberRole.RECIPIENT))
-    ));
-    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(any())).thenReturn(groupDetail);
+    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+        .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 
     var request = new ConsultationRequest();
     request.setConsulteeGroup(groupDetail.getConsulteeGroup());
@@ -404,7 +378,7 @@ class ApplicationInvolvementServiceTest {
             ConsultationInvolvementDto::getHistoricalRequests,
             ConsultationInvolvementDto::isAssignedToResponderStage
         )
-        .containsExactly(groupDetail, Set.of(ConsulteeGroupMemberRole.RECIPIENT), request, List.of(), false);
+        .containsExactly(groupDetail, Set.of(Role.RECIPIENT), request, List.of(), false);
 
   }
 
@@ -414,13 +388,9 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(consulteeGroupTeamService.getTeamMemberByPerson(any())).thenReturn(Optional.of(
-        new ConsulteeGroupTeamMember(
-            groupDetail.getConsulteeGroup(),
-            user.getLinkedPerson(),
-            Set.of(ConsulteeGroupMemberRole.RECIPIENT))
-    ));
-    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(any())).thenReturn(groupDetail);
+    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+        .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
+    when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 
     var request = new ConsultationRequest();
     request.setConsulteeGroup(groupDetail.getConsulteeGroup());
@@ -450,7 +420,7 @@ class ApplicationInvolvementServiceTest {
             ConsultationInvolvementDto::getActiveRequest,
             ConsultationInvolvementDto::getHistoricalRequests,
             ConsultationInvolvementDto::isAssignedToResponderStage
-        ).containsExactly(groupDetail, Set.of(ConsulteeGroupMemberRole.RECIPIENT), request, List.of(), true);
+        ).containsExactly(groupDetail, Set.of(Role.RECIPIENT), request, List.of(), true);
 
   }
 

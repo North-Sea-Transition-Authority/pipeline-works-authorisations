@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -48,7 +47,7 @@ public class PwaApplicationPermissionService {
         .orElse(Set.of());
 
     var consulteeRoles = applicationInvolvementService
-        .getConsultationInvolvement(detail.getPwaApplication(), person)
+        .getConsultationInvolvement(detail.getPwaApplication(), user)
         .map(ConsultationInvolvementDto::getConsulteeRoles)
         .orElse(Set.of());
 

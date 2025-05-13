@@ -25,10 +25,18 @@ public class ConsulteeGroupDetailService {
         .orElseThrow(() -> new PwaEntityNotFoundException(String.format("Couldn't find consultee group detail with ID: %s", entityID)));
   }
 
+  // TODO: Remove in PWARE-63
   public ConsulteeGroupDetail getConsulteeGroupDetailByGroupAndTipFlagIsTrue(ConsulteeGroup consulteeGroup) {
     return groupDetailRepository.findByConsulteeGroupAndTipFlagIsTrue(consulteeGroup)
         .orElseThrow(() -> new PwaEntityNotFoundException(
             String.format("Couldn't find consultee group detail by consultee group ID: %s", consulteeGroup.getId() +
+                " where tip flag is true")));
+  }
+
+  public ConsulteeGroupDetail getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(Integer consulteeGroupId) {
+    return groupDetailRepository.findByConsulteeGroup_IdAndTipFlagIsTrue(consulteeGroupId)
+        .orElseThrow(() -> new PwaEntityNotFoundException(
+            String.format("Couldn't find consultee group detail by consultee group ID: %s", consulteeGroupId +
                 " where tip flag is true")));
   }
 

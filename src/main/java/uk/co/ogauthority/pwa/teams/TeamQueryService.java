@@ -146,6 +146,15 @@ public class TeamQueryService {
 
   }
 
+  public List<UserTeamRolesView> getTeamMembersByUserAndTeamType(long wuaId, TeamType teamType) {
+    var teamRoles = teamRoleRepository.findAllByWuaId(wuaId)
+        .stream()
+        .filter(teamRole -> teamRole.getTeam().getTeamType() == teamType)
+        .toList();
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
+  }
+
   public Set<Role> getRolesForUserInScopedTeams(long wuaId,
                                                 TeamType teamType,
                                                 Collection<String> scopeIds) {

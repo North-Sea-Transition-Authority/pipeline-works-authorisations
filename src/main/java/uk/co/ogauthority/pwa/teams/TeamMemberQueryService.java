@@ -82,9 +82,7 @@ public class TeamMemberQueryService {
               .findFirst()
               .orElseThrow(() -> new TeamManagementException("WuaId %s not found in EPA user set".formatted(wuaId)));
 
-          Map<Team, Set<Role>> teamRoleMap = teamRoles.stream()
-              .filter(teamRole -> teamRole.getWuaId().equals(wuaId))
-              .collect(Collectors.groupingBy(TeamRole::getTeam, Collectors.mapping(TeamRole::getRole, Collectors.toSet())));
+          Map<Team, Set<Role>> teamRoleMap = getTeamRolesSetMapForUser(teamRoles, wuaId);
 
           List<TeamMemberView> teamMemberViews = teamRoleMap.entrySet().stream()
               .map(teamRolesEntry -> {
@@ -110,6 +108,42 @@ public class TeamMemberQueryService {
     return teamRoleRepository.findByTeamAndRole(team, role).stream()
         .map(teamRole -> getTeamMemberView(teamRole.getTeam(), teamRole.getWuaId()))
         .toList();
+  }
+
+  public List<UserTeamRolesView> getUserTeamRolesViewsFrom(List<TeamRole> teamRoles) {
+    var memberWuaIds = teamRoles.stream()
+        .map(TeamRole::getWuaId)
+        .distinct()
+        .toList();
+
+    return memberWuaIds.stream()
+        .flatMap(wuaId -> {
+
+          Map<Team, Set<Role>> teamRoleMap = getTeamRolesSetMapForUser(teamRoles, wuaId);
+
+          List<UserTeamRolesView> teamMemberViews = teamRoleMap.entrySet().stream()
+              .map(teamRolesEntry -> {
+                var team = teamRolesEntry.getKey();
+                var userRoles = teamRolesEntry.getValue();
+
+                List<Role> allowedUserRoles = team.getTeamType().getAllowedRoles()
+                    .stream()
+                    .filter(userRoles::contains)
+                    .toList();
+
+                return UserTeamRolesView.from(wuaId, team, allowedUserRoles);
+              })
+              .toList();
+
+          return teamMemberViews.stream();
+        })
+        .toList();
+  }
+
+  private Map<Team, Set<Role>> getTeamRolesSetMapForUser(List<TeamRole> teamRoles, Long wuaId) {
+    return teamRoles.stream()
+        .filter(teamRole -> teamRole.getWuaId().equals(wuaId))
+        .collect(Collectors.groupingBy(TeamRole::getTeam, Collectors.mapping(TeamRole::getRole, Collectors.toSet())));
   }
 
   public List<TeamMemberView> getTeamMemberViewsByScopedTeam(TeamType teamType, TeamScopeReference teamScopeReference) {

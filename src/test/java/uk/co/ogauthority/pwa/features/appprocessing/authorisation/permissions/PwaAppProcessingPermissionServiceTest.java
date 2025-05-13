@@ -26,7 +26,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.involvement.Appl
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -218,7 +217,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RECIPIENT))
+        getConsultationInvolvement(false, Set.of(Role.RECIPIENT))
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -233,7 +232,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER))
+        getConsultationInvolvement(false, Set.of(Role.RESPONDER))
     );
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -246,7 +245,7 @@ class PwaAppProcessingPermissionServiceTest {
   void getAppProcessingPermissions_noAssignResponderPermission() {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.ACCESS_MANAGER))
+        getConsultationInvolvement(false, Set.of(Role.TEAM_ADMINISTRATOR))
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -261,7 +260,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(true, Set.of(ConsulteeGroupMemberRole.RESPONDER))
+        getConsultationInvolvement(true, Set.of(Role.RESPONDER))
     );
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -274,7 +273,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER))
+        getConsultationInvolvement(false, Set.of(Role.RESPONDER))
     );
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
 
@@ -288,7 +287,7 @@ class PwaAppProcessingPermissionServiceTest {
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         getConsultationInvolvement(false,
-            Set.of(ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.ACCESS_MANAGER))
+            Set.of(Role.RECIPIENT, Role.TEAM_ADMINISTRATOR))
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -587,7 +586,7 @@ class PwaAppProcessingPermissionServiceTest {
 
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
-        getConsultationInvolvement(false, Set.of(ConsulteeGroupMemberRole.RESPONDER))
+        getConsultationInvolvement(false, Set.of(Role.RESPONDER))
     );
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, user)).thenReturn(appInvolvement);
@@ -612,7 +611,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppPermissions_consulteeAdvicePermission_whenConsultee_andHistoricRequest() {
 
-    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(new ConsultationRequest()), false);
+    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(Role.RESPONDER), null, List.of(new ConsultationRequest()), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         consultationInvolvement
@@ -627,7 +626,7 @@ class PwaAppProcessingPermissionServiceTest {
   @Test
   void getAppPermissions_noConsulteeAdvicePermission_whenConsultee_noHistoricRequest() {
 
-    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(ConsulteeGroupMemberRole.RESPONDER), null, List.of(), false);
+    var consultationInvolvement = new ConsultationInvolvementDto(null, Set.of(Role.RESPONDER), null, List.of(), false);
     var appInvolvement = ApplicationInvolvementDtoTestUtil.generateConsulteeInvolvement(
         application,
         consultationInvolvement
@@ -1665,7 +1664,7 @@ class PwaAppProcessingPermissionServiceTest {
   }
 
   private ConsultationInvolvementDto getConsultationInvolvement(boolean assignedResponder,
-                                                                Set<ConsulteeGroupMemberRole> consulteeRoles) {
+                                                                Set<Role> consulteeRoles) {
     return new ConsultationInvolvementDto(null, consulteeRoles, null, null, assignedResponder);
   }
 

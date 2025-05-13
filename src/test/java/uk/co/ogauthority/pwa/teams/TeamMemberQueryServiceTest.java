@@ -308,6 +308,83 @@ class TeamMemberQueryServiceTest {
   }
 
   @Test
+  void getUserTeamRolesViewsFrom() {
+    var teamA = new Team(UUID.randomUUID());
+    teamA.setScopeId("scopeA");
+    teamA.setTeamType(TeamType.ORGANISATION);
+
+    var teamB = new Team(UUID.randomUUID());
+    teamB.setScopeId("scopeB");
+    teamB.setTeamType(TeamType.ORGANISATION);
+
+    var teamC = new Team(UUID.randomUUID());
+    teamC.setScopeId("scopeC");
+    teamC.setTeamType(TeamType.REGULATOR);
+
+    var teamRole1 = new TeamRole(UUID.randomUUID());
+    teamRole1.setWuaId(1L);
+    teamRole1.setTeam(teamA);
+    teamRole1.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole2 = new TeamRole(UUID.randomUUID());
+    teamRole2.setWuaId(1L);
+    teamRole2.setTeam(teamC);
+    teamRole2.setRole(Role.PWA_MANAGER);
+
+    var teamRole3 = new TeamRole(UUID.randomUUID());
+    teamRole3.setWuaId(2L);
+    teamRole3.setTeam(teamB);
+    teamRole3.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole4 = new TeamRole(UUID.randomUUID());
+    teamRole4.setWuaId(2L);
+    teamRole4.setTeam(teamC);
+    teamRole4.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var teamRole5 = new TeamRole(UUID.randomUUID());
+    teamRole5.setWuaId(2L);
+    teamRole5.setTeam(teamC);
+    teamRole5.setRole(Role.ORGANISATION_MANAGER);
+
+    var result = teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(teamRole1, teamRole2, teamRole3, teamRole4, teamRole5));
+
+    assertThat(result)
+        .extracting(
+            UserTeamRolesView::wuaId,
+            UserTeamRolesView::teamId,
+            UserTeamRolesView::teamScopeId,
+            UserTeamRolesView::roles
+        )
+        .containsExactlyInAnyOrder(
+            tuple(
+                1L,
+                teamA.getId(),
+                "scopeA",
+                List.of(Role.TEAM_ADMINISTRATOR)
+            ),
+            tuple(
+                1L,
+                teamC.getId(),
+                "scopeC",
+                List.of(Role.PWA_MANAGER)
+            ),
+            tuple(
+                2L,
+                teamB.getId(),
+                "scopeB",
+                List.of(Role.TEAM_ADMINISTRATOR)
+            ),
+            tuple(
+                2L,
+                teamC.getId(),
+                "scopeC",
+                List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER)
+            )
+        );
+  }
+
+
+  @Test
   void getTeamMemberViewsByTeamAndRole() {
     var role = regTeamUser1RoleManage.getRole();
     var teamMember = TeamMemberView.fromEpaUser(user1, regTeam.getId(), List.of(role));

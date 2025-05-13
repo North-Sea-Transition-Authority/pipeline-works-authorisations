@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.application.authorisation.involvement;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,14 +22,13 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaAppAssignmentView;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.repository.pwaapplications.search.PwaAppAssignmentViewRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -37,6 +37,8 @@ import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * A service to find out how a user is related to an application, e.g. are they part of the contacts team, a consultee,
@@ -45,7 +47,6 @@ import uk.co.ogauthority.pwa.teams.Role;
 @Service
 public class ApplicationInvolvementService {
 
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final PwaContactService pwaContactService;
   private final ConsultationRequestService consultationRequestService;
   private final CamundaWorkflowService camundaWorkflowService;
@@ -58,10 +59,10 @@ public class ApplicationInvolvementService {
   private final PwaApplicationDetailService pwaApplicationDetailService;
   private final ConsentReviewService consentReviewService;
   private final AssignmentService assignmentService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
-  public ApplicationInvolvementService(ConsulteeGroupTeamService consulteeGroupTeamService,
-                                       PwaContactService pwaContactService,
+  public ApplicationInvolvementService(PwaContactService pwaContactService,
                                        ConsultationRequestService consultationRequestService,
                                        CamundaWorkflowService camundaWorkflowService,
                                        UserTypeService userTypeService,
@@ -72,8 +73,8 @@ public class ApplicationInvolvementService {
                                        PwaAppAssignmentViewRepository pwaAppAssignmentViewRepository,
                                        PwaApplicationDetailService pwaApplicationDetailService,
                                        ConsentReviewService consentReviewService,
-                                       AssignmentService assignmentService) {
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
+                                       AssignmentService assignmentService,
+                                       TeamQueryService teamQueryService) {
     this.pwaContactService = pwaContactService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
@@ -86,6 +87,7 @@ public class ApplicationInvolvementService {
     this.pwaApplicationDetailService = pwaApplicationDetailService;
     this.consentReviewService = consentReviewService;
     this.assignmentService = assignmentService;
+    this.teamQueryService = teamQueryService;
   }
 
   public ApplicationInvolvementDto getApplicationInvolvementDto(PwaApplicationDetail detail,
@@ -109,7 +111,7 @@ public class ApplicationInvolvementService {
     // CONSULTEE data
     ConsultationInvolvementDto consultationInvolvement = null;
     if (userTypes.contains(UserType.CONSULTEE)) {
-      consultationInvolvement = getConsultationInvolvement(application, user.getLinkedPerson())
+      consultationInvolvement = getConsultationInvolvement(application, user)
           .orElseThrow(() -> new IllegalStateException(String.format(
               "Person with id [%s] has CONSULTEE priv but we have no consultation involvement object",
               user.getLinkedPerson().getId().asInt())));
@@ -165,64 +167,63 @@ public class ApplicationInvolvementService {
   }
 
   public Optional<ConsultationInvolvementDto> getConsultationInvolvement(PwaApplication application,
-                                                                         Person person) {
+                                                                         WebUserAccount webUserAccount) {
 
-    var consulteeGroupTeamMemberOpt = consulteeGroupTeamService.getTeamMemberByPerson(person);
+    var consulteeGroupTeamMemberOpt =
+        teamQueryService.getTeamMembersByUserAndTeamType(webUserAccount.getWuaId(), TeamType.CONSULTEE).stream()
+          .findFirst();
 
-    if (consulteeGroupTeamMemberOpt.isPresent()) {
+    if (consulteeGroupTeamMemberOpt.isEmpty()) {
+      return Optional.empty();
+    }
 
-      var consulteeGroupTeamMember = consulteeGroupTeamMemberOpt.get();
+    var consulteeGroupTeamMember = consulteeGroupTeamMemberOpt.get();
 
-      var consulteeGroupDetail = consulteeGroupDetailService
-          .getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroupTeamMember.getConsulteeGroup());
+    var consulteeGroupId = Integer.valueOf(consulteeGroupTeamMember.teamScopeId());
+    var consulteeGroupDetail = consulteeGroupDetailService.getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(consulteeGroupId);
 
-      boolean assignedToResponderStage = false;
-      Set<ConsulteeGroupMemberRole> consulteeRoles = Set.of();
+    boolean assignedToResponderStage = false;
+    Set<Role> consulteeRoles = Set.of();
 
-      // user has consulted on app if group they are part of has a consultation request for the application
-      List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplication(
-          application).stream()
-          .filter(r -> Objects.equals(consulteeGroupDetail.getConsulteeGroup(), r.getConsulteeGroup()))
-          .collect(Collectors.toList());
+    // user has consulted on app if group they are part of has a consultation request for the application
+    List<ConsultationRequest> consultationRequests = consultationRequestService.getAllRequestsByApplication(application).stream()
+        .filter(r -> Objects.equals(consulteeGroupId, r.getConsulteeGroup().getId()))
+        .toList();
 
-      // if they've been consulted at least once, their roles in the team should be acknowledged
-      if (!consultationRequests.isEmpty()) {
-        consulteeRoles = consulteeGroupTeamMember.getRoles();
-      }
+    // if they've been consulted at least once, their roles in the team should be acknowledged
+    if (!consultationRequests.isEmpty()) {
+      consulteeRoles = new HashSet<>(consulteeGroupTeamMember.roles());
+    }
 
-      var activeRequest = consultationRequests.stream()
-          .filter(consultationRequestService::consultationRequestIsActive)
-          .findFirst()
-          .orElse(null);
+    var activeRequest = consultationRequests.stream()
+        .filter(consultationRequestService::consultationRequestIsActive)
+        .findFirst()
+        .orElse(null);
 
-      // if there's an active request, find out whether or not the current user is the assigned responder
-      if (activeRequest != null) {
+    // if there's an active request, find out whether or not the current user is the assigned responder
+    if (activeRequest != null) {
 
-        assignedToResponderStage = camundaWorkflowService
-            .getAssignedPersonId(
-                new WorkflowTaskInstance(activeRequest, PwaApplicationConsultationWorkflowTask.RESPONSE))
-            .map(personId -> person.getId().equals(personId))
-            .orElse(false);
-
-      }
-
-      var historicalRequests = consultationRequests.stream()
-          .filter(req -> !Objects.equals(req, activeRequest))
-          .collect(Collectors.toList());
-
-      var dto = new ConsultationInvolvementDto(
-          consulteeGroupDetail,
-          consulteeRoles,
-          activeRequest,
-          historicalRequests,
-          assignedToResponderStage
-      );
-
-      return Optional.of(dto);
+      assignedToResponderStage = camundaWorkflowService
+          .getAssignedPersonId(
+              new WorkflowTaskInstance(activeRequest, PwaApplicationConsultationWorkflowTask.RESPONSE))
+          .map(personId -> webUserAccount.getLinkedPerson().getId().equals(personId))
+          .orElse(false);
 
     }
 
-    return Optional.empty();
+    var historicalRequests = consultationRequests.stream()
+        .filter(req -> !Objects.equals(req, activeRequest))
+        .collect(Collectors.toList());
+
+    var dto = new ConsultationInvolvementDto(
+        consulteeGroupDetail,
+        consulteeRoles,
+        activeRequest,
+        historicalRequests,
+        assignedToResponderStage
+    );
+
+    return Optional.of(dto);
 
   }
 

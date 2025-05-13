@@ -221,7 +221,7 @@ class ConsultationRequestServiceTest {
   @Test
   void validate_valid() {
     doCallRealMethod().when(consultationRequestValidator).validate(any(), any(), any());
-    
+
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(22);

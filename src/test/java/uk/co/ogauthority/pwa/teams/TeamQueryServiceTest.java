@@ -343,6 +343,58 @@ class TeamQueryServiceTest {
   }
 
   @Test
+  void getTeamMembersByUserAndTeamType_returnsMemberViewsForMatchingTeamType() {
+    var teamType = TeamType.REGULATOR;
+
+    Team matchingTeam = new Team(UUID.randomUUID());
+    matchingTeam.setTeamType(teamType);
+
+    Team nonMatchingTeam = new Team(UUID.randomUUID());
+    nonMatchingTeam.setTeamType(TeamType.CONSULTEE);
+
+    TeamRole matchingTeamRole = new TeamRole();
+    matchingTeamRole.setTeam(matchingTeam);
+    matchingTeamRole.setWuaId(1L);
+
+    TeamRole nonMatchingTeamRole = new TeamRole();
+    nonMatchingTeamRole.setTeam(nonMatchingTeam);
+    nonMatchingTeamRole.setWuaId(1L);
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingTeamRole));
+
+    List<UserTeamRolesView> expectedViews = List.of(mock(UserTeamRolesView.class));
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getTeamMembersByUserAndTeamType(1L, teamType);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
+  @Test
+  void getTeamMembersByUserAndTeamType_returnsEmptyListWhenNoMatchingTeamRoles() {
+    var teamType = TeamType.ORGANISATION;
+
+    Team nonMatchingTeam = new Team(UUID.randomUUID());
+    nonMatchingTeam.setTeamType(TeamType.CONSULTEE);
+
+    TeamRole nonMatchingTeamRole = new TeamRole();
+    nonMatchingTeamRole.setTeam(nonMatchingTeam);
+    nonMatchingTeamRole.setWuaId(1L);
+
+    when(teamRoleRepository.findAllByWuaId(1L))
+        .thenReturn(List.of(nonMatchingTeamRole));
+
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of()))
+        .thenReturn(List.of());
+
+    var result = teamQueryService.getTeamMembersByUserAndTeamType(1L, teamType);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
   void getRolesForUserInScopedTeams_FiltersTeamTypeAndCorrectScopeIds() {
     var teamType = TeamType.ORGANISATION;
 

@@ -164,7 +164,7 @@ class WithdrawConsultationServiceTest {
     var teamMember3 = new TeamMemberView(3L, "Mr.", "test", "surname", "myEmail3@mail.com", null, null, List.of());
 
     when(teamQueryService.getMembersOfScopedTeam(eq(CONSULTEE), any())).thenReturn(List.of(teamMember1, teamMember2, teamMember3));
-        
+
     var consulteeGroupDetail = new ConsulteeGroupDetail();
     consulteeGroupDetail.setName("my group");
     consulteeGroupDetail.setConsulteeGroup(consulteeGroup);

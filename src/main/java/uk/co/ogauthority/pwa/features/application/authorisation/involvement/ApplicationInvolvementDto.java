@@ -7,7 +7,6 @@ import java.util.Set;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.service.enums.appprocessing.appinvolvement.OpenConsentReview;
 import uk.co.ogauthority.pwa.teams.Role;
 
@@ -90,7 +89,7 @@ public class ApplicationInvolvementDto {
         .anyMatch(holderTeamRoles::contains);
   }
 
-  public boolean hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole... roles) {
+  public boolean hasAnyOfTheseConsulteeRoles(Role... roles) {
     return getConsultationInvolvement()
         .map(ci -> Arrays.stream(roles).anyMatch(ci.getConsulteeRoles()::contains))
         .orElse(false);

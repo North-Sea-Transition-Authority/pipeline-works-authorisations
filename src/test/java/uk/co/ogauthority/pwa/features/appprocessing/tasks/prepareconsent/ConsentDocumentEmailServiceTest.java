@@ -57,8 +57,10 @@ class ConsentDocumentEmailServiceTest {
 
   private final PwaApplicationDetail detail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   private final Person person = PersonTestUtil.createDefaultPerson();
-  private final TeamMemberView pwaManager1 = new TeamMemberView(1L, "Mr.", "PWA", "Manager1", "manager1@pwa.co.uk", null, null, null);
-  private final TeamMemberView pwaManager2 = new TeamMemberView(2L, "Ms.", "PWA", "Manager2", "manager2@pwa.co.uk", null, null, null);
+  private final TeamMemberView pwaManager1 = new TeamMemberView(1L, "Mr.", "PWA", "Manager1", "manager1@pwa.co.uk", null,
+      null, null);
+  private final TeamMemberView pwaManager2 = new TeamMemberView(2L, "Ms.", "PWA", "Manager2", "manager2@pwa.co.uk", null,
+      null, null);
   private final Set<TeamMemberView> pwaManagers = Set.of(pwaManager1, pwaManager2);
 
   @BeforeEach

@@ -7,7 +7,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import org.apache.commons.collections4.SetUtils;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -20,29 +19,30 @@ public enum PwaApplicationPermission {
   SUBMIT(
       EnumSet.noneOf(PwaContactRole.class),
       EnumSet.of(Role.APPLICATION_SUBMITTER),
-      EnumSet.noneOf(PwaRegulatorRole.class),
-      EnumSet.noneOf(ConsulteeGroupMemberRole.class)
+      Set.of(),
+      Set.of()
   ),
 
   EDIT(
       EnumSet.of(PwaContactRole.PREPARER),
       Set.of(),
-      EnumSet.noneOf(PwaRegulatorRole.class),
-      EnumSet.noneOf(ConsulteeGroupMemberRole.class)
+      Set.of(),
+      Set.of()
   ),
 
   MANAGE_CONTACTS(
       EnumSet.of(PwaContactRole.ACCESS_MANAGER),
       EnumSet.of(Role.APPLICATION_SUBMITTER, Role.APPLICATION_CREATOR),
-      EnumSet.noneOf(PwaRegulatorRole.class),
-      EnumSet.noneOf(ConsulteeGroupMemberRole.class)
+      Set.of(),
+      Set.of()
   ),
 
   VIEW(
       EnumSet.allOf(PwaContactRole.class),
-      EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()),
+      TeamType.ORGANISATION.getAllowedRolesAsSet(),
       EnumSet.allOf(PwaRegulatorRole.class),
-      EnumSet.allOf(ConsulteeGroupMemberRole.class)),
+      TeamType.CONSULTEE.getAllowedRolesAsSet()
+  ),
 
   SET_PIPELINE_REFERENCE(userRolesForApplicationDto ->
       // the user is an app contact preparer and has any of the regulator roles.
@@ -56,7 +56,7 @@ public enum PwaApplicationPermission {
   private final Set<PwaContactRole> contactRoles;
   private final Set<Role> holderTeamRoles;
   private final Set<PwaRegulatorRole> regulatorRoles;
-  private final Set<ConsulteeGroupMemberRole> consulteeRoles;
+  private final Set<Role> consulteeRoles;
   // define a function to override default permission behaviour. Allows specification of complex permission checks.
   private final Function<UserRolesForApplicationDto, Boolean> permissionOverrideFunction;
 
@@ -68,7 +68,7 @@ public enum PwaApplicationPermission {
   PwaApplicationPermission(Set<PwaContactRole> contactRoles,
                            Set<Role> holderTeamRoles,
                            Set<PwaRegulatorRole> regulatorRoles,
-                           Set<ConsulteeGroupMemberRole> consulteeRoles) {
+                           Set<Role> consulteeRoles) {
     this(
         contactRoles,
         holderTeamRoles,
@@ -82,10 +82,10 @@ public enum PwaApplicationPermission {
    */
   PwaApplicationPermission(Function<UserRolesForApplicationDto, Boolean> permissionOverrideFunction) {
     this(
-        EnumSet.noneOf(PwaContactRole.class),
         Set.of(),
-        EnumSet.noneOf(PwaRegulatorRole.class),
-        EnumSet.noneOf(ConsulteeGroupMemberRole.class),
+        Set.of(),
+        Set.of(),
+        Set.of(),
         permissionOverrideFunction);
   }
 
@@ -96,7 +96,7 @@ public enum PwaApplicationPermission {
   PwaApplicationPermission(Set<PwaContactRole> contactRoles,
                            Set<Role> holderTeamRoles,
                            Set<PwaRegulatorRole> regulatorRoles,
-                           Set<ConsulteeGroupMemberRole> consulteeRoles,
+                           Set<Role> consulteeRoles,
                            Function<UserRolesForApplicationDto, Boolean> permissionOverrideFunction) {
     this.contactRoles = contactRoles;
     this.holderTeamRoles = holderTeamRoles;
@@ -117,7 +117,7 @@ public enum PwaApplicationPermission {
     return regulatorRoles;
   }
 
-  public Set<ConsulteeGroupMemberRole> getConsulteeRoles() {
+  public Set<Role> getConsulteeRoles() {
     return consulteeRoles;
   }
 

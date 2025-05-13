@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.authorisation.involvement.ApplicationInvolvementService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -73,9 +72,8 @@ public class PwaAppProcessingPermissionService {
           case VIEW_PAYMENT_DETAILS_IF_EXISTS -> appInvolvement.isUserInAppContactTeam() || appInvolvement.isUserInHolderTeam();
           case APPROVE_OPTIONS_VIEW -> appInvolvement.isUserInAppContactTeam() && applicationTypeisOptionsVariation;
           case CASE_MANAGEMENT_OGA -> usersUserTypes.contains(UserType.OGA);
-          case ASSIGN_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(
-              ConsulteeGroupMemberRole.RECIPIENT, ConsulteeGroupMemberRole.RESPONDER);
-          case CONSULTATION_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(ConsulteeGroupMemberRole.RESPONDER)
+          case ASSIGN_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(Role.RECIPIENT, Role.RESPONDER);
+          case CONSULTATION_RESPONDER -> appInvolvement.hasAnyOfTheseConsulteeRoles(Role.RESPONDER)
               && appInvolvement.getConsultationInvolvement()
               .map(ConsultationInvolvementDto::isAssignedToResponderStage)
               .orElse(false);

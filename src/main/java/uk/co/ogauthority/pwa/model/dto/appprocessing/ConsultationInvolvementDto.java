@@ -6,19 +6,19 @@ import java.util.Optional;
 import java.util.Set;
 import uk.co.ogauthority.pwa.model.dto.consultations.ConsultationRequestDto;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
+import uk.co.ogauthority.pwa.teams.Role;
 
 public class ConsultationInvolvementDto {
 
   private final ConsulteeGroupDetail consulteeGroupDetail;
-  private final Set<ConsulteeGroupMemberRole> consulteeRoles;
+  private final Set<Role> consulteeRoles;
   private final ConsultationRequest activeRequest;
   private final List<ConsultationRequest> historicalRequests;
   private final boolean assignedToResponderStage;
 
   public ConsultationInvolvementDto(ConsulteeGroupDetail consulteeGroupDetail,
-                                    Set<ConsulteeGroupMemberRole> consulteeRoles,
+                                    Set<Role> consulteeRoles,
                                     ConsultationRequest activeRequest,
                                     List<ConsultationRequest> historicalRequests,
                                     boolean assignedToResponderStage) {
@@ -33,7 +33,7 @@ public class ConsultationInvolvementDto {
     return consulteeGroupDetail;
   }
 
-  public Set<ConsulteeGroupMemberRole> getConsulteeRoles() {
+  public Set<Role> getConsulteeRoles() {
     return consulteeRoles;
   }
 

@@ -130,7 +130,7 @@ class PwaApplicationPermissionServiceTest {
 
           var consulteeRole = permission.getConsulteeRoles().iterator().next();
 
-          when(applicationInvolvementService.getConsultationInvolvement(app, person))
+          when(applicationInvolvementService.getConsultationInvolvement(app, user))
               .thenReturn(Optional.of(new ConsultationInvolvementDto(null, Set.of(consulteeRole), null, null, false)));
 
           var permissions = permissionService.getPermissions(detail, user);

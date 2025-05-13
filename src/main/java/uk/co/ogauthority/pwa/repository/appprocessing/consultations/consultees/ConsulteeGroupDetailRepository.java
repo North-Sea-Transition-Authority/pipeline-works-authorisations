@@ -19,6 +19,8 @@ public interface ConsulteeGroupDetailRepository extends CrudRepository<Consultee
 
   List<ConsulteeGroupDetail> findAllByTipFlagIsTrue();
 
+  Optional<ConsulteeGroupDetail> findByConsulteeGroup_IdAndTipFlagIsTrue(Integer consulteeGroupId);
+
   Optional<ConsulteeGroupDetail> findByConsulteeGroupAndTipFlagIsTrue(ConsulteeGroup consulteeGroup);
 
   List<ConsulteeGroupDetail> findAllByConsulteeGroupInAndTipFlagIsTrue(Iterable<ConsulteeGroup> groups);
