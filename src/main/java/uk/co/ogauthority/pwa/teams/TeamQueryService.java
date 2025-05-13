@@ -35,6 +35,14 @@ public class TeamQueryService {
         .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType);
   }
 
+  public boolean userIsMemberOfScopedTeam(Long wuaId, TeamType teamType, TeamScopeReference teamScopeReference) {
+    assertTeamTypeIsScoped(teamType);
+
+    return teamRoleRepository.findAllByWuaId(wuaId).stream()
+        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType
+            && teamScopeReferenceMatchesTeam(teamScopeReference, teamRole.getTeam()));
+  }
+
   public boolean userHasStaticRole(Long wuaId, TeamType teamType, Role role) {
     return userHasAtLeastOneStaticRole(wuaId, teamType, Set.of(role));
   }

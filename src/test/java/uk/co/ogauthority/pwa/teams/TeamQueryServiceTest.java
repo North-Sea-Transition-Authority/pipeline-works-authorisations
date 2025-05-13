@@ -60,6 +60,46 @@ class TeamQueryServiceTest {
   }
 
   @Test
+  void userIsMemberOfScopedTeam_whenMember_thenTrue() {
+    var teamType = TeamType.ORGANISATION;
+    var scope = TeamScopeReference.from("123", teamType);
+
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(teamType);
+    team.setScopeId(scope.getId());
+    team.setScopeType(teamType.getScopeType());
+
+    TeamRole teamRole = new TeamRole();
+    teamRole.setTeam(team);
+    teamRole.setWuaId(1L);
+
+    when(teamRoleRepository.findAllByWuaId(1L)).thenReturn(List.of(teamRole));
+
+    assertThat(teamQueryService.userIsMemberOfScopedTeam(1L, teamType, scope))
+        .isTrue();
+  }
+
+  @Test
+  void userIsMemberOfScopedTeam_whenNotMember_thenFalse() {
+    var teamType = TeamType.ORGANISATION;
+    var scope = TeamScopeReference.from("123", teamType);
+    
+    var team = new Team(UUID.randomUUID());
+    team.setTeamType(teamType);
+    team.setScopeId("differentScopeId");
+    team.setScopeType(teamType.getScopeType());
+
+    TeamRole teamRole = new TeamRole();
+    teamRole.setTeam(team);
+    teamRole.setWuaId(1L);
+
+    when(teamRoleRepository.findAllByWuaId(1L)).thenReturn(List.of(teamRole));
+
+    assertThat(teamQueryService.userIsMemberOfScopedTeam(1L, teamType, scope))
+        .isFalse();
+  }
+
+  @Test
   void userHasStaticRole_hasRole() {
     setupStaticTeamAndRoles(1L, TeamType.REGULATOR, List.of(
         Role.ORGANISATION_MANAGER,

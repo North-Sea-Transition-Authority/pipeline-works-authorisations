@@ -43,8 +43,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
+import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponse;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
@@ -55,6 +54,7 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.testutils.PwaAppProcessingContextDtoTestUtils;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.RouteUtils;
@@ -114,8 +114,12 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
 
     pwaApplication = pwaApplicationDetail.getPwaApplication();
 
+    var consulteeGroup = new ConsulteeGroup();
+    consulteeGroup.setId(1);
+
     consultationRequest = new ConsultationRequest();
     consultationRequest.setId(1);
+    consultationRequest.setConsulteeGroup(consulteeGroup);
 
     consultationResponse = new ConsultationResponse();
     consultationResponse.setConsultationRequest(consultationRequest);
@@ -216,11 +220,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
     when(consultationRequestService.getConsultationRequestByIdOrThrow(any())).thenReturn(consultationRequest);
     when(consultationResponseService.isUserAssignedResponderForConsultation(any(), any())).thenReturn(true);
 
-    var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
-        ConsulteeGroupMemberRole.RESPONDER));
-
-    when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
-        .thenReturn(Optional.of(teamMember));
+    when(teamQueryService.userIsMemberOfScopedTeam(eq((long) user.getWuaId()), eq(TeamType.CONSULTEE), any())).thenReturn(true);
 
     when(pwaApplicationService.getApplicationFromId(PWA_ID)).thenReturn(pwaApplication);
 
@@ -253,11 +253,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
   void delete_invalidFileId() throws Exception {
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(any(), eq(user))).thenReturn(permissionsDto);
 
-    var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
-        ConsulteeGroupMemberRole.RESPONDER));
-
-    when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
-        .thenReturn(Optional.of(teamMember));
+    when(teamQueryService.userIsMemberOfScopedTeam(eq((long) user.getWuaId()), eq(TeamType.CONSULTEE), any())).thenReturn(true);
 
     when(pwaApplicationService.getApplicationFromId(PWA_ID)).thenReturn(pwaApplication);
 
@@ -279,11 +275,7 @@ class ConsultationResponseFileControllerTest extends PwaAppProcessingContextAbst
   void delete_fileNotLinkedToApplication() throws Exception {
     when(pwaAppProcessingPermissionService.getProcessingPermissionsDto(any(), eq(user))).thenReturn(permissionsDto);
 
-    var teamMember = new ConsulteeGroupTeamMember(consultationRequest.getConsulteeGroup(), user.getLinkedPerson(), Set.of(
-        ConsulteeGroupMemberRole.RESPONDER));
-
-    when(consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consultationRequest.getConsulteeGroup(), user.getLinkedPerson()))
-        .thenReturn(Optional.of(teamMember));
+    when(teamQueryService.userIsMemberOfScopedTeam(eq((long) user.getWuaId()), eq(TeamType.CONSULTEE), any())).thenReturn(true);
 
     when(pwaApplicationService.getApplicationFromId(PWA_ID)).thenReturn(pwaApplication);
 

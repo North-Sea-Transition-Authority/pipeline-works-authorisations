@@ -21,10 +21,12 @@ import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationResponseFileLink;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationFileService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamScopeReference;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 /**
  * Dedicated file controller to process consultation-response file requests.
@@ -38,30 +40,29 @@ public class ConsultationResponseFileController {
   private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.CONSULTATION_RESPONSE;
 
   private final ConsultationResponseService consultationResponseService;
-  private final ConsulteeGroupTeamService consulteeGroupTeamService;
   private final ConsultationFileService consultationFileService;
   private final PwaApplicationService pwaApplicationService;
   private final FileService fileService;
   private final AppFileManagementService appFileManagementService;
   private final AppFileService appFileService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public ConsultationResponseFileController(
       ConsultationResponseService consultationResponseService,
-      ConsulteeGroupTeamService consulteeGroupTeamService,
       ConsultationFileService consultationFileService,
       PwaApplicationService pwaApplicationService,
       FileService fileService,
       AppFileManagementService appFileManagementService,
-      AppFileService appFileService
-  ) {
+      AppFileService appFileService,
+      TeamQueryService teamQueryService) {
     this.consultationResponseService = consultationResponseService;
-    this.consulteeGroupTeamService = consulteeGroupTeamService;
     this.consultationFileService = consultationFileService;
     this.pwaApplicationService = pwaApplicationService;
     this.fileService = fileService;
     this.appFileManagementService = appFileManagementService;
     this.appFileService = appFileService;
+    this.teamQueryService = teamQueryService;
   }
 
   @GetMapping("/download/{fileId}")
@@ -122,8 +123,10 @@ public class ConsultationResponseFileController {
   private boolean isUserInConsulteeTeamForActiveConsultation(PwaAppProcessingContext processingContext) {
     var consultationRequest = getConsultationRequestFromProcessingContext(processingContext);
     var consulteeGroup = consultationRequest.getConsulteeGroup();
-    return consulteeGroupTeamService.getTeamMemberByGroupAndPerson(consulteeGroup, processingContext.getUser().getLinkedPerson())
-        .isPresent();
+
+    var teamType = TeamType.CONSULTEE;
+    TeamScopeReference teamScopeReference = TeamScopeReference.from(consulteeGroup.getId(), teamType);
+    return teamQueryService.userIsMemberOfScopedTeam((long) processingContext.getUser().getWuaId(), teamType, teamScopeReference);
   }
 
   private ConsultationRequest getConsultationRequestFromProcessingContext(PwaAppProcessingContext processingContext) {
