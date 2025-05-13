@@ -17,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @ExtendWith(MockitoExtension.class)
 class TeamQueryServiceTest {
@@ -26,6 +27,9 @@ class TeamQueryServiceTest {
 
   @Mock
   private TeamRoleRepository teamRoleRepository;
+
+  @Mock
+  private TeamMemberQueryService teamMemberQueryService;
 
   @Spy
   @InjectMocks
@@ -336,6 +340,70 @@ class TeamQueryServiceTest {
     assertThat(result)
         .containsOnly(Role.TEAM_ADMINISTRATOR);
   }
+
+  @Test
+  void getMembersOfTeamTypeWithRoleIn_returnsMemberViewsForMatchingRoles() {
+    var teamType = TeamType.REGULATOR;
+    var roles = Set.of(Role.TEAM_ADMINISTRATOR, Role.PWA_MANAGER);
+
+    var matchingTeamRole = new TeamRole();
+    matchingTeamRole.setRole(Role.TEAM_ADMINISTRATOR);
+    matchingTeamRole.setTeam(new Team());
+
+    var nonMatchingTeamRole = new TeamRole();
+    nonMatchingTeamRole.setRole(Role.CONSENT_VIEWER);
+    nonMatchingTeamRole.setTeam(new Team());
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingTeamRole));
+
+    var expectedViews = List.of(mock(TeamMemberView.class));
+    when(teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getMembersOfTeamTypeWithRoleIn(teamType, roles);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
+  @Test
+  void getMembersOfScopedTeamWithRoleIn_returnsMemberViewsForMatchingScopeAndRoles() {
+    var teamType = TeamType.CONSULTEE;
+    var scopeRef = TeamScopeReference.from("scope123", teamType);
+    var roles = Set.of(Role.RECIPIENT, Role.RESPONDER);
+
+    var matchingTeam = new Team();
+    matchingTeam.setScopeId("scope123");
+    matchingTeam.setScopeType(teamType.getScopeType());
+
+    var nonMatchingTeam = new Team();
+    nonMatchingTeam.setScopeId("otherScope");
+    nonMatchingTeam.setScopeType(teamType.getScopeType());
+
+    var matchingTeamRole = new TeamRole();
+    matchingTeamRole.setTeam(matchingTeam);
+    matchingTeamRole.setRole(Role.RECIPIENT);
+
+    var nonMatchingRoleTeamRole = new TeamRole();
+    nonMatchingRoleTeamRole.setTeam(matchingTeam);
+    nonMatchingRoleTeamRole.setRole(Role.TEAM_ADMINISTRATOR);
+
+    var nonMatchingScopeTeamRole = new TeamRole();
+    nonMatchingScopeTeamRole.setTeam(nonMatchingTeam);
+    nonMatchingScopeTeamRole.setRole(Role.RECIPIENT);
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(matchingTeamRole, nonMatchingRoleTeamRole, nonMatchingScopeTeamRole));
+
+    var expectedViews = List.of(mock(TeamMemberView.class));
+    when(teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(matchingTeamRole)))
+        .thenReturn(expectedViews);
+
+    var result = teamQueryService.getMembersOfScopedTeamWithRoleIn(teamType, scopeRef, roles);
+
+    assertThat(result).isEqualTo(expectedViews);
+  }
+
 
   private void setupStaticTeamAndRoles(Long wuaId, TeamType teamType, List<Role> roles) {
     var team = new Team(UUID.randomUUID());

@@ -165,4 +165,23 @@ public class TeamQueryService {
 
     return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
   }
+
+  public List<TeamMemberView> getMembersOfScopedTeamWithRoleIn(TeamType teamType,
+                                                               TeamScopeReference teamScopeReference,
+                                                               Collection<Role> roles) {
+    assertTeamTypeIsScoped(teamType);
+
+    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
+        .stream()
+        .filter(teamRole -> teamScopeReferenceMatchesTeam(teamScopeReference, teamRole.getTeam()))
+        .filter(teamRole -> roles.contains(teamRole.getRole()))
+        .toList();
+
+    return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
+  }
+
+  private boolean teamScopeReferenceMatchesTeam(TeamScopeReference teamScopeReference, Team team) {
+    return teamScopeReference.getId().equals(team.getScopeId())
+        && teamScopeReference.getType().equals(team.getScopeType());
+  }
 }

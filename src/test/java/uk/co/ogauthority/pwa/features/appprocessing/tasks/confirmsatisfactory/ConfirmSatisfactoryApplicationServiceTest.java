@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
@@ -335,7 +336,7 @@ class ConfirmSatisfactoryApplicationServiceTest {
 
     // actual behaviour tested in app detail service unit test
     verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
-    verify(emailService, times(1)).sendEmail(emailProps, assignedResponder, detail.getPwaApplication().getAppReference());
+    verify(emailService, times(1)).sendEmail(emailProps, EmailRecipientWithName.from(assignedResponder), detail.getPwaApplication().getAppReference());
 
   }
 
@@ -360,24 +361,27 @@ class ConfirmSatisfactoryApplicationServiceTest {
     when(consultationRequestService.getGroupDetailsForConsulteeGroups(List.of(consultationRequest)))
         .thenReturn(consulteeGroupAndDetailMap);
 
-    var consultationRecipient1 = PersonTestUtil.createPersonFrom(new PersonId(1), "myEmail@mail.com");
-    var consultationRecipient2 = PersonTestUtil.createPersonFrom(new PersonId(2), "myEmail2@mail.com");
+    var consultationRecipient1 = EmailRecipientWithName.from(PersonTestUtil.createPersonFrom(new PersonId(1), "myEmail@mail.com"));
+    var consultationRecipient2 = EmailRecipientWithName.from(PersonTestUtil.createPersonFrom(new PersonId(2), "myEmail2@mail.com"));
     when(consultationRequestService.getConsultationRecipients(consultationRequest))
-        .thenReturn(List.of(consultationRecipient1, consultationRecipient2));
+        .thenReturn(List.of(
+            consultationRecipient1,
+            consultationRecipient2
+        ));
 
     var caseManagementLink = "link";
     when(caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())).thenReturn(caseManagementLink);
 
     var emailPropsRecipient1 = new ApplicationUpdateAcceptedEmailProps(
-        consultationRecipient1.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
+        consultationRecipient1.fullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
 
     var emailPropsRecipient2 = new ApplicationUpdateAcceptedEmailProps(
-        consultationRecipient2.getFullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
+        consultationRecipient2.fullName(), detail.getPwaApplicationRef(), groupDetail.getName(), caseManagementLink);
 
     confirmSatisfactoryApplicationService.confirmSatisfactory(detail, "my reason", person);
 
     // actual behaviour tested in app detail service unit test
-    verify(pwaApplicationDetailService, times(1)).setConfirmedSatisfactoryData(detail, "my reason", person);
+    verify(pwaApplicationDetailService).setConfirmedSatisfactoryData(detail, "my reason", person);
 
 
     verify(emailService, times(2)).sendEmail(any(), any(), any());

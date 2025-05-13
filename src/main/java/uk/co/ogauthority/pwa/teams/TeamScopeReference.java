@@ -22,4 +22,8 @@ public interface TeamScopeReference {
   static TeamScopeReference from(String id, TeamType teamType) {
     return from(id, teamType.getScopeType());
   }
+
+  static TeamScopeReference from(Integer id, TeamType teamType) {
+    return from(String.valueOf(id), teamType.getScopeType());
+  }
 }

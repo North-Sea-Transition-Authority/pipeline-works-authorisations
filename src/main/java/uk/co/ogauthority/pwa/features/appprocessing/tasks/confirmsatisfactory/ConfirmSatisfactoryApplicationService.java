@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasks.confirmsatisfactory;
 
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -11,6 +12,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.Pw
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.AppProcessingService;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.updaterequests.ApplicationUpdateAcceptedEmailProps;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskListEntry;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
@@ -136,8 +138,9 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
 
     openConsultationRequests.forEach(consultationRequest -> {
       var assignedResponder = consultationRequestService.getAssignedResponderForConsultation(consultationRequest);
-      List<Person> recipients = assignedResponder == null
-          ? consultationRequestService.getConsultationRecipients(consultationRequest) :  List.of(assignedResponder);
+      List<EmailRecipientWithName> recipients = Optional.ofNullable(assignedResponder)
+          .map(responder -> List.of(EmailRecipientWithName.from(responder)))
+          .orElseGet(() -> consultationRequestService.getConsultationRecipients(consultationRequest));
 
       recipients.forEach(recipient -> sendEmail(recipient,
           consultationRequest,
@@ -145,15 +148,14 @@ public class ConfirmSatisfactoryApplicationService implements AppProcessingServi
           caseLinkService.generateCaseManagementLink(consultationRequest.getPwaApplication())));
     });
 
-
   }
 
-  private void sendEmail(Person recipient,
+  private void sendEmail(EmailRecipientWithName recipient,
                          ConsultationRequest consultationRequest,
                          String consulteeGroupName,
                          String caseManagementLink) {
     var emailProps = new ApplicationUpdateAcceptedEmailProps(
-        recipient.getFullName(),
+        recipient.fullName(),
         consultationRequest.getPwaApplication().getAppReference(),
         consulteeGroupName,
         caseManagementLink);

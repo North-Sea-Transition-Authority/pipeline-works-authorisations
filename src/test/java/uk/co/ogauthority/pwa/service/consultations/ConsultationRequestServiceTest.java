@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
@@ -29,6 +31,7 @@ import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailReci
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.ConsultationRequestReceivedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
@@ -39,17 +42,18 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.W
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupMemberRole;
-import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupTeamMember;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestForm;
 import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestRepository;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
-import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupTeamService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
 import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.util.DateUtils;
 import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidator;
@@ -59,7 +63,6 @@ import uk.co.ogauthority.pwa.validators.consultations.ConsultationRequestValidat
 @MockitoSettings(strictness = Strictness.LENIENT)
 class ConsultationRequestServiceTest {
 
-  private ConsultationRequestService consultationRequestService;
 
   @Mock
   private ConsultationRequestRepository consultationRequestRepository;
@@ -74,9 +77,6 @@ class ConsultationRequestServiceTest {
   private OldTeamManagementService teamManagementService;
 
   @Mock
-  private ConsulteeGroupTeamService consulteeGroupTeamService;
-
-  @Mock
   private CaseLinkService caseLinkService;
 
   @Mock
@@ -85,37 +85,38 @@ class ConsultationRequestServiceTest {
   @Mock
   private EmailService emailService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @Mock
+  private ConsultationRequestValidator consultationRequestValidator;
+
+  @InjectMocks
+  private ConsultationRequestService underTest;
+
   @Captor
   private ArgumentCaptor<ConsultationRequest> consultationRequestArgumentCaptor;
 
-  private ConsultationRequestValidator validator;
 
   private PwaApplicationDetail pwaApplicationDetail;
 
   private AuthenticatedUserAccount authenticatedUserAccount;
+  private TeamMemberView teamMember1;
+  private TeamMemberView teamMember2;
 
   @BeforeEach
   void setUp() {
 
     var webUserAccount = new WebUserAccount(1, new Person(1, "", "", "", ""));
     authenticatedUserAccount = new AuthenticatedUserAccount(webUserAccount, List.of());
-    validator = new ConsultationRequestValidator();
 
     // return the object being saved upon saving
     when(consultationRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    consultationRequestService = new ConsultationRequestService(
-        consulteeGroupDetailService,
-        consultationRequestRepository,
-        validator,
-        camundaWorkflowService,
-        teamManagementService,
-        consulteeGroupTeamService,
-        consultationsStatusViewFactory,
-        caseLinkService,
-        emailService);
-
     pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 100);
+
+    teamMember1 = new TeamMemberView(1L, "Mr.", "test", "surname", "myEmail1@mail.com", null, null, List.of(Role.RECIPIENT));
+    teamMember2 = new TeamMemberView(2L, "Mr.", "test", "surname", "myEmail3@mail.com", null, null, List.of(Role.RECIPIENT));
 
   }
 
@@ -133,19 +134,14 @@ class ConsultationRequestServiceTest {
     groupDetail.setConsulteeGroup(consulteeGroup);
     when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(groupDetail);
 
-    ConsulteeGroupTeamMember teamMember1 = new ConsulteeGroupTeamMember(consulteeGroup,
-        new Person(1, "memberFirst1", "memberLast1", "member1@live.com", null),
-        Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    ConsulteeGroupTeamMember teamMember2 = new ConsulteeGroupTeamMember(consulteeGroup,
-        new Person(2, "memberFirst2", "memberLast2", "member2@live.com", null),
-        Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    when(consulteeGroupTeamService.getTeamMembersForGroup(consulteeGroup)).thenReturn(List.of(teamMember1, teamMember2));
-
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(groupDetail);
+    when(teamQueryService.getMembersOfScopedTeamWithRoleIn(eq(TeamType.CONSULTEE), any(), eq(Set.of(Role.RECIPIENT))))
+        .thenReturn(List.of(teamMember1, teamMember2));
 
     //consultation request assertions
-    consultationRequestService.saveEntitiesAndStartWorkflow(form, pwaApplicationDetail, authenticatedUserAccount);
-    verify(consultationRequestRepository, times(1)).save(consultationRequestArgumentCaptor.capture());
+    underTest.saveEntitiesAndStartWorkflow(form, pwaApplicationDetail, authenticatedUserAccount);
+
+    verify(consultationRequestRepository).save(consultationRequestArgumentCaptor.capture());
 
     assertThat(consultationRequestArgumentCaptor.getValue().getConsulteeGroup().getId()).isEqualTo(1);
     var expectedDeadline = Instant.now().plus(Period.ofDays(form.getDaysToRespond()));
@@ -164,22 +160,22 @@ class ConsultationRequestServiceTest {
     var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
     List<ConsultationRequestReceivedEmailProps> expectedEmailPropsValues = expectedEmailProps.getAllValues();
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
-        teamMember1.getPerson().getFullName(),
+        teamMember1.getFullName(),
         pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
         DateUtils.formatDate(dueDate),
         caseManagementLink)));
 
     assertTrue(expectedEmailPropsValues.contains(new ConsultationRequestReceivedEmailProps(
-        teamMember2.getPerson().getFullName(),
+        teamMember2.getFullName(),
         pwaApplicationDetail.getPwaApplication().getAppReference(),
         groupDetail.getName(),
         DateUtils.formatDate(dueDate),
         caseManagementLink)));
 
     List<EmailRecipient> expectedToEmailRecipients = expectedRecipient.getAllValues();
-    assertTrue(expectedToEmailRecipients.contains(teamMember1.getPerson()));
-    assertTrue(expectedToEmailRecipients.contains(teamMember2.getPerson()));
+    assertTrue(expectedToEmailRecipients.contains(EmailRecipientWithName.from(teamMember1)));
+    assertTrue(expectedToEmailRecipients.contains(EmailRecipientWithName.from(teamMember2)));
 
   }
 
@@ -190,19 +186,14 @@ class ConsultationRequestServiceTest {
     var consultationRequest = new ConsultationRequest();
     var consulteeGroup = new ConsulteeGroup();
     consultationRequest.setConsulteeGroup(consulteeGroup);
-    var teamMember1 = new ConsulteeGroupTeamMember(
-        consulteeGroup, PersonTestUtil.createPersonFrom(new PersonId(1), "myEmail1@mail.com"), Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    var teamMember2 = new ConsulteeGroupTeamMember(
-        consulteeGroup, PersonTestUtil.createPersonFrom(new PersonId(2), "myEmail2@mail.com"), Set.of(ConsulteeGroupMemberRole.RESPONDER));
-    var teamMember3 = new ConsulteeGroupTeamMember(
-        consulteeGroup, PersonTestUtil.createPersonFrom(new PersonId(3), "myEmail3@mail.com"), Set.of(ConsulteeGroupMemberRole.RECIPIENT));
-    when(consulteeGroupTeamService.getTeamMembersForGroup(consultationRequest.getConsulteeGroup()))
-        .thenReturn(List.of(teamMember1, teamMember2, teamMember3));
 
-    List<Person> recipients = consultationRequestService.getConsultationRecipients(consultationRequest);
+    when(teamQueryService.getMembersOfScopedTeamWithRoleIn(eq(TeamType.CONSULTEE), any(), eq(Set.of(Role.RECIPIENT)))).thenReturn(List.of(
+        teamMember1, teamMember2));
+
+    List<EmailRecipientWithName> recipients = underTest.getConsultationRecipients(consultationRequest);
     assertThat(recipients).hasSize(2);
-    assertThat(recipients.get(0)).isEqualTo(teamMember1.getPerson());
-    assertThat(recipients.get(1)).isEqualTo(teamMember3.getPerson());
+    assertThat(recipients.get(0)).isEqualTo(EmailRecipientWithName.from(teamMember1));
+    assertThat(recipients.get(1)).isEqualTo(EmailRecipientWithName.from(teamMember2));
   }
 
   @Test
@@ -216,19 +207,21 @@ class ConsultationRequestServiceTest {
     var responderPerson = PersonTestUtil.createPersonFrom(assignedResponderPersonId, "email");
     when(teamManagementService.getPerson(assignedResponderPersonId.asInt())).thenReturn(responderPerson);
 
-    var responder = consultationRequestService.getAssignedResponderForConsultation(consultationRequest);
+    var responder = underTest.getAssignedResponderForConsultation(consultationRequest);
     assertThat(responder).isEqualTo(responderPerson);
   }
 
   @Test
   void getAssignedResponderForConsultation_noAssignedResponder() {
-    var responder = consultationRequestService.getAssignedResponderForConsultation(new ConsultationRequest());
+    var responder = underTest.getAssignedResponderForConsultation(new ConsultationRequest());
     assertThat(responder).isNull();
   }
 
 
   @Test
   void validate_valid() {
+    doCallRealMethod().when(consultationRequestValidator).validate(any(), any(), any());
+    
     var form = new ConsultationRequestForm();
     form.getConsulteeGroupSelection().put("1", "true");
     form.setDaysToRespond(22);
@@ -241,15 +234,17 @@ class ConsultationRequestServiceTest {
     when(consulteeGroupDetailService.getConsulteeGroupDetailById(1)).thenReturn(groupDetail);
 
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    consultationRequestService.validate(form, bindingResult, pwaApplicationDetail.getPwaApplication());
+    underTest.validate(form, bindingResult, pwaApplicationDetail.getPwaApplication());
     assertFalse(bindingResult.hasErrors());
   }
 
   @Test
   void validate_invalid() {
+    doCallRealMethod().when(consultationRequestValidator).validate(any(), any(), any());
+
     var form = new ConsultationRequestForm();
     var bindingResult = new BeanPropertyBindingResult(form, "form");
-    consultationRequestService.validate(form, bindingResult, pwaApplicationDetail.getPwaApplication());
+    underTest.validate(form, bindingResult, pwaApplicationDetail.getPwaApplication());
     assertTrue(bindingResult.hasErrors());
   }
 
@@ -258,8 +253,8 @@ class ConsultationRequestServiceTest {
   void isConsultationRequestOpen() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
-    consultationRequestService.isConsultationRequestOpen(consulteeGroup, pwaApplicationDetail.getPwaApplication());
-    verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
+    underTest.isConsultationRequestOpen(consulteeGroup, pwaApplicationDetail.getPwaApplication());
+    verify(consultationRequestRepository).findByConsulteeGroupAndPwaApplicationAndStatusNotIn(
         consulteeGroup, pwaApplicationDetail.getPwaApplication(), Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN));
   }
 
@@ -283,7 +278,7 @@ class ConsultationRequestServiceTest {
     when(consulteeGroupDetailService.getAllConsulteeGroupDetailsByGroup(List.of(consulteeGroup1, consulteeGroup2)))
         .thenReturn(List.of(consulteeGroupDetail1, consulteeGroupDetail2));
 
-    var groupDetailMap = consultationRequestService.getGroupDetailsForConsulteeGroups(List.of(consultationRequest1, consultationRequest2));
+    var groupDetailMap = underTest.getGroupDetailsForConsulteeGroups(List.of(consultationRequest1, consultationRequest2));
     assertThat(groupDetailMap.get(consulteeGroup1)).isEqualTo(consulteeGroupDetail1);
     assertThat(groupDetailMap.get(consulteeGroup2)).isEqualTo(consulteeGroupDetail2);
   }
@@ -292,8 +287,8 @@ class ConsultationRequestServiceTest {
   void getAllRequestsByAppAndGroupRespondedOnly() {
     var consulteeGroup = new ConsulteeGroup();
     consulteeGroup.setId(1);
-    consultationRequestService.getAllRequestsByAppAndGroupRespondedOnly(pwaApplicationDetail.getPwaApplication(), consulteeGroup);
-    verify(consultationRequestRepository, times(1)).findByConsulteeGroupAndPwaApplicationAndStatus(
+    underTest.getAllRequestsByAppAndGroupRespondedOnly(pwaApplicationDetail.getPwaApplication(), consulteeGroup);
+    verify(consultationRequestRepository).findByConsulteeGroupAndPwaApplicationAndStatus(
         consulteeGroup, pwaApplicationDetail.getPwaApplication(), ConsultationRequestStatus.RESPONDED);
   }
 
