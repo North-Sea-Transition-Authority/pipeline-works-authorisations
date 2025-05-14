@@ -145,6 +145,15 @@ class PwaConsentServiceTest {
   }
 
   @Test
+  void getConsentByReference() {
+
+    pwaConsentService.getConsentByReference("ref");
+
+    verify(pwaConsentRepository).findByReference("ref");
+
+  }
+
+  @Test
   void getConsentByPwaApplication_found() {
 
     var consent = new PwaConsent();

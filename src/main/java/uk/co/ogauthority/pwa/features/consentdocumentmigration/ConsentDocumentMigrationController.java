@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -25,7 +26,7 @@ public class ConsentDocumentMigrationController {
   ResponseEntity<String> verify() {
     try {
       consentDocumentMigrationService.verify();
-    } catch (S3Exception e) {
+    } catch (S3Exception | IOException e) {
       var message = "Failed to verify consent documents";
       LOGGER.error(message, e);
       return ResponseEntity.internalServerError().body(message);
@@ -35,8 +36,14 @@ public class ConsentDocumentMigrationController {
 
   @GetMapping("/migrate")
   ResponseEntity<String> migrate() {
-    //TODO: PWARE-104 - Implement migration endpoint
-    return null;
+    try {
+      consentDocumentMigrationService.migrate();
+    } catch (S3Exception e) {
+      var message = "Failed to migrate consent documents";
+      LOGGER.error(message, e);
+      return ResponseEntity.internalServerError().body(message);
+    }
+    return ResponseEntity.ok().body("Migration Successful");
   }
 
 }

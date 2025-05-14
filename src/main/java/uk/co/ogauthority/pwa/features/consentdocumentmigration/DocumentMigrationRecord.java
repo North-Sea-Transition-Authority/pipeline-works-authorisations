@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.features.consentdocumentmigration;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -9,6 +11,7 @@ import jakarta.persistence.Table;
 public class DocumentMigrationRecord {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
   private String filename;
   private String pwaReference;
@@ -24,6 +27,9 @@ public class DocumentMigrationRecord {
 
 
   public DocumentMigrationRecord() {
+    fileLocated = false;
+    destinationRecordExists = false;
+    migrationSuccessful = false;
   }
 
   public void setId(Integer id) {

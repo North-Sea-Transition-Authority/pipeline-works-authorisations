@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -27,6 +28,8 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
   void verify() throws Exception {
     mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).verify())))
         .andExpect(status().isOk());
+
+    Mockito.verify(consentDocumentMigrationService).verify();
   }
 
   @Test
@@ -37,4 +40,19 @@ class ConsentDocumentMigrationControllerTest extends AbstractControllerTest {
         .andExpect(status().is5xxServerError());
   }
 
+  @Test
+  void migrate() throws Exception {
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+        .andExpect(status().isOk());
+
+    Mockito.verify(consentDocumentMigrationService).migrate();
+  }
+
+  @Test
+  void migrate_failed() throws Exception {
+    doThrow(new S3Exception("")).when(consentDocumentMigrationService).migrate();
+
+    mockMvc.perform(get(ReverseRouter.route(on(ConsentDocumentMigrationController.class).migrate())))
+        .andExpect(status().is5xxServerError());
+  }
 }

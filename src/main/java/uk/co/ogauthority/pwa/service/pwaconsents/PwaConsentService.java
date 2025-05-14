@@ -72,6 +72,10 @@ public class PwaConsentService {
     return pwaConsentRepository.findByMasterPwa(masterPwa);
   }
 
+  public Optional<PwaConsent> getConsentByReference(String reference) {
+    return pwaConsentRepository.findByReference(reference);
+  }
+
   public PwaConsent getConsentById(Integer consentId) {
     return pwaConsentRepository.findById(consentId).orElseThrow(
         () -> new PwaEntityNotFoundException("Pwa Consent could not be found for consent id: " + consentId));
