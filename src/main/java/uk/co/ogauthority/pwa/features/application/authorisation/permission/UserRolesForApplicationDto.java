@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 import java.util.Objects;
 import java.util.Set;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.teams.Role;
 
 /**
@@ -14,12 +13,12 @@ public class UserRolesForApplicationDto {
 
   private final Set<PwaContactRole> userContactRoles;
   private final Set<Role> userHolderTeamRoles;
-  private final Set<PwaRegulatorRole> userRegulatorRoles;
+  private final Set<Role> userRegulatorRoles;
   private final Set<Role> userConsulteeRoles;
 
   UserRolesForApplicationDto(Set<PwaContactRole> userContactRoles,
                              Set<Role> userHolderTeamRoles,
-                             Set<PwaRegulatorRole> userRegulatorRoles,
+                             Set<Role> userRegulatorRoles,
                              Set<Role> userConsulteeRoles) {
     this.userContactRoles = userContactRoles;
     this.userHolderTeamRoles = userHolderTeamRoles;
@@ -35,7 +34,7 @@ public class UserRolesForApplicationDto {
     return userHolderTeamRoles;
   }
 
-  public Set<PwaRegulatorRole> getUserRegulatorRoles() {
+  public Set<Role> getUserRegulatorRoles() {
     return userRegulatorRoles;
   }
 

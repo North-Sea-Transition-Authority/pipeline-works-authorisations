@@ -2,13 +2,16 @@ package uk.co.ogauthority.pwa.features.application.authorisation.permission;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static uk.co.ogauthority.pwa.teams.TeamType.REGULATOR;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -20,14 +23,12 @@ import uk.co.ogauthority.pwa.features.application.authorisation.involvement.Appl
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
+import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
 class PwaApplicationPermissionServiceTest {
@@ -39,11 +40,12 @@ class PwaApplicationPermissionServiceTest {
   private PwaHolderTeamService pwaHolderTeamService;
 
   @Mock
-  private TeamService teamService;
-
-  @Mock
   private ApplicationInvolvementService applicationInvolvementService;
 
+  @Mock
+  private TeamQueryService teamQueryService;
+
+  @InjectMocks
   private PwaApplicationPermissionService permissionService;
 
   private Person person;
@@ -53,8 +55,6 @@ class PwaApplicationPermissionServiceTest {
 
   @BeforeEach
   void setUp() {
-
-    permissionService = new PwaApplicationPermissionService(pwaContactService, pwaHolderTeamService, teamService, applicationInvolvementService);
 
     app = new PwaApplication();
     detail = new PwaApplicationDetail();
@@ -109,10 +109,8 @@ class PwaApplicationPermissionServiceTest {
         .filter(p -> !p.getRegulatorRoles().isEmpty())
         .forEach(permission -> {
 
-          var regRole = permission.getRegulatorRoles().iterator().next();
-
-          var teamMember = new PwaTeamMember(null, person, Set.of(new PwaRole(regRole.getPortalTeamRoleName(), null, null, 10)));
-          when(teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)).thenReturn(Optional.of(teamMember));
+          var userTeamRolesView = new UserTeamRolesView(2L, null, null, List.of(Role.PWA_MANAGER));
+          when(teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), REGULATOR)).thenReturn(List.of(userTeamRolesView));
 
           var permissions = permissionService.getPermissions(detail, user);
           AssertionTestUtils.assertNotEmptyAndContains(permissions, permission);
@@ -169,10 +167,8 @@ class PwaApplicationPermissionServiceTest {
   void getPermissions_setPipelineReferencePermission_whenAppContactPreparer_andRegulator() {
 
     when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.of(PwaContactRole.PREPARER));
-    var regTeam =TeamTestingUtils.getRegulatorTeam();
-    var regTeamMember = TeamTestingUtils.createRegulatorTeamMember(regTeam, person, EnumSet.allOf(PwaRegulatorRole.class));
-    when(teamService.getRegulatorTeam()).thenReturn(regTeam);
-    when(teamService.getMembershipOfPersonInTeam(regTeam, person)).thenReturn(Optional.of(regTeamMember));
+    var userTeamRolesView = new UserTeamRolesView(2L, null, null, List.of(Role.PWA_MANAGER));
+    when(teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), REGULATOR)).thenReturn(List.of(userTeamRolesView));
 
     assertThat(permissionService.getPermissions(detail, user))
         .contains(PwaApplicationPermission.SET_PIPELINE_REFERENCE);

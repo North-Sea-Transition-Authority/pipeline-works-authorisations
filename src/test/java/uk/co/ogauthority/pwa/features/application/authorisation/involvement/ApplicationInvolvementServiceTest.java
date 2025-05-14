@@ -316,7 +316,7 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+    when(teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
         .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
     when(consultationRequestService.getAllRequestsByApplication(application)).thenReturn(List.of());
 
@@ -346,7 +346,7 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+    when(teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
         .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 
@@ -388,7 +388,7 @@ class ApplicationInvolvementServiceTest {
     var groupDetail = ConsulteeGroupTestingUtils.createConsulteeGroup("name", "abb");
 
     when(userTypeService.getUserTypes(user)).thenReturn(EnumSet.of(UserType.CONSULTEE));
-    when(teamQueryService.getTeamMembersByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
+    when(teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), TeamType.CONSULTEE))
         .thenReturn(List.of(new UserTeamRolesView(3L, null, String.valueOf(groupDetail.getConsulteeGroupId()), List.of(Role.RECIPIENT))));
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupIdAndTipFlagIsTrue(any())).thenReturn(groupDetail);
 

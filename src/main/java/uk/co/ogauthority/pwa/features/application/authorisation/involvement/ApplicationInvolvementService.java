@@ -170,7 +170,7 @@ public class ApplicationInvolvementService {
                                                                          WebUserAccount webUserAccount) {
 
     var consulteeGroupTeamMemberOpt =
-        teamQueryService.getTeamMembersByUserAndTeamType(webUserAccount.getWuaId(), TeamType.CONSULTEE).stream()
+        teamQueryService.getTeamRolesViewsByUserAndTeamType(webUserAccount.getWuaId(), TeamType.CONSULTEE).stream()
           .findFirst();
 
     if (consulteeGroupTeamMemberOpt.isEmpty()) {

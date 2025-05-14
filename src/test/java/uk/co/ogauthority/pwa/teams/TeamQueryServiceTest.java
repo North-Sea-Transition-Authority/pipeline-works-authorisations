@@ -400,7 +400,7 @@ class TeamQueryServiceTest {
     when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(matchingTeamRole)))
         .thenReturn(expectedViews);
 
-    var result = teamQueryService.getTeamMembersByUserAndTeamType(1L, teamType);
+    var result = teamQueryService.getTeamRolesViewsByUserAndTeamType(1L, teamType);
 
     assertThat(result).isEqualTo(expectedViews);
   }
@@ -422,7 +422,7 @@ class TeamQueryServiceTest {
     when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of()))
         .thenReturn(List.of());
 
-    var result = teamQueryService.getTeamMembersByUserAndTeamType(1L, teamType);
+    var result = teamQueryService.getTeamRolesViewsByUserAndTeamType(1L, teamType);
 
     assertThat(result).isEmpty();
   }

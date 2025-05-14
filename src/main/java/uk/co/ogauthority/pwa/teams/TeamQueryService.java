@@ -32,14 +32,14 @@ public class TeamQueryService {
     assertTeamTypeIsScoped(teamType);
 
     return teamRoleRepository.findAllByWuaId(wuaId).stream()
-        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType);
+        .anyMatch(teamRole -> teamTypeMatchesTeam(teamType, teamRole.getTeam()));
   }
 
   public boolean userIsMemberOfScopedTeam(Long wuaId, TeamType teamType, TeamScopeReference teamScopeReference) {
     assertTeamTypeIsScoped(teamType);
 
     return teamRoleRepository.findAllByWuaId(wuaId).stream()
-        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType
+        .anyMatch(teamRole -> teamTypeMatchesTeam(teamType, teamRole.getTeam())
             && teamScopeReferenceMatchesTeam(teamScopeReference, teamRole.getTeam()));
   }
 
@@ -78,7 +78,7 @@ public class TeamQueryService {
     assertRolesValidForTeamType(roles, teamType);
 
     return teamRoleRepository.findAllByWuaId(wuaId).stream()
-        .anyMatch(teamRole -> teamRole.getTeam().getTeamType() == teamType && roles.contains(teamRole.getRole()));
+        .anyMatch(teamRole -> teamTypeMatchesTeam(teamType, teamRole.getTeam()) && roles.contains(teamRole.getRole()));
   }
 
   private void assertRolesValidForTeamType(Set<Role> roles, TeamType teamType) {
@@ -161,10 +161,10 @@ public class TeamQueryService {
 
   }
 
-  public List<UserTeamRolesView> getTeamMembersByUserAndTeamType(long wuaId, TeamType teamType) {
+  public List<UserTeamRolesView> getTeamRolesViewsByUserAndTeamType(long wuaId, TeamType teamType) {
     var teamRoles = teamRoleRepository.findAllByWuaId(wuaId)
         .stream()
-        .filter(teamRole -> teamRole.getTeam().getTeamType() == teamType)
+        .filter(teamRole -> teamTypeMatchesTeam(teamType, teamRole.getTeam()))
         .toList();
 
     return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
@@ -178,7 +178,7 @@ public class TeamQueryService {
     return teamRoleRepository.findAllByWuaId(wuaId).stream()
         .filter(teamRole -> {
           var team = teamRole.getTeam();
-          return team.getTeamType() == teamType && scopeIds.contains(team.getScopeId());
+          return teamTypeMatchesTeam(teamType, team) && scopeIds.contains(team.getScopeId());
         })
         .map(TeamRole::getRole)
         .collect(Collectors.toSet());
@@ -190,19 +190,13 @@ public class TeamQueryService {
   }
 
   public List<TeamMemberView> getMembersOfTeamTypeWithRoleIn(TeamType teamType, Collection<Role> roles) {
-    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
-        .stream()
-        .filter(teamRole -> roles.contains(teamRole.getRole()))
-        .toList();
+    var teamRoles = getTeamRolesByRolesIn(teamType, roles);
 
     return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
   }
 
   public List<UserTeamRolesView> getUsersOfTeamTypeWithRoleIn(TeamType teamType, Collection<Role> roles) {
-    var teamRoles = teamRoleRepository.findAllByTeam_TeamType(teamType)
-        .stream()
-        .filter(teamRole -> roles.contains(teamRole.getRole()))
-        .toList();
+    var teamRoles = getTeamRolesByRolesIn(teamType, roles);
 
     return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
@@ -227,6 +221,13 @@ public class TeamQueryService {
     return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
+  private List<TeamRole> getTeamRolesByRolesIn(TeamType teamType, Collection<Role> roles) {
+    return teamRoleRepository.findAllByTeam_TeamType(teamType)
+        .stream()
+        .filter(teamRole -> roles.contains(teamRole.getRole()))
+        .toList();
+  }
+
   private List<TeamRole> getTeamRolesByScopeReferenceAndRolesIn(TeamType teamType,
                                                                 TeamScopeReference teamScopeReference,
                                                                 Collection<Role> roles) {
@@ -240,5 +241,9 @@ public class TeamQueryService {
   private boolean teamScopeReferenceMatchesTeam(TeamScopeReference teamScopeReference, Team team) {
     return teamScopeReference.getId().equals(team.getScopeId())
         && teamScopeReference.getType().equals(team.getScopeType());
+  }
+
+  private boolean teamTypeMatchesTeam(TeamType teamType, Team team) {
+    return team.getTeamType() == teamType;
   }
 }

@@ -10,27 +10,28 @@ import uk.co.ogauthority.pwa.features.application.authorisation.involvement.Appl
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorRole;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.teams.TeamType;
 
 @Service
 public class PwaApplicationPermissionService {
 
   private final PwaContactService pwaContactService;
   private final PwaHolderTeamService pwaHolderTeamService;
-  private final TeamService teamService;
   private final ApplicationInvolvementService applicationInvolvementService;
+  private final TeamQueryService teamQueryService;
 
   @Autowired
   public PwaApplicationPermissionService(PwaContactService pwaContactService,
                                          PwaHolderTeamService pwaHolderTeamService,
-                                         TeamService teamService,
-                                         ApplicationInvolvementService applicationInvolvementService) {
+                                         ApplicationInvolvementService applicationInvolvementService,
+                                         TeamQueryService teamQueryService) {
     this.pwaContactService = pwaContactService;
     this.pwaHolderTeamService = pwaHolderTeamService;
-    this.teamService = teamService;
     this.applicationInvolvementService = applicationInvolvementService;
+    this.teamQueryService = teamQueryService;
   }
 
   private UserRolesForApplicationDto getUserRolesForApplication(PwaApplicationDetail detail, WebUserAccount user) {
@@ -40,11 +41,9 @@ public class PwaApplicationPermissionService {
 
     var holderTeamRoles = pwaHolderTeamService.getRolesInHolderTeam(detail, user);
 
-    var regulatorRoles = teamService.getMembershipOfPersonInTeam(teamService.getRegulatorTeam(), person)
-        .map(member -> member.getRoleSet().stream()
-            .map(r -> PwaRegulatorRole.getValueByPortalTeamRoleName(r.getName()))
-            .collect(Collectors.toSet()))
-        .orElse(Set.of());
+    Set<Role> regulatorRoles = teamQueryService.getTeamRolesViewsByUserAndTeamType(user.getWuaId(), TeamType.REGULATOR).stream()
+        .flatMap(userTeamRolesView -> userTeamRolesView.roles().stream())
+        .collect(Collectors.toSet());
 
     var consulteeRoles = applicationInvolvementService
         .getConsultationInvolvement(detail.getPwaApplication(), user)

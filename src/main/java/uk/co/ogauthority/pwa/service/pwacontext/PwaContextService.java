@@ -91,13 +91,8 @@ public class PwaContextService {
 
     if (!requiredPermissions.isEmpty()) {
 
-      boolean userHasRequiredPermissions = false;
-      for (PwaPermission permission: requiredPermissions) {
-        if (usersPermissions.contains(permission)) {
-          userHasRequiredPermissions = true;
-          break;
-        }
-      }
+      boolean userHasRequiredPermissions = requiredPermissions.stream()
+          .anyMatch(usersPermissions::contains);
 
       if (!userHasRequiredPermissions) {
         throwPermissionException(user.getWuaId(), pwaId, requiredPermissions);
