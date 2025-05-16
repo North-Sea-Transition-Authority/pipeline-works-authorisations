@@ -25,23 +25,12 @@ public class TestHarnessUserRetrievalService {
     this.webUserAccountRepository = webUserAccountRepository;
   }
 
-  private WebUserAccount getWebUserAccount(int wuaId) {
-    return webUserAccountRepository.findById(wuaId)
-        .orElseThrow(() -> new PwaEntityNotFoundException("Could not find web user account for id: " + wuaId));
-  }
-
   public WebUserAccount getWebUserAccount(Integer wuaId) {
 
     return webUserAccountRepository.findAllByWuaIdAndAccountStatusIn(wuaId, List.of(WebUserAccountStatus.ACTIVE, WebUserAccountStatus.NEW))
         .stream()
         .findAny()
         .orElseThrow(() -> new PwaEntityNotFoundException("Could not find web user account with id: " + wuaId));
-  }
-
-  public AuthenticatedUserAccount createAuthenticatedUserAccount(int wuaId) {
-
-    var webUserAccount = getWebUserAccount(wuaId);
-    return createAuthenticatedUserAccount(webUserAccount);
   }
 
   public AuthenticatedUserAccount createAuthenticatedUserAccount(Integer wuaId) {

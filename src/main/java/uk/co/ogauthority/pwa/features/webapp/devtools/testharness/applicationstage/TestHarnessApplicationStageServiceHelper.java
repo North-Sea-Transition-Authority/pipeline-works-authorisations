@@ -55,11 +55,11 @@ class TestHarnessApplicationStageServiceHelper {
     var applicantAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(applicantWua);
     var applicantProcessingContext = createAppProcessingContext(applicantAua, pwaApplication);
     var caseOfficerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(assignedCaseOfficerId);
-    var pwaManagerPerson = teamQueryService.getMembersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER).stream()
+    var pwaManagerUserView = teamQueryService.getUsersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER).stream()
         .findFirst()
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Person could not be found with %s role".formatted(Role.PWA_MANAGER.name())));
-    var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(Math.toIntExact((pwaManagerPerson.wuaId())));
+    var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(pwaManagerUserView.wuaId().intValue());
 
     return new TestHarnessAppProcessingProperties(
         applicantAua, applicantProcessingContext, caseOfficerAua, pwaManagerAua, paymentDecision, pipelineQuantity);
