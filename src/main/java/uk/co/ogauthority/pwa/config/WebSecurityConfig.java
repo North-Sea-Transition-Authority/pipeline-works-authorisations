@@ -44,7 +44,8 @@ public class WebSecurityConfig {
       "/error",
       "/api/v1/logout/*",
       "/analytics/collect",
-      "/devtool/**"
+      "/devtool/**",
+      "/actuator/health"
   };
 
   private final SystemAreaAccessService systemAreaAccessService;
