@@ -388,9 +388,10 @@ class TeamMemberQueryServiceTest {
   void getTeamMemberViewsByTeamAndRole() {
     var role = regTeamUser1RoleManage.getRole();
     var teamMember = TeamMemberView.fromEpaUser(user1, regTeam.getId(), List.of(role));
+    var teamRoles = List.of(regTeamUser1RoleManage);
 
-    when(teamRoleRepository.findByTeamAndRole(regTeam, role)).thenReturn(List.of(regTeamUser1RoleManage));
-    doReturn(teamMember).when(teamMemberQueryService).getTeamMemberView(regTeam, regTeamUser1RoleManage.getWuaId());
+    when(teamRoleRepository.findByTeamAndRole(regTeam, role)).thenReturn(teamRoles);
+    doReturn(List.of(teamMember)).when(teamMemberQueryService).getTeamMemberViewsByTeamRoles(teamRoles);
 
     var teamMemberViews = teamMemberQueryService.getTeamMemberViewsByTeamAndRole(regTeam, role);
 
@@ -446,6 +447,4 @@ class TeamMemberQueryServiceTest {
     assertThat(teamMemberViews).isEmpty();
     verify(teamRepository).findByTeamTypeAndScopeTypeAndScopeId(teamType, teamType.getScopeType(), scopeId);
   }
-
-
 }

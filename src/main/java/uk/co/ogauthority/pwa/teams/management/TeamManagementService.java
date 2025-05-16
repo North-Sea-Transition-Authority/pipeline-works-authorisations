@@ -151,12 +151,12 @@ public class TeamManagementService {
     return userApi.searchUsersByEmail(username, projection, new RequestPurpose("Find user to add to team"));
   }
 
-  public TeamMemberView getTeamMemberView(Team team, Long wuaId) {
+  TeamMemberView getTeamMemberView(Team team, Long wuaId) {
 
     return teamMemberQueryService.getTeamMemberView(team, wuaId);
   }
 
-  public List<TeamMemberView> getTeamMemberViewsForTeam(Team team) {
+  List<TeamMemberView> getTeamMemberViewsForTeam(Team team) {
 
     return teamMemberQueryService.getTeamMemberViewsForTeam(team);
   }

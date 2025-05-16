@@ -105,9 +105,8 @@ public class TeamMemberQueryService {
   }
 
   List<TeamMemberView> getTeamMemberViewsByTeamAndRole(Team team, Role role) {
-    return teamRoleRepository.findByTeamAndRole(team, role).stream()
-        .map(teamRole -> getTeamMemberView(teamRole.getTeam(), teamRole.getWuaId()))
-        .toList();
+    var teamRoles = teamRoleRepository.findByTeamAndRole(team, role);
+    return getTeamMemberViewsByTeamRoles(teamRoles);
   }
 
   public List<UserTeamRolesView> getUserTeamRolesViewsFrom(List<TeamRole> teamRoles) {
