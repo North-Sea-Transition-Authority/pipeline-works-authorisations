@@ -94,4 +94,8 @@ public class DateUtils {
   public static boolean isOnOrAfter(LocalDate thisDate, LocalDate thatDate) {
     return thisDate.compareTo(thatDate) >= 0;
   }
+
+  public static Instant isoDateStringToInstant(String dateStr) {
+    return Instant.from(LocalDate.parse(dateStr).atStartOfDay(ZoneId.systemDefault()));
+  }
 }

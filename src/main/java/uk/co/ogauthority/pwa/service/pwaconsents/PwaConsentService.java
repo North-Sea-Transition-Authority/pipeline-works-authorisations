@@ -1,36 +1,49 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.features.consentdocumentmigration.DocumentMigrationRecord;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 public class PwaConsentService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaConsentService.class);
+
   private final PwaConsentRepository pwaConsentRepository;
   private final Clock clock;
   private final PwaConsentReferencingService pwaConsentReferencingService;
+  private final MasterPwaService masterPwaService;
 
   @Autowired
   public PwaConsentService(PwaConsentRepository pwaConsentRepository,
                            @Qualifier("utcClock") Clock clock,
-                           PwaConsentReferencingService pwaConsentReferencingService) {
+                           PwaConsentReferencingService pwaConsentReferencingService,
+                           MasterPwaService masterPwaService
+  ) {
     this.pwaConsentRepository = pwaConsentRepository;
     this.clock = clock;
     this.pwaConsentReferencingService = pwaConsentReferencingService;
+    this.masterPwaService = masterPwaService;
   }
 
   @Transactional
@@ -104,4 +117,37 @@ public class PwaConsentService {
     pwaConsentRepository.save(consent);
   }
 
+  @Transactional
+  public PwaConsent createLegacyConsent(DocumentMigrationRecord documentMigrationRecord) {
+    var masterPwa = masterPwaService.getConsentedDetailByReference(documentMigrationRecord.getPwaReference())
+        .orElseThrow(() -> new EntityNotFoundException(
+            "Master PWA detail with reference: %s could not be found".formatted(documentMigrationRecord.getPwaReference())))
+        .getMasterPwa();
+
+    var instant = DateUtils.isoDateStringToInstant(documentMigrationRecord.getConsentDate());
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setMasterPwa(masterPwa);
+    pwaConsent.setReference(documentMigrationRecord.getConsentDoc());
+    pwaConsent.setSourcePwaApplication(null);
+    pwaConsent.setConsentType(convertStringToPwaConsentType(documentMigrationRecord.getConsentType()));
+    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setCreatedInstant(instant);
+    pwaConsent.setConsentInstant(instant);
+
+    return pwaConsentRepository.save(pwaConsent);
+  }
+
+  private PwaConsentType convertStringToPwaConsentType(String consentType) {
+    return switch (consentType.toUpperCase(Locale.ROOT)) {
+      case String s when s.equals("PWA") -> PwaConsentType.INITIAL_PWA;
+      case String s when s.contains("VARIATION") -> PwaConsentType.VARIATION;
+      case String s when s.contains("DECOMMISSIONING") -> PwaConsentType.VARIATION;
+      case String s when s.contains("DEPOSIT") -> PwaConsentType.DEPOSIT_CONSENT;
+      default -> {
+        LOGGER.warn("Unsupported consent type %s".formatted(consentType));
+        yield null;
+      }
+    };
+  }
 }

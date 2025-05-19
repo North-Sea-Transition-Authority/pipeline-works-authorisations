@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,11 +23,15 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.consentdocumentmigration.DocumentMigrationRecord;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
+import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
+import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
@@ -41,6 +47,9 @@ class PwaConsentServiceTest {
   @Mock
   private Clock clock;
 
+  @Mock
+  private MasterPwaService masterPwaService;
+
   @Captor
   private ArgumentCaptor<PwaConsent> consentCaptor;
 
@@ -51,9 +60,9 @@ class PwaConsentServiceTest {
   private static final String FAKE_REF = "99/X/99";
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
-    pwaConsentService = new PwaConsentService(pwaConsentRepository, clock, referencingService);
+    pwaConsentService = new PwaConsentService(pwaConsentRepository, clock, referencingService, masterPwaService);
 
     when(referencingService.createConsentReference(any())).thenReturn(FAKE_REF);
 
@@ -188,6 +197,55 @@ class PwaConsentServiceTest {
     assertThat(consentCaptor.getValue()).satisfies(consent ->
         assertThat(consent.getDocgenRunId()).isEqualTo(docgenRun.getId()));
 
+  }
+
+  @Test
+  void createLegacyConsent() {
+    var documentRecord = new DocumentMigrationRecord();
+    documentRecord.setFilename("Field 1 (1-w-2) PWA Consent Document (1-w-2).pdf");
+    documentRecord.setPwaReference("1/w/2");
+    documentRecord.setFieldName("Field 1");
+    documentRecord.setConsentDoc("1/w/2");
+    documentRecord.setConsentDate("2012-12-12");
+    documentRecord.setConsentType("PWA");
+    documentRecord.setAction("upload");
+    documentRecord.setFileLocated(true);
+
+    var masterPwa = new MasterPwa();
+
+    var masterPwaDetail = new MasterPwaDetail();
+    masterPwaDetail.setMasterPwa(masterPwa);
+
+    when(masterPwaService.getConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setMasterPwa(masterPwa);
+    pwaConsent.setReference(documentRecord.getConsentDoc());
+    pwaConsent.setSourcePwaApplication(null);
+    pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
+    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setCreatedInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+
+    pwaConsentService.createLegacyConsent(documentRecord);
+
+    verify(pwaConsentRepository).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).extracting(
+        PwaConsent::getMasterPwa,
+        PwaConsent::getReference,
+        PwaConsent::getSourcePwaApplication,
+        PwaConsent::getConsentType,
+        PwaConsent::getCreatedInstant,
+        PwaConsent::getConsentInstant
+    ).containsExactly(
+        pwaConsent.getMasterPwa(),
+        pwaConsent.getReference(),
+        pwaConsent.getSourcePwaApplication(),
+        pwaConsent.getConsentType(),
+        pwaConsent.getCreatedInstant(),
+        pwaConsent.getConsentInstant()
+    );
   }
 
 }

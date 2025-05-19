@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.time.Clock;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -99,6 +100,10 @@ public class MasterPwaService {
   public List<MasterPwaDetail> searchConsentedDetailsByReference(String filter) {
     return masterPwaDetailRepository.findAllByReferenceContainingIgnoreCaseAndMasterPwaDetailStatus(filter,
         MasterPwaDetailStatus.CONSENTED);
+  }
+
+  public Optional<MasterPwaDetail> getConsentedDetailByReference(String reference) {
+    return masterPwaDetailRepository.findByReferenceAndMasterPwaDetailStatus(reference, MasterPwaDetailStatus.CONSENTED);
   }
 
   public List<MasterPwaDetail> findAllCurrentDetailsIn(Collection<MasterPwa> masterPwas) {

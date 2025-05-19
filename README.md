@@ -70,6 +70,12 @@ Output should claim build successful.
 | FILE_UPLOAD_MAX_ALLOWED_SIZE               | Maximum file upload size in bytes                                                                                                 |                                                                                                                                                                                           |
 | FILE_UPLOAD_ALLOWED_EXTENSIONS             | Allowed file extensions for document uploads                                                                                      |
 
+#### Devtools profile
+| Environment Variable   | Description |
+|------------------------|-------------|
+| MIGRATION_S3_BUCKET    |             |
+| MIGRATION_CSV_FILE_KEY |             |
+
 ## Logging
 
 PWA can log in either JSON or text mode.

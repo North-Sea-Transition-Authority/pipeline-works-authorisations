@@ -38,7 +38,7 @@ public class ConsentDocumentMigrationController {
   ResponseEntity<String> migrate() {
     try {
       consentDocumentMigrationService.migrate();
-    } catch (S3Exception e) {
+    } catch (S3Exception | IOException e) {
       var message = "Failed to migrate consent documents";
       LOGGER.error(message, e);
       return ResponseEntity.internalServerError().body(message);

@@ -12,8 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
-import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
-import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.ConsentDocumentFileManagementService;
 import uk.co.ogauthority.pwa.model.enums.consultations.ConsultationResponseDocumentType;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
 import uk.co.ogauthority.pwa.service.pwacontext.PwaContext;
@@ -33,7 +32,7 @@ public class ConsentFileController {
   private final ConsentFileViewerService consentFileViewerService;
   private final SearchPwaBreadcrumbService breadcrumbService;
   private final FileService fileService;
-  private final AppFileManagementService appFileManagementService;
+  private final ConsentDocumentFileManagementService consentDocumentFileManagementService;
 
 
   @Autowired
@@ -42,13 +41,14 @@ public class ConsentFileController {
                                ConsentFileViewerService consentFileViewerService,
                                SearchPwaBreadcrumbService breadcrumbService,
                                FileService fileService,
-                               AppFileManagementService appFileManagementService) {
+                               ConsentDocumentFileManagementService consentDocumentFileManagementService
+  ) {
     this.pwaViewTabService = pwaViewTabService;
     this.pwaConsentService = pwaConsentService;
     this.consentFileViewerService = consentFileViewerService;
     this.breadcrumbService = breadcrumbService;
     this.fileService = fileService;
-    this.appFileManagementService = appFileManagementService;
+    this.consentDocumentFileManagementService = consentDocumentFileManagementService;
   }
 
   @GetMapping
@@ -82,14 +82,15 @@ public class ConsentFileController {
 
   @GetMapping("/download")
   public ResponseEntity<InputStreamResource> downloadConsentDocument(@PathVariable("pwaId") Integer pwaId,
-                                                                     PwaContext pwaContext,
-                                                                     @PathVariable Integer pwaConsentId) {
+                                                                     @PathVariable Integer pwaConsentId,
+                                                                     PwaContext pwaContext) {
 
-    var pwaApplication = pwaConsentService.getConsentById(pwaConsentId).getSourcePwaApplication();
-    var files = appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT);
+
+    var pwaConsent = pwaConsentService.getConsentById(pwaConsentId);
+    var files = consentDocumentFileManagementService.getUploadedConsentDocuments(pwaConsent);
 
     if (files.isEmpty()) {
-      throw new ResourceNotFoundException("No consent document found for application: " + pwaApplication.getId());
+      throw new ResourceNotFoundException("No consent document found for consent id: " + pwaConsent.getId());
     }
 
     return fileService.download(files.getFirst());

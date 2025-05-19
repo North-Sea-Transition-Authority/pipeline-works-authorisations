@@ -29,8 +29,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.controller.PwaContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.consents.viewconsent.ConsentFileViewerService;
-import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
-import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.features.filemanagement.ConsentDocumentFileManagementService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRun;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
@@ -69,7 +68,7 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
   private FileService fileService;
 
   @MockBean
-  private AppFileManagementService appFileManagementService;
+  private ConsentDocumentFileManagementService consentDocumentFileManagementService;
 
   private MasterPwa masterPwa;
   private AuthenticatedUserAccount user;
@@ -110,12 +109,12 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
   @Test
   void downloadConsentDocument_processingPermissionSmokeTest() {
-    when(appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT)).thenReturn(List.of(new UploadedFile()));
+    when(consentDocumentFileManagementService.getUploadedConsentDocuments(consent)).thenReturn(List.of(new UploadedFile()));
 
     endpointTester.setRequestMethod(HttpMethod.GET)
         .setEndpointUrlProducer((masterPwa) ->
             ReverseRouter.route(on(ConsentFileController.class)
-                .downloadConsentDocument(1, null, 1)));
+                .downloadConsentDocument(1, 1, null)));
 
     endpointTester.performProcessingPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -126,10 +125,10 @@ class ConsentFileControllerTest extends PwaContextAbstractControllerTest {
 
     var uploadedFile = new UploadedFile();
 
-    when(appFileManagementService.getUploadedFiles(pwaApplication, FileDocumentType.CONSENT_DOCUMENT)).thenReturn(List.of(uploadedFile));
+    when(consentDocumentFileManagementService.getUploadedConsentDocuments(consent)).thenReturn(List.of(uploadedFile));
 
     mockMvc.perform(get(ReverseRouter.route(on(ConsentFileController.class)
-        .downloadConsentDocument(1, null, 1)))
+        .downloadConsentDocument(1, 1, null)))
         .with(user(user))
         .with(csrf()))
         .andExpect(status().isOk());

@@ -39,7 +39,7 @@ public class DocgenSchedulerBean extends QuartzJobBean {
 
       LOGGER.info("Executing job for docgen run {}... [isRecovering = {}]", docgenRun.getId(), context.isRecovering());
 
-      docgenService.processDocgenRun(docgenRun);
+      docgenService.processPreviewDocgenRun(docgenRun);
 
       LOGGER.info("Job execution complete for docgen run {}", docgenRun.getId());
 

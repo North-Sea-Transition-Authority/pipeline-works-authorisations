@@ -27,7 +27,7 @@ public class PwaViewUrlFactory {
   }
 
   public String getConsentDocumentUrl(Integer pwaConsentId, Long docgenRunId) {
-    return ReverseRouter.route(on(ConsentFileController.class).downloadConsentDocument(pwaId, null, pwaConsentId));
+    return ReverseRouter.route(on(ConsentFileController.class).downloadConsentDocument(pwaId, pwaConsentId, null));
   }
 
   public String getConsentDocumentsUrl(Integer pwaConsentId) {

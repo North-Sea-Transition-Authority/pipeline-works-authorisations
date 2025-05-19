@@ -93,15 +93,15 @@ SELECT
     'application/pdf' content_type,
     dbms_lob.getlength(dr.generated_doc),
     dr.completed_on,
-    pa.id,
-    'PwaApplication',
+    pc.id,
+    'PwaConsent',
     'CONSENT_DOCUMENT',
     '',
-    dr.SCHEDULED_BY_PERSON_ID
+    dr.scheduled_by_person_id
 FROM pwa.docgen_runs dr
     JOIN pwa.document_instances di ON dr.di_id = di.id
-    JOIN pwa.pwa_applications pa ON di.pwa_application_id = pa.id
-    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = dr.id AND sfm.reference = pa.id
+    JOIN pwa.PWA_CONSENTS pc ON pc.docgen_run_id = dr.ID
+    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = dr.id AND sfm.reference = pc.id
 WHERE dr.docgen_type = 'FULL'
     AND sfm.migrated_timestamp IS NOT NULL;
 

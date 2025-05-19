@@ -49,13 +49,13 @@ INSERT INTO promotemgr.s3_file_migration (
 SELECT
     dr.id,
     'PWA' application,
-    pa.id reference,
+    pc.id,
     'migrated' directory,
-    REPLACE(pa.consent_reference, '/', '-')  || ' consent document.pdf' filename,
+    REPLACE(pc.reference, '/', '-')  || ' consent document.pdf' filename,
     dr.generated_doc content
 FROM pwa.docgen_runs dr
     JOIN pwa.document_instances di ON dr.di_id = di.id
-    JOIN pwa.pwa_applications pa ON di.pwa_application_id = pa.id
+    JOIN pwa.pwa_consents pc ON pc.docgen_run_id = dr.id
 WHERE dr.docgen_type = 'FULL'
     AND dr.status = 'COMPLETE';
 

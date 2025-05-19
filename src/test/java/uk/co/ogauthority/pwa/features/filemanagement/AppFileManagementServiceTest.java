@@ -26,7 +26,6 @@ import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,11 +62,11 @@ class AppFileManagementServiceTest {
   }
 
   @Test
-  void saveConsentDocument() {
+  void saveConsentPreview() {
     var file = new UploadedFileForm();
-    appFileManagementService.saveConsentDocument(file, pwaApplication, DocGenType.FULL);
+    appFileManagementService.saveConsentPreview(file, pwaApplication);
 
-    verify(fileManagementService).saveFiles(List.of(file), pwaApplication.getId().toString(), USAGE_TYPE, DocGenType.FULL.getFileDocumentType());
+    verify(fileManagementService).saveFiles(List.of(file), pwaApplication.getId().toString(), USAGE_TYPE, FileDocumentType.CONSENT_PREVIEW);
   }
 
   @Test

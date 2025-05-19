@@ -164,4 +164,11 @@ class MasterPwaServiceTest {
 
   }
 
+  @Test
+  void getConsentedDetailByReference() {
+    masterPwaService.getConsentedDetailByReference("ref");
+
+    verify(masterPwaDetailRepository).findByReferenceAndMasterPwaDetailStatus("ref", MasterPwaDetailStatus.CONSENTED);
+  }
+
 }

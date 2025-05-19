@@ -11,7 +11,6 @@ import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @Service
@@ -41,16 +40,15 @@ public class AppFileManagementService {
     );
   }
 
-  public void saveConsentDocument(
+  public void saveConsentPreview(
       UploadedFileForm uploadedFileForm,
-      PwaApplication pwaApplication,
-      DocGenType docGenType
+      PwaApplication pwaApplication
   ) {
     fileManagementService.saveFiles(
         List.of(uploadedFileForm),
         getUsageId(pwaApplication),
         getUsageType(),
-        docGenType.getFileDocumentType()
+        FileDocumentType.CONSENT_PREVIEW
     );
   }
 

@@ -83,7 +83,7 @@ public class ConsentIssueService {
 
     var docgenRun = docgenService.createDocgenRun(docInstance, DOC_GEN_TYPE, issuingUser.getLinkedPerson());
     pwaConsentService.setDocgenRunId(consent, docgenRun);
-    docgenService.processDocgenRun(docgenRun);
+    docgenService.processConsentDocgenRun(docgenRun, consent);
 
     completeConsentIssueTask(pwaApplicationDetail, ConsentIssueStatus.COMPLETE);
 
