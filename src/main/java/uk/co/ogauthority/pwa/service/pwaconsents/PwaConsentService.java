@@ -134,6 +134,7 @@ public class PwaConsentService {
     pwaConsent.setMigratedFlag(false);
     pwaConsent.setCreatedInstant(instant);
     pwaConsent.setConsentInstant(instant);
+    pwaConsent.setFileDownloadable(true);
 
     return pwaConsentRepository.save(pwaConsent);
   }
@@ -143,6 +144,9 @@ public class PwaConsentService {
       case String s when s.equals("PWA") -> PwaConsentType.INITIAL_PWA;
       case String s when s.contains("VARIATION") -> PwaConsentType.VARIATION;
       case String s when s.contains("DECOMMISSIONING") -> PwaConsentType.VARIATION;
+      case String s when s.contains("DECOMISSIONING") -> PwaConsentType.VARIATION; // added to catch typos in NSTA spreadsheet
+      case String s when s.contains("INTO USE") -> PwaConsentType.VARIATION;
+      case String s when s.contains("SAFETY") -> PwaConsentType.VARIATION;
       case String s when s.contains("DEPOSIT") -> PwaConsentType.DEPOSIT_CONSENT;
       default -> {
         LOGGER.warn("Unsupported consent type %s".formatted(consentType));

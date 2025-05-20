@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.pwa_consents ADD file_downloadable NUMBER(1,0);

@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.repository.pwaconsents;
 
 import java.time.Instant;
 import java.util.Optional;
+import org.apache.commons.lang3.BooleanUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.model.docgen.DocgenRunStatus;
 import uk.co.ogauthority.pwa.util.DateUtils;
@@ -14,9 +15,9 @@ public class PwaConsentApplicationDto {
   private final Integer pwaApplicationId;
   private final PwaApplicationType applicationType;
   private final String appReference;
-
   private final Long docgenRunId;
   private final DocgenRunStatus docgenRunStatus;
+  private final Boolean fileDownloadable;
 
   public PwaConsentApplicationDto(Integer consentId,
                                   Instant consentInstant,
@@ -25,7 +26,9 @@ public class PwaConsentApplicationDto {
                                   PwaApplicationType pwaApplicationType,
                                   String appReference,
                                   Long docgenRunId,
-                                  DocgenRunStatus docgenRunStatus) {
+                                  DocgenRunStatus docgenRunStatus,
+                                  Boolean fileDownloadable
+  ) {
     this.consentId = consentId;
     this.consentInstant = consentInstant;
     this.consentReference = consentReference;
@@ -34,6 +37,7 @@ public class PwaConsentApplicationDto {
     this.appReference = appReference;
     this.docgenRunId = docgenRunId;
     this.docgenRunStatus = docgenRunStatus;
+    this.fileDownloadable = fileDownloadable;
   }
 
   public Integer getConsentId() {
@@ -73,10 +77,11 @@ public class PwaConsentApplicationDto {
   }
 
   public boolean consentDocumentDownloadable() {
-    return getDocgenRunId().isPresent()
+    return BooleanUtils.isTrue(fileDownloadable)
+        || (getDocgenRunId().isPresent()
         && getDocgenRunStatus()
           .map(status -> status == DocgenRunStatus.COMPLETE)
-          .orElse(false);
+          .orElse(false));
   }
 
   public String getDocStatusDisplay() {
@@ -92,5 +97,4 @@ public class PwaConsentApplicationDto {
         })
         .orElse("");
   }
-
 }

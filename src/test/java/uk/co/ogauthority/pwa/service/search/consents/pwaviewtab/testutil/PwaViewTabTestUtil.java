@@ -15,13 +15,13 @@ public class PwaViewTabTestUtil {
   public static PwaConsentApplicationDto createMigratedConsentApplicationDto(Instant consentInstant) {
     return new PwaConsentApplicationDto(
         1, consentInstant, "consent ref", 1, PwaApplicationType.INITIAL, "app ref",
-        null, null);
+        null, null, null);
   }
 
   public static PwaConsentApplicationDto createConsentApplicationDto(Instant consentInstant, DocgenRun docgenRun) {
     return new PwaConsentApplicationDto(
         1, consentInstant, "consent ref", 1, PwaApplicationType.INITIAL, "app ref",
-        docgenRun.getId(), docgenRun.getStatus());
+        docgenRun.getId(), docgenRun.getStatus(), null);
   }
 
 }

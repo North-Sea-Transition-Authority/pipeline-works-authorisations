@@ -16,8 +16,8 @@
 
             <h2 class="govuk-heading-m">Consent document</h2>
             <@fdsCheckAnswers.checkAnswers>
-                <#if consentApplicationDto.pwaApplicationId?has_content && documentIsDownloadable>
-                    <@fdsAction.link linkText="Download" linkUrl=springUrl(urlFactory.getConsentDocumentUrl(consentApplicationDto.consentId, consentApplicationDto.docgenRunId.get())) />
+                <#if documentIsDownloadable>
+                    <@fdsAction.link linkText="Download" linkUrl=springUrl(urlFactory.getConsentDocumentUrl(consentApplicationDto.consentId)) />
                 </#if>
             </@fdsCheckAnswers.checkAnswers>
             

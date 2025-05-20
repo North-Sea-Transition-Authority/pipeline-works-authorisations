@@ -60,6 +60,8 @@ public class PwaConsent {
   @Column(name = "docgen_run_id")
   private Long docgenRunId;
 
+  private Boolean fileDownloadable;
+
   public PwaConsent() {
     this.isMigratedFlag = false;
   }
@@ -144,6 +146,13 @@ public class PwaConsent {
     this.docgenRunId = docgenRunId;
   }
 
+  public Boolean getFileDownloadable() {
+    return fileDownloadable;
+  }
+
+  public void setFileDownloadable(Boolean fileDownloadable) {
+    this.fileDownloadable = fileDownloadable;
+  }
 
   @Override
   public boolean equals(Object o) {
@@ -163,13 +172,13 @@ public class PwaConsent {
         && consentType == that.consentType
         && Objects.equals(variationNumber, that.variationNumber)
         && Objects.equals(reference, that.reference)
-        && Objects.equals(docgenRunId, that.docgenRunId);
+        && Objects.equals(docgenRunId, that.docgenRunId)
+        && Objects.equals(fileDownloadable, that.fileDownloadable);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(id, masterPwa, sourcePwaApplication, createdInstant, consentInstant, consentType,
-        variationNumber,
-        reference, isMigratedFlag, docgenRunId);
+        variationNumber, reference, isMigratedFlag, docgenRunId, fileDownloadable);
   }
 }

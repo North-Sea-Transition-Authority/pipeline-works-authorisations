@@ -19,7 +19,7 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
 
   @Override
   public Optional<PwaConsentApplicationDto> getConsentAndApplicationDto(Integer consentId) {
-    var pwaConsentApplicationDto = entityManager.createQuery("" +
+    var pwaConsentApplicationDto = entityManager.createQuery(
             "SELECT new uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto(" +
             "pc.id, " +
             "pc.consentInstant, " +
@@ -28,7 +28,8 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
             "pa.applicationType, " +
             "pa.appReference, " +
             "dr.id, " +
-            "dr.status" +
+            "dr.status, " +
+            "pc.fileDownloadable" +
             ") " +
             "FROM PwaConsent pc " +
             "LEFT JOIN PwaApplication pa ON pc.sourcePwaApplication = pa " +
@@ -43,7 +44,7 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
 
   @Override
   public List<PwaConsentApplicationDto> getConsentAndApplicationDtos(MasterPwa masterPwa) {
-    return entityManager.createQuery("" +
+    return entityManager.createQuery(
         "SELECT new uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentApplicationDto(" +
         "pc.id, " +
         "pc.consentInstant, " +
@@ -52,7 +53,8 @@ public class PwaConsentDtoRepositoryImpl implements PwaConsentDtoRepository {
         "pa.applicationType, " +
         "pa.appReference, " +
         "dr.id, " +
-        "dr.status" +
+        "dr.status, " +
+        "pc.fileDownloadable" +
         ") " +
         "FROM PwaConsent pc " +
         "LEFT JOIN PwaApplication pa ON pc.sourcePwaApplication = pa " +

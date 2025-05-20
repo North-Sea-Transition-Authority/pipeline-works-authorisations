@@ -22,25 +22,21 @@
         <#local documentStatusDisplay = pwaConsentHistoryView.getDocStatusDisplay() />
 
         <td class="govuk-table__cell">
-          <#if pwaConsentHistoryView.pwaApplicationId?has_content>
-            <#if documentIsDownloadable>
-              <@fdsAction.link
-                linkText=pwaConsentHistoryView.consentReference
-                linkUrl=springUrl(urlFactory.getConsentDocumentsUrl(pwaConsentHistoryView.consentId))
-                linkClass="govuk-link"
-                linkScreenReaderText="Download consent document"
-                role=false
-                start=false/>
-            <#else>
-              <span>${pwaConsentHistoryView.consentReference}
-              <#if documentStatusDisplay?has_content>
-                <br/>
-                ${documentStatusDisplay}
-              </#if>
-              </span>
-            </#if>
+          <#if documentIsDownloadable>
+            <@fdsAction.link
+              linkText=pwaConsentHistoryView.consentReference
+              linkUrl=springUrl(urlFactory.getConsentDocumentsUrl(pwaConsentHistoryView.consentId))
+              linkClass="govuk-link"
+              linkScreenReaderText="Download consent document"
+              role=false
+              start=false/>
           <#else>
-            <span>${pwaConsentHistoryView.consentReference}<span>
+            <span>${pwaConsentHistoryView.consentReference}
+            <#if documentStatusDisplay?has_content>
+              <br/>
+              ${documentStatusDisplay}
+            </#if>
+            </span>
           </#if>
         </td>
 

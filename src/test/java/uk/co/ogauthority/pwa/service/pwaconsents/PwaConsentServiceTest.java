@@ -226,6 +226,7 @@ class PwaConsentServiceTest {
     pwaConsent.setMigratedFlag(false);
     pwaConsent.setCreatedInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setFileDownloadable(true);
 
     pwaConsentService.createLegacyConsent(documentRecord);
 
@@ -237,14 +238,16 @@ class PwaConsentServiceTest {
         PwaConsent::getSourcePwaApplication,
         PwaConsent::getConsentType,
         PwaConsent::getCreatedInstant,
-        PwaConsent::getConsentInstant
+        PwaConsent::getConsentInstant,
+        PwaConsent::getFileDownloadable
     ).containsExactly(
         pwaConsent.getMasterPwa(),
         pwaConsent.getReference(),
         pwaConsent.getSourcePwaApplication(),
         pwaConsent.getConsentType(),
         pwaConsent.getCreatedInstant(),
-        pwaConsent.getConsentInstant()
+        pwaConsent.getConsentInstant(),
+        pwaConsent.getFileDownloadable()
     );
   }
 
