@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.HolderChangeConsentedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
@@ -20,6 +21,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
@@ -28,19 +30,20 @@ public class HolderChangeEmailService {
   private static final Logger LOGGER = LoggerFactory.getLogger(HolderChangeEmailService.class);
 
   private final PortalOrganisationsAccessor portalOrganisationsAccessor;
-  private final TeamService teamService;
   private final MasterPwaService masterPwaService;
   private final EmailService emailService;
+  private final PwaHolderTeamService pwaHolderTeamService;
 
   @Autowired
   public HolderChangeEmailService(PortalOrganisationsAccessor portalOrganisationsAccessor,
                                   TeamService teamService,
                                   MasterPwaService masterPwaService,
-                                  EmailService emailService) {
+                                  EmailService emailService,
+                                  PwaHolderTeamService pwaHolderTeamService) {
     this.portalOrganisationsAccessor = portalOrganisationsAccessor;
-    this.teamService = teamService;
     this.masterPwaService = masterPwaService;
     this.emailService = emailService;
+    this.pwaHolderTeamService = pwaHolderTeamService;
   }
 
   public void sendHolderChangeEmail(PwaApplication pwaApplication,
@@ -65,7 +68,7 @@ public class HolderChangeEmailService {
     var endedOrgUnits = portalOrganisationsAccessor.getOrganisationUnitsByIdIn(holderOuIdsEnded);
     var holderOrgUnits = Stream.of(addedOrgUnits.stream(), endedOrgUnits.stream())
         .flatMap(e -> e)
-        .collect(Collectors.toList());
+        .toList();
 
     var ouIdsWithNoOrgGroupCsv = holderOrgUnits.stream()
         .filter(o -> o.getPortalOrganisationGroup().isEmpty())
@@ -101,21 +104,14 @@ public class HolderChangeEmailService {
 
     var newHolderCsv = getHolderNameCsv(holderOuIdsAdded, ouIdToOrgGroupMap);
 
-    var orgGroupTeamMembers = teamService.getOrganisationTeamsForOrganisationGroups(ouIdToOrgGroupMap.values())
-        .stream()
-        .map(teamService::getTeamMembers)
-        .flatMap(List::stream)
-        .collect(Collectors.toList());
+    var orgGroupTeamMembers = pwaHolderTeamService.getMembersWithinHolderTeamForOrgGroups(ouIdToOrgGroupMap.values());
 
-    var pwaReference = masterPwaService.getCurrentDetailOrThrow(pwaApplication.getMasterPwa())
-        .getReference();
+    var pwaReference = masterPwaService.getCurrentDetailOrThrow(pwaApplication.getMasterPwa()).getReference();
 
-    orgGroupTeamMembers.forEach(teamMember -> {
-
-      var person = teamMember.getPerson();
+    orgGroupTeamMembers.forEach(member -> {
 
       var emailProps = new HolderChangeConsentedEmailProps(
-          person.getFullName(),
+          member.getFullName(),
           pwaApplication.getApplicationType().getDisplayName(),
           pwaApplication.getAppReference(),
           pwaReference,
@@ -123,7 +119,7 @@ public class HolderChangeEmailService {
           newHolderCsv
       );
 
-      emailService.sendEmail(emailProps, person, pwaApplication.getAppReference());
+      emailService.sendEmail(emailProps, EmailRecipientWithName.from(member), pwaApplication.getAppReference());
     });
 
   }

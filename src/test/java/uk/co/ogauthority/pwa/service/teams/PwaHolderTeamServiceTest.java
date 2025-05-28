@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.teams;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -153,12 +152,10 @@ class PwaHolderTeamServiceTest {
 
   @Test
   void getPeopleWithHolderTeamRole_singlePersonInHolderTeam() {
-    var team = mock(Team.class);
     var role = Role.APPLICATION_CREATOR;
     var userTeamRolesView = new UserTeamRolesView(1L, null, null, List.of(role, Role.APPLICATION_SUBMITTER));
     when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
-    when(teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(Set.of(team));
-    when(teamQueryService.getUsersOfTeam(team)).thenReturn(List.of(userTeamRolesView));
+    when(teamQueryService.getUsersOfScopedTeams(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(List.of(userTeamRolesView));
     when(userAccountService.getPersonsByWuaIdSet(Set.of(1))).thenReturn(Set.of(person));
 
     var result = pwaHolderTeamService.getPeopleWithHolderTeamRole(detail, role);
@@ -168,11 +165,9 @@ class PwaHolderTeamServiceTest {
 
   @Test
   void getPeopleWithHolderTeamRole_PersonDoesntHaveTheRole() {
-    var team = mock(Team.class);
     var userTeamRolesView = new UserTeamRolesView(1L, null, null, List.of(Role.APPLICATION_CREATOR, Role.APPLICATION_SUBMITTER));
     when(pwaHolderService.getPwaHolderOrgGroups(detail.getMasterPwa())).thenReturn(Set.of(holderOrgGroup));
-    when(teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(Set.of(team));
-    when(teamQueryService.getUsersOfTeam(team)).thenReturn(List.of(userTeamRolesView));
+    when(teamQueryService.getUsersOfScopedTeams(TeamType.ORGANISATION, Set.of(String.valueOf(orgGrpId)))).thenReturn(List.of(userTeamRolesView));
 
     var result = pwaHolderTeamService.getPeopleWithHolderTeamRole(detail, Role.TEAM_ADMINISTRATOR);
 

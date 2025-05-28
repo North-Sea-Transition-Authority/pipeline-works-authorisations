@@ -9,51 +9,44 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
+import uk.co.ogauthority.pwa.features.email.EmailRecipientWithName;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.HolderChangeConsentedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationsAccessor;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRoleTestUtil;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationRole;
-import uk.co.ogauthority.pwa.model.teams.PwaOrganisationTeam;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
+import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
+import uk.co.ogauthority.pwa.teams.Role;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
-import uk.co.ogauthority.pwa.testutils.TeamTestingUtils;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class HolderChangeEmailServiceTest {
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
 
   @Mock
-  private TeamService teamService;
+  PwaHolderTeamService pwaHolderTeamService;
 
   @Mock
   private EmailService emailService;
@@ -67,6 +60,7 @@ class HolderChangeEmailServiceTest {
   @Captor
   private ArgumentCaptor<EmailRecipient> emailRecipientArgumentCaptor;
 
+  @InjectMocks
   private HolderChangeEmailService holderChangeEmailService;
 
   private PortalOrganisationUnit shellOrgUnit, bpOrgUnit, wintershallOrgUnit;
@@ -74,23 +68,15 @@ class HolderChangeEmailServiceTest {
 
   private PwaConsentOrganisationRole shellConsentHolderRole, bpConsentHolderRole, wintershallConsentHolderRole;
 
-  private Person shellCreatorPerson, shellSubmitterPerson, shellFinancePerson;
-  private Person bpCreatorPerson, bpSubmitterPerson, bpFinancePerson;
-  private Person wintershallCreatorPerson, wintershallSubmitterPerson, wintershallFinancePerson;
-
-  private PwaTeamMember shellCreator, shellSubmitter, shellFinance;
-  private PwaTeamMember bpCreator, bpSubmitter, bpFinance;
-  private PwaTeamMember wintershallCreator, wintershallSubmitter, wintershallFinance;
-
-  private PwaOrganisationTeam shellOrgTeam, bpOrgTeam, wintershallOrgTeam;
+  private TeamMemberView shellCreator, shellSubmitter, shellFinance;
+  private TeamMemberView bpCreator, bpSubmitter, bpFinance;
+  private TeamMemberView wintershallCreator, wintershallSubmitter, wintershallFinance;
 
   private PwaApplicationDetail detail;
   private MasterPwaDetail masterPwaDetail;
 
   @BeforeEach
   void setUp() throws Exception {
-
-    holderChangeEmailService = new HolderChangeEmailService(portalOrganisationsAccessor, teamService, masterPwaService, emailService);
 
     shellOrgGroup = PortalOrganisationTestUtils.generateOrganisationGroup(1, "Shell", "S");
     shellOrgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Shell", shellOrgGroup);
@@ -114,56 +100,20 @@ class HolderChangeEmailServiceTest {
     wintershallConsentHolderRole = PwaConsentOrganisationRoleTestUtil
         .createOrganisationRole(consent, new OrganisationUnitId(wintershallOrgUnit.getOuId()), HuooRole.HOLDER);
 
-    shellOrgTeam = TeamTestingUtils.getOrganisationTeam(shellOrgGroup);
+    shellCreator = new TeamMemberView(1L, "Mr.", "shell", "creator", "c@s.com", null, null, List.of(Role.APPLICATION_CREATOR));
+    shellSubmitter = new TeamMemberView(2L, "Mr.", "shell", "submitter", "s@s.com", null, null, List.of(Role.APPLICATION_SUBMITTER));
+    shellFinance = new TeamMemberView(3L, "Mr.", "shell", "finance", "f@s.com", null, null, List.of(Role.FINANCE_ADMIN));
 
-    shellCreatorPerson = PersonTestUtil.createPersonFrom(new PersonId(1), "c@s.com", "creator");
-    shellCreator = TeamTestingUtils.createOrganisationTeamMember(shellOrgTeam, shellCreatorPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_CREATOR));
+    bpCreator = new TeamMemberView(4L, "Mr.", "bp", "creator", "c@b.com", null, null, List.of(Role.APPLICATION_CREATOR));
+    bpSubmitter = new TeamMemberView(5L, "Mr.", "bp", "submitter", "s@b.com", null, null, List.of(Role.APPLICATION_SUBMITTER));
+    bpFinance = new TeamMemberView(6L, "Mr.", "bp", "finance", "f@b.com", null, null, List.of(Role.FINANCE_ADMIN));
 
-    shellSubmitterPerson = PersonTestUtil.createPersonFrom(new PersonId(2), "s@s.com", "submitter");
-    shellSubmitter = TeamTestingUtils.createOrganisationTeamMember(shellOrgTeam, shellSubmitterPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_SUBMITTER));
-
-    shellFinancePerson = PersonTestUtil.createPersonFrom(new PersonId(3), "f@s.com", "finance");
-    shellFinance = TeamTestingUtils.createOrganisationTeamMember(shellOrgTeam, shellFinancePerson, Set.of(
-        PwaOrganisationRole.FINANCE_ADMIN));
-
-    bpOrgTeam = TeamTestingUtils.getOrganisationTeam(bpOrgGroup);
-
-    bpCreatorPerson = PersonTestUtil.createPersonFrom(new PersonId(4), "c@b.com", "creator");
-    bpCreator = TeamTestingUtils.createOrganisationTeamMember(bpOrgTeam, bpCreatorPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_CREATOR));
-
-    bpSubmitterPerson = PersonTestUtil.createPersonFrom(new PersonId(5), "s@b.com", "submitter");
-    bpSubmitter = TeamTestingUtils.createOrganisationTeamMember(bpOrgTeam, bpSubmitterPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_SUBMITTER));
-
-    bpFinancePerson = PersonTestUtil.createPersonFrom(new PersonId(6), "f@b.com", "finance");
-    bpFinance = TeamTestingUtils.createOrganisationTeamMember(bpOrgTeam, bpFinancePerson, Set.of(
-        PwaOrganisationRole.FINANCE_ADMIN));
-
-    wintershallOrgTeam = TeamTestingUtils.getOrganisationTeam(wintershallOrgGroup);
-
-    wintershallCreatorPerson = PersonTestUtil.createPersonFrom(new PersonId(7), "c@w.com", "creator");
-    wintershallCreator = TeamTestingUtils.createOrganisationTeamMember(wintershallOrgTeam, wintershallCreatorPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_CREATOR));
-
-    wintershallSubmitterPerson = PersonTestUtil.createPersonFrom(new PersonId(8), "s@w.com", "submitter");
-    wintershallSubmitter = TeamTestingUtils.createOrganisationTeamMember(wintershallOrgTeam, wintershallSubmitterPerson, Set.of(
-        PwaOrganisationRole.APPLICATION_SUBMITTER));
-
-    wintershallFinancePerson = PersonTestUtil.createPersonFrom(new PersonId(9), "f@w.com", "finance");
-    wintershallFinance = TeamTestingUtils.createOrganisationTeamMember(wintershallOrgTeam, wintershallFinancePerson, Set.of(
-        PwaOrganisationRole.FINANCE_ADMIN));
-
-    when(teamService.getTeamMembers(shellOrgTeam)).thenReturn(List.of(shellCreator, shellSubmitter, shellFinance));
-    when(teamService.getTeamMembers(bpOrgTeam)).thenReturn(List.of(bpCreator, bpSubmitter, bpFinance));
-    when(teamService.getTeamMembers(wintershallOrgTeam)).thenReturn(List.of(wintershallCreator, wintershallSubmitter, wintershallFinance));
+    wintershallCreator = new TeamMemberView(7L, "Mr.", "wintershall", "creator", "c@w.com", null, null, List.of(Role.APPLICATION_CREATOR));
+    wintershallSubmitter = new TeamMemberView(8L, "Mr.", "wintershall", "submitter", "s@w.com", null, null, List.of(Role.APPLICATION_SUBMITTER));
+    wintershallFinance = new TeamMemberView(9L, "Mr.", "wintershall", "finance", "f@w.com", null, null, List.of(Role.FINANCE_ADMIN));
 
     masterPwaDetail = new MasterPwaDetail();
     masterPwaDetail.setReference("1/W/1");
-
-    when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
 
   }
 
@@ -188,12 +138,12 @@ class HolderChangeEmailServiceTest {
 
   @Test
   void sendHolderChangeEmail_holderEnded_holderAdded() {
+    when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));
 
-    when(teamService.getOrganisationTeamsForOrganisationGroups(any()))
-        .thenReturn(List.of(shellOrgTeam, bpOrgTeam));
+    when(pwaHolderTeamService.getMembersWithinHolderTeamForOrgGroups(any())).thenReturn(List.of(shellCreator, shellSubmitter, shellFinance, bpCreator, bpSubmitter, bpFinance));
 
     holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellConsentHolderRole), List.of(bpConsentHolderRole));
 
@@ -201,12 +151,12 @@ class HolderChangeEmailServiceTest {
         .sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(detail.getPwaApplicationRef()));
 
     assertThat(emailPropsCaptor.getAllValues())
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreatorPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellSubmitterPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellFinancePerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpCreatorPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpSubmitterPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpFinancePerson.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreator.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellSubmitter.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellFinance.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpCreator.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpSubmitter.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpFinance.getFullName()))
         .allSatisfy(p -> {
 
           assertThat(p.getApplicationReference()).isEqualTo(detail.getPwaApplication().getAppReference());
@@ -218,23 +168,23 @@ class HolderChangeEmailServiceTest {
         });
 
     assertThat(emailRecipientArgumentCaptor.getAllValues())
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellFinancePerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpFinancePerson.getEmailAddress()));
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellCreator).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellSubmitter).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellFinance).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpCreator).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpSubmitter).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpFinance).getEmailAddress()));
 
   }
 
   @Test
   void sendHolderChangeEmail_multipleHoldersEnded_holderAdded() {
+    when(masterPwaService.getCurrentDetailOrThrow(detail.getMasterPwa())).thenReturn(masterPwaDetail);
 
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(shellOrgUnit.getOuId(), wintershallOrgUnit.getOuId()))).thenReturn(List.of(shellOrgUnit, wintershallOrgUnit));
     when(portalOrganisationsAccessor.getOrganisationUnitsByIdIn(List.of(bpOrgUnit.getOuId()))).thenReturn(List.of(bpOrgUnit));
 
-    when(teamService.getOrganisationTeamsForOrganisationGroups(any()))
-        .thenReturn(List.of(shellOrgTeam, bpOrgTeam, wintershallOrgTeam));
+    when(pwaHolderTeamService.getMembersWithinHolderTeamForOrgGroups(any())).thenReturn(List.of(shellCreator, shellSubmitter, shellFinance, bpCreator, bpSubmitter, bpFinance, wintershallCreator, wintershallSubmitter, wintershallFinance));
 
     holderChangeEmailService.sendHolderChangeEmail(detail.getPwaApplication(), List.of(shellConsentHolderRole, wintershallConsentHolderRole), List.of(bpConsentHolderRole));
 
@@ -242,15 +192,15 @@ class HolderChangeEmailServiceTest {
         .sendEmail(emailPropsCaptor.capture(), emailRecipientArgumentCaptor.capture(), eq(detail.getPwaApplicationRef()));
 
     assertThat(emailPropsCaptor.getAllValues())
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreatorPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellSubmitterPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellFinancePerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpCreatorPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpSubmitterPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpFinancePerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallCreatorPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallSubmitterPerson.getFullName()))
-        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallFinancePerson.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellCreator.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellSubmitter.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(shellFinance.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpCreator.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpSubmitter.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(bpFinance.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallCreator.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallSubmitter.getFullName()))
+        .anySatisfy(p -> assertThat(p.getRecipientFullName()).isEqualTo(wintershallFinance.getFullName()))
         .allSatisfy(p -> {
 
           assertThat(p.getApplicationReference()).isEqualTo(detail.getPwaApplication().getAppReference());
@@ -262,15 +212,15 @@ class HolderChangeEmailServiceTest {
         });
 
     assertThat(emailRecipientArgumentCaptor.getAllValues())
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(shellFinancePerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(bpFinancePerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallCreatorPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallSubmitterPerson.getEmailAddress()))
-        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(wintershallFinancePerson.getEmailAddress()));
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellCreator).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellSubmitter).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(shellFinance).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpCreator).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpSubmitter).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(bpFinance).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(wintershallCreator).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(wintershallSubmitter).getEmailAddress()))
+        .anySatisfy(emailRecipient -> assertThat(emailRecipient.getEmailAddress()).isEqualTo(EmailRecipientWithName.from(wintershallFinance).getEmailAddress()));
 
   }
 

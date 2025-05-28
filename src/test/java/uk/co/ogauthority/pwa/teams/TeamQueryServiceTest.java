@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -464,6 +465,80 @@ class TeamQueryServiceTest {
 
     assertThat(result)
         .containsOnly(Role.TEAM_ADMINISTRATOR);
+  }
+
+  @Test
+  void getMembersOfScopedTeams_verifiesTeamMemberQueryServiceCall() {
+    var teamType = TeamType.ORGANISATION;
+    var scopeIds = List.of("scope1", "scope2");
+
+    var team1 = new Team(UUID.randomUUID());
+    team1.setTeamType(teamType);
+    team1.setScopeId("scope1");
+
+    var team2 = new Team(UUID.randomUUID());
+    team2.setTeamType(teamType);
+    team2.setScopeId("scope2");
+
+    var team3 = new Team(UUID.randomUUID());
+    team3.setTeamType(teamType);
+    team3.setScopeId("otherScope");
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setTeam(team1);
+
+    var teamRole2 = new TeamRole();
+    teamRole2.setTeam(team2);
+
+    var teamRole3 = new TeamRole();
+    teamRole3.setTeam(team3);
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(teamRole1, teamRole2, teamRole3));
+
+    when(teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(teamRole1, teamRole2)))
+        .thenReturn(List.of());
+
+    teamQueryService.getMembersOfScopedTeams(teamType, scopeIds);
+
+    verify(teamMemberQueryService).getTeamMemberViewsByTeamRoles(List.of(teamRole1, teamRole2));
+  }
+
+  @Test
+  void getUsersOfScopedTeams_verifiesTeamMemberQueryServiceCall() {
+    var teamType = TeamType.ORGANISATION;
+    var scopeIds = List.of("scope1", "scope2");
+
+    var team1 = new Team(UUID.randomUUID());
+    team1.setTeamType(teamType);
+    team1.setScopeId("scope1");
+
+    var team2 = new Team(UUID.randomUUID());
+    team2.setTeamType(teamType);
+    team2.setScopeId("scope2");
+
+    var team3 = new Team(UUID.randomUUID());
+    team3.setTeamType(teamType);
+    team3.setScopeId("otherScope");
+
+    var teamRole1 = new TeamRole();
+    teamRole1.setTeam(team1);
+
+    var teamRole2 = new TeamRole();
+    teamRole2.setTeam(team2);
+
+    var teamRole3 = new TeamRole();
+    teamRole3.setTeam(team3);
+
+    when(teamRoleRepository.findAllByTeam_TeamType(teamType))
+        .thenReturn(List.of(teamRole1, teamRole2, teamRole3));
+
+    when(teamMemberQueryService.getUserTeamRolesViewsFrom(List.of(teamRole1, teamRole2)))
+        .thenReturn(List.of());
+
+    teamQueryService.getUsersOfScopedTeams(teamType, scopeIds);
+
+    verify(teamMemberQueryService).getUserTeamRolesViewsFrom(List.of(teamRole1, teamRole2));
   }
 
   @Test

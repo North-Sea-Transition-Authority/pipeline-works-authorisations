@@ -184,9 +184,20 @@ public class TeamQueryService {
         .collect(Collectors.toSet());
   }
 
-  public Set<Team> getScopedTeamsByScopeIds(TeamType teamType, Collection<String> scopeIds) {
+  public List<TeamMemberView> getMembersOfScopedTeams(TeamType teamType, Collection<String> scopeIds) {
     assertTeamTypeIsScoped(teamType);
-    return teamRepository.findAllByTeamTypeAndScopeTypeAndScopeIdIn(teamType, teamType.getScopeType(), scopeIds);
+
+    var teamRoles = getTeamRolesByTeamTypeAndScopeIdsIn(teamType, scopeIds);
+
+    return teamMemberQueryService.getTeamMemberViewsByTeamRoles(teamRoles);
+  }
+
+  public List<UserTeamRolesView> getUsersOfScopedTeams(TeamType teamType, Collection<String> scopeIds) {
+    assertTeamTypeIsScoped(teamType);
+
+    var teamRoles = getTeamRolesByTeamTypeAndScopeIdsIn(teamType, scopeIds);
+
+    return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
   }
 
   public List<TeamMemberView> getMembersOfTeamTypeWithRoleIn(TeamType teamType, Collection<Role> roles) {
@@ -219,6 +230,13 @@ public class TeamQueryService {
     var teamRoles = getTeamRolesByScopeReferenceAndRolesIn(teamType, teamScopeReference, roles);
 
     return teamMemberQueryService.getUserTeamRolesViewsFrom(teamRoles);
+  }
+
+  private List<TeamRole> getTeamRolesByTeamTypeAndScopeIdsIn(TeamType teamType, Collection<String> scopeIds) {
+    return teamRoleRepository.findAllByTeam_TeamType(teamType).stream()
+        .filter(team -> team.getTeam().getScopeId() != null)
+        .filter(team -> scopeIds.contains(team.getTeam().getScopeId()))
+        .toList();
   }
 
   private List<TeamRole> getTeamRolesByRolesIn(TeamType teamType, Collection<Role> roles) {

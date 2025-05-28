@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.teams;
 
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +22,7 @@ import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
 import uk.co.ogauthority.pwa.teams.UserTeamRolesView;
+import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @Service
 public class PwaHolderTeamService {
@@ -111,23 +113,29 @@ public class PwaHolderTeamService {
     return getPeopleWithHolderTeamRoleForOrgGroups(Set.of(holderOrgGroup), role);
   }
 
-  private Set<Person> getPeopleWithHolderTeamRoleForOrgGroups(Set<PortalOrganisationGroup> holderOrgGroups,
-                                                              Role role) {
-    Set<String> holderOrgGroupIds = holderOrgGroups.stream()
-        .map(PortalOrganisationGroup::getOrgGrpId)
-        .map(String::valueOf)
-        .collect(Collectors.toSet());
+  public Set<Person> getPeopleWithHolderTeamRoleForOrgGroups(Set<PortalOrganisationGroup> holderOrgGroups, Role role) {
+    Set<String> holderOrgGroupIds = getHolderOrgGroupIds(holderOrgGroups);
 
-    var orgTeams = teamQueryService.getScopedTeamsByScopeIds(TeamType.ORGANISATION, holderOrgGroupIds);
-
-    Set<Integer> wuaIdSet = orgTeams.stream()
-        .flatMap(team -> teamQueryService.getUsersOfTeam(team).stream())
+    Set<Integer> wuaIdSet = teamQueryService.getUsersOfScopedTeams(TeamType.ORGANISATION, holderOrgGroupIds).stream()
         .filter(teamMemberView -> teamMemberView.roles().contains(role))
         .map(UserTeamRolesView::wuaId)
         .map(Long::intValue)
         .collect(Collectors.toSet());
 
     return userAccountService.getPersonsByWuaIdSet(wuaIdSet);
+  }
+
+  public List<TeamMemberView> getMembersWithinHolderTeamForOrgGroups(Collection<PortalOrganisationGroup> holderOrgGroups) {
+    Set<String> holderOrgGroupIds = getHolderOrgGroupIds(holderOrgGroups);
+
+    return teamQueryService.getMembersOfScopedTeams(TeamType.ORGANISATION, holderOrgGroupIds);
+  }
+
+  private Set<String> getHolderOrgGroupIds(Collection<PortalOrganisationGroup> holderOrgGroups) {
+    return holderOrgGroups.stream()
+        .map(PortalOrganisationGroup::getOrgGrpId)
+        .map(String::valueOf)
+        .collect(Collectors.toSet());
   }
 
   public Set<Person> getPersonsInHolderTeam(PwaApplicationDetail detail) {
