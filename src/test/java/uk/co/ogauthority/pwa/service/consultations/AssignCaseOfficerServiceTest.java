@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.service.consultations;
 import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -37,7 +36,6 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
@@ -50,9 +48,6 @@ class AssignCaseOfficerServiceTest {
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
-
-  @Mock
-  private OldTeamManagementService teamManagementService;
 
   @Mock
   private PersonService personService;
@@ -84,7 +79,6 @@ class AssignCaseOfficerServiceTest {
 
     assignCaseOfficerService = new AssignCaseOfficerService(
         workflowAssignmentService,
-        teamManagementService,
         personService,
         assignCaseOfficerValidator,
         caseLinkService,
@@ -92,14 +86,15 @@ class AssignCaseOfficerServiceTest {
     appDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL, 1, 1);
 
     assigningPerson = new Person(1, "m", "assign", "assign@assign.com", null);
+    when(personService.getPersonById(assigningPerson.getId())).thenReturn(assigningPerson);
+    appDetail.setSubmittedByPersonId(assigningPerson.getId());
+
     assigningUser = new AuthenticatedUserAccount(
         new WebUserAccount(1, assigningPerson), null);
 
     caseOfficerPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
-    when(teamManagementService.getPerson(2)).thenReturn(caseOfficerPerson);
+    when(personService.getPersonById(caseOfficerPerson.getId())).thenReturn(caseOfficerPerson);
 
-    appDetail.setSubmittedByPersonId(assigningPerson.getId());
-    when(personService.getPersonById(appDetail.getSubmittedByPersonId())).thenReturn(assigningPerson);
 
     when(caseLinkService.generateCaseManagementLink(appDetail.getPwaApplication())).thenReturn(CASE_LINK);
 
@@ -114,7 +109,7 @@ class AssignCaseOfficerServiceTest {
     assignCaseOfficerService.assignCaseOfficer(appDetail, form.getCaseOfficerPerson(), assigningUser);
 
     //verify new case officer assignment done and email is sent
-    verify(workflowAssignmentService, times(1)).assign(
+    verify(workflowAssignmentService).assign(
         appDetail.getPwaApplication(), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW, caseOfficerPerson, assigningUser.getLinkedPerson());
 
     verifyEmailsSentAndPropsPopulatedCorrectly();

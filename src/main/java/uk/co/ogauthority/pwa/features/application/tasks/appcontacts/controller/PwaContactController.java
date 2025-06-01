@@ -38,6 +38,8 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
@@ -50,7 +52,6 @@ import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbServic
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 import uk.co.ogauthority.pwa.util.EnumUtils;
 import uk.co.ogauthority.pwa.util.StreamUtils;
@@ -67,7 +68,8 @@ public class PwaContactController {
 
   private final PwaContactService pwaContactService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
-  private final OldTeamManagementService teamManagementService;
+  private final UserAccountService userAccountService;
+  private final PersonService personService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
   private final PwaHolderService pwaHolderService;
@@ -80,7 +82,8 @@ public class PwaContactController {
   @Autowired
   public PwaContactController(PwaContactService pwaContactService,
                               ApplicationBreadcrumbService applicationBreadcrumbService,
-                              OldTeamManagementService teamManagementService,
+                              UserAccountService userAccountService,
+                              PersonService personService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
                               PwaHolderService pwaHolderService,
@@ -88,7 +91,8 @@ public class PwaContactController {
                               @Value("${oga.registration.link}") String ogaRegistrationLink) {
     this.pwaContactService = pwaContactService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
-    this.teamManagementService = teamManagementService;
+    this.userAccountService = userAccountService;
+    this.personService = personService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
     this.pwaHolderService = pwaHolderService;
@@ -198,7 +202,7 @@ public class PwaContactController {
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
 
-      Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
+      Optional<Person> person = userAccountService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
       if (person.isEmpty()) {
         return getAddUserToTeamModelAndView(pwaApplication, form); // should never happen, as validator covers this scenario
@@ -240,7 +244,7 @@ public class PwaContactController {
                                                AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = teamManagementService.getPerson(personId);
+    var person = personService.getPersonById(personId);
 
     // if person is already a contact, pre-populate the form with their roles
     List<String> existingRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), person).stream()
@@ -262,7 +266,7 @@ public class PwaContactController {
                                          AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = teamManagementService.getPerson(personId);
+    var person = personService.getPersonById(personId);
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
 
@@ -308,7 +312,7 @@ public class PwaContactController {
                                                 AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = teamManagementService.getPerson(personId);
+    var person = personService.getPersonById(personId);
     var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), person);
     return getRemoveContactScreenModelAndView(detail, contact);
 
@@ -322,7 +326,7 @@ public class PwaContactController {
                                     AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = teamManagementService.getPerson(personId);
+    var person = personService.getPersonById(personId);
 
     try {
 

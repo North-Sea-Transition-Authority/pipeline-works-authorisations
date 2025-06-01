@@ -18,15 +18,15 @@ import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationServic
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class AddPwaContactFormValidatorTest {
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private UserAccountService userAccountService;
 
   @Mock
   private PwaContactService pwaContactService;
@@ -40,7 +40,7 @@ class AddPwaContactFormValidatorTest {
   @BeforeEach
   void before() {
     contactForm = new AddPwaContactForm();
-    contactFormValidator = new AddPwaContactFormValidator(teamManagementService, pwaContactService,
+    contactFormValidator = new AddPwaContactFormValidator(userAccountService, pwaContactService,
         pwaApplicationService);
   }
 
@@ -50,7 +50,7 @@ class AddPwaContactFormValidatorTest {
     var pwaApplication = new PwaApplication();
     var person = new Person();
 
-    when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
+    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
     when(pwaContactService.personIsContactOnApplication(pwaApplication, person)).thenReturn(false);
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplication);
 
@@ -72,14 +72,14 @@ class AddPwaContactFormValidatorTest {
 
     assertThat(errors).containsOnly(entry("userIdentifier", Set.of("userIdentifier.required")));
 
-    verifyNoInteractions(teamManagementService, pwaContactService, pwaApplicationService);
+    verifyNoInteractions(userAccountService, pwaContactService, pwaApplicationService);
 
   }
 
   @Test
   void validate_userIdentifier_userNotFound() {
 
-    when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
+    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
 
     contactForm.setUserIdentifier("userId");
     contactForm.setPwaApplicationId(1);
@@ -98,7 +98,7 @@ class AddPwaContactFormValidatorTest {
     var pwaApplication = new PwaApplication();
     var person = new Person();
 
-    when(teamManagementService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
+    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
     when(pwaContactService.personIsContactOnApplication(pwaApplication, person)).thenReturn(true);
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplication);
 

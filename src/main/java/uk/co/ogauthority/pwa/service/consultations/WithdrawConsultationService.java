@@ -16,12 +16,12 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.Consul
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
@@ -36,32 +36,29 @@ public class WithdrawConsultationService {
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
   private final ConsultationRequestService consultationRequestService;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final OldTeamManagementService teamManagementService;
   private final WorkflowAssignmentService workflowAssignmentService;
   private final Clock clock;
   private final EmailService emailService;
   private final TeamQueryService teamQueryService;
+  private final PersonService personService;
 
   @Autowired
   public WithdrawConsultationService(
       ConsulteeGroupDetailService consulteeGroupDetailService,
       ConsultationRequestService consultationRequestService,
       CamundaWorkflowService camundaWorkflowService,
-      OldTeamManagementService teamManagementService,
       WorkflowAssignmentService workflowAssignmentService,
       @Qualifier("utcClock") Clock clock,
-      EmailService emailService, TeamQueryService teamQueryService) {
+      EmailService emailService, TeamQueryService teamQueryService, PersonService personService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestService = consultationRequestService;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.teamManagementService = teamManagementService;
     this.workflowAssignmentService = workflowAssignmentService;
     this.clock = clock;
     this.emailService = emailService;
     this.teamQueryService = teamQueryService;
+    this.personService = personService;
   }
-
-
 
   @Transactional
   public void withdrawAllOpenConsultationRequests(PwaApplication pwaApplication,
@@ -79,10 +76,9 @@ public class WithdrawConsultationService {
     var workflowTaskInstance = new WorkflowTaskInstance(consultationRequest, userWorkflowTask);
 
     var responderPersonOpt = camundaWorkflowService.getAssignedPersonId(workflowTaskInstance);
-    Person responderPerson = null;
-    if (responderPersonOpt.isPresent()) {
-      responderPerson = teamManagementService.getPerson(responderPersonOpt.get().asInt());
-    }
+    Person responderPerson = responderPersonOpt
+        .map(personService::getPersonById)
+        .orElse(null);
 
     camundaWorkflowService.deleteProcessAndTask(workflowTaskInstance);
 

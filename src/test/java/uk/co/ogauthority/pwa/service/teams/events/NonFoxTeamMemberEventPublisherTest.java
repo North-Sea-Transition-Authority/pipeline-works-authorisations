@@ -1,7 +1,6 @@
 package uk.co.ogauthority.pwa.service.teams.events;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +28,7 @@ class NonFoxTeamMemberEventPublisherTest {
   private final Person person = PersonTestUtil.createDefaultPerson();
 
   @BeforeEach
-  void setUp() throws Exception {
+  void setUp() {
 
     nonFoxTeamMemberEventPublisher = new NonFoxTeamMemberEventPublisher(applicationEventPublisher);
 
@@ -40,7 +39,7 @@ class NonFoxTeamMemberEventPublisherTest {
 
     nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
 
-    verify(applicationEventPublisher, times(1)).publishEvent(eventCaptor.capture());
+    verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
 
     assertThat(eventCaptor.getValue()).satisfies(event -> {
       assertThat(event.getEventType()).isEqualTo(NonFoxTeamMemberModificationEvent.EventType.ADDED);
@@ -54,7 +53,7 @@ class NonFoxTeamMemberEventPublisherTest {
 
     nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberRemovedEvent(person);
 
-    verify(applicationEventPublisher, times(1)).publishEvent(eventCaptor.capture());
+    verify(applicationEventPublisher).publishEvent(eventCaptor.capture());
 
     assertThat(eventCaptor.getValue()).satisfies(event -> {
       assertThat(event.getEventType()).isEqualTo(NonFoxTeamMemberModificationEvent.EventType.REMOVED);

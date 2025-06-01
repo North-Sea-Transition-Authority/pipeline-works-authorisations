@@ -14,7 +14,6 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
-import uk.co.ogauthority.pwa.model.teams.PwaRegulatorTeam;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -72,8 +71,6 @@ class PwaPermissionServiceTest {
     when(pwaHolderTeamService.isPersonInHolderTeam(masterPwa, user))
         .thenReturn(false);
 
-    int pwaRegulatorTeamId = 1;
-    var regulatorTeam = new PwaRegulatorTeam(pwaRegulatorTeamId, "", "");
     when(teamQueryService.userIsMemberOfStaticTeam((long) user.getWuaId(), TeamType.REGULATOR))
         .thenReturn(true);
 

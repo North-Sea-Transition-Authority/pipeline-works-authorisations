@@ -13,7 +13,8 @@ import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalSyst
  * Converts output from PortalTeams Service layer into Objects useful for the application.
  */
 @Service
-class PwaTeamsDtoFactory {
+// TODO: Remove in PWARE-60
+public class PwaTeamsDtoFactory {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PwaTeamsDtoFactory.class);
 
@@ -21,7 +22,7 @@ class PwaTeamsDtoFactory {
    * Consume collection of PortalSystemPrivilegeDtos (which may contains duplicates through membership of multiple teams and roles)
    * and return a list.
    */
-  Set<PwaUserPrivilege> createPwaUserPrivilegeSet(Collection<PortalSystemPrivilegeDto> portalSystemPrivilegeDtos) {
+  public Set<PwaUserPrivilege> createPwaUserPrivilegeSet(Collection<PortalSystemPrivilegeDto> portalSystemPrivilegeDtos) {
 
     Set<PwaUserPrivilege> privileges = new HashSet<>();
 

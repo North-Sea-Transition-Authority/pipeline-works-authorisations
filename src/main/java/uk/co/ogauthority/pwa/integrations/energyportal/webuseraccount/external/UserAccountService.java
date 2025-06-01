@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +38,44 @@ public class UserAccountService {
 
   public WebUserAccount getSystemWebUserAccount() {
     return getWebUserAccount(systemUserWuaId);
+  }
+
+  /**
+   * Finds the Person linked to the WebUserAccount with the given email or loginId.
+   */
+  public Optional<Person> getPersonByEmailAddressOrLoginId(String emailOrLoginId) {
+
+    var excludedWuaStatuses = List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW);
+
+    List<WebUserAccount> webUserAccounts =
+        webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses);
+
+    if (webUserAccounts.size() == 1) {
+      return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
+    }
+
+    webUserAccounts.addAll(
+        webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses));
+
+    if (webUserAccounts.size() == 1) {
+      return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
+    }
+
+    Set<Person> distinctPeople = webUserAccounts.stream()
+        .map(WebUserAccount::getLinkedPerson)
+        .collect(Collectors.toSet());
+
+    if (distinctPeople.size() > 1) {
+      throw new RuntimeException(
+          String.format("getPersonByEmailAddressOrLoginId returned %d different people with email/loginId '%s'",
+              distinctPeople.size(), emailOrLoginId)
+      );
+    }
+
+    if (distinctPeople.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
   }
 }

@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.features.email.emailproperties.consultations.Consul
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
@@ -42,7 +43,6 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
@@ -63,7 +63,7 @@ class WithdrawConsultationServiceTest {
   CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private PersonService personService;
 
   @Mock
   private WorkflowAssignmentService workflowAssignmentService;
@@ -114,7 +114,7 @@ class WithdrawConsultationServiceTest {
     consultationResponse.setRespondingPersonId(2);
     consultationResponse.setConsultationRequest(consultationRequest);
     Person respondingPerson = new Person(2, "respFirstName", "respLastName", "respFirstName@live.com", null);
-    when(teamManagementService.getPerson(2)).thenReturn(respondingPerson);
+    when(personService.getPersonById(respondingPerson.getId())).thenReturn(respondingPerson);
 
     var workflowTaskInstance = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
     when(camundaWorkflowService.getAssignedPersonId(workflowTaskInstance)).thenReturn(Optional.of(respondingPerson.getId()));

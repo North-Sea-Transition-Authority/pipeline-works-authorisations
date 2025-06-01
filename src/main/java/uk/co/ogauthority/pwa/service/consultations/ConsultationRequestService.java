@@ -23,6 +23,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
@@ -33,7 +34,6 @@ import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestReposit
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
@@ -52,7 +52,6 @@ public class ConsultationRequestService {
   private final ConsultationRequestRepository consultationRequestRepository;
   private final ConsultationRequestValidator consultationRequestValidator;
   private final CamundaWorkflowService camundaWorkflowService;
-  private final OldTeamManagementService teamManagementService;
   private final ConsultationsStatusViewFactory consultationsStatusViewFactory;
   private final CaseLinkService caseLinkService;
 
@@ -60,6 +59,7 @@ public class ConsultationRequestService {
       Set.of(ConsultationRequestStatus.RESPONDED, ConsultationRequestStatus.WITHDRAWN);
   private final EmailService emailService;
   private final TeamQueryService teamQueryService;
+  private final PersonService personService;
 
   @Autowired
   public ConsultationRequestService(
@@ -67,19 +67,18 @@ public class ConsultationRequestService {
       ConsultationRequestRepository consultationRequestRepository,
       ConsultationRequestValidator consultationRequestValidator,
       CamundaWorkflowService camundaWorkflowService,
-      OldTeamManagementService teamManagementService,
       ConsultationsStatusViewFactory consultationsStatusViewFactory,
       CaseLinkService caseLinkService,
-      EmailService emailService, TeamQueryService teamQueryService) {
+      EmailService emailService, TeamQueryService teamQueryService, PersonService personService) {
     this.consulteeGroupDetailService = consulteeGroupDetailService;
     this.consultationRequestRepository = consultationRequestRepository;
     this.consultationRequestValidator = consultationRequestValidator;
     this.camundaWorkflowService = camundaWorkflowService;
-    this.teamManagementService = teamManagementService;
     this.consultationsStatusViewFactory = consultationsStatusViewFactory;
     this.caseLinkService = caseLinkService;
     this.emailService = emailService;
     this.teamQueryService = teamQueryService;
+    this.personService = personService;
   }
 
   public List<ConsulteeGroupDetail> getAllConsulteeGroups() {
@@ -153,7 +152,7 @@ public class ConsultationRequestService {
     Optional<PersonId> assignedResponderPersonId = camundaWorkflowService
         .getAssignedPersonId(new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE));
 
-    return assignedResponderPersonId.map(id -> teamManagementService.getPerson(id.asInt())).orElse(null);
+    return assignedResponderPersonId.map(id -> personService.getPersonById(id.asInt())).orElse(null);
   }
 
 

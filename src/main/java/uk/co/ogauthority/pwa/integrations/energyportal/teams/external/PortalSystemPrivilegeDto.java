@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.integrations.energyportal.teams.external;
 
 import java.util.Objects;
 
+// TODO: Remove in PWARE-60
 public class PortalSystemPrivilegeDto {
 
   private final String portalTeamType;

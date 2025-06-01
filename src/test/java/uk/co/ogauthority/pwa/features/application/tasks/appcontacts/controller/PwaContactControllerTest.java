@@ -28,7 +28,9 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddP
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -38,7 +40,6 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.service.pwaapplications.ApplicationBreadcrumbService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationEndpointTestBuilder;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -49,7 +50,10 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
   private ApplicationBreadcrumbService applicationBreadcrumbService;
 
   @MockBean
-  private OldTeamManagementService teamManagementService;
+  private UserAccountService userAccountService;
+
+  @MockBean
+  private PersonService personService;
 
   @MockBean
   private AddPwaContactFormValidator addPwaContactFormValidator;
@@ -66,7 +70,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
   @BeforeEach
   void setUp() {
 
-    when(teamManagementService.getPerson(anyInt())).thenReturn(user.getLinkedPerson());
+    when(personService.getPersonById(anyInt())).thenReturn(user.getLinkedPerson());
     var teamMemberView = new TeamMemberView(user.getLinkedPerson(), null, null, Set.of());
     when(pwaContactService.getTeamMemberView(any(), any())).thenReturn(teamMemberView);
 

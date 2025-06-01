@@ -49,7 +49,6 @@ import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationRedirectService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.management.TeamManagementService;
 
@@ -81,9 +80,6 @@ class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   protected PwaContactService pwaContactService;
-
-  @MockBean
-  protected TeamService teamService;
 
   @MockBean
   private TopMenuService topMenuService;

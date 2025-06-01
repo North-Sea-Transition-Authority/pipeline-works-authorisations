@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.model.teams;
 
+// TODO: Remove in PWARE-60
 public enum PwaTeamType {
 
   REGULATOR("PWA_REGULATOR_TEAM", "PWA regulator team"),

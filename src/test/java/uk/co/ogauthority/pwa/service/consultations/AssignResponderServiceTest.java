@@ -42,6 +42,7 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.dto.appprocessing.ConsultationInvolvementDto;
@@ -50,7 +51,6 @@ import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -71,7 +71,7 @@ class AssignResponderServiceTest {
   private AssignResponderValidator validator;
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private PersonService personService;
 
   @Mock
   private CamundaWorkflowService camundaWorkflowService;
@@ -124,7 +124,7 @@ class AssignResponderServiceTest {
     var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
 
     var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
-    when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
+    when(personService.getPersonById(2)).thenReturn(responderPerson);
 
     var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
@@ -180,7 +180,7 @@ class AssignResponderServiceTest {
 
     var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
 
-    when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
+    when(personService.getPersonById(1)).thenReturn(assigningUser.getLinkedPerson());
 
     var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.ALLOCATION);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
@@ -222,7 +222,7 @@ class AssignResponderServiceTest {
     var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
 
     var responderPerson = new Person(2, "fore", "sur", "fore@sur.com", null);
-    when(teamManagementService.getPerson(2)).thenReturn(responderPerson);
+    when(personService.getPersonById(2)).thenReturn(responderPerson);
 
     var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
@@ -274,7 +274,7 @@ class AssignResponderServiceTest {
 
     var assigningUser = new WebUserAccount(1, new Person(1, "m", "assign", "assign@assign.com", null));
 
-    when(teamManagementService.getPerson(1)).thenReturn(assigningUser.getLinkedPerson());
+    when(personService.getPersonById(1)).thenReturn(assigningUser.getLinkedPerson());
 
     var task = new WorkflowTaskInstance(consultationRequest, PwaApplicationConsultationWorkflowTask.RESPONSE);
     when(camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest))
@@ -301,7 +301,7 @@ class AssignResponderServiceTest {
 
   @Test
   void assignUserAndCompleteWorkflow_personNotFound() {
-    when(teamManagementService.getPerson(5)).thenThrow(new PwaEntityNotFoundException(""));
+    when(personService.getPersonById(5)).thenThrow(new PwaEntityNotFoundException(""));
     var form = new AssignResponderForm();
     form.setResponderPersonId(5);
     assertThrows(PwaEntityNotFoundException.class, () ->

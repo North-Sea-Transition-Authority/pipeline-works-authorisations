@@ -10,14 +10,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -30,13 +31,11 @@ import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOption;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 
 @ExtendWith(MockitoExtension.class)
 class ConsultationViewServiceTest {
 
-  private ConsultationViewService consultationViewService;
 
   @Mock
   private ConsultationRequestService consultationRequestService;
@@ -48,24 +47,16 @@ class ConsultationViewServiceTest {
   private ConsulteeGroupDetailService consulteeGroupDetailService;
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private PersonService personService;
 
   @Mock
   private ConsultationResponseDataService consultationResponseDataService;
 
   @Mock
   private ConsultationFileService consultationFileService;
-
-  @BeforeEach
-  void setUp() {
-    consultationViewService = new ConsultationViewService(
-        consultationRequestService,
-        consultationResponseService,
-        consulteeGroupDetailService,
-        teamManagementService,
-        consultationResponseDataService,
-        consultationFileService);
-  }
+  
+  @InjectMocks
+  private ConsultationViewService consultationViewService;
 
   //This tests that a list of consultation requests should result in a list of consultation request views grouped by their consultee group..
   // and ordered by the consultee group name.
@@ -109,7 +100,7 @@ class ConsultationViewServiceTest {
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     rejectedResponse.setRespondingPersonId(1);
     rejectedResponse.setConsultationRequest(consultationRequest2);
-    when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
+    when(personService.getPersonById(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
 
     var consultationRequest3 = new ConsultationRequest();
@@ -122,7 +113,7 @@ class ConsultationViewServiceTest {
     consultationRequest3.setEndedByPersonId(2);
     consultationRequest3.setEndTimestamp(instantTime.atZone(ZoneOffset.UTC)
         .withDayOfMonth(9).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
-    when(teamManagementService.getPerson(2)).thenReturn(new Person(2, "David", "Henry", null, null));
+    when(personService.getPersonById(2)).thenReturn(new Person(2, "David", "Henry", null, null));
 
 
     //consultationRequest1: name - nameB, startDate - 5/02/2020
@@ -232,7 +223,7 @@ class ConsultationViewServiceTest {
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     consultationResponse.setRespondingPersonId(1);
     consultationResponse.setConsultationRequest(consultationRequest);
-    when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
+    when(personService.getPersonById(1)).thenReturn(new Person(1, "Michael", "Scott", null, null));
 
     when(consultationResponseService.getResponseByConsultationRequest(consultationRequest)).thenReturn(Optional.of(consultationResponse));
     when(consulteeGroupDetailService.getConsulteeGroupDetailByGroupAndTipFlagIsTrue(consulteeGroup)).thenReturn(consulteeGroupDetail1);
@@ -284,7 +275,7 @@ class ConsultationViewServiceTest {
         .withDayOfMonth(5).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     rejectedResponse.setRespondingPersonId(1);
     rejectedResponse.setConsultationRequest(consultationRequest1);
-    when(teamManagementService.getPerson(1)).thenReturn(new Person(1, "fr1", "sr1", null, null));
+    when(personService.getPersonById(1)).thenReturn(new Person(1, "fr1", "sr1", null, null));
 
 
     //Consultation Requests 2 and response
@@ -302,7 +293,7 @@ class ConsultationViewServiceTest {
         .withDayOfMonth(11).withMonth(2).withYear(2020).withHour(10).withMinute(9).toInstant().truncatedTo(ChronoUnit.SECONDS));
     confirmedResponse.setRespondingPersonId(2);
     confirmedResponse.setConsultationRequest(consultationRequest2);
-    when(teamManagementService.getPerson(2)).thenReturn(new Person(1, "fr2", "sr2", null, null));
+    when(personService.getPersonById(2)).thenReturn(new Person(1, "fr2", "sr2", null, null));
 
     var pwaApplication = new PwaApplication();
     pwaApplication.setId(1);

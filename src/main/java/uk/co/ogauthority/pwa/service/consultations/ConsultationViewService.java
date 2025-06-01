@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
@@ -29,7 +30,6 @@ import uk.co.ogauthority.pwa.model.form.consultation.ConsultationRequestView;
 import uk.co.ogauthority.pwa.model.form.consultation.ConsulteeGroupRequestsView;
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.util.DateUtils;
 
 /*
@@ -42,24 +42,23 @@ public class ConsultationViewService {
   private final ConsultationRequestService consultationRequestService;
   private final ConsultationResponseService consultationResponseService;
   private final ConsulteeGroupDetailService consulteeGroupDetailService;
-  private final OldTeamManagementService teamManagementService;
   private final ConsultationResponseDataService consultationResponseDataService;
   private final ConsultationFileService consultationFileService;
+  private final PersonService personService;
 
   @Autowired
   public ConsultationViewService(
       ConsultationRequestService consultationRequestService,
       ConsultationResponseService consultationResponseService,
       ConsulteeGroupDetailService consulteeGroupDetailService,
-      OldTeamManagementService teamManagementService,
       ConsultationResponseDataService consultationResponseDataService,
-      ConsultationFileService consultationFileService) {
+      ConsultationFileService consultationFileService, PersonService personService) {
     this.consultationRequestService = consultationRequestService;
     this.consultationResponseService = consultationResponseService;
     this.consulteeGroupDetailService = consulteeGroupDetailService;
-    this.teamManagementService = teamManagementService;
     this.consultationResponseDataService = consultationResponseDataService;
     this.consultationFileService = consultationFileService;
+    this.personService = personService;
   }
 
 
@@ -194,7 +193,7 @@ public class ConsultationViewService {
           consultationResponse.getResponseTimestamp(),
           responseDataViews,
           false,
-          teamManagementService.getPerson(consultationResponse.getRespondingPersonId()).getFullName(),
+          personService.getPersonById(consultationResponse.getRespondingPersonId()).getFullName(),
           consultationResponseFileViews,
           downloadFileUrl,
           consulteeGroupDetail.getConsultationResponseDocumentType());
@@ -209,7 +208,7 @@ public class ConsultationViewService {
           responseDataViews,
           consultationRequest.getStatus() != ConsultationRequestStatus.WITHDRAWN,
           consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
-              ? teamManagementService.getPerson(consultationRequest.getEndedByPersonId()).getFullName() : null,
+              ? personService.getPersonById(consultationRequest.getEndedByPersonId()).getFullName() : null,
           consultationRequest.getStatus() == ConsultationRequestStatus.WITHDRAWN
               ? DateUtils.formatDateTime(consultationRequest.getEndTimestamp().truncatedTo(ChronoUnit.SECONDS)) : null,
           consulteeGroupDetail.getConsultationResponseDocumentType());

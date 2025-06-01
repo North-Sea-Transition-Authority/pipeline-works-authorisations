@@ -2,7 +2,6 @@ package uk.co.ogauthority.pwa.model.teammanagement;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.Checkable;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
 
 public class TeamRoleView implements Checkable {
 
@@ -42,14 +41,6 @@ public class TeamRoleView implements Checkable {
   @Override
   public String getDisplayName() {
     return this.description;
-  }
-
-  public static TeamRoleView createTeamRoleViewFrom(PwaRole pwaRole) {
-    return new TeamRoleView(
-        pwaRole.getName(),
-        pwaRole.getTitle(),
-        pwaRole.getDescription(),
-        pwaRole.getDisplaySequence());
   }
 
   @Override

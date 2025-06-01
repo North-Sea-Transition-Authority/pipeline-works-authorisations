@@ -9,24 +9,24 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 
 @Service
 public class AddPwaContactFormValidator implements Validator {
 
   private static final String USER_ID_FORM_FIELD = "userIdentifier";
 
-  private final OldTeamManagementService teamManagementService;
+  private final UserAccountService userAccountService;
   private final PwaContactService pwaContactService;
   private final PwaApplicationService pwaApplicationService;
 
   @Autowired
-  public AddPwaContactFormValidator(OldTeamManagementService teamManagementService,
+  public AddPwaContactFormValidator(UserAccountService userAccountService,
                                     PwaContactService pwaContactService,
                                     PwaApplicationService pwaApplicationService) {
-    this.teamManagementService = teamManagementService;
+    this.userAccountService = userAccountService;
     this.pwaContactService = pwaContactService;
     this.pwaApplicationService = pwaApplicationService;
   }
@@ -49,7 +49,7 @@ public class AddPwaContactFormValidator implements Validator {
 
     if (StringUtils.isNotEmpty(form.getUserIdentifier())) {
 
-      Optional<Person> person = teamManagementService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
+      Optional<Person> person = userAccountService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
 
       if (person.isPresent()) {
         // check if the person is already a contact on the PWA

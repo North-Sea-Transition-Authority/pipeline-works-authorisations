@@ -23,14 +23,12 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignCaseOfficerForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.validators.consultations.AssignCaseOfficerValidator;
 
 @Service
 public class AssignCaseOfficerService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
-  private final OldTeamManagementService teamManagementService;
   private final PersonService personService;
   private final AssignCaseOfficerValidator assignCaseOfficerValidator;
   private final CaseLinkService caseLinkService;
@@ -39,13 +37,11 @@ public class AssignCaseOfficerService implements AppProcessingService {
   @Autowired
   public AssignCaseOfficerService(
       WorkflowAssignmentService workflowAssignmentService,
-      OldTeamManagementService teamManagementService,
       PersonService personService,
       AssignCaseOfficerValidator assignCaseOfficerValidator,
       CaseLinkService caseLinkService,
       EmailService emailService) {
     this.workflowAssignmentService = workflowAssignmentService;
-    this.teamManagementService = teamManagementService;
     this.personService = personService;
     this.assignCaseOfficerValidator = assignCaseOfficerValidator;
     this.caseLinkService = caseLinkService;
@@ -62,7 +58,7 @@ public class AssignCaseOfficerService implements AppProcessingService {
                                 PersonId caseOfficerPersonId,
                                 AuthenticatedUserAccount assigningUser) {
 
-    var caseOfficer = teamManagementService.getPerson(caseOfficerPersonId.asInt());
+    var caseOfficer = personService.getPersonById(caseOfficerPersonId);
 
     workflowAssignmentService.assign(
         pwaApplicationDetail.getPwaApplication(),

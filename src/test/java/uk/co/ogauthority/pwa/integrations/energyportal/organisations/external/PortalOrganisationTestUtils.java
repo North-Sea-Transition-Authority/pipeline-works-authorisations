@@ -2,8 +2,6 @@ package uk.co.ogauthority.pwa.integrations.energyportal.organisations.external;
 
 import java.time.LocalDate;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 public class PortalOrganisationTestUtils {
 
@@ -121,17 +119,4 @@ public class PortalOrganisationTestUtils {
     return detail;
 
   }
-
-
-  public static PortalTeamDto createDefaultPortalOrgTeamDto() {
-    return new PortalTeamDto(
-        100,
-        "ORG_TEAM_NAME",
-        "ORG_TEAM_DESCRIPTION",
-        PwaTeamType.ORGANISATION.getPortalTeamType(),
-        "urefValue"
-    );
-  }
-
-
 }

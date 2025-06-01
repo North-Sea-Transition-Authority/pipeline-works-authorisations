@@ -2,12 +2,10 @@ package uk.co.ogauthority.pwa.integration.energyportal.teams;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -23,16 +21,12 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.internal.PersonRepository;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalRoleDto;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalSystemPrivilegeDto;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamDto;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamMemberDto;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamNotFoundException;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamScopeDto;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamUsagePurpose;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
+
+// TODO: Remove in PWARE-60
 
 // IJ seems to give spurious warnings when running with embedded H2
 @RunWith(SpringRunner.class)
@@ -50,9 +44,6 @@ class PortalTeamAccessorIntegrationTest {
 
   private final String SCOPED_TEAM_PORTAL_TYPE_TITLE = "Org1TeamTitle";
   private final String SCOPED_TEAM_PORTAL_TYPE_DESCRIPTION = "Org1TeamDescription";
-
-  private final int UNKNOWN_RES_ID = 987654321;
-  private final String NO_TEAMS_OF_PORTAL_TEAM_TYPE = "SOME_TEAM_TYPE_WITH_NO_TEAM_INSTANCES";
 
   private final int UNSCOPED_TEAM_RES_ID = 100;
   private final String UNSCOPED_TEAM_PORTAL_TYPE = "UNSCOPED_TEAM_TYPE";
@@ -75,15 +66,11 @@ class PortalTeamAccessorIntegrationTest {
   private final String NO_MEMBER_SCOPED_TEAM_DESCRIPTION = "Org2TeamDescription";
   private final String NO_MEMBER_SCOPED_TEAM_UREF = constructOrgGroupUref(30);
 
-
   @Autowired
   private PersonRepository personRepository;
 
   @Autowired
   private EntityManager entityManager;
-
-  @Autowired
-  private PortalTeamRepository portalTeamRepository;
 
   private PortalTeamAccessor portalTeamAccessor;
 
@@ -93,7 +80,8 @@ class PortalTeamAccessorIntegrationTest {
 
   @BeforeEach
   void setup() {
-    portalTeamAccessor = new PortalTeamAccessor(portalTeamRepository, entityManager);
+
+    portalTeamAccessor = new PortalTeamAccessor(entityManager);
 
     insertPerson(10);
     unscopedTeamMemberPerson_2Roles = personRepository.findById(10).orElse(null);
@@ -112,278 +100,6 @@ class PortalTeamAccessorIntegrationTest {
 
   }
 
-  @Test
-  @Transactional
-  void findPortalTeamById_whenTeamNotFound() {
-    Optional<PortalTeamDto> portalTeamDto = portalTeamAccessor.findPortalTeamById(UNKNOWN_RES_ID);
-    assertThat(portalTeamDto.isPresent()).isFalse();
-  }
-
-  @Test
-  @Transactional
-  void findPortalTeamById_whenTeamFound_andIsScoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    PortalTeamDto portalTeamDto = portalTeamAccessor.findPortalTeamById(SCOPED_TEAM_RES_ID)
-        .orElseThrow(() -> new RuntimeException("Expected To find PwaTeam"));
-
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        portalTeamDto,
-        SCOPED_TEAM_UREF,
-        SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        SCOPED_TEAM_NAME,
-        SCOPED_TEAM_DESCRIPTION
-    );
-  }
-
-  @Test
-  @Transactional
-  void findPortalTeamById_whenTeamFound_andIsNotScoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    PortalTeamDto portalTeamDto = portalTeamAccessor.findPortalTeamById(UNSCOPED_TEAM_RES_ID)
-        .orElseThrow(() -> new RuntimeException("Expected To find PwaTeam"));
-
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        portalTeamDto,
-        null,
-        UNSCOPED_TEAM_RES_ID,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        UNSCOPED_TEAM_NAME,
-        UNSCOPED_TEAM_DESCRIPTION
-    );
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamMembers_whenTeamNotFound() {
-    assertThrows(PortalTeamNotFoundException.class, () ->
-      portalTeamAccessor.getPortalTeamMembers(UNKNOWN_RES_ID));
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamMembers_whenTeamFound_andZeroTeamMembers() {
-    List<PortalTeamMemberDto> foundMembers = portalTeamAccessor.getPortalTeamMembers(NO_MEMBER_SCOPED_TEAM_RES_ID);
-    assertThat(foundMembers).isEmpty();
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamMembers_whenTeamFound_andHasTeamMembers() {
-    List<PortalTeamMemberDto> foundTeamMembers = portalTeamAccessor.getPortalTeamMembers(SCOPED_TEAM_RES_ID);
-
-    // expected number of team members?
-    assertThat(foundTeamMembers).hasSize(2);
-
-    PortalTeamMemberDto member_2Roles = foundTeamMembers.stream()
-        .filter(tm -> tm.getPersonId().equals(scopedTeamMemberPerson_2Roles.getId()))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("Expected to find team member A"));
-
-    // does member_2Roles have predictable DTO?
-    assertThat(member_2Roles.getRoles()).hasSize(2);
-    assertPortalTeamMemberDtoHasExpectedRole(member_2Roles, ExampleTeamRole.ROLE_WITH_PRIV, SCOPED_TEAM_RES_ID);
-    assertPortalTeamMemberDtoHasExpectedRole(member_2Roles, ExampleTeamRole.ROLE_WITHOUT_PRIV, SCOPED_TEAM_RES_ID);
-
-    PortalTeamMemberDto member_1Role = foundTeamMembers.stream()
-        .filter(tm -> tm.getPersonId().equals(scopedTeamMemberPerson_1Role.getId()))
-        .findFirst()
-        .orElseThrow(() -> new RuntimeException("Expected to find team member A"));
-    // does member_1Role have predictable DTO?
-    assertThat(member_1Role.getRoles()).hasSize(1);
-    assertPortalTeamMemberDtoHasExpectedRole(member_1Role, ExampleTeamRole.ROLE_WITH_PRIV, SCOPED_TEAM_RES_ID);
-  }
-
-  @Test
-  @Transactional
-  void getPersonTeamMembership_whenNotATeamMember() {
-    assertThat(portalTeamAccessor.getPersonTeamMembership(unscopedTeamMemberPerson_2Roles, SCOPED_TEAM_RES_ID)).isEmpty();
-  }
-
-  @Test
-  @Transactional
-  void getPersonTeamMembership_whenATeamMember_dtoMappedAsExpected() {
-    PortalTeamMemberDto unscopedTeamMember_2RolesDto = portalTeamAccessor.getPersonTeamMembership(
-        unscopedTeamMemberPerson_2Roles,
-        UNSCOPED_TEAM_RES_ID
-    ).orElseThrow(RuntimeException::new);
-
-    assertThat(unscopedTeamMember_2RolesDto.getRoles()).hasSize(2);
-    assertPortalTeamMemberDtoHasExpectedRole(
-        unscopedTeamMember_2RolesDto,
-        ExampleTeamRole.ROLE_WITH_PRIV,
-        UNSCOPED_TEAM_RES_ID
-    );
-    assertPortalTeamMemberDtoHasExpectedRole(
-        unscopedTeamMember_2RolesDto,
-        ExampleTeamRole.ROLE_WITHOUT_PRIV,
-        UNSCOPED_TEAM_RES_ID
-    );
-
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamsByPortalTeamType_whenNoTeamsWithTypeFound() {
-    assertThat(portalTeamAccessor.getPortalTeamsByPortalTeamType(NO_TEAMS_OF_PORTAL_TEAM_TYPE)).isEmpty();
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsScoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeamsOfType = portalTeamAccessor.getPortalTeamsByPortalTeamType(SCOPED_TEAM_PORTAL_TYPE);
-
-    assertThat(foundTeamsOfType).hasSize(2);
-
-    PortalTeamDto withMembersTeamDto = foundTeamsOfType.stream()
-        .filter(dto -> dto.getResId() == SCOPED_TEAM_RES_ID)
-        .findFirst()
-        .orElseThrow(RuntimeException::new);
-
-    PortalTeamDto withoutMembersTeamDto = foundTeamsOfType.stream()
-        .filter(dto -> dto.getResId() == NO_MEMBER_SCOPED_TEAM_RES_ID)
-        .findFirst()
-        .orElseThrow(RuntimeException::new);
-
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        withMembersTeamDto,
-        SCOPED_TEAM_UREF,
-        SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        SCOPED_TEAM_NAME,
-        SCOPED_TEAM_DESCRIPTION
-    );
-
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        withoutMembersTeamDto,
-        NO_MEMBER_SCOPED_TEAM_UREF,
-        NO_MEMBER_SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        NO_MEMBER_SCOPED_TEAM_NAME,
-        NO_MEMBER_SCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
-  @Test
-  @Transactional
-  void getPortalTeamsByPortalTeamType_whenTeamsFound_andTeamsUnscoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeamsOfType = portalTeamAccessor.getPortalTeamsByPortalTeamType(UNSCOPED_TEAM_PORTAL_TYPE);
-
-    assertThat(foundTeamsOfType).hasSize(1);
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        foundTeamsOfType.get(0),
-        null,
-        UNSCOPED_TEAM_RES_ID,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        UNSCOPED_TEAM_NAME,
-        UNSCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
-  @Test
-  @Transactional
-  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonNotATeamMember() {
-    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        scopedTeamMemberPerson_1Role,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        ExampleTeamRole.getAllRoleNames()
-    );
-
-    assertThat(foundTeams).isEmpty();
-
-  }
-
-  @Test
-  @Transactional
-  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamScoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        scopedTeamMemberPerson_1Role,
-        SCOPED_TEAM_PORTAL_TYPE,
-        ExampleTeamRole.getAllRoleNames()
-    );
-
-    assertThat(foundTeams).hasSize(1);
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        foundTeams.get(0),
-        SCOPED_TEAM_UREF,
-        SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        SCOPED_TEAM_NAME,
-        SCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
-  @Test
-  @Transactional
-  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasSearchForRole_andTeamUnscoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-        unscopedTeamMemberPerson_2Roles,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        ExampleTeamRole.getAllRoleNames()
-    );
-
-    assertThat(foundTeams).hasSize(1);
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        foundTeams.get(0),
-        null,
-        UNSCOPED_TEAM_RES_ID,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        UNSCOPED_TEAM_NAME,
-        UNSCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
-
-  @Test
-  @Transactional
-  void getTeamsWhereRoleMatching_hasSearchForRole_andTeamScoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
-        SCOPED_TEAM_PORTAL_TYPE,
-        ExampleTeamRole.getAllRoleNames()
-    );
-
-    assertThat(foundTeams).hasSize(1);
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        foundTeams.get(0),
-        SCOPED_TEAM_UREF,
-        SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        SCOPED_TEAM_NAME,
-        SCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
-  @Test
-  @Transactional
-  void getTeamsWhereRoleMatching_hasSearchForRole_andTeamUnscoped() {
-    // tests for scoped and unscoped required because construction of team dto is done within method
-    List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWhereRoleMatching(
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        ExampleTeamRole.getAllRoleNames()
-    );
-
-    assertThat(foundTeams).hasSize(1);
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        foundTeams.get(0),
-        null,
-        UNSCOPED_TEAM_RES_ID,
-        UNSCOPED_TEAM_PORTAL_TYPE,
-        UNSCOPED_TEAM_NAME,
-        UNSCOPED_TEAM_DESCRIPTION
-    );
-
-  }
-
 
   @Test
   @Transactional
@@ -397,69 +113,6 @@ class PortalTeamAccessorIntegrationTest {
       return true;
     });
 
-  }
-
-  @Test
-  @Transactional
-  void personIsAMemberOfTeam_returnsTrueWhenPersonIsMember(){
-    assertThat(
-        portalTeamAccessor.personIsAMemberOfTeam(UNSCOPED_TEAM_RES_ID, unscopedTeamMemberPerson_2Roles)
-    ).isTrue();
-
-  }
-
-  @Test
-  @Transactional
-  void personIsAMemberOfTeam_returnsFalseWhenPersonIsNotMember(){
-    assertThat(
-        portalTeamAccessor.personIsAMemberOfTeam(NO_MEMBER_SCOPED_TEAM_RES_ID, unscopedTeamMemberPerson_2Roles)
-    ).isFalse();
-
-  }
-
-  @Test
-  @Transactional
-  void getAllPortalRolesForTeam_getsAllExpectedRoles(){
-    List<PortalRoleDto> roles = portalTeamAccessor.getAllPortalRolesForTeam(UNSCOPED_TEAM_RES_ID);
-    assertThat(roles).hasSize(2);
-  }
-
-  @Test
-  @Transactional
-  void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTeamMember_AndHasDoesntHaveRole() {
-  // Tests for scoped and unscoped, required because construction of team dto is done within method
-  List<PortalTeamDto> foundTeams = portalTeamAccessor.getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching(
-      scopedTeamMemberPerson_1Role,
-      SCOPED_TEAM_PORTAL_TYPE,
-      List.of(ExampleTeamRole.ROLE_WITHOUT_PRIV.name())
-  );
-
-  assertThat(foundTeams).isEmpty();
-}
-
-  private void assertPortalTeamInstanceDtoMappingAsExpected(PortalTeamDto portalTeamDto,
-                                                            String expectedScopeURef,
-                                                            int expectedResId,
-                                                            String expectedTeamType,
-                                                            String expectedTeamName,
-                                                            String expectedTeamDescription) {
-    PortalTeamScopeDto expectedScopeDto = new PortalTeamScopeDto(expectedScopeURef);
-    assertThat(portalTeamDto.getResId()).isEqualTo(expectedResId);
-    assertThat(portalTeamDto.getType()).isEqualTo(expectedTeamType);
-    assertThat(portalTeamDto.getName()).isEqualTo(expectedTeamName);
-    assertThat(portalTeamDto.getDescription()).isEqualTo(expectedTeamDescription);
-    assertThat(portalTeamDto.getScope()).isEqualTo(expectedScopeDto);
-  }
-
-  private void assertPortalTeamMemberDtoHasExpectedRole(PortalTeamMemberDto portalTeamMemberDto,
-                                                        ExampleTeamRole exampleTeamRole, int memberTeamResId) {
-    assertThat(portalTeamMemberDto.getRoles()).anySatisfy(portalRoleDto -> {
-      assertThat(portalRoleDto.getResId()).isEqualTo(memberTeamResId);
-      assertThat(portalRoleDto.getName()).isEqualTo(exampleTeamRole.name());
-      assertThat(portalRoleDto.getDescription()).isEqualTo(exampleTeamRole.getDesc());
-      assertThat(portalRoleDto.getDisplaySequence()).isEqualTo(exampleTeamRole.ordinal());
-      assertThat(portalRoleDto.getTitle()).isEqualTo(exampleTeamRole.getTitle());
-    });
   }
 
 
@@ -708,38 +361,6 @@ class PortalTeamAccessorIntegrationTest {
   private String constructOrgGroupUref(int id) {
     return id + PortalOrganisationGroup.UREF_TYPE;
   }
-
-
-  @Test
-  @Transactional
-  void findPortalTeamByOrganisationGroup_whenNotFound_thenEmptyOptionalReturned() {
-
-    var nonPersistedOrganisationGroup = PortalOrganisationTestUtils.generateOrganisationGroup(
-        123,
-        "My first organisation",
-        "Organisation"
-    );
-
-    var result = portalTeamAccessor.findPortalTeamByOrganisationGroup(nonPersistedOrganisationGroup);
-
-    assertThat(result).isNotPresent();
-  }
-
-  @Test
-  @Transactional
-  void findPortalTeamByOrganisationGroup_whenFound_thenReturn() {
-    var result = portalTeamAccessor.findPortalTeamByOrganisationGroup(PORTAL_ORGANISATION_GROUP);
-    assertThat(result).isPresent();
-    assertPortalTeamInstanceDtoMappingAsExpected(
-        result.get(),
-        constructOrgGroupUref(PORTAL_ORGANISATION_GROUP.getOrgGrpId()),
-        SCOPED_TEAM_RES_ID,
-        SCOPED_TEAM_PORTAL_TYPE,
-        SCOPED_TEAM_NAME,
-        SCOPED_TEAM_PORTAL_TYPE_DESCRIPTION
-    );
-  }
-
 
 
   private void insertPortalOrganisationGroup(PortalOrganisationGroup portalOrganisationGroup) {

@@ -37,6 +37,7 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowServic
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
@@ -49,7 +50,6 @@ import uk.co.ogauthority.pwa.repository.consultations.ConsultationRequestReposit
 import uk.co.ogauthority.pwa.service.appprocessing.consultations.consultees.ConsulteeGroupDetailService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamType;
@@ -74,7 +74,7 @@ class ConsultationRequestServiceTest {
   private CamundaWorkflowService camundaWorkflowService;
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private PersonService personService;
 
   @Mock
   private CaseLinkService caseLinkService;
@@ -205,7 +205,7 @@ class ConsultationRequestServiceTest {
         .thenReturn(Optional.of(assignedResponderPersonId));
 
     var responderPerson = PersonTestUtil.createPersonFrom(assignedResponderPersonId, "email");
-    when(teamManagementService.getPerson(assignedResponderPersonId.asInt())).thenReturn(responderPerson);
+    when(personService.getPersonById(assignedResponderPersonId.asInt())).thenReturn(responderPerson);
 
     var responder = underTest.getAssignedResponderForConsultation(consultationRequest);
     assertThat(responder).isEqualTo(responderPerson);

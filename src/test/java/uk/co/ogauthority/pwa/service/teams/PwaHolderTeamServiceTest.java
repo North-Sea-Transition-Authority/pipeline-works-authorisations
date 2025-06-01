@@ -25,7 +25,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teams.PwaTeamMember;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaHolderService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
@@ -60,7 +59,6 @@ class PwaHolderTeamServiceTest {
   private Person person;
   private WebUserAccount webUserAccount;
   private PortalOrganisationGroup holderOrgGroup;
-  private PwaTeamMember personHolderTeamMembership;
   private int orgGrpId;
   private EnumSet<Role> orgRoles;
 

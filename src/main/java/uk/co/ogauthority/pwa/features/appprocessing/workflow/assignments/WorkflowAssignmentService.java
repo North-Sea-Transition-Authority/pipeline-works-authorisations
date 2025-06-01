@@ -13,8 +13,8 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowSubject;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
 
@@ -24,20 +24,19 @@ public class WorkflowAssignmentService {
   private final CamundaWorkflowService camundaWorkflowService;
   private final PwaTeamService pwaTeamService;
   private final ConsultationRequestService consultationRequestService;
-  private final OldTeamManagementService teamManagementService;
   private final AssignmentService assignmentService;
+  private final PersonService personService;
 
   @Autowired
   public WorkflowAssignmentService(CamundaWorkflowService camundaWorkflowService,
                                    PwaTeamService pwaTeamService,
                                    ConsultationRequestService consultationRequestService,
-                                   OldTeamManagementService teamManagementService,
-                                   AssignmentService assignmentService) {
+                                   AssignmentService assignmentService, PersonService personService) {
     this.camundaWorkflowService = camundaWorkflowService;
     this.pwaTeamService = pwaTeamService;
     this.consultationRequestService = consultationRequestService;
-    this.teamManagementService = teamManagementService;
     this.assignmentService = assignmentService;
+    this.personService = personService;
   }
 
   /**
@@ -154,7 +153,7 @@ public class WorkflowAssignmentService {
   public Optional<Person> getAssignee(WorkflowTaskInstance workflowTaskInstance) {
     return camundaWorkflowService
         .getAssignedPersonId(workflowTaskInstance)
-        .map(personId -> teamManagementService.getPerson(personId.asInt()));
+        .map(personService::getPersonById);
   }
 
   public void clearAssignments(WorkflowSubject workflowSubject) {

@@ -1,33 +1,15 @@
 package uk.co.ogauthority.pwa.testutils;
 
-import java.util.Set;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationSearchUnit;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationUnit;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalRoleDto;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamMemberDto;
-import uk.co.ogauthority.pwa.model.teams.PwaRole;
-import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 
 /**
  * Util class to ease testing of Teams service and associated services which use teams package objects.
  */
 public class TeamTestingUtils {
-
-  public static PortalTeamMemberDto createPortalTeamMember(Person person, Set<PortalRoleDto> roles) {
-    return new PortalTeamMemberDto(person.getId(), roles);
-  }
-
-  public static PortalRoleDto getTeamAdminRoleDto(PwaTeam team) {
-    return getTeamAdminRoleDto(team.getId());
-  }
-
-  public static PortalRoleDto getTeamAdminRoleDto(int resId) {
-    return new PortalRoleDto(resId, PwaRole.TEAM_ADMINISTRATOR_ROLE_NAME, "Team admin", "Team Admin Desc", 10);
-  }
 
   public static PortalOrganisationUnit createOrgUnit() {
     var portalOrganisationGroup = generateOrganisationGroup(100, "ORGANISATION_GROUP", "ORG_GRP");

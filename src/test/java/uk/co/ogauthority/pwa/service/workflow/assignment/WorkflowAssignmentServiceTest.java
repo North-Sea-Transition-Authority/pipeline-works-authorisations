@@ -34,11 +34,11 @@ import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowTaskInstance;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroupDetail;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationRequestService;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.service.teams.PwaTeamService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.testutils.ConsulteeGroupTestingUtils;
@@ -60,7 +60,7 @@ class WorkflowAssignmentServiceTest {
   private ConsultationRequestService consultationRequestService;
 
   @Mock
-  private OldTeamManagementService teamManagementService;
+  private PersonService personService;
 
   @InjectMocks
 
@@ -245,7 +245,7 @@ class WorkflowAssignmentServiceTest {
     var person = new Person(1, null, null, null, null);
 
     when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
-    when(teamManagementService.getPerson(1)).thenReturn(person);
+    when(personService.getPersonById(person.getId())).thenReturn(person);
 
     var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
 
@@ -257,8 +257,9 @@ class WorkflowAssignmentServiceTest {
 
   @Test
   void getAssignee_assigneeExists_personDoesntExist_error() {
-    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(new PersonId(1)));
-    when(teamManagementService.getPerson(1)).thenThrow(PwaEntityNotFoundException.class);
+    PersonId id = new PersonId(1);
+    when(camundaWorkflowService.getAssignedPersonId(any())).thenReturn(Optional.of(id));
+    when(personService.getPersonById(id)).thenThrow(PwaEntityNotFoundException.class);
     var taskInstance = new WorkflowTaskInstance(new GenericWorkflowSubject(1, WorkflowType.PWA_APPLICATION), PwaApplicationWorkflowTask.CASE_OFFICER_REVIEW);
     assertThrows(PwaEntityNotFoundException.class, () ->
 

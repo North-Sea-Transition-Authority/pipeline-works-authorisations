@@ -21,13 +21,13 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskStatus;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskTag;
 import uk.co.ogauthority.pwa.integrations.camunda.external.CamundaWorkflowService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.consultations.ConsultationRequest;
 import uk.co.ogauthority.pwa.model.form.consultation.AssignResponderForm;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ConsultationRequestStatus;
 import uk.co.ogauthority.pwa.service.enums.workflow.consultation.PwaApplicationConsultationWorkflowTask;
-import uk.co.ogauthority.pwa.service.teammanagement.OldTeamManagementService;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
@@ -41,29 +41,28 @@ public class AssignResponderService implements AppProcessingService {
 
   private final WorkflowAssignmentService workflowAssignmentService;
   private final AssignResponderValidator assignResponderValidator;
-  private final OldTeamManagementService teamManagementService;
   private final CamundaWorkflowService camundaWorkflowService;
   private final ConsultationRequestService consultationRequestService;
   private final CaseLinkService caseLinkService;
   private final EmailService emailService;
   private final TeamQueryService teamQueryService;
+  private final PersonService personService;
 
   @Autowired
   public AssignResponderService(WorkflowAssignmentService workflowAssignmentService,
                                 AssignResponderValidator assignResponderValidator,
-                                OldTeamManagementService teamManagementService,
                                 CamundaWorkflowService camundaWorkflowService,
                                 ConsultationRequestService consultationRequestService,
                                 CaseLinkService caseLinkService,
-                                EmailService emailService, TeamQueryService teamQueryService) {
+                                EmailService emailService, TeamQueryService teamQueryService, PersonService personService) {
     this.workflowAssignmentService = workflowAssignmentService;
     this.assignResponderValidator = assignResponderValidator;
-    this.teamManagementService = teamManagementService;
     this.camundaWorkflowService = camundaWorkflowService;
     this.consultationRequestService = consultationRequestService;
     this.caseLinkService = caseLinkService;
     this.emailService = emailService;
     this.teamQueryService = teamQueryService;
+    this.personService = personService;
   }
 
   public List<Person> getAllRespondersForRequest(ConsultationRequest consultationRequest) {
@@ -77,7 +76,7 @@ public class AssignResponderService implements AppProcessingService {
                               ConsultationRequest consultationRequest,
                               WebUserAccount assigningUser) {
 
-    var responderPerson = teamManagementService.getPerson(form.getResponderPersonId());
+    var responderPerson = personService.getPersonById(form.getResponderPersonId());
     var assigningPerson = assigningUser.getLinkedPerson();
 
     var workflowTask = camundaWorkflowService.getAllActiveWorkflowTasks(consultationRequest).stream()

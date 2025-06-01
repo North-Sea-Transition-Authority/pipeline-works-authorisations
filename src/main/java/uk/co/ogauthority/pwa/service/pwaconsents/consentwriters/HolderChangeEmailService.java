@@ -22,7 +22,6 @@ import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentOrganisationRole;
 import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaService;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 
 @Service
 public class HolderChangeEmailService {
@@ -36,7 +35,6 @@ public class HolderChangeEmailService {
 
   @Autowired
   public HolderChangeEmailService(PortalOrganisationsAccessor portalOrganisationsAccessor,
-                                  TeamService teamService,
                                   MasterPwaService masterPwaService,
                                   EmailService emailService,
                                   PwaHolderTeamService pwaHolderTeamService) {

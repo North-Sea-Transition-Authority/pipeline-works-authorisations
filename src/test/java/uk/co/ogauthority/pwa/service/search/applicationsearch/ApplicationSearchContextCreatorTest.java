@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.model.dto.consultations.ConsulteeGroupId;
 import uk.co.ogauthority.pwa.model.entity.appprocessing.consultations.consultees.ConsulteeGroup;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teams.PwaHolderTeamService;
-import uk.co.ogauthority.pwa.service.teams.TeamService;
 import uk.co.ogauthority.pwa.service.users.UserTypeService;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
@@ -39,9 +38,6 @@ class ApplicationSearchContextCreatorTest {
 
   @Mock
   private UserTypeService userTypeService;
-
-  @Mock
-  private TeamService teamService;
 
   @Mock
   private PortalOrganisationsAccessor portalOrganisationsAccessor;
