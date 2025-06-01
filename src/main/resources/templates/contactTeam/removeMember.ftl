@@ -1,6 +1,6 @@
 <#-- @ftlvariable name="teamName" type="String" -->
 <#-- @ftlvariable name="error" type="String" -->
-<#-- @ftlvariable name="teamMember" type="uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView" -->
+<#-- @ftlvariable name="teamMember" type="uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView" -->
 <#-- @ftlvariable name="cancelUrl" type="String" -->
 <#-- @ftlvariable name="showTopNav" type="java.lang.Boolean" -->
 

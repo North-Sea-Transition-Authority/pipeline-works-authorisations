@@ -19,8 +19,6 @@ import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
@@ -141,9 +139,9 @@ public class PwaContactService implements ApplicationFormSectionService {
   }
 
   /**
-   * Given a {@link PwaContact}, populate and return a {@link TeamMemberView} for use in the generic team management screen.
+   * Given a {@link PwaContact}, populate and return a {@link ContactTeamMemberView} for use in the generic team management screen.
    */
-  public TeamMemberView getTeamMemberView(PwaApplication pwaApplication, PwaContact contact) {
+  public ContactTeamMemberView getTeamMemberView(PwaApplication pwaApplication, PwaContact contact) {
 
     var applicationType = pwaApplication.getApplicationType();
     var applicationId = pwaApplication.getId();
@@ -154,12 +152,12 @@ public class PwaContactService implements ApplicationFormSectionService {
     var removeUrl = ReverseRouter.route(on(PwaContactController.class)
         .renderRemoveContactScreen(applicationType, applicationId, null, person.getId().asInt(), null));
 
-    return new TeamMemberView(
+    return new ContactTeamMemberView(
         person,
         editUrl,
         removeUrl,
         contact.getRoles().stream()
-            .map(r -> new TeamRoleView(r.getRoleName(), r.getRoleName(), r.getRoleName(), r.getDisplayOrder()))
+            .map(r -> new ContactTeamRoleView(r.getRoleName(), r.getRoleName(), r.getRoleName(), r.getDisplayOrder()))
             .collect(Collectors.toSet())
     );
 

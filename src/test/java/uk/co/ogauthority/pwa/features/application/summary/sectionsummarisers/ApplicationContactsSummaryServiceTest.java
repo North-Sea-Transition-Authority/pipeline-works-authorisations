@@ -19,7 +19,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -75,8 +75,8 @@ class ApplicationContactsSummaryServiceTest {
     var appSummary = applicationContactsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
-    assertThat(appSummary.getTemplateModel()).containsKey("teamMemberViews");
-    assertThat(((List<TeamMemberView>) appSummary.getTemplateModel().get("teamMemberViews")).size()).isEqualTo(1);
+    assertThat(appSummary.getTemplateModel()).containsKey("contactTeamMemberViews");
+    assertThat(((List<ContactTeamMemberView>) appSummary.getTemplateModel().get("contactTeamMemberViews")).size()).isEqualTo(1);
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.APPLICATION_USERS.getDisplayName()));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.APPLICATION_USERS.getDisplayName(), "#appContactDetails")

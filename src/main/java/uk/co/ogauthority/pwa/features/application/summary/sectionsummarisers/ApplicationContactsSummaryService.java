@@ -8,13 +8,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 
 /**
@@ -46,15 +46,16 @@ public class ApplicationContactsSummaryService implements ApplicationSectionSumm
   public ApplicationSectionSummary summariseSection(PwaApplicationDetail pwaApplicationDetail,
                                                     String templateName) {
 
-    List<TeamMemberView> teamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication()).stream()
-        .map(contact -> pwaContactService.getTeamMemberView(pwaApplicationDetail.getPwaApplication(), contact))
-        .sorted(Comparator.comparing(TeamMemberView::getFullName))
+    var pwaApplication = pwaApplicationDetail.getPwaApplication();
+    var contactTeamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
+        .map(contact -> pwaContactService.getTeamMemberView(pwaApplication, contact))
+        .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
         .collect(Collectors.toList());
 
     var sectionDisplayText = ApplicationTask.APPLICATION_USERS.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
     summaryModel.put("sectionDisplayText", sectionDisplayText);
-    summaryModel.put("teamMemberViews", teamMemberViews);
+    summaryModel.put("contactTeamMemberViews", contactTeamMemberViews);
 
     return new ApplicationSectionSummary(
         templateName,

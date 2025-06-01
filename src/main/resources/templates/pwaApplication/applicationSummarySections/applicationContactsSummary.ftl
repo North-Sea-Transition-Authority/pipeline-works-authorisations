@@ -1,20 +1,20 @@
 <#include '../../pwaLayoutImports.ftl'>
 
 <#-- @ftlvariable name="sectionDisplayText" type="java.lang.String" -->
-<#-- @ftlvariable name="teamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
+<#-- @ftlvariable name="contactTeamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView>" -->
 
 
 <div class="pwa-application-summary-section">
     <h2 class="govuk-heading-l" id="appContactDetails">${sectionDisplayText}</h2>
 
-    <@appContactDetails teamMemberViews/>
+    <@appContactDetails contactTeamMemberViews/>
 
 </div>
 
 
-<#macro appContactDetails teamMemberViews>
+<#macro appContactDetails contactTeamMemberViews>
   
-    <#list teamMemberViews as teamMemberView>
+    <#list contactTeamMemberViews as teamMemberView>
         <@fdsCheckAnswers.checkAnswersWrapper summaryListId=teamMemberView?index headingText=teamMemberView.getFullName() headingSize="h3" headingClass="govuk-heading-m">
             <@fdsCheckAnswers.checkAnswers>
 

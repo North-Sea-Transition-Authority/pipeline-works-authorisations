@@ -1,16 +1,16 @@
-package uk.co.ogauthority.pwa.model.teammanagement;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.Objects;
 import uk.co.ogauthority.pwa.model.Checkable;
 
-public class TeamRoleView implements Checkable {
+public class ContactTeamRoleView implements Checkable {
 
   private final String roleName;
   private final String title;
   private final String description;
   private final int displaySequence;
 
-  public TeamRoleView(String roleName, String title, String description, int displaySequence) {
+  public ContactTeamRoleView(String roleName, String title, String description, int displaySequence) {
     this.roleName = roleName;
     this.title = title;
     this.description = description;
@@ -51,7 +51,7 @@ public class TeamRoleView implements Checkable {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TeamRoleView that = (TeamRoleView) o;
+    ContactTeamRoleView that = (ContactTeamRoleView) o;
     return displaySequence == that.displaySequence && Objects.equals(roleName,
         that.roleName) && Objects.equals(title, that.title) && Objects.equals(description,
         that.description);

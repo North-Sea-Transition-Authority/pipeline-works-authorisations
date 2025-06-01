@@ -34,7 +34,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.U
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
@@ -71,7 +71,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
   void setUp() {
 
     when(personService.getPersonById(anyInt())).thenReturn(user.getLinkedPerson());
-    var teamMemberView = new TeamMemberView(user.getLinkedPerson(), null, null, Set.of());
+    var teamMemberView = new ContactTeamMemberView(user.getLinkedPerson(), null, null, Set.of());
     when(pwaContactService.getTeamMemberView(any(), any())).thenReturn(teamMemberView);
 
     manageAndEditEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)

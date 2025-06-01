@@ -1,5 +1,5 @@
 <#-- @ftlvariable name="teamName" type="java.lang.String" -->
-<#-- @ftlvariable name="teamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView>" -->
+<#-- @ftlvariable name="contactTeamMemberViews" type="java.util.List<uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView>" -->
 <#-- @ftlvariable name="addUserUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="completeSectionUrl" type="java.lang.String" -->
 <#-- @ftlvariable name="caseManagementUrl" type="java.lang.String" -->
@@ -56,7 +56,7 @@
         <@fdsAction.link linkText="View application management" linkClass="govuk-button govuk-button--secondary" role=true linkUrl=springUrl(caseManagementUrl)/>
     </#if>
 
-    <#list teamMemberViews>
+    <#list contactTeamMemberViews>
       <table class="govuk-table">
         <thead class="govuk-table__head">
         <tr class="govuk-table__row">

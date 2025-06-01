@@ -1,4 +1,4 @@
-package uk.co.ogauthority.pwa.model.teammanagement;
+package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import java.util.Objects;
 import java.util.Set;
@@ -7,7 +7,7 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 /**
  * View of single team member for team management screen.
  */
-public class TeamMemberView {
+public class ContactTeamMemberView {
 
   private final String forename;
   private final String surname;
@@ -16,14 +16,14 @@ public class TeamMemberView {
 
   private final String editRoute;
   private final String removeRoute;
-  private final Set<TeamRoleView> roleViews;
+  private final Set<ContactTeamRoleView> roleViews;
 
-  public TeamMemberView(Person person, String editRoute, String removeRoute, Set<TeamRoleView> teamRoleViews) {
+  public ContactTeamMemberView(Person person, String editRoute, String removeRoute, Set<ContactTeamRoleView> contactTeamRoleViews) {
     this.forename = person.getForename();
     this.surname = person.getSurname();
     this.emailAddress = person.getEmailAddress();
     this.telephoneNo = person.getTelephoneNo();
-    this.roleViews = teamRoleViews;
+    this.roleViews = contactTeamRoleViews;
     this.editRoute = editRoute;
     this.removeRoute = removeRoute;
   }
@@ -56,7 +56,7 @@ public class TeamMemberView {
     return telephoneNo;
   }
 
-  public Set<TeamRoleView> getRoleViews() {
+  public Set<ContactTeamRoleView> getRoleViews() {
     return roleViews;
   }
 
@@ -68,7 +68,7 @@ public class TeamMemberView {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    TeamMemberView that = (TeamMemberView) o;
+    ContactTeamMemberView that = (ContactTeamMemberView) o;
     return Objects.equals(forename, that.forename) && Objects.equals(surname,
         that.surname) && Objects.equals(emailAddress, that.emailAddress) && Objects.equals(
         telephoneNo, that.telephoneNo) && Objects.equals(editRoute, that.editRoute) && Objects.equals(

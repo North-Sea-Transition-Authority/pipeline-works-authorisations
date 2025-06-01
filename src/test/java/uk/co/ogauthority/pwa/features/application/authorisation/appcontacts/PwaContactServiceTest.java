@@ -28,7 +28,6 @@ import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.P
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamRoleView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
@@ -290,7 +289,7 @@ class PwaContactServiceTest {
     assertThat(teamMemberView.getRoleViews().size()).isEqualTo(1);
 
     teamMemberView.getRoleViews().stream()
-        .map(TeamRoleView::getRoleName)
+        .map(ContactTeamRoleView::getRoleName)
         .forEach(roleName -> {
           try {
             assertThat(roleName).isEqualTo(PwaContactRole.ACCESS_MANAGER.getRoleName());

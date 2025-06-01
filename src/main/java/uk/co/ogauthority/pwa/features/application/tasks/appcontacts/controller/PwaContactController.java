@@ -29,6 +29,7 @@ import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -43,7 +44,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.U
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
-import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
@@ -120,9 +120,9 @@ public class PwaContactController {
 
     var pwaApplication = applicationContext.getPwaApplication();
 
-    List<TeamMemberView> teamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
+    List<ContactTeamMemberView> contactTeamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
         .map(contact -> pwaContactService.getTeamMemberView(pwaApplication, contact))
-        .sorted(Comparator.comparing(TeamMemberView::getFullName))
+        .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
         .collect(Collectors.toList());
 
     Set<String> orgGroupHolders = pwaHolderService.getPwaHolderOrgGroups(pwaApplication.getMasterPwa()).stream()
@@ -134,9 +134,9 @@ public class PwaContactController {
 
     var showCaseManagementLink = applicationContext.hasPermission(PwaApplicationPermission.MANAGE_CONTACTS);
 
-    var modelAndView = new ModelAndView("teamManagementOld/teamMembers")
+    var modelAndView = new ModelAndView("contactTeam/teamMembers")
         .addObject("teamName", "Application users")
-        .addObject("teamMemberViews", teamMemberViews)
+        .addObject("contactTeamMemberViews", contactTeamMemberViews)
         .addObject("addUserUrl", ReverseRouter.route(on(PwaContactController.class)
             .renderAddContact(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null, null)))
         .addObject("showBreadcrumbs", true)
@@ -168,7 +168,7 @@ public class PwaContactController {
 
     form.setPwaApplicationId(pwaApplication.getId());
 
-    return new ModelAndView("teamManagementOld/addUserToTeam")
+    return new ModelAndView("contactTeam/addUserToTeam")
         .addObject("groupName", pwaApplication.getAppReference() + " contacts")
         .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
@@ -223,7 +223,7 @@ public class PwaContactController {
 
   private ModelAndView getContactRolesModelAndView(PwaApplicationDetail detail, Person person, UserRolesForm form) {
 
-    return new ModelAndView("teamManagementOld/memberRoles")
+    return new ModelAndView("contactTeam/memberRoles")
         .addObject("teamName", detail.getPwaApplicationRef())
         .addObject("form", form)
         .addObject("roles", rolesCheckboxMap)
@@ -294,7 +294,7 @@ public class PwaContactController {
 
   private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, PwaContact contact) {
 
-    return new ModelAndView("teamManagementOld/removeMember")
+    return new ModelAndView("contactTeam/removeMember")
         .addObject("cancelUrl",
             ReverseRouter.route(on(PwaContactController.class)
                 .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
