@@ -15,8 +15,6 @@ import org.springframework.validation.BindingResult;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.features.webapp.devtools.testharness.applicationstage.TestHarnessApplicationStageService;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
-import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -31,8 +29,6 @@ public class TestHarnessService {
 
   private final GenerateApplicationValidator generateApplicationValidator;
   private final GenerateVariationApplicationValidator generateVariationApplicationValidator;
-  private final PortalTeamAccessor portalTeamAccessor;
-  private final PersonService personService;
   private final GenerateApplicationService generateApplicationService;
   private final TestHarnessApplicationStageService testHarnessApplicationStageService;
   private final TestHarnessUserRetrievalService testHarnessUserRetrievalService;
@@ -55,15 +51,11 @@ public class TestHarnessService {
   public TestHarnessService(
       GenerateApplicationValidator generateApplicationValidator,
       GenerateVariationApplicationValidator generateVariationApplicationValidator,
-      PortalTeamAccessor portalTeamAccessor,
-      PersonService personService,
       GenerateApplicationService generateApplicationService,
       TestHarnessApplicationStageService testHarnessApplicationStageService,
       TestHarnessUserRetrievalService testHarnessUserRetrievalService, TeamQueryService teamQueryService) {
     this.generateApplicationValidator = generateApplicationValidator;
     this.generateVariationApplicationValidator = generateVariationApplicationValidator;
-    this.portalTeamAccessor = portalTeamAccessor;
-    this.personService = personService;
     this.generateApplicationService = generateApplicationService;
     this.testHarnessApplicationStageService = testHarnessApplicationStageService;
     this.testHarnessUserRetrievalService = testHarnessUserRetrievalService;

@@ -25,7 +25,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
-import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.ogauthority.pwa.mvc.RequestLogFilter;
@@ -48,7 +47,6 @@ public class WebSecurityConfig {
       "/actuator/health"
   };
 
-  private final SystemAreaAccessService systemAreaAccessService;
   private final SamlProperties samlProperties;
   private final SamlResponseParser samlResponseParser;
   private final LogoutSuccessHandler serviceLogoutSuccessHandler;
@@ -57,8 +55,7 @@ public class WebSecurityConfig {
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
-  public WebSecurityConfig(SystemAreaAccessService systemAreaAccessService,
-                           SamlProperties samlProperties,
+  public WebSecurityConfig(SamlProperties samlProperties,
                            SamlResponseParser samlResponseParser,
                            LogoutSuccessHandler serviceLogoutSuccessHandler,
                            RequestLogFilter requestLogFilter,
@@ -66,7 +63,6 @@ public class WebSecurityConfig {
                            EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration
   ) {
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
-    this.systemAreaAccessService = systemAreaAccessService;
     this.samlProperties = samlProperties;
     this.samlResponseParser = samlResponseParser;
     this.requestLogFilter = requestLogFilter;
@@ -80,14 +76,6 @@ public class WebSecurityConfig {
 
     httpSecurity
         .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-
-            // TODO: Remove in PWARE-63
-            .requestMatchers("/portal-team-management", "/portal-team-management/**")
-            .hasAnyAuthority(systemAreaAccessService.getValidTeamManagementGrantedAuthorities())
-
-            // TODO: Remove in PWARE-63
-            .requestMatchers("/create-organisation-team/**")
-            .hasAnyAuthority(systemAreaAccessService.getValidCreateOrganisationTeamGrantedAuthorities())
 
             .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
 

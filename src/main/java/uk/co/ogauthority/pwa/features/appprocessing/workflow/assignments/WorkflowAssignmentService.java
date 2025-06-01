@@ -152,11 +152,9 @@ public class WorkflowAssignmentService {
   }
 
   public Optional<Person> getAssignee(WorkflowTaskInstance workflowTaskInstance) {
-
     return camundaWorkflowService
         .getAssignedPersonId(workflowTaskInstance)
         .map(personId -> teamManagementService.getPerson(personId.asInt()));
-
   }
 
   public void clearAssignments(WorkflowSubject workflowSubject) {

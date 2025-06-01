@@ -1,8 +1,6 @@
 package uk.co.ogauthority.pwa.features.webapp;
 
-import java.util.Arrays;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.HasTeamRoleService;
-import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.exception.AccessDeniedException;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -20,16 +17,6 @@ import uk.co.ogauthority.pwa.teams.TeamType;
 @Service
 public class SystemAreaAccessService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SystemAreaAccessService.class);
-
-  // TODO: Remove in PWARE-63
-  public static final Set<PwaUserPrivilege> ALL_PWA_USER_PRIVILEGES = Arrays.stream(PwaUserPrivilege.values())
-      .collect(Collectors.toSet());
-
-  // TODO: Remove in PWARE-63
-  public final Set<PwaUserPrivilege> validTeamManagementPrivileges = ALL_PWA_USER_PRIVILEGES;
-
-  // TODO: Remove in PWARE-63
-  public final Set<PwaUserPrivilege> validCreateOrganisationTeamPrivileges = ALL_PWA_USER_PRIVILEGES;
 
   private final Boolean allowStartApplication;
   private final HasTeamRoleService hasTeamRoleService;
@@ -43,23 +30,6 @@ public class SystemAreaAccessService {
     this.pwaContactService = pwaContactService;
 
     LOGGER.info("allowStartApplication = {}", allowStartApplication);
-  }
-
-  /**
-   * For use in WebSecurityConfig. In other instances call canAccessTeamManagement
-   */
-  // TODO: Remove in PWARE-63
-  public String[] getValidTeamManagementGrantedAuthorities() {
-    return validTeamManagementPrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
-  }
-
-  // TODO: Remove in PWARE-63
-  public String[] getValidCreateOrganisationTeamGrantedAuthorities() {
-    return validCreateOrganisationTeamPrivileges.stream()
-        .map(PwaUserPrivilege::name)
-        .toArray(String[]::new);
   }
 
   public boolean canAccessTeamManagement(AuthenticatedUserAccount user) {

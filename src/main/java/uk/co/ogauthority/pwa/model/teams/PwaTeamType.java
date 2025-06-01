@@ -1,7 +1,5 @@
 package uk.co.ogauthority.pwa.model.teams;
 
-import java.util.Arrays;
-
 public enum PwaTeamType {
 
   REGULATOR("PWA_REGULATOR_TEAM", "PWA regulator team"),
@@ -22,12 +20,5 @@ public enum PwaTeamType {
 
   public String getPortalTeamTypeDisplayName() {
     return portalTeamTypeDisplayName;
-  }
-
-  public static PwaTeamType findByPortalTeamType(String portalTeamType) {
-    return Arrays.stream(values())
-        .filter(t -> t.getPortalTeamType().equals(portalTeamType))
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Portal PwaTeam Type " + portalTeamType + " not known"));
   }
 }
