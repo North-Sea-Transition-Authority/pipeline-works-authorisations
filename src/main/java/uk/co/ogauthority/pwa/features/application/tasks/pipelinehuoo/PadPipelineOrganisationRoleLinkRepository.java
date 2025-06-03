@@ -23,14 +23,14 @@ public interface PadPipelineOrganisationRoleLinkRepository extends
   @EntityGraph(attributePaths = {
       "padOrgRole",
       "padOrgRole.organisationUnit",
-      "padOrgRole.organisationUnit.portalOrganisationGroup",
-      "pipeline"})
+      "padOrgRole.organisationUnit.portalOrganisationGroup"
+  })// TODO: understand why eagerly loading pipeline breaks this method
   List<PadPipelineOrganisationRoleLink> findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_Role(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole
   );
 
-  @EntityGraph(attributePaths = {"padOrgRole", "pipeline"})
+  @EntityGraph(attributePaths = {"padOrgRole"})// TODO: understand why eagerly loading pipeline breaks this method
   List<PadPipelineOrganisationRoleLink> findByPadOrgRole_pwaApplicationDetailAndPadOrgRole_RoleAndPipeline_IdIn(
       PwaApplicationDetail pwaApplicationDetail,
       HuooRole huooRole,
