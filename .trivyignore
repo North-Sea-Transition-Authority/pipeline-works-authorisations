@@ -25,6 +25,7 @@ CVE-2024-56337
 CVE-2025-24813
 CVE-2025-31650
 CVE-2025-31651
+CVE-2025-46701
 
 # org.bouncycastle:bcprov-jdk18on/bcpkix-jdk18on
 CVE-2023-33201
@@ -47,3 +48,9 @@ CVE-2025-24970
 
 # org.springframework.boot:spring-boot
 CVE-2025-22235
+
+# commons-beanutils:commons-beanutils
+CVE-2025-48734
+
+# org.springframework:spring-context
+CVE-2025-22233
