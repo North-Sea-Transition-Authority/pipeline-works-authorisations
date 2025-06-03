@@ -7,6 +7,7 @@
 <@defaultPage
     htmlTitle=pageTitle
     pageHeading=pageTitle
+    topNavigation=true
     twoThirdsColumn=true
 >
 
