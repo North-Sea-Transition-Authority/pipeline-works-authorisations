@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.security.core.AuthenticatedPrincipal;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 
@@ -63,5 +64,9 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Authenti
   @Override
   public String getName() {
     return Objects.nonNull(proxyUserWuaId) ? proxyUserWuaId.toString() : String.valueOf(wuaId);
+  }
+
+  public static AuthenticatedUserAccount from(WebUserAccount webUserAccount) {
+    return new AuthenticatedUserAccount(webUserAccount, Set.of());
   }
 }

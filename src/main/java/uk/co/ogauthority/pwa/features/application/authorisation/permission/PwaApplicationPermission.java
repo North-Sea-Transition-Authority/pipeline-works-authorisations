@@ -15,7 +15,7 @@ import uk.co.ogauthority.pwa.teams.TeamType;
  */
 public enum PwaApplicationPermission {
   SUBMIT(
-      EnumSet.noneOf(PwaContactRole.class),
+      Set.of(),
       EnumSet.of(Role.APPLICATION_SUBMITTER),
       Set.of(),
       Set.of()

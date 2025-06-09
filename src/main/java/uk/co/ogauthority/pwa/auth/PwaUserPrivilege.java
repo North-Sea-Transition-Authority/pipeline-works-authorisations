@@ -7,7 +7,7 @@ public enum PwaUserPrivilege {
   // INTERNAL ACCESS
   PWA_ACCESS,
 
-  // TODO: Remove in PWARE-60
+  // TODO: Remove in PWARE-141
   PWA_WORKAREA,
   PWA_ORG_ADMIN,
   PWA_REGULATOR_ADMIN,

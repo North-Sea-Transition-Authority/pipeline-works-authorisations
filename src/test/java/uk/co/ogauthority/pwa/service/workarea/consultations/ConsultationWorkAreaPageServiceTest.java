@@ -54,7 +54,7 @@ class ConsultationWorkAreaPageServiceTest {
 
   private AuthenticatedUserAccount user = new AuthenticatedUserAccount(
       new WebUserAccount(10),
-      Set.of(PwaUserPrivilege.PWA_WORKAREA));
+      Set.of(PwaUserPrivilege.PWA_ACCESS));
 
   private ConsulteeGroupDetail groupDetail;
 

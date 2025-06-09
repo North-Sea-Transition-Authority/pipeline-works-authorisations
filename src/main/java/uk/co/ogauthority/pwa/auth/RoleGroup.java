@@ -17,20 +17,14 @@ public enum RoleGroup {
           Role.CONSENT_VIEWER),
 
       // Organisation Roles
-      Set.of(Role.TEAM_ADMINISTRATOR,
-          Role.APPLICATION_CREATOR,
-          Role.APPLICATION_SUBMITTER,
-          Role.AS_BUILT_NOTIFICATION_SUBMITTER),
+      TeamType.ORGANISATION.getAllowedRolesAsSet(), // All organisation roles
 
       // Consultee Roles
       TeamType.CONSULTEE.getAllowedRolesAsSet() // All consultee roles
   ),
   CONSENT_SEARCH(
       // Regulator Roles
-      Set.of(Role.CONSENT_VIEWER,
-          Role.PWA_MANAGER,
-          Role.CASE_OFFICER,
-          Role.ORGANISATION_MANAGER),
+      TeamType.REGULATOR.getAllowedRolesAsSet(), // All regulator roles
 
       // Organisation Roles
       Set.of(Role.TEAM_ADMINISTRATOR,

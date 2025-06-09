@@ -47,36 +47,43 @@ class TestHarnessApplicationStageServiceHelper {
   }
 
   private TestHarnessAppProcessingProperties createAppProcessingProperties(WebUserAccount applicantWua,
-                                                                   PwaApplication pwaApplication,
-                                                                   Integer assignedCaseOfficerId,
-                                                                   Integer pipelineQuantity,
-                                                                   InitialReviewPaymentDecision paymentDecision) {
+                                                                           PwaApplication pwaApplication,
+                                                                           Integer assignedCaseOfficerId,
+                                                                           Integer pipelineQuantity,
+                                                                           InitialReviewPaymentDecision paymentDecision) {
 
-    var applicantAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(applicantWua);
+    var applicantAua = AuthenticatedUserAccount.from(applicantWua);
+
     var applicantProcessingContext = createAppProcessingContext(applicantAua, pwaApplication);
-    var caseOfficerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(assignedCaseOfficerId);
+    var caseOfficerAua = testHarnessUserRetrievalService.getWebUserAccount(assignedCaseOfficerId);
     var pwaManagerUserView = teamQueryService.getUsersOfStaticTeamWithRole(TeamType.REGULATOR, Role.PWA_MANAGER).stream()
         .findFirst()
         .orElseThrow(() -> new PwaEntityNotFoundException(
             "Person could not be found with %s role".formatted(Role.PWA_MANAGER.name())));
-    var pwaManagerAua = testHarnessUserRetrievalService.createAuthenticatedUserAccount(pwaManagerUserView.wuaId().intValue());
+    var pwaManagerAua = testHarnessUserRetrievalService.getWebUserAccount(pwaManagerUserView.wuaId().intValue());
 
     return new TestHarnessAppProcessingProperties(
-        applicantAua, applicantProcessingContext, caseOfficerAua, pwaManagerAua, paymentDecision, pipelineQuantity);
+        applicantAua,
+        applicantProcessingContext,
+        AuthenticatedUserAccount.from(caseOfficerAua),
+        AuthenticatedUserAccount.from(pwaManagerAua),
+        paymentDecision,
+        pipelineQuantity
+    );
   }
 
   TestHarnessAppProcessingProperties createAppProcessingPropertiesPaymentRequired(WebUserAccount applicantWua,
-                                                                                 PwaApplication pwaApplication,
-                                                                                 Integer assignedCaseOfficerId,
-                                                                                 Integer pipelineQuantity) {
+                                                                                  PwaApplication pwaApplication,
+                                                                                  Integer assignedCaseOfficerId,
+                                                                                  Integer pipelineQuantity) {
     return createAppProcessingProperties(
         applicantWua, pwaApplication, assignedCaseOfficerId, pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_REQUIRED);
   }
 
   TestHarnessAppProcessingProperties createAppProcessingPropertiesPaymentWaived(WebUserAccount applicantWua,
-                                                                                 PwaApplication pwaApplication,
-                                                                                 Integer assignedCaseOfficerId,
-                                                                                 Integer pipelineQuantity) {
+                                                                                PwaApplication pwaApplication,
+                                                                                Integer assignedCaseOfficerId,
+                                                                                Integer pipelineQuantity) {
     return createAppProcessingProperties(
         applicantWua, pwaApplication, assignedCaseOfficerId, pipelineQuantity, InitialReviewPaymentDecision.PAYMENT_WAIVED);
   }
