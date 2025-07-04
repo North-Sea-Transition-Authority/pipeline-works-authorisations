@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.externalapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -122,5 +125,19 @@ public class PipelineDtoControllerTest extends PwaApplicationContextAbstractCont
                 .searchPipelines(null, null, null))))
         .andExpect(status().isUnauthorized())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+  }
+
+  @Test
+  public void searchPipelines_whenAllParamsAreNull_thenAssertBadRequest() throws Exception {
+    mockMvc.perform(get(
+            ReverseRouter.route(on(PipelineDtoController.class).searchPipelines(
+                null,
+                null,
+                null
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isBadRequest())
+        .andExpect(status().reason("At least one request parameter must be non-null"));
+
+    verify(pipelineDtoRepository, never()).searchPipelines(any(), any(), any());
   }
 }

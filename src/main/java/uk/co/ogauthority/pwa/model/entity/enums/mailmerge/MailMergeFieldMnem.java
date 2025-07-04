@@ -75,7 +75,12 @@ public enum MailMergeFieldMnem {
         DocumentSpec.HUOO_HYDROGEN_CONSENT_DOCUMENT,
         DocumentSpec.INITIAL_CCUS_CONSENT_DOCUMENT,
         DocumentSpec.VARIATION_CCUS_CONSENT_DOCUMENT,
-        DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT));
+        DocumentSpec.HUOO_CCUS_CONSENT_DOCUMENT)),
+
+  // Digital signature
+  DIGITAL_SIGNATURE,
+  PAGE_BREAK,
+  ;
 
   private final Set<PwaApplicationType> permittedAppTypes;
 
@@ -110,6 +115,10 @@ public enum MailMergeFieldMnem {
 
   public boolean documentSpecIsSupported(DocumentSpec documentSpec) {
     return !getPreventedDocumentSpecs().contains(documentSpec);
+  }
+
+  public String asMailMergeTag() {
+    return "((%s))".formatted(name());
   }
 
 }

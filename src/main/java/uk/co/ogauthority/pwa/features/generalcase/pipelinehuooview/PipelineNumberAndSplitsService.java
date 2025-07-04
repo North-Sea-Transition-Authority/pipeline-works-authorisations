@@ -25,9 +25,9 @@ public class PipelineNumberAndSplitsService {
   private static final Logger LOGGER = LoggerFactory.getLogger(PipelineNumberAndSplitsService.class);
 
   /**
-   * <p>From some supplied map of potentially "split" pipeline Ids to pipeline overviews and some supplied set of
+   * From some supplied map of potentially "split" pipeline Ids to pipeline overviews and some supplied set of
    * PipelineIdentifiers describing split sections of pipelines in the first Map, return a new map from the PipelineIdentifier
-   * to the split information.</p>
+   * to the split information.
    *
    * <p>For pipelinesIds in the first map which are not present in the supplied "split" pipelines set, there will be one entry.
    * For pipelinesIds in the first map which are present in the supplied "split" pipelines set, there will only be entries for that pipeline

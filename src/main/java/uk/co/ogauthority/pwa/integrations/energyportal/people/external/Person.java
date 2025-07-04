@@ -38,6 +38,26 @@ public class Person implements Serializable {
     this.emailAddress = emailAddress;
   }
 
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public void setForename(String forename) {
+    this.forename = forename;
+  }
+
+  public void setSurname(String surname) {
+    this.surname = surname;
+  }
+
+  public void setEmailAddress(String emailAddress) {
+    this.emailAddress = emailAddress;
+  }
+
+  public void setTelephoneNo(String telephoneNo) {
+    this.telephoneNo = telephoneNo;
+  }
+
   public PersonId getId() {
     return new PersonId(id);
   }

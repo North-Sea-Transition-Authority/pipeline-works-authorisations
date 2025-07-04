@@ -14,25 +14,21 @@ public class DocumentClauseFactory {
 
   public SectionClause createSectionClause(PwaDocumentType documentType) {
 
-    if (documentType == PwaDocumentType.INSTANCE) {
-      return new DocumentInstanceSectionClause();
-    } else if (documentType == PwaDocumentType.TEMPLATE) {
-      return new DocumentTemplateSectionClause();
-    } else {
-      throw new RuntimeException(String.format("Unexpected document type [%s] passed to createSectionClause", documentType.name()));
-    }
+    return switch (documentType) {
+      case INSTANCE -> new DocumentInstanceSectionClause();
+      case TEMPLATE -> new DocumentTemplateSectionClause();
+      case null -> throw new IllegalArgumentException("Null document type passed to createSectionClauseVersion");
+    };
 
   }
 
   public SectionClauseVersion createSectionClauseVersion(PwaDocumentType documentType) {
 
-    if (documentType == PwaDocumentType.INSTANCE) {
-      return new DocumentInstanceSectionClauseVersion();
-    } else if (documentType == PwaDocumentType.TEMPLATE) {
-      return new DocumentTemplateSectionClauseVersion();
-    } else {
-      throw new RuntimeException(String.format("Unexpected document type [%s] passed to createSectionClauseVersion", documentType.name()));
-    }
+    return switch (documentType) {
+      case INSTANCE -> new DocumentInstanceSectionClauseVersion();
+      case TEMPLATE -> new DocumentTemplateSectionClauseVersion();
+      case null -> throw new IllegalArgumentException("Null document type passed to createSectionClauseVersion");
+    };
 
   }
 

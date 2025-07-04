@@ -28,7 +28,7 @@ import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 
 /**
- * <p>Service to administer PWA application-scoped teams (known as contacts).</p>
+ * Service to administer PWA application-scoped teams (known as contacts).
  *
  * <p>TODO split this service into the core app contact service and the service code which supports the task list entry and form.</p>
  */

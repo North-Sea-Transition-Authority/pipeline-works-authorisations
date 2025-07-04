@@ -1,6 +1,6 @@
 plugins {
-  id 'org.springframework.boot' version '3.3.1'
-  id 'io.spring.dependency-management' version '1.1.5'
+  id 'org.springframework.boot' version '3.3.5'
+  id 'io.spring.dependency-management' version '1.1.6'
   id 'java'
   id 'jacoco'
   id 'checkstyle'
@@ -92,7 +92,11 @@ dependencies {
 
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
+  implementation 'uk.co.fivium:ftss-client-spring-boot-starter:v1.0.2'
+
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+  implementation 'net.logstash.logback:logstash-logback-encoder:7.2'
 
   testImplementation 'com.h2database:h2:1.4.200'
   testImplementation 'nl.jqno.equalsverifier:equalsverifier:3.16.1'
@@ -108,7 +112,7 @@ dependencies {
 
 checkstyle {
   config = rootProject.resources.text.fromFile('ide/checkstyle.xml')
-  toolVersion '8.28'
+  toolVersion '10.21.1'
   ignoreFailures = false
   maxWarnings = 0
   // Sets suppressionFile property so checkstyle during build ignores generated files.
@@ -137,14 +141,26 @@ tasks.jacocoTestReport {
 
 sonarqube {
   properties {
-    property("sonar.projectKey", "fiviumuk_pipeline-works-authorisations")
-    property("sonar.host.url", "https://sonarcloud.io")
-    property("sonar.login", System.getenv("SONARCLOUD_TOKEN"))
-    property("sonar.organization", "fivium")
-    property("sonar.branch.name", System.getenv("DRONE_BRANCH"))
-    if (System.getenv("DRONE_BRANCH").startsWith("feature")) {
-      property("sonar.branch.target", "develop")
+    property 'sonar.projectKey', 'Fivium_pipeline-works-authorisations'
+    property 'sonar.organization', 'fivium-gh'
+    property 'sonar.host.url', 'https://sonarcloud.io'
+    property 'sonar.login', System.getenv('SONARCLOUD_TOKEN')
+
+    if (System.getenv('DRONE_PULL_REQUEST') != null) {
+      property 'sonar.pullrequest.key', System.getenv('DRONE_PULL_REQUEST')
+      property 'sonar.pullrequest.base', System.getenv('DRONE_TARGET_BRANCH')
+      property 'sonar.pullrequest.branch', System.getenv('DRONE_SOURCE_BRANCH')
+      property 'sonar.pullrequest.provider', 'github'
+      property 'sonar.pullrequest.github.repository', 'pipeline-works-authorisations'
+      property 'sonar.pullrequest.github.endpoint', 'https://api.github.com/'
+    } else {
+      property 'sonar.branch.name', System.getenv('DRONE_BRANCH')
+      if (System.getenv('DRONE_BRANCH') != 'develop') {
+        property 'sonar.branch.target', 'develop'
+      }
+      property 'sonar.coverage.jacoco.xmlReportPaths', "${layout.buildDirectory}/reports/jacoco/test/jacocoTestReport.xml"
     }
+
     property("sonar.exclusions", "src/test/**, src/main/resources/public/assets/**, fivium-design-system-core/**, src/main/resources/templates/fds/**, build/**")
     property("sonar.sources", "src")
   }

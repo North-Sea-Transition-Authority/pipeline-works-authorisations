@@ -1,6 +1,9 @@
 package uk.co.ogauthority.pwa.externalapi;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -66,14 +69,14 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     when(pwaDtoRepository.searchPwas(
         List.of(id),
         reference,
-        MasterPwaDetailStatus.CONSENTED
-    )).thenReturn(result);
+        MasterPwaDetailStatus.CONSENTED)
+    ).thenReturn(result);
 
     mockMvc.perform(get(
             ReverseRouter.route(on(PwaDtoController.class).searchPwas(
                 Collections.singletonList(id),
                 reference,
-                MasterPwaDetailStatus.CONSENTED
+                MasterPwaDetailStatus.CONSENTED.name()
             ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -125,5 +128,34 @@ public class PwaDtoControllerTest extends PwaApplicationContextAbstractControlle
     assertThat(resultingPwas)
         .extracting(PwaDto::getId)
         .containsExactly(firstPwa.getId(), secondPwa.getId(), thirdPwa.getId());
+  }
+
+  @Test
+  public void searchPwas_whenStatusIsInvalid_thenBadRequest() throws Exception {
+    var invalidStatus = "invalid";
+    mockMvc.perform(get(
+            ReverseRouter.route(on(PwaDtoController.class).searchPwas(
+                null,
+                null,
+                invalidStatus
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isBadRequest())
+        .andExpect(status().reason("Invalid status of %s provided".formatted(invalidStatus)));
+
+    verify(pwaDtoRepository, never()).searchPwas(any(), any(), any());
+  }
+
+  @Test
+  public void searchPwas_whenAllParametersAreNull_thenBadRequest() throws Exception {
+     mockMvc.perform(get(
+            ReverseRouter.route(on(PwaDtoController.class).searchPwas(
+                null,
+                null,
+                null
+            ))).header("Authorization", String.format("Bearer %s", PRE_SHARED_KEY)))
+        .andExpect(status().isBadRequest())
+        .andExpect(status().reason("At least one request parameter must be non-null"));
+
+    verify(pwaDtoRepository, never()).searchPwas(any(), any(), any());
   }
 }

@@ -709,7 +709,7 @@ public class PadOrganisationRoleService {
   }
 
   /**
-   * <p>Returns an aggregate containing the HUOO associations for pipelines on the specific application detail.</p>
+   * Returns an aggregate containing the HUOO associations for pipelines on the specific application detail.
    *
    * <p>If the pipeline, does not appear in the application, returns the PWA pipelines from the consented model that are still
    * on the seabed.</p>

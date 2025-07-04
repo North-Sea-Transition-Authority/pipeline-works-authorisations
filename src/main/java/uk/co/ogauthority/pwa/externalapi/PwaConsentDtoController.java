@@ -26,6 +26,7 @@ public class PwaConsentDtoController {
 
   @GetMapping("/consents")
   List<PwaConsentDto> searchPwaConsents(@RequestParam(name = "pwaIds") List<Integer> pwaIds) {
+
     return repository.searchPwaConsents(pwaIds)
         .stream()
         .sorted(Comparator.comparing(PwaConsentDto::getConsentedDate))

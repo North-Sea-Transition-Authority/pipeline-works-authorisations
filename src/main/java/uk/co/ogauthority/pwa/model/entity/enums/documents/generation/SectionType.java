@@ -15,6 +15,8 @@ public enum SectionType {
   /**
    * The section represents the opening page/paragraph of a document.
    */
-  OPENING_PARAGRAPH
+  OPENING_PARAGRAPH,
+
+  DIGITAL_SIGNATURE,
 
 }

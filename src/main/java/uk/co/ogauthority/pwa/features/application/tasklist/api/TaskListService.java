@@ -41,7 +41,7 @@ public class TaskListService {
   }
 
   /**
-   * <p>For a given application return true if one or more task in the provided set is shown in the task list.</p>
+   * For a given application return true if one or more task in the provided set is shown in the task list.
    */
   public boolean anyTaskShownForApplication(Set<ApplicationTask> applicationTaskSet,
                                             PwaApplicationDetail pwaApplicationDetail) {
@@ -52,8 +52,8 @@ public class TaskListService {
   }
 
   /**
-   * <p>This is visible for use in integration tests only. Use {@see TaskListService::getTaskListGroups()} for screen representation
-   * or {@see TaskListService::getShownApplicationTasksForDetail()} for the list of tasks shown in an application.</p>
+   * This is visible for use in integration tests only. Use {@see TaskListService::getTaskListGroups()} for screen representation
+   * or {@see TaskListService::getShownApplicationTasksForDetail()} for the list of tasks shown in an application.
    */
   @VisibleForTesting
   public List<TaskListEntry> getApplicationTaskListEntries(PwaApplicationDetail detail) {

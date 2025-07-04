@@ -1,2 +1,30 @@
 # spring-security-core needs 6.3.2 (not released yet)
 CVE-2024-38810
+CVE-2024-38827
+
+# spring-security-core needs 6.3.4
+CVE-2024-38827
+
+# org.springframework.security:spring-security-crypto
+CVE-2025-22228
+
+# io.netty:netty-common
+CVE-2024-47535
+
+# commons-io:commons-io
+CVE-2024-47554
+
+# ch.qos.logback:logback-core
+CVE-2024-12798
+CVE-2024-12801
+
+# org.apache.tomcat.embed:tomcat-embed-core
+CVE-2024-50379
+CVE-2024-56337
+CVE-2025-24813
+
+# io.netty:netty-common
+CVE-2025-25193
+
+# io.netty:netty-handler
+CVE-2025-24970

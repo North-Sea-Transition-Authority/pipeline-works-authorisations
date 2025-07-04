@@ -20,7 +20,8 @@ public class TestEmailConfiguration {
 
   /**
    * Bean to return the test GOV.UK notify implementation which will send
-   * emails to the test recipient instead of the actual recipient
+   * emails to the test recipient instead of the actual recipient.
+   *
    * @param notifyTemplateService An instance of the template service
    * @param notificationClient A GOV.UK notification client
    * @param emailValidator Email Validator

@@ -16,7 +16,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaApplicationStatus;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 /**
- * <p>Utility class to provide common functions to argument resolvers.</p>
+ * Utility class to provide common functions to argument resolvers.
  *
  * <p>TODO split into app context arg resolver util and general case arg resolver util.</p>
  */

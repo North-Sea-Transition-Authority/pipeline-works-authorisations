@@ -10,8 +10,8 @@ import uk.gov.service.notify.NotificationClient;
 import uk.gov.service.notify.NotificationClientException;
 
 /**
- * Implementation for the Production GOV.UK Notify service
- * The production implementation will send to the actual recipient
+ * Implementation for the Production GOV.UK Notify service.
+ * The production implementation will send to the actual recipient.
  */
 public class ProductionNotifyServiceImpl implements NotifyService {
 

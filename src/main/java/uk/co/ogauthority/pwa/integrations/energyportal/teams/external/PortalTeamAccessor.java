@@ -296,7 +296,7 @@ public class PortalTeamAccessor {
   public void addPersonToTeamWithRoles(int resId, Person person, Collection<String> roleNames, WebUserAccount actionPerformedBy) {
     String roleNameCsv = String.join(",", roleNames);
     try {
-      portalTeamRepository.updateUserRoles(resId, person.getId().asInt(), roleNameCsv, actionPerformedBy.getWuaId());
+      portalTeamRepository.updateUserRoles(resId, roleNameCsv, person.getId().asInt(), actionPerformedBy.getWuaId());
     } catch (Exception e) {
       String msg = String.format("Error adding person to team. paramSummary: resId:%s; personId:%s; roleNameCSV:%s; actingPersonId:%s;",
           resId,

@@ -18,147 +18,188 @@ public enum DocumentSpec {
       Map.of(
           DocumentSection.INITIAL_INTRO, 10,
           DocumentSection.INITIAL_TERMS_AND_CONDITIONS, 20,
-          DocumentSection.HUOO, 30,
-          DocumentSection.SCHEDULE_2, 40,
-          DocumentSection.TABLE_A, 50,
-          DocumentSection.DEPOSITS, 60,
-          DocumentSection.DEPOSIT_DRAWINGS, 70,
-          DocumentSection.ADMIRALTY_CHART, 80),
+          DocumentSection.DIGITAL_SIGNATURE, 30,
+          DocumentSection.HUOO, 40,
+          DocumentSection.SCHEDULE_2, 50,
+          DocumentSection.TABLE_A, 60,
+          DocumentSection.DEPOSITS, 70,
+          DocumentSection.DEPOSIT_DRAWINGS, 80,
+          DocumentSection.ADMIRALTY_CHART, 90
+
+      ),
       "New PWA consent document - Petroleum",
       List.of(
-          PwaApplicationType.INITIAL)),
+          PwaApplicationType.INITIAL
+      )
+  ),
 
   DEPOSIT_PETROLEUM_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.DEPCON_INTRO, 10,
-          DocumentSection.DEPOSITS, 20,
-          DocumentSection.DEPOSIT_DRAWINGS, 30),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.DEPOSITS, 30,
+          DocumentSection.DEPOSIT_DRAWINGS, 40
+      ),
       "Deposit consent document - Petroleum",
       List.of(
-          PwaApplicationType.DEPOSIT_CONSENT)),
+          PwaApplicationType.DEPOSIT_CONSENT
+      )
+  ),
 
   VARIATION_PETROLEUM_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.HUOO, 20,
-          DocumentSection.TABLE_A, 30,
-          DocumentSection.DEPOSITS, 40,
-          DocumentSection.DEPOSIT_DRAWINGS, 50,
-          DocumentSection.ADMIRALTY_CHART, 60),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40,
+          DocumentSection.DEPOSITS, 50,
+          DocumentSection.DEPOSIT_DRAWINGS, 60,
+          DocumentSection.ADMIRALTY_CHART, 70
+      ),
       "Variation consent document - Petroleum",
       List.of(
           PwaApplicationType.CAT_1_VARIATION,
           PwaApplicationType.CAT_2_VARIATION,
           PwaApplicationType.OPTIONS_VARIATION,
           PwaApplicationType.DECOMMISSIONING
-      )),
+      )
+  ),
 
   HUOO_PETROLEUM_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.HUOO_INTRO, 10,
-          DocumentSection.HUOO, 20),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30
+      ),
       "HUOO consent document - Petroleum",
       List.of(
           PwaApplicationType.HUOO_VARIATION
-      )),
+      )
+  ),
 
   INITIAL_HYDROGEN_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.INITIAL_INTRO, 10,
           DocumentSection.INITIAL_TERMS_AND_CONDITIONS, 20,
-          DocumentSection.HUOO, 30,
-          DocumentSection.SCHEDULE_2, 40,
-          DocumentSection.TABLE_A, 50,
-          DocumentSection.DEPOSITS, 60,
-          DocumentSection.DEPOSIT_DRAWINGS, 70,
-          DocumentSection.ADMIRALTY_CHART, 80),
+          DocumentSection.DIGITAL_SIGNATURE, 30,
+          DocumentSection.HUOO, 40,
+          DocumentSection.SCHEDULE_2, 50,
+          DocumentSection.TABLE_A, 60,
+          DocumentSection.DEPOSITS, 70,
+          DocumentSection.DEPOSIT_DRAWINGS, 80,
+          DocumentSection.ADMIRALTY_CHART, 90
+      ),
       "New PWA consent document - Hydrogen",
       List.of(
           PwaApplicationType.INITIAL
-      )),
+      )
+  ),
 
   DEPOSIT_HYDROGEN_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.DEPCON_INTRO, 10,
-          DocumentSection.DEPOSITS, 20,
-          DocumentSection.DEPOSIT_DRAWINGS, 30),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.DEPOSITS, 30,
+          DocumentSection.DEPOSIT_DRAWINGS, 40
+      ),
       "Deposit consent document - Hydrogen",
       List.of(
           PwaApplicationType.DEPOSIT_CONSENT
-      )),
+      )
+  ),
+
   VARIATION_HYDROGEN_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.HUOO, 20,
-          DocumentSection.TABLE_A, 30,
-          DocumentSection.DEPOSITS, 40,
-          DocumentSection.DEPOSIT_DRAWINGS, 50,
-          DocumentSection.ADMIRALTY_CHART, 60),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40,
+          DocumentSection.DEPOSITS, 50,
+          DocumentSection.DEPOSIT_DRAWINGS, 60,
+          DocumentSection.ADMIRALTY_CHART, 70
+      ),
       "Variation consent document - Hydrogen",
       List.of(
           PwaApplicationType.CAT_1_VARIATION,
           PwaApplicationType.CAT_2_VARIATION,
           PwaApplicationType.OPTIONS_VARIATION,
           PwaApplicationType.DECOMMISSIONING
-      )),
+      )
+  ),
 
   HUOO_HYDROGEN_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.HUOO_INTRO, 10,
-          DocumentSection.HUOO, 20),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30
+      ),
       "HUOO consent document - Hydrogen",
       List.of(
           PwaApplicationType.HUOO_VARIATION
-      )),
+      )
+  ),
+
   INITIAL_CCUS_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.INITIAL_INTRO, 10,
           DocumentSection.INITIAL_TERMS_AND_CONDITIONS, 20,
-          DocumentSection.HUOO, 30,
-          DocumentSection.SCHEDULE_2, 40,
-          DocumentSection.TABLE_A, 50,
-          DocumentSection.DEPOSITS, 60,
-          DocumentSection.DEPOSIT_DRAWINGS, 70,
-          DocumentSection.ADMIRALTY_CHART, 80),
+          DocumentSection.DIGITAL_SIGNATURE, 30,
+          DocumentSection.HUOO, 40,
+          DocumentSection.SCHEDULE_2, 50,
+          DocumentSection.TABLE_A, 60,
+          DocumentSection.DEPOSITS, 70,
+          DocumentSection.DEPOSIT_DRAWINGS, 80,
+          DocumentSection.ADMIRALTY_CHART, 90
+      ),
       "New PWA consent document - CCUS",
       List.of(
           PwaApplicationType.INITIAL
-      )),
+      )
+  ),
 
   DEPOSIT_CCUS_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.DEPCON_INTRO, 10,
-          DocumentSection.DEPOSITS, 20,
-          DocumentSection.DEPOSIT_DRAWINGS, 30),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.DEPOSITS, 30,
+          DocumentSection.DEPOSIT_DRAWINGS, 40
+      ),
       "Deposit consent document - CCUS",
       List.of(
           PwaApplicationType.DEPOSIT_CONSENT
-      )),
+      )
+  ),
 
   VARIATION_CCUS_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.VARIATION_INTRO, 10,
-          DocumentSection.HUOO, 20,
-          DocumentSection.TABLE_A, 30,
-          DocumentSection.DEPOSITS, 40,
-          DocumentSection.DEPOSIT_DRAWINGS, 50,
-          DocumentSection.ADMIRALTY_CHART, 60),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30,
+          DocumentSection.TABLE_A, 40,
+          DocumentSection.DEPOSITS, 50,
+          DocumentSection.DEPOSIT_DRAWINGS, 60,
+          DocumentSection.ADMIRALTY_CHART, 70
+      ),
       "Variation consent document - CCUS",
       List.of(
           PwaApplicationType.CAT_1_VARIATION,
           PwaApplicationType.CAT_2_VARIATION,
           PwaApplicationType.OPTIONS_VARIATION,
           PwaApplicationType.DECOMMISSIONING
-      )),
+      )
+  ),
 
   HUOO_CCUS_CONSENT_DOCUMENT(
       Map.of(
           DocumentSection.HUOO_INTRO, 10,
-          DocumentSection.HUOO, 20),
+          DocumentSection.DIGITAL_SIGNATURE, 20,
+          DocumentSection.HUOO, 30
+      ),
       "HUOO consent document - CCUS",
       List.of(
           PwaApplicationType.HUOO_VARIATION
-      ));
+      )
+  );
 
   private final Map<DocumentSection, Integer> documentSectionDisplayOrderMap;
   private final String displayName;

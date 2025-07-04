@@ -3,7 +3,8 @@ package uk.co.ogauthority.pwa.domain.pwa.pipelinehuoo.model;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 /**
- * <p>A single pipeline or pipeline section including all information needed to compute a displayable reference.</p>
+ * A single pipeline or pipeline section including all information needed to compute a displayable reference.
+ *
  * <p>Pipeline sections(splits) only exist within the context of a huoo role.</p>
  */
 public class PipelineNumbersAndSplits {

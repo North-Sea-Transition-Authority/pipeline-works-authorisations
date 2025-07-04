@@ -4,9 +4,7 @@ import java.math.BigDecimal;
 import org.apache.commons.lang3.BooleanUtils;
 
 /**
- * <p>
  * This interface is used to produce the name of a pipeline.
- * </p>
  *
  * <p>
  * It is a slimmed down version of PipelineOverview, reducing the complexity needed when the name  of a pipeline

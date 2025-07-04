@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.controller.documents.generation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -37,6 +38,7 @@ import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocGenType;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSection;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.DocumentSpec;
 import uk.co.ogauthority.pwa.model.entity.enums.documents.generation.SectionType;
+import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsent;
 import uk.co.ogauthority.pwa.model.enums.documents.PwaDocumentType;
@@ -45,6 +47,7 @@ import uk.co.ogauthority.pwa.service.documents.generation.DocumentCreationServic
 import uk.co.ogauthority.pwa.service.documents.generation.DocumentSectionGenerator;
 import uk.co.ogauthority.pwa.service.documents.instances.DocumentInstanceService;
 import uk.co.ogauthority.pwa.service.documents.pdf.PdfRenderingService;
+import uk.co.ogauthority.pwa.service.documents.signing.DocumentSigningService;
 import uk.co.ogauthority.pwa.service.mailmerge.MailMergeService;
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 import uk.co.ogauthority.pwa.service.pwaconsents.PwaConsentService;
@@ -55,6 +58,7 @@ import uk.co.ogauthority.pwa.util.DateUtils;
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentCreationServiceTest {
 
+  public static final String DIV_CLASS_PAGE_BREAK = "<div class='page-break'/>";
   @Mock
   private ApplicationContext springApplicationContext;
 
@@ -78,6 +82,9 @@ public class DocumentCreationServiceTest {
 
   @Mock
   private DocgenRunSectionDataRepository docgenRunSectionDataRepository;
+
+  @Mock
+  private DocumentSigningService documentSigningService;
 
   @Captor
   private ArgumentCaptor<Map<String, Object>> modelMapCaptor;
@@ -110,7 +117,9 @@ public class DocumentCreationServiceTest {
         mailMergeService,
         pwaApplicationDetailService,
         pwaConsentService,
-        docgenRunSectionDataRepository);
+        docgenRunSectionDataRepository,
+        documentSigningService
+    );
 
     documentInstance = new DocumentInstance();
     documentInstance.setPwaApplication(pwaApplicationDetail.getPwaApplication());
@@ -170,6 +179,8 @@ public class DocumentCreationServiceTest {
     var documentSectionGenerator = documentSectionGeneratorFunction.apply(docGenType);
 
     when(springApplicationContext.getBean(any(Class.class))).thenAnswer(invocation -> documentSectionGenerator);
+    when(templateRenderingService.getRenderedTemplate("documents/consents/fragments/pageBreak.ftl", Map.of()))
+        .thenReturn(DIV_CLASS_PAGE_BREAK);
 
     documentCreationService.createConsentDocument(docgenRun);
 
@@ -182,13 +193,14 @@ public class DocumentCreationServiceTest {
     int numberOfCustomSections = sectionTypeToCountMap.get(SectionType.CUSTOM).intValue();
     int numberOfOpeningParagraphSections = sectionTypeToCountMap.get(SectionType.OPENING_PARAGRAPH).intValue();
     int numberOfClauseSections = sectionTypeToCountMap.get(SectionType.CLAUSE_LIST).intValue();
+    int numberOfDigitalSignatureSections = sectionTypeToCountMap.get(SectionType.DIGITAL_SIGNATURE).intValue();
 
-    verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections))
+    verify(documentSectionGenerator, times(numberOfCustomSections + numberOfOpeningParagraphSections + numberOfDigitalSignatureSections))
         .getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType);
     verify(documentInstanceService, times(numberOfClauseSections)).getDocumentView(eq(documentInstance), any());
     verify(mailMergeService, times(numberOfClauseSections)).mailMerge(documentView, docGenType);
 
-    verify(templateRenderingService, times(1)).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
+    verify(templateRenderingService).render(eq("documents/consents/consentDocument.ftl"), modelMapCaptor.capture(), eq(false));
 
     assertThat(modelMapCaptor.getValue()).containsAllEntriesOf(Map.of(
         "showWatermark", watermarkShown,
@@ -198,7 +210,7 @@ public class DocumentCreationServiceTest {
 
     verify(docgenRunSectionDataRepository).saveAll(docgenRunSectionDataCaptor.capture());
 
-    assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections);
+    assertThat(docgenRunSectionDataCaptor.getValue()).hasSize(numberOfClauseSections + numberOfOpeningParagraphSections + numberOfCustomSections + numberOfDigitalSignatureSections);
 
   }
 
@@ -206,6 +218,7 @@ public class DocumentCreationServiceTest {
   public void nbspSuccessfulGeneration() {
     Map<String, Object> dataMap = Map.of("testing", "test\u00A0ing");
     when(templateRenderingService.render(anyString(), eq(dataMap), anyBoolean())).thenReturn("test\u00A0ing");
+
     testAndAssertGeneration(DocGenType.PREVIEW, true, pwaApplicationDetail.getPwaApplicationRef(), docGenType -> {
       var documentSectionGenerator = mock(DocumentSectionGenerator.class);
       when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
@@ -218,6 +231,32 @@ public class DocumentCreationServiceTest {
 
     var sectionHtml = (String) captor.getValue().get("sectionHtml");
     assertThat(sectionHtml).doesNotContain("\u00A0");
+  }
+
+  @Test
+  public void pageBreakSuccessfulGeneration() {
+    var documentSectionGenerator = mock(DocumentSectionGenerator.class);
+    when(templateRenderingService.render(anyString(), anyMap(), anyBoolean()))
+        .thenReturn("testing" + MailMergeFieldMnem.PAGE_BREAK.asMailMergeTag() + "testing");
+
+    testAndAssertGeneration(
+        DocGenType.PREVIEW,
+        true,
+        pwaApplicationDetail.getPwaApplicationRef(),
+        docGenType -> {
+          when(documentSectionGenerator.getDocumentSectionData(pwaApplicationDetail, documentInstance, docGenType))
+              .thenReturn(mock(DocumentSectionData.class));
+          return documentSectionGenerator;
+        }
+    );
+
+    var captor = ArgumentCaptor.forClass(Map.class);
+    verify(templateRenderingService).render(eq("documents/consents/consentDocument.ftl"), captor.capture(), anyBoolean());
+
+    var sectionHtml = (String) captor.getValue().get("sectionHtml");
+    assertThat(sectionHtml)
+        .doesNotContain(MailMergeFieldMnem.PAGE_BREAK.asMailMergeTag())
+        .contains("testing" + DIV_CLASS_PAGE_BREAK + "testing");
   }
 
 }

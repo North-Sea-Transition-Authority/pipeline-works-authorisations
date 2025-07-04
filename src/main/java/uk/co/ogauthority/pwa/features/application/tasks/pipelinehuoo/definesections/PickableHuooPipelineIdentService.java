@@ -27,9 +27,9 @@ public class PickableHuooPipelineIdentService {
   }
 
   /**
-   * <p>This will return idents from either the application or consented model for a given pipeline ID.
+   * This will return idents from either the application or consented model for a given pipeline ID.
    * If the application detail does not contain an application version of the pipeline, then the consented model
-   * ident will be returned.</p>
+   * ident will be returned.
    *
    * <p>It is not the responsibility of this method to check that the application detail is for the same masterPwa consented pipeline.</p>
    */

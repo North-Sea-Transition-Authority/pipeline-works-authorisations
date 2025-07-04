@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineIdentifier;
 
 /**
  * Summarises all the organisation roles for a pwa groups pipelines are organisations where the role relationships are the same
- * "For each HUOO role, when a set of pipelines has the same set of organisations with the role, group the sets together."
+ * "For each HUOO role, when a set of pipelines has the same set of organisations with the role, group the sets together".
  **/
 public class PipelineAndOrganisationRoleGroupSummaryDto {
 

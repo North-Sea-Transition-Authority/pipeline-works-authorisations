@@ -19,7 +19,7 @@ public class ProductionConfiguration {
 
   /**
    * Bean to return the production GOV.UK notify implementation if the matches condition
-   * inside ProdNotifyCondition evaluates to true
+   * inside ProdNotifyCondition evaluates to true.
    * @param notifyTemplateService An instance of the template service
    * @param notificationClient A GOV.UK notification client
    * @param emailValidator Email Validator

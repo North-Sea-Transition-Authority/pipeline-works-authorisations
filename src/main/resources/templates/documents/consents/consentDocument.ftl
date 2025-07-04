@@ -201,6 +201,14 @@
       margin-top: 15px;
     }
 
+    .digital-signature {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      min-height: 55px;
+      page-break-inside: avoid;
+    }
+
     .multi-line-text {
       white-space: pre-line;
       margin-bottom: 20px;
@@ -233,6 +241,10 @@
 
     .full-width {
       width: 1000px;
+    }
+
+    .page-break {
+      page-break-after: always;
     }
 
   </style>

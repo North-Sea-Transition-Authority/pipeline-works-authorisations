@@ -55,6 +55,12 @@ Output should claim build succesfull.
 | ANALYTICS_GLOBAL_API_SECRET | The api secret for the analytics collection endpoint (portal-wide) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1865)) |
 | PWA_API_PRE_SHARED_KEY      | The API key used to validate requests from the Energy Portal API                                                                  |
 
+## Logging
+
+PWA can log in either JSON or text mode.
+
+In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
+
 #### Create the Flyway user & Intialise the Database
 
 

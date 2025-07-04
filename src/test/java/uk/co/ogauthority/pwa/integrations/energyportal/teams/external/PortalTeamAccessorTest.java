@@ -75,8 +75,8 @@ public class PortalTeamAccessorTest {
     portalTeamAccessor.addPersonToTeamWithRoles(TEAM_RES_ID, targetPerson, roles, actionPerformedBy);
     verify(portalTeamRepository, times(1)).updateUserRoles(
         TEAM_RES_ID,
-        targetPerson.getId().asInt(),
         "ROLE1,ROLE2",
+        targetPerson.getId().asInt(),
         actionPerformedBy.getWuaId()
     );
   }

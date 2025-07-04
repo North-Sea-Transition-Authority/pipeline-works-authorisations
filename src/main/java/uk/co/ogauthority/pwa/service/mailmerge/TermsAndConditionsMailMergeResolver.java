@@ -14,19 +14,15 @@ import uk.co.ogauthority.pwa.features.termsandconditions.service.TermsAndConditi
 import uk.co.ogauthority.pwa.model.entity.enums.mailmerge.MailMergeFieldMnem;
 import uk.co.ogauthority.pwa.service.documents.DocumentSource;
 import uk.co.ogauthority.pwa.service.documents.templates.TemplateDocumentSource;
-import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @Service
 public class TermsAndConditionsMailMergeResolver implements DocumentSourceMailMergeResolver {
 
-  private final PwaApplicationDetailService pwaApplicationDetailService;
   private final TermsAndConditionsService termsAndConditionsService;
   private final List<Class> supportedClasses = List.of(PwaApplication.class, TemplateDocumentSource.class);
   private final List<MailMergeFieldMnem> termsFields = List.of(VARIATION_TERM, HUOO_TERMS, DEPCON_TERMS);
 
-  public TermsAndConditionsMailMergeResolver(PwaApplicationDetailService pwaApplicationDetailService,
-                                             TermsAndConditionsService termsAndConditionsService) {
-    this.pwaApplicationDetailService = pwaApplicationDetailService;
+  public TermsAndConditionsMailMergeResolver(TermsAndConditionsService termsAndConditionsService) {
     this.termsAndConditionsService = termsAndConditionsService;
   }
 

@@ -1,6 +1,6 @@
 
 /**
- * <p>This module is containing objects and services for core business logic concepts.</p>
+ * This module is containing objects and services for core business logic concepts.
  *
  * <p>This module contains code that is going to be key to implementing many application use cases.</p>
  *
