@@ -36,12 +36,13 @@ class FeedbackEmailServiceTest {
     var feedbackContent = "testContent";
     var emailAddress = "test@test.com";
     var recipientName = "testRecipient";
+    var transactionId = 1;
 
-    feedbackEmailService.sendFeedbackFailedToSendEmail(feedbackContent, emailAddress, recipientName);
+    feedbackEmailService.sendFeedbackFailedToSendEmail(feedbackContent, emailAddress, recipientName, transactionId);
 
     ArgumentCaptor<EmailProperties> emailCaptor = ArgumentCaptor.forClass(EmailProperties.class);
     verify(emailService, times(1))
-        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(emailAddress)), eq(""));
+        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(emailAddress)), eq("1"));
     FeedbackFailedToSendEmailProperties emailProperties = (FeedbackFailedToSendEmailProperties) emailCaptor.getValue();
 
     final var expectedEmailProperties = new HashMap<String, String>();

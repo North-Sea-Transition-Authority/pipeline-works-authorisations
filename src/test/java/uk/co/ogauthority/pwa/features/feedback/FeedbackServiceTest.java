@@ -134,7 +134,9 @@ class FeedbackServiceTest {
     verify(feedbackEmailService).sendFeedbackFailedToSendEmail(
         feedbackContentArgumentCaptor.capture(),
         eq(ServiceContactDetail.TECHNICAL_SUPPORT.getEmailAddress()),
-        eq(ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName()));
+        eq(ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName()),
+        any()
+    );
 
     var feedback = feedbackArgumentCaptor.getValue();
     var formattedDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
@@ -168,7 +170,8 @@ class FeedbackServiceTest {
     verify(feedbackEmailService).sendFeedbackFailedToSendEmail(
         feedbackContentArgumentCaptor.capture(),
         eq(ServiceContactDetail.TECHNICAL_SUPPORT.getEmailAddress()),
-        eq(ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName()));
+        eq(ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName()),
+        any());
 
     var feedback = feedbackArgumentCaptor.getValue();
     var formattedDateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

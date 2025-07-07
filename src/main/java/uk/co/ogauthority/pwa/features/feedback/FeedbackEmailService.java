@@ -16,9 +16,14 @@ public class FeedbackEmailService {
     this.emailService = emailService;
   }
 
-  void sendFeedbackFailedToSendEmail(String feedbackContent, String emailAddress, String recipientName) {
+  void sendFeedbackFailedToSendEmail(
+      String feedbackContent,
+      String emailAddress,
+      String recipientName,
+      Integer transactionId
+  ) {
     var emailProperties = new FeedbackFailedToSendEmailProperties(feedbackContent, recipientName);
-    emailService.sendEmail(emailProperties, EmailRecipient.directEmailAddress(emailAddress), "");
+    emailService.sendEmail(emailProperties, EmailRecipient.directEmailAddress(emailAddress), String.valueOf(transactionId));
   }
 
 }

@@ -101,7 +101,7 @@ class NotifyCallbackServiceTest {
     ArgumentCaptor<EmailProperties> emailCaptor = ArgumentCaptor.forClass(EmailProperties.class);
 
     verify(emailService, times(1))
-        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(BOUNCE_BACK_EMAIL_BOX)), eq(""));
+        .sendEmail(emailCaptor.capture(), refEq(EmailRecipient.directEmailAddress(BOUNCE_BACK_EMAIL_BOX)), eq(notifyCallback.getId()));
 
     EmailDeliveryFailedEmailProps failedEmail = (EmailDeliveryFailedEmailProps)emailCaptor.getValue();
 

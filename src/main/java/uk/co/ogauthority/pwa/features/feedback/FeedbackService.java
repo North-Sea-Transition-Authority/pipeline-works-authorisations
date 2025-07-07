@@ -87,9 +87,11 @@ public class FeedbackService {
     try {
       feedbackClientService.saveFeedback(feedback);
     } catch (CannotSendFeedbackException e) {
-      feedbackEmailService.sendFeedbackFailedToSendEmail(getFeedbackContent(feedback),
+      feedbackEmailService.sendFeedbackFailedToSendEmail(
+          getFeedbackContent(feedback),
           ServiceContactDetail.TECHNICAL_SUPPORT.getEmailAddress(),
-          ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName());
+          ServiceContactDetail.TECHNICAL_SUPPORT.getServiceName(),
+          feedback.getTransactionId());
       LOGGER.error(String.format("Feedback failed to send: %s", e.getMessage()));
     }
   }

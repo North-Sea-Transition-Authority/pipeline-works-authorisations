@@ -53,7 +53,7 @@ public class NotifyCallbackService {
               failedEmail.getSubject().orElse(""),
               failedEmail.getBody()
           );
-          emailService.sendEmail(failedEmailProperties, EmailRecipient.directEmailAddress(ogaConsentsMailboxEmail), "");
+          emailService.sendEmail(failedEmailProperties, EmailRecipient.directEmailAddress(ogaConsentsMailboxEmail), notifyCallback.getId());
 
         } catch (NotificationClientException e) {
           LOGGER.error("{} Couldn't retrieve email notification from GOV.UK: ", EMAIL_LOG_PREFIX, e);
