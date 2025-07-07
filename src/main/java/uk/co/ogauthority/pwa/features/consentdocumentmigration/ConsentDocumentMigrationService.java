@@ -144,6 +144,14 @@ public class ConsentDocumentMigrationService {
   }
 
   private String getFilenameIfDocumentExists(List<String> fileKeys, String consentDoc) {
+    if (consentDoc.contains("PWA Consent Document")) {
+      return fileKeys.stream()
+          .filter(key -> key.contains("PWA Consent Document"))
+          .filter(key -> key.contains(consentDoc.replace("/", "-")))
+          .findFirst()
+          .orElse(null);
+    }
+
     return fileKeys.stream()
         .filter(key -> key.contains(consentDoc.replace("/", "-")))
         .findFirst()
