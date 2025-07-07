@@ -19,7 +19,10 @@ import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
@@ -41,6 +44,8 @@ public class TeamManagementService {
   private final EnergyPortalAccessService energyPortalAccessService;
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
   private final TeamMemberQueryService teamMemberQueryService;
+  private final PwaContactRepository pwaContactRepository;
+  private final UserAccountService userAccountService;
 
   public TeamManagementService(TeamRepository teamRepository,
                                TeamRoleRepository teamRoleRepository,
@@ -48,7 +53,8 @@ public class TeamManagementService {
                                TeamQueryService teamQueryService,
                                EnergyPortalAccessService energyPortalAccessService,
                                EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
-                               TeamMemberQueryService teamMemberQueryService) {
+                               TeamMemberQueryService teamMemberQueryService, PwaContactRepository pwaContactRepository,
+                               UserAccountService userAccountService) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
     this.userApi = userApi;
@@ -56,6 +62,8 @@ public class TeamManagementService {
     this.energyPortalAccessService = energyPortalAccessService;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
     this.teamMemberQueryService = teamMemberQueryService;
+    this.pwaContactRepository = pwaContactRepository;
+    this.userAccountService = userAccountService;
   }
 
   public Team createScopedTeam(String name, TeamType teamType, TeamScopeReference scopeRef) {
@@ -183,8 +191,6 @@ public class TeamManagementService {
       throw new TeamManagementException("User account with wuaId %s is not active so can't be added to teams".formatted(wuaId));
     }
 
-    var isNewUser = teamRoleRepository.findAllByWuaId(wuaId).isEmpty();
-
     teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
 
     var newTeamRoles = roles.stream()
@@ -200,6 +206,8 @@ public class TeamManagementService {
     if (!doesTeamHaveTeamManager(team)) {
       throw new TeamManagementException("At least 1 team manager must exist in team %s".formatted(team.getId()));
     }
+
+    var isNewUser = userNotInAnyTeam(wuaId);
 
     if (isNewUser) {
       energyPortalAccessService.addUserToAccessTeam(
@@ -217,7 +225,7 @@ public class TeamManagementService {
     }
     teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
 
-    var isUserRemovedFromAllTeams = teamRoleRepository.findAllByWuaId(wuaId).isEmpty();
+    var isUserRemovedFromAllTeams = userNotInAnyTeam(wuaId);
 
     if (isUserRemovedFromAllTeams) {
       energyPortalAccessService.removeUserFromAccessTeam(
@@ -226,6 +234,12 @@ public class TeamManagementService {
           new InstigatingWebUserAccountId(wuaId)
       );
     }
+  }
+
+  private boolean userNotInAnyTeam(Long wuaId) {
+    WebUserAccount user = userAccountService.getWebUserAccount(wuaId.intValue());
+    return teamRoleRepository.findAllByWuaId(wuaId).isEmpty()
+        && !pwaContactRepository.existsByPerson(user.getLinkedPerson());
   }
 
   public boolean willManageTeamRoleBePresentAfterMemberRoleUpdate(Team team, Long wuaId, List<Role> membersNewRoles) {

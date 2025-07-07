@@ -11,6 +11,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -19,6 +20,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddP
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.testutils.ValidatorTestUtils;
 
@@ -34,23 +36,25 @@ class AddPwaContactFormValidatorTest {
   @Mock
   private PwaApplicationService pwaApplicationService;
 
-  private AddPwaContactForm contactForm;
+  @InjectMocks
   private AddPwaContactFormValidator contactFormValidator;
+
+  private AddPwaContactForm contactForm;
 
   @BeforeEach
   void before() {
     contactForm = new AddPwaContactForm();
-    contactFormValidator = new AddPwaContactFormValidator(userAccountService, pwaContactService,
-        pwaApplicationService);
   }
 
   @Test
   void validate_userIdentifier_noErrors() {
 
     var pwaApplication = new PwaApplication();
+    var user = new WebUserAccount();
     var person = new Person();
+    user.setPerson(person);
 
-    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
+    when(userAccountService.getUserByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(user));
     when(pwaContactService.personIsContactOnApplication(pwaApplication, person)).thenReturn(false);
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplication);
 
@@ -79,7 +83,7 @@ class AddPwaContactFormValidatorTest {
   @Test
   void validate_userIdentifier_userNotFound() {
 
-    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
+    when(userAccountService.getUserByEmailAddressOrLoginId("userId")).thenReturn(Optional.empty());
 
     contactForm.setUserIdentifier("userId");
     contactForm.setPwaApplicationId(1);
@@ -96,9 +100,11 @@ class AddPwaContactFormValidatorTest {
   void validate_userIdentifier_userAlreadyExists() {
 
     var pwaApplication = new PwaApplication();
+    var user = new WebUserAccount();
     var person = new Person();
+    user.setPerson(person);
 
-    when(userAccountService.getPersonByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(person));
+    when(userAccountService.getUserByEmailAddressOrLoginId("userId")).thenReturn(Optional.of(user));
     when(pwaContactService.personIsContactOnApplication(pwaApplication, person)).thenReturn(true);
     when(pwaApplicationService.getApplicationFromId(1)).thenReturn(pwaApplication);
 

@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.EntityManager;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,6 @@ import uk.co.ogauthority.pwa.integrations.energyportal.organisations.internal.Po
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
 import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 
 // IJ seems to give spurious warnings when running with embedded H2
@@ -102,9 +101,6 @@ class TaskListServiceIntegrationTest {
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
 
-  @MockBean
-  private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
-
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
 
@@ -116,6 +112,7 @@ class TaskListServiceIntegrationTest {
     var person = PersonTestUtil.createDefaultPerson();
     entityManager.persist(person);
     var systemWua = new WebUserAccount(1, person);
+    entityManager.persist(systemWua);
     applicantOrganisationUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "Umbrella");
     portalOrganisationUnitRepository.save(applicantOrganisationUnit);
 

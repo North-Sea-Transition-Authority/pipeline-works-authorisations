@@ -36,7 +36,7 @@ public enum PwaApplicationPermission {
   ),
 
   VIEW(
-      EnumSet.allOf(PwaContactRole.class),
+      PwaContactRole.allRoles(),
       TeamType.ORGANISATION.getAllowedRolesAsSet(),
       TeamType.REGULATOR.getAllowedRolesAsSet(),
       TeamType.CONSULTEE.getAllowedRolesAsSet()

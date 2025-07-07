@@ -3,7 +3,6 @@ package uk.co.ogauthority.pwa.features.application.creation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -142,14 +141,14 @@ class PwaApplicationCreationServiceTest {
         PwaResourceType.PETROLEUM
     );
 
-    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationRepository).save(applicationArgumentCaptor.capture());
     PwaApplication application = applicationArgumentCaptor.getValue();
 
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-    verify(camundaWorkflowService, times(1)).startWorkflow(application);
-    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService).startWorkflow(application);
+    verify(pwaContactService).updateContact(application, user,
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+    verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -191,14 +190,14 @@ class PwaApplicationCreationServiceTest {
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
-    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationRepository).save(applicationArgumentCaptor.capture());
     PwaApplication application = applicationArgumentCaptor.getValue();
 
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-    verify(camundaWorkflowService, times(1)).startWorkflow(application);
-    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService).startWorkflow(application);
+    verify(pwaContactService).updateContact(application, user,
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+    verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -240,14 +239,14 @@ class PwaApplicationCreationServiceTest {
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
-    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationRepository).save(applicationArgumentCaptor.capture());
     PwaApplication application = applicationArgumentCaptor.getValue();
 
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
-    verify(camundaWorkflowService, times(1)).startWorkflow(application);
-    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(masterPwaService, times(1)).updateDetailReference(masterPwaDetail, application.getAppReference());
+    verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
+    verify(camundaWorkflowService).startWorkflow(application);
+    verify(pwaContactService).updateContact(application, user,
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+    verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
             PwaApplication::getMasterPwa,
@@ -282,7 +281,7 @@ class PwaApplicationCreationServiceTest {
   void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory1() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_1_VARIATION);
 
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+    verify(padOrganisationRoleService).createApplicationOrganisationRolesFromSummary(any(), any());
 
   }
 
@@ -290,28 +289,28 @@ class PwaApplicationCreationServiceTest {
   void createVariationPwaApplication_createsApplicationsAsExpected_whenCategory2() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.CAT_2_VARIATION);
 
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+    verify(padOrganisationRoleService).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   void createVariationPwaApplication_createsApplicationsAsExpected_whenHuoo() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.HUOO_VARIATION);
 
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+    verify(padOrganisationRoleService).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   void createVariationPwaApplication_createsApplicationsAsExpected_whenOptions() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.OPTIONS_VARIATION);
 
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+    verify(padOrganisationRoleService).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
   void createVariationPwaApplication_createsApplicationsAsExpected_whenDecom() {
     createVariationPwaApplication_assertUsingType(PwaApplicationType.DECOMMISSIONING);
 
-    verify(padOrganisationRoleService, times(1)).createApplicationOrganisationRolesFromSummary(any(), any());
+    verify(padOrganisationRoleService).createApplicationOrganisationRolesFromSummary(any(), any());
   }
 
   @Test
@@ -345,14 +344,14 @@ class PwaApplicationCreationServiceTest {
 
     ArgumentCaptor<PwaApplication> applicationArgumentCaptor = ArgumentCaptor.forClass(PwaApplication.class);
 
-    verify(pwaApplicationRepository, times(1)).save(applicationArgumentCaptor.capture());
+    verify(pwaApplicationRepository).save(applicationArgumentCaptor.capture());
     PwaApplication application = applicationArgumentCaptor.getValue();
 
-    verify(pwaApplicationDetailService, times(1)).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
-    verify(camundaWorkflowService, times(1)).startWorkflow(application);
-    verify(pwaContactService, times(1)).updateContact(application, user.getLinkedPerson(),
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
-    verify(padAreaService, times(1)).createAndSavePadFieldsFromMasterPwa(
+    verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
+    verify(camundaWorkflowService).startWorkflow(application);
+    verify(pwaContactService).updateContact(application, user,
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+    verify(padAreaService).createAndSavePadFieldsFromMasterPwa(
         createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
 
     assertThat(application)

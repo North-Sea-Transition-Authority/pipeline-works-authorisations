@@ -3,7 +3,7 @@ package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -19,50 +19,81 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @ExtendWith(MockitoExtension.class)
 class PwaContactServiceTest {
 
-
   @Mock
   private PwaContactRepository pwaContactRepository;
 
   @Mock
-  private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
+  private EnergyPortalAccessService energyPortalAccessService;
+
+  @Mock
+  private EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+
+  @Mock
+  private TeamQueryService teamQueryService;
 
   @Captor
   private ArgumentCaptor<PwaContact> contactArgumentCaptor;
 
+  @Captor
+  private ArgumentCaptor<ResourceType> resourceTypeArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<TargetWebUserAccountId> targetWebUserAccountIdArgumentCaptor;
+
+  @Captor
+  private ArgumentCaptor<InstigatingWebUserAccountId> instigatingWebUserAccountIdArgumentCaptor;
+
+  @InjectMocks
   private PwaContactService pwaContactService;
 
   private Person person = new Person(1, null, null, null, null);
-  private WebUserAccount wua = new WebUserAccount(10, person);
+  private final WebUserAccount wua = new WebUserAccount(10, person);
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
   private PwaContact allRolesContact;
+  private WebUserAccount contactUser;
+  private final long user1WuaId = 1;
+  private WebUserAccount currentUser;
+  private final long user2WuaId = 2;
+  private final String RESOURCE_TYPE_NAME = "PWA_USERS";
 
   @BeforeEach
   void setUp() {
 
-    pwaContactService = new PwaContactService(pwaContactRepository, nonFoxTeamMemberEventPublisher);
-    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(
-        PwaApplicationType.INITIAL);
+    pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
     pwaApplication = pwaApplicationDetail.getPwaApplication();
-    allRolesContact = new PwaContact(pwaApplication, person, EnumSet.allOf(PwaContactRole.class));
+    allRolesContact = new PwaContact(pwaApplication, person, PwaContactRole.allRoles());
+
+    contactUser = new WebUserAccount();
+    contactUser.setWuaId(Math.toIntExact(user1WuaId));
+    contactUser.setPerson(person);
+
+    currentUser = new WebUserAccount();
+    currentUser.setWuaId(Math.toIntExact(user2WuaId));
   }
 
   @Test
@@ -114,15 +145,41 @@ class PwaContactServiceTest {
   }
 
   @Test
-  void removeContact() {
+  void removeContact_userIsNotTeamMember() {
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(false);
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(RESOURCE_TYPE_NAME);
 
-    pwaContactService.removeContact(pwaApplication, person);
+    pwaContactService.removeContact(pwaApplication, contactUser, currentUser);
 
-    verify(pwaContactRepository, times(1)).delete(contact);
-    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberRemovedEvent(person);
+    verify(pwaContactRepository).delete(contact);
+
+    verify(energyPortalAccessService).removeUserFromAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+    );
+
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(RESOURCE_TYPE_NAME);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
+    assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(user2WuaId);
+
+  }
+
+  @Test
+  void removeContact_userIsTeamMember() {
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(true);
+
+    pwaContactService.removeContact(pwaApplication, contactUser, currentUser);
+
+    verify(pwaContactRepository).delete(contact);
+
+    verify(energyPortalAccessService, never()).removeUserFromAccessTeam(any(), any(), any());
 
   }
 
@@ -131,7 +188,7 @@ class PwaContactServiceTest {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
     assertThrows(PwaEntityNotFoundException.class, () ->
 
-      pwaContactService.removeContact(pwaApplication, person));
+      pwaContactService.removeContact(pwaApplication, contactUser, currentUser));
 
   }
 
@@ -145,9 +202,9 @@ class PwaContactServiceTest {
         List.of(allRolesContact, additionalAccessManager)
     );
 
-    pwaContactService.removeContact(pwaApplication, person);
+    pwaContactService.removeContact(pwaApplication, contactUser, currentUser);
 
-    verify(pwaContactRepository, times(1)).delete(allRolesContact);
+    verify(pwaContactRepository).delete(allRolesContact);
 
   }
 
@@ -161,7 +218,7 @@ class PwaContactServiceTest {
       );
     assertThrows(LastAdministratorException.class, () ->
 
-      pwaContactService.removeContact(pwaApplication, person));
+      pwaContactService.removeContact(pwaApplication, contactUser, currentUser));
 
   }
 
@@ -172,9 +229,9 @@ class PwaContactServiceTest {
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
 
     var newRoles = Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER);
-    pwaContactService.updateContact(pwaApplication, person, newRoles);
+    pwaContactService.updateContact(pwaApplication, contactUser, newRoles, currentUser);
 
-    verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
+    verify(pwaContactRepository).save(contactArgumentCaptor.capture());
 
     var updatedContact = contactArgumentCaptor.getValue();
 
@@ -188,17 +245,48 @@ class PwaContactServiceTest {
   }
 
   @Test
-  void updateContact_notContact() {
+  void updateContact_notContact_newUser() {
 
     var pwaApplication = new PwaApplication();
 
     when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+    when(energyPortalAccessApiConfiguration.resourceType()).thenReturn(RESOURCE_TYPE_NAME);
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(false);
 
-    pwaContactService.updateContact(pwaApplication, person, Collections.<PwaContactRole>emptySet());
+    pwaContactService.updateContact(pwaApplication, contactUser, Collections.emptySet(), currentUser);
 
-    verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
+    verify(pwaContactRepository).save(contactArgumentCaptor.capture());
 
-    verify(nonFoxTeamMemberEventPublisher, times(1)).publishNonFoxTeamMemberAddedEvent(person);
+    verify(energyPortalAccessService).addUserToAccessTeam(
+        resourceTypeArgumentCaptor.capture(),
+        targetWebUserAccountIdArgumentCaptor.capture(),
+        instigatingWebUserAccountIdArgumentCaptor.capture()
+    );
+
+    var newContact = contactArgumentCaptor.getValue();
+
+    assertThat(newContact.getPwaApplication()).isEqualTo(pwaApplication);
+    assertThat(newContact.getPerson()).isEqualTo(person);
+
+    assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(RESOURCE_TYPE_NAME);
+    assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
+    assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(user2WuaId);
+
+  }
+
+  @Test
+  void updateContact_notContact_existingUser() {
+
+    var pwaApplication = new PwaApplication();
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(true);
+
+    pwaContactService.updateContact(pwaApplication, contactUser, Collections.emptySet(), currentUser);
+
+    verify(pwaContactRepository).save(contactArgumentCaptor.capture());
+
+    verify(energyPortalAccessService, never()).addUserToAccessTeam(any(), any(), any());
 
     var newContact = contactArgumentCaptor.getValue();
 
@@ -211,7 +299,7 @@ class PwaContactServiceTest {
   void updateContact_emptyRoles() {
     when(pwaContactRepository.findByPwaApplicationAndPerson(any(), any())).thenReturn(Optional.of(new PwaContact()));
     assertThrows(IllegalStateException.class, () ->
-      pwaContactService.updateContact(new PwaApplication(), new Person(), Set.of()));
+      pwaContactService.updateContact(new PwaApplication(), contactUser, Set.of(), currentUser));
 
   }
 
@@ -228,9 +316,9 @@ class PwaContactServiceTest {
     );
 
     var newRoles = Set.of(PwaContactRole.PREPARER);
-    pwaContactService.updateContact(pwaApplication, person, newRoles);
+    pwaContactService.updateContact(pwaApplication, contactUser, newRoles, currentUser);
 
-    verify(pwaContactRepository, times(1)).save(contactArgumentCaptor.capture());
+    verify(pwaContactRepository).save(contactArgumentCaptor.capture());
 
     var updatedContact = contactArgumentCaptor.getValue();
 
@@ -248,7 +336,7 @@ class PwaContactServiceTest {
     when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact));
     var newRoles = Set.of(PwaContactRole.PREPARER);
     assertThrows(LastAdministratorException.class, () ->
-      pwaContactService.updateContact(pwaApplication, person, newRoles));
+      pwaContactService.updateContact(pwaApplication, contactUser, newRoles, currentUser));
 
   }
 
@@ -303,14 +391,14 @@ class PwaContactServiceTest {
   void getPwaContactRolesForWebUserAccount_multipleRolesSingleAppDetail_allRoleFilter() {
     var appDetailId = 20;
     var foundRoles = List.of(
-        new PwaContactDto(appDetailId, person.getId().asInt(), EnumSet.allOf(PwaContactRole.class))
+        new PwaContactDto(appDetailId, person.getId().asInt(), PwaContactRole.allRoles())
     );
 
     when(pwaContactRepository.findAllAsDtoByPerson(person)).thenReturn(foundRoles);
 
     var result = pwaContactService.getPwaContactRolesForWebUserAccount(
         wua,
-        EnumSet.allOf(PwaContactRole.class));
+        PwaContactRole.allRoles());
 
     for (PwaContactRole role : PwaContactRole.values()) {
       PwaApplicationTestUtil.tryAssertionWithPwaContactRole(role, testRole ->
@@ -329,7 +417,7 @@ class PwaContactServiceTest {
 
     var appDetailId = 20;
     var foundRoles = List.of(
-        new PwaContactDto(appDetailId, person.getId().asInt(), EnumSet.allOf(PwaContactRole.class))
+        new PwaContactDto(appDetailId, person.getId().asInt(), PwaContactRole.allRoles())
     );
 
     when(pwaContactRepository.findAllAsDtoByPerson(person)).thenReturn(foundRoles);

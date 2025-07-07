@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,7 +35,11 @@ import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
@@ -68,6 +73,12 @@ class TeamManagementServiceTest {
 
   @Mock
   private TeamMemberQueryService teamMemberQueryService;
+
+  @Mock
+  private PwaContactRepository pwaContactRepository;
+
+  @Mock
+  private UserAccountService userAccountService;
 
   @Spy
   @InjectMocks
@@ -305,6 +316,9 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_existingUser() {
+    var webUserAccount = stubWebUserAccount();
+    when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(webUserAccount);
+
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
@@ -331,6 +345,9 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_newUser() {
+    var webUserAccount = stubWebUserAccount();
+    when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(webUserAccount);
+
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
@@ -362,6 +379,14 @@ class TeamManagementServiceTest {
     assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(resourceTypeName);
     assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
     assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(instigatingUser);
+  }
+
+  @NotNull
+  private static WebUserAccount stubWebUserAccount() {
+    var webUserAccount = new WebUserAccount();
+    var person = new Person();
+    webUserAccount.setPerson(person);
+    return webUserAccount;
   }
 
   @Test
@@ -434,6 +459,9 @@ class TeamManagementServiceTest {
 
   @Test
   void removeUserFromTeam_inNoMoreTeams() {
+    var webUserAccount = stubWebUserAccount();
+    when(userAccountService.getWebUserAccount(user2WuaId.intValue())).thenReturn(webUserAccount);
+
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
     when(teamRoleRepository.findAllByWuaId(user2WuaId)).thenReturn(Collections.emptyList());
@@ -454,6 +482,9 @@ class TeamManagementServiceTest {
 
   @Test
   void removeUserFromTeam_stillInTeams() {
+    var webUserAccount = stubWebUserAccount();
+    when(userAccountService.getWebUserAccount(user2WuaId.intValue())).thenReturn(webUserAccount);
+
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage));
     var teamRole = new TeamRole();

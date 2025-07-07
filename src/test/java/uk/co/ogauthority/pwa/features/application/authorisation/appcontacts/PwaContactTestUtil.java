@@ -11,6 +11,6 @@ public final class PwaContactTestUtil {
   }
 
   public static PwaContact createBasicAllRoleContact(Person person){
-    return new PwaContact(null, person, EnumSet.allOf(PwaContactRole.class));
+    return new PwaContact(null, person, PwaContactRole.allRoles());
   }
 }

@@ -141,7 +141,7 @@ class PwaApplicationPermissionServiceTest {
   @Test
   void getPermissions_allRoles_allStandardPermissions() {
 
-    when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaContactService.getContactRoles(app, person)).thenReturn(PwaContactRole.allRoles());
     when(pwaHolderTeamService.getRolesInHolderTeam(detail, user)).thenReturn(EnumSet.copyOf(TeamType.ORGANISATION.getAllowedRoles()));
 
     assertThat(permissionService.getPermissions(detail, user))
@@ -156,7 +156,7 @@ class PwaApplicationPermissionServiceTest {
   @Test
   void getPermissions_setPipelineReferencePermission_whenAppContact_andNotRegulator() {
 
-    when(pwaContactService.getContactRoles(app, person)).thenReturn(EnumSet.allOf(PwaContactRole.class));
+    when(pwaContactService.getContactRoles(app, person)).thenReturn(PwaContactRole.allRoles());
 
     assertThat(permissionService.getPermissions(detail, user))
         .doesNotContain(PwaApplicationPermission.SET_PIPELINE_REFERENCE);

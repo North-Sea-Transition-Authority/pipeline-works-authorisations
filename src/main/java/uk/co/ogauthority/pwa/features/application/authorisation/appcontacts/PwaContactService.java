@@ -11,11 +11,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
+import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
+import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -23,7 +28,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationType;
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
-import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher;
+import uk.co.ogauthority.pwa.teams.TeamQueryService;
 
 /**
  * Service to administer PWA application-scoped teams (known as contacts).
@@ -34,13 +39,19 @@ import uk.co.ogauthority.pwa.service.teams.events.NonFoxTeamMemberEventPublisher
 public class PwaContactService implements ApplicationFormSectionService {
 
   private final PwaContactRepository pwaContactRepository;
-  private final NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
+  private final TeamQueryService teamQueryService;
+  private final EnergyPortalAccessService energyPortalAccessService;
+  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
   public PwaContactService(PwaContactRepository pwaContactRepository,
-                           NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher) {
+                           TeamQueryService teamQueryService,
+                           EnergyPortalAccessService energyPortalAccessService,
+                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration) {
     this.pwaContactRepository = pwaContactRepository;
-    this.nonFoxTeamMemberEventPublisher = nonFoxTeamMemberEventPublisher;
+    this.teamQueryService = teamQueryService;
+    this.energyPortalAccessService = energyPortalAccessService;
+    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
   }
 
   public List<PwaContact> getContactsForPwaApplication(PwaApplication pwaApplication) {
@@ -51,13 +62,33 @@ public class PwaContactService implements ApplicationFormSectionService {
     return getContactsForPwaApplication(pwaApplication).stream()
         .filter(contact -> contact.getRoles().contains(pwaContactRole))
         .map(PwaContact::getPerson)
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
   }
 
-  private void addContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
-    var contact = new PwaContact(pwaApplication, person, roles);
+  private void addContact(PwaApplication pwaApplication,
+                          WebUserAccount contactUser,
+                          Set<PwaContactRole> roles,
+                          WebUserAccount currentUser) {
+    var contact = new PwaContact(pwaApplication, contactUser.getLinkedPerson(), roles);
     pwaContactRepository.save(contact);
-    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberAddedEvent(person);
+
+    var isNewUser = !userIsContactOrTeamMember(contactUser);
+
+    if (isNewUser) {
+      energyPortalAccessService.addUserToAccessTeam(
+          new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
+          new TargetWebUserAccountId(contactUser.getWuaId()),
+          new InstigatingWebUserAccountId(currentUser.getWuaId())
+      );
+    }
+  }
+
+  private boolean userIsContactOrTeamMember(WebUserAccount user) {
+
+    var userIsMemberOfAnyTeam = teamQueryService.userIsMemberOfAnyTeam(user.getWuaId());
+    var personIsApplicationContact = isPersonApplicationContact(user.getLinkedPerson());
+
+    return personIsApplicationContact || userIsMemberOfAnyTeam;
   }
 
   public boolean personIsContactOnApplication(PwaApplication pwaApplication, Person person) {
@@ -82,9 +113,9 @@ public class PwaContactService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void removeContact(PwaApplication pwaApplication, Person person) {
+  public void removeContact(PwaApplication pwaApplication, WebUserAccount contactUser, WebUserAccount currentUser) {
 
-    var contact = getContactOrError(pwaApplication, person);
+    var contact = getContactOrError(pwaApplication, contactUser.getLinkedPerson());
     long numberOfAccessManagers = getNumberOfAccessManagersForApplication(pwaApplication);
 
     if (contact.getRoles().contains(PwaContactRole.ACCESS_MANAGER) && numberOfAccessManagers == 1) {
@@ -93,8 +124,15 @@ public class PwaContactService implements ApplicationFormSectionService {
 
     pwaContactRepository.delete(contact);
 
-    nonFoxTeamMemberEventPublisher.publishNonFoxTeamMemberRemovedEvent(person);
+    var isUserRemovedFromAllTeams = !userIsContactOrTeamMember(contactUser);
 
+    if (isUserRemovedFromAllTeams) {
+      energyPortalAccessService.removeUserFromAccessTeam(
+          new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
+          new TargetWebUserAccountId(contactUser.getWuaId()),
+          new InstigatingWebUserAccountId(currentUser.getWuaId())
+      );
+    }
   }
 
   private long getNumberOfAccessManagersForApplication(PwaApplication pwaApplication) {
@@ -127,14 +165,18 @@ public class PwaContactService implements ApplicationFormSectionService {
    * If person is already a contact on the application, update their roles, otherwise add them as a new contact.
    *
    * @param pwaApplication contacts being updated for
-   * @param person         being added to contacts/whose roles are being updated
+   * @param contactUser    being added to contacts/whose roles are being updated
    * @param roles          new roles for person
+   * @param currentUser    updating the contact
    */
   @Transactional
-  public void updateContact(PwaApplication pwaApplication, Person person, Set<PwaContactRole> roles) {
-    getContact(pwaApplication, person).ifPresentOrElse(
+  public void updateContact(PwaApplication pwaApplication,
+                            WebUserAccount contactUser,
+                            Set<PwaContactRole> roles,
+                            WebUserAccount currentUser) {
+    getContact(pwaApplication, contactUser.getLinkedPerson()).ifPresentOrElse(
         contact -> updateContactRoles(contact, roles),
-        () -> addContact(pwaApplication, person, roles)
+        () -> addContact(pwaApplication, contactUser, roles, currentUser)
     );
   }
 

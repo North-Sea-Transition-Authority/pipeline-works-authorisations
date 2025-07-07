@@ -1,5 +1,7 @@
 package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
+import java.util.EnumSet;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -37,6 +39,10 @@ public enum PwaContactRole {
 
   public static Stream<PwaContactRole> stream() {
     return Stream.of(PwaContactRole.values());
+  }
+  
+  public static Set<PwaContactRole> allRoles() {
+    return EnumSet.allOf(PwaContactRole.class);
   }
 
 }

@@ -10,6 +10,7 @@ import org.springframework.validation.Validator;
 import uk.co.ogauthority.pwa.domain.pwa.application.service.PwaApplicationService;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.service.enums.validation.FieldValidationErrorCodes;
 
@@ -49,12 +50,12 @@ public class AddPwaContactFormValidator implements Validator {
 
     if (StringUtils.isNotEmpty(form.getUserIdentifier())) {
 
-      Optional<Person> person = userAccountService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
+      Optional<WebUserAccount> user = userAccountService.getUserByEmailAddressOrLoginId(form.getUserIdentifier());
 
-      if (person.isPresent()) {
+      if (user.isPresent()) {
         // check if the person is already a contact on the PWA
         var application = pwaApplicationService.getApplicationFromId(form.getPwaApplicationId());
-        Person personToBeAdded = person.get();
+        Person personToBeAdded = user.get().getLinkedPerson();
         if (pwaContactService.personIsContactOnApplication(application, personToBeAdded)) {
           errors.rejectValue(
               USER_ID_FORM_FIELD,

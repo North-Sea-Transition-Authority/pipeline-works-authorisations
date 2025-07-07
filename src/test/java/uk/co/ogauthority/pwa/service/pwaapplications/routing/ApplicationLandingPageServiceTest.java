@@ -119,7 +119,7 @@ class ApplicationLandingPageServiceTest {
 
     detail.setStatus(PwaApplicationStatus.AWAITING_APPLICATION_PAYMENT);
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
-        detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
+        detail.getPwaApplication(), PwaContactRole.allRoles());
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
 
     var landingPageInstance = applicationLandingPageService.getApplicationLandingPage(authenticatedUserAccount, APP_ID);
@@ -136,7 +136,7 @@ class ApplicationLandingPageServiceTest {
         .thenReturn(Optional.of(detail));
 
     applicationInvolvementDto = ApplicationInvolvementDtoTestUtil.generatePwaContactInvolvement(
-        detail.getPwaApplication(), EnumSet.allOf(PwaContactRole.class));
+        detail.getPwaApplication(), PwaContactRole.allRoles());
 
     when(applicationInvolvementService.getApplicationInvolvementDto(detail, authenticatedUserAccount)).thenReturn(applicationInvolvementDto);
 

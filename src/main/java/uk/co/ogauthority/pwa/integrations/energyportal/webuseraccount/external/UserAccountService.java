@@ -41,9 +41,9 @@ public class UserAccountService {
   }
 
   /**
-   * Finds the Person linked to the WebUserAccount with the given email or loginId.
+   * Finds the WebUserAccount with the given email or loginId.
    */
-  public Optional<Person> getPersonByEmailAddressOrLoginId(String emailOrLoginId) {
+  public Optional<WebUserAccount> getUserByEmailAddressOrLoginId(String emailOrLoginId) {
 
     var excludedWuaStatuses = List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW);
 
@@ -51,14 +51,14 @@ public class UserAccountService {
         webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses);
 
     if (webUserAccounts.size() == 1) {
-      return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
+      return Optional.of(webUserAccounts.getFirst());
     }
 
     webUserAccounts.addAll(
         webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(emailOrLoginId, excludedWuaStatuses));
 
     if (webUserAccounts.size() == 1) {
-      return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
+      return Optional.of(webUserAccounts.getFirst());
     }
 
     Set<Person> distinctPeople = webUserAccounts.stream()
@@ -76,6 +76,6 @@ public class UserAccountService {
       return Optional.empty();
     }
 
-    return Optional.of(webUserAccounts.getFirst().getLinkedPerson());
+    return Optional.of(webUserAccounts.getFirst());
   }
 }

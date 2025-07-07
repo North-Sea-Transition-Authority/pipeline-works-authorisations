@@ -38,9 +38,8 @@ import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaAppli
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationStatusCheck;
 import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaApplicationPermission;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
-import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
@@ -69,7 +68,6 @@ public class PwaContactController {
   private final PwaContactService pwaContactService;
   private final ApplicationBreadcrumbService applicationBreadcrumbService;
   private final UserAccountService userAccountService;
-  private final PersonService personService;
   private final AddPwaContactFormValidator addPwaContactFormValidator;
   private final ControllerHelperService controllerHelperService;
   private final PwaHolderService pwaHolderService;
@@ -83,7 +81,6 @@ public class PwaContactController {
   public PwaContactController(PwaContactService pwaContactService,
                               ApplicationBreadcrumbService applicationBreadcrumbService,
                               UserAccountService userAccountService,
-                              PersonService personService,
                               AddPwaContactFormValidator addPwaContactFormValidator,
                               ControllerHelperService controllerHelperService,
                               PwaHolderService pwaHolderService,
@@ -92,7 +89,6 @@ public class PwaContactController {
     this.pwaContactService = pwaContactService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.userAccountService = userAccountService;
-    this.personService = personService;
     this.addPwaContactFormValidator = addPwaContactFormValidator;
     this.controllerHelperService = controllerHelperService;
     this.pwaHolderService = pwaHolderService;
@@ -202,9 +198,9 @@ public class PwaContactController {
 
     return controllerHelperService.checkErrorsAndRedirect(bindingResult, getAddUserToTeamModelAndView(pwaApplication, form), () -> {
 
-      Optional<Person> person = userAccountService.getPersonByEmailAddressOrLoginId(form.getUserIdentifier());
+      Optional<WebUserAccount> contactUser = userAccountService.getUserByEmailAddressOrLoginId(form.getUserIdentifier());
 
-      if (person.isEmpty()) {
+      if (contactUser.isEmpty()) {
         return getAddUserToTeamModelAndView(pwaApplication, form); // should never happen, as validator covers this scenario
       }
 
@@ -212,7 +208,7 @@ public class PwaContactController {
           pwaApplication.getApplicationType(),
           applicationId,
           null,
-          person.get().getId().asInt(),
+          contactUser.get().getWuaId(),
           null,
           user
       ));
@@ -221,13 +217,13 @@ public class PwaContactController {
 
   }
 
-  private ModelAndView getContactRolesModelAndView(PwaApplicationDetail detail, Person person, UserRolesForm form) {
+  private ModelAndView getContactRolesModelAndView(PwaApplicationDetail detail, WebUserAccount contactUser, UserRolesForm form) {
 
     return new ModelAndView("contactTeam/memberRoles")
         .addObject("teamName", detail.getPwaApplicationRef())
         .addObject("form", form)
         .addObject("roles", rolesCheckboxMap)
-        .addObject("userName", person.getFullName())
+        .addObject("userName", contactUser.getLinkedPerson().getFullName())
         .addObject("showTopNav", false)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PwaContactController.class)
@@ -235,40 +231,40 @@ public class PwaContactController {
 
   }
 
-  @GetMapping("{personId}/edit")
+  @GetMapping("{wuaId}/edit")
   public ModelAndView renderContactRolesScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                                                @PathVariable("applicationId") Integer applicationId,
                                                PwaApplicationContext applicationContext,
-                                               @PathVariable("personId") Integer personId,
+                                               @PathVariable("wuaId") Integer wuaId,
                                                @ModelAttribute("form") UserRolesForm form,
                                                AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = personService.getPersonById(personId);
+    var contactUser = userAccountService.getWebUserAccount(wuaId);
 
     // if person is already a contact, pre-populate the form with their roles
-    List<String> existingRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), person).stream()
+    List<String> existingRoles = pwaContactService.getContactRoles(detail.getPwaApplication(), contactUser.getLinkedPerson()).stream()
         .map(Enum::name)
         .collect(Collectors.toList());
     form.setUserRoles(existingRoles);
 
-    return getContactRolesModelAndView(detail, person, form);
+    return getContactRolesModelAndView(detail, contactUser, form);
 
   }
 
-  @PostMapping("{personId}/edit")
+  @PostMapping("{wuaId}/edit")
   public ModelAndView updateContactRoles(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                                          @PathVariable("applicationId") Integer applicationId,
-                                         @PathVariable("personId") Integer personId,
+                                         @PathVariable("wuaId") Integer wuaId,
                                          PwaApplicationContext applicationContext,
                                          @ModelAttribute("form") @Valid UserRolesForm form,
                                          BindingResult bindingResult,
                                          AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = personService.getPersonById(personId);
+    var contactUser = userAccountService.getWebUserAccount(wuaId);
 
-    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, person, form), () -> {
+    return controllerHelperService.checkErrorsAndRedirect(bindingResult, getContactRolesModelAndView(detail, contactUser, form), () -> {
 
       Set<PwaContactRole> roles = form.getUserRoles().stream()
           .map(r -> EnumUtils.getEnumValue(PwaContactRole.class, r))
@@ -276,13 +272,13 @@ public class PwaContactController {
 
       try {
 
-        pwaContactService.updateContact(detail.getPwaApplication(), person, roles);
+        pwaContactService.updateContact(detail.getPwaApplication(), contactUser, roles, user);
         return ReverseRouter.redirect(on(PwaContactController.class)
             .renderContactsScreen(detail.getPwaApplicationType(), applicationId, null, null));
 
       } catch (LastAdministratorException e) {
 
-        return getContactRolesModelAndView(detail, person, form)
+        return getContactRolesModelAndView(detail, contactUser, form)
             .addObject("error",
                 "This person cannot be taken out of the access manager role as they are currently the only person in that role.");
 
@@ -304,39 +300,39 @@ public class PwaContactController {
 
   }
 
-  @GetMapping("{personId}/remove")
+  @GetMapping("{wuaId}/remove")
   public ModelAndView renderRemoveContactScreen(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                                                 @PathVariable("applicationId") Integer applicationId,
                                                 PwaApplicationContext applicationContext,
-                                                @PathVariable("personId") Integer personId,
+                                                @PathVariable("wuaId") Integer wuaId,
                                                 AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = personService.getPersonById(personId);
-    var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), person);
+    var contactUser = userAccountService.getWebUserAccount(wuaId);
+    var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), contactUser.getLinkedPerson());
     return getRemoveContactScreenModelAndView(detail, contact);
 
   }
 
-  @PostMapping("{personId}/remove")
+  @PostMapping("{wuaId}/remove")
   public ModelAndView removeContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                                     @PathVariable("applicationId") Integer applicationId,
                                     PwaApplicationContext applicationContext,
-                                    @PathVariable("personId") Integer personId,
+                                    @PathVariable("wuaId") Integer wuaId,
                                     AuthenticatedUserAccount user) {
 
     var detail = applicationContext.getApplicationDetail();
-    var person = personService.getPersonById(personId);
+    var contactUser = userAccountService.getWebUserAccount(wuaId);
 
     try {
 
-      pwaContactService.removeContact(detail.getPwaApplication(), person);
+      pwaContactService.removeContact(detail.getPwaApplication(), contactUser, user);
       return ReverseRouter.redirect(on(PwaContactController.class)
           .renderContactsScreen(detail.getPwaApplicationType(), applicationId, null, null));
 
     } catch (LastAdministratorException e) {
 
-      var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), person);
+      var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), contactUser.getLinkedPerson());
       return getRemoveContactScreenModelAndView(detail, contact)
           .addObject("error",
           "This person cannot be removed from the contacts as they are currently the only person in the access manager role.");

@@ -55,7 +55,7 @@ class UserAccountServiceTest {
     when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(
         person.getEmailAddress(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
 
-    var personOptional = userAccountService.getPersonByEmailAddressOrLoginId(person.getEmailAddress());
+    var personOptional = userAccountService.getUserByEmailAddressOrLoginId(person.getEmailAddress());
 
     assertThat(personOptional).isPresent();
     assertThat(personOptional.get().getEmailAddress()).isEqualTo(person.getEmailAddress());
@@ -71,7 +71,7 @@ class UserAccountServiceTest {
         user.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user));
 
 
-    var personOptional = userAccountService.getPersonByEmailAddressOrLoginId(user.getLoginId());
+    var personOptional = userAccountService.getUserByEmailAddressOrLoginId(user.getLoginId());
 
     assertThat(personOptional).isPresent();
     assertThat(personOptional.get().getEmailAddress()).isEqualTo(person.getEmailAddress());
@@ -92,7 +92,7 @@ class UserAccountServiceTest {
         user3.getLoginId(), List.of(WebUserAccountStatus.CANCELLED, WebUserAccountStatus.NEW))).thenReturn(List.of(user3));
 
     assertThrows(RuntimeException.class, () ->
-        userAccountService.getPersonByEmailAddressOrLoginId(person1.getEmailAddress()));
+        userAccountService.getUserByEmailAddressOrLoginId(person1.getEmailAddress()));
   }
 
   @Test
@@ -101,7 +101,7 @@ class UserAccountServiceTest {
     when(webUserAccountRepository.findAllByEmailAddressIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(new ArrayList<>());
     when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
 
-    var personOptional = userAccountService.getPersonByEmailAddressOrLoginId("me@email.com");
+    var personOptional = userAccountService.getUserByEmailAddressOrLoginId("me@email.com");
     assertThat(personOptional).isEmpty();
   }
 
@@ -118,7 +118,7 @@ class UserAccountServiceTest {
 
     when(webUserAccountRepository.findAllByLoginIdIgnoreCaseAndAccountStatusNotIn(any(), any())).thenReturn(List.of());
 
-    var personOptional = userAccountService.getPersonByEmailAddressOrLoginId(emailAddress);
+    var personOptional = userAccountService.getUserByEmailAddressOrLoginId(emailAddress);
     assertThat(personOptional).isPresent();
     assertThat(personOptional.get().getEmailAddress()).isEqualTo(emailAddress);
   }
