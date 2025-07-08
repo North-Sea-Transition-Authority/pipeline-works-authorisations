@@ -251,4 +251,59 @@ class PwaConsentServiceTest {
     );
   }
 
+  @Test
+  void createLegacyConsent_variation() {
+    var documentRecord = new DocumentMigrationRecord();
+    documentRecord.setFilename("Field 1 (1-w-2) PWA Variation Consent Document (1-v-2).pdf");
+    documentRecord.setPwaReference("1/w/2");
+    documentRecord.setFieldName("Field 1");
+    documentRecord.setConsentDoc("1/v/2");
+    documentRecord.setConsentDate("2012-12-12");
+    documentRecord.setConsentType("VARIATION");
+    documentRecord.setAction("upload");
+    documentRecord.setFileLocated(true);
+
+    var masterPwa = new MasterPwa();
+
+    var masterPwaDetail = new MasterPwaDetail();
+    masterPwaDetail.setMasterPwa(masterPwa);
+
+    when(masterPwaService.getConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
+
+    var pwaConsent = new PwaConsent();
+    pwaConsent.setMasterPwa(masterPwa);
+    pwaConsent.setReference(documentRecord.getConsentDoc());
+    pwaConsent.setSourcePwaApplication(null);
+    pwaConsent.setConsentType(PwaConsentType.VARIATION);
+    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setCreatedInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setFileDownloadable(true);
+    pwaConsent.setVariationNumber(1);
+
+    pwaConsentService.createLegacyConsent(documentRecord);
+
+    verify(pwaConsentRepository).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue()).extracting(
+        PwaConsent::getMasterPwa,
+        PwaConsent::getReference,
+        PwaConsent::getSourcePwaApplication,
+        PwaConsent::getConsentType,
+        PwaConsent::getCreatedInstant,
+        PwaConsent::getConsentInstant,
+        PwaConsent::getFileDownloadable,
+        PwaConsent::getVariationNumber
+    ).containsExactly(
+        pwaConsent.getMasterPwa(),
+        pwaConsent.getReference(),
+        pwaConsent.getSourcePwaApplication(),
+        pwaConsent.getConsentType(),
+        pwaConsent.getCreatedInstant(),
+        pwaConsent.getConsentInstant(),
+        pwaConsent.getFileDownloadable(),
+        pwaConsent.getVariationNumber()
+    );
+  }
+
 }

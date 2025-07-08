@@ -126,15 +126,21 @@ public class PwaConsentService {
 
     var instant = DateUtils.isoDateStringToInstant(documentMigrationRecord.getConsentDate());
 
+    var consentType = convertStringToPwaConsentType(documentMigrationRecord.getConsentType());
+
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);
     pwaConsent.setReference(documentMigrationRecord.getConsentDoc());
     pwaConsent.setSourcePwaApplication(null);
-    pwaConsent.setConsentType(convertStringToPwaConsentType(documentMigrationRecord.getConsentType()));
+    pwaConsent.setConsentType(consentType);
     pwaConsent.setMigratedFlag(false);
     pwaConsent.setCreatedInstant(instant);
     pwaConsent.setConsentInstant(instant);
     pwaConsent.setFileDownloadable(true);
+
+    if (consentType.equals(PwaConsentType.VARIATION)) {
+      pwaConsent.setVariationNumber(Integer.valueOf(documentMigrationRecord.getConsentDoc().split("/")[0]));
+    }
 
     return pwaConsentRepository.save(pwaConsent);
   }
