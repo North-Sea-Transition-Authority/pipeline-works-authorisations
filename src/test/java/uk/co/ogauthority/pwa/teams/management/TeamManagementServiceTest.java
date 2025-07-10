@@ -393,7 +393,7 @@ class TeamManagementServiceTest {
   void setUserTeamRoles_noTeamManagerLeft() {
     when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
-
+    when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(new WebUserAccount());
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
 

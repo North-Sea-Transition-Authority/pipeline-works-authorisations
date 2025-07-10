@@ -22,7 +22,6 @@ import uk.co.fivium.energyportalapi.generated.types.User;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
-import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.teams.Role;
 import uk.co.ogauthority.pwa.teams.Team;
 import uk.co.ogauthority.pwa.teams.TeamMemberQueryService;
@@ -191,6 +190,8 @@ public class TeamManagementService {
       throw new TeamManagementException("User account with wuaId %s is not active so can't be added to teams".formatted(wuaId));
     }
 
+    var isNewUser = userNotInAnyTeam(wuaId);
+
     teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
 
     var newTeamRoles = roles.stream()
@@ -206,8 +207,6 @@ public class TeamManagementService {
     if (!doesTeamHaveTeamManager(team)) {
       throw new TeamManagementException("At least 1 team manager must exist in team %s".formatted(team.getId()));
     }
-
-    var isNewUser = userNotInAnyTeam(wuaId);
 
     if (isNewUser) {
       energyPortalAccessService.addUserToAccessTeam(
@@ -237,7 +236,7 @@ public class TeamManagementService {
   }
 
   private boolean userNotInAnyTeam(Long wuaId) {
-    WebUserAccount user = userAccountService.getWebUserAccount(wuaId.intValue());
+    var user = userAccountService.getWebUserAccount(wuaId.intValue());
     return teamRoleRepository.findAllByWuaId(wuaId).isEmpty()
         && !pwaContactRepository.existsByPerson(user.getLinkedPerson());
   }
