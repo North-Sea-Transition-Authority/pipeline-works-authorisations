@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,7 @@ import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.P
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -42,20 +44,45 @@ public class PwaContactService implements ApplicationFormSectionService {
   private final TeamQueryService teamQueryService;
   private final EnergyPortalAccessService energyPortalAccessService;
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
+  private final UserAccountService userAccountService;
 
   @Autowired
   public PwaContactService(PwaContactRepository pwaContactRepository,
                            TeamQueryService teamQueryService,
                            EnergyPortalAccessService energyPortalAccessService,
-                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration) {
+                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
+                           UserAccountService userAccountService) {
     this.pwaContactRepository = pwaContactRepository;
     this.teamQueryService = teamQueryService;
     this.energyPortalAccessService = energyPortalAccessService;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
+    this.userAccountService = userAccountService;
   }
 
   public List<PwaContact> getContactsForPwaApplication(PwaApplication pwaApplication) {
     return pwaContactRepository.findAllByPwaApplication(pwaApplication);
+  }
+
+  public List<ContactTeamMemberView> getContactTeamMemberViews(PwaApplication pwaApplication) {
+    var pwaContacts = getContactsForPwaApplication(pwaApplication);
+
+    Set<Person> people = pwaContacts.stream()
+        .map(PwaContact::getPerson)
+        .collect(Collectors.toSet());
+
+    var userMap = userAccountService.getWebUserAccountsByPeople(people)
+        .stream()
+        .collect(Collectors.toMap(WebUserAccount::getLinkedPerson, WebUserAccount::getWuaId));
+
+    return pwaContacts.stream()
+        .map(contact -> {
+          var wuaId = Optional.ofNullable(userMap.get(contact.getPerson()))
+              .orElseThrow(() -> new IllegalStateException(
+                  "Person %d not found in map of users".formatted(contact.getPerson().getId().asInt())));
+          return getTeamMemberView(pwaApplication, contact, wuaId);
+        })
+        .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
+        .collect(Collectors.toList());
   }
 
   public List<Person> getPeopleInRoleForPwaApplication(PwaApplication pwaApplication, PwaContactRole pwaContactRole) {
@@ -69,10 +96,10 @@ public class PwaContactService implements ApplicationFormSectionService {
                           WebUserAccount contactUser,
                           Set<PwaContactRole> roles,
                           WebUserAccount currentUser) {
+    var isNewUser = !userIsContactOrTeamMember(contactUser);
+
     var contact = new PwaContact(pwaApplication, contactUser.getLinkedPerson(), roles);
     pwaContactRepository.save(contact);
-
-    var isNewUser = !userIsContactOrTeamMember(contactUser);
 
     if (isNewUser) {
       energyPortalAccessService.addUserToAccessTeam(
@@ -125,7 +152,6 @@ public class PwaContactService implements ApplicationFormSectionService {
     pwaContactRepository.delete(contact);
 
     var isUserRemovedFromAllTeams = !userIsContactOrTeamMember(contactUser);
-
     if (isUserRemovedFromAllTeams) {
       energyPortalAccessService.removeUserFromAccessTeam(
           new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
@@ -183,16 +209,16 @@ public class PwaContactService implements ApplicationFormSectionService {
   /**
    * Given a {@link PwaContact}, populate and return a {@link ContactTeamMemberView} for use in the generic team management screen.
    */
-  public ContactTeamMemberView getTeamMemberView(PwaApplication pwaApplication, PwaContact contact) {
+  public ContactTeamMemberView getTeamMemberView(PwaApplication pwaApplication, PwaContact contact, Integer wuaId) {
 
     var applicationType = pwaApplication.getApplicationType();
     var applicationId = pwaApplication.getId();
     var person = contact.getPerson();
 
     var editUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderContactRolesScreen(applicationType, applicationId, null, person.getId().asInt(), null, null));
+        .renderContactRolesScreen(applicationType, applicationId, null, wuaId, null, null));
     var removeUrl = ReverseRouter.route(on(PwaContactController.class)
-        .renderRemoveContactScreen(applicationType, applicationId, null, person.getId().asInt(), null));
+        .renderRemoveContactScreen(applicationType, applicationId, null, wuaId, null));
 
     return new ContactTeamMemberView(
         person,

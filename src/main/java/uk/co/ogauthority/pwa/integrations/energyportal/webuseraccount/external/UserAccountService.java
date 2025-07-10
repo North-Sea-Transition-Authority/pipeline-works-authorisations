@@ -78,4 +78,8 @@ public class UserAccountService {
 
     return Optional.of(webUserAccounts.getFirst());
   }
+
+  public List<WebUserAccount> getWebUserAccountsByPeople(Set<Person> people) {
+    return webUserAccountRepository.findAllByPersonIn(people);
+  }
 }

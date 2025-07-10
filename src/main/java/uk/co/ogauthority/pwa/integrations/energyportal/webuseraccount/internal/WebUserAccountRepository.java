@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.CrudRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
 
@@ -18,4 +19,7 @@ public interface WebUserAccountRepository extends CrudRepository<WebUserAccount,
 
   @EntityGraph(attributePaths = "person")
   List<WebUserAccount> findAllByWuaIdIn(Set<Integer> wuaIds);
+
+  @EntityGraph(attributePaths = "person")
+  List<WebUserAccount> findAllByPersonIn(Set<Person> people);
 }

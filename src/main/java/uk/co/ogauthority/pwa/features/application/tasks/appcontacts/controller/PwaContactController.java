@@ -30,7 +30,6 @@ import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.AddPwaContactFormValidator;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
-import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContext;
@@ -116,10 +115,7 @@ public class PwaContactController {
 
     var pwaApplication = applicationContext.getPwaApplication();
 
-    List<ContactTeamMemberView> contactTeamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
-        .map(contact -> pwaContactService.getTeamMemberView(pwaApplication, contact))
-        .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
-        .collect(Collectors.toList());
+    List<ContactTeamMemberView> contactTeamMemberViews = pwaContactService.getContactTeamMemberViews(pwaApplication);
 
     Set<String> orgGroupHolders = pwaHolderService.getPwaHolderOrgGroups(pwaApplication.getMasterPwa()).stream()
         .map(PortalOrganisationGroup::getName)
@@ -288,7 +284,8 @@ public class PwaContactController {
 
   }
 
-  private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, PwaContact contact) {
+  private ModelAndView getRemoveContactScreenModelAndView(PwaApplicationDetail detail, WebUserAccount contactUser) {
+    var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), contactUser.getLinkedPerson());
 
     return new ModelAndView("contactTeam/removeMember")
         .addObject("cancelUrl",
@@ -296,7 +293,7 @@ public class PwaContactController {
                 .renderContactsScreen(detail.getPwaApplicationType(), detail.getMasterPwaApplicationId(), null, null)))
         .addObject("showTopNav", false)
         .addObject("teamName", detail.getPwaApplicationRef() + " contacts")
-        .addObject("teamMember", pwaContactService.getTeamMemberView(detail.getPwaApplication(), contact));
+        .addObject("teamMember", pwaContactService.getTeamMemberView(detail.getPwaApplication(), contact, contactUser.getWuaId()));
 
   }
 
@@ -309,8 +306,7 @@ public class PwaContactController {
 
     var detail = applicationContext.getApplicationDetail();
     var contactUser = userAccountService.getWebUserAccount(wuaId);
-    var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), contactUser.getLinkedPerson());
-    return getRemoveContactScreenModelAndView(detail, contact);
+    return getRemoveContactScreenModelAndView(detail, contactUser);
 
   }
 
@@ -332,8 +328,8 @@ public class PwaContactController {
 
     } catch (LastAdministratorException e) {
 
-      var contact = pwaContactService.getContactOrError(detail.getPwaApplication(), contactUser.getLinkedPerson());
-      return getRemoveContactScreenModelAndView(detail, contact)
+
+      return getRemoveContactScreenModelAndView(detail, contactUser)
           .addObject("error",
           "This person cannot be removed from the contacts as they are currently the only person in the access manager role.");
 

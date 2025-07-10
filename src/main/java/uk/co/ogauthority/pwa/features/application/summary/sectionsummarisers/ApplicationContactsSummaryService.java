@@ -1,14 +1,11 @@
 package uk.co.ogauthority.pwa.features.application.summary.sectionsummarisers;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummary;
@@ -47,10 +44,7 @@ public class ApplicationContactsSummaryService implements ApplicationSectionSumm
                                                     String templateName) {
 
     var pwaApplication = pwaApplicationDetail.getPwaApplication();
-    var contactTeamMemberViews = pwaContactService.getContactsForPwaApplication(pwaApplication).stream()
-        .map(contact -> pwaContactService.getTeamMemberView(pwaApplication, contact))
-        .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
-        .collect(Collectors.toList());
+    var contactTeamMemberViews = pwaContactService.getContactTeamMemberViews(pwaApplication);
 
     var sectionDisplayText = ApplicationTask.APPLICATION_USERS.getDisplayName();
     Map<String, Object> summaryModel = new HashMap<>();
@@ -66,7 +60,4 @@ public class ApplicationContactsSummaryService implements ApplicationSectionSumm
         summaryModel
     );
   }
-
-
-
 }

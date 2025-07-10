@@ -5,6 +5,7 @@ import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -14,12 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
-import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContact;
+import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
-import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.ContactTeamMemberView;
 import uk.co.ogauthority.pwa.model.view.sidebarnav.SidebarSectionLink;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
@@ -70,7 +70,7 @@ class ApplicationContactsSummaryServiceTest {
   @Test
   void summariseSection_verifyServiceInteractions() {
 
-    when(pwaContactService.getContactsForPwaApplication(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(new PwaContact()));
+    when(pwaContactService.getContactTeamMemberViews(pwaApplicationDetail.getPwaApplication())).thenReturn(List.of(mock(ContactTeamMemberView.class)));
 
     var appSummary = applicationContactsSummaryService.summariseSection(pwaApplicationDetail, TEMPLATE);
 

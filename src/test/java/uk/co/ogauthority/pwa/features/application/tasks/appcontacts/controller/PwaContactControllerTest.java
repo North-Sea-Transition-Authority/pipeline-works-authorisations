@@ -67,7 +67,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
   void setUp() {
     when(userAccountService.getWebUserAccount(anyInt())).thenReturn(user);
     var teamMemberView = new ContactTeamMemberView(user.getLinkedPerson(), null, null, Set.of());
-    when(pwaContactService.getTeamMemberView(any(), any())).thenReturn(teamMemberView);
+    when(pwaContactService.getTeamMemberView(any(), any(), anyInt())).thenReturn(teamMemberView);
 
     manageAndEditEndpointTester = new PwaApplicationEndpointTestBuilder(mockMvc, pwaApplicationPermissionService, pwaApplicationDetailService)
         .setAllowedTypes(

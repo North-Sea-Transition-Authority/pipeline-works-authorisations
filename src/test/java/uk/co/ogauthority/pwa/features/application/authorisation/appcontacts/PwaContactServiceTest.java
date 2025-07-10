@@ -32,6 +32,7 @@ import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
 import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -53,6 +54,9 @@ class PwaContactServiceTest {
 
   @Mock
   private TeamQueryService teamQueryService;
+
+  @Mock
+  private UserAccountService userAccountService;
 
   @Captor
   private ArgumentCaptor<PwaContact> contactArgumentCaptor;
@@ -106,6 +110,50 @@ class PwaContactServiceTest {
     assertThat(pwaContactService.getContactsForPwaApplication(pwaApplication)).containsExactlyInAnyOrder(contactOne,
         contactTwo);
 
+  }
+
+  @Test
+  void getContactTeamMemberViews_returnsSortedTeamMemberViews() {
+    var person1 = new Person(1, "Alice", "Smith", "alice@example.com", "123456789");
+    var person2 = new Person(2, "Bob", "Jones", "bob@example.com", "987654321");
+
+    var contact1 = new PwaContact(pwaApplication, person2, Set.of(PwaContactRole.PREPARER));
+    var contact2 = new PwaContact(pwaApplication, person1, Set.of(PwaContactRole.ACCESS_MANAGER));
+
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact1, contact2));
+    when(userAccountService.getWebUserAccountsByPeople(Set.of(person1, person2))).thenReturn(List.of(
+        new WebUserAccount(101, person1),
+        new WebUserAccount(102, person2)
+    ));
+
+    var views = pwaContactService.getContactTeamMemberViews(pwaApplication);
+
+    assertThat(views.get(0).getFullName()).isEqualTo("Alice Smith");
+    assertThat(views.get(1).getFullName()).isEqualTo("Bob Jones");
+  }
+
+  @Test
+  void getContactTeamMemberViews_throwsExceptionWhenPersonNotInUserMap() {
+    var person1 = new Person(1, "Alice", "Smith", "alice@example.com", "123456789");
+    var contact1 = new PwaContact(pwaApplication, person1, Set.of(PwaContactRole.ACCESS_MANAGER));
+
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact1));
+    when(userAccountService.getWebUserAccountsByPeople(Set.of(person1))).thenReturn(List.of());
+
+    var ex = assertThrows(IllegalStateException.class,
+        () -> pwaContactService.getContactTeamMemberViews(pwaApplication));
+
+    assertThat(ex.getMessage()).contains("Person 1 not found in map of users");
+  }
+
+  @Test
+  void getContactTeamMemberViews_returnsEmptyListWhenNoContacts() {
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of());
+    when(userAccountService.getWebUserAccountsByPeople(Set.of())).thenReturn(List.of());
+
+    var views = pwaContactService.getContactTeamMemberViews(pwaApplication);
+
+    assertThat(views).isEmpty();
   }
 
   @Test
@@ -350,7 +398,7 @@ class PwaContactServiceTest {
     person = new Person(1, "forename", "surname", "a@b.com", "020 123 4567");
     var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
 
-    var teamMemberView = pwaContactService.getTeamMemberView(pwaApplication, contact);
+    var teamMemberView = pwaContactService.getTeamMemberView(pwaApplication, contact, 1);
 
     assertThat(teamMemberView.getForename()).isEqualTo(person.getForename());
     assertThat(teamMemberView.getSurname()).isEqualTo(person.getSurname());
