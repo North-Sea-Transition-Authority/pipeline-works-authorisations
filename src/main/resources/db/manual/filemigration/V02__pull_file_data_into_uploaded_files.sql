@@ -101,7 +101,7 @@ SELECT
 FROM pwa.docgen_runs dr
     JOIN pwa.document_instances di ON dr.di_id = di.id
     JOIN pwa.PWA_CONSENTS pc ON pc.docgen_run_id = dr.ID
-    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = dr.id AND sfm.reference = pc.id
+    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = to_char(dr.id) AND sfm.reference = pc.id
 WHERE dr.docgen_type = 'FULL'
     AND sfm.migrated_timestamp IS NOT NULL;
 
@@ -135,7 +135,7 @@ SELECT
 FROM pwa.docgen_runs dr
     JOIN pwa.document_instances di ON dr.di_id = di.id
     JOIN pwa.pwa_applications pa ON di.pwa_application_id = pa.id
-    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = dr.id AND sfm.reference = pa.id
+    JOIN promotemgr.s3_file_migration sfm ON sfm.fox_file_id = to_char(dr.id) AND sfm.reference = pa.id
 WHERE dr.docgen_type = 'PREVIEW'
   AND sfm.migrated_timestamp IS NOT NULL;
 
