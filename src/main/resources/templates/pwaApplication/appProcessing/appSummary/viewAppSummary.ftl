@@ -4,7 +4,7 @@
 <#-- @ftlvariable name="caseSummaryView" type="uk.co.ogauthority.pwa.service.appprocessing.context.CaseSummaryView" -->
 <#-- @ftlvariable name="mappingGuidanceUrl" type="java.lang.String" -->
 
-<@defaultPagePane htmlTitle=caseSummaryView.pwaApplicationRef phaseBanner=false>
+<@defaultPagePane htmlTitle=caseSummaryView.pwaApplicationRef>
 
 
     <#assign aboveSummaryInsert>

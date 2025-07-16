@@ -3,6 +3,7 @@ package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -22,10 +23,12 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.env.Environment;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
@@ -69,6 +72,12 @@ class PwaContactServiceTest {
 
   @Captor
   private ArgumentCaptor<InstigatingWebUserAccountId> instigatingWebUserAccountIdArgumentCaptor;
+
+  @Mock
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
+
+  @Mock
+  private Environment environment;
 
   @InjectMocks
   private PwaContactService pwaContactService;
@@ -209,11 +218,37 @@ class PwaContactServiceTest {
         targetWebUserAccountIdArgumentCaptor.capture(),
         instigatingWebUserAccountIdArgumentCaptor.capture()
     );
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
 
     assertThat(resourceTypeArgumentCaptor.getValue().name()).isEqualTo(RESOURCE_TYPE_NAME);
     assertThat(targetWebUserAccountIdArgumentCaptor.getValue()).extracting(TargetWebUserAccountId::getId).isEqualTo(user1WuaId);
     assertThat(instigatingWebUserAccountIdArgumentCaptor.getValue()).extracting(InstigatingWebUserAccountId::getId).isEqualTo(user2WuaId);
+  }
 
+  @Test
+  void removeContact_userIsNotTeamMember_usingEpas() {
+    when(environment.matchesProfiles("use-epas")).thenReturn(true);
+    var pwaContactService = new PwaContactService(
+        pwaContactRepository,
+        teamQueryService,
+        energyPortalAccessService,
+        energyPortalAccessApiConfiguration,
+        userAccountService,
+        energyPortalServiceAccessService,
+        environment
+    );
+
+    var contact = new PwaContact(pwaApplication, person, Set.of(PwaContactRole.ACCESS_MANAGER));
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.of(contact));
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(false);
+
+    pwaContactService.removeContact(pwaApplication, contactUser, currentUser);
+
+    verify(pwaContactRepository).delete(contact);
+
+    verify(energyPortalAccessService, never()).removeUserFromAccessTeam(any(), any(), any());
+    verify(energyPortalServiceAccessService).removeUser(contactUser.getWuaId());
   }
 
   @Test
@@ -228,7 +263,7 @@ class PwaContactServiceTest {
     verify(pwaContactRepository).delete(contact);
 
     verify(energyPortalAccessService, never()).removeUserFromAccessTeam(any(), any(), any());
-
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -253,7 +288,7 @@ class PwaContactServiceTest {
     pwaContactService.removeContact(pwaApplication, contactUser, currentUser);
 
     verify(pwaContactRepository).delete(allRolesContact);
-
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -268,6 +303,7 @@ class PwaContactServiceTest {
 
       pwaContactService.removeContact(pwaApplication, contactUser, currentUser));
 
+    verify(energyPortalServiceAccessService, never()).removeUser(anyLong());
   }
 
   @Test
@@ -280,6 +316,7 @@ class PwaContactServiceTest {
     pwaContactService.updateContact(pwaApplication, contactUser, newRoles, currentUser);
 
     verify(pwaContactRepository).save(contactArgumentCaptor.capture());
+    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
 
     var updatedContact = contactArgumentCaptor.getValue();
 
@@ -290,6 +327,38 @@ class PwaContactServiceTest {
         PwaContactRole.PREPARER
     );
 
+  }
+
+  @Test
+  void updateContact_newContact_usingEpas() {
+    when(environment.matchesProfiles("use-epas")).thenReturn(true);
+    var pwaContactService = new PwaContactService(
+        pwaContactRepository,
+        teamQueryService,
+        energyPortalAccessService,
+        energyPortalAccessApiConfiguration,
+        userAccountService,
+        energyPortalServiceAccessService,
+        environment
+    );
+
+    var pwaApplication = new PwaApplication();
+
+    when(pwaContactRepository.findByPwaApplicationAndPerson(pwaApplication, person)).thenReturn(Optional.empty());
+    when(teamQueryService.userIsMemberOfAnyTeam(contactUser.getWuaId())).thenReturn(false);
+
+    pwaContactService.updateContact(pwaApplication, contactUser, Collections.emptySet(), currentUser);
+
+    verify(pwaContactRepository).save(contactArgumentCaptor.capture());
+
+    verify(energyPortalAccessService, never()).addUserToAccessTeam(any(), any(), any());
+
+    verify(energyPortalServiceAccessService).addUser(contactUser.getWuaId());
+
+    var newContact = contactArgumentCaptor.getValue();
+
+    assertThat(newContact.getPwaApplication()).isEqualTo(pwaApplication);
+    assertThat(newContact.getPerson()).isEqualTo(person);
   }
 
   @Test
@@ -310,6 +379,8 @@ class PwaContactServiceTest {
         targetWebUserAccountIdArgumentCaptor.capture(),
         instigatingWebUserAccountIdArgumentCaptor.capture()
     );
+
+    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
 
     var newContact = contactArgumentCaptor.getValue();
 
@@ -335,6 +406,8 @@ class PwaContactServiceTest {
     verify(pwaContactRepository).save(contactArgumentCaptor.capture());
 
     verify(energyPortalAccessService, never()).addUserToAccessTeam(any(), any(), any());
+
+    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
 
     var newContact = contactArgumentCaptor.getValue();
 
@@ -367,6 +440,8 @@ class PwaContactServiceTest {
     pwaContactService.updateContact(pwaApplication, contactUser, newRoles, currentUser);
 
     verify(pwaContactRepository).save(contactArgumentCaptor.capture());
+
+    verify(energyPortalServiceAccessService, never()).addUser(anyLong());
 
     var updatedContact = contactArgumentCaptor.getValue();
 

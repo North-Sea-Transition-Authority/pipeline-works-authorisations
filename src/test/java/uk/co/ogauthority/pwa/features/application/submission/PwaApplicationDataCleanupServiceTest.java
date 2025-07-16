@@ -15,8 +15,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -46,9 +46,8 @@ import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles(profiles = {"integration-test", "test"})
 @EnableConfigurationProperties(value = AnalyticsProperties.class)
-class PwaApplicationDataCleanupServiceTest {
+class PwaApplicationDataCleanupServiceTest extends AbstractIntegrationTest {
 
   @SpyBean
   private PwaApplicationDataCleanupService pwaApplicationDataCleanupService;

@@ -25,8 +25,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
@@ -60,6 +62,9 @@ class ConsentDocumentMigrationServiceIntegrationTest {
 
   @MockBean
   private FileService fileService;
+
+  @MockitoBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   private List<S3File> s3Files;
 

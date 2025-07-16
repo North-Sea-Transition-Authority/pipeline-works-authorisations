@@ -3,11 +3,11 @@ package uk.co.ogauthority.pwa.features.appprocessing.tasklist;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +17,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRole;
@@ -38,10 +38,9 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles(profiles = {"integration-test", "test"})
 @EnableConfigurationProperties(value = AnalyticsProperties.class)
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-class PwaAppProcessingTaskListServiceTest {
+class PwaAppProcessingTaskListServiceTest extends AbstractIntegrationTest {
 
   @Autowired
   private PwaAppProcessingTaskService processingTaskService;

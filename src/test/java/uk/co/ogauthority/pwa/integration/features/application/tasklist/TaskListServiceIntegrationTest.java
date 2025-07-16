@@ -20,10 +20,10 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -56,10 +56,9 @@ import uk.co.ogauthority.pwa.testutils.AssertionTestUtils;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 @Transactional
-class TaskListServiceIntegrationTest {
+class TaskListServiceIntegrationTest extends AbstractIntegrationTest {
 
   private TaskListService taskListService;
 

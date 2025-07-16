@@ -6,8 +6,6 @@ htmlTitle
 wrapperClasses=""
 wrapperWidth=false
 topNavigation=false
-phaseBanner=true
-phaseBannerLink="#"
 errorCheck=false
 noIndex=false
 backToTopLink=true>
@@ -15,23 +13,11 @@ backToTopLink=true>
     <@genericLayout htmlTitle=htmlTitle htmlAppTitle="NSTA Pipelines" errorCheck=errorCheck noIndex=noIndex>
       <div class="fds-pane fds-pane--enabled" id="top">
           <#--Header goes below me-->
-          <@pipelinesHeader.header logoText="NSTA" logoProductText="" headerNav=true serviceName="Pipeline Works Authorisations" topNavigation=topNavigation wrapperWidth=wrapperWidth/>
-
-          <#--Phase banner goes below me-->
-          <#if phaseBanner>
-            <div class="govuk-phase-banner__wrapper">
-              <div class="govuk-phase-banner govuk-phase-banner--no-border<#if wrapperWidth> govuk-width-container-wide<#else> govuk-width-container</#if>">
-                <p class="govuk-phase-banner__content">
-                  <strong class="govuk-tag govuk-phase-banner__content__tag ">alpha</strong>
-                  <span class="govuk-phase-banner__text">This is a new service – your <a class="govuk-link" href="${phaseBannerLink}">feedback</a> will help us to improve it.</span>
-                </p>
-              </div>
-            </div>
-          </#if>
+          <@pipelinesHeader.header wrapperWidth=wrapperWidth/>
 
           <#--Top navigation goes below me-->
           <#if topNavigation>
-              <@fdsNavigation.navigation navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=wrapperWidth/>
+              <@fdsNavigation.navigation serviceName=service.getServiceAcronym() serviceUrl=springUrl(service.getServiceUrl()) navigationItems=navigationItems currentEndPoint=currentEndPoint wrapperWidth=false/>
           </#if>
 
         <div

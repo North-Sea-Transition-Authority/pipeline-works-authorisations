@@ -1,6 +1,6 @@
 <#include '../layout.ftl'>
 
-<@defaultPage htmlTitle="Cookies" pageHeading="Cookies" fullWidthColumn=true topNavigation=false backLink=true phaseBanner=false>
+<@defaultPage htmlTitle="Cookies" pageHeading="Cookies" fullWidthColumn=true topNavigation=false backLink=true>
 
   <#assign essentialCookies>
       <@fdsCookiePreferences.essentialCookieRow name="field_set" purpose="Used for session security" expiry="When you close your browser"/>

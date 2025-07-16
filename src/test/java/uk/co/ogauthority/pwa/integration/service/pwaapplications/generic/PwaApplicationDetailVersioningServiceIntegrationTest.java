@@ -19,12 +19,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.FileSource;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.huoo.model.HuooRole;
@@ -113,11 +113,10 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("integration-test")
 @Disabled //TODO: PWARE-71 fix tests failing on drone and re-enable
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class PwaApplicationDetailVersioningServiceIntegrationTest {
+public class PwaApplicationDetailVersioningServiceIntegrationTest extends AbstractIntegrationTest {
 
   private final static int PERSON_ID = 1;
   private final static int WUA_ID = 2;

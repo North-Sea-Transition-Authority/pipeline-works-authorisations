@@ -16,9 +16,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -40,9 +40,8 @@ import uk.co.ogauthority.pwa.teams.Role;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-class AsBuiltNotificationWorkAreaIntegrationTest {
+class AsBuiltNotificationWorkAreaIntegrationTest extends AbstractIntegrationTest {
 
   @Autowired
   private AsBuiltNotificationDtoRepositoryImpl asBuiltNotificationDtoRepository;

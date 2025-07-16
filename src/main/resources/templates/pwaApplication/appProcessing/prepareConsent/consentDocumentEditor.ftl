@@ -16,7 +16,7 @@
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Prepare consent" />
 
-<@defaultPagePane htmlTitle=pageHeading phaseBanner=false backToTopLink=false>
+<@defaultPagePane htmlTitle=pageHeading backToTopLink=false>
 
     <#-- this link is used to provide the download url to docgenAutoDownloader.js -->
     <a id="doc-download-link" style="display:none" href="${springUrl(consentDocumentUrlProvider.downloadUrl)}"/>
@@ -63,6 +63,6 @@
             
     </@defaultPagePaneContent>
 
-  <script src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
+  <script type="module" src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
 
 </@defaultPagePane>

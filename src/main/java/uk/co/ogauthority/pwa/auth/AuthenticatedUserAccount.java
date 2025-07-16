@@ -18,17 +18,19 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Authenti
 
   private Collection<PwaUserPrivilege> userPrivileges;
   private Integer proxyUserWuaId;
+  private String proxyUsername;
 
   public AuthenticatedUserAccount() {
   }
 
   public AuthenticatedUserAccount(WebUserAccount webUserAccount, Collection<PwaUserPrivilege> userPrivileges) {
-    this(webUserAccount, userPrivileges, null);
+    this(webUserAccount, userPrivileges, null, null);
   }
 
   public AuthenticatedUserAccount(WebUserAccount webUserAccount,
                                   Collection<PwaUserPrivilege> userPrivileges,
-                                  Integer proxyUserWuaId) {
+                                  Integer proxyUserWuaId,
+                                  String proxyUsername) {
     this.wuaId = webUserAccount.getWuaId();
     this.title = webUserAccount.getTitle();
     this.forename = webUserAccount.getForename();
@@ -39,6 +41,7 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Authenti
     this.person = webUserAccount.getLinkedPerson();
     this.userPrivileges = userPrivileges;
     this.proxyUserWuaId = proxyUserWuaId;
+    this.proxyUsername = proxyUsername;
   }
 
   public Collection<PwaUserPrivilege> getUserPrivileges() {
@@ -68,5 +71,10 @@ public class AuthenticatedUserAccount extends WebUserAccount implements Authenti
 
   public static AuthenticatedUserAccount from(WebUserAccount webUserAccount) {
     return new AuthenticatedUserAccount(webUserAccount, Set.of());
+  }
+
+  public String displayNameIncludingAnyProxyUser() {
+    var fullName = getFullName();
+    return proxyUserWuaId != null ? String.format("%s as %s", proxyUsername, fullName) : fullName;
   }
 }

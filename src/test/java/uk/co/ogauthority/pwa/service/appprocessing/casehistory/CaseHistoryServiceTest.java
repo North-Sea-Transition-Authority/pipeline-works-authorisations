@@ -18,8 +18,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
@@ -33,8 +33,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles("integration-test")
-public class CaseHistoryServiceTest {
+public class CaseHistoryServiceTest extends AbstractIntegrationTest {
 
   public static String HISTORY_ITEM_HEADER = "HEADER";
   public static String NOTE_LABEL = "Note label";

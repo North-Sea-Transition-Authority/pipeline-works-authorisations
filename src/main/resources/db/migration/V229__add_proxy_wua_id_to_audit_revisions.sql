@@ -1,0 +1,1 @@
+ALTER TABLE ${datasource.user}.AUDIT_REVISIONS ADD proxy_wua_id INTEGER;

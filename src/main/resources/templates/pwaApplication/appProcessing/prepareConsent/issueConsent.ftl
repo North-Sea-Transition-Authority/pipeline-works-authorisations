@@ -11,7 +11,7 @@
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Issue consent" />
 
-<@defaultPage htmlTitle=pageHeading phaseBanner=false fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle=pageHeading fullWidthColumn=true breadcrumbs=true>
 
 
 

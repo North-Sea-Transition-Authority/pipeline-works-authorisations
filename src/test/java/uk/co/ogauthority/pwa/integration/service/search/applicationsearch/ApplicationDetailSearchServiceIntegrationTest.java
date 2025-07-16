@@ -17,9 +17,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.domain.energyportal.organisations.model.OrganisationUnitId;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -56,10 +56,9 @@ import uk.co.ogauthority.pwa.service.search.applicationsearch.ApplicationSearchP
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class ApplicationDetailSearchServiceIntegrationTest {
+public class ApplicationDetailSearchServiceIntegrationTest extends AbstractIntegrationTest {
 
   private static final OrganisationUnitId USER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(10);
   private static final OrganisationUnitId OTHER_HOLDER_ORG_UNIT_ID = new OrganisationUnitId(20);

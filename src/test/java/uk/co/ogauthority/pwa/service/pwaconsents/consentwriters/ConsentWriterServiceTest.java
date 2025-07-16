@@ -20,8 +20,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationTask;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.TaskListService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -37,9 +37,8 @@ import uk.co.ogauthority.pwa.service.pwaconsents.consentwriters.pipelines.Pipeli
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-class ConsentWriterServiceTest {
+class ConsentWriterServiceTest extends AbstractIntegrationTest {
 
   @MockBean
   private AreaWriter areaWriter;

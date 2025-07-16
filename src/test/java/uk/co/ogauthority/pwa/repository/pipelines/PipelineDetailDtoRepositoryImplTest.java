@@ -13,8 +13,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PhysicalPipelineState;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineOverview;
 import uk.co.ogauthority.pwa.domain.pwa.pipeline.model.PipelineStatus;
@@ -31,9 +31,8 @@ import uk.co.ogauthority.pwa.repository.pwaconsents.PwaConsentRepository;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
-class PipelineDetailDtoRepositoryImplTest {
+class PipelineDetailDtoRepositoryImplTest extends AbstractIntegrationTest {
 
   @Autowired
   private PipelineDetailDtoRepositoryImpl pipelineDetailDtoRepositoryImpl;

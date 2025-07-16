@@ -6,7 +6,7 @@ public class CurrentUserView {
   private final String fullName;
 
   public static CurrentUserView authenticated(AuthenticatedUserAccount authenticatedUserAccount) {
-    return new CurrentUserView(true, authenticatedUserAccount.getFullName());
+    return new CurrentUserView(true, authenticatedUserAccount.displayNameIncludingAnyProxyUser());
   }
 
   public static CurrentUserView unauthenticated() {

@@ -1,7 +1,3 @@
-//@import '../../../public/assets/govuk-frontend/govuk/core/links';
-//@import '../../../public/assets/govuk-frontend/govuk/core/lists';
-//@import '../../../public/assets/govuk-frontend/govuk/core/typography';
-
 .pwa-markdown__input {
   background: govuk-colour("light-grey");
   padding: govuk-spacing(6);
@@ -73,12 +69,6 @@
       border-bottom: 1px solid $govuk-border-colour;
       text-align: left;
       vertical-align: top;
-      // GOV.UK Elements sets the font-size and line-height for all headers and cells
-      // in tables.
-      @include govuk-compatibility(govuk_elements) {
-        font-size: inherit;
-        line-height: inherit;
-      }
     }
 
     th {

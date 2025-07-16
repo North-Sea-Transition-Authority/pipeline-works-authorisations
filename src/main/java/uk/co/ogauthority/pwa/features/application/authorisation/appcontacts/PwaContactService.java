@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,7 @@ import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAcces
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
 import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
@@ -45,18 +47,24 @@ public class PwaContactService implements ApplicationFormSectionService {
   private final EnergyPortalAccessService energyPortalAccessService;
   private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
   private final UserAccountService userAccountService;
+  private final EnergyPortalServiceAccessService energyPortalServiceAccessService;
+  private final boolean useEpas;
 
   @Autowired
   public PwaContactService(PwaContactRepository pwaContactRepository,
                            TeamQueryService teamQueryService,
                            EnergyPortalAccessService energyPortalAccessService,
                            EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
-                           UserAccountService userAccountService) {
+                           UserAccountService userAccountService,
+                           EnergyPortalServiceAccessService energyPortalServiceAccessService,
+                           Environment environment) {
     this.pwaContactRepository = pwaContactRepository;
     this.teamQueryService = teamQueryService;
     this.energyPortalAccessService = energyPortalAccessService;
     this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
     this.userAccountService = userAccountService;
+    this.energyPortalServiceAccessService = energyPortalServiceAccessService;
+    this.useEpas = environment.matchesProfiles("use-epas");
   }
 
   public List<PwaContact> getContactsForPwaApplication(PwaApplication pwaApplication) {
@@ -101,13 +109,20 @@ public class PwaContactService implements ApplicationFormSectionService {
     var contact = new PwaContact(pwaApplication, contactUser.getLinkedPerson(), roles);
     pwaContactRepository.save(contact);
 
-    if (isNewUser) {
-      energyPortalAccessService.addUserToAccessTeam(
-          new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
-          new TargetWebUserAccountId(contactUser.getWuaId()),
-          new InstigatingWebUserAccountId(currentUser.getWuaId())
-      );
+    if (!isNewUser) {
+      return;
     }
+
+    if (useEpas) {
+      energyPortalServiceAccessService.addUser(contactUser.getWuaId());
+      return;
+    }
+
+    energyPortalAccessService.addUserToAccessTeam(
+        new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
+        new TargetWebUserAccountId(contactUser.getWuaId()),
+        new InstigatingWebUserAccountId(currentUser.getWuaId())
+    );
   }
 
   private boolean userIsContactOrTeamMember(WebUserAccount user) {
@@ -152,13 +167,20 @@ public class PwaContactService implements ApplicationFormSectionService {
     pwaContactRepository.delete(contact);
 
     var isUserRemovedFromAllTeams = !userIsContactOrTeamMember(contactUser);
-    if (isUserRemovedFromAllTeams) {
-      energyPortalAccessService.removeUserFromAccessTeam(
-          new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
-          new TargetWebUserAccountId(contactUser.getWuaId()),
-          new InstigatingWebUserAccountId(currentUser.getWuaId())
-      );
+    if (!isUserRemovedFromAllTeams) {
+      return;
     }
+
+    if (useEpas) {
+      energyPortalServiceAccessService.removeUser(contactUser.getWuaId());
+      return;
+    }
+
+    energyPortalAccessService.removeUserFromAccessTeam(
+        new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
+        new TargetWebUserAccountId(contactUser.getWuaId()),
+        new InstigatingWebUserAccountId(currentUser.getWuaId())
+    );
   }
 
   private long getNumberOfAccessManagersForApplication(PwaApplication pwaApplication) {

@@ -12,7 +12,7 @@
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Send consent for approval" />
 
-<@defaultPage htmlTitle=pageHeading phaseBanner=false fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle=pageHeading fullWidthColumn=true breadcrumbs=true>
 
   <@grid.gridRow>
     <@grid.twoThirdsColumn>

@@ -12,9 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
 import uk.co.ogauthority.pwa.model.entity.pipelines.Pipeline;
@@ -22,10 +22,9 @@ import uk.co.ogauthority.pwa.model.entity.pipelines.PipelineDetail;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("integration-test")
 @DirtiesContext
 @Transactional
-class PipelineDtoRepositoryTest {
+class PipelineDtoRepositoryTest extends AbstractIntegrationTest {
 
   @Autowired
   private TestEntityManager entityManager;

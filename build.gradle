@@ -11,6 +11,7 @@ plugins {
 group = 'uk.co.fivium'
 version = System.getenv("DRONE_BRANCH") ? System.getenv("DRONE_BRANCH").replaceAll("[/\\-]", "_") : "LOCAL-SNAPSHOT"
 sourceCompatibility = '21'
+def epmqVersion= 'v4.6.0'
 
 tasks {
   bootJar {
@@ -72,7 +73,7 @@ dependencies {
   annotationProcessor("org.hibernate.orm:hibernate-jpamodelgen")
 
   implementation 'com.google.guava:guava:33.2.1-jre'
-  implementation 'org.apache.commons:commons-lang3:3.12.0'
+  implementation 'org.apache.commons:commons-lang3:3.18.0'
   implementation 'org.apache.commons:commons-collections4:4.4'
   implementation('commons-validator:commons-validator:1.7') {
     // Exclude commons-logging to fix "Standard Commons Logging discovery in action with spring-jcl: please remove
@@ -99,6 +100,10 @@ dependencies {
   implementation('uk.co.fivium.feedbackmanagementservice:client:2.1.1')
 
   implementation 'uk.co.fivium:ftss-client-spring-boot-starter:v1.0.2'
+
+  implementation "uk.co.fivium.energyportalmessagequeue:spring-boot-starter:${epmqVersion}"
+  implementation "uk.co.fivium.energyportalmessagequeue:messages:${epmqVersion}"
+  implementation 'uk.co.fivium.energyportal.accounts:energy-portal-accounts-spring-boot-starter:v0.5'
 
   implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 

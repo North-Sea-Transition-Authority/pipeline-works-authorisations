@@ -14,7 +14,7 @@
 
 <#assign pageHeading="Check your answers before submitting your application ${applicationReference}"/>
 
-<@defaultPagePane htmlTitle=pageHeading phaseBanner=false>
+<@defaultPagePane htmlTitle=pageHeading>
 
     <#assign aboveSummaryInsert>
         <@fdsAction.link linkText="Download application pipeline map data" linkUrl=springUrl(mappingGuidanceUrl) openInNewTab=true linkClass="govuk-button govuk-button--blue"/>

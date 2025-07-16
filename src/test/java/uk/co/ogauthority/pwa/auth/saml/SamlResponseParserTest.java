@@ -23,8 +23,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 
@@ -32,8 +32,7 @@ import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles("integration-test")
-class SamlResponseParserTest {
+class SamlResponseParserTest extends AbstractIntegrationTest {
 
   @Autowired
   private SamlResponseParser samlResponseParser;
@@ -223,10 +222,11 @@ class SamlResponseParserTest {
     String email = "john.doe@example.com";
     String wuaId = "456";
     Integer proxyWuaId = 999;
+    String proxyUsername = "Proxy Username";
     List<String> portalPrivileges = Arrays.asList("PWA_WORKAREA", "PWA_ACCESS");
 
     AuthenticatedUserAccount result = samlResponseParser.getAuthenticatedUserAccount(
-        personId, forename, surname, email, wuaId, proxyWuaId, portalPrivileges
+        personId, forename, surname, email, wuaId, proxyWuaId, proxyUsername, portalPrivileges
     );
 
     // Person
@@ -262,7 +262,7 @@ class SamlResponseParserTest {
     List<String> portalPrivileges = Arrays.asList("PWA_WORKAREA", "INVALID_ONE");
 
     AuthenticatedUserAccount result = samlResponseParser.getAuthenticatedUserAccount(
-        personId, forename, surname, email, wuaId, null, portalPrivileges
+        personId, forename, surname, email, wuaId, null, null, portalPrivileges
     );
 
     // Only PWA_WORKAREA should be included

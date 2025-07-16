@@ -30,7 +30,16 @@ Output should claim build successful.
 
 #### Configure the following environment variables
 
-#### Development profile
+##### Regardless of profile
+
+| **Environment Variable**                          | **Description**                                                                                |
+|---------------------------------------------------|------------------------------------------------------------------------------------------------|
+| PWA_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID                | AWS access key id for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134     |
+| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY            | AWS secret access key for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134 |
+| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY (optional) | The AWS region to run in. Defaults to `eu-west-2`                                              |
+| PWA_EPMQ_ENVIRONMENT_SUFFIX                       | Something unique per environment, e.g. `dev`. For local dev this can be your initials          |
+
+##### Development profile
 | Environment Variable        | Description                                                                                                                       |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | CONTEXT_SUFFIX              | A unique per developer suffix string to apply to the application context path. E.g. your initials                                 |
@@ -42,7 +51,7 @@ Output should claim build successful.
 | ANALYTICS_APP_API_SECRET    | The api secret for the analytics collection endpoint (app) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1855))         |
 | ANALYTICS_GLOBAL_API_SECRET | The api secret for the analytics collection endpoint (portal-wide) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1865)) |
 
-#### Production profile
+##### Production profile
 | Environment Variable                       | Description                                                                                                                       |
 |--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | CONTEXT_SUFFIX                             | A unique per developer suffix string to apply to the application context path. E.g. your initials                                 |
@@ -70,11 +79,22 @@ Output should claim build successful.
 | FILE_UPLOAD_MAX_ALLOWED_SIZE               | Maximum file upload size in bytes                                                                                                 |                                                                                                                                                                                           |
 | FILE_UPLOAD_ALLOWED_EXTENSIONS             | Allowed file extensions for document uploads                                                                                      |
 
-#### Devtools profile
+##### Devtools profile
 | Environment Variable   | Description |
 |------------------------|-------------|
 | MIGRATION_S3_BUCKET    |             |
 | MIGRATION_CSV_FILE_KEY |             |
+
+#### Energy Portal accounts service integration
+
+In order to integrate with the Energy Portal accounts service as the IDP you need to include the `use-epas` profile. If running Energy Portal accounts service
+locally add the `use-epas-development` profile as well.
+
+For deployed environments we require the following environment variables to be set
+- EPAS_SAML_ENTITY_ID
+- EPAS_SAML_LOGIN_URL
+- EPAS_LOGOUT_REQUEST_URL
+- EPAS_SAML_BASE_URL (e.g. https://nsta.itportal.dev.fivium.co.uk)
 
 ## Logging
 

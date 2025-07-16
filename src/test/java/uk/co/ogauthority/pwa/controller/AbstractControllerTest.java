@@ -160,6 +160,7 @@ public abstract class AbstractControllerTest {
       return new ServiceProperties(
           "serviceName",
           "fullServiceName",
+          "serviceAcronym",
           "customerMnemonic",
           "customerName",
           "emtMnemonic");

@@ -12,8 +12,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.integrations.energyportal.devukfields.external.DevukFieldId;
@@ -29,10 +29,9 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-@ActiveProfiles("integration-test")
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"})
 // IJ seems to give spurious warnings when running with embedded H2
-public class MasterPwaDetailAreaIntegrationtest {
+public class MasterPwaDetailAreaIntegrationtest extends AbstractIntegrationTest {
 
   private MasterPwa masterPwa;
   private MasterPwaDetail masterPwaDetail;

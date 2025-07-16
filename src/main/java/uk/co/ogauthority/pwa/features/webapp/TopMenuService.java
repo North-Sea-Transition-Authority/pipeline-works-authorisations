@@ -21,13 +21,13 @@ import uk.co.ogauthority.pwa.teams.management.TeamManagementController;
 public class TopMenuService {
 
   public static final String WORK_AREA_TITLE = "Work area";
-  public static final String TEAM_MANAGEMENT_TITLE = "Manage teams";
-  public static final String APPLICATION_SEARCH_TITLE = "Search applications";
-  public static final String CONSENT_SEARCH_TITLE = "Search PWAs";
-  public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Manage template clauses";
-  public static final String REASSIGN_APPLICATIONS_TITLE = "Reassign applications";
+  public static final String TEAM_MANAGEMENT_TITLE = "Teams";
+  public static final String APPLICATION_SEARCH_TITLE = "Applications";
+  public static final String CONSENT_SEARCH_TITLE = "PWAs";
+  public static final String TEMPLATE_CLAUSE_MANAGE_TITLE = "Template clauses";
+  public static final String REASSIGN_APPLICATIONS_TITLE = "Reassignments";
 
-  public static final String TEMPLATE_FEE_MANAGE_TITLE = "Manage fees";
+  public static final String TEMPLATE_FEE_MANAGE_TITLE = "Fees";
 
   private final SystemAreaAccessService systemAreaAccessService;
 

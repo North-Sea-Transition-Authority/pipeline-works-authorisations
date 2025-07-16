@@ -24,5 +24,6 @@ public class AuditRevisionListener implements RevisionListener {
     }
 
     auditRevision.setPersonId(possibleUser.get().getLinkedPerson().getId().asInt());
+    auditRevision.setProxyWuaId(possibleUser.get().getProxyUserWuaId().orElse(null));
   }
 }

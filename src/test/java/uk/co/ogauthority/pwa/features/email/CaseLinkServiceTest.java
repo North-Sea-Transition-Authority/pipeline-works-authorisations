@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.application.submission.controller.ReviewAndSubmitController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
@@ -21,8 +21,7 @@ import uk.co.ogauthority.pwa.util.CaseManagementUtils;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles("integration-test")
-class CaseLinkServiceTest {
+class CaseLinkServiceTest extends AbstractIntegrationTest {
 
   @Autowired
   private CaseLinkService caseLinkService;

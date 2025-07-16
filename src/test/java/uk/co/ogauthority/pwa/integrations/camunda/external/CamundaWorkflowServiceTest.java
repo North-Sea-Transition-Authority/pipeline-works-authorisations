@@ -13,9 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.WorkflowException;
@@ -34,9 +34,8 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
-@ActiveProfiles("integration-test")
 @Transactional
-class CamundaWorkflowServiceTest {
+class CamundaWorkflowServiceTest extends AbstractIntegrationTest {
 
   @Autowired
   private CamundaWorkflowService camundaWorkflowService;

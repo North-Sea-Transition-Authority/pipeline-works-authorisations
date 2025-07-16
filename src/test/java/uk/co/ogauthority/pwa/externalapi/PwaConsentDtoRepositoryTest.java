@@ -14,8 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwa;
 import uk.co.ogauthority.pwa.model.entity.masterpwas.MasterPwaDetail;
@@ -24,10 +24,9 @@ import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 
 @DataJpaTest
 @RunWith(SpringRunner.class)
-@ActiveProfiles("integration-test")
 @DirtiesContext
 @Transactional
-class PwaConsentDtoRepositoryTest {
+class PwaConsentDtoRepositoryTest extends AbstractIntegrationTest {
 
   @Autowired
   private TestEntityManager entityManager;

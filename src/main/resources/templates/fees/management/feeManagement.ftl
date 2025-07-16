@@ -1,4 +1,5 @@
 <#include '../../layout.ftl'>
+<#import '../../fds/components/tag/tag.ftl' as fdsTag>
 
 <#-- @ftlvariable name="feePeriods" type="java.util.List<uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.internal.FeeItem>" -->
 <#-- @ftlvariable name="curdate" type="java.time.Instant" -->
@@ -29,7 +30,7 @@
       <@fdsResultList.resultList>
         <#list feePeriods as period>
           <#assign tagName>
-            <@fdsResultList.resultListTag tagText="${period.getStatus().getDisplayStatus()}" tagClass="${period.getStatus().getTagClass()}"/>
+            <@fdsTag.tag tagClass=period.getStatus().getTagClass()> ${period.getStatus().getDisplayStatus()}</@fdsTag.tag>
           </#assign>
           <#assign editLink>
             <@fdsAction.link linkText='Edit' linkClass='govuk-button govuk-!-margin-bottom-0 govuk-button--grey' linkUrl=springUrl(urlFactory.getFeePeriodEditUrl(period.getFeePeriodId())) role=true/>

@@ -14,7 +14,6 @@
   topNavigation=false
   backLink=showBackLink
   errorItems=errorList
-  phaseBanner=false
 >
 
   <@fdsForm.htmlForm>

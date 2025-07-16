@@ -29,6 +29,8 @@ public class AuditRevision {
   @Column(name = "person_id")
   private Integer personId;
 
+  private Integer proxyWuaId;
+
   public Integer getId() {
     return rev;
   }
@@ -51,5 +53,13 @@ public class AuditRevision {
 
   public void setPersonId(Integer personId) {
     this.personId = personId;
+  }
+
+  public Integer getProxyWuaId() {
+    return proxyWuaId;
+  }
+
+  public void setProxyWuaId(Integer proxyWuaId) {
+    this.proxyWuaId = proxyWuaId;
   }
 }

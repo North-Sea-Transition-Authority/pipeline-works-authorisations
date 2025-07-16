@@ -7,6 +7,7 @@ public enum EnergyPortalSamlAttribute {
   SURNAME("SURNAME"),
   EMAIL_ADDRESS("PRIMARY_EMAIL_ADDRESS"),
   PORTAL_PRIVILEGES("PRIVILEGES"),
+  PROXY_USER_NAME("PROXY_USER_NAME"),
   PROXY_USER_WUA_ID("PROXY_USER_WUA_ID");
 
   private final String attributeName;

@@ -34,6 +34,7 @@ public class SamlResponseParser {
         .filter(StringUtils::isNotBlank)
         .map(Integer::valueOf)
         .orElse(null);
+    var proxyUsername = parsedAttributes.get(EnergyPortalSamlAttribute.PROXY_USER_NAME.getAttributeName());
 
     var portalPrivileges = getNonNullAttribute(parsedAttributes, EnergyPortalSamlAttribute.PORTAL_PRIVILEGES);
     var portalPrivilegesList = Arrays.stream(StringUtils.split(portalPrivileges, ",")).toList();
@@ -42,7 +43,7 @@ public class SamlResponseParser {
         .map(SimpleGrantedAuthority::new)
         .toList();
 
-    var user = getAuthenticatedUserAccount(personId, forename, surname, email, wuaId, proxyWuaId, portalPrivilegesList);
+    var user = getAuthenticatedUserAccount(personId, forename, surname, email, wuaId, proxyWuaId, proxyUsername,portalPrivilegesList);
 
     return new ServiceSaml2Authentication(user, grantedAuthorities);
   }
@@ -54,6 +55,7 @@ public class SamlResponseParser {
                                                        String email,
                                                        String wuaId,
                                                        Integer proxyWuaId,
+                                                       String proxyUsername,
                                                        List<String> portalPrivileges) {
     var person = new Person();
     person.setId(Integer.valueOf(personId));
@@ -82,7 +84,8 @@ public class SamlResponseParser {
     return new AuthenticatedUserAccount(
         webUserAccount,
         pwaUserPrivilegeList,
-        proxyWuaId
+        proxyWuaId,
+        proxyUsername
     );
   }
 

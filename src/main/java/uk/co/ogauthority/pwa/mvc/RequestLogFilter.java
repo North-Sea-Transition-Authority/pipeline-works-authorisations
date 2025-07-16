@@ -18,12 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
+import uk.co.ogauthority.pwa.auth.saml.EnergyPortalSamlAttribute;
 import uk.co.ogauthority.pwa.hibernate.HibernateQueryCounter;
 
 @Component
 public class RequestLogFilter extends OncePerRequestFilter {
 
   static final String MDC_WUA_ID = RequestLogFilter.class.getName() + ".WUA_ID";
+  static final String MDC_PROXY_WUA_ID = RequestLogFilter.class.getName() + ".%s".formatted(
+      EnergyPortalSamlAttribute.PROXY_USER_WUA_ID.getAttributeName()
+  );
   static final String MDC_REQUEST_TYPE = RequestLogFilter.class.getName() + ".REQUEST_TYPE";
   private static final Logger LOGGER = LoggerFactory.getLogger(RequestLogFilter.class);
   private static final String UNKNOWN = "unknown";
@@ -65,8 +69,10 @@ public class RequestLogFilter extends OncePerRequestFilter {
 
       String requestType = StringUtils.firstNonBlank(MDC.get(MDC_REQUEST_TYPE), UNKNOWN);
       String userId = StringUtils.firstNonBlank(MDC.get(MDC_WUA_ID), UNKNOWN);
+      var proxyWuaId = MDC.get(MDC_PROXY_WUA_ID);
+
       LOGGER.info(
-          "{} request: {} {}{} ({}), time: {}, status: {}, user id: {}, overall hibernate count: {}, ",
+          "{} request: {} {}{} ({}), time: {}, status: {}, user id: {}, proxy id: {}, overall hibernate count: {}, ",
           value("request_type", requestType),
           value("request_method", request.getMethod()),
           value("request_uri", request.getRequestURI()),
@@ -75,6 +81,7 @@ public class RequestLogFilter extends OncePerRequestFilter {
           value("time_ms", stopwatch.elapsed(TimeUnit.MILLISECONDS)),
           value("response_status", response.getStatus()),
           value("wua_id", userId),
+          value("proxy_wua_id", proxyWuaId),
           value("query_count_overall", overallQueryCount));
 
       hibernateQueryCounter.clearQueryCount();

@@ -7,7 +7,7 @@
 
 <#assign pageHeading = "${caseSummaryView.pwaApplicationRef} - Return to case officer" />
 
-<@defaultPage htmlTitle=pageHeading phaseBanner=false fullWidthColumn=true breadcrumbs=true>
+<@defaultPage htmlTitle=pageHeading fullWidthColumn=true breadcrumbs=true>
 
   <#if errorList?has_content>
     <@fdsError.errorSummary errorItems=errorList />
