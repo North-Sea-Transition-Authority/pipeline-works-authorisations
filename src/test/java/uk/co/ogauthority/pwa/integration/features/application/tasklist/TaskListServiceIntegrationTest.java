@@ -22,6 +22,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -104,6 +105,9 @@ public class TaskListServiceIntegrationTest {
 
   @MockBean
   private NonFoxTeamMemberEventPublisher nonFoxTeamMemberEventPublisher;
+
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;

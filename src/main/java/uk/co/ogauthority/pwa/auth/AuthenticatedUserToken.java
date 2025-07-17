@@ -45,5 +45,10 @@ public class AuthenticatedUserToken extends AbstractAuthenticationToken {
     return sessionId;
   }
 
+  @Override
+  public String getName() {
+    return String.valueOf(principal.getWuaId());
+  }
+
 }
 

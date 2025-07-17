@@ -2,6 +2,7 @@ package uk.co.ogauthority.pwa.integration.energyportal.teams;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -10,13 +11,17 @@ import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.env.Environment;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationTestUtils;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
@@ -31,6 +36,9 @@ import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeam
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamScopeDto;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.entity.PortalTeamUsagePurpose;
 import uk.co.ogauthority.pwa.integrations.energyportal.teams.internal.repo.PortalTeamRepository;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountStatus;
+import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccountTestUtil;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 
 @RunWith(SpringRunner.class)
@@ -42,6 +50,7 @@ import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 @SuppressWarnings({"JpaQueryApiInspection", "SqlNoDataSourceInspection"}) // IJ seems to give spurious warnings when running with embedded H2
 public class PortalTeamAccessorIntegrationTest {
 
+  private static Person PERSON;
 
   private final String WITH_SCOPE_SCOPED_WITHIN = "PARENT";
   private final String WITHOUT_SCOPE_SCOPED_WITHIN = "UNIVERSAL_SET";
@@ -73,6 +82,14 @@ public class PortalTeamAccessorIntegrationTest {
   private final String NO_MEMBER_SCOPED_TEAM_DESCRIPTION = "Org2TeamDescription";
   private final String NO_MEMBER_SCOPED_TEAM_UREF = constructOrgGroupUref(30);
 
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
+
+  @Mock
+  private Environment environment;
+
+  @MockBean
+  private UserAccountService userAccountService;
 
   @Autowired
   private PersonRepository personRepository;
@@ -91,7 +108,17 @@ public class PortalTeamAccessorIntegrationTest {
 
   @Before
   public void setup() {
-    portalTeamAccessor = new PortalTeamAccessor(portalTeamRepository, entityManager);
+
+    when(environment.matchesProfiles("use-epas"))
+        .thenReturn(false);
+
+    portalTeamAccessor = new PortalTeamAccessor(
+        portalTeamRepository,
+        entityManager,
+        energyPortalServiceAccessService,
+        userAccountService,
+        environment
+    );
 
     insertPerson(10);
     unscopedTeamMemberPerson_2Roles = personRepository.findById(10).orElse(null);
@@ -99,6 +126,9 @@ public class PortalTeamAccessorIntegrationTest {
     scopedTeamMemberPerson_2Roles = personRepository.findById(20).orElse(null);
     insertPerson(30);
     scopedTeamMemberPerson_1Role = personRepository.findById(30).orElse(null);
+
+    insertPerson(40);
+    PERSON = personRepository.findById(40).orElse(null);
 
     insertPortalOrganisationGroup(PORTAL_ORGANISATION_GROUP);
 
@@ -434,6 +464,44 @@ public void getTeamsWherePersonMemberOfTeamTypeAndHasRoleMatching_whenPersonIsTe
 
   assertThat(foundTeams).isEmpty();
 }
+
+  @Test
+  @Transactional
+  public void hasAccessToService_whenNoAccess() {
+
+    var webUserAccount = WebUserAccountTestUtil.createWebUserAccount(
+        1,
+        PERSON,
+        "loginId",
+        WebUserAccountStatus.ACTIVE
+    );
+
+    when(userAccountService.findByPerson(PERSON))
+        .thenReturn(Optional.of(webUserAccount));
+
+    var hasAccessToService = portalTeamAccessor.hasAccessToService(PERSON);
+
+    assertThat(hasAccessToService).isFalse();
+  }
+
+  @Test
+  @Transactional
+  public void hasAccessToService_whenAccess() {
+
+    var webUserAccount = WebUserAccountTestUtil.createWebUserAccount(
+        1,
+        PERSON,
+        "loginId",
+        WebUserAccountStatus.ACTIVE
+    );
+
+    when(userAccountService.findByPerson(scopedTeamMemberPerson_2Roles))
+        .thenReturn(Optional.of(webUserAccount));
+
+    var hasAccessToService = portalTeamAccessor.hasAccessToService(scopedTeamMemberPerson_2Roles);
+
+    assertThat(hasAccessToService).isTrue();
+  }
 
   private void assertPortalTeamInstanceDtoMappingAsExpected(PortalTeamDto portalTeamDto,
                                                             String expectedScopeURef,

@@ -22,7 +22,7 @@
 * `cd fivium-design-system-core`
 * `npm install && npx gulp build`
 * `cd ..`
-Output should claim build succesfull.
+Output should claim build successful.
 
 #### Build frontend components
 * `npm install`
@@ -30,7 +30,16 @@ Output should claim build succesfull.
 
 #### Configure the following environment variables
 
-#### Development profile
+##### Regardless of profile
+
+| Environment Variable                      | Description                                                                                    |
+|-------------------------------------------|------------------------------------------------------------------------------------------------|
+| PWA_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID        | AWS access key id for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134     |
+| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY    | AWS secret access key for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134 |
+| PWA_EPMQ_SNS_SQS_AWS_REGION_ID (optional) | The AWS region to run in. Defaults to `eu-west-2`                                              |
+| PWA_EPMQ_ENVIRONMENT_SUFFIX               | Something unique per environment, e.g. `dev`. For local dev this can be your initials.         |
+
+##### Development profile
 | Environment Variable        | Description                                                                                                                       |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | CONTEXT_SUFFIX              | A unique per developer suffix string to apply to the application context path. E.g. your initials                                 |
@@ -42,7 +51,7 @@ Output should claim build succesfull.
 | ANALYTICS_APP_API_SECRET    | The api secret for the analytics collection endpoint (app) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1855))         |
 | ANALYTICS_GLOBAL_API_SECRET | The api secret for the analytics collection endpoint (portal-wide) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1865)) |
 
-#### Production profile
+##### Production profile
 | Environment Variable        | Description                                                                                                                       |
 |-----------------------------|-----------------------------------------------------------------------------------------------------------------------------------|
 | CONTEXT_SUFFIX              | A unique per developer suffix string to apply to the application context path. E.g. your initials                                 |
@@ -58,11 +67,16 @@ Output should claim build succesfull.
 | PWA_LOGOUT_URL              | The logout URL of the IDP                                                                                                         |
 | PWA_REGISTRATION_URL        | The registration URL of the IDP                                                                                                   |
 
-## Logging
+##### Energy Portal Accounts Service (`use-epas`)
 
-PWA can log in either JSON or text mode.
+To integrate with the Energy Portal Accounts Service you need to add the `use-epas` profile and set the following
+environment variables. This is locally and on deployed environments:
+- `EPAS_LOGIN_URL`: The url to the `EPAS_REDIRECT` Fox module
+- `EPAS_LOGOUT_URL`: The logout url of the new IDP
+- `EPAS_REGISTRATION_URL`: The registration URL of the new IDP
 
-In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
+Note: To run PWA locally requires an updated by the EPAS team to not have a locally running Fox engine. This
+will be done shortly. If required speak to the Venn team.
 
 ## Logging
 

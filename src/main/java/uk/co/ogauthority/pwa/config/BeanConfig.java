@@ -29,11 +29,6 @@ public class BeanConfig {
   }
 
   @Bean
-  public Clock tzClock() {
-    return Clock.systemDefaultZone();
-  }
-
-  @Bean
   public SpringValidatorAdapter groupValidator() {
     return new SpringValidatorAdapter(Validation.buildDefaultValidatorFactory().getValidator());
   }

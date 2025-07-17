@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
+import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.internal.WebUserAccountRepository;
 
 @Service
@@ -27,5 +29,12 @@ public class UserAccountService {
 
   public WebUserAccount getSystemWebUserAccount() {
     return getWebUserAccount(systemUserWuaId);
+  }
+
+  public Optional<WebUserAccount> findByPerson(Person person) {
+    return webUserAccountRepository.findByPerson(person)
+        .stream()
+        .filter(webUserAccount -> WebUserAccountStatus.ACTIVE.equals(webUserAccount.getAccountStatus()))
+        .findFirst();
   }
 }

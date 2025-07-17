@@ -17,6 +17,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -109,6 +110,9 @@ public class PwaApplicationDataCleanupServiceTest {
 
   @MockBean
   private PadFileService padFileService;
+
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   @Test
   public void cleanupData() {

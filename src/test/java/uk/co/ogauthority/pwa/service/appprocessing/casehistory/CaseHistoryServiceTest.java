@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
@@ -53,6 +54,9 @@ public class CaseHistoryServiceTest {
 
   @MockBean
   private ApplicationSubmissionCaseHistoryItemService applicationSubmissionCaseHistoryItemService;
+
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   private CaseHistoryItemView firstCaseHistory, secondCaseHistoryWithFiles;
 

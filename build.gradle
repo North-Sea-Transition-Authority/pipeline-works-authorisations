@@ -59,6 +59,9 @@ dependencies {
     exclude group: 'com.sun.xml.bind', module: 'jaxb-impl'
   }
 
+  implementation 'uk.co.fivium.energyportal.accounts:energy-portal-accounts-spring-boot-starter:v0.5'
+  implementation 'uk.co.fivium.energyportalmessagequeue:spring-boot-starter:v4.4.0'
+
   implementation 'org.springframework.data:spring-data-envers'
 
   // automatically generates jpa meta-model for type safe criteria builder queries
@@ -104,10 +107,14 @@ dependencies {
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
       'com.squareup.okhttp3:mockwebserver:4.9.1',
-      'com.squareup.okhttp3:okhttp:4.9.1' // Required otherwise MockWebServer gives ClassNotFoundException
+      'com.squareup.okhttp3:okhttp:4.9.1', // Required otherwise MockWebServer gives ClassNotFoundException
+      'org.junit.vintage:junit-vintage-engine',
   )
-  testImplementation 'junit:junit:4.13.1'
 
+}
+
+test {
+  useJUnitPlatform()
 }
 
 checkstyle {

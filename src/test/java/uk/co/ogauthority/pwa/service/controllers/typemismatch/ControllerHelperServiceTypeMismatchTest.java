@@ -25,11 +25,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.WebSecurityConfig;
 import uk.co.ogauthority.pwa.controller.AbstractControllerTest;
 import uk.co.ogauthority.pwa.controller.PwaMvcTestConfiguration;
+import uk.co.ogauthority.pwa.energyportal.logout.ServiceLogoutSuccessHandler;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsService;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactService;
@@ -48,7 +50,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,
     PwaMvcTestConfiguration.class,
-    WebSecurityConfig.class
+    WebSecurityConfig.class,
+    ServiceLogoutSuccessHandler.class
 })
 @EnableConfigurationProperties(ExternalApiConfiguration.class)
 @ActiveProfiles("test")
@@ -97,6 +100,9 @@ public class ControllerHelperServiceTypeMismatchTest {
 
   @MockBean
   protected AnalyticsService analyticsService;
+
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   @Before
   public void setUp() {

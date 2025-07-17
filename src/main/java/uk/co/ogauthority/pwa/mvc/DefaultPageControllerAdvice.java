@@ -66,7 +66,6 @@ public class DefaultPageControllerAdvice {
   @ModelAttribute
   public void addCommonModelAttributes(Model model) {
     addCurrentUserView(model);
-    addLogoutUrl(model);
     addTopMenuItems(model, request);
     addSubmitButtonText(model);
     addMarkdownGuidanceUrl(model);

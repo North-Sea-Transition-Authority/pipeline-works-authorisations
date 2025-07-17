@@ -19,6 +19,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccountTestUtil;
 import uk.co.ogauthority.pwa.integrations.energyportal.organisations.external.PortalOrganisationGroup;
@@ -57,6 +58,8 @@ public class AsBuiltNotificationWorkAreaIntegrationTest {
   @MockBean
   private PwaTeamService pwaTeamService;
 
+  @MockBean
+  private EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   private final AuthenticatedUserAccount adminUser = AuthenticatedUserAccountTestUtil.createAllPrivUserAccount(1);
   private final AuthenticatedUserAccount industryUser = AuthenticatedUserAccountTestUtil.createAllPrivUserAccount(2);

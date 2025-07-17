@@ -25,11 +25,13 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.config.ExternalApiAuthenticationEntryPoint;
 import uk.co.ogauthority.pwa.config.ExternalApiConfiguration;
 import uk.co.ogauthority.pwa.config.ServiceProperties;
 import uk.co.ogauthority.pwa.config.WebSecurityConfig;
 import uk.co.ogauthority.pwa.config.fileupload.FileUploadProperties;
+import uk.co.ogauthority.pwa.energyportal.logout.ServiceLogoutSuccessHandler;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfig;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsConfigurationProperties;
 import uk.co.ogauthority.pwa.features.analytics.AnalyticsProperties;
@@ -55,7 +57,8 @@ import uk.co.ogauthority.pwa.service.teams.TeamService;
 @Import({
     AbstractControllerTest.AbstractControllerTestConfiguration.class,
     AnalyticsConfigurationProperties.class,
-    WebSecurityConfig.class
+    WebSecurityConfig.class,
+    ServiceLogoutSuccessHandler.class
 })
 public abstract class AbstractControllerTest {
 
@@ -96,6 +99,9 @@ public abstract class AbstractControllerTest {
 
   @MockBean
   protected AnalyticsService analyticsService;
+
+  @MockBean
+  protected EnergyPortalServiceAccessService energyPortalServiceAccessService;
 
   @Before
   public void commonControllerTestSetup() {
