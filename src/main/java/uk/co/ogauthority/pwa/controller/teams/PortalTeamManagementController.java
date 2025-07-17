@@ -31,6 +31,7 @@ import uk.co.ogauthority.pwa.model.teammanagement.TeamView;
 import uk.co.ogauthority.pwa.model.teams.PwaTeam;
 import uk.co.ogauthority.pwa.model.teams.PwaTeamType;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.EnergyPortalUrlService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.PwaUserRole;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
 import uk.co.ogauthority.pwa.service.teammanagement.AddUserToTeamFormValidator;
@@ -45,15 +46,15 @@ public class PortalTeamManagementController {
 
   private final TeamManagementService teamManagementService;
   private final AddUserToTeamFormValidator addUserToTeamFormValidator;
-  private final String ogaRegistrationLink;
+  private final String registrationUrl;
 
   @Autowired
   public PortalTeamManagementController(TeamManagementService teamManagementService,
                                         AddUserToTeamFormValidator addUserToTeamFormValidator,
-                                        @Value("${oga.registration.link}") String ogaRegistrationLink) {
+                                        EnergyPortalUrlService energyPortalUrlService) {
     this.teamManagementService = teamManagementService;
     this.addUserToTeamFormValidator = addUserToTeamFormValidator;
-    this.ogaRegistrationLink = ogaRegistrationLink;
+    this.registrationUrl = energyPortalUrlService.getRegistrationUrl();
   }
 
 
@@ -136,7 +137,7 @@ public class PortalTeamManagementController {
         .addObject("showTopNav", true)
         .addObject("cancelUrl", ReverseRouter.route(
             on(PortalTeamManagementController.class).renderTeamMembers(team.getId(), null)))
-        .addObject("ogaRegistrationLink", ogaRegistrationLink);
+        .addObject("registrationUrl", registrationUrl);
   }
 
   @PostMapping("/teams/{resId}/member/new")

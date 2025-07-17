@@ -22,9 +22,26 @@ CVE-2024-12801
 CVE-2024-50379
 CVE-2024-56337
 CVE-2025-24813
+CVE-2025-48988
+CVE-2025-31650
+CVE-2025-49125
+CVE-2025-31651
+CVE-2025-46701
 
 # io.netty:netty-common
 CVE-2025-25193
 
 # io.netty:netty-handler
 CVE-2025-24970
+
+# commons-beanutils:commons-beanutils
+CVE-2025-48734
+
+# org.springframework:spring-boot
+CVE-2025-22235
+
+# org.springframework:spring-context
+CVE-2025-22233
+
+# org.springframework:spring-web
+CVE-2025-41234

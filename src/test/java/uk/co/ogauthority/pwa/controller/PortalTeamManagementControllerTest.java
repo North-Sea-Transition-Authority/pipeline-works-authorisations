@@ -22,7 +22,6 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -57,9 +56,6 @@ public class PortalTeamManagementControllerTest extends AbstractControllerTest {
 
   @MockBean
   protected AddUserToTeamFormValidator addUserToTeamFormValidator;
-
-  @Value("${oga.registration.link}")
-  private String ogaRegistrationLink;
 
   private AuthenticatedUserAccount regulatorTeamAdmin;
   private Person regulatorTeamAdminPerson;

@@ -1,6 +1,5 @@
 package uk.co.ogauthority.pwa.config;
 
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +12,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import uk.co.ogauthority.pwa.auth.FoxLoginCallbackFilter;
 import uk.co.ogauthority.pwa.auth.FoxSessionFilter;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
-import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.EnergyPortalUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 
 @Configuration
@@ -24,16 +22,16 @@ public class WebSecurityConfig {
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSecurityConfig.class);
 
   private final UserSessionService userSessionService;
-  private final FoxUrlService foxUrlService;
+  private final EnergyPortalUrlService energyPortalUrlService;
   private final FoxLoginCallbackFilter foxLoginCallbackFilter;
   private final SystemAreaAccessService systemAreaAccessService;
 
   @Autowired
-  public WebSecurityConfig(UserSessionService userSessionService, FoxUrlService foxUrlService,
+  public WebSecurityConfig(UserSessionService userSessionService, EnergyPortalUrlService energyPortalUrlService,
                            FoxLoginCallbackFilter foxLoginCallbackFilter,
                            SystemAreaAccessService systemAreaAccessService) {
     this.userSessionService = userSessionService;
-    this.foxUrlService = foxUrlService;
+    this.energyPortalUrlService = energyPortalUrlService;
     this.foxLoginCallbackFilter = foxLoginCallbackFilter;
     this.systemAreaAccessService = systemAreaAccessService;
   }
@@ -94,7 +92,7 @@ public class WebSecurityConfig {
                   "Unauthenticated user attempted to access authenticated resource: '{}' Redirecting to login screen...",
                   request.getRequestURI()
               );
-              response.sendRedirect(foxUrlService.getFoxLoginUrl());
+              response.sendRedirect(energyPortalUrlService.getLoginUrl());
             })
         )
         .addFilterBefore(

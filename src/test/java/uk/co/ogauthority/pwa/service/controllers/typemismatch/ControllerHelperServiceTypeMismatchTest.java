@@ -36,7 +36,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaC
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.model.form.fds.ErrorItem;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
-import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.EnergyPortalUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
@@ -63,7 +63,7 @@ public class ControllerHelperServiceTypeMismatchTest {
   protected WebApplicationContext context;
 
   @MockBean
-  protected FoxUrlService foxUrlService;
+  protected EnergyPortalUrlService energyPortalUrlService;
 
   @MockBean
   protected UserSessionService userSessionService;

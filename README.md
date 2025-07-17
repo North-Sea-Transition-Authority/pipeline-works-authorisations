@@ -54,6 +54,15 @@ Output should claim build succesfull.
 | ANALYTICS_APP_API_SECRET    | The api secret for the analytics collection endpoint (app) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1855))         |
 | ANALYTICS_GLOBAL_API_SECRET | The api secret for the analytics collection endpoint (portal-wide) ([TPM Link](https://tpm.fivium.co.uk/index.php/pwd/view/1865)) |
 | PWA_API_PRE_SHARED_KEY      | The API key used to validate requests from the Energy Portal API                                                                  |
+| PWA_LOGIN_URL               | The login URL of the IDP                                                                                                          |
+| PWA_LOGOUT_URL              | The logout URL of the IDP                                                                                                         |
+| PWA_REGISTRATION_URL        | The registration URL of the IDP                                                                                                   |
+
+## Logging
+
+PWA can log in either JSON or text mode.
+
+In order to turn on JSON logging, set the profile 'json-logging'. This will automatically include any MDC attributes.
 
 ## Logging
 

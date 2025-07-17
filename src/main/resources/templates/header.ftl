@@ -14,7 +14,7 @@ wrapperWidth=false>
       <@fdsHeader.headerNavigation>
           <#if currentUserView?has_content && currentUserView.isAuthenticated()>
               <@fdsHeader.headerNavigationItem itemText=currentUserView.getFullName()/>
-              <@fdsHeader.headerNavigationItem itemText="Sign out" itemUrl=foxLogoutUrl/>
+              <@fdsHeader.headerNavigationItem itemText="Sign out" itemUrl=logoutUrl/>
           </#if>
       </@fdsHeader.headerNavigation>
   </@fdsHeader.header>

@@ -39,7 +39,7 @@ import uk.co.ogauthority.pwa.features.webapp.SystemAreaAccessService;
 import uk.co.ogauthority.pwa.features.webapp.TopMenuService;
 import uk.co.ogauthority.pwa.model.entity.UserSession;
 import uk.co.ogauthority.pwa.mvc.error.ErrorService;
-import uk.co.ogauthority.pwa.service.FoxUrlService;
+import uk.co.ogauthority.pwa.service.EnergyPortalUrlService;
 import uk.co.ogauthority.pwa.service.UserSessionService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.footer.FooterService;
@@ -65,7 +65,7 @@ public abstract class AbstractControllerTest {
   protected WebApplicationContext context;
 
   @MockBean
-  protected FoxUrlService foxUrlService;
+  protected EnergyPortalUrlService energyPortalUrlService;
 
   @MockBean
   protected UserSessionService userSessionService;
@@ -105,8 +105,9 @@ public abstract class AbstractControllerTest {
         .apply(SecurityMockMvcConfigurers.springSecurity())
         .build();
 
-    when(foxUrlService.getFoxLoginUrl()).thenReturn("testLoginUrl");
-    when(foxUrlService.getFoxLogoutUrl()).thenReturn("testLogoutUrl");
+    when(energyPortalUrlService.getLoginUrl()).thenReturn("testLoginUrl");
+    when(energyPortalUrlService.getLogoutUrl()).thenReturn("testLogoutUrl");
+    when(energyPortalUrlService.getRegistrationUrl()).thenReturn("testRegistrationUrl");
 
     when(userSessionService.getAndValidateSession(any(), anyBoolean())).thenReturn(Optional.of(new UserSession()));
 

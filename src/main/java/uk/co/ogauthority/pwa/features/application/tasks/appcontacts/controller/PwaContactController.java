@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,6 +42,7 @@ import uk.co.ogauthority.pwa.model.form.masterpwas.contacts.AddPwaContactForm;
 import uk.co.ogauthority.pwa.model.form.teammanagement.UserRolesForm;
 import uk.co.ogauthority.pwa.model.teammanagement.TeamMemberView;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.service.EnergyPortalUrlService;
 import uk.co.ogauthority.pwa.service.controllers.ControllerHelperService;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ApplicationState;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
@@ -75,7 +75,7 @@ public class PwaContactController {
 
   private final Map<String, String> rolesCheckboxMap;
   private final Map<String, String> allRolesMap;
-  private final String ogaRegistrationLink;
+  private final String registrationUrl;
 
   @Autowired
   public PwaContactController(PwaContactService pwaContactService,
@@ -85,7 +85,7 @@ public class PwaContactController {
                               ControllerHelperService controllerHelperService,
                               PwaHolderService pwaHolderService,
                               PwaApplicationRedirectService pwaApplicationRedirectService,
-                              @Value("${oga.registration.link}") String ogaRegistrationLink) {
+                              EnergyPortalUrlService energyPortalUrlService) {
     this.pwaContactService = pwaContactService;
     this.applicationBreadcrumbService = applicationBreadcrumbService;
     this.teamManagementService = teamManagementService;
@@ -93,7 +93,7 @@ public class PwaContactController {
     this.controllerHelperService = controllerHelperService;
     this.pwaHolderService = pwaHolderService;
     this.pwaApplicationRedirectService = pwaApplicationRedirectService;
-    this.ogaRegistrationLink = ogaRegistrationLink;
+    this.registrationUrl = energyPortalUrlService.getRegistrationUrl();
 
     rolesCheckboxMap = PwaContactRole.stream()
         .sorted(Comparator.comparing(PwaContactRole::getDisplayOrder))
@@ -170,7 +170,7 @@ public class PwaContactController {
         .addObject("cancelUrl", ReverseRouter.route(
             on(PwaContactController.class).renderContactsScreen(pwaApplication.getApplicationType(), pwaApplication.getId(), null, null)))
         .addObject("form", form)
-        .addObject("ogaRegistrationLink", ogaRegistrationLink);
+        .addObject("registrationUrl", registrationUrl);
   }
 
   @GetMapping("/new")

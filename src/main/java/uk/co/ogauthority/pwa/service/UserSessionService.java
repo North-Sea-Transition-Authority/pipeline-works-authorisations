@@ -36,7 +36,7 @@ public class UserSessionService {
   public UserSessionService(UserSessionRepository userSessionRepository,
                             WebUserAccountRepository webUserAccountRepository,
                             TeamService teamService,
-                            @Value("${app.fox.session-timeout}") Duration foxSessionTimeout,
+                            @Value("${energy-portal.session-timeout}") Duration foxSessionTimeout,
                             @Qualifier("utcClock") Clock utcSystemClock) {
     this.userSessionRepository = userSessionRepository;
     this.webUserAccountRepository = webUserAccountRepository;
