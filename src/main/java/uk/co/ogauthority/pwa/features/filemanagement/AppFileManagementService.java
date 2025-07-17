@@ -96,23 +96,23 @@ public class AppFileManagementService {
   }
 
   public UploadedFileView getUploadedFileView(PwaApplication pwaApplication, UUID fileId) {
-    return createUploadedFileView(getUploadedFile(pwaApplication, fileId), pwaApplication);
+    return createUploadedFileView(getUploadedFile(pwaApplication, fileId));
   }
 
   public List<UploadedFileView> getUploadedFileViews(PwaApplication pwaApplication, FileDocumentType fileDocumentType) {
     return getUploadedFiles(pwaApplication, fileDocumentType).stream()
-        .map(uploadedFile -> createUploadedFileView(uploadedFile, pwaApplication))
+        .map(this::createUploadedFileView)
         .toList();
   }
 
-  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile, PwaApplication pwaApplication) {
+  private UploadedFileView createUploadedFileView(UploadedFile uploadedFile) {
     return new UploadedFileView(
         String.valueOf(uploadedFile.getId()),
         uploadedFile.getName(),
         uploadedFile.getContentLength(),
         uploadedFile.getDescription(),
         uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplication.getId(), uploadedFile.getId()))
+        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
     );
   }
 

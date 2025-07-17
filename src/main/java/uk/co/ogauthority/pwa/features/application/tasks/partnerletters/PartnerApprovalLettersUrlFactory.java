@@ -3,23 +3,20 @@ package uk.co.ogauthority.pwa.features.application.tasks.partnerletters;
 import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.util.Objects;
-import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.features.filemanagement.PadFileManagementRestController;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class PartnerApprovalLettersUrlFactory {
 
-  private final Integer applicationId;
-  private final PwaApplicationType applicationType;
+  private final Integer applicationDetailId;
 
   public PartnerApprovalLettersUrlFactory(PwaApplicationDetail detail) {
-    this.applicationId = detail.getMasterPwaApplicationId();
-    this.applicationType = detail.getPwaApplicationType();
+    this.applicationDetailId = detail.getId();
   }
 
   public String getDocumentDownloadUrl() {
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationDetailId, null));
   }
 
   @Override
@@ -31,12 +28,11 @@ public class PartnerApprovalLettersUrlFactory {
       return false;
     }
     PartnerApprovalLettersUrlFactory that = (PartnerApprovalLettersUrlFactory) o;
-    return Objects.equals(applicationId, that.applicationId)
-        && applicationType == that.applicationType;
+    return Objects.equals(applicationDetailId, that.applicationDetailId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationId, applicationType);
+    return Objects.hash(applicationDetailId);
   }
 }

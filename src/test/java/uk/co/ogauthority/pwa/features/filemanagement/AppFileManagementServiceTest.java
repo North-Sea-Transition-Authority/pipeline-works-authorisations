@@ -157,7 +157,7 @@ class AppFileManagementServiceTest {
         uploadedFile.getContentLength(),
         uploadedFile.getDescription(),
         uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplication.getId(), uploadedFile.getId()))
+        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
     );
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -182,7 +182,7 @@ class AppFileManagementServiceTest {
         uploadedFile.getContentLength(),
         uploadedFile.getDescription(),
         uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplication.getId(), uploadedFile.getId()))
+        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
     );
 
     when(fileService.findAll(pwaApplication.getId().toString(), USAGE_TYPE, DOCUMENT_TYPE.name())).thenReturn(List.of(uploadedFile));

@@ -80,7 +80,11 @@ class DepositDrawingsSummaryServiceTest {
     assertThat(appSummary.getTemplatePath()).isEqualTo(TEMPLATE);
     assertThat(appSummary.getTemplateModel()).contains(entry("depositDrawingViews", depositDrawingViews));
     assertThat(appSummary.getTemplateModel()).contains(entry("sectionDisplayText", ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName()));
-    assertThat(appSummary.getTemplateModel()).contains(entry("depositDrawingUrlFactory", new DepositDrawingUrlFactory(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId())));
+    assertThat(appSummary.getTemplateModel()).contains(entry("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
+        pwaApplicationDetail.getPwaApplicationType(),
+        pwaApplicationDetail.getMasterPwaApplicationId(),
+        pwaApplicationDetail.getId()
+    )));
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.PERMANENT_DEPOSIT_DRAWINGS.getDisplayName(), "#depositDrawingDetails")
     );

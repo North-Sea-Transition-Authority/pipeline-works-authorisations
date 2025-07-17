@@ -95,7 +95,7 @@ class SupplementaryDocumentsSummaryServiceTest {
         SidebarSectionLink.createAnchorLink(ApplicationTask.SUPPLEMENTARY_DOCUMENTS.getDisplayName(), "#supplementaryDocuments"));
 
     assertThat(appSummary.getTemplateModel()).containsEntry("suppDocFileDownloadUrl", ReverseRouter.route(
-        on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
+        on(PadFileManagementRestController.class).download(pwaApplicationDetail.getId(), null)));
   }
 
 }

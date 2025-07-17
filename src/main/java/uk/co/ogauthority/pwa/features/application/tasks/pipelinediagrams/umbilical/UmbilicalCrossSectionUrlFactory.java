@@ -13,10 +13,12 @@ public class UmbilicalCrossSectionUrlFactory {
 
   private final Integer applicationId;
   private final PwaApplicationType applicationType;
+  private final Integer applicationDetailId;
 
   public UmbilicalCrossSectionUrlFactory(PwaApplicationDetail detail) {
     this.applicationId = detail.getMasterPwaApplicationId();
     this.applicationType = detail.getPwaApplicationType();
+    this.applicationDetailId = detail.getId();
   }
 
   public String getAddDocumentUrl() {
@@ -25,7 +27,7 @@ public class UmbilicalCrossSectionUrlFactory {
   }
 
   public String getDocumentDownloadUrl() {
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationDetailId, null));
   }
 
   @Override

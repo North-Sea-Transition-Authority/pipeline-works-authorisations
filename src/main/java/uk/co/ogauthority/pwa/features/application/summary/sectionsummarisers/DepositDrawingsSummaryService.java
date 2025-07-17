@@ -51,7 +51,11 @@ public class DepositDrawingsSummaryService implements ApplicationSectionSummaris
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("depositDrawingViews", depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail));
     summaryModel.put("depositDrawingUrlFactory",
-        new DepositDrawingUrlFactory(pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
+        new DepositDrawingUrlFactory(
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getId()
+            ));
 
     return new ApplicationSectionSummary(
         templateName,

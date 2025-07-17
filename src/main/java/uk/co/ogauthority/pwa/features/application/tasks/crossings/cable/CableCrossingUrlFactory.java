@@ -11,12 +11,14 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class CableCrossingUrlFactory {
 
-  private PwaApplicationType pwaApplicationType;
-  private Integer applicationId;
+  private final PwaApplicationType pwaApplicationType;
+  private final Integer applicationId;
+  private final Integer pwaApplicationDetailId;
 
   public CableCrossingUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
     pwaApplicationType = pwaApplicationDetail.getPwaApplicationType();
     applicationId = pwaApplicationDetail.getMasterPwaApplicationId();
+    pwaApplicationDetailId = pwaApplicationDetail.getId();
   }
 
   public String getAddCableCrossingUrl() {
@@ -41,7 +43,7 @@ public class CableCrossingUrlFactory {
 
   public String getFileDownloadUrl() {
     // file id is null to allow templates to construct url as needed
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetailId, null));
   }
 
 }

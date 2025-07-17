@@ -17,7 +17,7 @@ import uk.co.ogauthority.pwa.features.application.authorisation.permission.PwaAp
 import uk.co.ogauthority.pwa.service.pwaapplications.PwaApplicationDetailService;
 
 @RestController
-@RequestMapping("/pwa-application/{applicationId}/file-management")
+@RequestMapping("/pwa-application/{applicationDetailId}/file-management")
 @PwaApplicationTypeCheck(types = {
     PwaApplicationType.INITIAL,
     PwaApplicationType.DEPOSIT_CONSENT,
@@ -47,10 +47,10 @@ public class PadFileManagementRestController {
   @GetMapping("/download/{fileId}")
   @PwaApplicationPermissionCheck(permissions = {PwaApplicationPermission.VIEW})
   public ResponseEntity<InputStreamResource> download(
-      @PathVariable Integer applicationId,
+      @PathVariable Integer applicationDetailId,
       @PathVariable UUID fileId
   ) {
-    var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationId);
+    var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationDetailId);
 
     var file = fileService.find(fileId)
         .orElseThrow(() -> padFileManagementService.getFileNotFoundException(pwaApplicationDetail, fileId));
@@ -63,10 +63,10 @@ public class PadFileManagementRestController {
   @PostMapping("/delete/{fileId}")
   //@PwaApplicationStatusCheck(statuses = {PwaApplicationStatus.DRAFT, PwaApplicationStatus.UPDATE_REQUESTED})
   public FileDeleteResponse delete(
-      @PathVariable Integer applicationId,
+      @PathVariable Integer applicationDetailId,
       @PathVariable UUID fileId
   ) {
-    var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationId);
+    var pwaApplicationDetail = pwaApplicationDetailService.getDetailByDetailId(applicationDetailId);
 
     var file = fileService.find(fileId)
         .orElseThrow(() -> padFileManagementService.getFileNotFoundException(pwaApplicationDetail, fileId));

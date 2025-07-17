@@ -199,7 +199,10 @@ public class PermanentDepositDrawingsController {
     var modelAndView = new ModelAndView("pwaApplication/shared/permanentdepositdrawings/depositDrawingOverview");
     modelAndView.addObject("backUrl", pwaApplicationRedirectService.getTaskListRoute(pwaApplicationDetail.getPwaApplication()))
         .addObject("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()))
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getId()
+        ))
         .addObject("depositDrawingSummaryViews", depositDrawingsService.getDepositDrawingSummaryViews(pwaApplicationDetail));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
@@ -239,7 +242,10 @@ public class PermanentDepositDrawingsController {
             pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId(),null, null)))
         .addObject("depositDrawingView", depositDrawingsService.getDepositDrawingView(depositDrawingId, pwaApplicationDetail))
         .addObject("depositDrawingUrlFactory", new DepositDrawingUrlFactory(
-            pwaApplicationDetail.getPwaApplicationType(), pwaApplicationDetail.getMasterPwaApplicationId()));
+            pwaApplicationDetail.getPwaApplicationType(),
+            pwaApplicationDetail.getMasterPwaApplicationId(),
+            pwaApplicationDetail.getId()
+        ));
 
     applicationBreadcrumbService.fromTaskList(pwaApplicationDetail.getPwaApplication(), modelAndView,
         "Permanent deposits");

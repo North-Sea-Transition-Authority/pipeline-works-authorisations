@@ -39,7 +39,7 @@ public class CarbonStorageCrossingUrlFactory {
 
   public String getFileDownloadUrl() {
     // file id is null to allow templates to construct url as needed
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getId(), null));
   }
 
 

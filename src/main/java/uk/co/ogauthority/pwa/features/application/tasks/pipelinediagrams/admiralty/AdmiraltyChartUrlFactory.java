@@ -13,10 +13,12 @@ public class AdmiraltyChartUrlFactory {
 
   private final PwaApplicationType applicationType;
   private final Integer applicationId;
+  private final Integer applicationDetailId;
 
   public AdmiraltyChartUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
     applicationType = pwaApplicationDetail.getPwaApplicationType();
     applicationId = pwaApplicationDetail.getMasterPwaApplicationId();
+    applicationDetailId = pwaApplicationDetail.getId();
   }
 
   public String getAddDocumentsUrl() {
@@ -25,7 +27,7 @@ public class AdmiraltyChartUrlFactory {
   }
 
   public String getDocumentsDownloadUrl() {
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationDetailId, null));
   }
 
   @Override

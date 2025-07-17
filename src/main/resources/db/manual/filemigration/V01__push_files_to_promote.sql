@@ -57,7 +57,8 @@ FROM pwa.docgen_runs dr
     JOIN pwa.document_instances di ON dr.di_id = di.id
     JOIN pwa.pwa_consents pc ON pc.docgen_run_id = dr.id
 WHERE dr.docgen_type = 'FULL'
-    AND dr.status = 'COMPLETE';
+    AND dr.status = 'COMPLETE'
+    AND dr.generated_doc IS NOT NULL;
 
 INSERT INTO promotemgr.s3_file_migration (
     fox_file_id,

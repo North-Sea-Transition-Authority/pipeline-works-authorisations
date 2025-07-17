@@ -58,7 +58,7 @@ public class OptionsTemplateSummaryService implements ApplicationSectionSummaris
 
     if (fileView != null) {
       summaryModel.put("optionsFileDownloadUrl", ReverseRouter.route(on(PadFileManagementRestController.class)
-          .download(pwaApplicationDetail.getMasterPwaApplicationId(), UUID.fromString(fileView.getFileId()))));
+          .download(pwaApplicationDetail.getId(), UUID.fromString(fileView.getFileId()))));
     }
 
     return new ApplicationSectionSummary(

@@ -14,6 +14,6 @@ BEGIN
         SET file_id = file_map_rec.new_file_id
         WHERE file_id = file_map_rec.old_file_id;
 
-    end loop;
+    END LOOP;
 
 END;

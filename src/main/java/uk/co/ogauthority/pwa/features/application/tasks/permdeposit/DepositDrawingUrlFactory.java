@@ -14,10 +14,12 @@ public class DepositDrawingUrlFactory {
 
   private final PwaApplicationType applicationType;
   private final Integer applicationId;
+  private final Integer applicationDetailId;
 
-  public DepositDrawingUrlFactory(PwaApplicationType applicationType, Integer applicationId) {
+  public DepositDrawingUrlFactory(PwaApplicationType applicationType, Integer applicationId, Integer applicationDetailId) {
     this.applicationType = applicationType;
     this.applicationId = applicationId;
+    this.applicationDetailId = applicationDetailId;
   }
 
   public String getAddPipelineDrawingUrl() {
@@ -26,7 +28,7 @@ public class DepositDrawingUrlFactory {
   }
 
   public String getPipelineDrawingDownloadUrl(String fileId) {
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, UUID.fromString(fileId)));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationDetailId, UUID.fromString(fileId)));
   }
 
   public String getEditDrawingUrl(int drawingId) {

@@ -13,10 +13,12 @@ public class MedianLineCrossingUrlFactory {
 
   private final int pwaApplicationId;
   private final PwaApplicationType applicationType;
+  private final int pwaApplicationDetailId;
 
   public MedianLineCrossingUrlFactory(PwaApplicationDetail pwaApplicationDetail) {
     this.pwaApplicationId = pwaApplicationDetail.getMasterPwaApplicationId();
     this.applicationType = pwaApplicationDetail.getPwaApplicationType();
+    this.pwaApplicationDetailId = pwaApplicationDetail.getId();
   }
 
   public String getAddMedianLineCrossingUrl() {
@@ -31,7 +33,7 @@ public class MedianLineCrossingUrlFactory {
 
   public String getFileDownloadUrl() {
     // file id is null to allow templates to construct url as needed
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(pwaApplicationDetailId, null));
   }
 
 }

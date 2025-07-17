@@ -37,7 +37,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 
 @WebMvcTest(controllers = PadFileManagementRestController.class, includeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = PwaApplicationContextService.class))
 class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractControllerTest {
-  private static final Integer APPLICATION_ID = 1;
+  private static final Integer APPLICATION_DETAIL_ID = 1;
   private static final UUID FILE_ID = UUID.randomUUID();
   private static final Class<PadFileManagementRestController> CONTROLLER = PadFileManagementRestController.class;
 
@@ -61,7 +61,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   void download() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -69,7 +69,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(fileService.download(uploadedFile)).thenReturn(ResponseEntity.ok().build());
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
-            .download(APPLICATION_ID, FILE_ID)))
+            .download(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(user(user)))
         .andExpect(status().isOk());
 
@@ -79,21 +79,21 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   void download_invalidFileId() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
     when(padFileManagementService.getFileNotFoundException(pwaApplicationDetail, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
-            .download(APPLICATION_ID, FILE_ID)))
+            .download(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(user(user)))
         .andExpect(status().isNotFound());
   }
 
   @Test
   void download_fileNotLinkedToApplication() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -103,7 +103,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
         .throwIfFileDoesNotBelongToApplicationDetail(uploadedFile, pwaApplicationDetail);
 
     mockMvc.perform(get(ReverseRouter.route(on(CONTROLLER)
-            .download(APPLICATION_ID, FILE_ID)))
+            .download(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(user(user)))
         .andExpect(status().isNotFound());
 
@@ -112,7 +112,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   void delete() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -120,7 +120,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
     when(fileService.delete(uploadedFile)).thenReturn(FileDeleteResponse.success(FILE_ID));
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
-            .delete(APPLICATION_ID, FILE_ID)))
+            .delete(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(csrf())
             .with(user(user)))
         .andExpect(status().isOk());
@@ -131,14 +131,14 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   void delete_invalidFileId() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     when(fileService.find(FILE_ID)).thenReturn(Optional.empty());
     when(padFileManagementService.getFileNotFoundException(pwaApplicationDetail, FILE_ID))
         .thenReturn(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
-            .delete(APPLICATION_ID, FILE_ID)))
+            .delete(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(csrf())
             .with(user(user)))
         .andExpect(status().isNotFound());
@@ -146,7 +146,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
 
   @Test
   void delete_fileNotLinkedToApplication() throws Exception {
-    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_ID)).thenReturn(pwaApplicationDetail);
+    when(pwaApplicationDetailService.getDetailByDetailId(APPLICATION_DETAIL_ID)).thenReturn(pwaApplicationDetail);
 
     var uploadedFile = new UploadedFile();
     when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
@@ -156,7 +156,7 @@ class PadFileManagementRestControllerTest extends PwaApplicationContextAbstractC
         .throwIfFileDoesNotBelongToApplicationDetail(uploadedFile, pwaApplicationDetail);
 
     mockMvc.perform(post(ReverseRouter.route(on(CONTROLLER)
-            .delete(APPLICATION_ID, FILE_ID)))
+            .delete(APPLICATION_DETAIL_ID, FILE_ID)))
             .with(csrf())
             .with(user(user)))
         .andExpect(status().isNotFound());

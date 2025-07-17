@@ -59,7 +59,7 @@ public class SupplementaryDocumentsSummaryService implements ApplicationSectionS
     summaryModel.put("sectionDisplayText", sectionDisplayText);
     summaryModel.put("docFileViews", docFileViews);
     summaryModel.put("suppDocFileDownloadUrl", ReverseRouter.route(
-        on(PadFileManagementRestController.class).download(pwaApplicationDetail.getMasterPwaApplicationId(), null)));
+        on(PadFileManagementRestController.class).download(pwaApplicationDetail.getId(), null)));
 
     return new ApplicationSectionSummary(
         templateName,

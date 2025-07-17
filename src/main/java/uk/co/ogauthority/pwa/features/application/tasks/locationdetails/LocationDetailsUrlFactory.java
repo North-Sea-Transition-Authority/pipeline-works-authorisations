@@ -9,14 +9,14 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 public class LocationDetailsUrlFactory {
 
-  private final Integer applicationId;
+  private final Integer applicationDetailId;
 
   public LocationDetailsUrlFactory(PwaApplicationDetail detail) {
-    this.applicationId = detail.getMasterPwaApplicationId();
+    this.applicationDetailId = detail.getId();
   }
 
   public String getDocumentDownloadUrl() {
-    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationId, null));
+    return ReverseRouter.route(on(PadFileManagementRestController.class).download(applicationDetailId, null));
   }
 
 
@@ -29,11 +29,11 @@ public class LocationDetailsUrlFactory {
       return false;
     }
     LocationDetailsUrlFactory that = (LocationDetailsUrlFactory) o;
-    return Objects.equals(applicationId, that.applicationId);
+    return Objects.equals(applicationDetailId, that.applicationDetailId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(applicationId);
+    return Objects.hash(applicationDetailId);
   }
 }
