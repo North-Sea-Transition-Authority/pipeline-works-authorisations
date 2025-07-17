@@ -2,7 +2,7 @@ DECLARE
 
   l_target_res_id decmgr.resources.id%TYPE;
   l_target_res_type decmgr.resource_types.res_type%TYPE := 'PWA_USERS';
-  l_system_wua_id appenv.web_user_accounts.id%TYPE := 0; -- System/Admin WUA ID
+  l_system_wua_id appenv.web_user_accounts.id%TYPE := 1; -- System/Admin WUA ID
 
 BEGIN
 
