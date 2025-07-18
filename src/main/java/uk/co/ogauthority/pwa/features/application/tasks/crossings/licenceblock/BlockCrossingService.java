@@ -244,7 +244,7 @@ public class BlockCrossingService implements ApplicationFormSectionService {
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = padCrossedBlockRepository.countPadCrossedBlockByPwaApplicationDetail(pwaApplicationDetail);
     return List.of(
-        new TaskInfo("BLOCK", (long) blockCount)
+        new TaskInfo("Block", (long) blockCount)
     );
   }
 

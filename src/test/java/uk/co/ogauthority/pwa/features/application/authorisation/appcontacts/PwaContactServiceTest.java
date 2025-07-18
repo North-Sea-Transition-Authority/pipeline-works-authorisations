@@ -585,7 +585,7 @@ class PwaContactServiceTest {
     assertThat(taskInfoList).hasSize(1);
     assertThat(taskInfoList.get(0)).satisfies(taskInfo -> {
       assertThat(taskInfo.getCount()).isEqualTo(1L);
-      assertThat(taskInfo.getCountType()).isEqualTo("CONTACT");
+      assertThat(taskInfo.getCountType()).isEqualTo("Contact");
     });
   }
 

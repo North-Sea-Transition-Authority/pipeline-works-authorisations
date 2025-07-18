@@ -8,21 +8,23 @@
 
 <#macro taskInfoItem taskName taskInfoList route isCompleted linkScreenReaderText="">
 
-  <li class="fds-task-list__item">
-    <span class="fds-task-list__task-name">
-      <@fdsAction.link linkText=taskName linkUrl=springUrl(route) linkScreenReaderText=linkScreenReaderText />
-    </span>
-      <#list taskInfoList as taskInfo>
-          <#if taskInfo.count gt 0>
-            <strong class="govuk-tag fds-task-list__task-completed">
-                <@stringUtils.pluralise count=taskInfo.count word=taskInfo.countType />
-            </strong>
-          </#if>
-      </#list>
-      <#if isCompleted>
-        <strong class="govuk-tag fds-task-list__task-completed">COMPLETED</strong>
-      <#else>
-        <strong class="govuk-tag govuk-tag--grey">NOT COMPLETED</strong>
-      </#if>
-  </li>
+  <#assign tagText></#assign>
+
+  <#list taskInfoList as taskInfo>
+    <#if taskInfo.count gt 0>
+      <#assign tagText>
+        <@stringUtils.pluralise count=taskInfo.count word=taskInfo.countType />
+      </#assign>
+    </#if>
+   </#list>
+
+    <@fdsTaskList.taskListItem
+      tagText=tagText!""
+      tagClass="govuk-tag--grey"
+      itemUrl=springUrl(route)
+      completed=isCompleted
+      showTag=true
+      itemText=taskName
+      useNotCompletedLabels=true
+     />
 </#macro>

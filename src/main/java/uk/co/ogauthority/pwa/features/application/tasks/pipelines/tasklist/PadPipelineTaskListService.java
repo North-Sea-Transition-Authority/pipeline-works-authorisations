@@ -206,7 +206,7 @@ public class PadPipelineTaskListService implements ApplicationFormSectionService
             "Idents",
             identTaskUrl,
             padPipelineIdentService.isSectionValid(padPipeline),
-            List.of(new TaskInfo("IDENT", padPipelineTaskListHeader.getNumberOfIdents())),
+            List.of(new TaskInfo("Ident", padPipelineTaskListHeader.getNumberOfIdents())),
             20
         )
     );

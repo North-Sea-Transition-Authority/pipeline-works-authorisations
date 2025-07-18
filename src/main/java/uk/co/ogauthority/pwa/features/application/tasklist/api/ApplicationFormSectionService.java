@@ -45,6 +45,8 @@ public interface ApplicationFormSectionService {
 
   /**
    * Use to retrieve a list of extra labels to add to the task list entry.
+   * TODO: EDU-7065 Frontend components only support one additional tag.
+   *       This ticket will change this to only return a single task list info
    * @return List of TaskInfo objects.
    */
   default List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {

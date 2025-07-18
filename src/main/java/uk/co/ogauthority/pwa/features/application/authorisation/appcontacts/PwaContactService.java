@@ -306,7 +306,7 @@ public class PwaContactService implements ApplicationFormSectionService {
 
   @Override
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
-    return List.of(new TaskInfo("CONTACT", countContactsByPwaApplication(pwaApplicationDetail.getPwaApplication())));
+    return List.of(new TaskInfo("Contact", countContactsByPwaApplication(pwaApplicationDetail.getPwaApplication())));
   }
 
   @Override

@@ -96,7 +96,7 @@ class ApplicationTaskServiceTest {
   @Test
   void getTaskInfoList_serviceInteractions() {
 
-    var taskInfo = new TaskInfo("INFO", 1L);
+    var taskInfo = new TaskInfo("Info", 1L);
 
     when(applicationFormSectionService.getTaskInfoList(any())).thenReturn(List.of(taskInfo));
 

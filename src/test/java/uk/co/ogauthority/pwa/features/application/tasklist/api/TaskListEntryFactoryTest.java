@@ -69,7 +69,7 @@ class TaskListEntryFactoryTest {
         eq(pwaApplicationDetail))
     ).thenReturn(true);
 
-    var taskInfo = new TaskInfo("TYPE", 1L);
+    var taskInfo = new TaskInfo("Type", 1L);
 
     when(applicationTaskService.getTaskInfoList(
         eq(testGeneralPurposeApplicationTask),

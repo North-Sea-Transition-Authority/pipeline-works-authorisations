@@ -135,7 +135,7 @@ public class PadPipelineCrossingService implements ApplicationFormSectionService
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var pipelineCrossingCount = padPipelineCrossingRepository.countAllByPwaApplicationDetail(pwaApplicationDetail);
     return List.of(
-        new TaskInfo("PIPELINE", (long) pipelineCrossingCount)
+        new TaskInfo("Pipeline", (long) pipelineCrossingCount)
     );
   }
 

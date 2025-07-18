@@ -61,7 +61,7 @@ public class CarbonStorageAreaCrossingService implements ApplicationFormSectionS
   public List<TaskInfo> getTaskInfoList(PwaApplicationDetail pwaApplicationDetail) {
     var blockCount = crossedStorageAreaRepository.countPadCrossedStorageAreaByPwaApplicationDetail(pwaApplicationDetail);
     return List.of(
-        new TaskInfo("AREA", (long) blockCount)
+        new TaskInfo("Area", (long) blockCount)
     );
   }
 
