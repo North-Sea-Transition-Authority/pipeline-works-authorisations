@@ -63,6 +63,6 @@
             
     </@defaultPagePaneContent>
 
-  <script type="module" src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
+  <script src="${springUrl("/assets/static/js/pwa/docgenAutoDownloader.js")}"></script>
 
 </@defaultPagePane>

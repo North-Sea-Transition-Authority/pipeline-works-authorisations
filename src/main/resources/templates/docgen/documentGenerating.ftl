@@ -7,7 +7,7 @@
     <p class="govuk-body">You will be automatically redirected when your document is ready.</p>
   </@fdsInsetText.insetText>
 
-  <script type="module" src="${springUrl("/assets/static/js/pwa/docgenStatusPoller.js")}"></script>
+  <script src="${springUrl("/assets/static/js/pwa/docgenStatusPoller.js")}"></script>
   <script>
     DocgenStatusPoller.contextPath = "${springUrl("")}";
     DocgenStatusPoller.statusUrl = "${statusUrl}";

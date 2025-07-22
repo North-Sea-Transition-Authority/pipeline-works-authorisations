@@ -47,8 +47,8 @@
 </#function>
 
 <#macro pwaCustomScripts>
-    <script type="module" src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
-    <script type="module" src="<@spring.url'/assets/static/js/pwa/googleAnalyticsEventTracking.js'/>"></script>
+    <script src="<@spring.url '/assets/static/js/pwa/tableSelectionToggler.js'/>"></script>
+    <script src="<@spring.url'/assets/static/js/pwa/googleAnalyticsEventTracking.js'/>"></script>
     <script>
         var PWA_CONFIG = {
             analyticsMeasurementUrl: "<@spring.url analyticsMeasurementUrl/>",

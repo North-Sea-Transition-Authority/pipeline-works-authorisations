@@ -36,6 +36,6 @@
   <div id="map-overlay"></div>
 
   <link rel="stylesheet" href="<@spring.url '/assets/css/vendor/openlayers/ol.6.3.1.css'/>" type="text/css">
-  <script type="module" src="<@spring.url '/assets/javascript/vendor/openlayers/ol.6.3.1.min.js'/>"></script>
-  <script type="module" src="<@spring.url '/assets/static/js/pwa/mapComponent.js'/>"></script>
+  <script src="<@spring.url '/assets/javascript/vendor/openlayers/ol.6.3.1.min.js'/>"></script>
+  <script src="<@spring.url '/assets/static/js/pwa/mapComponent.js'/>"></script>
 </#macro>
