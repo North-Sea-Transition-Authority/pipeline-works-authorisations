@@ -87,7 +87,7 @@ class OptionsTemplateSummaryServiceTest {
     assertThat(appSummary.getSidebarSectionLinks()).containsExactly(
         SidebarSectionLink.createAnchorLink(ApplicationTask.OPTIONS_TEMPLATE.getDisplayName(), "#optionsTemplate"));
     assertThat(appSummary.getTemplateModel()).containsEntry("optionsFileDownloadUrl", ReverseRouter
-        .route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getId(), fileId)));
+        .route(on(PadFileManagementRestController.class).download(pwaApplicationDetail.getId(), null)));
   }
 
 }

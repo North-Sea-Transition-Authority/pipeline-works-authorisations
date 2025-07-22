@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.features.application.summary.ApplicationSectionSummariser;
@@ -58,7 +57,7 @@ public class OptionsTemplateSummaryService implements ApplicationSectionSummaris
 
     if (fileView != null) {
       summaryModel.put("optionsFileDownloadUrl", ReverseRouter.route(on(PadFileManagementRestController.class)
-          .download(pwaApplicationDetail.getId(), UUID.fromString(fileView.getFileId()))));
+          .download(pwaApplicationDetail.getId(), null)));
     }
 
     return new ApplicationSectionSummary(
