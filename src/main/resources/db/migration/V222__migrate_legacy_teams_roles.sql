@@ -19,6 +19,21 @@ DECLARE
 BEGIN
 
   FOR team_record IN (
+    WITH portal_resources AS (
+      SELECT
+        xr.res_id
+      , xr.res_type
+      , xr.res_name
+      , xr.description
+      FROM decmgr.xview_resources xr
+    )
+    , portal_resource_usages_current AS(
+      SELECT
+         ruc.res_id
+       , ruc.uref
+       , ruc.purpose
+      FROM decmgr.resource_usages_current ruc
+    )
     SELECT
       pr.res_id
     , pr.description name
@@ -30,8 +45,8 @@ BEGIN
     , CASE
         WHEN pruc.uref IS NOT NULL THEN 'ORGGRP'
       END scope_type
-    FROM ${datasource.user}.portal_resources pr
-    LEFT JOIN ${datasource.user}.portal_resource_usages_current pruc ON pruc.res_id = pr.res_id AND pruc.uref LIKE '%++REGORGGRP'
+    FROM portal_resources pr
+    LEFT JOIN portal_resource_usages_current pruc ON pruc.res_id = pr.res_id AND pruc.uref LIKE '%++REGORGGRP'
     WHERE pr.res_type IN ('PWA_REGULATOR_TEAM', 'PWA_ORGANISATION_TEAM')
   ) LOOP
     -- Check if the team already exists to avoid duplicates
@@ -50,6 +65,26 @@ BEGIN
       RETURNING id INTO l_team_id;
 
       FOR team_role_record IN (
+        WITH portal_res_memb_current_roles AS (
+          SELECT DISTINCT rmc.person_id
+                        , rmc.res_id
+                        , rmc.res_type
+                        , rmc.role_name
+          FROM decmgr.resource_members_current rmc
+          WHERE rmc.wua_id IS NOT NULL
+        )
+        , user_accounts AS (
+          SELECT
+            wua.id wua_id
+          , wua.title
+          , wua.forename
+          , wua.surname
+          , wua.primary_email_address email_address
+          , wua.resource_person_id person_id
+          , wua.login_id login_id
+          , wua.account_status
+          FROM securemgr.web_user_accounts wua
+        )
         SELECT
           ua.wua_id
         , CASE prmcr.role_name
@@ -68,8 +103,8 @@ BEGIN
             WHEN 'TEMPLATE_CLAUSE_MANAGER'  THEN 'TEMPLATE_CLAUSE_MANAGER'
             WHEN 'PWA_ACCESS'               THEN 'PWA_ACCESS'
           END role
-        FROM ${datasource.user}.portal_res_memb_current_roles prmcr
-        JOIN ${datasource.user}.user_accounts ua ON ua.person_id = prmcr.person_id AND ua.account_status = 'ACTIVE'
+        FROM portal_res_memb_current_roles prmcr
+        JOIN user_accounts ua ON ua.person_id = prmcr.person_id AND ua.account_status = 'ACTIVE'
         WHERE prmcr.res_id = team_record.res_id
       ) LOOP
         -- Check if the team role already exists to avoid duplicates

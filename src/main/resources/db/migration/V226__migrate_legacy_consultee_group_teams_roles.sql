@@ -43,11 +43,23 @@ BEGIN
       RETURNING id INTO l_team_id;
 
       FOR team_role_record IN (
+        WITH user_accounts AS (
+          SELECT
+            wua.id wua_id
+          , wua.title
+          , wua.forename
+          , wua.surname
+          , wua.primary_email_address email_address
+          , wua.resource_person_id person_id
+          , wua.login_id login_id
+          , wua.account_status
+          FROM securemgr.web_user_accounts wua
+        )
         SELECT
           ua.wua_id
         , r.column_value role -- extract each role from the CSV list
         FROM ${datasource.user}.consultee_group_team_members cgtm
-        JOIN ${datasource.user}.user_accounts ua ON ua.person_id = cgtm.person_id AND ua.account_status = 'ACTIVE'
+        JOIN user_accounts ua ON ua.person_id = cgtm.person_id AND ua.account_status = 'ACTIVE'
         , TABLE(st.split(cgtm.csv_role_list, ',')) r
         WHERE cgtm.cg_id = team_record.scope_id
         -- generate a row for every role in CSV list (based on comma count + 1)
