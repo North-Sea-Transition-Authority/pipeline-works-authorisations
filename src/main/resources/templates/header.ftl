@@ -9,5 +9,10 @@
 </#function>
 
 <#macro header wrapperWidth>
-  <@fdsEnergyPortalHeader.energyPortalHeader headerLogo="NSTA" userDisplayName=currentUserView.getFullName() signOutUrl=springUrl("/logout") wrapperWidth=wrapperWidth/>
+  <#assign userFullName>
+    <#if currentUserView?has_content && currentUserView.isAuthenticated()>
+      currentUserView.getFullName()
+    </#if>
+  </#assign>
+  <@fdsEnergyPortalHeader.energyPortalHeader headerLogo="NSTA" userDisplayName=userFullName signOutUrl=springUrl("/logout") wrapperWidth=wrapperWidth/>
 </#macro>
