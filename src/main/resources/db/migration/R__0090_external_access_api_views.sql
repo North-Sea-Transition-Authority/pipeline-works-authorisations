@@ -73,6 +73,9 @@ FROM (
   UNION ALL
   SELECT 'POLYMER_INJECTION_PIPELINE' type_mnem, 'Polymer Injection Pipeline' type_display, 'SINGLE_CORE' core_type
   FROM dual
+  UNION ALL
+  SELECT 'CARBON_DIOXIDE_PIPELINE' type_mnem, 'Carbon dioxide Pipeline' type_display, 'SINGLE_CORE' core_type
+  FROM dual
   )
   SELECT
     pd.id pipeline_detail_id
