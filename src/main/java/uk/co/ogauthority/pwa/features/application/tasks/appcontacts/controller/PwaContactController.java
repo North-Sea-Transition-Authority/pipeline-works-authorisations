@@ -254,8 +254,7 @@ public class PwaContactController {
                                          @PathVariable("wuaId") Integer wuaId,
                                          PwaApplicationContext applicationContext,
                                          @ModelAttribute("form") @Valid UserRolesForm form,
-                                         BindingResult bindingResult,
-                                         AuthenticatedUserAccount user) {
+                                         BindingResult bindingResult) {
 
     var detail = applicationContext.getApplicationDetail();
     var contactUser = userAccountService.getWebUserAccount(wuaId);
@@ -268,7 +267,7 @@ public class PwaContactController {
 
       try {
 
-        pwaContactService.updateContact(detail.getPwaApplication(), contactUser, roles, user);
+        pwaContactService.updateContact(detail.getPwaApplication(), contactUser, roles);
         return ReverseRouter.redirect(on(PwaContactController.class)
             .renderContactsScreen(detail.getPwaApplicationType(), applicationId, null, null));
 
@@ -314,15 +313,14 @@ public class PwaContactController {
   public ModelAndView removeContact(@PathVariable("applicationType") @ApplicationTypeUrl PwaApplicationType applicationType,
                                     @PathVariable("applicationId") Integer applicationId,
                                     PwaApplicationContext applicationContext,
-                                    @PathVariable("wuaId") Integer wuaId,
-                                    AuthenticatedUserAccount user) {
+                                    @PathVariable("wuaId") Integer wuaId) {
 
     var detail = applicationContext.getApplicationDetail();
     var contactUser = userAccountService.getWebUserAccount(wuaId);
 
     try {
 
-      pwaContactService.removeContact(detail.getPwaApplication(), contactUser, user);
+      pwaContactService.removeContact(detail.getPwaApplication(), contactUser);
       return ReverseRouter.redirect(on(PwaContactController.class)
           .renderContactsScreen(detail.getPwaApplicationType(), applicationId, null, null));
 

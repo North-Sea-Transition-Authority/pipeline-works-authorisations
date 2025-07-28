@@ -25,7 +25,6 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.auth.saml.SamlResponseParser;
-import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.mvc.PostAuthenticationRequestMdcFilter;
 import uk.co.ogauthority.pwa.mvc.RequestLogFilter;
 
@@ -52,22 +51,19 @@ public class WebSecurityConfig {
   private final LogoutSuccessHandler serviceLogoutSuccessHandler;
   private final RequestLogFilter requestLogFilter;
   private final PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter;
-  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
 
   @Autowired
   public WebSecurityConfig(SamlProperties samlProperties,
                            SamlResponseParser samlResponseParser,
                            LogoutSuccessHandler serviceLogoutSuccessHandler,
                            RequestLogFilter requestLogFilter,
-                           PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter,
-                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration
+                           PostAuthenticationRequestMdcFilter postAuthenticationRequestMdcFilter
   ) {
     this.serviceLogoutSuccessHandler = serviceLogoutSuccessHandler;
     this.samlProperties = samlProperties;
     this.samlResponseParser = samlResponseParser;
     this.requestLogFilter = requestLogFilter;
     this.postAuthenticationRequestMdcFilter = postAuthenticationRequestMdcFilter;
-    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
   }
 
   @Bean
@@ -80,7 +76,8 @@ public class WebSecurityConfig {
             .requestMatchers(NO_AUTH_ENDPOINTS).permitAll()
 
             .anyRequest().hasAnyAuthority(
-                energyPortalAccessApiConfiguration.privilegeName(),
+                String.valueOf(PwaUserPrivilege.PWA_ACCESS),
+                String.valueOf(PwaUserPrivilege.PWA_WORKAREA),
                 String.valueOf(PwaUserPrivilege.PIPELINE_VIEW) // allows external access
             )
 

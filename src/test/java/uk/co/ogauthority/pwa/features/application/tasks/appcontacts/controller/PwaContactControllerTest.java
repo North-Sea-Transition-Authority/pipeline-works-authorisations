@@ -245,7 +245,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null)));
 
     manageEndpointTester.performAppTypeChecks(status().isOk(), status().isForbidden());
 
@@ -257,7 +257,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null)));
 
     manageEndpointTester.performAppPermissionCheck(status().isOk(), status().isForbidden());
 
@@ -269,7 +269,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null, null)));
+                .updateContactRoles(type, applicationDetail.getMasterPwaApplicationId(), 1, null, null, null)));
 
     manageEndpointTester.performAppStatusChecks(status().isOk(), status().isNotFound());
 
@@ -317,7 +317,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1)));
 
     manageEndpointTester.performAppTypeChecks(status().is3xxRedirection(), status().isForbidden());
 
@@ -329,7 +329,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1)));
 
     manageEndpointTester.performAppPermissionCheck(status().is3xxRedirection(), status().isForbidden());
 
@@ -341,7 +341,7 @@ class PwaContactControllerTest extends PwaApplicationContextAbstractControllerTe
     manageEndpointTester.setRequestMethod(HttpMethod.POST)
         .setEndpointUrlProducer((applicationDetail, type) ->
             ReverseRouter.route(on(PwaContactController.class)
-                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1, null)));
+                .removeContact(type, applicationDetail.getMasterPwaApplicationId(), null, 1)));
 
     manageEndpointTester.performAppStatusChecks(status().is3xxRedirection(), status().isNotFound());
 

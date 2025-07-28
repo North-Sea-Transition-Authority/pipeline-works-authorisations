@@ -29,6 +29,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
 import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
+import uk.co.fivium.energyportalmessagequeue.sns.SnsService;
+import uk.co.fivium.energyportalmessagequeue.sqs.SqsService;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadResponse;
 import uk.co.fivium.fileuploadlibrary.s3.S3Exception;
@@ -65,6 +67,12 @@ class ConsentDocumentMigrationServiceIntegrationTest {
 
   @MockitoBean
   private EnergyPortalServiceAccessService energyPortalServiceAccessService;
+
+  @MockitoBean
+  private SqsService sqsService;
+
+  @MockitoBean
+  private SnsService snsService;
 
   private List<S3File> s3Files;
 

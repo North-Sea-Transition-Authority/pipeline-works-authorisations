@@ -147,7 +147,7 @@ class PwaApplicationCreationServiceTest {
     verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService).startWorkflow(application);
     verify(pwaContactService).updateContact(application, user,
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
     verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
@@ -196,7 +196,7 @@ class PwaApplicationCreationServiceTest {
     verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService).startWorkflow(application);
     verify(pwaContactService).updateContact(application, user,
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
     verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
@@ -245,7 +245,7 @@ class PwaApplicationCreationServiceTest {
     verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 1L);
     verify(camundaWorkflowService).startWorkflow(application);
     verify(pwaContactService).updateContact(application, user,
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
     verify(masterPwaService).updateDetailReference(masterPwaDetail, application.getAppReference());
     assertThat(application)
         .extracting(
@@ -350,9 +350,9 @@ class PwaApplicationCreationServiceTest {
     verify(pwaApplicationDetailService).createFirstDetail(createdApplication.getPwaApplication(), user, 0L);
     verify(camundaWorkflowService).startWorkflow(application);
     verify(pwaContactService).updateContact(application, user,
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER), user);
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
     verify(padAreaService).createAndSavePadFieldsFromMasterPwa(
-        createdApplication, masterPwaDetail, List.of(masterPwaDetailField));;
+        createdApplication, masterPwaDetail, List.of(masterPwaDetailField));
 
     assertThat(application)
         .extracting(

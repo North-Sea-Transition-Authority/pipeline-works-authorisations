@@ -22,7 +22,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
 import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.config.MetricsProvider;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
@@ -101,9 +100,6 @@ class TaskListServiceIntegrationTest extends AbstractIntegrationTest {
 
   @MockBean
   private SupplementaryDocumentsService supplementaryDocumentsService;
-
-  @MockBean
-  private EnergyPortalAccessService energyPortalAccessService;
 
   private PwaApplication pwaApplication;
   private PwaApplicationDetail pwaApplicationDetail;
@@ -411,7 +407,6 @@ class TaskListServiceIntegrationTest extends AbstractIntegrationTest {
   void getApplicationTasks_permDepositsNotInTaskList_forInvalidAppTypes_whenPermDepositsServiceAnswersYes() {
     // task list service uses controller annotations and part of the integration test is making sure this markup is as expected
     when(permanentDepositService.canShowInTaskList(any())).thenReturn(true);
-    doNothing().when(energyPortalAccessService).addUserToAccessTeam(any(), any(), any());
 
     Set<PwaApplicationType> invalidApplicationTypes = EnumSet.complementOf(getPermanentDepositAppTypes());
 

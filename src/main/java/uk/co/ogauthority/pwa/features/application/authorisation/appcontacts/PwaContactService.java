@@ -9,21 +9,15 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import uk.co.fivium.digital.energyportalteamaccesslibrary.team.EnergyPortalAccessService;
-import uk.co.fivium.digital.energyportalteamaccesslibrary.team.InstigatingWebUserAccountId;
-import uk.co.fivium.digital.energyportalteamaccesslibrary.team.ResourceType;
-import uk.co.fivium.digital.energyportalteamaccesslibrary.team.TargetWebUserAccountId;
 import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.exception.PwaEntityNotFoundException;
 import uk.co.ogauthority.pwa.features.application.tasklist.api.ApplicationFormSectionService;
 import uk.co.ogauthority.pwa.features.application.tasks.appcontacts.controller.PwaContactController;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskInfo;
-import uk.co.ogauthority.pwa.integrations.energyportal.access.EnergyPortalAccessApiConfiguration;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
@@ -44,27 +38,18 @@ public class PwaContactService implements ApplicationFormSectionService {
 
   private final PwaContactRepository pwaContactRepository;
   private final TeamQueryService teamQueryService;
-  private final EnergyPortalAccessService energyPortalAccessService;
-  private final EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration;
   private final UserAccountService userAccountService;
   private final EnergyPortalServiceAccessService energyPortalServiceAccessService;
-  private final boolean useEpas;
 
   @Autowired
   public PwaContactService(PwaContactRepository pwaContactRepository,
                            TeamQueryService teamQueryService,
-                           EnergyPortalAccessService energyPortalAccessService,
-                           EnergyPortalAccessApiConfiguration energyPortalAccessApiConfiguration,
                            UserAccountService userAccountService,
-                           EnergyPortalServiceAccessService energyPortalServiceAccessService,
-                           Environment environment) {
+                           EnergyPortalServiceAccessService energyPortalServiceAccessService) {
     this.pwaContactRepository = pwaContactRepository;
     this.teamQueryService = teamQueryService;
-    this.energyPortalAccessService = energyPortalAccessService;
-    this.energyPortalAccessApiConfiguration = energyPortalAccessApiConfiguration;
     this.userAccountService = userAccountService;
     this.energyPortalServiceAccessService = energyPortalServiceAccessService;
-    this.useEpas = environment.matchesProfiles("use-epas");
   }
 
   public List<PwaContact> getContactsForPwaApplication(PwaApplication pwaApplication) {
@@ -102,8 +87,7 @@ public class PwaContactService implements ApplicationFormSectionService {
 
   private void addContact(PwaApplication pwaApplication,
                           WebUserAccount contactUser,
-                          Set<PwaContactRole> roles,
-                          WebUserAccount currentUser) {
+                          Set<PwaContactRole> roles) {
     var isNewUser = !userIsContactOrTeamMember(contactUser);
 
     var contact = new PwaContact(pwaApplication, contactUser.getLinkedPerson(), roles);
@@ -112,17 +96,7 @@ public class PwaContactService implements ApplicationFormSectionService {
     if (!isNewUser) {
       return;
     }
-
-    if (useEpas) {
-      energyPortalServiceAccessService.addUser(contactUser.getWuaId());
-      return;
-    }
-
-    energyPortalAccessService.addUserToAccessTeam(
-        new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
-        new TargetWebUserAccountId(contactUser.getWuaId()),
-        new InstigatingWebUserAccountId(currentUser.getWuaId())
-    );
+    energyPortalServiceAccessService.addUser(contactUser.getWuaId());
   }
 
   private boolean userIsContactOrTeamMember(WebUserAccount user) {
@@ -155,7 +129,7 @@ public class PwaContactService implements ApplicationFormSectionService {
   }
 
   @Transactional
-  public void removeContact(PwaApplication pwaApplication, WebUserAccount contactUser, WebUserAccount currentUser) {
+  public void removeContact(PwaApplication pwaApplication, WebUserAccount contactUser) {
 
     var contact = getContactOrError(pwaApplication, contactUser.getLinkedPerson());
     long numberOfAccessManagers = getNumberOfAccessManagersForApplication(pwaApplication);
@@ -170,17 +144,7 @@ public class PwaContactService implements ApplicationFormSectionService {
     if (!isUserRemovedFromAllTeams) {
       return;
     }
-
-    if (useEpas) {
-      energyPortalServiceAccessService.removeUser(contactUser.getWuaId());
-      return;
-    }
-
-    energyPortalAccessService.removeUserFromAccessTeam(
-        new ResourceType(energyPortalAccessApiConfiguration.resourceType()),
-        new TargetWebUserAccountId(contactUser.getWuaId()),
-        new InstigatingWebUserAccountId(currentUser.getWuaId())
-    );
+    energyPortalServiceAccessService.removeUser(contactUser.getWuaId());
   }
 
   private long getNumberOfAccessManagersForApplication(PwaApplication pwaApplication) {
@@ -215,16 +179,14 @@ public class PwaContactService implements ApplicationFormSectionService {
    * @param pwaApplication contacts being updated for
    * @param contactUser    being added to contacts/whose roles are being updated
    * @param roles          new roles for person
-   * @param currentUser    updating the contact
    */
   @Transactional
   public void updateContact(PwaApplication pwaApplication,
                             WebUserAccount contactUser,
-                            Set<PwaContactRole> roles,
-                            WebUserAccount currentUser) {
+                            Set<PwaContactRole> roles) {
     getContact(pwaApplication, contactUser.getLinkedPerson()).ifPresentOrElse(
         contact -> updateContactRoles(contact, roles),
-        () -> addContact(pwaApplication, contactUser, roles, currentUser)
+        () -> addContact(pwaApplication, contactUser, roles)
     );
   }
 

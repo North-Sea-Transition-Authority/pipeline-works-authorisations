@@ -90,8 +90,7 @@ public class PwaApplicationCreationService {
     pwaContactService.updateContact(
         application,
         createdByUser,
-        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER),
-        createdByUser);
+        Set.of(PwaContactRole.ACCESS_MANAGER, PwaContactRole.PREPARER));
 
     var activeHoldersCount = application.getApplicationType().equals(PwaApplicationType.INITIAL) ? 1
         : pwaConsentOrganisationRoleService.getNumberOfHolders(masterPwa);
