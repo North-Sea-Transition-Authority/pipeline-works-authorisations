@@ -133,9 +133,9 @@
         <@multiLineText.multiLineText blockClass=multiLineTextBlockClass>${value}</@multiLineText.multiLineText>
       </span>
       <#if tag.displayName?has_content>
-        <strong class="govuk-tag">
+        <@fdsTag.tag>
           ${tag.displayName}
-        </strong>
+        </@fdsTag.tag>
       </#if>
   </#if>
 </#macro>

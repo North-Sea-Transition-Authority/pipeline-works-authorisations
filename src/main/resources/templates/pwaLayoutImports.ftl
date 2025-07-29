@@ -6,7 +6,6 @@
 <#import 'header.ftl' as pipelinesHeader>
 <#import 'components/flash/flash.ftl' as pwaFlash>
 <#import 'components/fileUploadList/fileList.ftl' as pwaFiles>
-<#import 'components/completedTag/completedTag.ftl' as completedTag>
 <#import 'components/coordinates/locationInput.ftl' as pwaLocationInput>
 <#import 'components/coordinates/coordinateDisplay.ftl' as pwaCoordinate>
 <#import 'components/taskList/pwaTaskListItem.ftl' as pwaTaskListItem>

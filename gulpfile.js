@@ -6,65 +6,6 @@ const autoprefixer = require('autoprefixer');
 const rename = require("gulp-rename");
 const babel = require("gulp-babel");
 
-const sassOptions = {
-  outputStyle: 'expanded',
-  includePath: 'src/main/resources/scss'
-};
-
-const jsBabelOptions = {
-  presets: ["@babel/preset-env"]
-};
-
-const jsBabelGlobPattern = 'src/main/resources/public/assets/javascript/pwa/*.js';
-
-function compileBabel() {
-  let babelTask = babel(jsBabelOptions);
-
-  return gulp.src(jsBabelGlobPattern, {base: "."})
-    .pipe(babelTask)
-    .pipe(rename(path => {
-      path.dirname = path.dirname.replace(/javascript([\/\\])pwa/, '$1static$1js$1pwa');
-    }))
-    .pipe(gulp.dest('./'))
-        .pipe(rename(path => {
-          path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]pwa/, '$2out$2production$2resources$2public$2assets$2static$2js$2pwa$2');
-    }))
-    .pipe(gulp.dest('./'));
-}
-
-function compileSass(exitOnError) {
-  const plugins = [
-    autoprefixer({
-      browsers: ['last 3 versions', '> 0.1%', 'Firefox ESR'],
-      grid: true
-    })
-  ];
-
-  let sassTask = sass(sassOptions);
-  if (!exitOnError) {
-    //Without an error handler specified, the task will exit on error, which we want for the "buildAll" task
-    sassTask = sassTask.on('error', sass.logError);
-  }
-
-  return gulp.src('src/main/resources/scss/*.scss', {base: "."})
-    .pipe(sourcemaps.init())
-    .pipe(sassTask)
-    .pipe(postcss(plugins))
-    .pipe(sourcemaps.write())
-    .pipe(rename(path => {
-      //E.g. src\main\resources\sass\core -> src\main\resources\public\assets\static\css
-      path.dirname = path.dirname.replace(/([\/\\])scss[\/\\]?/, '$1public$1assets$1static$1css');
-}))
-.pipe(gulp.dest('./'))
-  //For IntelliJ run
-    .pipe(rename(path => {
-      //E.g. src\main\resources\sass\core -> out\production\resources\static\core
-      path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]/, '$2out$2production$2');
-}))
-.pipe(gulp.dest('./'));
-}
-
-
 gulp.task('copyFdsResources', () => {
   return gulp.src(['fivium-design-system-core/fds/**/*'])
     .pipe(gulp.dest('src/main/resources/templates/fds'));
@@ -94,15 +35,37 @@ gulp.task('copyFdsImages', () => {
 gulp.task('initFds', gulp.series(['copyFdsResources', 'copyGovukResources', 'copyFdsImages', 'copyFdsJs', 'copyFdsVendorJs']));
 
 gulp.task('sass', gulp.series(['initFds'], () => {
-  return compileSass(false);
-}));
+  const dest = "src/main/resources/public/assets/static/css";
+  const sassGlobPattern = "src/main/resources/scss/*.scss";
+  const sassOptions = {
+    outputStyle: "compressed",
+    includePath: "src/main/resources/scss"
+  };
 
-gulp.task('sassCi', gulp.series(['initFds'], () => {
-  return compileSass(true);
+  return gulp.src(sassGlobPattern, {base: "."})
+    .pipe(sourcemaps.init())
+    .pipe(sass(sassOptions, true))
+    .pipe(postcss([autoprefixer({ grid: true })]))
+    .pipe(sourcemaps.write())
+    .pipe(rename(path => path.dirname = ""))
+    .pipe(gulp.dest(dest));
 }));
 
 gulp.task('babel', () => {
-  return compileBabel();
+  const jsBabelOptions = {
+    presets: ["@babel/preset-env"]
+  };
+
+  return gulp.src('src/main/resources/public/assets/javascript/pwa/*.js', {base: "."})
+    .pipe(babel(jsBabelOptions))
+    .pipe(rename(path => {
+      path.dirname = path.dirname.replace(/javascript([\/\\])pwa/, '$1static$1js$1pwa');
+    }))
+    .pipe(gulp.dest('./'))
+    .pipe(rename(path => {
+      path.dirname = path.dirname.replace(/([\/\\])?src([\/\\])main[\/\\]resources[\/\\]public[\/\\]assets[\/\\]javascript[\/\\]pwa/, '$2out$2production$2resources$2public$2assets$2static$2js$2pwa$2');
+    }))
+    .pipe(gulp.dest('./'));
 });
 
-gulp.task('buildAll', gulp.series(['sassCi', 'babel']));
+gulp.task('buildAll', gulp.series(['sass', 'babel']));

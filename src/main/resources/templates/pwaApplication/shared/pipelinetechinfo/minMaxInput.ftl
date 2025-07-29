@@ -10,4 +10,3 @@
         <@fdsNumberInput.numberInputItem path=maxFormPath labelText=altMaxLabel inputClass="govuk-input--width-5" suffix=stringUtils.superscriptConverter(unitMeasurement.suffixDisplay) suffixScreenReaderPrompt=unitMeasurement.suffixScreenReaderDisplay/>
     </@fdsNumberInput.twoNumberInputs>
 </#macro>
-

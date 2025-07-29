@@ -55,7 +55,7 @@
             </@fdsTaskList.taskListSection>
         </#list>
 
-        <@fdsTaskList.taskListSection sectionNumber="${applicationTaskGroups?size + 1}" sectionHeadingText="Submit application" warningText="In order to submit this application, all sections above must have a COMPLETED label.">
+        <@fdsTaskList.taskListSection sectionNumber="${applicationTaskGroups?size + 1}" sectionHeadingText="Submit application" warningText="In order to submit this application, all sections above must have a 'Completed' label.">
             <@fdsTaskList.taskListItem itemUrl=springUrl(submissionTask.route) itemText=submissionTask.taskName/>
         </@fdsTaskList.taskListSection>
 

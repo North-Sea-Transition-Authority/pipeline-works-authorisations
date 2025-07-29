@@ -65,7 +65,9 @@
             <#if columnItem.valueTagType == "SUCCESS">govuk-tag--green</#if>
             <#if columnItem.valueTagType == "DANGER">govuk-tag--red</#if>
         </#local>
-      <span class="govuk-tag ${tagClass!""}">${columnItem.value!""}</span>
+        <@fdsTag.tag tagClass=tagClass>
+            ${columnItem.value!""}
+        </@fdsTag.tag>
     </#if>
 </#macro>
 

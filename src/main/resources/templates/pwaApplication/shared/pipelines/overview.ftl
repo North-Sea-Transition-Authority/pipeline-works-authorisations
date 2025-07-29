@@ -57,14 +57,16 @@
                         <hr class="govuk-section-break govuk-section-break--m"/>
                     </#if>
                     <@fdsTaskList.taskList>
-                        <#list pipeline.getTaskList() as task>
-                            <@pwaTaskListItem.taskInfoItem
-                                taskName=task.taskName
-                                taskInfoList=task.taskInfoList
-                                route=task.route
-                                isCompleted=task.completed
-                                linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
-                        </#list>
+                        <@fdsTaskList.taskListSection>
+                            <#list pipeline.getTaskList() as task>
+                                <@pwaTaskListItem.taskInfoItem
+                                    taskName=task.taskName
+                                    taskInfoList=task.taskInfoList
+                                    route=task.route
+                                    isCompleted=task.completed
+                                    linkScreenReaderText="for ${pipeline.getPipelineName()}"/>
+                            </#list>
+                        </@fdsTaskList.taskListSection>
                     </@fdsTaskList.taskList>
                 </#if>
             </#if>

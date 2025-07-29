@@ -248,7 +248,7 @@ public abstract class ApplicationWorkAreaItem {
     }
 
     if (PublicNoticeStatus.APPLICANT_UPDATE.equals(this.publicNoticeStatus)) {
-      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "PUBLIC NOTICE UPDATE REQUESTED"));
+      columnItemList.add(WorkAreaColumnItemView.createTagItem(WorkAreaColumnItemView.TagType.DEFAULT, "Public notice update requested"));
     }
 
     return columnItemList;
