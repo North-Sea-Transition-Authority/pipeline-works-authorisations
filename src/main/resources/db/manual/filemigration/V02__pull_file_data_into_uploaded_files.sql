@@ -13,6 +13,16 @@ CREATE TABLE pwa.file_id_map (
 
 BEGIN
 
+    savemgr.savetool.table_save(
+            p_owner => 'pwa'
+        , p_name => 'pad_files'
+    );
+
+    savemgr.savetool.table_save(
+            p_owner => 'pwa'
+        , p_name => 'app_files'
+    );
+
     FOR pad_record IN (
         SELECT
             hextoraw(REPLACE(random_uuid(), '-', '')) new_file_id,
