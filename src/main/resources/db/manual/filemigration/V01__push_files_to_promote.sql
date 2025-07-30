@@ -11,7 +11,7 @@ SELECT
     'PWA' application,
     pf.pad_id reference,
     'migrated' directory,
-    uf.file_name || '__' || pf.file_id filename,
+    uf.file_name || '__' || pf.file_id || '__' || pf.pad_id filename, -- This is not displayed to the user but has to be unique as it becomes the S3 file key.
     uf.file_data content
 FROM pwa.pad_files pf
     LEFT JOIN pwa.uploaded_files uf on pf.file_id = uf.file_id
@@ -31,7 +31,7 @@ SELECT
     'PWA' application,
     af.pa_id reference,
     'migrated' directory,
-    uf.file_name || '__' || af.file_id filename,
+    uf.file_name || '__' || af.file_id || '__' || af.pa_id filename, -- This is not displayed to the user but has to be unique as it becomes the S3 file key.
     uf.file_data content
 FROM pwa.app_files af
     LEFT JOIN pwa.uploaded_files uf on af.file_id = uf.file_id
