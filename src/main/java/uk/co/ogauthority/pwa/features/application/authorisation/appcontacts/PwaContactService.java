@@ -27,6 +27,7 @@ import uk.co.ogauthority.pwa.service.enums.pwaapplications.generic.ValidationTyp
 import uk.co.ogauthority.pwa.service.pwaapplications.contacts.PwaApplicationContactRoleDto;
 import uk.co.ogauthority.pwa.service.teammanagement.LastAdministratorException;
 import uk.co.ogauthority.pwa.teams.TeamQueryService;
+import uk.co.ogauthority.pwa.util.StreamUtil;
 
 /**
  * Service to administer PWA application-scoped teams (known as contacts).
@@ -65,7 +66,8 @@ public class PwaContactService implements ApplicationFormSectionService {
 
     var userMap = userAccountService.getWebUserAccountsByPeople(people)
         .stream()
-        .collect(Collectors.toMap(WebUserAccount::getLinkedPerson, WebUserAccount::getWuaId));
+        .distinct()
+        .collect(Collectors.toMap(WebUserAccount::getLinkedPerson, WebUserAccount::getWuaId, StreamUtil.keepFirst()));
 
     return pwaContacts.stream()
         .map(contact -> {
