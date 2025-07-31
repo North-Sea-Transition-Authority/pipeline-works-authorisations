@@ -216,7 +216,7 @@ class PwaConsentServiceTest {
     var masterPwaDetail = new MasterPwaDetail();
     masterPwaDetail.setMasterPwa(masterPwa);
 
-    when(masterPwaService.getConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
+    when(masterPwaService.getLatestConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
 
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);
@@ -268,7 +268,7 @@ class PwaConsentServiceTest {
     var masterPwaDetail = new MasterPwaDetail();
     masterPwaDetail.setMasterPwa(masterPwa);
 
-    when(masterPwaService.getConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
+    when(masterPwaService.getLatestConsentedDetailByReference(documentRecord.getPwaReference())).thenReturn(Optional.of(masterPwaDetail));
 
     var pwaConsent = new PwaConsent();
     pwaConsent.setMasterPwa(masterPwa);

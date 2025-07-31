@@ -119,7 +119,7 @@ public class PwaConsentService {
 
   @Transactional
   public PwaConsent createLegacyConsent(DocumentMigrationRecord documentMigrationRecord) {
-    var masterPwa = masterPwaService.getConsentedDetailByReference(documentMigrationRecord.getPwaReference())
+    var masterPwa = masterPwaService.getLatestConsentedDetailByReference(documentMigrationRecord.getPwaReference())
         .orElseThrow(() -> new EntityNotFoundException(
             "Master PWA detail with reference: %s could not be found".formatted(documentMigrationRecord.getPwaReference())))
         .getMasterPwa();

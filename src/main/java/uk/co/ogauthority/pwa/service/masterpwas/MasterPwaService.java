@@ -102,8 +102,8 @@ public class MasterPwaService {
         MasterPwaDetailStatus.CONSENTED);
   }
 
-  public Optional<MasterPwaDetail> getConsentedDetailByReference(String reference) {
-    return masterPwaDetailRepository.findByReferenceAndMasterPwaDetailStatus(reference, MasterPwaDetailStatus.CONSENTED);
+  public Optional<MasterPwaDetail> getLatestConsentedDetailByReference(String reference) {
+    return masterPwaDetailRepository.findByReferenceAndMasterPwaDetailStatusAndEndInstantIsNull(reference, MasterPwaDetailStatus.CONSENTED);
   }
 
   public List<MasterPwaDetail> findAllCurrentDetailsIn(Collection<MasterPwa> masterPwas) {

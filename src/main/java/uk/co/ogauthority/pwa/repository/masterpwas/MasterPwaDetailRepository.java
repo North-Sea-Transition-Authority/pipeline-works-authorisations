@@ -27,7 +27,8 @@ public interface MasterPwaDetailRepository extends CrudRepository<MasterPwaDetai
                                                                                        MasterPwaDetailStatus masterPwaDetailStatus);
 
   @EntityGraph(attributePaths = {"masterPwa"})
-  Optional<MasterPwaDetail> findByReferenceAndMasterPwaDetailStatus(String reference, MasterPwaDetailStatus masterPwaDetailStatus);
+  Optional<MasterPwaDetail> findByReferenceAndMasterPwaDetailStatusAndEndInstantIsNull(String reference,
+                                                                                       MasterPwaDetailStatus masterPwaDetailStatus);
 
   List<MasterPwaDetail> findAllByMasterPwaInAndEndInstantIsNull(Collection<MasterPwa> masterPwas);
 }
