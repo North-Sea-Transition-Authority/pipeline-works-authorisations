@@ -179,16 +179,12 @@ public class ConsentDocumentMigrationService {
     }
   }
 
-  @Transactional
   void migrate() throws S3Exception, IOException {
     var filesToMigrate = documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalseAndFileLocatedIsTrue();
     var fileSizeMap = getS3FileSizeMap();
 
     for (var docRecord : filesToMigrate) {
-      var consent = pwaConsentService.getConsentByReference(docRecord.getConsentDoc())
-          .orElseGet(() -> generateDestinationRecord(docRecord));
-
-      migrateFile(docRecord, fileSizeMap, consent);
+      migrateFile(docRecord.getId(), fileSizeMap);
     }
   }
 
@@ -197,18 +193,17 @@ public class ConsentDocumentMigrationService {
         .collect(StreamUtil.toLinkedHashMap(S3File::key, S3File::size));
   }
 
-  private PwaConsent generateDestinationRecord(DocumentMigrationRecord documentMigrationRecord) {
-    var consent = pwaConsentService.createLegacyConsent(documentMigrationRecord);
-    documentMigrationRecord.setDestinationRecordExists(true);
-    documentMigrationRecordRepository.save(documentMigrationRecord);
-    return consent;
-  }
-
-  private void migrateFile(
-      DocumentMigrationRecord documentMigrationRecord,
-      Map<String, Long> fileSizeMap,
-      PwaConsent pwaConsent
+  @Transactional
+  void migrateFile(
+      Integer documentMigrationRecordId,
+      Map<String, Long> fileSizeMap
   ) throws S3Exception, IOException {
+    var documentMigrationRecord = documentMigrationRecordRepository.findById(documentMigrationRecordId)
+        .orElseThrow(() -> new RuntimeException("Cannot find migration record with ID: " + documentMigrationRecordId));
+
+    var pwaConsent = pwaConsentService.getConsentByReference(documentMigrationRecord.getConsentDoc())
+        .orElseGet(() -> generateDestinationRecord(documentMigrationRecord));
+
     var fileStream = getByteArrayInputStream(
         pwaS3FileService.downloadFile(devtoolsProperties.migrationS3Bucket(), documentMigrationRecord.getFilename())
     );
@@ -246,6 +241,13 @@ public class ConsentDocumentMigrationService {
 
     documentMigrationRecord.setMigrationSuccessful(true);
     documentMigrationRecordRepository.save(documentMigrationRecord);
+  }
+
+  private PwaConsent generateDestinationRecord(DocumentMigrationRecord documentMigrationRecord) {
+    var consent = pwaConsentService.createLegacyConsent(documentMigrationRecord);
+    documentMigrationRecord.setDestinationRecordExists(true);
+    documentMigrationRecordRepository.save(documentMigrationRecord);
+    return consent;
   }
 
   private ByteArrayInputStream getByteArrayInputStream(InputStream inputStream) throws IOException {

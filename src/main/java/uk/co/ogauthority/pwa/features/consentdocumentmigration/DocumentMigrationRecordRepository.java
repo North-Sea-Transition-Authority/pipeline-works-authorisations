@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DocumentMigrationRecordRepository extends JpaRepository<DocumentMigrationRecord, Long> {
+public interface DocumentMigrationRecordRepository extends JpaRepository<DocumentMigrationRecord, Integer> {
 
   List<DocumentMigrationRecord> findAllByMigrationSuccessfulIsFalse();
 

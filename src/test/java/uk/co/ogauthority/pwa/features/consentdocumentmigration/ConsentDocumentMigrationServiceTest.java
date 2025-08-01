@@ -341,6 +341,7 @@ class ConsentDocumentMigrationServiceTest {
     String test = "1-w-2";
 
     var documentRecord1 = new DocumentMigrationRecord();
+    documentRecord1.setId(1);
     documentRecord1.setFilename("Field 1 (1-w-2) PWA Consent Document (1-w-2).pdf");
     documentRecord1.setPwaReference("1-w-2");
     documentRecord1.setFieldName("Field 1");
@@ -353,6 +354,7 @@ class ConsentDocumentMigrationServiceTest {
     documentRecord1.setMigrationSuccessful(false);
 
     var documentRecord2 = new DocumentMigrationRecord();
+    documentRecord2.setId(2);
     documentRecord2.setFilename("Field 2 (2-w-3) Variation Consent Document (2-v-3).pdf");
     documentRecord2.setPwaReference("2-w-3");
     documentRecord2.setFieldName("Field 2");
@@ -365,6 +367,8 @@ class ConsentDocumentMigrationServiceTest {
     documentRecord2.setMigrationSuccessful(false);
 
     when(documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalseAndFileLocatedIsTrue()).thenReturn(List.of(documentRecord1, documentRecord2));
+    when(documentMigrationRecordRepository.findById(1)).thenReturn(Optional.of(documentRecord1));
+    when(documentMigrationRecordRepository.findById(2)).thenReturn(Optional.of(documentRecord2));
 
     var s3File1 = new S3File("Field 1 (1-w-2) PWA Consent Document (1-w-2).pdf", 1L);
     var s3File2 = new S3File("Field 2 (2-w-3) Variation Consent Document (2-v-3).pdf", 1L);
