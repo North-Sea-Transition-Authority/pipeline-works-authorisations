@@ -124,8 +124,6 @@ public class PwaConsentService {
             "Master PWA detail with reference: %s could not be found".formatted(documentMigrationRecord.getPwaReference())))
         .getMasterPwa();
 
-    var instant = DateUtils.isoDateStringToInstant(documentMigrationRecord.getConsentDate());
-
     var consentType = convertStringToPwaConsentType(documentMigrationRecord.getConsentType());
 
     var pwaConsent = new PwaConsent();
@@ -134,12 +132,12 @@ public class PwaConsentService {
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(consentType);
     pwaConsent.setMigratedFlag(false);
-    pwaConsent.setCreatedInstant(instant);
-    pwaConsent.setConsentInstant(instant);
+    pwaConsent.setCreatedInstant(clock.instant());
+    pwaConsent.setConsentInstant(DateUtils.isoDateStringToInstant(documentMigrationRecord.getConsentDate()));
     pwaConsent.setFileDownloadable(true);
 
     if (consentType.equals(PwaConsentType.VARIATION)) {
-      pwaConsent.setVariationNumber(Integer.valueOf(documentMigrationRecord.getConsentDoc().split("/")[0]));
+      pwaConsent.setVariationNumber(-1);
     }
 
     return pwaConsentRepository.save(pwaConsent);

@@ -224,7 +224,7 @@ class PwaConsentServiceTest {
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
     pwaConsent.setMigratedFlag(false);
-    pwaConsent.setCreatedInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setCreatedInstant(clockTime);
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
     pwaConsent.setFileDownloadable(true);
 
@@ -276,10 +276,10 @@ class PwaConsentServiceTest {
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(PwaConsentType.VARIATION);
     pwaConsent.setMigratedFlag(false);
-    pwaConsent.setCreatedInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
+    pwaConsent.setCreatedInstant(clockTime);
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
     pwaConsent.setFileDownloadable(true);
-    pwaConsent.setVariationNumber(1);
+    pwaConsent.setVariationNumber(-1);
 
     pwaConsentService.createLegacyConsent(documentRecord);
 
