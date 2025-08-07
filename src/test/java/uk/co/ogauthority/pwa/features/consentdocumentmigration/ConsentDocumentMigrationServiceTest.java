@@ -283,6 +283,7 @@ class ConsentDocumentMigrationServiceTest {
 
     var documentRecord1 = new DocumentMigrationRecord();
     documentRecord1.setFilename("Field 1 (1-w-2) PWA Consent Document (1-w-2).pdf");
+    documentRecord1.setPwaReference("1-w-2");
     documentRecord1.setConsentDoc("1-w-2");
     documentRecord1.setFileLocated(true);
     documentRecord1.setDestinationRecordExists(true);
@@ -290,6 +291,7 @@ class ConsentDocumentMigrationServiceTest {
 
     var documentRecord2 = new DocumentMigrationRecord();
     documentRecord2.setFilename("Field 2 (2-w-3) Variation Consent Document (2-v-3).pdf");
+    documentRecord2.setPwaReference("2-w-3");
     documentRecord2.setConsentDoc("2-v-3");
     documentRecord2.setFileLocated(true);
     documentRecord2.setDestinationRecordExists(true);

@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -115,12 +116,12 @@ public class ConsentDocumentMigrationService {
     var fileKeys = getFileKeys();
 
     var recordMap = documentMigrationRecordRepository.findAll().stream()
-        .collect(StreamUtil.toLinkedHashMap(DocumentMigrationRecord::getConsentDoc, Function.identity()));
+        .collect(StreamUtil.toLinkedHashMap(record -> Pair.of(record.getConsentDoc(), record.getPwaReference()), Function.identity()));
 
     for (ConsentDocumentCsvRow row : csvRows) {
-      var docRecord = recordMap.getOrDefault(row.consentDocument(), new DocumentMigrationRecord());
+      var docRecord = recordMap.getOrDefault(Pair.of(row.consentDocument(), row.pwaReference()), new DocumentMigrationRecord());
 
-      var fileName = getFilenameIfDocumentExists(fileKeys, row.consentDocument());
+      var fileName = getFilenameIfDocumentExists(fileKeys, row.consentDocument(), row.pwaReference());
 
       if (!docRecord.getMigrationSuccessful()) {
         docRecord.setFilename(fileName);
@@ -143,7 +144,7 @@ public class ConsentDocumentMigrationService {
         .toList();
   }
 
-  private String getFilenameIfDocumentExists(List<String> fileKeys, String consentDoc) {
+  private String getFilenameIfDocumentExists(List<String> fileKeys, String consentDoc, String pwaReference) {
     if (consentDoc.contains("PWA Consent Document")) {
       return fileKeys.stream()
           .filter(key -> key.contains("PWA Consent Document"))
@@ -154,6 +155,7 @@ public class ConsentDocumentMigrationService {
 
     return fileKeys.stream()
         .filter(key -> key.contains(consentDoc.replace("/", "-")))
+        .filter(key -> key.contains(pwaReference.replace("/", "-")))
         .findFirst()
         .orElse(null);
   }
