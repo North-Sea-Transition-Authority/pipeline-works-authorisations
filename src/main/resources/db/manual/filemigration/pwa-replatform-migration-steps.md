@@ -5,6 +5,7 @@ File upload library migration
 3. run V02__pull_file_data_into_uploaded_files.sql
 4. check the file ids in the file_id_map table
 5. run V03__replace_old_file_ids.sql
+6. check the migration is successful with V04__check_file_migration_success
 
 Legacy consent document migration
 1. enable the devtools configuration

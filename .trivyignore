@@ -28,6 +28,7 @@ CVE-2025-31651
 CVE-2025-46701
 CVE-2025-48988
 CVE-2025-49125
+CVE-2025-48989
 
 # org.bouncycastle:bcprov-jdk18on/bcpkix-jdk18on
 CVE-2023-33201
@@ -35,6 +36,7 @@ CVE-2023-33202
 CVE-2024-29857
 CVE-2024-30171
 CVE-2024-34447
+CVE-2025-8885
 
 # com.google.protobuf:protobuf-java
 CVE-2024-7254
@@ -62,3 +64,12 @@ CVE-2025-41234
 
 # org.apache.commons:commons-lang3
 CVE-2025-48924
+
+# org.springframework:spring-webmvc
+CVE-2025-41242
+
+# org.bouncycastle:bcpkix-jdk18on
+CVE-2025-8916
+
+# io.netty:netty-codec-http2
+CVE-2025-55163
