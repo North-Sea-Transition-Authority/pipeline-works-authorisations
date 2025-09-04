@@ -116,7 +116,10 @@ public class ConsentDocumentMigrationService {
     var fileKeys = getFileKeys();
 
     var recordMap = documentMigrationRecordRepository.findAll().stream()
-        .collect(StreamUtil.toLinkedHashMap(record -> Pair.of(record.getConsentDoc(), record.getPwaReference()), Function.identity()));
+        .collect(StreamUtil.toLinkedHashMap(docRecord ->
+            Pair.of(docRecord.getConsentDoc(), docRecord.getPwaReference()),
+            Function.identity()
+        ));
 
     for (ConsentDocumentCsvRow row : csvRows) {
       var docRecord = recordMap.getOrDefault(Pair.of(row.consentDocument(), row.pwaReference()), new DocumentMigrationRecord());
@@ -145,7 +148,7 @@ public class ConsentDocumentMigrationService {
   }
 
   private String getFilenameIfDocumentExists(List<String> fileKeys, String consentDoc, String pwaReference) {
-    if (consentDoc.contains("PWA Consent Document")) {
+    if (consentDoc.equals(pwaReference)) {
       return fileKeys.stream()
           .filter(key -> key.contains("PWA Consent Document"))
           .filter(key -> key.contains(consentDoc.replace("/", "-")))
@@ -240,6 +243,7 @@ public class ConsentDocumentMigrationService {
     uploadedFile.setFileUploadedAt(Instant.now());
 
     consentDocumentFileManagementService.saveConsentDocument(uploadedFile, pwaConsent);
+    pwaConsentService.setFileDownloadable(pwaConsent);
 
     documentMigrationRecord.setMigrationSuccessful(true);
     documentMigrationRecordRepository.save(documentMigrationRecord);

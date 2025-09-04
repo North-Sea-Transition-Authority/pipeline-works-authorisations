@@ -223,10 +223,9 @@ class PwaConsentServiceTest {
     pwaConsent.setReference(documentRecord.getConsentDoc());
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
-    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setMigratedFlag(true);
     pwaConsent.setCreatedInstant(clockTime);
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
-    pwaConsent.setFileDownloadable(true);
 
     pwaConsentService.createLegacyConsent(documentRecord);
 
@@ -275,10 +274,9 @@ class PwaConsentServiceTest {
     pwaConsent.setReference(documentRecord.getConsentDoc());
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(PwaConsentType.VARIATION);
-    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setMigratedFlag(true);
     pwaConsent.setCreatedInstant(clockTime);
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
-    pwaConsent.setFileDownloadable(true);
     pwaConsent.setVariationNumber(-1);
 
     pwaConsentService.createLegacyConsent(documentRecord);
@@ -304,6 +302,17 @@ class PwaConsentServiceTest {
         pwaConsent.getFileDownloadable(),
         pwaConsent.getVariationNumber()
     );
+  }
+
+  @Test
+  void setFileDownloadable() {
+    var pwaConsent = new PwaConsent();
+
+    pwaConsentService.setFileDownloadable(pwaConsent);
+
+    verify(pwaConsentRepository).save(consentCaptor.capture());
+
+    assertThat(consentCaptor.getValue().getFileDownloadable()).isTrue();
   }
 
 }

@@ -402,6 +402,8 @@ class ConsentDocumentMigrationServiceTest {
     Mockito.verify(fileService, times(2)).upload(any());
     Mockito.verify(consentDocumentFileManagementService).saveConsentDocument(any(), eq(pwaConsent1));
     Mockito.verify(consentDocumentFileManagementService).saveConsentDocument(any(), eq(pwaConsent2));
+    Mockito.verify(pwaConsentService).setFileDownloadable(pwaConsent1);
+    Mockito.verify(pwaConsentService).setFileDownloadable(pwaConsent2);
     Mockito.verify(documentMigrationRecordRepository, times(3)).save(any());
   }
 }

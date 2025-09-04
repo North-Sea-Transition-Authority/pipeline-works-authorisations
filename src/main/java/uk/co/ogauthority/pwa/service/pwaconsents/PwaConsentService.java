@@ -131,16 +131,21 @@ public class PwaConsentService {
     pwaConsent.setReference(documentMigrationRecord.getConsentDoc());
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(consentType);
-    pwaConsent.setMigratedFlag(false);
+    pwaConsent.setMigratedFlag(true);
     pwaConsent.setCreatedInstant(clock.instant());
     pwaConsent.setConsentInstant(DateUtils.isoDateStringToInstant(documentMigrationRecord.getConsentDate()));
-    pwaConsent.setFileDownloadable(true);
 
     if (consentType.equals(PwaConsentType.VARIATION)) {
       pwaConsent.setVariationNumber(-1);
     }
 
     return pwaConsentRepository.save(pwaConsent);
+  }
+
+  @Transactional
+  public void setFileDownloadable(PwaConsent pwaConsent) {
+    pwaConsent.setFileDownloadable(true);
+    pwaConsentRepository.save(pwaConsent);
   }
 
   private PwaConsentType convertStringToPwaConsentType(String consentType) {
