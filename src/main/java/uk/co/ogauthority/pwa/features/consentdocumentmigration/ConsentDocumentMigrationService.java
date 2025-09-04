@@ -246,6 +246,7 @@ public class ConsentDocumentMigrationService {
     pwaConsentService.setFileDownloadable(pwaConsent);
 
     documentMigrationRecord.setMigrationSuccessful(true);
+    documentMigrationRecord.setFileId(uploadedFile.getFileId());
     documentMigrationRecordRepository.save(documentMigrationRecord);
   }
 

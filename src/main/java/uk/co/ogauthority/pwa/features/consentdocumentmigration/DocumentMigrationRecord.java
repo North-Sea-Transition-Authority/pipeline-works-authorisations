@@ -5,6 +5,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "consent_document_migration_progress")
@@ -25,6 +28,8 @@ public class DocumentMigrationRecord {
   private Boolean destinationRecordExists;
   private Boolean migrationSuccessful;
 
+  @JdbcTypeCode(SqlTypes.UUID)
+  private UUID fileId;
 
   public DocumentMigrationRecord() {
     fileLocated = false;
@@ -126,5 +131,13 @@ public class DocumentMigrationRecord {
 
   public void setMigrationSuccessful(Boolean migrationSuccessful) {
     this.migrationSuccessful = migrationSuccessful;
+  }
+
+  public UUID getFileId() {
+    return fileId;
+  }
+
+  public void setFileId(UUID fileId) {
+    this.fileId = fileId;
   }
 }

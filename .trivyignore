@@ -73,3 +73,6 @@ CVE-2025-8916
 
 # io.netty:netty-codec-http2
 CVE-2025-55163
+
+# io.netty:netty-codec
+CVE-2025-58057

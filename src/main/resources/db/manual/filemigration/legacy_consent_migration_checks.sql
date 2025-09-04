@@ -1,0 +1,29 @@
+SELECT *
+FROM PWA.CONSENT_DOCUMENT_MIGRATION_PROGRESS cdmp
+WHERE CDMP.MIGRATION_SUCCESSFUL = 1
+  AND cdmp.action = 'Upload'
+  AND CDMP.FILE_ID IS NULL
+/
+
+SELECT *
+FROM PWA.CONSENT_DOCUMENT_MIGRATION_PROGRESS cdmp
+WHERE CDMP.MIGRATION_SUCCESSFUL = 1
+  AND cdmp.action = 'Upload'
+  AND CDMP.FILE_ID IS NOT NULL
+  AND NOT EXISTS (
+    SELECT 1
+    FROM PWA.FILE_UPLOAD_LIBRARY_UPLOADED_FILES fulup
+             JOIN pwa.pwa_consents pc on pc.id = FULUP.USAGE_ID
+    WHERE FULUP.ID = cdmp.file_id
+      AND FULUP.USAGE_TYPE = 'PwaConsent'
+      AND cdmp.consent_doc = PC.REFERENCE
+)
+/
+SELECT cdmp.consent_doc, count(*) FROM PWA.CONSENT_DOCUMENT_MIGRATION_PROGRESS cdmp
+WHERE CDMP.MIGRATION_SUCCESSFUL = 1
+  AND cdmp.action = 'Upload'
+GROUP BY cdmp.consent_doc
+MINUS
+SELECT PC.REFERENCE, count(*) FROM pwa.pwa_consents pc
+WHERE PC.FILE_DOWNLOADABLE = 1
+group by pc.reference

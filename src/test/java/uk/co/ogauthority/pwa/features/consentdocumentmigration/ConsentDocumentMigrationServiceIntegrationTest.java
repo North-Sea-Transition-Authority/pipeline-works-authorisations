@@ -146,7 +146,7 @@ class ConsentDocumentMigrationServiceIntegrationTest {
     consentDocumentMigrationService.migrate();
 
     assertThat(documentMigrationRecordRepository.findAll())
-        .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
+        .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id", "fileId")
         .isEqualTo(createDocumentMigrationRecordsPostMigration());
   }
 
