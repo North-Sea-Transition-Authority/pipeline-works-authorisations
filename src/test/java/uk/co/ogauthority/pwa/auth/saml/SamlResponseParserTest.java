@@ -2,6 +2,8 @@ package uk.co.ogauthority.pwa.auth.saml;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,11 +24,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.co.ogauthority.pwa.AbstractIntegrationTest;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,6 +40,9 @@ class SamlResponseParserTest extends AbstractIntegrationTest {
 
   @Autowired
   private SamlResponseParser samlResponseParser;
+
+  @MockBean
+  private PortalTeamAccessor portalTeamAccessor;
 
   @Test
   void parseSamlResponse() {
@@ -68,7 +75,35 @@ class SamlResponseParserTest extends AbstractIntegrationTest {
         );
   }
 
-  @org.junit.jupiter.api.Test
+  @Test
+  void parseSamlResponse_PersistedPrivs() {
+
+    var attributes = samlAttributeBuilder()
+        .withWebUserAccountId("1")
+        .withPersonId("2")
+        .withForename("Forename")
+        .withSurname("Surname")
+        .withEmailAddress("email@address.com")
+        .withPortalPrivileges("PWA_ACCESS")
+        .build();
+
+    var samlResponse = createResponse(attributes);
+
+    doReturn(List.of(PwaUserPrivilege.PWA_ACCESS, PwaUserPrivilege.PIPELINE_VIEW))
+        .when(portalTeamAccessor).getAllUserPrivilegesForPerson(any());
+
+    var authentication = samlResponseParser.parseSamlResponse(samlResponse);
+    var user = (AuthenticatedUserAccount) authentication.getPrincipal();
+
+    assertThat(authentication.getAuthorities())
+        .extracting(GrantedAuthority::getAuthority)
+        .containsExactly(
+            "PWA_ACCESS",
+            "PIPELINE_VIEW"
+        );
+  }
+
+  @Test
   void parseSamlResponse_withProxy() {
     var attributes = samlAttributeBuilder()
         .withWebUserAccountId("1")

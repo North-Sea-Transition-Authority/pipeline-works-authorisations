@@ -31,4 +31,12 @@ public enum PwaUserPrivilege {
   public static List<PwaUserPrivilege> asList() {
     return List.of(PwaUserPrivilege.values());
   }
+
+  public static PwaUserPrivilege valueOfOrNull(String name) {
+    try {
+      return PwaUserPrivilege.valueOf(name);
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
 }

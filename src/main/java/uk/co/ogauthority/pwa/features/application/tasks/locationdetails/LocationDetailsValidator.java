@@ -247,7 +247,6 @@ public class LocationDetailsValidator implements SmartValidator {
     }
 
     FileValidationUtils.validator()
-        .withMinimumNumberOfFiles(1, "Upload at least one file")
         .validate(errors, form.getUploadedFiles());
   }
 

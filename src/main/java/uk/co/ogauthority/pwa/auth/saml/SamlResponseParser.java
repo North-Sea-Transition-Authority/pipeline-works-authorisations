@@ -16,10 +16,18 @@ import org.springframework.stereotype.Service;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.auth.PwaUserPrivilege;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
+import uk.co.ogauthority.pwa.integrations.energyportal.teams.external.PortalTeamAccessor;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
+import uk.co.ogauthority.pwa.util.StreamUtil;
 
 @Service
 public class SamlResponseParser {
+
+  private final PortalTeamAccessor portalTeamAccessor;
+
+  public SamlResponseParser(PortalTeamAccessor portalTeamAccessor) {
+    this.portalTeamAccessor = portalTeamAccessor;
+  }
 
   public ServiceSaml2Authentication parseSamlResponse(Response response) {
     var attributes = getSamlAttributes(response);
@@ -39,13 +47,33 @@ public class SamlResponseParser {
     var portalPrivileges = getNonNullAttribute(parsedAttributes, EnergyPortalSamlAttribute.PORTAL_PRIVILEGES);
     var portalPrivilegesList = Arrays.stream(StringUtils.split(portalPrivileges, ",")).toList();
 
-    var grantedAuthorities = portalPrivilegesList.stream()
+    var persistedPrivsList = getPersistedPrivsList(personId);
+
+    var combinedPrivsList = StreamUtil.distinctUnion(persistedPrivsList, portalPrivilegesList);
+
+    var grantedAuthorities = combinedPrivsList.stream()
         .map(SimpleGrantedAuthority::new)
         .toList();
 
-    var user = getAuthenticatedUserAccount(personId, forename, surname, email, wuaId, proxyWuaId, proxyUsername,portalPrivilegesList);
+    var user = getAuthenticatedUserAccount(
+        personId,
+        forename,
+        surname,
+        email,
+        wuaId,
+        proxyWuaId,
+        proxyUsername,
+        combinedPrivsList
+    );
 
     return new ServiceSaml2Authentication(user, grantedAuthorities);
+  }
+
+  private List<String> getPersistedPrivsList(String personId) {
+    return portalTeamAccessor.getAllUserPrivilegesForPerson(Integer.valueOf(personId))
+        .stream()
+        .map(Enum::name)
+        .toList();
   }
 
   @VisibleForTesting
@@ -71,13 +99,7 @@ public class SamlResponseParser {
     webUserAccount.setEmailAddress(email);
 
     List<PwaUserPrivilege> pwaUserPrivilegeList = portalPrivileges.stream()
-        .map(name -> {
-          try {
-            return PwaUserPrivilege.valueOf(name);
-          } catch (IllegalArgumentException e) {
-            return null;
-          }
-        })
+        .map(PwaUserPrivilege::valueOfOrNull)
         .filter(Objects::nonNull)
         .toList();
 

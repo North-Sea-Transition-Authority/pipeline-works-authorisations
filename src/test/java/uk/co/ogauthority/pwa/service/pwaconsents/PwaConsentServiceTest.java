@@ -223,7 +223,7 @@ class PwaConsentServiceTest {
     pwaConsent.setReference(documentRecord.getConsentDoc());
     pwaConsent.setSourcePwaApplication(null);
     pwaConsent.setConsentType(PwaConsentType.INITIAL_PWA);
-    pwaConsent.setMigratedFlag(true);
+    pwaConsent.setMigratedFlag(false);
     pwaConsent.setCreatedInstant(clockTime);
     pwaConsent.setConsentInstant(Instant.from(LocalDate.parse(documentRecord.getConsentDate()).atStartOfDay(ZoneId.systemDefault())));
 
