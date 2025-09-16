@@ -45,7 +45,7 @@ class ConsentDocumentMigrationServiceTest {
   @Mock
   private FileUploadProperties fileUploadProperties;
 
-  private final DevtoolsProperties devtoolsProperties = new DevtoolsProperties("pwa-migration", "csv-key");
+  private final DevtoolsProperties devtoolsProperties = new DevtoolsProperties("pwa-migration", "csv-key", 100);
 
   @Mock
   private DocumentMigrationRecordRepository documentMigrationRecordRepository;

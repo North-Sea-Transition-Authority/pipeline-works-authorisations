@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
@@ -187,10 +188,30 @@ public class ConsentDocumentMigrationService {
   void migrate() throws S3Exception, IOException {
     var filesToMigrate = documentMigrationRecordRepository.findAllByMigrationSuccessfulIsFalseAndFileLocatedIsTrue();
     var fileSizeMap = getS3FileSizeMap();
+    var batchId = UUID.randomUUID();
+    LOGGER.info("Migrating {} files (batch id: {})", devtoolsProperties.migrationMaxFilesPerRequest(), batchId);
+
+    int i = 0;
 
     for (var docRecord : filesToMigrate) {
+      if (i >= devtoolsProperties.migrationMaxFilesPerRequest()) {
+        break;
+      }
+
+      LOGGER.info(
+          "Migrating file {} of size {} at index {} (batch id: {})",
+          docRecord.getFilename(),
+          fileSizeMap.get(docRecord.getFilename()),
+          i,
+          batchId
+      );
+
       migrateFile(docRecord.getId(), fileSizeMap);
+
+      i++;
     }
+
+    LOGGER.info("Finished migrating {} files (batch id: {})", devtoolsProperties.migrationMaxFilesPerRequest(), batchId);
   }
 
   private Map<String, Long> getS3FileSizeMap() throws S3Exception {
@@ -248,12 +269,17 @@ public class ConsentDocumentMigrationService {
     documentMigrationRecord.setMigrationSuccessful(true);
     documentMigrationRecord.setFileId(uploadedFile.getFileId());
     documentMigrationRecordRepository.save(documentMigrationRecord);
+
+    LOGGER.info("Migrated file {} successfully", documentMigrationRecord.getFilename());
   }
 
   private PwaConsent generateDestinationRecord(DocumentMigrationRecord documentMigrationRecord) {
     var consent = pwaConsentService.createLegacyConsent(documentMigrationRecord);
     documentMigrationRecord.setDestinationRecordExists(true);
     documentMigrationRecordRepository.save(documentMigrationRecord);
+
+    LOGGER.info("generated destination record for document {}", documentMigrationRecord.getFilename());
+
     return consent;
   }
 
