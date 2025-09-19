@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import uk.co.ogauthority.pwa.features.application.tasks.pipelines.core.PadPipeline;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
@@ -15,7 +16,14 @@ public interface PadPipelineIdentRepository extends CrudRepository<PadPipelineId
   @EntityGraph(attributePaths = "padPipeline")
   Optional<PadPipelineIdent> findTopByPadPipelineOrderByIdentNoDesc(PadPipeline pipeline);
 
-  @EntityGraph(attributePaths = "padPipeline")
+  // Due to a bug within Hibernate, using a repository method with an EntityGraph within the same transaction
+  // as updating that data causes issues (see EDU-7096). Replacing the EntityGraph with the Query will resolve
+  // this problem until Hibernate is fixed
+  @Query("""
+        FROM PadPipelineIdent ppi
+        JOIN PadPipeline pp ON ppi.padPipeline = pp
+        WHERE pp = :pipeline
+      """)
   List<PadPipelineIdent> getAllByPadPipeline(PadPipeline pipeline);
 
   @EntityGraph(attributePaths = "padPipeline")
