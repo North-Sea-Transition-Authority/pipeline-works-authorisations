@@ -32,12 +32,12 @@ Output should claim build successful.
 
 ##### Regardless of profile
 
-| **Environment Variable**                          | **Description**                                                                                |
-|---------------------------------------------------|------------------------------------------------------------------------------------------------|
-| PWA_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID                | AWS access key id for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134     |
-| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY            | AWS secret access key for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134 |
-| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY (optional) | The AWS region to run in. Defaults to `eu-west-2`                                              |
-| PWA_EPMQ_ENVIRONMENT_SUFFIX                       | Something unique per environment, e.g. `dev`. For local dev this can be your initials          |
+| **Environment Variable**                   | **Description**                                                                                |
+|--------------------------------------------|------------------------------------------------------------------------------------------------|
+| PWA_EPMQ_SNS_SQS_AWS_ACCESS_KEY_ID         | AWS access key id for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134     |
+| PWA_EPMQ_SNS_SQS_AWS_SECRET_ACCESS_KEY     | AWS secret access key for SNS/SQS. For local: https://tpm.fivium.co.uk/index.php/pwd/view/2134 |
+| PWA_EPMQ_SNS_SQS_AWS_REGION_ID (optional)  | The AWS region to run in. Defaults to `eu-west-2`                                              |
+| PWA_EPMQ_ENVIRONMENT_SUFFIX                | Something unique per environment, e.g. `dev`. For local dev this can be your initials          |
 
 ##### Development profile
 | Environment Variable        | Description                                                                                                                       |
