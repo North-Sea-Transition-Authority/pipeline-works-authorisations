@@ -7,11 +7,16 @@ import uk.co.ogauthority.pwa.util.pipelines.PipelineNumberSortingUtil;
 public class PipelineDto implements Comparable<PipelineDto> {
   private final Integer id;
   private final String pipelineNumber;
+  private final String toLocation;
+  private final String fromLocation;
   private final PwaDto pwa;
 
-  public PipelineDto(Integer id, String pipelineNumber, Integer pwaId, String pwaReference, MasterPwaDetailStatus pwaStatus) {
+  public PipelineDto(Integer id, String pipelineNumber, String toLocation, String fromLocation,
+                     Integer pwaId, String pwaReference, MasterPwaDetailStatus pwaStatus) {
     this.id = id;
     this.pipelineNumber = pipelineNumber;
+    this.toLocation = toLocation;
+    this.fromLocation = fromLocation;
     this.pwa = new PwaDto(pwaId, pwaReference, pwaStatus);
   }
 
@@ -20,6 +25,8 @@ public class PipelineDto implements Comparable<PipelineDto> {
     id = null;
     pipelineNumber = null;
     pwa = null;
+    toLocation = null;
+    fromLocation = null;
   }
 
   @JsonProperty
@@ -30,6 +37,16 @@ public class PipelineDto implements Comparable<PipelineDto> {
   @JsonProperty
   public String getPipelineNumber() {
     return pipelineNumber;
+  }
+
+  @JsonProperty
+  public String getToLocation() {
+    return toLocation;
+  }
+
+  @JsonProperty
+  public String getFromLocation() {
+    return fromLocation;
   }
 
   @JsonProperty

@@ -14,6 +14,8 @@ public class PipelineDtoTestUtil {
 
     private Integer id;
     private String number;
+    private String toLocation;
+    private String fromLocation;
     private Integer pwaId;
     private String pwaReference;
     private MasterPwaDetailStatus pwaStatus;
@@ -25,6 +27,16 @@ public class PipelineDtoTestUtil {
 
     public Builder withNumber(String number) {
       this.number = number;
+      return this;
+    }
+
+    public Builder withToLocation(String toLocation) {
+      this.toLocation = toLocation;
+      return this;
+    }
+
+    public Builder withFromLocation(String fromLocation) {
+      this.fromLocation = fromLocation;
       return this;
     }
 
@@ -47,6 +59,8 @@ public class PipelineDtoTestUtil {
       return new PipelineDto(
           id,
           number,
+          toLocation,
+          fromLocation,
           pwaId,
           pwaReference,
           pwaStatus

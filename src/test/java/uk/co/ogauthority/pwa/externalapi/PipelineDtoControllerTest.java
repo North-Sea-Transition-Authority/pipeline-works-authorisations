@@ -18,11 +18,11 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import uk.co.ogauthority.pwa.config.ExternalApiWebSecurityConfiguration;
 import uk.co.ogauthority.pwa.controller.PwaApplicationContextAbstractControllerTest;
 import uk.co.ogauthority.pwa.features.application.authorisation.context.PwaApplicationContextService;
@@ -32,7 +32,7 @@ import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 @Import(ExternalApiWebSecurityConfiguration.class)
 class PipelineDtoControllerTest extends PwaApplicationContextAbstractControllerTest {
 
-  @MockBean
+  @MockitoBean
   private PipelineDtoRepository pipelineDtoRepository;
 
   private static final String PRE_SHARED_KEY = "testKey1";
