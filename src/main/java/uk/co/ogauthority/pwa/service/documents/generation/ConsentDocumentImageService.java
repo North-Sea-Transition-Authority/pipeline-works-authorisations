@@ -1,8 +1,9 @@
 package uk.co.ogauthority.pwa.service.documents.generation;
 
 import com.google.common.base.Stopwatch;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
@@ -14,13 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.exception.TempFileException;
 import uk.co.ogauthority.pwa.service.enums.documents.DocumentImageMethod;
+import uk.co.ogauthority.pwa.service.images.ImageScalingService;
 
 
 @Service
@@ -30,14 +31,17 @@ public class ConsentDocumentImageService {
 
   private final FileService fileService;
   private final DocumentImageMethod imageMethod;
+  private final ImageScalingService imageScalingService;
 
   @Autowired
   public ConsentDocumentImageService(
       FileService fileService,
-      @Value("${pwa.document-generation.image-method}") DocumentImageMethod imageMethod
+      @Value("${pwa.document-generation.image-method}") DocumentImageMethod imageMethod,
+      ImageScalingService imageScalingService
   ) {
     this.fileService = fileService;
     this.imageMethod = imageMethod;
+    this.imageScalingService = imageScalingService;
   }
 
   /**
@@ -89,7 +93,7 @@ public class ConsentDocumentImageService {
     File tempFile = null;
     try {
       tempFile = File.createTempFile(uploadedFile.getId() + filename, extension);
-      Files.copy(fileData.getInputStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+      Files.copy(new ByteArrayInputStream(fileData.toByteArray()), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     } catch (Exception e) {
       if (tempFile != null && !tempFile.delete()) {
         LOGGER.error("Failed to delete temp file");
@@ -105,19 +109,14 @@ public class ConsentDocumentImageService {
   private String convertToBase64String(UploadedFile uploadedFile) {
     var fileData = getFileData(uploadedFile);
 
-    try {
-      if (fileData != null) {
-        return Base64.encodeBase64String(fileData.getContentAsByteArray());
-      } else {
-        throw new RuntimeException("File with ID: [%s] has no content".formatted(uploadedFile.getId()));
-      }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    if (fileData != null) {
+      return Base64.encodeBase64String(fileData.toByteArray());
+    } else {
+      throw new RuntimeException("File with ID: [%s] has no content".formatted(uploadedFile.getId()));
     }
-
   }
 
-  private InputStreamResource getFileData(UploadedFile uploadedFile) {
+  private ByteArrayOutputStream getFileData(UploadedFile uploadedFile) {
     var downloadResponse = fileService.download(uploadedFile);
 
     if (downloadResponse.getStatusCode().isError()) {
@@ -137,7 +136,7 @@ public class ConsentDocumentImageService {
       throw new RuntimeException("File download response for ID: [%s] has null body".formatted(uploadedFile.getId()));
     }
 
-    return fileData;
+    return imageScalingService.scaleImage(uploadedFile, fileData);
   }
 
 }

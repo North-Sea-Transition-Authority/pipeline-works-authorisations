@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -19,12 +20,16 @@ import org.springframework.http.ResponseEntity;
 import uk.co.fivium.fileuploadlibrary.core.FileService;
 import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.service.enums.documents.DocumentImageMethod;
+import uk.co.ogauthority.pwa.service.images.ImageScalingService;
 
 @ExtendWith(MockitoExtension.class)
 class ConsentDocumentImageServiceTest {
 
   @Mock
   private FileService fileService;
+
+  @Mock
+  private ImageScalingService imageScalingService;
 
   private ConsentDocumentImageService base64ImageService;
 
@@ -37,9 +42,12 @@ class ConsentDocumentImageServiceTest {
   private byte[] fileData1;
   private byte[] fileData2;
 
+  private ByteArrayOutputStream scalingOutput1;
+  private ByteArrayOutputStream scalingOutput2;
+
   @BeforeEach
   void setUp() {
-    base64ImageService = new ConsentDocumentImageService(fileService, DocumentImageMethod.BASE_64);
+    base64ImageService = new ConsentDocumentImageService(fileService, DocumentImageMethod.BASE_64, imageScalingService);
 
     uploadedFile1 = new UploadedFile();
     uploadedFile1.setId(UUID.randomUUID());
@@ -49,6 +57,9 @@ class ConsentDocumentImageServiceTest {
     fileStream1 = mock(InputStreamResource.class);
     fileStream2 = mock(InputStreamResource.class);
 
+    scalingOutput1 = mock(ByteArrayOutputStream.class);
+    scalingOutput2 = mock(ByteArrayOutputStream.class);
+
     fileData1 = "file1".getBytes();
     fileData2 = "file2".getBytes();
   }
@@ -57,7 +68,9 @@ class ConsentDocumentImageServiceTest {
   void convertFileToImageSource_base64() throws IOException {
     when(fileService.download(uploadedFile1)).thenReturn(ResponseEntity.ok(fileStream1));
 
-    when(fileStream1.getContentAsByteArray()).thenReturn(fileData1);
+    when(imageScalingService.scaleImage(uploadedFile1, fileStream1)).thenReturn(scalingOutput1);
+
+    when(scalingOutput1.toByteArray()).thenReturn(fileData1);
 
     String fileEncoded = Base64.encodeBase64String(fileData1);
 
@@ -70,8 +83,11 @@ class ConsentDocumentImageServiceTest {
     when(fileService.download(uploadedFile1)).thenReturn(ResponseEntity.ok(fileStream1));
     when(fileService.download(uploadedFile2)).thenReturn(ResponseEntity.ok(fileStream2));
 
-    when(fileStream1.getContentAsByteArray()).thenReturn(fileData1);
-    when(fileStream2.getContentAsByteArray()).thenReturn(fileData2);
+    when(imageScalingService.scaleImage(uploadedFile1, fileStream1)).thenReturn(scalingOutput1);
+    when(imageScalingService.scaleImage(uploadedFile2, fileStream2)).thenReturn(scalingOutput2);
+
+    when(scalingOutput1.toByteArray()).thenReturn(fileData1);
+    when(scalingOutput2.toByteArray()).thenReturn(fileData2);
 
     String file1Encoded = Base64.encodeBase64String(fileData1);
     String file2Encoded = Base64.encodeBase64String(fileData2);
