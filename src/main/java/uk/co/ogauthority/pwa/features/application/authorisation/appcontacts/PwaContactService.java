@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +39,7 @@ import uk.co.ogauthority.pwa.util.StreamUtil;
  */
 @Service
 public class PwaContactService implements ApplicationFormSectionService {
+  private static final Logger LOGGER = LoggerFactory.getLogger(PwaContactService.class);
 
   private final PwaContactRepository pwaContactRepository;
   private final TeamQueryService teamQueryService;
@@ -64,17 +68,20 @@ public class PwaContactService implements ApplicationFormSectionService {
         .map(PwaContact::getPerson)
         .collect(Collectors.toSet());
 
-    var userMap = userAccountService.getWebUserAccountsByPeople(people)
+    var personToWuaIdMap = userAccountService.getWebUserAccountsByPeople(people)
         .stream()
         .distinct()
         .collect(Collectors.toMap(WebUserAccount::getLinkedPerson, WebUserAccount::getWuaId, StreamUtil.keepFirst()));
 
     return pwaContacts.stream()
-        .map(contact -> {
-          var wuaId = Optional.ofNullable(userMap.get(contact.getPerson()))
-              .orElseThrow(() -> new IllegalStateException(
-                  "Person %d not found in map of users".formatted(contact.getPerson().getId().asInt())));
-          return getTeamMemberView(pwaApplication, contact, wuaId);
+        .flatMap(contact -> {
+          var person = contact.getPerson();
+          var wuaId = personToWuaIdMap.get(person);
+          if (wuaId == null) {
+            LOGGER.info("Person {} not found in map of WUA ids. Omitting contact {}", person.getId().asInt(), person.getFullName());
+            return Stream.empty();
+          }
+          return Stream.of(getTeamMemberView(pwaApplication, contact, wuaId));
         })
         .sorted(Comparator.comparing(ContactTeamMemberView::getFullName))
         .collect(Collectors.toList());

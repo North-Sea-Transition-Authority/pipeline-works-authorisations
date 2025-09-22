@@ -112,17 +112,21 @@ class PwaContactServiceTest {
   }
 
   @Test
-  void getContactTeamMemberViews_throwsExceptionWhenPersonNotInUserMap() {
+  void getContactTeamMemberViews_omitsContactWhenPersonNotInUserMap() {
     var person1 = new Person(1, "Alice", "Smith", "alice@example.com", "123456789");
+    var person2 = new Person(2, "Bob", "Jones", "bob@example.com", "987654321");
     var contact1 = new PwaContact(pwaApplication, person1, Set.of(PwaContactRole.ACCESS_MANAGER));
+    var contact2 = new PwaContact(pwaApplication, person2, Set.of(PwaContactRole.PREPARER));
 
-    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact1));
-    when(userAccountService.getWebUserAccountsByPeople(Set.of(person1))).thenReturn(List.of());
+    when(pwaContactRepository.findAllByPwaApplication(pwaApplication)).thenReturn(List.of(contact1, contact2));
+    when(userAccountService.getWebUserAccountsByPeople(Set.of(person1, person2)))
+        .thenReturn(List.of(new WebUserAccount(123, person1)));
 
-    var ex = assertThrows(IllegalStateException.class,
-        () -> pwaContactService.getContactTeamMemberViews(pwaApplication));
+    var result = pwaContactService.getContactTeamMemberViews(pwaApplication);
 
-    assertThat(ex.getMessage()).contains("Person 1 not found in map of users");
+    assertThat(result)
+        .extracting(ContactTeamMemberView::getFullName)
+        .containsExactly("Alice Smith");
   }
 
   @Test
