@@ -94,7 +94,8 @@ public class ConsentIssueService {
         consent.getReference(),
         approvedReview.getCoverLetterText(),
         caseOfficerPerson.getEmailAddress(),
-        issuingUser.getFullName());
+        issuingUser.getFullName(),
+        consent.getConsentInstant());
 
     // have to clear assignments last so that we can email the assigned CO in the previous step
     workflowAssignmentService.clearAssignments(pwaApplicationDetail.getPwaApplication());

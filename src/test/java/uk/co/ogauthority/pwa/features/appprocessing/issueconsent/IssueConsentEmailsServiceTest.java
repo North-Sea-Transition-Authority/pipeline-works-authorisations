@@ -4,11 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
@@ -41,20 +42,15 @@ class IssueConsentEmailsServiceTest {
   @Mock
   private PersonService personService;
 
+  @InjectMocks
   private IssueConsentEmailsService issueConsentEmailsService;
 
   private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
   private final AuthenticatedUserAccount issuingUser = new AuthenticatedUserAccount(new WebUserAccount(1, PersonTestUtil.createPersonWithNameFrom(new PersonId(100))), Set.of());
 
   private final String consentReference = "1/W/89";
+  private final Instant consentInstant = Instant.now();
   private final String caseOfficerEmail = "case@officer.com";
-
-  @BeforeEach
-  void setUp() throws Exception {
-
-    issueConsentEmailsService = new IssueConsentEmailsService(consentEmailService, pwaContactService, pwaHolderTeamService, personService);
-
-  }
 
   @Test
   void sendConsentIssuedEmails_allEmailsSent() {
@@ -77,7 +73,8 @@ class IssueConsentEmailsServiceTest {
         consentReference,
         consentReview.getCoverLetterText(),
         caseOfficerEmail,
-        issuingUser.getFullName());
+        issuingUser.getFullName(),
+        consentInstant);
 
     verify(consentEmailService).sendCaseOfficerConsentIssuedEmail(pwaApplicationDetail, issuingUser.getFullName());
 
@@ -95,6 +92,7 @@ class IssueConsentEmailsServiceTest {
         caseOfficerEmail,
         List.of(nonHolderTeamContact.getPerson()));
 
+    verify(consentEmailService).sendThirdPartyConsentIssuedEmail(pwaApplicationDetail, consentInstant, consentReference);
   }
 
   @Test
@@ -118,7 +116,8 @@ class IssueConsentEmailsServiceTest {
         consentReference,
         consentReview.getCoverLetterText(),
         caseOfficerEmail,
-        issuingUser.getFullName());
+        issuingUser.getFullName(),
+        consentInstant);
 
     verify(consentEmailService).sendHolderAndSubmitterConsentIssuedEmail(
         pwaApplicationDetail,
@@ -128,6 +127,7 @@ class IssueConsentEmailsServiceTest {
         Set.of(holderTeamContact.getPerson(),
         appSubmitterPerson));
 
+    verify(consentEmailService).sendThirdPartyConsentIssuedEmail(pwaApplicationDetail, consentInstant, consentReference);
   }
 
   @Test
@@ -140,7 +140,8 @@ class IssueConsentEmailsServiceTest {
           consentReference,
           consentReview.getCoverLetterText(),
           caseOfficerEmail,
-          issuingUser.getFullName()));
+          issuingUser.getFullName(),
+          consentInstant));
 
   }
 

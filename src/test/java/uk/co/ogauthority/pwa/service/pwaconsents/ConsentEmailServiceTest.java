@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import static java.util.Map.entry;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -8,20 +9,23 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
 import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
+import uk.co.ogauthority.pwa.config.ConsulteeEmailProperties;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
+import uk.co.ogauthority.pwa.features.application.tasks.fieldinfo.PwaAreaLinksView;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.Assignment;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
@@ -29,6 +33,7 @@ import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.CaseOfficerConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ThirdPartyConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.integrations.camunda.external.WorkflowType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
@@ -37,7 +42,10 @@ import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonTes
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.WebUserAccount;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.model.view.StringWithTag;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
 import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ConsentEmailServiceTest {
@@ -54,6 +62,12 @@ class ConsentEmailServiceTest {
   @Mock
   private EmailService emailService;
 
+  @Mock
+  private ConsulteeEmailProperties consulteeEmailProperties;
+
+  @Mock
+  private MasterPwaDetailAreaService masterPwaDetailAreaService;
+
   @Captor
   private ArgumentCaptor<ConsentReviewReturnedEmailProps> consentReviewReturnedEmailCaptor;
 
@@ -63,6 +77,10 @@ class ConsentEmailServiceTest {
   @Captor
   private ArgumentCaptor<ConsentIssuedEmailProps> consentIssuedEmailPropsCaptor;
 
+  @Captor
+  private ArgumentCaptor<ThirdPartyConsentIssuedEmailProps> thirdPartyConsentIssuedEmailCaptor;
+
+  @InjectMocks
   private ConsentEmailService consentEmailService;
 
   private final PwaApplicationDetail pwaApplicationDetail = PwaApplicationTestUtil.createDefaultApplicationDetail(PwaApplicationType.INITIAL);
@@ -72,14 +90,6 @@ class ConsentEmailServiceTest {
   private final Assignment assignment = new Assignment(pwaApplicationDetail.getId(), WorkflowType.PWA_APPLICATION,
       WorkflowAssignment.CASE_OFFICER, caseOfficerPerson.getId());
   private final String consentReference = "1/W/90";
-
-
-  @BeforeEach
-  void setUp() {
-
-    consentEmailService = new ConsentEmailService(caseLinkService, personService, assignmentService, emailService);
-
-  }
 
   @Test
   void sendConsentReviewReturnedEmail() {
@@ -207,6 +217,48 @@ class ConsentEmailServiceTest {
         ));
 
       });
+
+    });
+
+  }
+
+  @Test
+  void sendThirdPartyConsentIssuedEmail() {
+    when(caseLinkService.generateCaseManagementLink(any())).thenCallRealMethod();
+    when(consulteeEmailProperties.getName()).thenReturn("ODU Team");
+
+    var pwaFieldLinksView = new PwaAreaLinksView(
+        true,
+        null,
+        List.of(new StringWithTag("fieldname"), new StringWithTag("fieldname 2")));
+
+    var consentInstant = Instant.now();
+
+    when(masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(pwaApplicationDetail.getPwaApplication()))
+        .thenReturn(pwaFieldLinksView);
+
+    PwaApplicationType.stream().forEach(pwaApplicationType -> {
+
+      pwaApplicationDetail.getPwaApplication().setApplicationType(pwaApplicationType);
+
+      consentEmailService.sendThirdPartyConsentIssuedEmail(pwaApplicationDetail, consentInstant, consentReference);
+
+      var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+
+      verify(emailService, atLeastOnce()).sendEmail(thirdPartyConsentIssuedEmailCaptor.capture(), any(), eq(pwaApplicationDetail.getPwaApplicationRef()));
+
+      assertThat(thirdPartyConsentIssuedEmailCaptor.getValue().getTemplate())
+          .isEqualTo(pwaApplicationType.getConsentIssueEmail().getThirdPartyEmailTemplate());
+
+      assertThat(thirdPartyConsentIssuedEmailCaptor.getValue().getRecipientFullName()).isEqualTo("ODU Team");
+
+      assertThat(thirdPartyConsentIssuedEmailCaptor.getValue().getEmailPersonalisation()).contains(
+          entry("APPLICATION_REFERENCE", pwaApplicationDetail.getPwaApplicationRef()),
+          entry("CONSENT_REFERENCE", consentReference),
+          entry("CONSENT_ISSUED_DATE", DateUtils.formatDate(consentInstant)),
+          entry("FIELD_NAMES", "fieldname, fieldname 2"),
+          entry("CASE_MANAGEMENT_LINK", caseManagementLink)
+      );
 
     });
 

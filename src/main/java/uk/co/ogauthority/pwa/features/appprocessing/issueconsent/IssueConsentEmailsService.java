@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.appprocessing.issueconsent;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -38,7 +39,8 @@ public class IssueConsentEmailsService {
                                       String consentReference,
                                       String coverLetterText,
                                       String caseOfficerEmail,
-                                      String issuingUserName) {
+                                      String issuingUserName,
+                                      Instant consentInstant) {
 
     consentEmailService.sendCaseOfficerConsentIssuedEmail(pwaApplicationDetail, issuingUserName);
 
@@ -61,6 +63,7 @@ public class IssueConsentEmailsService {
         caseOfficerEmail,
         nonHolderContactsRecipients);
 
+    consentEmailService.sendThirdPartyConsentIssuedEmail(pwaApplicationDetail, consentInstant, consentReference);
   }
 
   private void setHolderAndNonHolderRecipients(Collection<Person> holderContactsAndAppSubmitterRecipients,

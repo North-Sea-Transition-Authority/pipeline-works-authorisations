@@ -1,20 +1,26 @@
 package uk.co.ogauthority.pwa.service.pwaconsents;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.email.EmailRecipient;
+import uk.co.ogauthority.pwa.config.ConsulteeEmailProperties;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.AssignmentService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.assignments.WorkflowAssignment;
 import uk.co.ogauthority.pwa.features.email.CaseLinkService;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.CaseOfficerConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ConsentReviewReturnedEmailProps;
+import uk.co.ogauthority.pwa.features.email.emailproperties.applicationworkflow.ThirdPartyConsentIssuedEmailProps;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.Person;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonService;
 import uk.co.ogauthority.pwa.integrations.govuknotify.EmailService;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
+import uk.co.ogauthority.pwa.service.masterpwas.MasterPwaDetailAreaService;
+import uk.co.ogauthority.pwa.util.DateUtils;
 
 @Service
 public class ConsentEmailService {
@@ -23,16 +29,22 @@ public class ConsentEmailService {
   private final PersonService personService;
   private final AssignmentService assignmentService;
   private final EmailService emailService;
+  private final ConsulteeEmailProperties consulteeEmailProperties;
+  private final MasterPwaDetailAreaService masterPwaDetailAreaService;
 
   @Autowired
   public ConsentEmailService(CaseLinkService caseLinkService,
                              PersonService personService,
                              AssignmentService assignmentService,
-                             EmailService emailService) {
+                             EmailService emailService,
+                             ConsulteeEmailProperties consulteeEmailProperties,
+                             MasterPwaDetailAreaService masterPwaDetailAreaService) {
     this.caseLinkService = caseLinkService;
     this.personService = personService;
     this.assignmentService = assignmentService;
     this.emailService = emailService;
+    this.consulteeEmailProperties = consulteeEmailProperties;
+    this.masterPwaDetailAreaService = masterPwaDetailAreaService;
   }
 
   public void sendConsentReviewReturnedEmail(PwaApplicationDetail pwaApplicationDetail,
@@ -115,6 +127,33 @@ public class ConsentEmailService {
 
     });
 
+  }
+
+  public void sendThirdPartyConsentIssuedEmail(PwaApplicationDetail pwaApplicationDetail, Instant consentInstant,
+                                               String consentReference) {
+    var caseManagementLink = caseLinkService.generateCaseManagementLink(pwaApplicationDetail.getPwaApplication());
+
+    var pwaAreaLinksView = masterPwaDetailAreaService.getCurrentMasterPwaDetailAreaLinksView(
+        pwaApplicationDetail.getPwaApplication()
+    );
+
+    var fieldNames = pwaAreaLinksView.getLinkedAreaNames()
+        .stream()
+        .map(stringWithTagItem -> stringWithTagItem.getStringWithTag().getValue())
+        .collect(Collectors.joining(", "));
+
+    var emailProps = new ThirdPartyConsentIssuedEmailProps(
+        pwaApplicationDetail.getPwaApplicationType().getConsentIssueEmail().getThirdPartyEmailTemplate(),
+        consulteeEmailProperties.getName(),
+        pwaApplicationDetail.getPwaApplicationRef(),
+        consentReference,
+        fieldNames,
+        DateUtils.formatDate(consentInstant),
+        caseManagementLink
+    );
+
+    emailService.sendEmail(emailProps, EmailRecipient.directEmailAddress(consulteeEmailProperties.getEmail()),
+        pwaApplicationDetail.getPwaApplicationRef());
   }
 
   private Person getAssignedCaseOfficerPerson(PwaApplicationDetail pwaApplicationDetail) {

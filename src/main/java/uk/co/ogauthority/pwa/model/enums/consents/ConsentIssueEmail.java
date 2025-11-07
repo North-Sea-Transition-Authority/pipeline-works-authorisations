@@ -31,6 +31,7 @@ public enum ConsentIssueEmail {
 
   private final NotifyTemplate holderEmailTemplate;
   private final NotifyTemplate nonHolderEmailTemplate;
+  private final NotifyTemplate thirdPartyEmailTemplate;
   private final TemplateTextType templateTextType;
 
   ConsentIssueEmail(NotifyTemplate holderEmailTemplate,
@@ -38,6 +39,7 @@ public enum ConsentIssueEmail {
                     TemplateTextType templateTextType) {
     this.holderEmailTemplate = holderEmailTemplate;
     this.nonHolderEmailTemplate = nonHolderEmailTemplate;
+    this.thirdPartyEmailTemplate = NotifyTemplate.THIRD_PARTY_CONSENT_ISSUED;
     this.templateTextType = templateTextType;
   }
 
@@ -53,4 +55,7 @@ public enum ConsentIssueEmail {
     return templateTextType;
   }
 
+  public NotifyTemplate getThirdPartyEmailTemplate() {
+    return thirdPartyEmailTemplate;
+  }
 }

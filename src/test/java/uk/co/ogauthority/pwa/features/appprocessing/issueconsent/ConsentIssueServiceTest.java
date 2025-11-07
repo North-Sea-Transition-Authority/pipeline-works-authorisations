@@ -141,7 +141,8 @@ class ConsentIssueServiceTest {
         consent.getReference(),
         approvedReview.getCoverLetterText(),
         caseOfficerPerson.getEmailAddress(),
-        issuingUser.getFullName());
+        issuingUser.getFullName(),
+        consent.getConsentInstant());
 
     verify(workflowAssignmentService, times(1)).clearAssignments(pwaApplicationDetail.getPwaApplication());
 
