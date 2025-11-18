@@ -54,17 +54,20 @@ class EnergyPortalDataService implements EnergyPortalServiceProviderDataService 
 
       var scopeType = ScopeType.ORGANISATION_GROUP;
       var scopeId = team.getScopeId();
+      String overrideName = null;
 
       if (TeamType.CONSULTEE.equals(team.getTeamType())) {
         var scopeTypeAndId = consulteeConfigurationProperties.getScopeTypeAndEpasScopeId(team.getScopeId());
         scopeType = scopeTypeAndId.scopeType();
         scopeId = scopeTypeAndId.scopeId().toString();
+        overrideName = team.getName();
       }
 
       serviceProviderTeamDtos.add(new ServiceProviderTeamDto(
           team.getId().toString(),
           scopeId,
           scopeType,
+          overrideName,
           team.getTeamType().name()
       ));
     }

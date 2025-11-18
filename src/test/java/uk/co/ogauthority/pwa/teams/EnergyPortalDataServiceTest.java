@@ -61,6 +61,7 @@ class EnergyPortalDataServiceTest {
         .build();
     var consulteeTeamWhichHasAssociatedOrgGroup = TeamTestUtil.newBuilder()
         .withTeamType(TeamType.CONSULTEE)
+        .withName("Consultee name")
         .withScopeId("2")
         .withScopeType(TeamType.CONSULTEE.getScopeType())
         .build();
@@ -74,18 +75,21 @@ class EnergyPortalDataServiceTest {
         team1.getId().toString(),
         team1.getScopeId(),
         ScopeType.ORGANISATION_GROUP,
+        null,
         team1.getTeamType().name()
     );
     var expectedDto2 = new ServiceProviderTeamDto(
         team2.getId().toString(),
         team2.getScopeId(),
         ScopeType.ORGANISATION_GROUP,
+        null,
         team2.getTeamType().name()
     );
     var expectedDto3 = new ServiceProviderTeamDto(
         consulteeTeamWhichHasAssociatedOrgGroup.getId().toString(),
         configProperties.consulteeGroupIdToScopeIdAndType().get(2).scopeId().toString(),
         configProperties.consulteeGroupIdToScopeIdAndType().get(2).scopeType(),
+        "Consultee name",
         consulteeTeamWhichHasAssociatedOrgGroup.getTeamType().name()
     );
 
