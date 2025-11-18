@@ -1,8 +1,10 @@
 package uk.co.ogauthority.pwa.model.auditrevisions;
 
+import java.util.Optional;
 import org.hibernate.envers.RevisionListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.co.ogauthority.pwa.auth.AuthenticatedUserAccount;
 import uk.co.ogauthority.pwa.util.SecurityUtils;
 
 public class AuditRevisionListener implements RevisionListener {
@@ -16,7 +18,7 @@ public class AuditRevisionListener implements RevisionListener {
       return;
     }
 
-    var possibleUser = SecurityUtils.getAuthenticatedUserFromSecurityContext();
+    var possibleUser = getAuthenticatedUserAccount();
 
     if (possibleUser.isEmpty()) {
       LOGGER.warn("No principal available for audit revision {}", auditRevision.getId());
@@ -25,5 +27,13 @@ public class AuditRevisionListener implements RevisionListener {
 
     auditRevision.setPersonId(possibleUser.get().getLinkedPerson().getId().asInt());
     auditRevision.setProxyWuaId(possibleUser.get().getProxyUserWuaId().orElse(null));
+  }
+
+  private Optional<AuthenticatedUserAccount> getAuthenticatedUserAccount() {
+    var possibleUser = SecurityUtils.getAuthenticatedUserFromSecurityContext();
+    if (possibleUser.isPresent()) {
+      return possibleUser;
+    }
+    return Optional.ofNullable(AuditRevisionUtil.getFallbackAuditUser());
   }
 }

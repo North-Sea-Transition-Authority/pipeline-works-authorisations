@@ -9,13 +9,20 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.energyportal.accounts.starter.EnergyPortalServiceAccessService;
+import uk.co.fivium.energyportal.serviceproviders.epmq.ScopeType;
+import uk.co.fivium.energyportal.serviceproviders.epmq.messages.ServiceProviderTeamDto;
+import uk.co.fivium.energyportal.starter.accounts.EnergyPortalServiceAccessService;
+import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderTeamService;
+import uk.co.fivium.energyportal.starter.serviceproviders.EnergyPortalServiceProviderUserRolesService;
 import uk.co.fivium.energyportalapi.client.RequestPurpose;
 import uk.co.fivium.energyportalapi.client.user.UserApi;
 import uk.co.fivium.energyportalapi.generated.client.UserProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.client.UsersProjectionRoot;
 import uk.co.fivium.energyportalapi.generated.types.User;
+import uk.co.ogauthority.pwa.config.ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties;
 import uk.co.ogauthority.pwa.features.application.authorisation.appcontacts.PwaContactRepository;
 import uk.co.ogauthority.pwa.integrations.energyportal.webuseraccount.external.UserAccountService;
 import uk.co.ogauthority.pwa.teams.Role;
@@ -32,6 +39,8 @@ import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 @Service
 public class TeamManagementService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TeamManagementService.class);
+
   private final TeamRepository teamRepository;
   private final TeamRoleRepository teamRoleRepository;
   private final TeamQueryService teamQueryService;
@@ -40,16 +49,23 @@ public class TeamManagementService {
   private final PwaContactRepository pwaContactRepository;
   private final UserAccountService userAccountService;
   private final EnergyPortalServiceAccessService energyPortalServiceAccessService;
+  private final EnergyPortalServiceProviderTeamService energyPortalServiceProviderTeamService;
+  private final EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService;
+  private final ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties consulteeConfigurationProperties;
 
-
-  public TeamManagementService(TeamRepository teamRepository,
-                               TeamRoleRepository teamRoleRepository,
-                               UserApi userApi,
-                               TeamQueryService teamQueryService,
-                               TeamMemberQueryService teamMemberQueryService,
-                               PwaContactRepository pwaContactRepository,
-                               UserAccountService userAccountService,
-                               EnergyPortalServiceAccessService energyPortalServiceAccessService) {
+  public TeamManagementService(
+      TeamRepository teamRepository,
+      TeamRoleRepository teamRoleRepository,
+      UserApi userApi,
+      TeamQueryService teamQueryService,
+      TeamMemberQueryService teamMemberQueryService,
+      PwaContactRepository pwaContactRepository,
+      UserAccountService userAccountService,
+      EnergyPortalServiceAccessService energyPortalServiceAccessService,
+      EnergyPortalServiceProviderTeamService energyPortalServiceProviderTeamService,
+      EnergyPortalServiceProviderUserRolesService energyPortalServiceProviderUserRolesService,
+      ConsulteeGroupIdToEpasScopeTypeAndIdConfigurationProperties configProperties
+  ) {
     this.teamRepository = teamRepository;
     this.teamRoleRepository = teamRoleRepository;
     this.userApi = userApi;
@@ -58,6 +74,9 @@ public class TeamManagementService {
     this.pwaContactRepository = pwaContactRepository;
     this.userAccountService = userAccountService;
     this.energyPortalServiceAccessService = energyPortalServiceAccessService;
+    this.energyPortalServiceProviderTeamService = energyPortalServiceProviderTeamService;
+    this.energyPortalServiceProviderUserRolesService = energyPortalServiceProviderUserRolesService;
+    consulteeConfigurationProperties = configProperties;
   }
 
   public Team createScopedTeam(String name, TeamType teamType, TeamScopeReference scopeRef) {
@@ -75,7 +94,35 @@ public class TeamManagementService {
     team.setTeamType(teamType);
     team.setScopeType(scopeRef.getType());
     team.setScopeId(scopeRef.getId());
-    return teamRepository.save(team);
+    team = teamRepository.save(team);
+
+    if (TeamType.CONSULTEE.equals(teamType)
+        && !consulteeConfigurationProperties.hasAssociatedEpas(team.getScopeId())) {
+      LOGGER.warn(
+          "New consultee team with scope id {} has been created, and EPAS has not been notified, due to no associated org group",
+          scopeRef.getId()
+      );
+      return team;
+    }
+
+    var scopeType = ScopeType.ORGANISATION_GROUP;
+    var scopeId = team.getScopeId();
+
+    if (TeamType.CONSULTEE.equals(team.getTeamType())) {
+      var scopeTypeAndId = consulteeConfigurationProperties.getScopeTypeAndEpasScopeId(team.getScopeId());
+      scopeType = scopeTypeAndId.scopeType();
+      scopeId = scopeTypeAndId.scopeId().toString();
+    }
+
+    var serviceProviderTeam = new ServiceProviderTeamDto(
+        team.getId().toString(),
+        scopeId,
+        scopeType,
+        team.getTeamType().name()
+    );
+    energyPortalServiceProviderTeamService.publishTeam(serviceProviderTeam);
+
+    return team;
   }
 
   Set<TeamType> getTeamTypesUserIsMemberOf(long wuaId) {
@@ -179,7 +226,8 @@ public class TeamManagementService {
     }
     var user = userOptional.get();
     if (user.getIsAccountShared()) {
-      throw new TeamManagementException("User account with wuaId %s is a shared account so can't be added to teams".formatted(wuaId));
+      throw new TeamManagementException(
+          "User account with wuaId %s is a shared account so can't be added to teams".formatted(wuaId));
     }
     if (!user.getCanLogin()) {
       throw new TeamManagementException("User account with wuaId %s is not active so can't be added to teams".formatted(wuaId));
@@ -203,6 +251,13 @@ public class TeamManagementService {
       throw new TeamManagementException("At least 1 team manager must exist in team %s".formatted(team.getId()));
     }
 
+    energyPortalServiceProviderUserRolesService.publishUsersRolesForTeam(
+        wuaId,
+        team.getId().toString(),
+        team.getTeamType().name(),
+        roles.stream().map(Role::name).collect(Collectors.toSet())
+    );
+
     if (!isNewUser) {
       return;
     }
@@ -215,6 +270,11 @@ public class TeamManagementService {
       throw new TeamManagementException("Can't remove last team manager user %s from team %s".formatted(wuaId, team.getId()));
     }
     teamRoleRepository.deleteByWuaIdAndTeam(wuaId, team);
+
+    energyPortalServiceProviderUserRolesService.publishRemoveUserFromTeam(
+        wuaId,
+        team.getId().toString()
+    );
 
     if (!teamRoleRepository.findAllByWuaId(wuaId).isEmpty()) {
       return;
