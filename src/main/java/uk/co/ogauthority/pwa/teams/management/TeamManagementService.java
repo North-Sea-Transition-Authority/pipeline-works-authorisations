@@ -125,6 +125,12 @@ public class TeamManagementService {
     return team;
   }
 
+  public void updateTeamName(Team team, String teamName) {
+    team.setName(teamName);
+
+    teamRepository.save(team);
+  }
+
   Set<TeamType> getTeamTypesUserIsMemberOf(long wuaId) {
     return teamRoleRepository.findAllByWuaId(wuaId)
         .stream()
@@ -190,6 +196,10 @@ public class TeamManagementService {
 
   public Optional<Team> getTeam(UUID teamId) {
     return teamRepository.findById(teamId);
+  }
+
+  public Optional<Team> getScopedTeam(TeamType teamType, TeamScopeReference scopeRef) {
+    return teamRepository.findByTeamTypeAndScopeTypeAndScopeId(teamType, scopeRef.getType(), scopeRef.getId());
   }
 
   public List<User> getEnergyPortalUser(String username) {

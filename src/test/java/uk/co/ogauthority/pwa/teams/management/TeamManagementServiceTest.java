@@ -51,6 +51,7 @@ import uk.co.ogauthority.pwa.teams.TeamRepository;
 import uk.co.ogauthority.pwa.teams.TeamRole;
 import uk.co.ogauthority.pwa.teams.TeamRoleRepository;
 import uk.co.ogauthority.pwa.teams.TeamScopeReference;
+import uk.co.ogauthority.pwa.teams.TeamTestUtil;
 import uk.co.ogauthority.pwa.teams.TeamType;
 
 @ExtendWith(MockitoExtension.class)
@@ -307,6 +308,16 @@ class TeamManagementServiceTest {
   }
 
   @Test
+  void updateTeamName() {
+    var newName = "New Team Name";
+
+    teamManagementService.updateTeamName(orgTeam1, newName);
+    verify(teamRepository).save(teamArgumentCaptor.capture());
+
+    assertThat(teamArgumentCaptor.getValue().getName()).isEqualTo(newName);
+  }
+
+  @Test
   void getTeamTypesUserIsMemberOf() {
 
     when(teamRoleRepository.findAllByWuaId(user1WuaId))
@@ -407,6 +418,15 @@ class TeamManagementServiceTest {
 
     assertThat(teamManagementService.getTeam(uuid))
         .isEqualTo(Optional.of(regTeam));
+  }
+
+  @Test
+  void getScopedTeam() {
+    var team = TeamTestUtil.newBuilder().build();
+    when(teamRepository.findByTeamTypeAndScopeTypeAndScopeId(TeamType.ORGANISATION, "ORGGRP", "1"))
+        .thenReturn(Optional.of(team));
+    assertThat(teamManagementService.getScopedTeam(TeamType.ORGANISATION, TeamScopeReference.from("1", "ORGGRP")))
+        .isEqualTo(Optional.of(team));
   }
 
   @Test
