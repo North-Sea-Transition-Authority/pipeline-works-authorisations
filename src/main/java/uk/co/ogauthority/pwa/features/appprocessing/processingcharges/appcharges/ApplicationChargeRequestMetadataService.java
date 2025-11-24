@@ -1,5 +1,6 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -23,16 +24,24 @@ public class ApplicationChargeRequestMetadataService {
   }
 
   public Map<String, String> getMetadataMapForDetail(PwaApplicationDetail detail) {
+    var organisationUnit = portalOrganisationsAccessor
+        .getOrganisationUnitById(detail.getPwaApplication().getApplicantOrganisationUnitId());
 
-    var applicantOrgName = portalOrganisationsAccessor
-        .getOrganisationUnitById(detail.getPwaApplication().getApplicantOrganisationUnitId())
+    var applicantOrgName = organisationUnit
         .map(PortalOrganisationUnit::getName)
+        .orElse("");
+
+    var applicantOrgRegNumber = organisationUnit
+        .map(orgUnit -> orgUnit.getRegisteredNumber() != null
+            ? orgUnit.getRegisteredNumber()
+            : orgUnit.getForeignRegisteredNumber())
         .orElse("");
 
     var projectInfo = padProjectInformationService.getPadProjectInformationData(detail);
 
-    var metadataMap = new java.util.HashMap<>(Map.of(
+    var metadataMap = new HashMap<>(Map.of(
         "Applicant organisation", applicantOrgName,
+        "Applicant org reg number", applicantOrgRegNumber,
         "Project name", projectInfo.getProjectName()
     ));
 
@@ -41,7 +50,5 @@ public class ApplicationChargeRequestMetadataService {
     });
 
     return metadataMap;
-
   }
-
 }

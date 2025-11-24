@@ -22,6 +22,10 @@ public class PortalOrganisationUnit implements SearchSelectable {
 
   private String name;
 
+  private String registeredNumber;
+
+  private String foreignRegisteredNumber;
+
   @ManyToOne
   @JoinColumn(name = "org_grp_id")
   private PortalOrganisationGroup portalOrganisationGroup;
@@ -40,15 +44,21 @@ public class PortalOrganisationUnit implements SearchSelectable {
   }
 
   @VisibleForTesting
-  PortalOrganisationUnit(int ouId,
-                         String name,
-                         PortalOrganisationGroup portalOrganisationGroup,
-                         LocalDate startDate,
-                         LocalDate endDate,
-                         boolean isDuplicate,
-                         boolean isActive) {
+  PortalOrganisationUnit(
+      int ouId,
+      String name,
+      String registeredNumber,
+      String foreignRegisteredNumber,
+      PortalOrganisationGroup portalOrganisationGroup,
+      LocalDate startDate,
+      LocalDate endDate,
+      boolean isDuplicate,
+      boolean isActive
+  ) {
     this.ouId = ouId;
     this.name = name;
+    this.registeredNumber = registeredNumber;
+    this.foreignRegisteredNumber = foreignRegisteredNumber;
     this.portalOrganisationGroup = portalOrganisationGroup;
     this.startDate = startDate;
     this.endDate = endDate;
@@ -63,6 +73,14 @@ public class PortalOrganisationUnit implements SearchSelectable {
 
   public String getName() {
     return name;
+  }
+
+  public String getRegisteredNumber() {
+    return registeredNumber;
+  }
+
+  public String getForeignRegisteredNumber() {
+    return foreignRegisteredNumber;
   }
 
   public Optional<PortalOrganisationGroup> getPortalOrganisationGroup() {

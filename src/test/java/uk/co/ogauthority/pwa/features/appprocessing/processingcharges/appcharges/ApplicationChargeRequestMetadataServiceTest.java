@@ -57,16 +57,91 @@ class ApplicationChargeRequestMetadataServiceTest {
 
   @Test
   void getMetadataMapForDetail() {
-
     var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
 
     var expectedMap = Map.of(
         "Applicant organisation", organisationUnit.getName(),
+        "Applicant org reg number", organisationUnit.getRegisteredNumber(),
         "Project name", projectInfo.getProjectName()
     );
 
     assertThat(resultMap).isEqualTo(expectedMap);
+  }
 
+  @Test
+  void getMetadataMapForDetail_organisationUnitDoesNotExist() {
+    when(portalOrganisationsAccessor.getOrganisationUnitById(OrganisationUnitId.fromInt(organisationUnit.getOuId())))
+        .thenReturn(Optional.empty());
+
+    var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
+
+    var expectedMap = Map.of(
+        "Applicant organisation", "",
+        "Applicant org reg number", "",
+        "Project name", projectInfo.getProjectName()
+    );
+
+    assertThat(resultMap).isEqualTo(expectedMap);
+  }
+
+  @Test
+  void getMetadataMapForDetail_organisationNameIsNull() {
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, null, "12345678", null);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(OrganisationUnitId.fromInt(orgUnit.getOuId())))
+        .thenReturn(Optional.of(orgUnit));
+
+    detail.getPwaApplication().setApplicantOrganisationUnitId(OrganisationUnitId.fromInt(orgUnit.getOuId()));
+
+    var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
+
+    var expectedMap = Map.of(
+        "Applicant organisation", "",
+        "Applicant org reg number", "12345678",
+        "Project name", projectInfo.getProjectName()
+    );
+
+    assertThat(resultMap).isEqualTo(expectedMap);
+  }
+
+  @Test
+  void getMetadataMapForDetail_registeredNumberIsNull_foreignRegisteredNumberIsNotNull() {
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "TEST ORG", null, "FR987654");
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(OrganisationUnitId.fromInt(orgUnit.getOuId())))
+        .thenReturn(Optional.of(orgUnit));
+
+    detail.getPwaApplication().setApplicantOrganisationUnitId(OrganisationUnitId.fromInt(orgUnit.getOuId()));
+
+    var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
+
+    var expectedMap = Map.of(
+        "Applicant organisation", "TEST ORG",
+        "Applicant org reg number", "FR987654",
+        "Project name", projectInfo.getProjectName()
+    );
+
+    assertThat(resultMap).isEqualTo(expectedMap);
+  }
+
+  @Test
+  void getMetadataMapForDetail_registeredNumberIsNull_foreignRegisteredNumberIsNull() {
+    var orgUnit = PortalOrganisationTestUtils.generateOrganisationUnit(1, "TEST ORG", null, null);
+
+    when(portalOrganisationsAccessor.getOrganisationUnitById(OrganisationUnitId.fromInt(orgUnit.getOuId())))
+        .thenReturn(Optional.of(orgUnit));
+
+    detail.getPwaApplication().setApplicantOrganisationUnitId(OrganisationUnitId.fromInt(orgUnit.getOuId()));
+
+    var resultMap = applicationChargeRequestMetadataService.getMetadataMapForDetail(detail);
+
+    var expectedMap = Map.of(
+        "Applicant organisation", "TEST ORG",
+        "Applicant org reg number", "",
+        "Project name", projectInfo.getProjectName()
+    );
+
+    assertThat(resultMap).isEqualTo(expectedMap);
   }
 
   private String getRepeatedValue(String value) {
@@ -82,6 +157,7 @@ class ApplicationChargeRequestMetadataServiceTest {
 
     projectInfo.setProjectName(getRepeatedValue("test"));
     FieldUtils.writeField(organisationUnit, "name", getRepeatedValue("name"), true);
+    FieldUtils.writeField(organisationUnit, "registeredNumber", getRepeatedValue("1234"), true);
 
     assertThat(projectInfo.getProjectName().length()).isEqualTo(104);
 
@@ -89,6 +165,7 @@ class ApplicationChargeRequestMetadataServiceTest {
 
     var expectedMap = Map.of(
         "Applicant organisation", getTruncatedValue("name"),
+        "Applicant org reg number", getTruncatedValue("1234"),
         "Project name", getTruncatedValue("test")
     );
 
@@ -98,5 +175,4 @@ class ApplicationChargeRequestMetadataServiceTest {
       assertThat(value.length()).isEqualTo(100));
 
   }
-
 }
