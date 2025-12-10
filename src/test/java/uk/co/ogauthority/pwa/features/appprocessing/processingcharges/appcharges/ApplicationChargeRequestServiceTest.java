@@ -41,6 +41,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.internal.PwaAppChargeRequestItem;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.internal.PwaAppChargeRequestItemRepository;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appcharges.internal.PwaAppChargeRequestRepository;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.features.appprocessing.tasks.initialreview.PadInitialReviewService;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaApplicationWorkflowTask;
 import uk.co.ogauthority.pwa.features.appprocessing.workflow.appworkflowmappings.PwaAwaitPaymentResult;
@@ -180,7 +181,7 @@ class ApplicationChargeRequestServiceTest {
     when(pwaAppChargeRequestRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
     when(pwaAppChargeRequestDetailRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
-    when(applicationChargeRequestMetadataService.getMetadataMapForDetail(any())).thenReturn(metadataMap);
+    when(applicationChargeRequestMetadataService.getMetadataMapForDetail(any(), any())).thenReturn(metadataMap);
 
   }
 
@@ -191,8 +192,8 @@ class ApplicationChargeRequestServiceTest {
         .setChargeSummary("CHARGE_SUMMARY")
         .setTotalPennies(100)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 25)
-        .addChargeItem("CHARGE_2", 75);
+        .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 25)
+        .addChargeItem(PwaApplicationFeeType.FAST_TRACK, "CHARGE_2", 75);
 
     applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
@@ -254,8 +255,8 @@ class ApplicationChargeRequestServiceTest {
         .setChargeSummary("CHARGE_SUMMARY")
         .setTotalPennies(100)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 25)
-        .addChargeItem("CHARGE_2", 75);
+        .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 25)
+        .addChargeItem(PwaApplicationFeeType.FAST_TRACK, "CHARGE_2", 75);
 
     applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
@@ -270,8 +271,8 @@ class ApplicationChargeRequestServiceTest {
         .setChargeSummary("CHARGE_SUMMARY")
         .setTotalPennies(0)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-        .addChargeItem("CHARGE_1", 25)
-        .addChargeItem("CHARGE_2", 75);
+        .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 25)
+        .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_2", 75);
 
     applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec);
 
@@ -299,7 +300,7 @@ class ApplicationChargeRequestServiceTest {
           .setChargeSummary("CHARGE_SUMMARY")
           .setTotalPennies(100)
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", 25);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 25);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -312,7 +313,7 @@ class ApplicationChargeRequestServiceTest {
           .setChargeSummary("CHARGE_SUMMARY")
           .setTotalPennies(100)
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", 25);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 25);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -337,7 +338,7 @@ class ApplicationChargeRequestServiceTest {
           .setChargeSummary("CHARGE_SUMMARY")
           .setTotalPennies(100)
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", -1);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", -1);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -349,7 +350,7 @@ class ApplicationChargeRequestServiceTest {
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
           .setTotalPennies(100)
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", 100);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 100);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -361,7 +362,7 @@ class ApplicationChargeRequestServiceTest {
     var spec = new ApplicationChargeRequestSpecification(pwaApplication, PwaAppChargeRequestStatus.WAIVED)
           .setChargeSummary("CHARGE_SUMMARY")
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", 100);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 100);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -374,7 +375,7 @@ class ApplicationChargeRequestServiceTest {
           .setChargeSummary("CHARGE_SUMMARY")
           .setTotalPennies(-10)
           .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPerson.getId())
-          .addChargeItem("CHARGE_1", 100);
+          .addChargeItem(PwaApplicationFeeType.DEFAULT, "CHARGE_1", 100);
     assertThrows(UnsupportedOperationException.class, () ->
 
       applicationChargeRequestService.createPwaAppChargeRequest(pwaManagerPerson, spec));
@@ -392,7 +393,7 @@ class ApplicationChargeRequestServiceTest {
   @Test
   void getOpenRequestAsApplicationChargeRequestReport_whenOpenChargeRequestFound_andChargeItems() {
 
-    var chargeItem = new PwaAppChargeRequestItem(null, "Item 1", 150);
+    var chargeItem = new PwaAppChargeRequestItem(null, PwaApplicationFeeType.DEFAULT, "Item 1", 150);
     when(
         pwaAppChargeRequestDetailRepository.findByPwaAppChargeRequest_PwaApplicationAndPwaAppChargeRequestStatusAndTipFlagIsTrue(
             any(), any()))
@@ -408,6 +409,7 @@ class ApplicationChargeRequestServiceTest {
     assertThat(report.getTotalPennies()).isEqualTo(chargeRequestDetail.getTotalPennies());
     assertThat(report.getWaivedReason()).isNull();
     assertThat(report.getPaymentItems()).containsExactly(new ApplicationChargeItem(
+        chargeItem.getPwaApplicationFeeType(),
         chargeItem.getDescription(),
         chargeItem.getPennyAmount()
     ));

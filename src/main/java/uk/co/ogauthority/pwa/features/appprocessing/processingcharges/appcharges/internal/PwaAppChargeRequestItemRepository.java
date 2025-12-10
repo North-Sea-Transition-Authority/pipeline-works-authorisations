@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PwaAppChargeRequestItemRepository extends CrudRepository<PwaAppChargeRequestItem, Integer> {
 
+  List<PwaAppChargeRequestItem> findAllByPwaAppChargeRequest(PwaAppChargeRequest pwaAppChargeRequest);
+
   List<PwaAppChargeRequestItem> findAllByPwaAppChargeRequestOrderByDescriptionAsc(PwaAppChargeRequest pwaAppChargeRequest);
 
 }

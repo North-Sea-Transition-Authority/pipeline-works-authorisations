@@ -115,6 +115,7 @@ public class ApplicationChargeRequestService {
     var chargeItems = applicationChargeRequestSpecification.getApplicationChargeItems().stream()
         .map(applicationChargeItem -> new PwaAppChargeRequestItem(
             chargeRequest,
+            applicationChargeItem.getPwaApplicationFeeType(),
             applicationChargeItem.getDescription(),
             applicationChargeItem.getPennyAmount()
         ))
@@ -334,7 +335,10 @@ public class ApplicationChargeRequestService {
         pwaAppChargeRequestDetail.getTotalPennies(),
         pwaApplication.getAppReference(),
         pwaAppChargeRequestDetail.getChargeSummary(),
-        applicationChargeRequestMetadataService.getMetadataMapForDetail(latestSubmittedDetail),
+        applicationChargeRequestMetadataService.getMetadataMapForDetail(
+            latestSubmittedDetail,
+            pwaAppChargeRequestDetail.getPwaAppChargeRequest()
+        ),
         uuid -> ReverseRouter.route(
             on(IndustryPaymentCallbackController.class).reconcilePaymentRequestAndRedirect(uuid, null, null, Optional.empty()))
     );

@@ -42,6 +42,7 @@ class FastTrackFeeItemProvider implements ApplicationFeeItemProvider {
     )
         .stream()
         .map(feePeriodDetailFeeItem -> new ApplicationFeeItem(
+            FEE_TYPE,
             feePeriodDetailFeeItem.getFeeItem().getDisplayDescription(),
             feePeriodDetailFeeItem.getPennyAmount())
         ).collect(Collectors.toUnmodifiableList());

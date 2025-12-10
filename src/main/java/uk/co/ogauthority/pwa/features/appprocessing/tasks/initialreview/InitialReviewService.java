@@ -84,8 +84,12 @@ public class InitialReviewService implements AppProcessingService {
         .setChargeWaivedReason(paymentWaivedReason)
         .setOnPaymentCompleteCaseOfficerPersonId(caseOfficerPersonId);
 
-    appFeeReport.getPaymentItems().forEach(
-        applicationFeeItem -> appChargeSpec.addChargeItem(applicationFeeItem.getDescription(), applicationFeeItem.getPennyAmount())
+    appFeeReport.getPaymentItems().forEach(applicationFeeItem ->
+        appChargeSpec.addChargeItem(
+            applicationFeeItem.getPwaApplicationFeeType(),
+            applicationFeeItem.getDescription(),
+            applicationFeeItem.getPennyAmount()
+        )
     );
 
     applicationChargeRequestService.createPwaAppChargeRequest(

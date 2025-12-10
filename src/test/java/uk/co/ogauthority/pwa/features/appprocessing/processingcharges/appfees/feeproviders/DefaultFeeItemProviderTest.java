@@ -80,7 +80,7 @@ class DefaultFeeItemProviderTest {
 
     var feeItems = feeItemProvider.provideFees(feePeriodDetail, pwaApplicationDetail);
     assertThat(feeItems).hasOnlyOneElementSatisfying(
-        applicationFeeItem -> assertThat(applicationFeeItem).isEqualTo(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_DESC, FEE_AMOUNT))
+        applicationFeeItem -> assertThat(applicationFeeItem).isEqualTo(ApplicationFeeItemTestUtil.createAppFeeItem(FEE_TYPE, FEE_DESC, FEE_AMOUNT))
     );
 
     verify(feePeriodDetailItemRepository, times(1)).findAllByFeePeriodDetailAndFeeItem_PwaApplicationTypeAndFeeItem_PwaApplicationFeeType(

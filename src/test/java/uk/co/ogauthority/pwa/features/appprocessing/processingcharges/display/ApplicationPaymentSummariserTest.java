@@ -10,11 +10,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.ApplicationFeeReportTestUtil;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationPaymentSummariserTest {
 
   private static final String HEADLINE_FEE_DESC = "FEE_HEAD";
+  private static final PwaApplicationFeeType FEE_ITEM_FEE_TYPE = PwaApplicationFeeType.DEFAULT;
   private static final String FEE_ITEM_DESC = "FEE_ITEM";
   private static final int FEE_AMOUNT = 100;
   private static final String FEE_AMOUNT_FORMATTED = "1.00";
@@ -36,7 +38,7 @@ class ApplicationPaymentSummariserTest {
         pwaApplication,
         FEE_AMOUNT,
         HEADLINE_FEE_DESC,
-        List.of(ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_DESC, FEE_AMOUNT))
+        List.of(ApplicationFeeReportTestUtil.createApplicationFeeItem(FEE_ITEM_FEE_TYPE, FEE_ITEM_DESC, FEE_AMOUNT))
     );
 
     var result = applicationPaymentSummariser.summarise(feeReport);

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.ObjectUtils;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
+import uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees.PwaApplicationFeeType;
 import uk.co.ogauthority.pwa.integrations.energyportal.people.external.PersonId;
 
 /**
@@ -48,9 +49,13 @@ public final class ApplicationChargeRequestSpecification {
     return this;
   }
 
-  public ApplicationChargeRequestSpecification addChargeItem(String description, int pennyAmount) {
+  public ApplicationChargeRequestSpecification addChargeItem(
+      PwaApplicationFeeType pwaApplicationFeeType,
+      String description,
+      int pennyAmount
+  ) {
     this.applicationChargeItems.add(
-        new ApplicationChargeItem(description, pennyAmount)
+        new ApplicationChargeItem(pwaApplicationFeeType, description, pennyAmount)
     );
     return this;
   }
