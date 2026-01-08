@@ -254,6 +254,66 @@ class ConsentDocumentMigrationServiceTest {
   }
 
   @Test
+  void verifyFiles_documentRefIsSubstring() throws S3Exception {
+    var csvRow1 = new ConsentDocumentCsvRow(
+        "2-w-2",
+        "Field 1",
+        "2-w-2",
+        "12/12/12",
+        "PWA",
+        "scanned",
+        "",
+        "",
+        "upload"
+    );
+
+    var csvRow2 = new ConsentDocumentCsvRow(
+        "12-w-2",
+        "Field 2",
+        "12-w-2",
+        "11/12/13",
+        "PWA",
+        "scanned",
+        "",
+        "",
+        "upload"
+    );
+
+    var csvRows = List.of(csvRow1, csvRow2);
+
+    var documentRecord1 = new DocumentMigrationRecord();
+    documentRecord1.setFilename("Field 1 (2-w-2) PWA Consent Document (2-w-2).pdf");
+    documentRecord1.setPwaReference("2-w-2");
+    documentRecord1.setFieldName("Field 1");
+    documentRecord1.setConsentDoc("2-w-2");
+    documentRecord1.setConsentDate("12/12/12");
+    documentRecord1.setConsentType("PWA");
+    documentRecord1.setAction("upload");
+    documentRecord1.setFileLocated(true);
+
+    var documentRecord2 = new DocumentMigrationRecord();
+    documentRecord2.setFilename("Field 2 (12-w-2) PWA Consent Document (12-w-2).pdf");
+    documentRecord2.setPwaReference("12-w-2");
+    documentRecord2.setFieldName("Field 2");
+    documentRecord2.setConsentDoc("12-w-2");
+    documentRecord2.setConsentDate("11/12/13");
+    documentRecord2.setConsentType("PWA");
+    documentRecord2.setAction("upload");
+    documentRecord2.setFileLocated(true);
+
+    var s3File1 = new S3File("Field 1 (2-w-2) PWA Consent Document (2-w-2).pdf", 1L);
+    var s3File2 = new S3File("Field 2 (12-w-2) PWA Consent Document (12-w-2).pdf", 1L);
+
+    when(documentMigrationRecordRepository.findAll()).thenReturn(List.of(documentRecord1, documentRecord2));
+    when(pwaS3FileService.listS3Files(devtoolsProperties.migrationS3Bucket())).thenReturn(List.of(s3File1, s3File2));
+
+    consentDocumentMigrationService.verifyFiles(csvRows);
+
+    Mockito.verify(documentMigrationRecordRepository).save(documentRecord1);
+    Mockito.verify(documentMigrationRecordRepository).save(documentRecord2);
+  }
+
+  @Test
   void verifyFiles_documentsAlreadyMigrated() throws S3Exception {
     var csvRow1 = new ConsentDocumentCsvRow(
         "1-w-2",
