@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -28,7 +29,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.BeanPropertyBindingResult;
+import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
+import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
+import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeFileManagementRestController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
 import uk.co.ogauthority.pwa.exception.EntityLatestVersionNotFoundException;
@@ -39,6 +44,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.appprocessing.tasklist.PwaAppProcessingTask;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
+import uk.co.ogauthority.pwa.features.filemanagement.AppFileUploadRestController;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
 import uk.co.ogauthority.pwa.features.filemanagement.FileManagementService;
 import uk.co.ogauthority.pwa.features.generalcase.tasklist.TaskState;
@@ -61,6 +67,7 @@ import uk.co.ogauthority.pwa.model.entity.publicnotice.PublicNoticeDocumentLink;
 import uk.co.ogauthority.pwa.model.entity.pwaapplications.PwaApplicationDetail;
 import uk.co.ogauthority.pwa.model.form.files.UploadedFileViewTestUtil;
 import uk.co.ogauthority.pwa.model.form.publicnotice.PublicNoticeDraftForm;
+import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDatesRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentLinkRepository;
 import uk.co.ogauthority.pwa.repository.publicnotice.PublicNoticeDocumentRepository;
@@ -1239,6 +1246,31 @@ class PublicNoticeServiceTest {
 
     assertThat(inProgress).isTrue();
 
+  }
+
+  @Test
+  void fileUploadComponentAttributes_VerifyMethodCall() {
+    var app = new PwaApplication();
+
+    List<UploadedFileForm> existingFileForms = Collections.emptyList();
+
+    var builder = FileUploadComponentAttributes.newBuilder()
+        .withMaximumSize(DataSize.ofBytes(1));
+    when(fileManagementService.getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE))
+        .thenReturn(builder);
+
+    assertThat(publicNoticeService.getFileUploadComponentAttributes(existingFileForms, app))
+        .extracting(
+            FileUploadComponentAttributes::uploadUrl,
+            FileUploadComponentAttributes::downloadUrl,
+            FileUploadComponentAttributes::deleteUrl
+        ).containsExactly(
+            ReverseRouter.route(on(AppFileUploadRestController.class).upload(app.getId(), DOCUMENT_TYPE.name(), null)),
+            ReverseRouter.route(on(PublicNoticeFileManagementRestController.class).download(app.getId(), null)),
+            ReverseRouter.route(on(PublicNoticeFileManagementRestController.class).delete(app.getId(), null))
+        );
+
+    verify(fileManagementService).getFileUploadComponentAttributesBuilder(existingFileForms, DOCUMENT_TYPE);
   }
 
 }
