@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.BindingResult;
 import uk.co.fivium.fileuploadlibrary.fds.FileUploadComponentAttributes;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
-import uk.co.ogauthority.pwa.controller.appprocessing.casenotes.CaseNoteFileManagementRestController;
 import uk.co.ogauthority.pwa.controller.publicnotice.PublicNoticeFileManagementRestController;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplicationType;
@@ -347,7 +346,7 @@ public class PublicNoticeService implements AppProcessingService {
       List<UploadedFileForm> existingFiles,
       PwaApplication pwaApplication
   ) {
-    var controller = CaseNoteFileManagementRestController.class;
+    var controller = PublicNoticeFileManagementRestController.class;
 
     return fileManagementService.getFileUploadComponentAttributesBuilder(existingFiles, FileDocumentType.PUBLIC_NOTICE)
         .withUploadUrl(ReverseRouter.route(on(AppFileUploadRestController.class)
