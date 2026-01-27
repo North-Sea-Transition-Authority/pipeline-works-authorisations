@@ -19,7 +19,10 @@ import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 
 @RestController
 @RequestMapping("/pwa/{pwaId}/public-notice/file-management")
-@PwaAppProcessingPermissionCheck(permissions = {PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE})
+@PwaAppProcessingPermissionCheck(permissions = {
+    PwaAppProcessingPermission.DRAFT_PUBLIC_NOTICE,
+    PwaAppProcessingPermission.UPDATE_PUBLIC_NOTICE_DOC
+})
 public class PublicNoticeFileManagementRestController {
 
   private static final FileDocumentType DOCUMENT_TYPE = FileDocumentType.PUBLIC_NOTICE;

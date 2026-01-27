@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder.on;
 
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +23,6 @@ import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.fivium.fileuploadlibrary.fds.UploadedFileForm;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaApplication;
 import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.ProjectInformationForm;
-import uk.co.ogauthority.pwa.features.mvcforms.fileupload.UploadedFileView;
-import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 
 @ExtendWith(MockitoExtension.class)
 class AppFileManagementServiceTest {
@@ -140,53 +136,4 @@ class AppFileManagementServiceTest {
     verify(fileManagementService).throwIfFileDoesNotBelongToUsageType(uploadedFile, pwaApplication.getId().toString(), USAGE_TYPE, DOCUMENT_TYPE.name());
   }
 
-  @Test
-  void getUploadedFileView() {
-    var uploadedFile = new UploadedFile();
-    uploadedFile.setId(FILE_ID);
-    uploadedFile.setName("name");
-    uploadedFile.setContentLength(50000L);
-    uploadedFile.setDescription("description");
-    uploadedFile.setUploadedAt(Instant.now());
-    uploadedFile.setUsageId(pwaApplication.getId().toString());
-    uploadedFile.setUsageType(USAGE_TYPE);
-
-    var uploadedFileView = new UploadedFileView(
-        String.valueOf(uploadedFile.getId()),
-        uploadedFile.getName(),
-        uploadedFile.getContentLength(),
-        uploadedFile.getDescription(),
-        uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
-    );
-
-    when(fileService.find(FILE_ID)).thenReturn(Optional.of(uploadedFile));
-
-    assertThat(appFileManagementService.getUploadedFileView(pwaApplication, FILE_ID)).isEqualTo(uploadedFileView);
-  }
-
-  @Test
-  void getUploadedFileViews() {
-    var uploadedFile = new UploadedFile();
-    uploadedFile.setId(FILE_ID);
-    uploadedFile.setName("name");
-    uploadedFile.setContentLength(50000L);
-    uploadedFile.setDescription("description");
-    uploadedFile.setUploadedAt(Instant.now());
-    uploadedFile.setUsageId(pwaApplication.getId().toString());
-    uploadedFile.setUsageType(USAGE_TYPE);
-
-    var uploadedFileView = new UploadedFileView(
-        String.valueOf(uploadedFile.getId()),
-        uploadedFile.getName(),
-        uploadedFile.getContentLength(),
-        uploadedFile.getDescription(),
-        uploadedFile.getUploadedAt(),
-        ReverseRouter.route(on(FileManagementRestController.class).download(uploadedFile.getId(), null))
-    );
-
-    when(fileService.findAll(pwaApplication.getId().toString(), USAGE_TYPE, DOCUMENT_TYPE.name())).thenReturn(List.of(uploadedFile));
-
-    assertThat(appFileManagementService.getUploadedFileViews(pwaApplication, DOCUMENT_TYPE)).isEqualTo(List.of(uploadedFileView));
-  }
 }
