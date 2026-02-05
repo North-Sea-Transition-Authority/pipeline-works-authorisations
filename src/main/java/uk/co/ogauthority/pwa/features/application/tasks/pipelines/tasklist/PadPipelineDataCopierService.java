@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import uk.co.fivium.fileuploadlibrary.core.UploadedFile;
 import uk.co.ogauthority.pwa.features.application.files.ApplicationDetailFilePurpose;
 import uk.co.ogauthority.pwa.features.application.files.PadFile;
 import uk.co.ogauthority.pwa.features.application.files.PadFileService;
@@ -151,10 +151,15 @@ public class PadPipelineDataCopierService {
     padFileManagementService.copyUploadedFiles(fromDetail, toDetail, FileDocumentType.PIPELINE_DRAWINGS);
 
     var fromFiles = padFileManagementService.getUploadedFiles(fromDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
-        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+        .collect(
+            Collectors.toMap(file -> Pair.of(file.getName(), file.getUploadedAt()),
+                Function.identity())
+        );
 
     var toFiles = padFileManagementService.getUploadedFiles(toDetail, FileDocumentType.PIPELINE_DRAWINGS).stream()
-        .collect(Collectors.toMap(UploadedFile::getName, Function.identity()));
+        .collect(Collectors.toMap(file -> Pair.of(file.getName(), file.getUploadedAt()),
+            Function.identity())
+    );
 
     var originalToCopiedFileIDs = fromFiles.entrySet().stream()
         .collect(Collectors.toMap(e -> e.getValue().getId(), e -> toFiles.get(e.getKey()).getId()));
