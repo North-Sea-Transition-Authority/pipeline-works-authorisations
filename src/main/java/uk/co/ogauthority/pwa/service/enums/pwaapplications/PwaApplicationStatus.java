@@ -2,12 +2,13 @@ package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
 import java.util.Set;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Enumerates all the states that a PWA application can be in.
  * If you are adding a status you will likely need to add it to the {@link ApplicationState} list.
  */
-public enum PwaApplicationStatus {
+public enum PwaApplicationStatus implements Displayable {
 
   DRAFT("Draft"),
   UPDATE_REQUESTED("Draft"),
@@ -26,6 +27,7 @@ public enum PwaApplicationStatus {
     this.displayName = displayName;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

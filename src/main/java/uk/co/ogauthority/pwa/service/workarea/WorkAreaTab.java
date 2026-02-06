@@ -6,11 +6,12 @@ import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.auth.RoleGroup;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
 import uk.co.ogauthority.pwa.service.enums.users.UserType;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Differentiates between tabs requested on work area.
  */
-public enum WorkAreaTab {
+public enum WorkAreaTab implements Displayable {
 
   REGULATOR_REQUIRES_ATTENTION(
       "Applications for my attention",
@@ -102,6 +103,12 @@ public enum WorkAreaTab {
     return value;
   }
 
+  @Override
+  public String getDisplayName() {
+    return label;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

@@ -12,12 +12,13 @@ import uk.co.ogauthority.pwa.model.entity.enums.publicnotice.TemplateTextType;
 import uk.co.ogauthority.pwa.model.entity.pwaconsents.PwaConsentType;
 import uk.co.ogauthority.pwa.model.enums.consents.ConsentIssueEmail;
 import uk.co.ogauthority.pwa.service.enums.pwaapplications.ParallelApplicationsWarning;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Enumerates all types of application that can be submitted under the PWA process.
  */
 // TODO: extract most of these enum fields from the domain and into the specific feature where they apply.
-public enum PwaApplicationType {
+public enum PwaApplicationType implements Displayable {
 
   INITIAL(
       "New PWA",
@@ -164,6 +165,7 @@ public enum PwaApplicationType {
     return types;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
@@ -196,6 +198,7 @@ public enum PwaApplicationType {
     return pwaConsentType;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

@@ -11,8 +11,9 @@ import uk.co.ogauthority.pwa.service.documents.generation.HuooIntroductionGenera
 import uk.co.ogauthority.pwa.service.documents.generation.InitialIntroductionGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.TableAGeneratorService;
 import uk.co.ogauthority.pwa.service.documents.generation.VariationIntroductionGeneratorService;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum DocumentSection {
+public enum DocumentSection implements Displayable {
 
   INITIAL_INTRO("Introduction", InitialIntroductionGeneratorService.class, SectionType.OPENING_PARAGRAPH),
 
@@ -69,6 +70,7 @@ public enum DocumentSection {
     this.sectionGenerator = null;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

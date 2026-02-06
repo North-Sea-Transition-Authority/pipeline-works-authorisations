@@ -3,8 +3,9 @@ package uk.co.ogauthority.pwa.domain.pwa.application.model;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum PwaResourceType {
+public enum PwaResourceType implements Displayable {
   PETROLEUM(
       "Petroleum",
       10,
@@ -52,10 +53,12 @@ public enum PwaResourceType {
     this.permittedApplicationTypes = permittedApplicationTypes;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

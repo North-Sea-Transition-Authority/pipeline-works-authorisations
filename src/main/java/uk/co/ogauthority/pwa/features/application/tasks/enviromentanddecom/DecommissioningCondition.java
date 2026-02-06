@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.enviromentanddecom;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum DecommissioningCondition {
+public enum DecommissioningCondition implements Displayable {
 
   EOL_REGULATION_STATEMENT(10,
       "I accept that options for the decommissioning of the pipeline(s) will be considered at the end of " +
@@ -34,6 +35,12 @@ public enum DecommissioningCondition {
     this.summaryText = summaryText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return "Summary Text: %s%nCondition Text: %s".formatted(summaryText, conditionText);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

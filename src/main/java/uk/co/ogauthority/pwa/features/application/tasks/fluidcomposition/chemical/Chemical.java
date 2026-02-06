@@ -8,13 +8,15 @@ import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.
 import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.PPMV_100K;
 import static uk.co.ogauthority.pwa.features.application.tasks.fluidcomposition.chemical.ChemicalMeasurementType.TRACE;
 
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum Chemical {
+public enum Chemical implements Displayable {
   CO2(
       "CO₂",
       10,
@@ -198,6 +200,12 @@ public enum Chemical {
     return displayText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return Normalizer.normalize(displayText, Normalizer.Form.NFKD);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

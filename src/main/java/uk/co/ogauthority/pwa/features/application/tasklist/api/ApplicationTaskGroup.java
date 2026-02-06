@@ -8,11 +8,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.domain.pwa.application.model.PwaResourceType;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Defines groups of applications tasks for the task list page.
  */
-public enum ApplicationTaskGroup {
+public enum ApplicationTaskGroup implements Displayable {
   APPLICATION_USERS(
       "Application users",
       10,
@@ -158,10 +159,12 @@ public enum ApplicationTaskGroup {
     this.tasks = tasks;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

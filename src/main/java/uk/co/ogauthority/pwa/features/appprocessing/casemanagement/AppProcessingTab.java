@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.appprocessing.casemanagement;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum AppProcessingTab {
+public enum AppProcessingTab implements Displayable {
 
   TASKS(
       "Tasks",
@@ -63,6 +64,12 @@ public enum AppProcessingTab {
     return value;
   }
 
+  @Override
+  public String getDisplayName() {
+    return "%s / %s".formatted(regulatorConsulteeLabel, industryLabel);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

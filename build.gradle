@@ -48,13 +48,14 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-validation'
   implementation "uk.co.fivium:file-upload-spring-boot-starter:v2.9.0"
   implementation 'uk.co.fivium:digital-notification-library-spring-boot-starter:v1.2.0'
+  implementation 'uk.co.fivium:digital-enum-materialisation-library-spring-boot-starter:v1.1.1'
   implementation 'io.micrometer:micrometer-registry-statsd'
 
   implementation 'org.springframework.boot:spring-boot-starter-quartz'
 
   implementation 'uk.co.fivium.energyportalapi:client:v12.4.0'
 
-  implementation 'org.flywaydb:flyway-core:9.5.1-FIVIUM'
+  implementation 'org.flywaydb:flyway-core'
   implementation "org.hamcrest:hamcrest:2.2"
   implementation 'com.oracle.database.jdbc:ojdbc11:21.9.0.0'
   implementation 'uk.gov.service.notify:notifications-java-client:5.2.1-RELEASE'
@@ -121,7 +122,8 @@ dependencies {
       'org.springframework.boot:spring-boot-starter-test',
       'org.springframework.security:spring-security-test',
       'com.squareup.okhttp3:mockwebserver:4.12.0',
-      'com.squareup.okhttp3:okhttp:4.12.0' // Required otherwise MockWebServer gives ClassNotFoundException
+      'com.squareup.okhttp3:okhttp:4.12.0', // Required otherwise MockWebServer gives ClassNotFoundException
+      'com.tngtech.archunit:archunit:1.4.1'
   )
 
 }

@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.service.enums.pwaapplications;
 
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
 /**
  * Enumerates all the states that a PWA Consultation can be in.
  */
-public enum ConsultationRequestStatus {
+public enum ConsultationRequestStatus implements Displayable {
 
   ALLOCATION("Allocation", true),
   AWAITING_RESPONSE("Awaiting response", true),
@@ -18,6 +20,7 @@ public enum ConsultationRequestStatus {
     this.requestOpen = requestOpen;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

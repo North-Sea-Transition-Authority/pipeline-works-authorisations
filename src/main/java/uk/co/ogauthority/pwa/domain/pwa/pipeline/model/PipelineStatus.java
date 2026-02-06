@@ -7,8 +7,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.model.diff.DiffableAsString;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum PipelineStatus implements DiffableAsString {
+public enum PipelineStatus implements DiffableAsString, Displayable {
 
   IN_SERVICE("In service", 10, false, PhysicalPipelineState.ON_SEABED),
   RETURNED_TO_SHORE("Returned to shore", 20, false, PhysicalPipelineState.ONSHORE),
@@ -39,7 +40,13 @@ public enum PipelineStatus implements DiffableAsString {
     return displayText;
   }
 
-  public Integer getDisplayOrder() {
+  @Override
+  public String getDisplayName() {
+    return displayText;
+  }
+
+  @Override
+  public int getDisplayOrder() {
     return displayOrder;
   }
 

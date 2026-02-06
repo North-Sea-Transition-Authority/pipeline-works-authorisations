@@ -3,11 +3,12 @@ package uk.co.ogauthority.pwa.features.application.authorisation.appcontacts;
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Roles associated with users at the master PWA level.
  */
-public enum PwaContactRole {
+public enum PwaContactRole implements Displayable {
 
   ACCESS_MANAGER("Access manager", " Can add, update and remove users for this application (Access manager)", 10),
 
@@ -33,6 +34,12 @@ public enum PwaContactRole {
     return roleDescription;
   }
 
+  @Override
+  public String getDisplayName() {
+    return "Role Name: %s%n Role Description: %s".formatted(roleName, roleDescription);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

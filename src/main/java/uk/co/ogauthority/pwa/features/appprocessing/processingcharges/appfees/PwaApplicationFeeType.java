@@ -1,9 +1,11 @@
 package uk.co.ogauthority.pwa.features.appprocessing.processingcharges.appfees;
 
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
 /**
  * Define the various different types of fee that can be applied to applications.
  */
-public enum PwaApplicationFeeType {
+public enum PwaApplicationFeeType implements Displayable {
 
   DEFAULT("Application fee", 10),
   FAST_TRACK("Fast-track surcharge", 20);
@@ -17,10 +19,12 @@ public enum PwaApplicationFeeType {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

@@ -15,8 +15,9 @@ import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.PadPi
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.pipeline.controller.PipelineCrossingController;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.CrossingTypesService;
 import uk.co.ogauthority.pwa.features.application.tasks.crossings.types.controller.CrossingTypesController;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum CrossingAgreementTask {
+public enum CrossingAgreementTask implements Displayable {
 
   LICENCE_AND_BLOCKS("Licence and blocks", BlockCrossingService.class, BlockCrossingController.class, 10),
 
@@ -48,6 +49,12 @@ public enum CrossingAgreementTask {
     return displayText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return displayText;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

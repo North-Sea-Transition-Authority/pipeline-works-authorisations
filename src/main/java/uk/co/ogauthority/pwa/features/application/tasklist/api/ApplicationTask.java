@@ -59,11 +59,12 @@ import uk.co.ogauthority.pwa.features.application.tasks.projectinfo.controller.P
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.SupplementaryDocumentsService;
 import uk.co.ogauthority.pwa.features.application.tasks.supplementarydocs.controller.SupplementaryDocumentsController;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Enumeration of all app form tasks for the PWA application task list.
  */
-public enum ApplicationTask implements GeneralPurposeApplicationTask {
+public enum ApplicationTask implements GeneralPurposeApplicationTask, Displayable {
 
   FIELD_INFORMATION(
       "Field information",

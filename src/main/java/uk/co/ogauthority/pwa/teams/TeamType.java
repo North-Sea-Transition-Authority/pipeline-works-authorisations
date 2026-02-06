@@ -10,8 +10,9 @@ import java.util.Set;
 import java.util.function.Supplier;
 import uk.co.ogauthority.pwa.mvc.ReverseRouter;
 import uk.co.ogauthority.pwa.teams.management.ScopedTeamManagementController;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum TeamType {
+public enum TeamType implements Displayable {
 
   REGULATOR(
       "Regulator",
@@ -83,6 +84,7 @@ public enum TeamType {
     this.userMembershipRestriction = userMembershipRestriction;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }

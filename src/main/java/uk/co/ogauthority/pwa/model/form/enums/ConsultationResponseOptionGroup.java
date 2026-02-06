@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.model.form.enums;
 
 import java.util.List;
 import java.util.Optional;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum ConsultationResponseOptionGroup {
+public enum ConsultationResponseOptionGroup implements Displayable {
 
   CONTENT(List.of(
       ConsultationResponseOption.CONFIRMED,
@@ -62,6 +63,12 @@ public enum ConsultationResponseOptionGroup {
     return responseLabel;
   }
 
+  @Override
+  public String getDisplayName() {
+    return "Q: %s %nA: %s".formatted(questionText, responseLabel);
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

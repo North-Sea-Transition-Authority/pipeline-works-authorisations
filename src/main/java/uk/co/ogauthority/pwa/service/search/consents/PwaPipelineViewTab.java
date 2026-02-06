@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.service.search.consents;
 
 import java.util.stream.Stream;
 import uk.co.ogauthority.pwa.exception.ValueNotFoundException;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum PwaPipelineViewTab {
+public enum PwaPipelineViewTab implements Displayable {
 
   PIPELINE_HISTORY(
       "Pipeline history",
@@ -60,6 +61,12 @@ public enum PwaPipelineViewTab {
     return value;
   }
 
+  @Override
+  public String getDisplayName() {
+    return label;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

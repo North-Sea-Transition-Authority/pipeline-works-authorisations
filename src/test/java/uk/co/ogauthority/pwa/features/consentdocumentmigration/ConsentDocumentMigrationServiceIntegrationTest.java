@@ -25,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureDataJpa;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.ResourceUtils;
@@ -47,6 +48,7 @@ import uk.co.ogauthority.pwa.testutils.PwaApplicationTestUtil;
 @AutoConfigureTestDatabase
 @AutoConfigureDataJpa
 @ActiveProfiles(profiles = {"devtools", "integration-test"})
+@TestPropertySource(properties = "spring.autoconfigure.exclude=uk.co.fivium.digitalenummaterialisationlibrary.configuration.AutoConfiguration")
 @ExtendWith(MockitoExtension.class)
 class ConsentDocumentMigrationServiceIntegrationTest {
 

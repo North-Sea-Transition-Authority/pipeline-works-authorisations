@@ -39,11 +39,12 @@ import uk.co.ogauthority.pwa.service.consultations.AssignCaseOfficerService;
 import uk.co.ogauthority.pwa.service.consultations.AssignResponderService;
 import uk.co.ogauthority.pwa.service.consultations.ConsultationResponseService;
 import uk.co.ogauthority.pwa.service.consultations.ConsulteeAdviceService;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
 /**
  * Enumeration of app processing-related tasks for all users.
  */
-public enum PwaAppProcessingTask {
+public enum PwaAppProcessingTask implements Displayable {
 
   INITIAL_REVIEW(
       "Initial review",
@@ -233,6 +234,12 @@ public enum PwaAppProcessingTask {
     return serviceClass;
   }
 
+  @Override
+  public String getDisplayName() {
+    return taskName;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

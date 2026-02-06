@@ -2,8 +2,9 @@ package uk.co.ogauthority.pwa.features.application.tasks.fasttrack;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
 
-public enum FastTrackReason {
+public enum FastTrackReason implements Displayable {
 
   AVOID_ENVIRONMENTAL_DISASTER(10, "Avoiding environmental disaster"),
   SAVING_BARRELS(20, "Saving barrels"),
@@ -19,6 +20,12 @@ public enum FastTrackReason {
     this.displayText = displayText;
   }
 
+  @Override
+  public String getDisplayName() {
+    return displayText;
+  }
+
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

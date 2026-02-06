@@ -1,6 +1,8 @@
 package uk.co.ogauthority.pwa.model.enums;
 
-public enum ServiceContactDetail {
+import uk.co.ogauthority.pwa.util.enumutils.Displayable;
+
+public enum ServiceContactDetail implements Displayable {
 
 
   BUSINESS_SUPPORT(
@@ -57,6 +59,7 @@ public enum ServiceContactDetail {
     this.displayOrder = displayOrder;
   }
 
+  @Override
   public String getDisplayName() {
     return displayName;
   }
@@ -85,6 +88,7 @@ public enum ServiceContactDetail {
     return shownOnContactPage;
   }
 
+  @Override
   public int getDisplayOrder() {
     return displayOrder;
   }

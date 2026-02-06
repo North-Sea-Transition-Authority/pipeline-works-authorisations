@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 import uk.co.ogauthority.pwa.model.form.enums.ConsultationResponseOptionGroup;
-import uk.co.ogauthority.pwa.util.EnumUtils;
+import uk.co.ogauthority.pwa.util.enumutils.EnumUtils;
 
 @Converter
 public class ConsultationResponseOptionGroupConverter implements AttributeConverter<Set<ConsultationResponseOptionGroup>, String> {
