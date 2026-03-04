@@ -30,6 +30,7 @@ import uk.co.ogauthority.pwa.teams.management.view.TeamMemberView;
 
 @ExtendWith(MockitoExtension.class)
 class TeamMemberQueryServiceTest {
+
   @Mock
   private TeamRoleRepository teamRoleRepository;
 
@@ -74,7 +75,7 @@ class TeamMemberQueryServiceTest {
     regTeamUser2RoleOrgAdmin.setRole(Role.ORGANISATION_MANAGER);
 
     user1 = new User();
-    user1.setWebUserAccountId(Math.toIntExact(user1WuaId));
+    user1.setWebUserAccountId(user1WuaId);
     user1.setTitle("Ms");
     user1.setForename("User");
     user1.setSurname("One");
@@ -84,7 +85,7 @@ class TeamMemberQueryServiceTest {
     user1.setIsAccountShared(false);
 
     user2 = new User();
-    user2.setWebUserAccountId(Math.toIntExact(user2WuaId));
+    user2.setWebUserAccountId(user2WuaId);
     user2.setTitle("Mr");
     user2.setForename("User");
     user2.setSurname("Two");
@@ -108,7 +109,7 @@ class TeamMemberQueryServiceTest {
         .telephoneNumber();
 
     var user = new User();
-    user.setWebUserAccountId(1);
+    user.setWebUserAccountId(1L);
     user.setTitle("Ms");
     user.setForename("Foo");
     user.setSurname("Bar");
@@ -117,12 +118,12 @@ class TeamMemberQueryServiceTest {
     user.setCanLogin(true);
     user.setIsAccountShared(false);
 
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user));
 
     var teamMemberView = teamMemberQueryService.getTeamMemberView(regTeam, user1WuaId);
 
-    assertThat(teamMemberView.wuaId()).isEqualTo(Long.valueOf(user.getWebUserAccountId()));
+    assertThat(teamMemberView.wuaId()).isEqualTo(user.getWebUserAccountId());
     assertThat(teamMemberView.title()).isEqualTo(user.getTitle());
     assertThat(teamMemberView.forename()).isEqualTo(user.getForename());
     assertThat(teamMemberView.surname()).isEqualTo(user.getSurname());
@@ -147,7 +148,7 @@ class TeamMemberQueryServiceTest {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    when(userApi.searchUsersByIds(eq(List.of(1,2)), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.searchUsersByIds(eq(List.of(1L,2L)), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(List.of(user1, user2));
 
     var teamMemberViews = teamMemberQueryService.getTeamMemberViewsForTeam(regTeam);
@@ -165,7 +166,7 @@ class TeamMemberQueryServiceTest {
         )
         .containsExactly(
             tuple(
-                Long.valueOf(user1.getWebUserAccountId()),
+                user1.getWebUserAccountId(),
                 user1.getTitle(),
                 user1.getForename(),
                 user1.getSurname(),
@@ -175,7 +176,7 @@ class TeamMemberQueryServiceTest {
                 List.of(regTeamUser1RoleManage.getRole(), regTeamUser1RoleOrgAdmin.getRole())
             ),
             tuple(
-                Long.valueOf(user2.getWebUserAccountId()),
+                user2.getWebUserAccountId(),
                 user2.getTitle(),
                 user2.getForename(),
                 user2.getSurname(),
@@ -232,7 +233,7 @@ class TeamMemberQueryServiceTest {
         .telephoneNumber();
 
     var user1 = new User();
-    user1.setWebUserAccountId(1);
+    user1.setWebUserAccountId(1L);
     user1.setTitle("Ms");
     user1.setForename("Test");
     user1.setSurname("User");
@@ -240,14 +241,14 @@ class TeamMemberQueryServiceTest {
     user1.setTelephoneNumber("0123456789");
 
     var user2 = new User();
-    user2.setWebUserAccountId(2);
+    user2.setWebUserAccountId(2L);
     user2.setTitle("Mr");
     user2.setForename("Example");
     user2.setSurname("User");
     user2.setPrimaryEmailAddress("example@example.com");
     user2.setTelephoneNumber("9876543210");
 
-    when(userApi.searchUsersByIds(eq(List.of(1, 2)), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.searchUsersByIds(eq(List.of(1L, 2L)), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(List.of(user1, user2));
 
     var result = teamMemberQueryService.getTeamMemberViewsByTeamRoles(List.of(teamRole1, teamRole2, teamRole3, teamRole4, teamRole5));
@@ -265,7 +266,7 @@ class TeamMemberQueryServiceTest {
         )
         .containsExactlyInAnyOrder(
             tuple(
-                Long.valueOf(user1.getWebUserAccountId()),
+                user1.getWebUserAccountId(),
                 user1.getTitle(),
                 user1.getForename(),
                 user1.getSurname(),
@@ -275,7 +276,7 @@ class TeamMemberQueryServiceTest {
                 List.of(Role.TEAM_ADMINISTRATOR)
             ),
             tuple(
-                Long.valueOf(user1.getWebUserAccountId()),
+                user1.getWebUserAccountId(),
                 user1.getTitle(),
                 user1.getForename(),
                 user1.getSurname(),
@@ -285,7 +286,7 @@ class TeamMemberQueryServiceTest {
                 List.of(Role.PWA_MANAGER)
             ),
             tuple(
-                Long.valueOf(user2.getWebUserAccountId()),
+                user2.getWebUserAccountId(),
                 user2.getTitle(),
                 user2.getForename(),
                 user2.getSurname(),
@@ -295,7 +296,7 @@ class TeamMemberQueryServiceTest {
                 List.of(Role.TEAM_ADMINISTRATOR)
             ),
             tuple(
-                Long.valueOf(user2.getWebUserAccountId()),
+                user2.getWebUserAccountId(),
                 user2.getTitle(),
                 user2.getForename(),
                 user2.getSurname(),

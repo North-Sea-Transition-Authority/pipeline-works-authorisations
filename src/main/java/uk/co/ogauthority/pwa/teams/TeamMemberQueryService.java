@@ -69,16 +69,12 @@ public class TeamMemberQueryService {
         .primaryEmailAddress()
         .telephoneNumber();
 
-    var memberWuaIdInts = memberWuaIds.stream()
-        .map(Math::toIntExact)
-        .toList();
-
-    var epaUsers = userApi.searchUsersByIds(memberWuaIdInts, userProjection, new RequestPurpose("Fetch users in team"));
+    var epaUsers = userApi.searchUsersByIds(memberWuaIds, userProjection, new RequestPurpose("Fetch users in team"));
 
     return memberWuaIds.stream()
         .flatMap(wuaId -> {
           var epaUser = epaUsers.stream()
-              .filter(u -> u.getWebUserAccountId().equals(Math.toIntExact(wuaId)))
+              .filter(u -> u.getWebUserAccountId().equals(wuaId))
               .findFirst()
               .orElseThrow(() -> new TeamManagementException("WuaId %s not found in EPA user set".formatted(wuaId)));
 

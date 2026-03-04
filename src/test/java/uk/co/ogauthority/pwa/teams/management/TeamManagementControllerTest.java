@@ -516,7 +516,7 @@ public class TeamManagementControllerTest extends AbstractControllerTest {
   @Test
   public void handleAddMemberToTeam() throws Exception {
     var epaUser = new User.Builder()
-        .webUserAccountId(999)
+        .webUserAccountId(999L)
         .isAccountShared(false)
         .canLogin(true)
         .build();

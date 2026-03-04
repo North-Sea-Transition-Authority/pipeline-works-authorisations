@@ -183,7 +183,7 @@ class TeamManagementServiceTest {
     cgTeam2User1RoleManage.setRole(Role.TEAM_ADMINISTRATOR);
 
     user1 = new User();
-    user1.setWebUserAccountId(Math.toIntExact(user1WuaId));
+    user1.setWebUserAccountId(user1WuaId);
     user1.setTitle("Ms");
     user1.setForename("User");
     user1.setSurname("One");
@@ -449,13 +449,13 @@ class TeamManagementServiceTest {
     var expectedProjection = new UserProjectionRoot()
         .isAccountShared()
         .canLogin();
-    when(userApi.findUserById(eq(1), refEq(expectedProjection), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), refEq(expectedProjection), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of(regTeamUser1RoleManage)); // Make doesTeamHaveTeamManager() check return true
-    when(teamRoleRepository.findAllByWuaId(1)).thenReturn(List.of(new TeamRole()));
+    when(teamRoleRepository.findAllByWuaId(1L)).thenReturn(List.of(new TeamRole()));
 
-    long instigatingUser = 2;
+    long instigatingUser = 2L;
     teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
         List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser);
 
@@ -487,13 +487,13 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noTeamManagerLeft() {
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.of(user1));
     when(userAccountService.getWebUserAccount(user1WuaId.intValue())).thenReturn(new WebUserAccount());
     when(teamRoleRepository.findByTeam(regTeam))
         .thenReturn(List.of()); // Make doesTeamHaveTeamManager() check return false
 
-    long instigatingUser = 2;
+    long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(
             () -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam, List.of(Role.ORGANISATION_MANAGER),
@@ -527,10 +527,10 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_noEpaUser() {
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
-    long instigatingUser = 2;
+    long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
@@ -551,10 +551,10 @@ class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setIsAccountShared(true);
 
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
-    long instigatingUser = 2;
+    long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
@@ -575,10 +575,10 @@ class TeamManagementServiceTest {
     var epaUser = new User();
     epaUser.setCanLogin(false);
 
-    when(userApi.findUserById(eq(1), any(), any(RequestPurpose.class)))
+    when(userApi.findUserById(eq(1L), any(), any(RequestPurpose.class)))
         .thenReturn(Optional.empty());
 
-    long instigatingUser = 2;
+    long instigatingUser = 2L;
     assertThatExceptionOfType(TeamManagementException.class)
         .isThrownBy(() -> teamManagementService.setUserTeamRoles(user1WuaId, regTeam,
             List.of(Role.TEAM_ADMINISTRATOR, Role.ORGANISATION_MANAGER), instigatingUser));
@@ -597,7 +597,7 @@ class TeamManagementServiceTest {
 
   @Test
   void setUserTeamRoles_newUser() {
-    when(userApi.findUserById(eq(Math.toIntExact(user1WuaId)), any(), eq(new RequestPurpose("Validate user account"))))
+    when(userApi.findUserById(eq(user1WuaId), any(), eq(new RequestPurpose("Validate user account"))))
         .thenReturn(Optional.of(user1));
 
     when(teamRoleRepository.findAllByWuaId(user1WuaId))
