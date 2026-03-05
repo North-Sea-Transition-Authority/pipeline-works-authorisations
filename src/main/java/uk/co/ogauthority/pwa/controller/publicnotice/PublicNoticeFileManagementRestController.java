@@ -15,6 +15,7 @@ import uk.co.ogauthority.pwa.features.appprocessing.authorisation.context.PwaApp
 import uk.co.ogauthority.pwa.features.appprocessing.authorisation.permissions.PwaAppProcessingPermission;
 import uk.co.ogauthority.pwa.features.filemanagement.AppFileManagementService;
 import uk.co.ogauthority.pwa.features.filemanagement.FileDocumentType;
+import uk.co.ogauthority.pwa.service.appprocessing.publicnotice.PublicNoticeService;
 import uk.co.ogauthority.pwa.service.fileupload.AppFileService;
 
 @RestController
@@ -31,17 +32,20 @@ public class PublicNoticeFileManagementRestController {
   private final FileService fileService;
   private final AppFileManagementService appFileManagementService;
   private final AppFileService appFileService;
+  private final PublicNoticeService publicNoticeService;
 
   public PublicNoticeFileManagementRestController(
       PwaApplicationService pwaApplicationService,
       FileService fileService,
       AppFileManagementService appFileManagementService,
-      AppFileService appFileService
+      AppFileService appFileService,
+      PublicNoticeService publicNoticeService
   ) {
     this.pwaApplicationService = pwaApplicationService;
     this.fileService = fileService;
     this.appFileManagementService = appFileManagementService;
     this.appFileService = appFileService;
+    this.publicNoticeService = publicNoticeService;
   }
 
   @GetMapping("/download/{fileId}")
@@ -72,6 +76,10 @@ public class PublicNoticeFileManagementRestController {
     appFileManagementService.throwIfFileDoesNotBelongToApplicationOrDocumentType(file, pwaApplication, DOCUMENT_TYPE);
 
     var appFile = appFileService.getAppFileByPwaApplicationAndFileId(pwaApplication, String.valueOf(fileId));
+
+    var documentLink = publicNoticeService.getPublicNoticeDocumentLink(appFile);
+    documentLink.ifPresent(publicNoticeService::deleteFileLinkAndPublicNoticeDocument);
+
     appFileService.processFileDeletion(appFile);
 
     return fileService.delete(file);
