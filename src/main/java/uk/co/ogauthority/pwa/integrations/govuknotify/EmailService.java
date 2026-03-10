@@ -3,6 +3,8 @@ package uk.co.ogauthority.pwa.integrations.govuknotify;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.DomainReference;
 import uk.co.fivium.digitalnotificationlibrary.core.notification.MailMergeField;
@@ -16,6 +18,7 @@ import uk.co.ogauthority.pwa.integrations.epa.correlationid.CorrelationIdUtil;
 @Service
 public class EmailService {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
   private static final String SERVICE_NAME_KEY = "SERVICE_NAME";
   private static final String TEST_EMAIL_KEY = "TEST_EMAIL";
 
@@ -32,8 +35,12 @@ public class EmailService {
       EmailRecipient emailRecipient,
       String domainId
   ) {
+    var template = getTemplate(emailProperties);
+
+    LOGGER.info(template.toString());
+
     return notificationLibraryClient.sendEmail(
-        getTemplate(emailProperties),
+        template,
         emailRecipient,
         DomainReference.from(domainId, emailProperties.getDomainTypeName()),
         CorrelationIdUtil.getCorrelationIdFromMdc()
